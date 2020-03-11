@@ -1,0 +1,146 @@
+@menu-prefix-cls: ~'@{ant-prefix}-menu';
+@tooltip-prefix-cls: ~'@{ant-prefix}-tooltip';
+@collapsed-prefix-cls: ~'@{ant-prefix}-layout-sider-collapsed';
+
+.@{menu-prefix-cls} {
+  &.@{menu-prefix-cls}-inline {
+    .@{menu-prefix-cls}-item,
+    .@{menu-prefix-cls}-submenu-title {
+      margin: 0;
+      font-size: 19px;
+      a {
+        color: #6e7380;
+      }
+    }
+    .@{menu-prefix-cls}-item-selected a {
+      color: #fff !important;
+    }
+    .@{menu-prefix-cls}-item > a {
+      white-space: nowrap;
+      display: inline-block;
+    }
+    &.@{menu-prefix-cls}-sub {
+      .@{menu-prefix-cls}-item,
+      .@{menu-prefix-cls}-submenu-title {
+        padding-left: 57px !important;
+        .iconfont {
+          display: none;
+        }
+      }
+      .@{menu-prefix-cls}-item > a {
+        overflow: hidden;
+        > span {
+          .iconfont {
+            display: none;
+          }
+        }
+      }
+      .@{menu-prefix-cls}-item {
+        margin-bottom: 0;
+        font-size: 15px;
+      }
+    }
+  }
+  &-dark .@{menu-prefix-cls}.@{menu-prefix-cls}-inline.@{menu-prefix-cls}-sub {
+    box-shadow: none;
+  }
+  &.@{menu-prefix-cls}-vertical {
+    .@{menu-prefix-cls}-submenu-title,
+    .@{menu-prefix-cls}-item {
+      margin: 0;
+    }
+  }
+  .iconfont {
+    margin-top: 12px;
+    margin-right: 9px;
+    font-size: 24px;
+    float: left;
+  }
+  &-item .@{menu-prefix-cls}-item-img + span,
+  &-submenu-title .@{menu-prefix-cls}-item-img + span {
+    transition: opacity 0.3s @ease-in-out, width 0.3s @ease-in-out;
+    opacity: 1;
+  }
+  &.@{menu-prefix-cls}-inline-collapsed {
+    > .@{menu-prefix-cls}-submenu > .@{menu-prefix-cls}-submenu-title,
+    > .@{menu-prefix-cls}-item {
+      padding: 0 18px !important;
+      text-align: center;
+    }
+    > .@{menu-prefix-cls}-submenu > .@{menu-prefix-cls}-submenu-title > span,
+    > .@{menu-prefix-cls}-item > a {
+      .iconfont {
+        margin-right: 0;
+        margin-left: 2px;
+      }
+    }
+    .@{menu-prefix-cls}-submenu > .@{menu-prefix-cls}-submenu-title,
+    > .@{menu-prefix-cls}-item > a {
+      text-align: center;
+    }
+  }
+  &-dark .@{menu-prefix-cls}-submenu.@{menu-prefix-cls}-submenu-open {
+    &,
+    & > ul {
+      background-color: #22262e;
+      .@{menu-prefix-cls}-submenu-title {
+        background-color: #1b1e24;
+      }
+    }
+  }
+}
+.@{collapsed-prefix-cls} {
+  width: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  .@{menu-prefix-cls}-submenu-title > span > span:nth-child(2),
+  .@{menu-prefix-cls}-item > a > span:nth-child(2) {
+    max-width: 0;
+    display: inline-block;
+    opacity: 0;
+  }
+  .@{menu-prefix-cls}-submenu-title,
+  .@{menu-prefix-cls}-item,
+  .@{menu-prefix-cls}-vertical .@{menu-prefix-cls}-item:not(:last-child) {
+    margin: 0;
+  }
+}
+.@{menu-prefix-cls}-submenu-popup {
+  .iconfont {
+    display: none;
+  }
+  .@{menu-prefix-cls}-item {
+    height: 40px !important;
+    line-height: 40px !important;
+    margin: 0 !important;
+    a {
+      color: #6e7380 !important;
+      &:hover {
+        color: #fff !important;
+      }
+    }
+    &.@{menu-prefix-cls}-item-selected {
+      &,
+      &.@{menu-prefix-cls}-item-active {
+        a {
+          color: #fff !important;
+        }
+      }
+    }
+  }
+  .@{menu-prefix-cls}-sub.@{menu-prefix-cls}-vertical {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+.@{menu-prefix-cls}-inline-collapsed-tooltip {
+  .iconfont {
+    display: none !important;
+  }
+}
+ul.@{menu-prefix-cls} {
+  font-family: 'calibri', 'Chinese Quote', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+

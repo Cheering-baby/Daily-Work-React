@@ -1,0 +1,30 @@
+@prefix-cls: ~'@{ant-prefix}';
+.resetHeadTop {
+  > p {
+    font-size: 14px;
+    color: #F09770;
+    letter-spacing: 0.22px;
+    line-height: 12px;
+  }
+}
+
+.resetHeadBottom {
+  > ul {
+    padding-left: 0;
+
+    .resetHeadBottomP {
+      font-size: 14px;
+      color: #3B414A;
+      letter-spacing: 0.24px;
+      line-height: 18px;
+      margin-bottom: 4px !important;
+    }
+  }
+}
+.resetContent {
+  :global {
+    .@{prefix-cls}-progress-inner {
+      background-color: #bfbfbf;
+    }
+  }
+}

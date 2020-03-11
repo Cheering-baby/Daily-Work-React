@@ -1,0 +1,80 @@
+@prefix-cls: ~'@{ant-prefix}';
+
+.bilTelItem {
+  :global {
+    .@{prefix-cls}-form-item-no-colon::before {
+      display: inline-block;
+      margin-right: 4px;
+      color: #f5222d;
+      font-size: 14px;
+      font-family: SimSun, sans-serif;
+      line-height: 1;
+      content: '*';
+    }
+  }
+}
+
+.bilPhoneCountryItem {
+  width: 35%;
+
+  :global {
+    .@{prefix-cls}-select-selection {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+.bilPhoneItem {
+  width: 65%;
+
+  :global {
+    .@{prefix-cls}-input {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+}
+
+.bilCountryAndCityItem {
+  :global {
+    .@{prefix-cls}-form-item-no-colon::before {
+      display: inline-block;
+      margin-right: 4px;
+      color: #f5222d;
+      font-size: 14px;
+      font-family: SimSun, sans-serif;
+      line-height: 1;
+      content: '*';
+    }
+  }
+}
+
+.bilCountryItem {
+  width: 50%;
+
+  :global {
+    .@{prefix-cls}-select-selection {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+.bilCityItem {
+  width: 50%;
+
+  :global {
+    .@{prefix-cls}-select-selection {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+}
+
+.bilCheckBoxDiv {
+  font-size: 15px;
+  color: #565656;
+  letter-spacing: 0.24px;
+  line-height: 14px;
+}

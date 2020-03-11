@@ -1,0 +1,108 @@
+@import '~antd/lib/style/themes/default.less';
+
+.pre {
+  margin: 12px 0;
+  padding: 12px 20px;
+  background: @input-bg;
+  box-shadow: @card-shadow;
+}
+
+
+.Breadcrumbbold {
+  font-family: calibriBold;
+  font-size: 20px;
+  color: #001D00;;
+}
+
+.BreadcrumbStyle {
+  font-family: Calibri;
+  font-size: 20px;
+  color: #3B414A;
+}
+
+
+.searchDiv {
+  padding: 14px;
+  color: red;
+  :global {
+    .@{ant-prefix}-advanced-search-form {
+    }
+    .@{ant-prefix}-advanced-search-form .ant-form-item {
+      margin-bottom: 0;
+    }
+    .@{ant-prefix}-advanced-search-form .ant-form-item-control-wrapper {
+      flex: 1;
+    }
+    .@{ant-prefix}-calendar-range-picker-input {
+      font-size: 12px;
+    }
+    .@{ant-prefix}-form-item-children, .ant-calendar-picker {
+      display: block;
+    }
+
+  }
+}
+
+.label {
+  font-family: Calibri;
+  font-size: 15px;
+  color: #565656;
+  letter-spacing: 0.24px;
+  text-align: right;
+  line-height: 22px;
+}
+
+.labelValue {
+  font-family: Calibri-Bold;
+  font-size: 18px;
+  letter-spacing: 0.29px;
+  text-align: right;
+  line-height: 22px;
+}
+
+.flexCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.colorOrange {
+  color: orange;
+}
+
+.colorBlack {
+  color: #0B000F;
+}
+
+
+.tableStyle {
+  overflow: auto;
+  :global {
+    .@{ant-prefix}-table-column-title {
+      font-family: Calibri-Bold;
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0;
+      font-weight: bold;
+    }
+  }
+}
+
+.statusSuccess {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #40C940;
+  border-radius: 3px;
+  margin-right: 6px;
+}
+
+
+.statusFail {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #F5222D;
+  border-radius: 6px;
+  margin-right: 6px;
+}

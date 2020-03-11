@@ -1,0 +1,13 @@
+@tree-prefix-cls: ~'@{ant-prefix}-tree';
+
+ul.@{tree-prefix-cls} {
+  min-height: 95px;
+  & li {
+    .@{tree-prefix-cls}-node-content-wrapper.@{tree-prefix-cls}-node-selected {
+      background-color: rgba(37, 157, 219, 0.4);
+    }
+    .@{tree-prefix-cls}-node-content-wrapper:hover {
+      background-color: rgba(37, 157, 219, 0.1);
+    }
+  }
+}

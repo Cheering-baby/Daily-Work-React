@@ -1,0 +1,235 @@
+@import '~antd/lib/style/themes/default.less';
+
+@prefix-cls: ~'@{ant-prefix}';
+@filter: 3px;
+@backdrop-bg: #000;
+@logo-width: 212px;
+@logo-height: 72px;
+@logo-left: 26px;
+@logo-top: 24px;
+@login-width: 446px;
+@login-height: 416px;
+@login-backdrop-bg: #feffff;
+@error-color: #cc282b;
+@font-size-base: 14px;
+@label-font-size: @font-size-base;
+@form-tip-size: @font-size-base - 2;
+@name-padding: 7px;
+@proj-logo-width: 108px;
+@proj-logo-height: 36px;
+@text-color: #626b79;
+@text-color-pale: #fff;
+@login-title-color: @text-color;
+@login-title-font-size: 34px;
+@input-error-color: #f35a58;
+@input-color: @text-color;
+@input-border-color: #D9D9D9;
+@label-color: #565656;
+@icon-size: 18px;
+@login-btn-width: 64px;
+@login-btn-height: 64px;
+
+body {
+  height: 100%;
+}
+
+.containerMain {
+  height: 100%;
+  position: relative;
+}
+
+.loginBackdropBg {
+  width: 100%;
+  height: 100%;
+  background: url('../../assets/image/login-bg.png') no-repeat 0 0;
+  background-size: cover;
+  -webkit-filter: blur(@filter);
+  -moz-filter: blur(@filter);
+  -o-filter: blur(@filter);
+  -ms-filter: blur(@filter);
+  filter: blur(@filter);
+  position: absolute;
+}
+
+.loginBackdrop {
+  width: 100%;
+  height: 100%;
+  background-color: @backdrop-bg;
+  opacity: 0.1;
+  position: absolute;
+  z-index: 1;
+}
+
+.login {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+}
+
+.loginLogo {
+  position: absolute;
+  left: @logo-left;
+  top: @logo-top;
+  z-index: 2;
+
+  img {
+    width: @logo-width;
+    height: @logo-height;
+  }
+}
+
+.loginContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  //width: 88%;
+  //min-height: @login-height;
+  margin: -196px 0 0 -164px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+  z-index: 1;
+
+  :global {
+    .@{prefix-cls}-tabs-tab {
+      width: 100%;
+      text-align: center;
+      margin: 0;
+    }
+    .@{prefix-cls}-tabs-tabpane {
+      padding: 0 0 6px;
+    }
+    .@{prefix-cls}-form-item {
+      margin-bottom: 8px;
+    }
+    .@{prefix-cls}-form-item-control,
+    .@{prefix-cls}-form-item-children {
+      text-align: center;
+    }
+    .@{prefix-cls}-form-item-required {
+      font-size: @label-font-size;
+      color: @label-color;
+      letter-spacing: 0.24px;
+      line-height: 32px;
+      &:before,
+      &:after {
+        content: '';
+      }
+      &:before {
+        margin-right: 0;
+      }
+    }
+    .@{prefix-cls}-form-item-label {
+      line-height: 1.5;
+    }
+    .@{prefix-cls}-input {
+      border-radius: 4px;
+      border-color: @input-border-color;
+      color: @input-color;
+    }
+    .has-error .@{prefix-cls}-input,
+    .@{prefix-cls}-input:hover,
+    .@{prefix-cls}-input:focus {
+      border-color: @input-error-color;
+      box-shadow: none;
+    }
+    .has-error .@{prefix-cls}-form-explain {
+      text-align: left;
+    }
+    .@{prefix-cls}-select-selection {
+      border-radius: 4px;
+      border-color: @input-border-color;
+      color: @input-color;
+    }
+    .@{prefix-cls}-select-selection:hover {
+      border-color: @input-error-color;
+      box-shadow: none;
+    }
+  }
+}
+
+.loginBox {
+  padding: 22px 40px;
+}
+
+.name {
+  padding: @name-padding;
+  text-align: center;
+
+  img {
+    width: @proj-logo-width;
+    height: @proj-logo-height;
+    vertical-align: middle;
+  }
+}
+
+.loginBoxTitle {
+  position: relative;
+  font-size: @login-title-font-size;
+  margin: 13px 0 8px;
+  color: @login-title-color;
+  cursor: pointer;
+}
+
+.loginLanguage {
+  font-size: @font-size-base - 1;
+  margin-left: 15px;
+  vertical-align: middle;
+  display: inline-block;
+  line-height: 25px;
+
+  > .caret {
+    margin: -2px 0 0 5px;
+  }
+}
+
+.btn {
+  margin-top: 1rem;
+}
+
+.submit {
+  padding: 0 15px;
+  text-align: center;
+}
+
+.sendPhoneCode {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  //border: 1px solid #eee;
+  border-radius: 0 2px 2px 0;
+  user-select: none;
+}
+
+.sendPhoneCodeActive {
+  color: #fff;
+  background-color: #259ddb;
+  //border-color: #259ddb;
+}
+
+.wrapper {
+  background: url('../../assets/image/login-bg.png') no-repeat 0 0;
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.signUpBox {
+  text-align: right;
+}
+
+.signUpBtn {
+  font-size: @font-size-base;
+  color: #1890FF;
+  letter-spacing: 0.24px;
+  line-height: 23px;
+}
+

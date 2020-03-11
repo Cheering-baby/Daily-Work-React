@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "sources": [
+    "style.less"
+  ],
+  "names": [],
+  "mappings": "AAAA;EACE,YAAY,KAAZ;;AADF,QAEE,QAAO;EACL,iBAAA;EACA,mBAAA",
+  "file": "style.css"
+}

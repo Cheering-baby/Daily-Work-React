@@ -1,0 +1,155 @@
+.searchDiv {
+  padding: 14px;
+  color: red;
+  :global {
+    .@{ant-prefix}-advanced-search-form {
+    }
+    .@{ant-prefix}-advanced-search-form .ant-form-item {
+      margin-bottom: 0;
+    }
+    .@{ant-prefix}-advanced-search-form .ant-form-item-control-wrapper {
+      flex: 1;
+    }
+    .@{ant-prefix}-calendar-range-picker-input {
+      font-size: 12px;
+    }
+    .@{ant-prefix}-form-item-children, .ant-calendar-picker {
+      display: block;
+    }
+
+  }
+}
+
+.tableStyle {
+  overflow: auto;
+  :global {
+    .@{ant-prefix}-table-column-title {
+      font-family: calibri;
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0;
+      font-weight: bold;
+    }
+  }
+}
+
+.Breadcrumbbold {
+  font-family: calibriBold;
+  font-size: 20px;
+  color: #001D00;;
+}
+
+.BreadcrumbStyle {
+  font-family: Calibri;
+  font-size: 20px;
+  color: #3B414A;
+}
+
+.questionIcon {
+  transform: translate(50%, -40%);
+  position: absolute;
+  top: 50%;
+  // right: -95px;
+  color: #565656;
+  &:hover {
+    color: #259ddb;
+  }
+}
+
+.emptyLine {
+  position: relative;
+  line-height: 12px;
+  width: 50%;
+  &:before, &:after {
+    content: "";
+    position: absolute;
+    height: 1px;
+    background: #333;
+    top: 0;
+    width: 45%;
+  }
+  &:before {
+    left: 0;
+  }
+  &:after {
+    right: 0;
+  }
+}
+
+.flagStyle1 {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #FF9A1B;
+  border-radius: 3px;
+  margin-right: 6px;
+}
+
+.flagStyle2 {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #118AFA;
+  border-radius: 6px;
+  margin-right: 6px;
+}
+
+.flagStyle3 {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #F5222D;
+  border-radius: 6px;
+  margin-right: 6px;
+}
+
+.downloadBox {
+  :global {
+    .ant-modal-title {
+      font-family: Calibri-Bold;
+      font-size: 15px;
+      color: #171B21;
+    }
+    .ant-modal-body {
+      margin-top: -10px;
+    }
+  }
+  .buttonStyle {
+    text-align: right;
+    padding-top: 10px;
+  }
+}
+
+.downloadFontStyle span {
+  font-family: Calibri;
+  font-size: 17px;
+  color: #171B21;
+  letter-spacing: 0.27px;
+  line-height: 10px;
+}
+
+.downloadFontStyle2 {
+  margin-top: 15px;
+  span {
+    font-family: Calibri;
+    font-size: 17px;
+    color: #171B21;
+    letter-spacing: 0.27px;
+    line-height: 10px;
+  }
+}
+
+.pageHeaderTitle {
+  margin-bottom: 0.5rem;
+}
+
+.pageSearchCard {
+  background: #FFF;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  margin-bottom: 1rem;
+}
+
+.pageTableCard {
+  background: #FFF;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+}

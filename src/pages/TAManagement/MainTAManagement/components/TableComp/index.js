@@ -1,0 +1,563 @@
+import React, { PureComponent } from 'react';
+import { Badge, Button, Col, Icon, message, Modal, Popover, Row, Table, Tabs, Tooltip } from 'antd';
+import { connect } from 'dva';
+import moment from 'moment';
+import router from 'umi/router';
+import { formatMessage } from 'umi/locale';
+import PaginationComp from '../PaginationComp';
+import UploadContractComp from '../UploadContractComp';
+import UploadContractHistoryComp from '../UploadContractHistoryComp';
+import StateChangeHistoryComp from '../StateChangeHistoryComp';
+import styles from './index.less';
+import { isNvl } from '@/utils/utils';
+import { isAccountingArRole, isMainTaRole, isSaleSupportRole } from '../../../utils/pubUtils';
+import circleURL from '../../../../../assets/pams/circle.svg';
+import prohibit from '../../../../../assets/pams/prohibit.svg';
+
+const mapStateToProps = store => {
+  const { countryList, categoryList, marketList } = store.taCommon;
+  const {
+    taId = null,
+    searchForm,
+    searchList = {},
+    mainTAList = [],
+    modalVisible = false,
+    selectTaId,
+    contractHisModalVisible = false,
+    hisActiveKey,
+    qryTaTableLoading,
+  } = store.mainTAManagement;
+  const { contractFileList = [], contractFileUploading = false } = store.uploadContract;
+  const { pagePrivileges = [] } = store.global;
+  return {
+    taId,
+    searchForm,
+    searchList,
+    mainTAList,
+    modalVisible,
+    selectTaId,
+    contractFileList,
+    contractFileUploading,
+    contractHisModalVisible,
+    hisActiveKey,
+    qryTaTableLoading,
+    countryList,
+    categoryList,
+    marketList,
+    pagePrivileges,
+  };
+};
+
+@connect(mapStateToProps)
+class TableComp extends PureComponent {
+  getColumns = () => {
+    return [
+      {
+        title: formatMessage({ id: 'TA_TABLE_NO' }),
+        dataIndex: 'number',
+        width: '60px',
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_AGENT_ID' }),
+        dataIndex: 'taId',
+        width: '120px',
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_AR_COMPANY_NAME' }),
+        dataIndex: 'companyName',
+        width: '200px',
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_AR_E_WALLET_ID' }),
+        dataIndex: 'peoplesoftEwalletId',
+        width: '200px',
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_AR_AR_ACCOUNT_ID' }),
+        dataIndex: 'peoplesoftArAccountId',
+        width: '200px',
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_AR_EFFECTIVE_DATE' }),
+        dataIndex: 'effectiveDate',
+        width: '140px',
+        render: text => {
+          return !isNvl(text) ? moment(text, 'YYYYMMDD').format('DD-MMM-YYYY') : '-';
+        },
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_AR_STATUS' }),
+        dataIndex: 'statusName',
+        width: '100px',
+        render: text => {
+          let statusStr = 'default';
+          let statusTxt = '';
+          switch (String(text).toLowerCase()) {
+            case 'active':
+              statusStr = 'success';
+              statusTxt = formatMessage({ id: 'TA_STATUS_ACTIVE' });
+              break;
+            case 'inactive':
+              statusStr = 'default';
+              statusTxt = formatMessage({ id: 'TA_STATUS_INACTIVE' });
+              break;
+            default:
+              statusStr = 'default';
+              statusTxt = formatMessage({ id: 'TA_STATUS_INACTIVE' });
+              break;
+          }
+          return <Badge status={statusStr} text={statusTxt || null} />;
+        },
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_OPERATION' }),
+        dataIndex: '',
+        width: '100px',
+        render: (text, record) => {
+          const { pagePrivileges } = this.props;
+          const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
+          const isMainTaRoleFlag = isMainTaRole(pagePrivileges);
+          const isSaleSupportRoleFlag = isSaleSupportRole(pagePrivileges);
+          return (
+            <div>
+              <Tooltip placement="top" title={formatMessage({ id: 'COMMON_DETAIL' })}>
+                <Icon type="eye" onClick={e => this.goDetailInformation(e, record.taId)} />
+              </Tooltip>
+              {isSaleSupportRoleFlag && (
+                <Tooltip placement="top" title={formatMessage({ id: 'TA_TABLE_ADDITIONAL' })}>
+                  <Icon type="plus" onClick={e => this.goAdditionalInformation(e, record.taId)} />
+                </Tooltip>
+              )}
+              {(isAccountingArRoleFlag || isMainTaRoleFlag) && (
+                <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}>
+                  <Icon type="edit" onClick={e => this.goEditInformation(e, record.taId)} />
+                </Tooltip>
+              )}
+              {isSaleSupportRoleFlag && (
+                <Popover
+                  placement="bottomRight"
+                  content={this.getMoreContent(record, isSaleSupportRoleFlag)}
+                  overlayClassName={styles.popClassName}
+                  getPopupContainer={() => document.getElementById(`mainTaView`)}
+                >
+                  <Icon type="more" />
+                </Popover>
+              )}
+            </div>
+          );
+        },
+      },
+    ];
+  };
+
+  getMoreContent = (record, isSaleSupportRoleFlag) => {
+    return (
+      <Row type="flex" justify="space-around" className={styles.contentRow}>
+        {isSaleSupportRoleFlag && (
+          <Col span={24}>
+            <div
+              className={styles.contentCol}
+              onClick={e => this.goEditInformation(e, record.taId)}
+            >
+              <Icon type="edit" />
+              {formatMessage({ id: 'COMMON_EDIT' })}
+            </div>
+          </Col>
+        )}
+        <Col span={24}>
+          <div
+            className={styles.contentCol}
+            onClick={() => this.onShowContractFileModal(record.taId)}
+          >
+            <Icon type="upload" />
+            {formatMessage({ id: 'TA_TABLE_UPLOAD' })}
+          </div>
+        </Col>
+        <Col span={24}>
+          <div
+            className={styles.contentCol}
+            onClick={() => this.onShowContractFileHisModal(record.taId)}
+          >
+            <Icon type="file-text" />
+            {formatMessage({ id: 'TA_TABLE_HISTORY' })}
+          </div>
+        </Col>
+        <Col span={24}>
+          {String(record.statusName).toLowerCase() === 'active' && (
+            <div
+              className={styles.contentCol}
+              onClick={() => this.modifyStatus(record.taId, 'inactive')}
+            >
+              <img src={circleURL} alt="" />
+              {formatMessage({ id: 'TA_TABLE_ENABLE' })}
+            </div>
+          )}
+          {String(record.statusName).toLowerCase() === 'inactive' && (
+            <div
+              className={styles.contentCol}
+              onClick={() => this.modifyStatus(record.taId, 'active')}
+            >
+              <img src={prohibit} alt="" className={styles.inactiveImg} />
+              {formatMessage({ id: 'TA_TABLE_ENABLE' })}
+            </div>
+          )}
+        </Col>
+      </Row>
+    );
+  };
+
+  modifyStatus = (taId, status) => {
+    const { dispatch, searchList } = this.props;
+    dispatch({
+      type: 'mainTAManagement/fetchUpdateProfileStatus',
+      payload: {
+        taId: !isNvl(taId) ? taId : null,
+        type: 'ta',
+        status: String(status).toLowerCase(),
+      },
+    }).then(flag => {
+      if (flag) {
+        this.qryMainTAList(searchList.currentPage, searchList.pageSize);
+      }
+    });
+  };
+
+  goAdditionalInformation = (e, taId) => {
+    e.preventDefault();
+    const { dispatch, countryList, categoryList } = this.props;
+    dispatch({
+      type: 'mainTAManagement/doCleanCommonData',
+      payload: { taId: !isNvl(taId) ? taId : null },
+    }).then(() => {
+      dispatch({
+        type: 'mainTAManagement/save',
+        payload: {
+          selectTaId: taId,
+          constraintVisible: true,
+        },
+      });
+      dispatch({ type: 'taCommon/fetchQuerySalutationList' });
+      dispatch({ type: 'taCommon/fetchQueryOrganizationRoleList' });
+      dispatch({ type: 'taCommon/fetchQryArAccountEndConfig' });
+      dispatch({ type: 'taCommon/fetchQryMarketList' });
+      dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
+      dispatch({ type: 'taCommon/fetchQueryCategoryList' }).then(flag => {
+        if (flag && isNvl(taId) && categoryList && categoryList.length > 0) {
+          const categoryInfo = categoryList[0];
+          dispatch({
+            type: 'taCommon/fetchQueryCustomerGroupList',
+            payload: { categoryId: categoryInfo.dictId },
+          });
+        }
+      });
+      dispatch({ type: 'taCommon/fetchQueryCountryList' }).then(flag => {
+        if (flag && isNvl(taId) && countryList && countryList.length > 0) {
+          const countryInfo = countryList[0];
+          dispatch({
+            type: 'taCommon/fetchQueryCityList',
+            payload: { countryId: countryInfo.dictId },
+          });
+          dispatch({
+            type: 'taCommon/fetchQueryCityList',
+            payload: { countryId: countryInfo.dictId, isBil: true },
+          });
+        }
+      });
+      if (!isNvl(taId)) {
+        dispatch({
+          type: 'taMgr/fetchQueryTaInfo',
+          payload: { taId },
+        });
+        dispatch({
+          type: 'taMgr/fetchQueryTaMappingInfo',
+          payload: { taId },
+        });
+        dispatch({
+          type: 'taMgr/fetchQueryTaAccountInfo',
+          payload: { taId },
+        });
+      }
+    });
+  };
+
+  goEditInformation = (e, taId) => {
+    e.preventDefault();
+    router.push(`/TAManagement/MainTAManagement/Edit?taId=${taId}`);
+  };
+
+  goDetailInformation = (e, taId) => {
+    e.preventDefault();
+    router.push(`/TAManagement/MainTAManagement/Detail?taId=${taId}`);
+  };
+
+  onHandleContractFileChange = (contractFile, isDel) => {
+    const { dispatch, contractFileList = [] } = this.props;
+    let newContractFileList = [];
+    if (contractFileList && contractFileList.length > 0) {
+      newContractFileList = [...contractFileList].filter(
+        n => String(n.uid) !== String(contractFile.uid)
+      );
+    }
+    if (!isDel && String(contractFile.status) !== 'removed') {
+      newContractFileList.push(contractFile);
+    }
+    dispatch({
+      type: 'uploadContract/save',
+      payload: {
+        contractFileList: newContractFileList,
+      },
+    });
+  };
+
+  onHandleDelContactFile = (file, fileType) => {
+    const { dispatch, contractFileList = [] } = this.props;
+    dispatch({
+      type: 'taMgr/fetchDeleteTAFile',
+      payload: {
+        fileName: file.name,
+        path: file.filePath,
+        filePath: file.filePath,
+      },
+    }).then(flag => {
+      if (flag && String(fileType) === 'contractFile') {
+        this.onHandleContractFileChange(file, true);
+      }
+      if (!flag && String(fileType) === 'contractFile') {
+        let newContractFileList = [];
+        if (contractFileList && contractFileList.length > 0) {
+          newContractFileList = [...contractFileList].filter(
+            n => String(n.uid) !== String(file.uid)
+          );
+        }
+        file.status = 'error';
+        newContractFileList.push(file);
+        dispatch({
+          type: 'uploadContract/save',
+          payload: {
+            contractFileList: newContractFileList,
+          },
+        });
+      }
+    });
+  };
+
+  onShowContractFileModal = taId => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        selectTaId: taId,
+        modalVisible: true,
+      },
+    });
+    dispatch({ type: 'uploadContract/clean' });
+  };
+
+  handleModalCancel = () => {
+    const { dispatch, searchList } = this.props;
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        selectTaId: null,
+        modalVisible: false,
+      },
+    });
+    dispatch({ type: 'uploadContract/clean' });
+    this.qryMainTAList(searchList.currentPage, searchList.pageSize);
+  };
+
+  handleModalOk = () => {
+    const { dispatch, selectTaId, contractFileList, searchList } = this.props;
+    const newContractList = [];
+    if (!contractFileList || contractFileList.length <= 0) {
+      message.warn(formatMessage({ id: 'TA_UPLOAD_FILE_MSG' }), 10);
+      dispatch({
+        type: 'uploadContract/save',
+        payload: {
+          contractFileList: newContractList,
+        },
+      });
+      return;
+    }
+    contractFileList.forEach(n => {
+      if (String(n.status) === 'done') {
+        newContractList.push({
+          name: n.name,
+          path: n.path,
+          sourceName: n.sourceName,
+        });
+      }
+    });
+    dispatch({
+      type: 'uploadContract/fetchRegisterContractFile',
+      payload: {
+        taId: selectTaId,
+        contractList: newContractList || [],
+      },
+    }).then(flag => {
+      if (flag) {
+        this.qryMainTAList(searchList.currentPage, searchList.pageSize);
+        dispatch({
+          type: 'mainTAManagement/save',
+          payload: {
+            contractFileList: [],
+            selectTaId: null,
+            modalVisible: false,
+          },
+        });
+      }
+    });
+  };
+
+  onShowContractFileHisModal = taId => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        selectTaId: taId,
+        contractHisModalVisible: true,
+      },
+    });
+    dispatch({ type: 'uploadContractHistory/clean' });
+  };
+
+  handleHisModalCancel = () => {
+    const { dispatch, searchList } = this.props;
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        selectTaId: null,
+        contractHisModalVisible: false,
+      },
+    });
+    this.qryMainTAList(searchList.currentPage, searchList.pageSize);
+  };
+
+  onHandleHisModalTab = key => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        hisActiveKey: key,
+      },
+    });
+  };
+
+  qryMainTAList = (currentPage, pageSize) => {
+    const { dispatch, searchForm, searchList } = this.props;
+    dispatch({
+      type: 'mainTAManagement/fetchQryMainTAList',
+      payload: {
+        idOrName: searchForm.idOrName,
+        peoplesoftEwalletId: searchForm.peoplesoftEwalletId,
+        peoplesoftArAccountId: searchForm.peoplesoftArAccountId,
+        pageInfo: {
+          totalSize: searchList.total,
+          currentPage,
+          pageSize,
+        },
+      },
+    });
+  };
+
+  render() {
+    const {
+      searchList,
+      mainTAList,
+      qryTaTableLoading,
+      modalVisible = false,
+      contractFileList = [],
+      contractFileUploading = false,
+      contractHisModalVisible = false,
+      hisActiveKey,
+    } = this.props;
+    const pageOpts = {
+      total: searchList.total,
+      current: searchList.currentPage,
+      pageSize: searchList.pageSize,
+      pageChange: (page, pageSize) => {
+        this.qryMainTAList(page, pageSize);
+      },
+    };
+    const tableOpts = {
+      pagination: false,
+      footer: () => <PaginationComp {...pageOpts} />,
+    };
+    const myFileProps = {
+      contractFileList,
+      contractFileUploading,
+      onHandleContractFileChange: this.onHandleContractFileChange,
+      onHandleDelContactFile: this.onHandleDelContactFile,
+    };
+    return (
+      <Col span={24}>
+        <Table
+          size="small"
+          className={`tabs-no-padding ${styles.searchTitle}`}
+          columns={this.getColumns()}
+          rowKey={record => `mainTAList${record.taId}`}
+          dataSource={mainTAList}
+          loading={qryTaTableLoading}
+          scroll={{ x: 660 }}
+          {...tableOpts}
+        />
+        <Modal
+          title={formatMessage({ id: 'TA_UPLOAD_CONTRACT' })}
+          visible={modalVisible}
+          onOk={this.handleModalOk}
+          confirmLoading={contractFileUploading}
+          onCancel={this.handleModalCancel}
+          footer={[
+            <Button key="back" loading={contractFileUploading} onClick={this.handleModalCancel}>
+              {formatMessage({ id: 'COMMON_CANCEL' })}
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={contractFileUploading}
+              onClick={this.handleModalOk}
+            >
+              {formatMessage({ id: 'COMMON_OK' })}
+            </Button>,
+          ]}
+        >
+          <UploadContractComp {...myFileProps} />
+        </Modal>
+        {contractHisModalVisible && (
+          <Modal
+            title={
+              <Tabs
+                className={styles.hisTabDiv}
+                defaultActiveKey={hisActiveKey || '1'}
+                onChange={key => this.onHandleHisModalTab(key)}
+              >
+                <Tabs.TabPane tab={formatMessage({ id: 'TA_CONTRACT_UPLOAD_HISTORY' })} key="1" />
+                <Tabs.TabPane tab={formatMessage({ id: 'TA_STATE_CHANGE_HISTORY' })} key="2" />
+              </Tabs>
+            }
+            visible={contractHisModalVisible}
+            onCancel={this.handleHisModalCancel}
+            footer={null}
+            className={styles.contractHisModal}
+            width="700px"
+            bodyStyle={{
+              height: '450px',
+              overflowY: 'auto',
+              padding: '8px 16px',
+            }}
+            id="contractHisModalView"
+          >
+            {String(hisActiveKey) === '1' && (
+              <UploadContractHistoryComp viewId="contractHisModalView" />
+            )}
+            {String(hisActiveKey) === '2' && (
+              <StateChangeHistoryComp viewId="contractHisModalView" />
+            )}
+          </Modal>
+        )}
+      </Col>
+    );
+  }
+}
+
+export default TableComp;

@@ -1,0 +1,128 @@
+.container {
+  background-color: #fff;
+  :global {
+    .ant-tabs-bar {
+      padding: 0 15px;
+    }
+  }
+}
+.offerItem {
+  margin-top: 10px;
+  border-bottom: 1px solid rgb(234, 234, 234);
+}
+.offerTitle {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 0 0 #ebebeb;
+  padding: 0 20px;
+  :global {
+    .ant-select-selection {
+      background: rgb(242, 242, 242);
+      border: 0;
+    }
+    .ant-select-selection-selected-value {
+      margin-top: 1.5px;
+    }
+    .ant-select-selection__placeholder {
+      top: 55%;
+      color: #181d25;
+    }
+  }
+}
+
+.offerName {
+  color: #1890ff;
+  font-weight: 600;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.attraction {
+  color: #191f29;
+  font-weight: 600;
+  padding: 0 20px;
+  height: 40px;
+  line-height: 40px;
+  border-bottom: 1px solid rgb(234, 234, 234);
+}
+
+.product {
+  height: 50px;
+  line-height: 50px;
+  background: rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1);
+  margin-left: 20px;
+  padding-left: 10px;
+}
+
+.totalPrice {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 50px;
+  color: #3b414a;
+  .text {
+    margin: 4px 3px 0 0;
+  }
+}
+
+.money {
+  font-size: 20px;
+  color: rgb(249, 142, 6);
+  margin-right: 20px;
+}
+
+.viewRule {
+  color: #1890ff;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.operation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table {
+  border: 0;
+  border-bottom: 1px solid #f3f3f3;
+  overflow: auto;
+  :global {
+    tr {
+      background: #f7f7f7;
+    }
+    th, td {
+      border-bottom: 1px solid rgb(233, 233, 233) !important;
+    }
+    thead th {
+      background-color: #fff !important;
+    }
+    th span {
+      color: #3b414a;
+      font-weight: 600;
+    }
+  }
+}
+
+.productPrice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.category {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 0 0 #d9d9d9;
+  color: #171b21;
+  border-bottom: 1px solid rgb(222, 222, 222);
+  height: 32px;
+}
+
+.categoryItem {
+  margin-bottom: 20px;
+}

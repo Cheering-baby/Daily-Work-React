@@ -1,0 +1,536 @@
+@import '../../../theme/screen';
+@prefix-cls: ~'@{ant-prefix}';
+
+.pageHeaderTitle {
+  :global {
+    .@{prefix-cls}-page-header-heading-title {
+      font-weight: 600;
+      font-size: 20px;
+      color: #171B21;
+      letter-spacing: 0;
+    }
+
+    .@{prefix-cls}-page-header-heading-sub-title {
+      font-size: 13px;
+      color: #858585;
+      letter-spacing: 0.22px;
+      line-height: 15px;
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.information {
+  position: relative;
+  align-items: center;
+  font-size: 16px;
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.32);
+  padding: 0;
+  margin: 0 1rem 1rem 1rem;
+
+  :global {
+    .@{prefix-cls}-card-head {
+      font-weight: 600;
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0.24px;
+      min-height: 30px;
+      margin-bottom: 0;
+      border-bottom-color: #fff;
+    }
+
+    .@{prefix-cls}-card-head-title {
+      font-size: 17px;
+      color: #171B21;
+      letter-spacing: 0.27px;
+      line-height: 10px;
+    }
+
+    .@{prefix-cls}-card-bordered {
+      border: 0;
+      padding: 1rem 0 0.5rem 0;
+    }
+
+    .@{prefix-cls}-form-item {
+      box-sizing: border-box;
+      margin: 0 0 10px 0;
+      padding: 0;
+      color: #858585;
+      font-size: 14px;
+      font-variant: tabular-nums;
+      line-height: 1.5;
+      list-style: none;
+      font-feature-settings: 'tnum';
+      vertical-align: top;
+    }
+
+    .@{prefix-cls}-form-item-label {
+      display: inline-block;
+      overflow: hidden;
+      line-height: 39.9999px;
+      white-space: nowrap;
+      text-align: right;
+      vertical-align: middle;
+      text-overflow: ellipsis;
+    }
+
+    @media screen and (max-width: @screenXsMax) {
+      .@{prefix-cls}-form-item-label {
+        text-align: left;
+      }
+    }
+
+    @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+      .@{prefix-cls}-form-item-label {
+        text-align: left;
+      }
+    }
+
+    .@{prefix-cls}-select {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      color: #858585;
+      font-size: 14px;
+      font-variant: tabular-nums;
+      line-height: 1.5;
+      list-style: none;
+      font-feature-settings: 'tnum';
+      position: relative;
+      display: inline-block;
+      outline: 0;
+      width: 100%;
+    }
+
+    .@{prefix-cls}card-body {
+      padding: 0 !important;
+    }
+
+    .@{prefix-cls}-card-actions {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      background: #fff;
+      border-top: 1px solid #f3f3f3;
+      zoom: 1;
+
+      > li {
+        float: left;
+        margin-top: 12px;
+        color: rgba(0, 0, 0, 0.45);
+        text-align: right;
+        height: 32px;
+      }
+    }
+
+    .@{prefix-cls}-spin-nested-loading > div > .ant-spin {
+      z-index: 1 !important;
+    }
+  }
+
+  .questionsTitle {
+    font-size: 14px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 18px;
+    font-weight: 600;
+  }
+
+  .questionsCheckBox {
+    font-size: 14px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 18px;
+  }
+
+  .questionsRadioTitle {
+    font-size: 14px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 18px;
+    padding-left: 1.5rem;
+  }
+
+  .questionsRadioBox {
+    font-size: 14px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 18px;
+    padding-left: 1.5rem;
+
+    .questionsRadioBoxRadio {
+      line-height: 32px;
+      width: 40%;
+    }
+
+    .questionsRadioBoxInput {
+      line-height: 32px;
+      width: 120px;
+      border-radius: 4px;
+    }
+
+    @media screen and (max-width: @screenXsMax) {
+      .questionsRadioBoxRadio {
+        line-height: 32px;
+        width: 100%;
+      }
+
+      .questionsRadioBoxInput {
+        line-height: 32px;
+        width: 100%;
+        border-radius: 4px;
+      }
+    }
+    @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+      .questionsRadioBoxRadio {
+        line-height: 32px;
+        width: 100%;
+      }
+
+      .questionsRadioBoxInput {
+        line-height: 32px;
+        width: 120px;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  .questionsVolumeTitle {
+    font-size: 14px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 18px;
+    padding-left: 1.5rem;
+  }
+
+  .questionsVolumeBox {
+    font-size: 14px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 18px;
+    padding-left: 1.5rem;
+  }
+
+  .bilCheckBoxDiv {
+    font-size: 15px;
+    color: #565656;
+    letter-spacing: 0.24px;
+    line-height: 14px;
+  }
+
+  .financeConcatTitle {
+    border-left: 3px solid #118AFA;
+    padding-left: 10px;
+    font-weight: normal;
+    margin: 0.5rem 0 0.5rem 1rem;
+    line-height: 1.75rem;
+    font-size: 15px;
+    color: #171B21;
+    letter-spacing: 0;
+  }
+}
+
+.detailInformation {
+  :global {
+    .@{prefix-cls}-card-bordered {
+      border: 0;
+      padding: 0 0 0.5rem 0;
+    }
+  }
+}
+
+.registrationSuccessfullyRow {
+  text-align: center;
+  margin-bottom: 4rem;
+  margin-top: 4rem;
+
+  .registrationSuccessfullyTop {
+    > img {
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  .registrationSuccessfullyContent {
+    margin-top: 1.5rem;
+
+    > h3 {
+      font-size: 18px;
+      color: #565656;
+      letter-spacing: 0;
+      text-align: center;
+      line-height: 20px;
+    }
+
+    > p {
+      font-size: 15px;
+      color: #C0C0C0;
+      letter-spacing: 0.24px;
+      line-height: 22px;
+    }
+  }
+
+  .registrationSuccessfullyBottom {
+    margin-top: 0.5rem;
+
+    > button {
+      margin-right: 1rem;
+    }
+  }
+}
+
+.registrationFailedRow {
+  text-align: center;
+  margin-bottom: 4rem;
+  margin-top: 4rem;
+
+  .registrationFailedTop {
+    > img {
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  .registrationFailedContent {
+    margin-top: 1.5rem;
+
+    > h3 {
+      font-size: 18px;
+      color: #565656;
+      letter-spacing: 0;
+      text-align: center;
+      line-height: 20px;
+    }
+
+    > p {
+      font-size: 15px;
+      color: #C0C0C0;
+      letter-spacing: 0.24px;
+      line-height: 22px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 80%;
+    }
+
+    @media screen and (max-width: @screenXsMax) {
+      > p {
+        font-size: 15px;
+        color: #C0C0C0;
+        letter-spacing: 0.24px;
+        line-height: 22px;
+        width: auto;
+      }
+    }
+    @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+      > p {
+        font-size: 15px;
+        color: #C0C0C0;
+        letter-spacing: 0.24px;
+        line-height: 22px;
+        width: auto;
+      }
+    }
+  }
+
+  .registrationFailedBottom {
+    margin-top: 0.5rem;
+
+    > button {
+      margin-right: 1rem;
+    }
+  }
+}
+
+.informationButtonRow {
+  padding: 0;
+  text-align: right;
+  border-radius: 0 0 4px 4px;
+}
+
+.informationButton {
+  margin-right: 0.75rem;
+}
+
+.stepsInformation {
+  background: #FFF;
+  border-bottom: 1px solid #D9D9D9;
+  box-shadow: 0 1px 0 0 #D9D9D9;
+
+  .stepsInformationSteps {
+    width: 60%;
+    margin: 0.75rem auto;
+  }
+
+  @media screen and (max-width: @screenXsMax) {
+    .stepsInformationSteps {
+      width: 100%;
+
+      :global {
+        .@{prefix-cls}-steps-item-icon {
+          margin-right: 4px;
+        }
+
+        .@{prefix-cls}-steps-item-content {
+          min-height: 32px;
+        }
+      }
+    }
+  }
+  @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+    .stepsInformationSteps {
+      width: 100%;
+
+      :global {
+        .@{prefix-cls}-steps-item-icon {
+          margin-right: 4px;
+        }
+
+        .@{prefix-cls}-steps-item-content {
+          min-height: 32px;
+        }
+      }
+    }
+  }
+
+  :global {
+    @media screen and (max-width: @screenXsMax) {
+      .@{prefix-cls}-steps-item {
+        margin-right: 0 !important;
+        display: inline-block !important;
+        width: 30%;
+      }
+    }
+    @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+      .@{prefix-cls}-steps-item {
+        margin-right: 0 !important;
+        display: inline-block !important;
+        width: 30%;
+      }
+    }
+  }
+}
+
+.downFileInformation {
+  background: #FFF;
+  border-bottom: 1px solid #D9D9D9;
+  box-shadow: 0 1px 0 0 #D9D9D9;
+  .topCol {
+    text-align: left;
+
+    .topColCheckBoxMsg {
+      margin-bottom: -12px;
+      margin-top: 12px;
+    }
+
+    .topColCheckBoxMsgTitle {
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0.24px;
+      margin-right: 1rem;
+      margin-left: 0.25rem;
+    }
+
+    .topColCheckBoxMsgNote {
+      font-size: 15px;
+      color: #C0C0C0;
+      letter-spacing: 0.24px;
+      line-height: 22px;
+    }
+
+    .topColApplicationMsg {
+      padding-left: 1.5rem;
+
+      > p {
+        font-size: 14px;
+        color: #858585;
+        letter-spacing: 0.24px;
+        line-height: 18px;
+        margin: 0.75rem 0 0.5rem 0;
+      }
+    }
+  }
+
+  .bottomCol {
+    text-align: right;
+    margin-bottom: 0.25rem;
+  }
+
+  .bottomColDiv {
+    height: 100%;
+    display: flex;
+    float: right;
+
+    > button {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+  }
+}
+
+.rejectInformation {
+  background: #FFF;
+  border-bottom: 1px solid #D9D9D9;
+  box-shadow: 0 1px 0 0 #D9D9D9;
+
+  .topRejectCol {
+    text-align: left;
+
+    .topColRejectMsg {
+      > img {
+        width: 21px;
+        height: 21px;
+      }
+    }
+
+    .topColRejectTitle {
+      opacity: 0.85;
+      font-size: 16px;
+      color: #000;
+      line-height: 24px;
+      margin-right: 1rem;
+      margin-left: 0.25rem;
+    }
+
+    .rejectMsg {
+      padding-left: 1.5rem;
+
+      > p {
+        opacity: 0.65;
+        font-size: 14px;
+        color: #000;
+        line-height: 22px;
+      }
+    }
+  }
+
+  .bottomCol {
+    text-align: right;
+    margin-bottom: 0.25rem;
+  }
+
+  .bottomColDiv {
+    height: 100%;
+    display: flex;
+    float: right;
+
+    > button {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+  }
+}
+
+.warnFont {
+  font-size: 14px;
+  color: #565656;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.normalFont {
+  font-size: 14px;
+  color: #565656;
+  line-height: 22px;
+}

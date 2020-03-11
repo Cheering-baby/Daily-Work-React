@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="11px" height="7px" viewBox="0 0 11 7" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.3 (67297) - http://www.bohemiancoding.com/sketch -->
+    <title>下拉</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="portal-react" transform="translate(-1307.000000, -30.000000)" fill="#7B7B7B" fill-rule="nonzero">
+            <g id="stat-sel" transform="translate(1145.900000, 22.000000)">
+                <g id="Group-2">
+                    <path d="M166.867234,11.4128969 L170.28013,8 L171.734467,9.45433662 L166.886678,14.3021254 L166.867234,14.2826806 L166.847789,14.3021254 L162,9.45433662 L163.454337,8 L166.867234,11.4128969 Z" id="下拉"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

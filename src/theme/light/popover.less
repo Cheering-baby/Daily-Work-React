@@ -1,0 +1,10 @@
+@popover-prefix-cls: ~'@{ant-prefix}-popover';
+
+.@{popover-prefix-cls} {
+  .@{popover-prefix-cls}-inner {
+    border-radius: 0;
+  }
+  &.@{popover-prefix-cls}-placement-bottomRight > &-content > &-arrow {
+    box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.06) !important;
+  }
+}

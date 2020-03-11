@@ -1,0 +1,52 @@
+.container {
+  background-color: #fff;
+  padding: 20px;
+}
+
+.operation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 0 0 #d9d9d9;
+  color: #171b21;
+  border-bottom: 1px solid rgb(222, 222, 222);
+  height: 32px;
+}
+
+.categoryItem {
+  margin-bottom: 20px;
+}
+
+.table {
+  border: 0;
+  border-bottom: 1px solid #f3f3f3;
+  overflow: auto;
+  :global {
+    tr {
+      background: #f7f7f7;
+    }
+    th,
+    td {
+      border-bottom: 1px solid rgb(233, 233, 233) !important;
+    }
+    thead th {
+      background-color: #fff !important;
+    }
+    th span {
+      color: #3b414a;
+      font-weight: 600;
+    }
+  }
+}
+
+.productPrice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

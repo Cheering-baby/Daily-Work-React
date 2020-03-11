@@ -1,0 +1,145 @@
+@input-prefix-cls: ~'@{ant-prefix}-input';
+@btn-prefix-cls: ~'@{ant-prefix}-btn';
+@search-btn-width: 655px;
+@search-btn-height: 42px;
+@search-btn-input-color: #858585;
+@search-bg-icon-width: 18px;
+@search-bg-icon-color: #595959;
+@search-bg-placeholder-color: #565656;
+@search-bg-width: 240px;
+@search-bg-height: 32px;
+@search-bg-line-height: 32px;
+@search-bg-bg: #f2f2f2;
+
+.@{input-prefix-cls} {
+  &-group-addon:first-child {
+    border-radius: 0;
+    background: transparent;
+  }
+  &-group > &-affix-wrapper:not(:first-child) & {
+    border-radius: 0;
+  }
+  &-search & {
+    border-radius: 0;
+  }
+}
+input.@{input-prefix-cls} {
+  font-family: 'calibri', 'Chinese Quote', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+.search-bg {
+  img {
+    width: @search-bg-icon-width;
+    height: @search-bg-icon-width;
+    color: @search-bg-icon-color;
+  }
+  .@{input-prefix-cls} {
+    background: transparent;
+    border: 0;
+    &,
+    &::-webkit-input-placeholder {
+      color: @search-bg-placeholder-color;
+    }
+    &::-moz-placeholder {
+      color: @search-bg-placeholder-color;
+    }
+    &:-ms-input-placeholder {
+      color: @search-bg-placeholder-color;
+    }
+    &-suffix {
+      cursor: pointer;
+      font-size: 16px;
+      position: absolute;
+      right: 10px;
+      left: auto;
+      top: 44%;
+    }
+  }
+  &.@{input-prefix-cls}-affix-wrapper {
+    position: relative;
+    width: @search-bg-width;
+    height: @search-bg-height;
+    line-height: @search-bg-line-height;
+    margin-top: 16px;
+    margin-left: 16px;
+    background-color: @search-bg-bg;
+    display: inline-block;
+    .@{input-prefix-cls} {
+      &:not(:first-child) {
+        padding-left: 8px;
+      }
+      &:focus {
+        border: 0;
+        box-shadow: none;
+      }
+    }
+    &:hover .@{input-prefix-cls}:not(.@{input-prefix-cls}-disabled) {
+      border: 0;
+    }
+    .@{input-prefix-cls}-suffix i {
+      line-height: 0;
+    }
+  }
+  &.hide {
+    width: 0;
+    .@{input-prefix-cls} {
+      width: 0;
+      padding: 0 !important;
+    }
+    .@{input-prefix-cls}-suffix {
+      right: -10px;
+    }
+  }
+}
+.search-btn {
+  height: @search-btn-height;
+  &.@{input-prefix-cls}-affix-wrapper {
+    width: @search-btn-width;
+  }
+  .@{input-prefix-cls} {
+    border-radius: @border-radius-base;
+    color: @search-btn-input-color;
+    font-size: @font-size-base;
+  }
+  .@{input-prefix-cls}-suffix {
+    &,
+    .@{btn-prefix-cls} {
+      width: @search-btn-height;
+      height: @search-btn-height;
+    }
+    .@{btn-prefix-cls} {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    i {
+      font-size: @font-size-base + 6;
+    }
+    img {
+      width: @font-size-base + 6;
+      height: @font-size-base + 6;
+    }
+  }
+}
+.popedit {
+  position: relative;
+  > .@{input-prefix-cls} {
+    padding-right: 30px;
+  }
+  > .anticon {
+    position: absolute;
+    width: @font-size-base;
+    height: @font-size-base;
+    display: block;
+    background: @component-background;
+    top: 1px;
+    right: 11px;
+    color: @disabled-color;
+    cursor: pointer;
+  }
+  &:hover {
+    > .@{input-prefix-cls} {
+      border-color: @primary-color;
+    }
+  }
+}

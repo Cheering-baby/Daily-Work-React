@@ -1,0 +1,118 @@
+@import '../../../../../../theme/screen.less';
+
+.inputColStyle {
+  padding: 5px 8px;
+}
+
+.inputStyle {
+  width: 100%;
+}
+
+@media screen and (max-width: @screenSmMax) {
+  .buttonColStyle {
+    float: right;
+    padding: 10px 8px 0 8px;
+
+    .searchButton {
+      float: right;
+      margin-left: 12px;
+    }
+  }
+}
+
+@media screen and (min-width: @screenMdMin) {
+  .buttonColStyle {
+    float: right;
+    padding: 5px 8px;
+
+    .searchButton {
+      float: right;
+      margin-left: 12px;
+    }
+  }
+}
+
+//@media screen and (max-width: @screenSm) {
+//  .inputStyle {
+//    width: 100%;
+//    padding-top: 10px;
+//  }
+//}
+//
+//@media screen and (min-width: @screenSmMin) {
+//  .inputStyle {
+//    width: 100%;
+//  }
+//}
+
+.buttonStyle {
+  margin-left: 10px;
+}
+
+.iconStyle {
+  margin-left: 20px;
+}
+
+.statusRadiusStyle {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 10px;
+  margin-right: 6px;
+  margin-bottom: 1px;
+}
+
+.scheduleTitle {
+  font-family: Calibri-Bold;
+  font-size: 15px;
+  color: #171B21;
+  letter-spacing: 0.24px;
+  line-height: 22px;
+}
+
+.operateButtonDivStyle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #e9e9e9;
+  padding: 10px 16px;
+  background: #fff;
+  text-align: right;
+}
+
+.formStyle {
+  :global {
+    .ant-form-item-children {
+      line-height: 32px !important;
+    }
+
+    .ant-form-explain-holder {
+      line-height: 0 !important;
+    }
+  }
+}
+
+.labelStyle {
+  font-family: Calibri;
+  font-size: 15px;
+  color: #262626;
+  letter-spacing: 0.24px;
+  line-height: 22px;
+}
+
+
+.tableSpan {
+  display: inline-block;
+  white-space: pre;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.modelStyle {
+  :global {
+    .ant-btn {
+      width: 60px;
+    }
+  }
+}

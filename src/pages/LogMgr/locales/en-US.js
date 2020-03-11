@@ -1,0 +1,14 @@
+export default {
+  LOG_COMMENTS: 'Comment',
+  LOG_LOGID: 'Id',
+  LOG_LOGTIME: 'Time',
+  LOG_LOGTYPE: 'Type',
+  LOG_OPERUSERCODE: ' Operations',
+  LOG_STATE: 'State',
+  LOG_SEARCH: 'Search',
+  LOG_RESET: 'Reset',
+  LOG_FROM_DATE: 'From Date',
+  LOG_TO_DATE: 'To Date',
+  LOG_SUCCESS: 'Success',
+  LOG_FAIR: 'Fair',
+};

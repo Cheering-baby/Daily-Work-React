@@ -1,0 +1,55 @@
+@form-prefix-cls: ~'@{ant-prefix}-form';
+@btn-prefix-cls: ~'@{ant-prefix}-btn';
+
+.@{form-prefix-cls} {
+  &-item-children {
+    button {
+      + button {
+        margin-left: 4px;
+      }
+      &.hide + button {
+        margin-left: 0;
+      }
+    }
+    input + .@{btn-prefix-cls} {
+      border-left: 0;
+    }
+  }
+  &-item&-item-with-help {
+    margin-bottom: 0;
+  }
+  & &-item-control {
+    line-height: 1;
+    display: inline;
+    &.has-feedback .@{form-prefix-cls}-item-children {
+      .@{form-prefix-cls}-item-children-icon {
+        top: auto;
+        bottom: 0;
+      }
+      textarea + .@{form-prefix-cls}-item-children-icon {
+        bottom: 70%;
+      }
+    }
+  }
+  & &-item-label {
+    line-height: 32px;
+    text-overflow: ellipsis;
+    label {
+      font-size: @font-size-base + 1;
+    }
+  }
+  & &-item {
+    margin-bottom: 8px;
+  }
+}
+form.@{form-prefix-cls},
+.@{form-prefix-cls} .@{form-prefix-cls}-item {
+  font-family: 'calibri', 'Chinese Quote', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+.form-inline {
+  [class*='portal-col-'] {
+    width: auto;
+  }
+}

@@ -1,0 +1,43 @@
+.rwsLoading {
+  :global {
+    .ant-modal-content {
+      background: rgba(0, 0, 0, 0);
+      box-shadow: none;
+    }
+
+    .zoom-leave {
+      animation-duration: 0s;
+      animation-fill-mode: both;
+      animation-play-state: paused;
+      animation-timing-function: linear;
+    }
+
+    .zoom-enter {
+      transform: none;
+      animation-timing-function: linear;
+    }
+
+    .zoom-appear {
+      transform: none;
+      animation-timing-function: linear;
+    }
+
+    .zoom-enter,
+    .zoom-appear {
+      animation-duration: 0s;
+      animation-fill-mode: both;
+      animation-play-state: paused;
+    }
+
+    .ant-spin-dot {
+      width: 50px;
+      height: 50px;
+      font-size: 50px;
+
+      i {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}

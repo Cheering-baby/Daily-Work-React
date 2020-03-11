@@ -1,0 +1,152 @@
+@import '../../../theme/screen';
+
+@prefix-cls: ~'@{ant-prefix}';
+
+.pageHeaderTitle {
+  :global {
+    .@{prefix-cls}-page-header-heading-title {
+      font-weight: 600;
+      font-size: 20px;
+      color: #171B21;
+      letter-spacing: 0;
+    }
+
+    .@{prefix-cls}-page-header-heading-sub-title {
+      font-size: 13px;
+      color: #858585;
+      letter-spacing: 0.22px;
+      line-height: 15px;
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.subTaInformation {
+  position: relative;
+  align-items: center;
+  font-size: 16px;
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.32);
+  padding: 0;
+  margin: 0 1rem 1rem 1rem;
+
+  :global {
+    .@{prefix-cls}-card-head {
+      font-weight: 600;
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0.24px;
+      min-height: 30px;
+      margin-bottom: 0;
+      border-bottom-color: #fff;
+    }
+
+    .@{prefix-cls}-card-head-title {
+      font-size: 17px;
+      color: #171B21;
+      letter-spacing: 0.27px;
+      line-height: 10px;
+    }
+
+    .@{prefix-cls}-card-bordered {
+      border: 0;
+      padding: 1rem 0 0.5rem 0;
+    }
+
+    .@{prefix-cls}-form-item {
+      box-sizing: border-box;
+      margin: 0 0 10px 0;
+      padding: 0;
+      color: #858585;
+      font-size: 14px;
+      font-variant: tabular-nums;
+      line-height: 1.5;
+      list-style: none;
+      font-feature-settings: 'tnum';
+      vertical-align: top;
+    }
+
+    .@{prefix-cls}-form-item-label {
+      display: inline-block;
+      overflow: hidden;
+      line-height: 39.9999px;
+      white-space: nowrap;
+      text-align: right;
+      vertical-align: middle;
+      text-overflow: ellipsis;
+    }
+
+    @media screen and (max-width: @screenXsMax) {
+      .@{prefix-cls}-form-item-label {
+        text-align: left;
+      }
+    }
+
+    @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+      .@{prefix-cls}-form-item-label {
+        text-align: left;
+      }
+    }
+
+    .@{prefix-cls}-select {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      color: #858585;
+      font-size: 14px;
+      font-variant: tabular-nums;
+      line-height: 1.5;
+      list-style: none;
+      font-feature-settings: 'tnum';
+      position: relative;
+      display: inline-block;
+      outline: 0;
+      width: 100%;
+    }
+
+    .@{prefix-cls}card-body {
+      padding: 0 !important;
+    }
+
+    .@{prefix-cls}-card-actions {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      background: #fff;
+      border-top: 1px solid #f3f3f3;
+      zoom: 1;
+
+      > li {
+        float: left;
+        margin-top: 12px;
+        color: rgba(0, 0, 0, 0.45);
+        text-align: right;
+        height: 32px;
+      }
+    }
+
+    .@{prefix-cls}-spin-nested-loading > div > .ant-spin {
+      z-index: 1 !important;
+    }
+  }
+}
+
+.subTaInformationButtonRow {
+  padding: 0;
+  text-align: right;
+  border-radius: 0 0 4px 4px;
+
+  .subTaInformationButton {
+    margin-right: 0.75rem;
+  }
+}
+
+.detailInformation {
+  :global {
+    .@{prefix-cls}-card-bordered {
+      border: 0;
+      padding: 0 0 0.5rem 0;
+    }
+  }
+}

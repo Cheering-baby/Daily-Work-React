@@ -1,0 +1,59 @@
+@modal-prefix-cls: ~'@{ant-prefix}-modal';
+@table-prefix-cls: ~'@{ant-prefix}-table';
+@button-float: right;
+@button-magrin-left: 8px;
+
+.@{modal-prefix-cls} {
+  & &-confirm-btns,
+  & &-footer {
+    overflow: hidden;
+    button {
+      float: @button-float;
+      margin-left: @button-magrin-left;
+    }
+  }
+  & &-body {
+    .@{modal-prefix-cls}-confirm-title {
+      font-weight: bold;
+    }
+  }
+}
+//icon
+div.@{modal-prefix-cls} .@{modal-prefix-cls}-body {
+  .anticon-question-circle,
+  .anticon-info-circle,
+  .anticon-check-circle,
+  .anticon-close-circle,
+  .anticon-exclamation-circle {
+    color: @component-background;
+    border-radius: 50%;
+  }
+  .anticon-question-circle,
+  .anticon-info-circle,
+  .anticon-exclamation-circle {
+    svg > path:first-child {
+      display: none;
+    }
+  }
+  .anticon-check-circle,
+  .anticon-close-circle {
+    svg > path:nth-child(2) {
+      display: none;
+    }
+  }
+  .anticon-question-circle {
+    background-color: @warning-color;
+  }
+  .anticon-info-circle {
+    background-color: @primary-color;
+  }
+  .anticon-check-circle {
+    background-color: @success-color;
+  }
+  .anticon-close-circle {
+    background-color: @error-color;
+  }
+  .anticon-exclamation-circle {
+    background-color: @warning-color;
+  }
+}

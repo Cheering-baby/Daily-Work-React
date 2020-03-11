@@ -1,0 +1,132 @@
+@import '~antd/lib/style/themes/default.less';
+
+@logo-card-height: 64px;
+@logo-width: 90px;
+@logo-height: 31px;
+@font-size-base: 14px;
+@text-color-white: #fff;
+
+.logoCard {
+  height: @logo-card-height;
+  padding: 16px 0 15px;
+  background-color: #22262e;
+  text-align: center;
+
+  > a {
+    text-decoration: none;
+    color: @text-color-white;
+  }
+
+  img {
+    width: 99px;
+    height: 33px;
+  }
+}
+
+.avatarSidebar {
+  height: 88px;
+  text-align: center;
+  overflow: hidden;
+
+  :global {
+    .ant-avatar {
+      background-color: @primary-color;
+      font-size: 16px;
+      margin-left: 25px;
+    }
+  }
+
+  > div,
+  > span {
+    float: left;
+  }
+
+  > span {
+    margin-top: 15px;
+  }
+}
+
+.avatarSidebarInfo {
+  width: 165px;
+  color: @text-color-white;
+  padding-right: 10px;
+  text-align: left;
+  line-height: 34px;
+  margin-left: 5px;
+
+  h4 {
+    font-size: @font-size-base;
+    line-height: 18px;
+    color: @text-color-white;
+    margin-top: 23px;
+    margin-bottom: 2px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  span {
+    font-size: @font-size-base - 2;
+    line-height: 16px;
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+.menuTitle {
+  font-size: @font-size-base - 2;
+  padding-left: 24px;
+  font-weight: normal;
+  color: #afb0b2;
+  margin: 20px 0 10px;
+}
+
+.menuTitleTop {
+  margin-top: 50px;
+  display: none;
+}
+
+.menuList {
+  padding-left: 24px;
+  display: none;
+
+  li {
+    padding-left: 24px;
+    font-size: 14px;
+    height: 34px;
+    line-height: 34px;
+    overflow: hidden;
+
+    i {
+      margin-right: 10px;
+      font-size: 18px;
+      width: 16px;
+      height: 16px;
+      margin-top: 9px;
+      background-position: left top;
+      background-repeat: no-repeat;
+      background-size: cover;
+      display: block;
+      float: left;
+    }
+  }
+
+  a {
+    color: #fff;
+  }
+}
+
+:global {
+  .ant-layout-sider {
+    height: auto;
+  }
+
+  .ant-layout-sider-children {
+    > .ant-menu {
+      height: calc(~'100% - 64px');
+      overflow-y: auto;
+    }
+  }
+}

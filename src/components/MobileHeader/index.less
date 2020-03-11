@@ -1,0 +1,207 @@
+@prefix-cls: ~'@{ant-prefix}';
+
+.header {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background: #fff;
+  margin-bottom: 0.875rem;
+  position: fixed;
+  width: 100%;
+  z-index: 300;
+}
+
+.btnOne {
+  margin-left: 8px;
+  width: 2.5em;
+  height: 2.5em;
+
+  :global {
+    .@{prefix-cls}-button::before {
+      border: none !important;
+    }
+  }
+}
+
+.avatarPopover {
+  top: 46px !important;
+
+  :global {
+    .@{prefix-cls}-popover-inner-content {
+      padding: 10px 8px !important;
+      color: #858585;
+    }
+  }
+}
+
+.menuPopover {
+  top: 46px !important;
+
+  :global {
+    .@{prefix-cls}-popover-inner-content {
+      padding: 3px 0 !important;
+      color: #858585 !important;
+      height: e("calc(100vh - 110px)") !important;
+      width: 250px !important;
+    }
+
+    .@{prefix-cls}-menu {
+      height: 100%;
+      overflow: hidden auto;
+    }
+  }
+}
+
+.avatarDiv {
+  width: 2.0em;
+  height: 2.0rem;
+  text-align: center;
+  line-height: 2.0rem;
+  float: right;
+  margin-right: 20px;
+
+  .avatar {
+    margin: 5px 16px 4px 0;
+    font-size: 1.5em;
+  }
+}
+
+.avatarContent {
+  overflow: hidden;
+
+  :global(.anticon) {
+    margin-right: 8px;
+  }
+
+  .avatar {
+    float: left;
+    font-size: 1.5em;
+  }
+
+  .avatarCard {
+    margin: 0 4px 5px;
+    padding: 0 !important;
+    overflow: hidden;
+    float: left;
+    width: 180px;
+  }
+
+  .avatarInfo {
+    width: auto;
+    padding: 0 0 0 10px;
+    text-align: left;
+    float: left;
+    position: relative;
+
+    h4 {
+      line-height: 18px;
+      margin-bottom: 2px;
+      font-weight: bold;
+      max-height: 180px;
+      overflow: hidden;
+    }
+
+    span {
+      font-size: @font-size-base - 2;
+      line-height: 16px;
+      display: block;
+    }
+
+    div {
+      max-height: 80px;
+      overflow: hidden;
+    }
+  }
+
+  .favoriteCustomers {
+    margin-left: 18px;
+    color: #858585;
+    font-size: 16px;
+    margin-top: 5px;
+    cursor: pointer;
+
+    .favoriteStar {
+      font-size: 20px !important;
+      color: #ff9b1e;
+      margin-right: 8px;
+      vertical-align: -3px;
+    }
+  }
+
+  .logout {
+    height: 28px;
+    line-height: 28px;
+    padding-left: 28px;
+    //margin: 5px 0 6px;
+    overflow: hidden;
+  }
+}
+
+.menuBtn {
+  width: 25px;
+  background-color: #fff !important;
+  border: none;
+  box-shadow: none;
+  color: #000 !important;
+  margin-top: 12px;
+
+  &:active, &:focus {
+    background-color: #fff !important;
+    border: none;
+    color: #000 !important;
+  }
+
+  i {
+    font-size: 25px;
+  }
+}
+
+.btnOneRight {
+  //margin-right: 5px;
+  padding-bottom: 5px;
+}
+
+.logoStyle {
+  font-family: 'CalibriBold';
+  font-size: 27px;
+  color: #333;
+  letter-spacing: 1.8px;
+  text-align: center;
+  padding-top: 3px;
+  padding-bottom: 4px;
+}
+
+.customerMenu {
+  padding: 15px 0;
+
+  .customerMenuItem {
+    height: 40px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    line-height: 16px;
+    display: inline-block;
+    margin-top: 6px;
+  }
+}
+
+.customerMenuItem {
+  position: relative;
+  margin: 0;
+
+  :global {
+    .@{prefix-cls}-avatar {
+      margin-right: 10px;
+      overflow: hidden;
+      float: left;
+    }
+  }
+
+  span:nth-child(2) {
+    width: 170px;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+}

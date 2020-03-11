@@ -1,0 +1,64 @@
+@import '../../../../../../../theme/screen.less';
+
+.titleBlack {
+  font-family: calibriBold;
+  font-size: 17px;
+  color: #F98C02;
+  margin-top: 15px;
+  margin-bottom: 6px;
+}
+.colorRed {
+  color: #DE6865;
+}
+
+.basicInfoContent {
+  margin-bottom: 6px;
+
+  > div:not(.basicInfoInput) {
+    padding: 4px;
+  }
+
+  > div:nth-child(1) {
+    font-family: Calibri;
+    font-size: 15px;
+    color: #858585;
+  }
+
+  > div:nth-child(2):not(.basicInfoInput) {
+    font-family: Calibri;
+    font-size: 15px;
+    color: #3B414A;
+  }
+
+  .basicInfoInput {
+    padding: 0 4px;
+    margin-top: -3px
+  }
+}
+
+.pricingSettingDiv {
+  height: 400px;
+  overflow-y: auto;
+}
+
+.pricingSettingTier {
+  padding: 0 8px;
+  border-left: 3px solid #118AFA;
+  font-family: Calibri;
+  text-align: left;
+  font-size: 15px;
+  color: #171B21;;
+}
+
+.addSpanStyle {
+  font-family: Calibri;
+  font-size: 14px;
+  color: #1890FF;
+  padding: 0px;
+  :global{
+    .ant-btn-lg {
+      padding: 0px;
+    }
+  }
+}
+

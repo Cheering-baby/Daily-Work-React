@@ -1,0 +1,18 @@
+export default {
+  DOWNLOAD_FILES: 'Files',
+  MYACTIVITY_AR_CREDIT_LIMIT: 'AR Credit Limit',
+  RE_ROUTE: 'Re-Route',
+  STATUS: 'Status',
+  TA_SIGNED_CONTRACT: 'SIGNED CONTRACT',
+  TA_SIGNED_UPLOADED_BY: 'Uploaded By',
+  TA_SIGNED_UPLOADED_TIME: 'Uploaded Time',
+  TA_SIGNED_REGISTRATION_DOCS: 'Registration Docs ',
+  ACTIVITY_ID: 'Activity Id',
+  ACTIVITY_TYPE: 'Type',
+  REMARKS: 'Remarks',
+  CREATE_DATE: 'Create Date',
+  APPROVAL_HISTORY: 'Approval History',
+  APPROVAL_ACCEPT: 'Accept',
+  APPROVAL_REJECT: 'Reject',
+  APPROVAL_APPROVER: 'Approver',
+};

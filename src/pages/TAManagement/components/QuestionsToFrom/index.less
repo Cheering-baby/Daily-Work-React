@@ -1,0 +1,117 @@
+@import '../../../../theme/screen';
+
+@prefix-cls: ~'@{ant-prefix}';
+
+.questionsTitle {
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.24px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.questionsCheckBox {
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.24px;
+  line-height: 18px;
+}
+
+.questionsRadioTitle {
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.24px;
+  line-height: 18px;
+  padding-left: 1.5rem;
+}
+
+.questionsRadioBox {
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.24px;
+  line-height: 18px;
+  padding-left: 1.5rem;
+
+  .questionsRadioBoxItem {
+    line-height: 32px;
+    width: 40%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .questionsRadioBoxInput {
+    line-height: 32px;
+    width: 120px;
+    border-radius: 4px;
+  }
+
+  @media screen and (max-width: @screenXsMax) {
+    .questionsRadioBoxItem {
+      line-height: 32px;
+      width: 100%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      margin-bottom: 0 !important;
+      :global {
+        .@{prefix-cls}-radio-group {
+          width: 100%;
+        }
+        .@{prefix-cls}-radio-wrapper {
+          text-overflow: ellipsis;
+          overflow: hidden;
+          width: inherit;
+        }
+      }
+    }
+
+    .questionsRadioBoxInput {
+      line-height: 32px;
+      width: 100%;
+      border-radius: 4px;
+    }
+  }
+  @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+    .questionsRadioBoxItem {
+      line-height: 32px;
+      width: 100%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      margin-bottom: 0 !important;
+      :global {
+        .@{prefix-cls}-radio-group {
+          width: 100%;
+        }
+        .@{prefix-cls}-radio-wrapper {
+          text-overflow: ellipsis;
+          overflow: hidden;
+          width: inherit;
+        }
+      }
+    }
+
+    .questionsRadioBoxInput {
+      line-height: 32px;
+      width: 120px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.questionsVolumeTitle {
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.24px;
+  line-height: 18px;
+  padding-left: 1.5rem;
+}
+
+.questionsVolumeBox {
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.24px;
+  line-height: 18px;
+  padding-left: 1.5rem;
+}

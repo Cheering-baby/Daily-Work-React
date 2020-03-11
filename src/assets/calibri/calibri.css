@@ -1,0 +1,16 @@
+@font-face {
+  font-family: "calibri";
+  src: url('../fonts/calibri.eot'); /* IE9*/
+  src: url('../fonts/calibri.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../fonts/calibri.woff') format('woff'),
+  url('../fonts/calibri.ttf') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('../fonts/calibri.svg#calibri') format('svg'); /* iOS 4.1- */
+}
+@font-face {
+  font-family: "calibriBold";
+  src: url('../fonts/calibribold.eot'); /* IE9*/
+  src: url('../fonts/calibribold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../fonts/calibribold.woff') format('woff'),
+  url('../fonts/calibribold.ttf') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('../fonts/calibribold.svg#calibriBold') format('svg'); /* iOS 4.1- */
+}

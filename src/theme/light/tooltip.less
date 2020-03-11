@@ -1,0 +1,43 @@
+@tooltip-prefix-cls: ~'@{ant-prefix}-tooltip';
+
+.@{tooltip-prefix-cls} {
+  font-family: 'calibri', 'Chinese Quote', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+.blank-tooltip {
+  .@{tooltip-prefix-cls}-inner {
+    background-color: @component-background;
+    padding: 16px;
+    color: @text-color;
+  }
+  &.@{tooltip-prefix-cls}-placement-top,
+  &.@{tooltip-prefix-cls}-placement-topLeft,
+  &.@{tooltip-prefix-cls}-placement-topRight {
+    .@{tooltip-prefix-cls}-arrow {
+      border-top-color: @component-background;
+    }
+  }
+  &.@{tooltip-prefix-cls}-placement-bottom,
+  &.@{tooltip-prefix-cls}-placement-bottomLeft,
+  &.@{tooltip-prefix-cls}-placement-bottomRight {
+    .@{tooltip-prefix-cls}-arrow {
+      border-bottom-color: @component-background;
+    }
+  }
+  &.@{tooltip-prefix-cls}-placement-left,
+  &.@{tooltip-prefix-cls}-placement-leftTop,
+  &.@{tooltip-prefix-cls}-placement-leftBottom {
+    .@{tooltip-prefix-cls}-arrow {
+      border-left-color: @component-background;
+    }
+  }
+  &.@{tooltip-prefix-cls}-placement-right,
+  &.@{tooltip-prefix-cls}-placement-rightTop,
+  &.@{tooltip-prefix-cls}-placement-rightBottom {
+    .@{tooltip-prefix-cls}-arrow {
+      border-right-color: @component-background;
+    }
+  }
+}

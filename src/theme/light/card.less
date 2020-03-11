@@ -1,0 +1,58 @@
+@card-prefix-cls: ~'@{ant-prefix}-card';
+@table-prefix-cls: ~'@{ant-prefix}-table';
+@tabs-prefix-cls: ~'@{ant-prefix}-tabs';
+@card-head-height: 40px;
+@card-head-max-height: 54px;
+@card-radius: 0;
+@card-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.32);
+@card-padding-base: 10px;
+@card-body-padding: 15px;
+
+.@{card-prefix-cls} {
+  & &-head {
+    min-height: @card-head-height;
+    margin-bottom: 0;
+    border-bottom-color: #e9e9e9;
+    button + button {
+      margin-left: 8px;
+    }
+  }
+  & div&-head {
+    padding: 0 @card-padding-base;
+    .@{tabs-prefix-cls}-tab-active {
+      font-weight: bold;
+    }
+    .@{tabs-prefix-cls} .@{tabs-prefix-cls}-tab {
+      padding: 16px 15px 15px;
+    }
+  }
+  &-contain-tabs > div&-head {
+    padding: 0;
+    max-height: @card-head-max-height;
+  }
+  & &-head-title {
+    padding: @card-padding-base 0;
+  }
+  & div&-body {
+    padding: @card-body-padding;
+  }
+  .@{table-prefix-cls} {
+    &-small {
+      > .@{table-prefix-cls}-content > .@{table-prefix-cls}-body {
+        margin: 0;
+      }
+    }
+  }
+  & + & {
+    margin-top: 16px;
+  }
+  &-head-tabs .@{tabs-prefix-cls}-bar {
+    margin-bottom: 1px;
+  }
+}
+div.@{card-prefix-cls} {
+  border-radius: 0;
+  font-family: 'calibri', 'Chinese Quote', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}

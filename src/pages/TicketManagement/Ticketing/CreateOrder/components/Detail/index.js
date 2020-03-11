@@ -1,0 +1,132 @@
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { Drawer, Row, Col, Button } from 'antd';
+import styles from './index.less';
+
+@connect(({ callCenterBookingAttraction }) => ({
+  callCenterBookingAttraction,
+}))
+class Detail extends Component {
+  onClose = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'callCenterBookingAttraction/save',
+      payload: {
+        showDetailModal: false,
+      },
+    });
+  };
+
+  toCart = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'callCenterBookingAttraction/save',
+      payload: {
+        showDetailModal: false,
+        showToCart: true,
+      },
+    });
+  };
+
+  render() {
+    const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
+    const {
+      onClose,
+      detail: { offerContentList = [] },
+      showToCart,
+    } = this.props;
+    let offerName;
+    let longDescription;
+    let offerIncludes;
+    let termsAndConditions;
+    offerContentList.forEach(item => {
+      const { contentLanguage, contentType, contentValue } = item;
+      if (contentLanguage === 'en-us') {
+        switch (contentType) {
+          case 'offerName':
+            offerName = contentValue;
+            break;
+          case 'longDescription':
+            longDescription = contentValue;
+            break;
+          case 'offerIncludes':
+            offerIncludes = contentValue;
+            break;
+          case 'termsAndConditions':
+            termsAndConditions = contentValue;
+            break;
+          default:
+            break;
+        }
+      }
+    });
+    return (
+      <div>
+        <Drawer
+          visible
+          title={<div className={styles.title}>DETAIL</div>}
+          placement="right"
+          destroyOnClose
+          maskClosable={false}
+          width={bodyWidth < 480 ? bodyWidth : 480}
+          bodyStyle={{
+            height: 'calc(100% - 55px)',
+            padding: '20px 20px 53px 20px',
+            overflow: 'auto',
+          }}
+          className={styles.container}
+          onClose={() => onClose()}
+        >
+          <div>
+            <div>
+              <Row>
+                <Col style={{ height: '35px' }} className={styles.title}>
+                  BASIC INFORMATION
+                </Col>
+                <Col span={24} style={{ marginBottom: '5px' }}>
+                  <Col span={9} style={{ height: '30px' }}>
+                    <span className={styles.detailLabel}>Offer Name</span>
+                  </Col>
+                  <Col span={15}>
+                    <span className={styles.detailText}>{offerName || '-'}</span>
+                  </Col>
+                </Col>
+                <Col span={24} style={{ marginBottom: '5px' }}>
+                  <Col span={9} style={{ height: '30px' }}>
+                    <span className={styles.detailLabel}>Long Description</span>
+                  </Col>
+                  <Col span={15}>
+                    <span className={styles.detailText}>{longDescription || '-'}</span>
+                  </Col>
+                </Col>
+                <Col span={24} style={{ marginBottom: '5px' }}>
+                  <Col span={9} style={{ height: '30px' }}>
+                    <span className={styles.detailLabel}>Offer Includes</span>
+                  </Col>
+                  <Col span={15}>
+                    <span className={styles.detailText}>{offerIncludes || '-'}</span>
+                  </Col>
+                </Col>
+                <Col span={24} style={{ marginBottom: '5px' }}>
+                  <Col span={9} style={{ height: '30px' }}>
+                    <span className={styles.detailLabel}>Terms and Conditions</span>
+                  </Col>
+                  <Col span={15}>
+                    <span className={styles.detailText}>{termsAndConditions || '-'}</span>
+                  </Col>
+                </Col>
+              </Row>
+            </div>
+            <div className={styles.formControl}>
+              <Button onClick={() => showToCart()} type="primary">
+                Add to Cart
+              </Button>
+            </div>
+          </div>
+        </Drawer>
+      </div>
+    );
+  }
+}
+
+export default Detail;

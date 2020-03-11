@@ -1,0 +1,30 @@
+@prefix-cls: ~'@{ant-prefix}';
+
+.menuFormCard {
+  border: 0;
+
+  :global {
+    .@{prefix-cls}-card-head {
+      border-bottom: 0;
+    }
+
+    .@{prefix-cls}-card-body {
+      padding: 0 10px !important;
+    }
+
+    .@{prefix-cls}-form-item-label {
+      padding: 8px 0 0;
+    }
+  }
+}
+
+.menuFormBtn {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #e9e9e9;
+  padding: 10px 16px;
+  background: #fff;
+  text-align: right;
+}

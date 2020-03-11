@@ -1,0 +1,15 @@
+@list-prefix-cls: ~'@{ant-prefix}-list';
+@border-color-split: #f3f3f3;
+
+.@{list-prefix-cls} {
+  &&-bordered {
+    border-color: @border-color-split;
+    border-radius: 0;
+  }
+  & &-footer {
+    text-align: right;
+    button + button {
+      margin-left: 4px;
+    }
+  }
+}

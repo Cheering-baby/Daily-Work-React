@@ -1,0 +1,88 @@
+@import '../../../../theme/screen.less';
+
+@prefix-cls: ~'@{ant-prefix}';
+
+.pageHeaderTitle {
+  margin-bottom: 0.5rem;
+
+  .headBreadcrumb {
+    padding-left: 5px;
+    font-size: 16px;
+    color: #3B414A;
+    letter-spacing: 0;
+    text-align: left;
+  }
+
+  .headBreadcrumbBold {
+    font-size: 16px;
+    color: #001D00;
+    letter-spacing: 0;
+    text-align: left;
+    line-height: 24px;
+    font-weight: 600;
+  }
+}
+
+.information {
+  position: relative;
+  align-items: center;
+  font-size: 16px;
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.32);
+  padding: 0;
+
+  :global {
+    .@{prefix-cls}-card-head {
+      font-weight: 600;
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0.24px;
+      min-height: 30px;
+      margin-bottom: 0;
+      border-bottom-color: #fff;
+      padding: 0 !important;
+    }
+
+    .@{prefix-cls}-card-head-title {
+      font-size: 17px;
+      color: #171B21;
+      letter-spacing: 0.27px;
+      line-height: 10px;
+    }
+
+    .@{prefix-cls}-card-bordered {
+      border: 0;
+      padding: 1rem 0 0.5rem 0;
+    }
+
+    .@{prefix-cls}-card-extra {
+      padding: 4px 0;
+    }
+  }
+}
+
+.detailInformation {
+  :global {
+    .@{prefix-cls}-card-body {
+      padding: 0 !important;
+    }
+
+    .@{prefix-cls}-card-bordered {
+      border: 0;
+      padding: 0 0 0.5rem 0;
+    }
+  }
+}
+
+.addDetailInformation {
+  :global {
+    .@{prefix-cls}-card-body {
+      padding: 0 !important;
+    }
+
+    .@{prefix-cls}-card-bordered {
+      border: 0;
+      padding: 0 0 0.5rem 0;
+    }
+  }
+}

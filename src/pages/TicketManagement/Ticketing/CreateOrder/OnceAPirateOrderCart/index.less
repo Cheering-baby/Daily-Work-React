@@ -1,0 +1,103 @@
+@import '../../../../../theme/screen.less';
+
+.marginBottom8{
+  margin-bottom: 8px;
+}
+
+.cardBoxShadow {
+  box-shadow: 2px 3px 4px #DADADA;
+  position: relative;
+}
+
+.colorRed {
+  color: #DE6865;
+}
+
+.titleBlack {
+  font-family: calibriBold;
+  font-size: 17px;
+  color: #565656;
+  margin-bottom: 6px;
+}
+
+.basicInfoContent {
+  margin-bottom: 6px;
+
+  > div:not(.basicInfoInput) {
+    padding: 4px;
+  }
+
+  > div:nth-child(1) {
+    text-align: right;
+    font-family: Calibri;
+    font-size: 15px;
+    color: #858585;
+  }
+
+  > div:nth-child(2):not(.basicInfoInput) {
+    font-family: Calibri;
+    font-size: 15px;
+    color: #3B414A;
+  }
+
+  .basicInfoInput {
+    padding: 0 4px;
+    margin-top: -3px
+  }
+}
+
+.pricingSettingDiv {
+  height: 400px;
+  overflow-y: auto;
+}
+
+.pricingSettingTier {
+  padding: 0 8px;
+  border-left: 3px solid #118AFA;
+  font-family: Calibri;
+  text-align: left;
+  font-size: 15px;
+  color: #171B21;;
+}
+
+.orderTitleStyles {
+  width: 100%;
+  height: 34px;
+
+  .orderTitleTipStyles {
+    display: inline-block;
+    width: calc(100% - 105px);
+    text-align: right;
+    color: #F98C02;
+    padding-right: 12px
+  }
+
+  .orderTitleButtonStyles {
+    display: inline-block;
+    width: 105px;
+  }
+}
+
+.buttonControl {
+  width: 100%;
+  border-top: 1px solid #e9e9e9;
+  text-align: right;
+  margin: 30px 0 0 0px;
+}
+
+.buttonControlRow {
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+}
+.formStyle {
+  :global {
+    .ant-form-item {
+      margin-bottom: 0 !important;
+    }
+    .ant-form-item-control {
+      line-height: 32px;
+    }
+  }
+}

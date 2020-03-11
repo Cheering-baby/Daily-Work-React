@@ -1,0 +1,38 @@
+@import '../../../../theme/screen';
+
+.orderTitleStyles {
+
+  @media screen and (max-width: @screenXsMax) {
+    width: 100%;
+    height: 60px;
+    text-align: center;
+    .orderTitleTipStyles {
+      color: #F98C02;
+    }
+    .orderTitleButtonStyles {
+      .orderAmount {
+        margin-left: 5px;
+      }
+    }
+  }
+  @media screen and (min-width: @screenSmMin) {
+    width: 100%;
+    height: 34px;
+    text-align: right;
+    .orderTitleTipStyles {
+      display: inline-block;
+      text-align: right;
+      color: #F98C02;
+      padding-right: 12px
+    }
+    .orderTitleButtonStyles {
+      display: inline-block;
+      min-width: 105px;
+      .orderAmount {
+        margin-left: 5px;
+      }
+    }
+  }
+
+
+}

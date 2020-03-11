@@ -1,0 +1,55 @@
+@prefix-cls: ~'@{ant-prefix}';
+
+.searchTitle {
+  border: 0;
+
+  :global {
+    .@{prefix-cls}-table-title {
+      padding: 10px 0 !important;
+    }
+
+    .@{prefix-cls}-table-row {
+      overflow: hidden;
+
+      :hover {
+        overflow: initial;
+      }
+    }
+
+    th div {
+      font-weight: 600;
+    }
+  }
+}
+
+.stateCard {
+  border: 0;
+
+  :global {
+    .@{prefix-cls}-card-body {
+      padding: 0 !important;
+    }
+  }
+
+  .stateCardQryRow {
+    margin-bottom: 1rem;
+  }
+}
+
+.stateCompCol {
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.stateCompBtnCol {
+  float: right;
+  text-align: right;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+

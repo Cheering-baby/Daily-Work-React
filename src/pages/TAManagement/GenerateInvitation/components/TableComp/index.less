@@ -1,0 +1,31 @@
+@prefix-cls: ~'@{ant-prefix}';
+
+.searchTitle {
+  border: 0;
+
+  :global {
+    .@{prefix-cls}-table-title {
+      padding: 10px 0 !important;
+    }
+
+    .@{prefix-cls}-table-row {
+      overflow: hidden;
+
+      :hover {
+        overflow: initial;
+      }
+    }
+
+    th div {
+      font-weight: 600;
+    }
+  }
+}
+
+.tableOperations {
+  margin-bottom: 16px;
+
+  > button {
+    margin-right: 8px;
+  }
+}

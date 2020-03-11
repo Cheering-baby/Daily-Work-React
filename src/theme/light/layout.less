@@ -1,0 +1,45 @@
+@layout-prefix-cls: ~'@{ant-prefix}-layout';
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  z-index: 9;
+  transition: width 0.2s;
+}
+.@{layout-prefix-cls}-sider {
+  float: left;
+  + .@{layout-prefix-cls} {
+    padding-top: 64px;
+    .@{layout-prefix-cls}-header {
+      position: fixed;
+      left: 256px;
+      top: 0;
+      right: 0;
+      transform: 1s;
+      z-index: 2;
+    }
+    .@{layout-prefix-cls}-content {
+      min-height: auto;
+      height: auto !important;
+    }
+  }
+}
+.@{layout-prefix-cls}-sider-collapsed {
+  + .@{layout-prefix-cls} {
+    .@{layout-prefix-cls}-header {
+      position: fixed;
+      left: 0;
+    }
+  }
+}
+div.@{layout-prefix-cls} {
+  min-height: 100%;
+  height: 100%;
+  &:after {
+    content: ' ';
+    display: table;
+    clear: both;
+  }
+}

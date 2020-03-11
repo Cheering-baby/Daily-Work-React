@@ -1,0 +1,22 @@
+export default {
+  GI_Q_EMAIL_ADDRESS: 'Email Address',
+  GI_Q_BEGIN_INVITATION_DATE: 'Begin Invitation Date',
+  GI_Q_END_INVITATION_DATE: 'End Invitation Date',
+  GI_Q_STATUS: 'Status',
+  GI_BTN_INVITATION: 'Invitation',
+  GI_BTN_SENT: 'Sent',
+  GI_TABLE_NO: 'No.',
+  GI_TABLE_EMAIL_ADDRESS: 'Email Address',
+  GI_TABLE_INVITATION_DATE: 'Invitation Date',
+  GI_TABLE_STATUS: 'Status',
+  GI_TABLE_STATUS_ERROR: 'FAIL',
+  GI_TABLE_STATUS_WARNING: 'WARNING',
+  GI_TABLE_STATUS_SUCCESS: 'SUCCESS',
+  GI_TABLE_STATUS_DEFAULT: 'DEFAULT',
+  GI_USER_PERSPECTIVE: 'USER PERSPECTIVE',
+  GI_USER_PERSPECTIVE_DEAR: 'Dear travel agency',
+  GI_USER_PERSPECTIVE_CONTENT:
+    'Hello, I sincerely invite you to register for PAMS. Please click the link to register',
+  GI_USER_PERSPECTIVE_URL: 'URL',
+  GI_USER_PERSPECTIVE_AGENCY: 'Main travel agency: XXX',
+};
