@@ -28,6 +28,12 @@ const themeParkList = [
     disabled: false,
   },
   {
+    group: 1,
+    value: 'MXM',
+    label: 'Maritime Experiential Museum',
+    disabled: false,
+  },
+  {
     group: 2,
     value: 'DOL',
     label: 'Dolphin Island',
@@ -68,6 +74,11 @@ class SearchPanel extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('click', this.closeYearPanel);
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'seasonalityCalendarMgr/resetData',
+      payload: {},
+    });
   }
 
   changeThemeParkCode = e => {
@@ -88,7 +99,7 @@ class SearchPanel extends Component {
         year: undefined,
       },
     });
-  }
+  };
 
   changeYear = value => {
     console.log(value);
@@ -145,9 +156,15 @@ class SearchPanel extends Component {
       year,
     };
     form.setFieldsValue(data);
-    form.validateFields((err, values) => {
+    form.validateFields(err => {
       if (!err) {
-        console.log('search');
+        dispatch({
+          type: 'seasonalityCalendarMgr/queryPeakDateList',
+          payload: {
+            year,
+            themeParkCode,
+          },
+        });
       }
     });
   };

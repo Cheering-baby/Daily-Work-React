@@ -31,4 +31,6 @@ export default {
   REMARK: 'Remark',
   NUMBER: 'Number',
   ADD_MENU_SCHEME: '+ Add Menu Scheme',
+  YEAR: 'Year',
+  THEME_PARK: 'Theme Park',
 };

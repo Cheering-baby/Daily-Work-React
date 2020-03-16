@@ -84,13 +84,13 @@ export default {
       });
     },
     *resetEditOnceAPirateOrder({ payload }, { put, select, take }) {
-      const { themeParkList, } = yield select(state => state.ticketMgr);
+      const { themeParkList } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
           {},
           {
             ...themePark,
-            disabled: themePark.value!=='OAP',
+            disabled: themePark.value !== 'OAP',
           }
         );
         return newData;
@@ -106,7 +106,7 @@ export default {
       });
     },
     *initEditOnceAPirateOrder({ payload }, { put, select, take }) {
-      const { onceAPirateOrder, themeParkList, } = yield select(state => state.ticketMgr);
+      const { onceAPirateOrder, themeParkList } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
           {},
@@ -249,9 +249,13 @@ export default {
     },
 
     *queryOAPOfferList({ payload }, { call, put, select }) {
-      const { selectOfferData, orderIndex, onceAPirateOrder, dateOfVisit, themeParkChooseList = [] } = yield select(
-        state => state.ticketMgr
-      );
+      const {
+        selectOfferData,
+        orderIndex,
+        onceAPirateOrder,
+        dateOfVisit,
+        themeParkChooseList = [],
+      } = yield select(state => state.ticketMgr);
 
       yield put({
         type: 'save',
@@ -310,8 +314,7 @@ export default {
       } else throw resultMsg;
     },
     queryOfferList: [
-      // eslint-disable-next-line func-names
-      function*({ payload }, { select, put, call }) {
+      function* queryOfferListFunction({ payload }, { select, put, call }) {
         const response = yield call(queryOfferList, payload);
         const {
           themeParkList: attractionList = [],
@@ -361,7 +364,6 @@ export default {
             }
             let attractionProduct;
             const prices = [];
-            // eslint-disable-next-line no-loop-func
             resultDetail.offerProfile.productGroup.forEach(item => {
               const { productType } = item;
               if (productType === 'Attraction') {
@@ -443,8 +445,7 @@ export default {
     ],
 
     queryDolphinIsland: [
-      // eslint-disable-next-line func-names
-      function*({ payload }, { call, put, select }) {
+      function* queryDolphinIslandFunction({ payload }, { call, put, select }) {
         const response = yield call(queryOfferList, payload);
         const { dateOfVisit, numOfGuests } = yield select(({ ticketMgr }) => ticketMgr);
         if (!response) return false;

@@ -3,24 +3,39 @@ import { Calendar } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
-export default class CalendarShow extends Component {
-  componentDidMount() {
-    const week = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const weeks = document.getElementsByClassName('ant-fullcalendar-column-header-inner');
-    for (let i = 0; i < weeks.length; i += 1) {
-      weeks[i].textContent = week[i];
+class CalendarShow extends Component {
+  dateFullCellRender = data => {
+    const { peakPeriods = [] } = this.props;
+    const date = data.format('YYYY-MM-DD');
+    const day = data.format('DD');
+
+    let peak = false;
+    if (peakPeriods.indexOf(date) !== -1) {
+      peak = true;
     }
-  }
+    return (
+      <div className={peak ? styles.dayPeak : styles.day}>
+        <span className={peak ? styles.peak : styles.day}>{day}</span>
+      </div>
+    );
+  };
 
   render() {
     const { month } = this.props;
     return (
       <div className={styles.container}>
-        <div className={styles.month}>{moment(month).format('MMM')}</div>
+        <div className={styles.month}>{moment(month).format('MMMM')}</div>
         <div>
-          <Calendar fullscreen={false} />
+          <Calendar
+            fullscreen={false}
+            style={{ width: '100%' }}
+            dateFullCellRender={this.dateFullCellRender}
+            value={moment(month)}
+          />
         </div>
       </div>
     );
   }
 }
+
+export default CalendarShow;

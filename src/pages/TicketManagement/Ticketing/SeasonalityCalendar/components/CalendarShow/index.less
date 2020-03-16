@@ -1,25 +1,21 @@
 .container {
   height: 240px;
-  width: 260px;
   background: #ffffff;
   border: 1px solid #d9d9d9;
   :global {
     .ant-fullcalendar-header {
       display: none;
     }
-    .ant-fullcalendar-tbody {
-      tr:last-child {
-        display: none;
-      }
-      td {
-        height: 40px;
-      }
+    .ant-fullcalendar-last-month-cell,
+    .ant-fullcalendar-next-month-btn-day {
+      visibility: hidden;
+    }
+
+    .ant-fullcalendar table {
+      height: 200px;
     }
     .ant-fullcalendar {
       border-width: 0;
-    }
-    .ant-fullcalendar-cell {
-        height: 40px;
     }
     .ant-fullcalendar-column-header-inner {
       font-weight: 600;
@@ -35,4 +31,30 @@
   height: 30px;
   line-height: 30px;
   padding-left: 8px;
+}
+
+.day {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayPeak {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.peak {
+  display: inline-block;
+  height: 25px;
+  width: 25px;
+  line-height: 25px;
+  text-align: center;
+  background-color: rgb(254, 238, 217);
+  color: rgb(250, 155, 34);
+  border-width: 0;
+  border-radius: 50%;
 }
