@@ -51,7 +51,7 @@ class CompanyInformationToFrom extends PureComponent {
       onHandleChange,
     } = this.props;
     const { getFieldDecorator } = form;
-    const { companyInfo = {} } = customerInfo || {};
+    const companyInfo = (customerInfo || {}).companyInfo || {};
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });
     let isAllDisabled = false;
     let isRoleDisabled = false;

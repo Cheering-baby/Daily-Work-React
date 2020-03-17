@@ -122,7 +122,7 @@ class SearchPanel extends Component {
   search = () => {
     const {
       form,
-      ticketMgr: { themeParkChooseList = [], numOfGuests, searchPanelActive },
+      ticketMgr: { themeParkChooseList = [], numOfGuests },
     } = this.props;
     form.setFieldsValue({
       themePark: themeParkChooseList,
@@ -276,13 +276,14 @@ class SearchPanel extends Component {
 
   disabledDateOfVisit = current => {
     // Can not select days before today and today
-    return (
-      current &&
-      current <
-        moment(new Date())
-          .add(-1, 'days')
-          .endOf('day')
-    );
+    const nowDate = new Date();
+    let result = false;
+    const minDate = moment(nowDate).add(-1, 'days').endOf('day');
+    const maxDate = moment(nowDate).add(6, 'months').endOf('day');
+    if (current && (current < minDate || current > maxDate)) {
+      result = true;
+    }
+    return result;
   };
 
   accessibleSeatChange = e => {
@@ -346,7 +347,7 @@ class SearchPanel extends Component {
       <Spin spinning={showLoading}>
         <Card
           className={styles.marginTop4}
-          style={{ minHeight: clientHeight }}
+          style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
           bodyStyle={{ padding: 0 }}
         >
           <div style={{ padding: 15 }}>
@@ -362,23 +363,20 @@ class SearchPanel extends Component {
                     },
                   ],
                 })(
-                  <Checkbox.Group
-                    key={'Checkbox'}
-                    onChange={this.changeThemeParkChoose}
-                  >
+                  <Checkbox.Group key="Checkbox" onChange={this.changeThemeParkChoose}>
                     {themeParkList &&
-                    themeParkList.map(item => {
-                      return (
-                        <Checkbox
-                          disabled={item.disabled}
-                          value={item.value}
-                          key={'themePark_'+item.value}
-                          style={{ display: 'block', color: '#3B414A', margin: '5px 0px' }}
-                        >
-                          {item.label}
-                        </Checkbox>
-                      );
-                    })}
+                      themeParkList.map(item => {
+                        return (
+                          <Checkbox
+                            disabled={item.disabled}
+                            value={item.value}
+                            key={`themePark_${  item.value}`}
+                            style={{ display: 'block', color: '#3B414A', margin: '5px 0px' }}
+                          >
+                            {item.label}
+                          </Checkbox>
+                        );
+                      })}
                   </Checkbox.Group>
                 )}
                 {themeParkTipType === '1' && (
@@ -390,7 +388,7 @@ class SearchPanel extends Component {
               <FormItem {...formItemLayout} label={formatMessage({ id: 'DATE_OF_VISIT' })}>
                 {getFieldDecorator('dateOfVisit', {
                   validateTrigger: '',
-                  initialValue: dateOfVisit,
+                  initialValue: dateOfVisit ? moment(dateOfVisit, 'x') : null,
                   rules: [
                     {
                       required: true,
@@ -398,26 +396,16 @@ class SearchPanel extends Component {
                     },
                   ],
                 })(
-                  <div
-                    className={`${styles.formatTime} ${dateOfVisit ? styles.formatPadding : null}`}
-                  >
-                    <DatePicker
-                      disabled={searchPanelActive}
-                      allowClear
-                      value={dateOfVisit ? moment(dateOfVisit, 'x') : null}
-                      style={{ width: '100%' }}
-                      placeholder="Select Date"
-                      showToday={false}
-                      format="DDMMYYYY"
-                      onChange={this.changeDateOfVisit}
-                      disabledDate={this.disabledDateOfVisit}
-                    />
-                    {dateOfVisit ? (
-                      <div className={styles.time}>
-                        {moment(dateOfVisit, 'x').format('DD-MM-YYYY')}
-                      </div>
-                    ) : null}
-                  </div>
+                  <DatePicker
+                    disabled={searchPanelActive}
+                    allowClear
+                    style={{ width: '100%' }}
+                    placeholder="Select Date"
+                    showToday={false}
+                    format="DD-MMM-YYYY"
+                    onChange={this.changeDateOfVisit}
+                    disabledDate={this.disabledDateOfVisit}
+                  />
                 )}
               </FormItem>
               {activeGroup === 3 && (
@@ -438,8 +426,8 @@ class SearchPanel extends Component {
                       showSearch
                     >
                       {sessionTimeList &&
-                        sessionTimeList.map((item,index) => (
-                          <Select.Option key={item.value+'_'+index} value={item.value}>
+                        sessionTimeList.map((item, index) => (
+                          <Select.Option key={`${item.value  }_${  index}`} value={item.value}>
                             {item.label}
                           </Select.Option>
                         ))}

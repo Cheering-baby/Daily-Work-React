@@ -1,4 +1,5 @@
 @prefix-cls: ~'@{ant-prefix}';
+@import '../../../../../theme/screen';
 
 .userPerspectiveCard {
   border: 0;
@@ -60,4 +61,24 @@
   padding: 10px 16px;
   background: #fff;
   text-align: right;
+}
+
+.userPerspectiveDrawer {
+  :global {
+    .@{prefix-cls}-drawer-content-wrapper {
+      width: 480px !important;
+      @media screen and (max-width: @screenXsMax) {
+        width: 100% !important;
+      }
+      @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
+        width: 100% !important;
+      }
+    }
+
+    .@{prefix-cls}-select-search__field {
+      font-family: 'calibri', 'Chinese Quote', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    }
+  }
 }

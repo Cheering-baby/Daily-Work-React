@@ -6,6 +6,8 @@ import MenuForm from '../MenuForm';
 import MenuDetail from '../MenuDetail';
 import { getKeyValue } from '../../utils/pubUtils';
 import styles from './index.less';
+import * as setting from '@/uaa-npm/setting';
+import { isNvl } from '@/utils/utils';
 
 const mapStateToProps = store => {
   const {
@@ -73,7 +75,7 @@ class OperationMenuFormComp extends PureComponent {
         menuUrl: menuInfo.menuUrl,
         iconUrl: menuInfo.iconUrl,
         remarks: menuInfo.remarks,
-        appCode: menuInfo.appCode,
+        appCode: isNvl(menuInfo.appCode) ? `${setting.appCode}` : menuInfo.appCode,
       };
       if (isEdit && !isDetail) {
         typeUrl = 'menuMgr/fetchModifyMenu';
@@ -84,7 +86,7 @@ class OperationMenuFormComp extends PureComponent {
           menuUrl: menuInfo.menuUrl,
           iconUrl: menuInfo.iconUrl,
           remarks: menuInfo.remarks,
-          appCode: menuInfo.appCode,
+          appCode: isNvl(menuInfo.appCode) ? `${setting.appCode}` : menuInfo.appCode,
         };
       }
       dispatch({
@@ -144,15 +146,8 @@ class OperationMenuFormComp extends PureComponent {
     if (!isEdit && isDetail) {
       titleStr = formatMessage({ id: 'MENU_DRAWER_DETAIL' });
     }
-    return (
-      <Drawer
-        id={`${viewId}`}
-        title={titleStr || null}
-        width={320}
-        closable={false}
-        visible={menuFormVisible}
-        bodyStyle={{ padding: '8px' }}
-      >
+    const bodyHtml = (
+      <React.Fragment>
         <div>
           <Card className={styles.menuFormCard} loading={menuInfoLoadingFlag}>
             {isEdit && !isDetail && (
@@ -201,6 +196,18 @@ class OperationMenuFormComp extends PureComponent {
             </Button>
           </div>
         )}
+      </React.Fragment>
+    );
+    return (
+      <Drawer
+        id={`${viewId}`}
+        title={titleStr || null}
+        className={styles.menuDrawer}
+        visible={menuFormVisible}
+        onClose={this.onClose}
+        bodyStyle={{ padding: '8px' }}
+      >
+        {bodyHtml}
       </Drawer>
     );
   }

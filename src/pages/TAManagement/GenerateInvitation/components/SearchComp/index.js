@@ -181,9 +181,10 @@ class SearchComp extends Component {
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
             {getFieldDecorator('status', {
-              initialValue: searchForm.status || null,
+              initialValue: searchForm.status || [],
             })(
               <Select
+                allowClear
                 showSearch
                 placeholder={formatMessage({ id: 'GI_Q_STATUS' })}
                 optionFilterProp="children"

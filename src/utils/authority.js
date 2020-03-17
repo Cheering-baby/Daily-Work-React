@@ -20,3 +20,7 @@ export function setAuthority(authority) {
   const proAuthority = typeof authority === 'string' ? [authority] : authority;
   return localStorage.setItem('antd-pro-authority', JSON.stringify(proAuthority));
 }
+
+export function checkAuthority(privileges = [], privilegeCode = '') {
+  return privileges.findIndex(item => item.componentCode === privilegeCode) > -1;
+}

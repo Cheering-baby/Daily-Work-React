@@ -1,6 +1,102 @@
-.titleFont {
+.titleBlack {
+  border-left: 4px solid #118AFA;
+  padding: 4px 8px;
   font-family: calibriBold;
-  font-size: 15px;
-  color: #3B414A;
-  letter-spacing: 0.24px;
+  font-size: 14px;
+  color: #171B21;
+  letter-spacing: 0.22px;
+}
+
+.payModelBtn {
+  float: left;
+  cursor: pointer;
+  margin-right: 14px;
+  width: 120px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border: 1px solid #D9D9D9;
+}
+
+.payModelSpan {
+  font-family: calibriBold;
+  font-size: 14px;
+  color: #171B21;
+  letter-spacing: 0.22px;
+}
+
+.payModelActiveBtn {
+  float: left;
+  cursor: pointer;
+  margin-right: 14px;
+  width: 120px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border: 1px solid #118AFA;
+  position: relative;
+  .payModelActiveIconDiv {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 20px;
+    height: 16px;
+    border-color: transparent #118AFA transparent transparent;
+    border-style: solid solid dashed dashed;
+    border-width: 22px 22px 0 0;
+  }
+  .payModelActiveIcon {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: #fff;
+    font-size: 12px;
+  }
+}
+
+.infoIconDiv {
+  line-height: 40px;
+  .infoIcon {
+    color: #FCC22D;
+  }
+  .infoIconSpan {
+    padding-left: 10px;
+    font-family: calibriBold;
+    font-size: 18px;
+    color: #171B21;
+    letter-spacing: 0.31px;
+  }
+}
+
+.balanceDiv {
+  line-height: 32px;
+  .balanceSpan {
+    font-size: 14px;
+    color: #ABACB2;
+    letter-spacing: 0.22px;
+    line-height: 26px;
+  }
+  .balancePriceSpan {
+    font-size: 14px;
+    color: #000;
+    letter-spacing: 0.22px;
+    line-height: 26px;
+  }
+  .balanceIcon {
+    margin-left: 20px;
+    cursor: pointer;
+  }
+}
+
+.topUpDiv {
+  margin-top: 10px;
+  .topUpInput {
+    width: 200px;
+  }
+  .topUpBtn {
+    margin-left: 10px;
+    background-color: #118AFA;
+    color: #fff;
+    padding: 0 20px;
+  }
 }

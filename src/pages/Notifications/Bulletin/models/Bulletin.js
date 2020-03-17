@@ -1,101 +1,83 @@
-import { message } from 'antd';
-import { queryNotifications, queryNotificationsType } from '../service/Bulletin';
+import { queryNotificationList } from '../../services/notification';
 
 export default {
   namespace: 'bulletin',
 
   state: {
-    queryParams: {
-      title: '',
-      type: '',
-      status: '',
-      targetType: '',
-      pageSize: 5,
-      currentPage: 1,
+    type: '02',
+    filter: {
+      title: undefined,
+      type: undefined,
+      status: undefined,
+      // bulletin
+      notificationTypeList: ['01'],
+      targetList: [],
+      startDate: undefined,
+      endDate: undefined,
     },
-    currentPage: 1,
-    pageSize: 5,
-    totalSize: 0,
+    pagination: {
+      currentPage: 1,
+      pageSize: 10,
+    },
     notificationList: [],
-    notificationTypeList: [],
-    targetTypeList: [],
-    statusList: [],
   },
 
   effects: {
-    *queryNotifications(_, { call, put, select }) {
-      const { queryParams, currentPage: qryCurrentPage, pageSize: qryPageSize } = yield select(
-        state => state.bulletin
-      );
-      const { title, type, status, targetType } = queryParams;
-      const { data } = yield call(
-        queryNotifications,
-        qryCurrentPage,
-        qryPageSize,
-        type,
-        targetType,
-        status,
-        title
-      );
-      const { resultCode, resultMsg } = data;
-      if (resultCode === '0') {
-        const { systemNotificationList, totalSize = 0, pageSize = 5, currentPage = 1 } = data;
+    *queryNotificationList(_, { call, put, select }) {
+      const { filter, pagination } = yield select(state => state.bulletin);
+      const requestData = {
+        ...filter,
+        ...pagination,
+      };
+      const result = yield call(queryNotificationList, requestData);
+
+      const { data: resultData, success, errorMsg } = result;
+
+      if (success) {
+        const {
+          resultCode,
+          resultMsg,
+          result: {
+            notificationList = [],
+            pageInfo: { currentPage, pageSize, totalSize },
+          },
+        } = resultData;
+
+        if (resultCode !== '0') {
+          throw resultMsg;
+        }
+
+        if (notificationList && notificationList.length > 0) {
+          notificationList.map(v => {
+            Object.assign(v, { key: `${v.id}` });
+            return v;
+          });
+        }
+
         yield put({
           type: 'save',
           payload: {
-            notificationList: systemNotificationList,
-            totalSize,
-            pageSize,
-            currentPage,
+            pagination: {
+              currentPage,
+              pageSize,
+              totalSize,
+            },
+            notificationList,
           },
         });
-      } else message.warn(resultMsg, 10);
+      } else throw errorMsg;
     },
-    *queryNotificationTypeList(_, { call, put }) {
-      const { data } = yield call(queryNotificationsType, 2);
-      // const { resultCode, resultMsg } = data;
-      // if (resultCode === '0') {
-      const { dictionaryInfos } = data;
-      yield put({
-        type: 'save',
-        payload: {
-          notificationTypeList: dictionaryInfos,
-        },
-      });
-      // } else message.warn(resultMsg, 10);
-    },
-    *queryTargetTypeList(_, { call, put }) {
-      const { data } = yield call(queryNotificationsType, 3);
-      // const { resultCode, resultMsg } = data;
-      // if (resultCode === '0') {
-      const { dictionaryInfos } = data;
-      yield put({
-        type: 'save',
-        payload: {
-          targetTypeList: dictionaryInfos,
-        },
-      });
-      // } else message.warn(resultMsg, 10);
-    },
-    *queryStatusList(_, { call, put }) {
-      const { data } = yield call(queryNotificationsType, 4);
-      // const { resultCode, resultMsg } = data;
-      // if (resultCode === '0') {
-      const { dictionaryInfos } = data;
-      yield put({
-        type: 'save',
-        payload: {
-          statusList: dictionaryInfos,
-        },
-      });
-      // } else message.warn(resultMsg, 10);
-    },
-    *saveData({ payload }, { put }) {
+
+    *change({ payload }, { put }) {
       yield put({
         type: 'save',
         payload: {
           ...payload,
         },
+      });
+
+      yield put({
+        type: 'queryNotificationList',
       });
     },
   },
@@ -103,6 +85,36 @@ export default {
   reducers: {
     save(state, { payload }) {
       return { ...state, ...payload };
+    },
+    clear(state) {
+      return {
+        ...state,
+        filter: {
+          title: '',
+          type: '',
+          status: '',
+          // bulletin
+          notificationTypeList: ['01'],
+          targetList: [],
+          startDate: '',
+          endDate: '',
+        },
+        pagination: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+        notificationList: [],
+      };
+    },
+  },
+
+  subscriptions: {
+    setup({ dispatch, history }) {
+      history.listen(location => {
+        if (location.pathname !== '/Notifications/Bulletin') {
+          dispatch({ type: 'clear' });
+        }
+      });
     },
   },
 };

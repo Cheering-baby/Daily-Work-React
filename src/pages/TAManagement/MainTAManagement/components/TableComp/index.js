@@ -1,13 +1,17 @@
 import React, { PureComponent } from 'react';
 import { Badge, Button, Col, Icon, message, Modal, Popover, Row, Table, Tabs, Tooltip } from 'antd';
+import { Tabs as MobileTabs } from 'antd-mobile';
 import { connect } from 'dva';
 import moment from 'moment';
 import router from 'umi/router';
+import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
+import MobileModal from '../../../../../components/MobileModal';
 import PaginationComp from '../PaginationComp';
 import UploadContractComp from '../UploadContractComp';
 import UploadContractHistoryComp from '../UploadContractHistoryComp';
 import StateChangeHistoryComp from '../StateChangeHistoryComp';
+import SCREEN from '@/utils/screen';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { isAccountingArRole, isMainTaRole, isSaleSupportRole } from '../../../utils/pubUtils';
@@ -26,6 +30,8 @@ const mapStateToProps = store => {
     contractHisModalVisible = false,
     hisActiveKey,
     qryTaTableLoading,
+    selectMoreTaId = null,
+    taMoreVisible = false,
   } = store.mainTAManagement;
   const { contractFileList = [], contractFileUploading = false } = store.uploadContract;
   const { pagePrivileges = [] } = store.global;
@@ -41,6 +47,8 @@ const mapStateToProps = store => {
     contractHisModalVisible,
     hisActiveKey,
     qryTaTableLoading,
+    selectMoreTaId,
+    taMoreVisible,
     countryList,
     categoryList,
     marketList,
@@ -114,7 +122,7 @@ class TableComp extends PureComponent {
         dataIndex: '',
         width: '100px',
         render: (text, record) => {
-          const { pagePrivileges } = this.props;
+          const { pagePrivileges, selectMoreTaId, taMoreVisible } = this.props;
           const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
           const isMainTaRoleFlag = isMainTaRole(pagePrivileges);
           const isSaleSupportRoleFlag = isSaleSupportRole(pagePrivileges);
@@ -136,6 +144,12 @@ class TableComp extends PureComponent {
               {isSaleSupportRoleFlag && (
                 <Popover
                   placement="bottomRight"
+                  visible={
+                    !isNvl(selectMoreTaId) && String(selectMoreTaId) === String(record.taId)
+                      ? taMoreVisible
+                      : false
+                  }
+                  onVisibleChange={visible => this.onMoreVisibleChange(record.taId, visible)}
                   content={this.getMoreContent(record, isSaleSupportRoleFlag)}
                   overlayClassName={styles.popClassName}
                   getPopupContainer={() => document.getElementById(`mainTaView`)}
@@ -188,8 +202,8 @@ class TableComp extends PureComponent {
               className={styles.contentCol}
               onClick={() => this.modifyStatus(record.taId, 'inactive')}
             >
-              <img src={circleURL} alt="" />
-              {formatMessage({ id: 'TA_TABLE_ENABLE' })}
+              <img src={prohibit} alt="" className={styles.inactiveImg} />
+              {formatMessage({ id: 'TA_TABLE_PROHIBIT' })}
             </div>
           )}
           {String(record.statusName).toLowerCase() === 'inactive' && (
@@ -197,7 +211,7 @@ class TableComp extends PureComponent {
               className={styles.contentCol}
               onClick={() => this.modifyStatus(record.taId, 'active')}
             >
-              <img src={prohibit} alt="" className={styles.inactiveImg} />
+              <img src={circleURL} alt="" className={styles.inactiveImg} />
               {formatMessage({ id: 'TA_TABLE_ENABLE' })}
             </div>
           )}
@@ -206,8 +220,20 @@ class TableComp extends PureComponent {
     );
   };
 
+  onMoreVisibleChange = (taId, visible) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        selectMoreTaId: taId,
+        taMoreVisible: visible,
+      },
+    });
+  };
+
   modifyStatus = (taId, status) => {
     const { dispatch, searchList } = this.props;
+    this.onMoreVisibleChange(taId, false);
     dispatch({
       type: 'mainTAManagement/fetchUpdateProfileStatus',
       payload: {
@@ -282,11 +308,13 @@ class TableComp extends PureComponent {
 
   goEditInformation = (e, taId) => {
     e.preventDefault();
+    this.onMoreVisibleChange(taId, false);
     router.push(`/TAManagement/MainTAManagement/Edit?taId=${taId}`);
   };
 
   goDetailInformation = (e, taId) => {
     e.preventDefault();
+    this.onMoreVisibleChange(taId, false);
     router.push(`/TAManagement/MainTAManagement/Detail?taId=${taId}`);
   };
 
@@ -343,6 +371,7 @@ class TableComp extends PureComponent {
 
   onShowContractFileModal = taId => {
     const { dispatch } = this.props;
+    this.onMoreVisibleChange(taId, false);
     dispatch({
       type: 'mainTAManagement/save',
       payload: {
@@ -411,6 +440,7 @@ class TableComp extends PureComponent {
 
   onShowContractFileHisModal = taId => {
     const { dispatch } = this.props;
+    this.onMoreVisibleChange(taId, false);
     dispatch({
       type: 'mainTAManagement/save',
       payload: {
@@ -489,6 +519,45 @@ class TableComp extends PureComponent {
       onHandleContractFileChange: this.onHandleContractFileChange,
       onHandleDelContactFile: this.onHandleDelContactFile,
     };
+    const contractHisModalBody = (
+      <React.Fragment>
+        {String(hisActiveKey) === '1' && (
+          <UploadContractHistoryComp viewId="contractHisModalView" />
+        )}
+        {String(hisActiveKey) === '2' && <StateChangeHistoryComp viewId="contractHisModalView" />}
+      </React.Fragment>
+    );
+    const contractHisModalHtml = (
+      <div>
+        <MobileTabs
+          tabs={[
+            { title: formatMessage({ id: 'TA_CONTRACT_UPLOAD_HISTORY' }) },
+            { title: formatMessage({ id: 'TA_STATE_CHANGE_HISTORY' }) },
+          ]}
+          initialPage={0}
+          // onChange={(tab, index) => this.onHandleHisModalTab(index)}
+          renderTab={tab => (
+            <span style={{ overflowX: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {tab.title}
+            </span>
+          )}
+          id="contractHisModalView"
+        >
+          <div style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+            <UploadContractHistoryComp viewId="contractHisModalView" />
+          </div>
+          <div style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+            <StateChangeHistoryComp viewId="contractHisModalView" />
+          </div>
+        </MobileTabs>
+      </div>
+    );
+    const modalOpts = {
+      title: formatMessage({ id: 'TA_HISTORY' }),
+      visible: contractHisModalVisible,
+      onCancel: () => this.handleHisModalCancel(),
+      footer: null,
+    };
     return (
       <Col span={24}>
         <Table
@@ -524,36 +593,82 @@ class TableComp extends PureComponent {
           <UploadContractComp {...myFileProps} />
         </Modal>
         {contractHisModalVisible && (
-          <Modal
-            title={
-              <Tabs
-                className={styles.hisTabDiv}
-                defaultActiveKey={hisActiveKey || '1'}
-                onChange={key => this.onHandleHisModalTab(key)}
+          <React.Fragment>
+            <MediaQuery
+              maxWidth={SCREEN.screenMdMax}
+              minWidth={SCREEN.screenSmMin}
+              maxHeight={SCREEN.screenXsMax}
+            >
+              <MobileModal modalOpts={modalOpts}>{contractHisModalHtml}</MobileModal>
+            </MediaQuery>
+            <MediaQuery
+              maxWidth={SCREEN.screenMdMax}
+              minWidth={SCREEN.screenSmMin}
+              minHeight={SCREEN.screenSmMin}
+            >
+              <Modal
+                title={
+                  <Tabs
+                    className={styles.hisTabDiv}
+                    defaultActiveKey={hisActiveKey || '1'}
+                    onChange={key => this.onHandleHisModalTab(key)}
+                  >
+                    <Tabs.TabPane
+                      tab={formatMessage({ id: 'TA_CONTRACT_UPLOAD_HISTORY' })}
+                      key="1"
+                    />
+                    <Tabs.TabPane tab={formatMessage({ id: 'TA_STATE_CHANGE_HISTORY' })} key="2" />
+                  </Tabs>
+                }
+                visible={contractHisModalVisible}
+                onCancel={this.handleHisModalCancel}
+                footer={null}
+                className={styles.contractHisModal}
+                width="700px"
+                bodyStyle={{
+                  height: '450px',
+                  overflowY: 'auto',
+                  padding: '8px 16px',
+                }}
+                id="contractHisModalView"
               >
-                <Tabs.TabPane tab={formatMessage({ id: 'TA_CONTRACT_UPLOAD_HISTORY' })} key="1" />
-                <Tabs.TabPane tab={formatMessage({ id: 'TA_STATE_CHANGE_HISTORY' })} key="2" />
-              </Tabs>
-            }
-            visible={contractHisModalVisible}
-            onCancel={this.handleHisModalCancel}
-            footer={null}
-            className={styles.contractHisModal}
-            width="700px"
-            bodyStyle={{
-              height: '450px',
-              overflowY: 'auto',
-              padding: '8px 16px',
-            }}
-            id="contractHisModalView"
-          >
-            {String(hisActiveKey) === '1' && (
-              <UploadContractHistoryComp viewId="contractHisModalView" />
-            )}
-            {String(hisActiveKey) === '2' && (
-              <StateChangeHistoryComp viewId="contractHisModalView" />
-            )}
-          </Modal>
+                {contractHisModalBody}
+              </Modal>
+            </MediaQuery>
+            <MediaQuery minWidth={SCREEN.screenLgMin}>
+              <Modal
+                title={
+                  <Tabs
+                    className={styles.hisTabDiv}
+                    defaultActiveKey={hisActiveKey || '1'}
+                    onChange={key => this.onHandleHisModalTab(key)}
+                  >
+                    <Tabs.TabPane
+                      tab={formatMessage({ id: 'TA_CONTRACT_UPLOAD_HISTORY' })}
+                      key="1"
+                    />
+                    <Tabs.TabPane tab={formatMessage({ id: 'TA_STATE_CHANGE_HISTORY' })} key="2" />
+                  </Tabs>
+                }
+                visible={contractHisModalVisible}
+                onCancel={this.handleHisModalCancel}
+                footer={null}
+                className={styles.contractHisModal}
+                width="700px"
+                bodyStyle={{
+                  height: '450px',
+                  overflowY: 'auto',
+                  padding: '8px 16px',
+                }}
+                id="contractHisModalView"
+              >
+                {contractHisModalBody}
+              </Modal>
+            </MediaQuery>
+            <MediaQuery maxWidth={SCREEN.screenXsMax}>
+              <MobileModal modalOpts={modalOpts}>{contractHisModalHtml}</MobileModal>
+            </MediaQuery>
+          </React.Fragment>
         )}
       </Col>
     );

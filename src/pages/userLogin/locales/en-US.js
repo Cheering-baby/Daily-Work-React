@@ -31,6 +31,8 @@ export default {
   PWD_CONDITIONS_ONE: '1. At least 8 characters',
   PWD_CONDITIONS_TWO:
     '2. Contains three of these characters :Upper case characters, Lower case characters, Numeric characters, Symbols (e.g. #, %, &, @)',
+  PWD_CONDITIONS_ALERT:
+    'Please change the original password as soon as possible, otherwise the account will be disabled after 7 days',
 
   PWD_SECURITY_LEVEL: 'Security Level',
   PWD_SECURITY_LEVEL_LOW: 'Low',

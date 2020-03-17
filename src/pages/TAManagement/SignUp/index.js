@@ -41,21 +41,35 @@ class SignUp extends PureComponent {
     const {
       dispatch,
       location: {
-        query: { taId },
+        query: { taId, signature },
       },
-      customerInfo,
       countryList,
       categoryList,
     } = this.props;
     dispatch({
       type: 'signUp/doCleanData',
-      payload: { taId: !isNvl(taId) ? taId : null },
+      payload: {
+        taId: !isNvl(taId) ? taId : null,
+        signature: !isNvl(signature) ? signature : null,
+      },
     }).then(() => {
+      if (this.customerRef) {
+        const { form } = this.customerRef.props;
+        form.resetFields();
+      }
+      if (this.otherRef) {
+        const { form } = this.otherRef.props;
+        form.resetFields();
+      }
+      dispatch({ type: 'global/getLocale' }).then(() =>
+        dispatch({ type: 'global/getSupportLanguage' })
+      );
       dispatch({ type: 'taCommon/fetchQuerySalutationList' });
       dispatch({ type: 'taCommon/fetchQryMarketList' });
       // dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
       dispatch({ type: 'taCommon/fetchQueryOrganizationRoleList' }).then(organizationRoleInfo => {
         if (isNvl(taId) && organizationRoleInfo) {
+          const { customerInfo } = this.props;
           let newCompanyInfo = {};
           if (!isNvl(customerInfo) && !isNvl(customerInfo.companyInfo)) {
             newCompanyInfo = { ...customerInfo.companyInfo };
@@ -97,7 +111,7 @@ class SignUp extends PureComponent {
       if (!isNvl(taId)) {
         dispatch({
           type: 'taMgr/fetchQueryTaInfoWithMask',
-          payload: { taId },
+          payload: { taId, signature },
         });
       }
     });

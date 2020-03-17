@@ -1,23 +1,9 @@
-import React, { Fragment } from 'react';
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Col,
-  Form,
-  Icon,
-  Input,
-  Row,
-  Select,
-  Table,
-  Tooltip,
-} from 'antd';
+import React from 'react';
+import { Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
 import { connect } from 'dva';
-import TextArea from 'antd/es/input/TextArea';
-import router from 'umi/router';
 import styles from '../index.less';
 
 const colProps = {
@@ -27,13 +13,6 @@ const colProps = {
   xl: 6,
 };
 
-const btnColProps = {
-  xs: 24,
-  sm: 24,
-  md: 12,
-};
-
-@Form.create()
 @connect(({ roleManagement, loading }) => ({
   roleManagement,
   loading: loading.effects['roleManagement/queryUserRolesByCondition'],
@@ -63,11 +42,11 @@ class Index extends React.PureComponent {
           const { roleType } = record;
           if (roleType === '01') {
             return formatMessage({ id: 'RWS_ROLE' });
-          } if (roleType === '02') {
+          }
+          if (roleType === '02') {
             return formatMessage({ id: 'TA_ROLE' });
-          } 
-            return formatMessage({ id: 'SUB_TA_ROLE' });
-          
+          }
+          return formatMessage({ id: 'SUB_TA_ROLE' });
         },
       },
       {
@@ -83,9 +62,8 @@ class Index extends React.PureComponent {
           const { status } = record;
           if (status === '00') {
             return formatMessage({ id: 'ACTIVE' });
-          } 
-            return formatMessage({ id: 'INACTIVE' });
-          
+          }
+          return formatMessage({ id: 'INACTIVE' });
         },
       },
       {
@@ -124,9 +102,9 @@ class Index extends React.PureComponent {
     ];
   }
 
-  showTotal(total) {
+  showTotal = total => {
     return <div>Total {total} items</div>;
-  }
+  };
 
   showTableTitle = value => <span className={styles.tableTitle}>{value}</span>;
 
@@ -203,8 +181,8 @@ class Index extends React.PureComponent {
           pagination={pagination}
           loading={loading}
           columns={this.columns}
-          onChange={(pagination, filters, sorter, extra) => {
-            this.onChangeEvent(pagination, filters, sorter, extra);
+          onChange={(paginationConfig, filters, sorter, extra) => {
+            this.onChangeEvent(paginationConfig, filters, sorter, extra);
           }}
         />
       </Card>

@@ -26,10 +26,12 @@ export default {
   TA_TABLE_UPLOAD: 'Upload',
   TA_TABLE_HISTORY: 'History',
   TA_TABLE_ENABLE: 'Enable',
+  TA_TABLE_PROHIBIT: 'Prohibit',
 
   TA_TABLE_Q_START_TIME: 'Start Time',
   TA_TABLE_Q_END_TIME: 'End Time',
 
+  TA_HISTORY: 'HISTORY',
   TA_CONTRACT_UPLOAD_HISTORY: 'CONTRACT UPLOAD HISTORY',
   TA_STATE_CHANGE_HISTORY: 'STATE CHANGE HISTORY',
   TA_TABLE_CONTACT_NO: 'No.',
@@ -57,4 +59,7 @@ export default {
   TA_LEAVE_PROFILE_EDIT_TITLE: 'Are you sure you want to leave?',
   TA_LEAVE_PROFILE_EDIT_CONTENT:
     'Your operation is not completed. If you leave, you will lose information',
+  UPLOAD_FILE_SUCCESS: 'upload contract file success.',
+  PROHIBIT_TA_PROFILE_SUCCESS: 'Prohibit ta profile success.',
+  ENABLE_TA_PROFILE_SUCCESS: 'Enable ta profile success.',
 };

@@ -11,7 +11,7 @@ class SubLoginForm extends Component {
     e.preventDefault();
     const {
       form: { validateFields },
-      appcode,
+      appCode,
       redirect,
     } = this.props;
     validateFields((err, values) => {
@@ -21,7 +21,8 @@ class SubLoginForm extends Component {
           type: 'login/login',
           payload: {
             ...values,
-            appcode: appcode === undefined ? 'PAMS' : appcode,
+            appCode: appCode === undefined ? 'PAMS' : appCode,
+            loginType: '02',
             redirect,
           },
         });
@@ -43,7 +44,7 @@ class SubLoginForm extends Component {
   render() {
     const {
       form: { getFieldDecorator },
-      login: { companyList = [], userCode = null, selectCompanyId = null },
+      login: { companyList = [], userCode = null, agentId = null },
     } = this.props;
     const requiredMsg = formatMessage({ id: 'REQUIRED' });
     return (
@@ -61,12 +62,12 @@ class SubLoginForm extends Component {
           )}
         </FormItem>
         <FormItem label={formatMessage({ id: 'TA_COMPANY_NAME' })}>
-          {getFieldDecorator('orgId', {
+          {getFieldDecorator('agentId', {
             rules: [{ required: true, message: requiredMsg }],
-            initialValue: selectCompanyId,
+            initialValue: agentId || [],
           })(
             <Select
-              getPopupContainer={() => document.getElementById(`app`)}
+              getPopupContainer={() => document.getElementById(`pams`)}
               placeholder={formatMessage({ id: 'TA_COMPANY_NAME_PLACEHOLDER' })}
               disabled={!userCode}
               filterOption={(input, option) =>

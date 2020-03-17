@@ -16,7 +16,7 @@ class ContactInformationToFrom extends PureComponent {
       onHandleChange,
     } = this.props;
     const { getFieldDecorator } = form;
-    const { contactInfo = {} } = customerInfo || {};
+    const contactInfo = (customerInfo || {}).contactInfo || {};
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });
     let isDisabled = false;
     if (isAccountingArRoleFlag) {

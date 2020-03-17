@@ -1,27 +1,29 @@
-/* eslint-disable */
 import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { isEqual } from 'lodash';
+import moment from 'moment';
+
 import {
-  Card,
-  Table,
+  Breadcrumb,
   Button,
+  Card,
+  Col,
+  DatePicker,
   Form,
   Input,
-  Select,
-  DatePicker,
   Row,
-  Col,
-  Breadcrumb,
+  Select,
+  Spin,
+  Table,
   Tooltip,
 } from 'antd';
-
 import Invoice from './components/invoice';
 import Topup from './components/topup';
-
+import ARApply from './components/ARApply';
+import More from './components/More';
 import styles from './index.less';
 
+// eslint-disable-next-line no-unused-vars
 const formItemLayout = {
   labelCol: {
     // lg: { span: 6 },
@@ -38,7 +40,7 @@ const formItemLayout = {
 @Form.create()
 @connect(({ myWallet, loading }) => ({
   myWallet,
-  loading: loading.effects['myWallet/fetchAccountFlowlList'],
+  loading: loading.models.myWallet,
 }))
 class MyWallet extends React.PureComponent {
   state = {};
@@ -46,53 +48,60 @@ class MyWallet extends React.PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({ type: 'myWallet/fetchTransactionTypes' });
-    dispatch({ type: 'myWallet/fetchWalletTypes' });
+    // dispatch({ type: 'myWallet/fetchWalletTypes' });
     dispatch({ type: 'myWallet/fetchAccountDetail' });
-    dispatch({ type: 'myWallet/fetchAccountFlowlList' });
+    dispatch({ type: 'myWallet/fetchAccountFlowList' });
+    dispatch({
+      type: 'myWallet/fetchMyActivityList',
+      payload: {
+        activityTplCode: 'ACCOUNT_AR_APPLY',
+        currentPage: 1,
+        pageSize: 1,
+        queryType: '03',
+      },
+    });
   }
-
-  topUp = () => {
-    this.topup.open();
-  };
 
   handleSearch = ev => {
     ev.preventDefault();
-    const vm = this;
-    const { dispatch } = this.props;
-    vm.props.form.validateFields((err, values) => {
+    const { dispatch, form } = this.props;
+    form.validateFields((err, values) => {
       if (!err) {
-        dispatch({ type: 'myWallet/fetchAccountFlowlList', payload: { filter: values } });
+        dispatch({ type: 'myWallet/fetchAccountFlowList', payload: { filter: values } });
       }
     });
   };
 
   handleReset = () => {
-    const vm = this;
-    // const { dispatch } = vm.props;
-    vm.props.form.resetFields();
-    vm.dispatch({
-      type: 'myWallet/search',
-      payload: {
-        currentPage: 1,
-        pageSize: 10,
-      },
+    const { dispatch, form } = this.props;
+    form.resetFields();
+    form.validateFields((err, values) => {
+      if (!err) {
+        dispatch({
+          type: 'myWallet/fetchAccountFlowList',
+          payload: {
+            filter: values,
+            pagination: {
+              currentPage: 1,
+              pageSize: 20,
+            },
+          },
+        });
+      }
     });
   };
 
   handleTableChange = page => {
-    const {
-      dispatch,
-      myWallet: { pagination },
-    } = this.props;
-
-    if (!isEqual(page, pagination)) {
-      dispatch({
-        type: 'myWallet/fetchAccountFlowlList',
-        payload: {
-          pagination: page,
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'myWallet/fetchAccountFlowList',
+      payload: {
+        pagination: {
+          currentPage: page.current,
+          pageSize: page.pageSize,
         },
-      });
-    }
+      },
+    });
   };
 
   invoiceDetail = id => {
@@ -100,19 +109,19 @@ class MyWallet extends React.PureComponent {
   };
 
   render() {
-    const vm = this;
-    const { getFieldDecorator } = vm.props.form;
     const {
+      loading,
+      form: { getFieldDecorator },
       myWallet: {
         dataSource = [],
         walletTypes = [],
         transactionTypes = [],
         account = {},
         pagination = {},
+        arActivity = {},
       },
     } = this.props;
-    const eWallet = account.eWallet || {};
-    const ar = account.ar || {};
+    const { eWallet, ar } = account;
     const transactionTypesMap = {};
     transactionTypes.forEach(item => {
       transactionTypesMap[item.value] = item.label;
@@ -151,20 +160,21 @@ class MyWallet extends React.PureComponent {
       },
       {
         title: 'Transaction Time',
-        dataIndex: 'time',
         key: 'time',
-        render: (text, record) =>
-          record.sourceSystem ? record.sourceTransactionTime : record.createTime,
+        render: (text, record) => {
+          const timeText = record.sourceSystem ? record.sourceTransactionTime : record.createTime;
+          return timeText ? moment(timeText).format('DD-MMM-YYYY HH:mm:ss') : '';
+        },
       },
       {
         title: 'Income',
         key: 'income',
-        render: (text, record) => (record.flow === 0 ? `+${record.charge}` : ''),
+        render: (text, record) => (record.flow === 0 ? `+${record.charge.toFixed(2)}` : ''),
       },
       {
         title: 'Expenditure',
         key: 'expenditure',
-        render: (text, record) => (record.flow === 1 ? `-${record.charge}` : ''),
+        render: (text, record) => (record.flow === 1 ? `-${record.charge.toFixed(2)}` : ''),
       },
       {
         title: formatMessage({ id: 'STATUS' }),
@@ -173,8 +183,8 @@ class MyWallet extends React.PureComponent {
         render: text => {
           return (
             <div>
-              <span className={statusList[text]['class']} />
-              {statusList[text]['label']}
+              <span className={statusList[text].class} />
+              {statusList[text].label}
             </div>
           );
         },
@@ -190,7 +200,7 @@ class MyWallet extends React.PureComponent {
                   <Button
                     type="link"
                     icon="printer"
-                    onClick={e => vm.invoiceDetail(record.accountBookFlowId)}
+                    onClick={() => this.invoiceDetail(record.accountBookFlowId)}
                   />
                 </span>
               </Tooltip>
@@ -207,33 +217,71 @@ class MyWallet extends React.PureComponent {
       showTotal(total) {
         return `Total ${total} items`;
       },
+      current: pagination.currentPage,
+      pageSize: pagination.pageSize,
+      total: pagination.total,
     };
-    Object.assign(paginationSetting, pagination);
     return (
       <Col lg={24} md={24}>
         <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
           <Breadcrumb.Item className={styles.BreadcrumbStyle}>TA Management</Breadcrumb.Item>
           <Breadcrumb.Item className={styles.Breadcrumbbold}>My Wallet</Breadcrumb.Item>
         </Breadcrumb>
-        <Card bodyStyle={{ height: '53px' }}>
-          <Col lg={12} md={12} className={styles.flexCenter}>
-            <span className={styles.label}>eWallet: </span>
-            <span className={`${styles.labelValue} ${styles.colorBlack}`}>${eWallet.balance}</span>
-            <Button type="link" onClick={vm.topUp}>
-              Top Up
-            </Button>
-          </Col>
-          <Col lg={12} md={12} className={styles.flexCenter}>
-            <span className={styles.label}>AR:</span>
-            <span className={`${styles.labelValue} ${styles.colorOrange}`}>${ar.balance}</span>
-            {ar.balance === undefined && <Button type="link">Apply</Button>}
-          </Col>
+        <Card>
+          <Row gutter={24}>
+            <Col lg={12} md={12}>
+              <div className={`${styles.flexBetween} ${styles.walletCard}`}>
+                <div style={{ height: '100%' }} className={styles.flexCenter}>
+                  <div className={styles.lighthouse} />
+                  <div className={styles.account}>
+                    <div className={styles.label}>eWallet:</div>
+                    {eWallet && (
+                      <div className={`${styles.labelValue} ${styles.colorBlack}`}>
+                        ${eWallet.balance}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div style={{ paddingRight: '24px' }}>
+                  <Topup />
+                </div>
+              </div>
+            </Col>
+            <Col lg={12} md={12}>
+              <div className={`${styles.flexBetween} ${styles.walletCard}`}>
+                <div style={{ height: '100%' }} className={styles.flexCenter}>
+                  <div className={styles.lighthouseOrange} />
+                  <div className={styles.account}>
+                    <div className={styles.label}>AR:</div>
+                    {ar && (
+                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                        ${ar.balance}
+                      </div>
+                    )}
+                    {!ar &&
+                      (arActivity ? (
+                        <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                          Pending Operation
+                        </div>
+                      ) : (
+                        <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                          No Account-Ar
+                        </div>
+                      ))}
+                  </div>
+                </div>
+                {!ar && (
+                  <div style={{ paddingRight: '24px' }}>{arActivity ? <More /> : <ARApply />}</div>
+                )}
+              </div>
+            </Col>
+          </Row>
         </Card>
         <Card>
-          <Form className="ant-advanced-search-form" onSubmit={vm.handleSearch}>
+          <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
             <Row gutter={24}>
               <Col lg={6} xs={24}>
-                <Form.Item {...formItemLayout}>
+                <Form.Item>
                   {getFieldDecorator(`transactionId`, {
                     rules: [
                       {
@@ -244,20 +292,20 @@ class MyWallet extends React.PureComponent {
                   })(<Input placeholder="PAMS Transaction No." allowClear />)}
                 </Form.Item>
               </Col>
-              <Col span={6}>
+              <Col lg={6} xs={24}>
                 <Form.Item>
                   {getFieldDecorator(`walletType`, {
                     rules: [
                       {
                         required: false,
-                        message: '',
                       },
                     ],
                   })(
-                    <Select placeholder="Wallet Type">
+                    <Select placeholder="Wallet Type" allowClear>
                       {walletTypes.map((item, index) => {
                         return (
-                          <Select.Option value={item.value} key={index}>
+                          // eslint-disable-next-line react/no-array-index-key
+                          <Select.Option value={item.value} key={`wt_options_${index}`}>
                             {item.label}
                           </Select.Option>
                         );
@@ -266,20 +314,16 @@ class MyWallet extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col span={6}>
+              <Col lg={6} xs={24}>
                 <Form.Item>
                   {getFieldDecorator(`transactionType`, {
-                    rules: [
-                      {
-                        required: false,
-                        message: '',
-                      },
-                    ],
+                    rules: [{ required: false, message: '' }],
                   })(
-                    <Select placeholder="Transaction Type">
+                    <Select placeholder="Transaction Type" allowClear>
                       {transactionTypes.map((item, index) => {
                         return (
-                          <Select.Option value={item.value} key={index}>
+                          // eslint-disable-next-line react/no-array-index-key
+                          <Select.Option value={item.value} key={`tr_options_${index}`}>
                             {item.label}
                           </Select.Option>
                         );
@@ -288,16 +332,17 @@ class MyWallet extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col span={6}>
+              <Col lg={6} xs={24}>
                 <Form.Item>
                   {getFieldDecorator(`dateRange`, {
-                    rules: [
-                      {
-                        required: false,
-                        message: '',
-                      },
-                    ],
-                  })(<DatePicker.RangePicker></DatePicker.RangePicker>)}
+                    rules: [{ required: false, message: '' }],
+                  })(
+                    <DatePicker.RangePicker
+                      format="DD-MMM-YYYY"
+                      allowClear
+                      disabledDate={current => current && current > moment().endOf('day')}
+                    />
+                  )}
                 </Form.Item>
               </Col>
             </Row>
@@ -312,7 +357,7 @@ class MyWallet extends React.PureComponent {
                 </Button>
                 <Button
                   style={{ marginLeft: 8, width: '66px', borderRadius: '4px' }}
-                  onClick={vm.handleReset}
+                  onClick={this.handleReset}
                 >
                   {formatMessage({ id: 'BTN_RESET' })}
                 </Button>
@@ -321,23 +366,20 @@ class MyWallet extends React.PureComponent {
           </Form>
         </Card>
         <Card>
-          <Table
-            size="small"
-            className={styles.tableStyle}
-            dataSource={dataSource}
-            columns={columns}
-            pagination={paginationSetting}
-            onChange={this.handleTableChange}
-          />
+          <Spin spinning={loading}>
+            <Table
+              size="small"
+              className={styles.tableStyle}
+              dataSource={dataSource}
+              columns={columns}
+              pagination={paginationSetting}
+              onChange={this.handleTableChange}
+            />
+          </Spin>
         </Card>
         <Invoice
           onRef={ref => {
             this.invoice = ref;
-          }}
-        />
-        <Topup
-          onRef={ref => {
-            this.topup = ref;
           }}
         />
       </Col>

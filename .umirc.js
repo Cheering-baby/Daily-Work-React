@@ -12,16 +12,6 @@ export default {
   history: 'hash',
   devtool: 'source-map', // add for transfer to umi
   treeShaking: true,
-  proxy: {
-    '/proxy/ali/b2c': {
-      target: 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams',
-      changeOrigin: true,
-    },
-    '/proxy/ali/b2b': {
-      target: 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams',
-      changeOrigin: true,
-    },
-  },
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
     [
@@ -151,35 +141,5 @@ export default {
       });
     config.output.filename('[name].[hash].js').end();
     config.resolve.alias.set('@', path.join(__dirname, 'src'));
-  },
-  proxy: {
-    '/pams/v1/login': {
-      target: defaultSettings.portalDevPath,
-      changeOrigin: true,
-    },
-    '/pams/v1/postLogin': {
-      target: defaultSettings.portalDevPath,
-      changeOrigin: true,
-    },
-    '/pams/v1/logout': {
-      target: defaultSettings.portalDevPath,
-      changeOrigin: true,
-    },
-    '/pams/v1/current/menus': {
-      target: defaultSettings.portalDevPath,
-      changeOrigin: true,
-    },
-    '/pams/v1/current/page/privileges': {
-      target: defaultSettings.portalDevPath,
-      changeOrigin: true,
-    },
-    '/pams/refreshToken': {
-      target: defaultSettings.portalDevPath,
-      changeOrigin: true,
-    },
-    '/pams/common/upload': {
-      target: 'http://10.25.159.206:18091',
-      changeOrigin: true,
-    },
   },
 };

@@ -1,13 +1,12 @@
 import { cloneDeep } from 'lodash';
 import * as service from '../services/myWallet';
-
-/* eslint-disable */
+import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
 const DEFAULTS = {
-  transactionId: '',
-  transactionType: '',
-  walletTypes: '',
-  dateRange: [],
+  transactionId: null,
+  transactionType: null,
+  walletType: null,
+  dateRange: null,
   currentPage: 1,
   pageSize: 20,
 };
@@ -18,7 +17,7 @@ const MyWalletModel = {
     filter: {
       transactionId: DEFAULTS.transactionId,
       transactionType: DEFAULTS.transactionType,
-      walletTypes: DEFAULTS.walletTypes,
+      walletType: DEFAULTS.walletType,
       dateRange: DEFAULTS.dateRange,
     },
     pagination: {
@@ -28,40 +27,29 @@ const MyWalletModel = {
     },
 
     account: {},
-    walletTypes: [],
+    walletTypes: [{ label: 'eWallet', value: 'E_WALLET' }],
     transactionTypes: [],
     dataSource: [],
-    invoice: {
-      invoice: {
-        AR_NO: 'TN1300001',
-        Debit_Memo: 'NLDP1911001',
-        Date: '14/11/2019',
-        GST_Reg_No: 'M90364180J',
-        Co_Reg_No: '200502573D',
-        Payment_Term: 'Due 30 Days upon\n invoice date',
-        Page: '1 of 1',
-      },
-      details: {
-        Date: '14/11/2019',
-        Line_Description: 'WIN130000L-TOP up prepaymentfor Nov19',
-        Total_Amount: '5,000.00',
-      },
-      paymentInstructions:
-        'Payment should be made by cheque, GLRO or T/T quoting invoice numbers being paid to"Resorts World at Sentosa Pte LtdBank: DBS Bank Ltd, Address: 12 Marina Boulevard, Marina Bay Financial Centre Tower 3, Singapore 018982Bank Code: 7171. Branch Code: 003 Account No: 003-910526-6. Swift Code: DBSSSGSG',
-    },
+    arActivity: undefined,
   },
-  subscriptions: {
-    setup({ dispatch }) {},
-  },
+  subscriptions: {},
   effects: {
-    *fetchAccountFlowlList({ payload }, { call, put, select }) {
+    *fetchAccountFlowList({ payload }, { call, put, select }) {
       yield put({ type: 'save', payload });
       const { filter, pagination } = yield select(state => state.myWallet);
-      const {
-        userCompanyInfo: { companyId = '' },
-      } = yield select(state => state.global);
-      const params = {};
-      Object.assign(params, filter, pagination, { taId: companyId });
+      const params = {
+        // startDate: filter.dateRange? filter.dateRange[0]: null,
+        // endDate: filter.dateRange? filter.dateRange[1]: null
+      };
+      Object.assign(params, filter, pagination);
+      // console.log('parmas',params);
+      delete params.dateRange;
+      if (filter.dateRange) {
+        params.dateRange = [
+          filter.dateRange[0].format('YYYY-MM-DD').toString(),
+          filter.dateRange[1].format('YYYY-MM-DD').toString(),
+        ];
+      }
       const {
         data: { resultCode, resultMsg, result = [] },
       } = yield call(service.search, params);
@@ -74,33 +62,17 @@ const MyWalletModel = {
         yield put({
           type: 'save',
           payload: {
-            dataSource: dataSource,
+            dataSource,
             pagination: {
               total: result.totalSize,
               currentPage: result.currentPage,
+              pageSize: result.pageSize,
             },
           },
         });
-      }
+      } else throw resultMsg;
     },
-    *paginationChanged({ payload }, { put }) {
-      yield put({
-        type: 'save',
-        payload,
-      });
 
-      yield put({
-        type: 'fetchAccountFlowlList',
-      });
-    },
-    *fetchSelectReset({ payload }, { call, put }) {
-      yield put({
-        type: 'clear',
-      });
-      yield put({
-        type: 'fetchAccountFlowlList',
-      });
-    },
     *fetchTransactionTypes(_, { call, put }) {
       const {
         data: { resultCode, resultMsg, result = [] },
@@ -112,7 +84,7 @@ const MyWalletModel = {
             transactionTypes: result,
           },
         });
-      }
+      } else throw resultMsg;
     },
     *fetchWalletTypes(_, { call, put }) {
       const {
@@ -125,7 +97,7 @@ const MyWalletModel = {
             walletTypes: result,
           },
         });
-      }
+      } else throw resultMsg;
     },
     *fetchAccountDetail(_, { call, put, select }) {
       const {
@@ -137,13 +109,13 @@ const MyWalletModel = {
       } = yield call(service.queryAccount, params);
       if (resultCode === '0') {
         if (!result.accountProfileBean) return;
-        let bean = cloneDeep(result.accountProfileBean);
+        const bean = cloneDeep(result.accountProfileBean);
         bean.accountBookBeanList.forEach(item => {
           if (item.accountBookType === 'E_WALLET') {
-            bean['eWallet'] = cloneDeep(item);
+            bean.eWallet = cloneDeep(item);
           }
           if (item.accountBookType === 'AR_CREDIT') {
-            bean['ar'] = cloneDeep(item);
+            bean.ar = cloneDeep(item);
           }
         });
 
@@ -153,7 +125,42 @@ const MyWalletModel = {
             account: bean,
           },
         });
-      }
+      } else throw resultMsg;
+    },
+    *fetchMyActivityList(_, { call, put }) {
+      const params = {
+        activityTplCode: 'ACCOUNT_AR_APPLY',
+        currentPage: 1,
+        pageSize: 1,
+        queryType: '03',
+      };
+      const result = yield call(service.queryActivityList, params);
+      const { data: resultData, success, errorMsg } = result;
+      if (success) {
+        const {
+          resultCode,
+          resultMsg,
+          result: { activityInfoList },
+        } = resultData;
+
+        if (resultCode !== ERROR_CODE_SUCCESS) {
+          throw resultMsg;
+        }
+        let activity;
+        if (activityInfoList && activityInfoList.length > 0) {
+          activityInfoList.forEach(item => {
+            if (item.status === '02' || item.status === '03') {
+              activity = item;
+            }
+          });
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            arActivity: activity,
+          },
+        });
+      } else throw errorMsg;
     },
   },
   reducers: {
@@ -166,7 +173,7 @@ const MyWalletModel = {
         filter: {
           transactionId: DEFAULTS.transactionId,
           transactionType: DEFAULTS.transactionType,
-          walletTypes: DEFAULTS.walletTypes,
+          walletType: DEFAULTS.walletType,
           dateRange: DEFAULTS.dateRange,
         },
         pagination: {
@@ -174,7 +181,7 @@ const MyWalletModel = {
           pageSize: DEFAULTS.pageSize,
         },
         account: [],
-        walletTypes: [],
+        walletTypes: [{ label: 'eWallet', value: 'E_WALLET' }],
         transactionTypes: [],
         dataSource: [],
       };

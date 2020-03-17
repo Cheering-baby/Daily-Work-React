@@ -13,7 +13,7 @@ class IndividualSetting extends Component {
 
   }
 
-  itemValueChangeEvent = (index,offerDetail) => {
+  itemValueChangeEvent = (index,offerDetail,opType) => {
     const {
       dispatch,
       onceAPirateTicketMgr: {
@@ -31,12 +31,26 @@ class IndividualSetting extends Component {
         onceAPirateOrderData,
       },
     });
+    if (opType && opType==="updateAll") {
+      /*const diningRemarkList = offerDetail.orderInfo.individualSettingList[0].remarks.map(remark=>{
+        return Object.assign({},{
+          label: remark
+        })
+      });
+      dispatch({
+        type: 'onceAPirateTicketMgr/save',
+        payload: {
+          diningRemarkList,
+        },
+      });*/
+    }
   };
 
   render() {
 
     const {
       onceAPirateTicketMgr: {
+        queryInfo,
         onceAPirateOrderData = [],
         diningRemarkList
       },
@@ -54,16 +68,17 @@ class IndividualSetting extends Component {
                 </Col>
               </Row>
               {
-                item.orderInfo.individualSettingList && item.orderInfo.individualSettingList.map((mealItem,mealItemIndex)=>(
+                item.orderInfo.individualSettingList && item.orderInfo.individualSettingList.map((customerItem,customerItemIndex)=>(
                   <CustomerMeal
-                    key={index+'s'+mealItemIndex}
+                    key={index+'_individualSetting_'+customerItemIndex}
                     form={form}
+                    queryInfo={queryInfo}
                     offerIndex={index}
                     offerDetail={item}
-                    mealItemIndex={mealItemIndex}
+                    customerItemIndex={customerItemIndex}
                     diningRemarkList={diningRemarkList}
-                    mealItem={mealItem}
-                    itemValueChangeEvent={(index,offerDetail)=>this.itemValueChangeEvent(index,offerDetail)}
+                    customerItem={customerItem}
+                    itemValueChangeEvent={(index,offerDetail,opType)=>this.itemValueChangeEvent(index,offerDetail,opType)}
                   />
                 ))
               }

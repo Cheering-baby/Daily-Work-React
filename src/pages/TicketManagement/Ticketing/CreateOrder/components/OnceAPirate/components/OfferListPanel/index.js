@@ -6,7 +6,8 @@ import styles from './index.less';
 import OfferDetail from './components/OfferDetail';
 
 @Form.create()
-@connect(({ ticketMgr, loading, onceAPirateTicketMgr }) => ({
+@connect(({ global, ticketMgr, loading, onceAPirateTicketMgr }) => ({
+  global,
   ticketMgr,
   onceAPirateTicketMgr,
   showLoading: loading.effects['ticketMgr/queryOfferList'],
@@ -42,10 +43,8 @@ class OfferListPanel extends Component {
 
     const {
       dispatch,
-      ticketMgr: {
-        activeGroupSelectData,
-      },
       onceAPirateTicketMgr: {
+        queryInfo,
         onceAPirateOfferData = [],
       }
     } = this.props;
@@ -58,9 +57,8 @@ class OfferListPanel extends Component {
       orderQuantity+=onceAPirateOffer.orderQuantity;
     }
 
-    if (orderQuantity>activeGroupSelectData.numOfGuests) {
+    if (orderQuantity>queryInfo.numOfGuests) {
       message.warn('Offer order quantity more than No. of Guests');
-      return ;
     }
 
     dispatch({
@@ -75,7 +73,11 @@ class OfferListPanel extends Component {
   render() {
 
     const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
       onceAPirateTicketMgr: {
+        showCategory,
         onceAPirateOfferData = [],
         showCategoryLoading,
       }
@@ -129,6 +131,31 @@ class OfferListPanel extends Component {
       },
     ];
 
+    if (companyType==='02') {
+       // delete price column
+      columns.splice(1, 1);
+    }
+
+    const onceAPirateOfferDataNew = onceAPirateOfferData.filter(offerData=>{
+      let isVip = false;
+      let isRegular = false;
+      if (offerData.offerProfile && offerData.offerProfile.offerCategory) {
+        offerData.offerProfile.offerCategory.forEach(offerCategory=>{
+          if (offerCategory.categoryName === 'VIP'){
+            isVip = true;
+          }
+          if (offerCategory.categoryName === 'Regular'){
+            isRegular = true;
+          }
+        });
+      }
+      if (showCategory === '1' && isRegular) {
+        return offerData;
+      } else if (showCategory === '2' && isVip){
+        return offerData;
+      }
+    });
+
     return (
       <div>
         <Table
@@ -137,7 +164,7 @@ class OfferListPanel extends Component {
           bordered={false}
           size="small"
           columns={columns}
-          dataSource={onceAPirateOfferData}
+          dataSource={onceAPirateOfferDataNew}
           pagination={false}
           rowKey='offerNo'
           loading={showCategoryLoading}

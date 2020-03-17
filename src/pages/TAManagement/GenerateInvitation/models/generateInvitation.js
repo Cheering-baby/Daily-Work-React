@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import * as service from '../services/generateInvitation';
 import { queryDictionary } from '../../services/taCommon';
 
@@ -22,6 +23,7 @@ export default {
     qryInvitationTableLoading: false,
     statusList: [],
     emailList: [],
+    emailContent: {},
     invitationVisible: false,
     sendInvitationLoading: false,
     viewId: 'invitationView',
@@ -41,11 +43,11 @@ export default {
       } = yield call(service.queryInvitationRecordList, { ...reqParam });
       yield put({ type: 'save', payload: { qryInvitationTableLoading: false } });
       if (resultCode === '0' || resultCode === 0) {
-        const { pageInfo, invitationList } = result;
+        const { pageInfo, agentSubTaInvitationInfoList } = result;
         yield put({
           type: 'save',
           payload: {
-            invitationList: invitationList || [],
+            invitationList: agentSubTaInvitationInfoList || [],
             searchList: {
               total: Number(pageInfo.totalSize || '0'),
               currentPage: Number(pageInfo.currentPage || '1'),
@@ -71,10 +73,14 @@ export default {
       const { taId, companyName, searchForm, searchList, emailList } = yield select(
         state => state.generateInvitation
       );
+      const nowEmailList = [];
+      if (emailList && emailList.length > 0) {
+        emailList.forEach(n => nowEmailList.push(n.email));
+      }
       const reqParam = {
         taId,
         companyName,
-        emailList,
+        emailList: nowEmailList,
       };
       yield put({ type: 'save', payload: { sendInvitationLoading: true } });
       const {
@@ -82,6 +88,7 @@ export default {
       } = yield call(service.sendInvitation, { ...reqParam });
       yield put({ type: 'save', payload: { sendInvitationLoading: false } });
       if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({ id: 'SEND_SUCCESS' }), 10);
         yield put({
           type: 'save',
           payload: {
@@ -101,6 +108,24 @@ export default {
             pageSize: searchList.pageSize || '10',
           },
         });
+      } else message.warn(resultMsg, 10);
+    },
+    *fetchGenerateContent({ payload }, { call, put }) {
+      const reqParam = {
+        type: 'TA_MGMT_SUB_TA_REGISTER_INVITATION',
+        centerCode: 'Agent',
+        content: {
+          companyName: '',
+          companyFullName: '',
+          registrationLink: '',
+        },
+        ...payload,
+      };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.generateContent, { ...reqParam });
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({ type: 'save', payload: { emailContent: result || [] } });
       } else message.warn(resultMsg, 10);
     },
     *doSaveData({ payload }, { put }) {
@@ -138,6 +163,7 @@ export default {
           qryInvitationTableLoading: false,
           statusList: [],
           emailList: [],
+          emailContent: {},
           invitationVisible: false,
           sendInvitationLoading: false,
           viewId: 'invitationView',

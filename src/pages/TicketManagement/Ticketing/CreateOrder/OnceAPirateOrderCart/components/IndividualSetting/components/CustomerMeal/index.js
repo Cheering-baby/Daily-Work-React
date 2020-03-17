@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import {  Form, Row, Col, Select, Button } from 'antd';
+import {  Form, Row, Col, Select, Button, message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from '../../index.less';
+import moment from "moment";
 
 class CustomerMeal extends Component {
 
@@ -14,25 +15,25 @@ class CustomerMeal extends Component {
     const {
       offerIndex,
       offerDetail,
-      mealItemIndex,
+      customerItemIndex,
       itemValueChangeEvent
     } = this.props;
 
-    offerDetail.orderInfo.individualSettingList[mealItemIndex].meals = value;
+    offerDetail.orderInfo.individualSettingList[customerItemIndex].meals = value;
     itemValueChangeEvent(offerIndex,offerDetail);
 
   };
 
-  remarksChangeEvent = (value) => {
+  remarksChangeEvent = (valueList) => {
 
     const {
       offerIndex,
       offerDetail,
-      mealItemIndex,
+      customerItemIndex,
       itemValueChangeEvent
     } = this.props;
 
-    offerDetail.orderInfo.individualSettingList[mealItemIndex].remarks = value;
+    offerDetail.orderInfo.individualSettingList[customerItemIndex].remarks = valueList;
     itemValueChangeEvent(offerIndex,offerDetail);
 
   };
@@ -46,13 +47,146 @@ class CustomerMeal extends Component {
     } = this.props;
 
     offerDetail.orderInfo.individualSettingList = offerDetail.orderInfo.individualSettingList.map((item,index)=>{
-      if (index!==0) {
-        item = offerDetail.individualSettingList[0];
-      }
-      return item;
+      return Object.assign({},{...offerDetail.orderInfo.individualSettingList[0]});
     });
 
-    itemValueChangeEvent(offerIndex,offerDetail);
+    itemValueChangeEvent(offerIndex,offerDetail,"updateAll");
+
+  };
+
+  getMealsContent = () => {
+
+    const {
+      offerDetail,
+      customerItem,
+    } = this.props;
+
+    const {
+      offerInfo: {
+        voucherProductList = []
+      }
+    } = offerDetail;
+
+    let resultContent = '';
+
+    voucherProductList.forEach(voucherProduct=>{
+      if (voucherProduct.productNo === customerItem.meals) {
+        if (voucherProduct.productContentList && voucherProduct.productContentList.length>0) {
+          voucherProduct.productContentList.map(productContent=>{
+            if (productContent.contentType === "productDescription" && productContent.contentLanguage==="en-us") {
+              resultContent =  productContent.contentValue;
+            }
+          })
+        }
+      }
+    });
+
+    return resultContent;
+
+  };
+
+  getAvailableVoucherList = () => {
+
+    const {
+      queryInfo,
+      offerDetail,
+    } = this.props;
+    const {
+      offerInfo: {
+        voucherProductList = []
+      }
+    } = offerDetail;
+
+    const dateOfVisit = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
+
+    const newVoucherList = [];
+    voucherProductList.forEach(voucherProduct=>{
+      let maxAvailable = 0;
+      const needChoiceCount = voucherProduct.needChoiceCount || 1;
+      voucherProduct.priceRule.forEach(priceRule=>{
+        if (priceRule.priceRuleName === "DefaultPrice") {
+          priceRule.productPrice.forEach(productPrice=>{
+            if (productPrice.priceDate === dateOfVisit) {
+              maxAvailable = productPrice.productInventory === -1 ? 2147483647 : productPrice.productInventory;
+              maxAvailable = parseInt(maxAvailable / needChoiceCount);
+              if (maxAvailable>0) {
+                newVoucherList.push(Object.assign({},{...voucherProduct}));
+              }
+            }
+          })
+        }
+      });
+    });
+    return newVoucherList;
+
+  };
+
+  mealsDisabled = (selectValue) => {
+
+    const {
+      queryInfo,
+      offerDetail,
+      customerItem,
+    } = this.props;
+    const {
+      offerInfo: {
+        voucherProductList = []
+      }
+    } = offerDetail;
+
+    const dateOfVisit = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
+    let chooseAmount = 0;
+    let mealsDisabled = false;
+
+    // check amount
+    if (customerItem.meals && customerItem.meals===selectValue.productNo) {
+      mealsDisabled = false;
+    } else {
+      offerDetail.orderInfo.individualSettingList.map(item=>{
+        if (item.meals && item.meals === selectValue.productNo) {
+          chooseAmount += 1;
+        }
+      });
+      voucherProductList.forEach(voucherProduct=>{
+        let maxAvailable = 0;
+        const needChoiceCount = voucherProduct.needChoiceCount || 1;
+        if (voucherProduct.productNo === selectValue.productNo) {
+          voucherProduct.priceRule.forEach(priceRule=>{
+            if (priceRule.priceRuleName === "DefaultPrice") {
+              priceRule.productPrice.forEach(productPrice=>{
+                if (productPrice.priceDate === dateOfVisit) {
+                  maxAvailable = productPrice.productInventory === -1 ? 2147483647 : productPrice.productInventory;
+                  maxAvailable = parseInt(maxAvailable / needChoiceCount);
+                  if (maxAvailable<=chooseAmount) {
+                    mealsDisabled = true;
+                  }
+                }
+              })
+            }
+          });
+        }
+      });
+
+      const newList = offerDetail.orderInfo.individualSettingList.filter(item=>item.meals!=null);
+      if (newList.length>0) {
+        if (offerDetail.offerInfo.offerProfile && offerDetail.offerInfo.offerProfile.productGroup) {
+          const productGroupList = offerDetail.offerInfo.offerProfile.productGroup;
+          productGroupList.forEach(productGroup=>{
+            if (productGroup.productType === "Voucher") {
+              productGroup.productGroup.forEach(productGroupItem=>{
+                if (productGroupItem.choiceConstrain==="Single") {
+                  if (offerDetail.orderInfo.individualSettingList[0].meals!==selectValue.productNo) {
+                    mealsDisabled = true;
+                  }
+                }
+              })
+            }
+          })
+        }
+      }
+    }
+
+    return mealsDisabled;
 
   };
 
@@ -61,17 +195,12 @@ class CustomerMeal extends Component {
     const {
       form,
       offerDetail,
-      mealItemIndex,
-      mealItem,
+      customerItemIndex,
+      customerItem,
       diningRemarkList,
     } = this.props;
 
-    const {
-      offerInfo: {
-        voucherProductList
-      }
-    } = offerDetail;
-
+    const voucherProductList = this.getAvailableVoucherList();
     const { getFieldDecorator } = form;
 
     const gridOpts = { xs: 24, sm: 24, md: 8, lg:8, xl: 8, xxl: 8 };
@@ -100,7 +229,7 @@ class CustomerMeal extends Component {
         <Row>
           <Col span={2} style={{ padding: '8px 0',}}>
             <div className={styles.pricingSettingTier}>
-              {`Customer ${mealItemIndex === 0 ? `` : mealItemIndex}`}
+              {`Customer ${customerItemIndex === 0 ? `` : customerItemIndex}`}
             </div>
           </Col>
           <Col {...gridOpts} className={styles.basicInfoContent}>
@@ -108,13 +237,14 @@ class CustomerMeal extends Component {
               label={formatMessage({ id:'MEALS' })}
               {...formItemLayout}
             >
-              {getFieldDecorator(`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_meals`, {
+              {getFieldDecorator(`customerMeals_${offerDetail.offerInfo.offerNo}_${customerItemIndex}`, {
                 rules: [
                   { required: true, message: 'Required' },
                 ],
-                initialValue: mealItem.meals === null ? undefined : mealItem.meals,
+                initialValue: customerItem.meals === null ? undefined : customerItem.meals,
               })(
                 <Select
+                  key={'customerMeal_'+customerItemIndex}
                   showSearch
                   allowClear
                   placeholder='Please Select'
@@ -122,8 +252,9 @@ class CustomerMeal extends Component {
                   {
                     voucherProductList && voucherProductList.map((item,index)=>(
                       <Select.Option
-                        key={`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_meals_${index}`}
+                        key={`customer_${offerDetail.offerInfo.offerNo}_${customerItemIndex}_meals_${index}`}
                         value={item.productNo}
+                        disabled={this.mealsDisabled(item)}
                       >{item.productName}</Select.Option>
                     ))
                   }
@@ -132,37 +263,31 @@ class CustomerMeal extends Component {
               }
             </Form.Item>
           </Col>
-          <Col {...gridOpts} className={styles.basicInfoContent}>
+          {/*<Col {...gridOpts} className={styles.basicInfoContent}>
             <Form.Item
               label={formatMessage({ id:'REMARK' })}
               {...formItemLayout}
             >
-              {getFieldDecorator(`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_remark`, {
+              {getFieldDecorator(`customerRemark_${offerDetail.offerInfo.offerNo}_${customerItemIndex}`, {
                 rules: [
                   { required: false, message: 'Required' },
                 ],
-                initialValue: !mealItem.remarks || mealItem.remarks.length===0 ? undefined : mealItem.remarks,
+                initialValue: !customerItem.remarks || customerItem.remarks.length===0 ? undefined : customerItem.remarks,
               })(
                 <Select
+                  key={'customerRemark_'+customerItemIndex}
                   allowClear
                   mode="tags"
                   placeholder='Please Select'
                   onChange={this.remarksChangeEvent}
                 >
-                  {
-                    diningRemarkList && diningRemarkList.map((item,index)=>(
-                      <Select.Option
-                        key={`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_remark_${index}`}
-                        value={item.label}>{item.label}</Select.Option>
-                    ))
-                  }
                 </Select>
               )
               }
             </Form.Item>
-          </Col>
+          </Col>*/}
           {
-            (offerDetail.orderInfo.individualSettingList.length > 1 && mealItemIndex === 0) && (
+            (offerDetail.orderInfo.individualSettingList.length > 1 && customerItemIndex === 0) && (
               <Col span={2} offset={2}>
                 <Button type="link" size='large' className={styles.addSpanStyle} onClick={this.updateAllEvent}>
                   Update ALL
@@ -173,7 +298,7 @@ class CustomerMeal extends Component {
         </Row>
         <Row style={{marginBottom:'10px'}}>
           <Col span={16} offset={4}>
-            <span>Chicken marinated for at least 24 hours in Peri-Peri sauce and flame-grilled to order.</span>
+            <span>{this.getMealsContent()}</span>
           </Col>
         </Row>
       </div>

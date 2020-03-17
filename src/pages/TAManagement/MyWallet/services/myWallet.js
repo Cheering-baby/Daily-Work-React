@@ -1,20 +1,22 @@
+import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-const urlPathPrefix = '/proxy/ali/pams/account';
+const urlPathPrefix = '/proxy/ali/b2b/account';
 
-/* eslint-disable */
 export function queryAccount(params) {
   return UAAService.request(`${urlPathPrefix}/queryAccountDetail`, {
     method: 'GET',
-    params: params,
+    params,
   });
 }
 
 export function search(params) {
-  return UAAService.request(`${urlPathPrefix}/queryAccountFlow`, {
-    method: 'GET',
-    params: params,
-  });
+  return UAAService.request(
+    `${urlPathPrefix}/queryAccountFlow?${stringify(params, { arrayFormat: 'repeat' })}`,
+    {
+      method: 'GET',
+    }
+  );
 }
 
 export function queryTransactonTypes() {
@@ -32,6 +34,29 @@ export function queryWalletTypes() {
 export function invoiceDetail(params) {
   return UAAService.request(`${urlPathPrefix}/invoiceDetail`, {
     method: 'GET',
-    params: params,
+    params,
   });
+}
+
+export function topup(params) {
+  return UAAService.request(`${urlPathPrefix}/topup`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export function createActivity(params) {
+  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/create`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function queryActivityList(data) {
+  return UAAService.request(
+    `/proxy/ali/b2b/user/v1/activity/queryActivityList?${stringify(data)}`,
+    {
+      method: 'GET',
+    }
+  );
 }

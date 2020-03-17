@@ -1,26 +1,23 @@
 import React from 'react';
-import { Col, Form, Row, Card } from 'antd';
+import { Card, Col, Form, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import detailStyles from './ApprovalDetail.less';
 import TASignUpDetails from './TASignUpDetails';
+import ARApplyDetails from '@/pages/TAManagement/MyWallet/components/ARApplyDetails';
 
 @Form.create()
-@connect(({activityDetail}) => ({
+@connect(({ activityDetail }) => ({
   activityDetail,
 }))
 class ApprovalDetail extends React.PureComponent {
   handleInitVal = key => {
-    const {activityDetail} = this.props;
+    const { activityDetail } = this.props;
     return activityDetail[key];
   };
 
   render() {
-    const {
-      activityTplCode,
-      activityDetail: {activityInfo: {content}}
-    } = this.props;
-    // console.log(content, '-------')
+    const { activityTplCode, businessId, activityDetail } = this.props;
     return (
       <Col span={24} id="signUpView">
         <Row type="flex" justify="space-around">
@@ -31,9 +28,12 @@ class ApprovalDetail extends React.PureComponent {
                   <div className={detailStyles.titleHeader}>
                     <span>{formatMessage({ id: 'TA_REGISTRATION_INFORMATION' })}</span>
                   </div>
-                  {activityTplCode && activityTplCode === 'TA-SIGN-UP' ?
-                    <TASignUpDetails content={content}/>
-                    : null}
+                  {activityTplCode && activityTplCode === 'TA-SIGN-UP' ? (
+                    <TASignUpDetails businessId={businessId} />
+                  ) : null}
+                  {activityTplCode && activityTplCode === 'ACCOUNT_AR_APPLY' ? (
+                    <ARApplyDetails businessId={businessId} activityDetail={activityDetail} />
+                  ) : null}
                 </Col>
               </Row>
             </Card>

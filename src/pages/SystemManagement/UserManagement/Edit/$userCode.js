@@ -9,23 +9,23 @@ import styles from '../index.less';
 import UserForm from '../components/UserForm';
 
 @Form.create()
-@connect(({ userManagement, loading }) => ({
-  userManagement,
-  addLoading: loading.effects['userManagement/addTAUser'],
+@connect(({ userMgr, loading }) => ({
+  userMgr,
+  addLoading: loading.effects['userMgr/addTAUser'],
 }))
 class UserCode extends React.PureComponent {
   componentDidMount() {
-    const { dispatch, match, userManagement } = this.props;
+    const { dispatch, match, userMgr } = this.props;
     const { userCode } = match.params;
-    const { currentUserProfile = {} } = userManagement;
+    const { currentUserProfile = {} } = userMgr;
     if (Object.keys(currentUserProfile).length === 0) {
       // get detail
       dispatch({
-        type: 'userManagement/queryUserDetail',
+        type: 'userMgr/queryUserDetail',
         payload: {
           userCode,
         },
-      });
+      }).then(() => {});
     }
   }
 

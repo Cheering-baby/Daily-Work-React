@@ -3,6 +3,8 @@ import { Col, Icon, Modal, Popover, Row, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
+import { isNvl } from '@/utils/utils';
+import * as setting from '@/uaa-npm/setting';
 
 const mapStateToProps = store => {
   const {
@@ -12,6 +14,8 @@ const mapStateToProps = store => {
     menuTree,
     keys,
     qryMenuTableLoading = false,
+    selectMenuCode = null,
+    menuMoreVisible = false,
     viewId = 'menuView',
   } = store.menuMgr;
   return {
@@ -19,6 +23,8 @@ const mapStateToProps = store => {
     menuTree,
     keys,
     qryMenuTableLoading,
+    selectMenuCode,
+    menuMoreVisible,
     viewId,
   };
 };
@@ -26,6 +32,7 @@ const mapStateToProps = store => {
 @connect(mapStateToProps)
 class TableComp extends PureComponent {
   getColumns = viewId => {
+    const { menuMoreVisible = false, selectMenuCode } = this.props;
     return [
       {
         title: formatMessage({ id: 'MENU_TABLE_MENU_NAME' }),
@@ -49,12 +56,12 @@ class TableComp extends PureComponent {
         render: (text, record) => {
           return (
             <div>
-              {String(record.id) === '-1' && (
+              {isNvl(record.id) && (
                 <Tooltip placement="top" title={formatMessage({ id: 'MENU_BTN_ADD_MENU' })}>
                   <Icon type="plus" onClick={e => this.goAdd(e, record)} />
                 </Tooltip>
               )}
-              {String(record.id) !== '-1' && (
+              {!isNvl(record.id) && (
                 <React.Fragment>
                   {record.isTopMenu && !record.isBottomMenu ? (
                     <Icon type="to-top" className={styles.IconDisabled} />
@@ -75,6 +82,12 @@ class TableComp extends PureComponent {
                   )}
                   <Popover
                     placement="bottomRight"
+                    visible={
+                      !isNvl(selectMenuCode) && String(selectMenuCode) === String(record.menuCode)
+                        ? menuMoreVisible
+                        : false
+                    }
+                    onVisibleChange={visible => this.onMoreVisibleChange(record, visible)}
                     content={this.getMoreContent(record)}
                     overlayClassName={styles.popClassName}
                     getPopupContainer={() => document.getElementById(`${viewId}`)}
@@ -123,6 +136,17 @@ class TableComp extends PureComponent {
     );
   };
 
+  onMoreVisibleChange = (menuInfo, visible) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'menuMgr/save',
+      payload: {
+        selectMenuCode: menuInfo.menuCode,
+        menuMoreVisible: visible,
+      },
+    });
+  };
+
   goMoveUp = (e, menuInfo) => {
     e.preventDefault();
     const { dispatch } = this.props;
@@ -131,7 +155,7 @@ class TableComp extends PureComponent {
       payload: {
         menuCode: menuInfo.menuCode,
         parentMenuCode: menuInfo.parentMenuCode,
-        appCode: menuInfo.appCode,
+        appCode: isNvl(menuInfo.appCode) ? `${setting.appCode}` : menuInfo.appCode,
       },
     }).then(flag => {
       if (flag) {
@@ -148,7 +172,7 @@ class TableComp extends PureComponent {
       payload: {
         menuCode: menuInfo.menuCode,
         parentMenuCode: menuInfo.parentMenuCode,
-        appCode: menuInfo.appCode,
+        appCode: isNvl(menuInfo.appCode) ? `${setting.appCode}` : menuInfo.appCode,
       },
     }).then(flag => {
       if (flag) {
@@ -160,6 +184,7 @@ class TableComp extends PureComponent {
   goAdd = (e, menuInfo) => {
     e.preventDefault();
     const { dispatch } = this.props;
+    this.onMoreVisibleChange(menuInfo, false);
     dispatch({
       type: 'menuMgr/save',
       payload: {
@@ -178,6 +203,7 @@ class TableComp extends PureComponent {
   goEditMenu = (e, menuInfo) => {
     e.preventDefault();
     const { dispatch } = this.props;
+    this.onMoreVisibleChange(menuInfo, false);
     dispatch({
       type: 'menuMgr/save',
       payload: {
@@ -193,6 +219,7 @@ class TableComp extends PureComponent {
   onShowMenuView = (e, menuInfo) => {
     e.preventDefault();
     const { dispatch } = this.props;
+    this.onMoreVisibleChange(menuInfo, false);
     dispatch({
       type: 'menuMgr/save',
       payload: {
@@ -207,6 +234,7 @@ class TableComp extends PureComponent {
 
   onDeleteMenu = (e, menuInfo) => {
     e.preventDefault();
+    this.onMoreVisibleChange(menuInfo, false);
     Modal.confirm({
       title: formatMessage({ id: 'MENU_DEL_MENU_CONFIRM' }),
       okText: formatMessage({ id: 'COMMON_YES' }),
@@ -218,7 +246,7 @@ class TableComp extends PureComponent {
           type: 'menuMgr/fetchRemoveMenu',
           payload: {
             menuCode: menuInfo.menuCode,
-            appCode: menuInfo.appCode,
+            appCode: isNvl(menuInfo.appCode) ? `${setting.appCode}` : menuInfo.appCode,
           },
         }).then(flag => {
           if (flag) {
@@ -239,7 +267,7 @@ class TableComp extends PureComponent {
           columns={this.getColumns(viewId)}
           dataSource={menuTree}
           loading={qryMenuTableLoading}
-          defaultExpandedRowKeys={[...keys]}
+          defaultExpandedRowKeys={['PAMS', ...keys]}
           expandIcon={props => {
             if (props.record && props.record.menuType === '01') {
               if (props.expanded)

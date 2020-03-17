@@ -1,13 +1,26 @@
 import React from 'react';
-import {Button, Card, Col, Form, Icon, Input, Radio, Row, Select, Switch, Spin} from 'antd';
-import {formatMessage} from 'umi/locale';
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Icon,
+  Input,
+  Radio,
+  Row,
+  Select,
+  Switch,
+  Spin,
+  Checkbox,
+} from 'antd';
+import { formatMessage } from 'umi/locale';
 import classNames from 'classnames';
-import {connect} from 'dva';
-import {router} from 'umi';
+import { connect } from 'dva';
+import { router } from 'umi';
 import detailStyles from './Approval.less';
 import ApprovalHistory from './ApprovalHistory';
 
-const {Option} = Select;
+const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
@@ -18,18 +31,25 @@ const formItemLayout = {
   },
 };
 
+const formItemLayoutNonLable = {
+  wrapperCol: {
+    offset: 6,
+    span: 10,
+  },
+};
+
 const ColProps = {
   xs: 24,
 };
 
 @Form.create()
-@connect(({activityDetail, loading}) => ({
+@connect(({ activityDetail, loading }) => ({
   activityDetail,
   approveLoading: loading.effects['activityDetail/approve'],
 }))
 class Approval extends React.PureComponent {
   reroute = checked => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'activityDetail/save',
       payload: {
@@ -39,7 +59,7 @@ class Approval extends React.PureComponent {
   };
 
   radioDrawChange = e => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
 
     dispatch({
       type: 'activityDetail/save',
@@ -58,10 +78,11 @@ class Approval extends React.PureComponent {
   ok = ev => {
     ev.preventDefault();
     const {
+      form,
       dispatch,
-      activityDetail: {bReroute, approvalStatus},
+      activityDetail: { bReroute, approvalStatus },
     } = this.props;
-    this.props.form.validateFields((err, values) => {
+    form.validateFields((err, values) => {
       if (!err) {
         if (bReroute === true) {
           dispatch({
@@ -77,6 +98,7 @@ class Approval extends React.PureComponent {
             payload: {
               approvalStatus,
               reason: values.reason,
+              allowRestart: values.allowRestart,
             },
           });
         }
@@ -85,20 +107,26 @@ class Approval extends React.PureComponent {
   };
 
   handleInitVal = key => {
-    const {activityDetail} = this.props;
+    const { activityDetail } = this.props;
     return activityDetail[key];
   };
 
   render() {
     const {
-      form: {getFieldDecorator},
+      form: { getFieldDecorator },
       activityDetail: {
         bReroute,
         approvalStatus,
-        activityInfo: {status: activityStatus},
+        activityInfo: { status: activityStatus, activityTplCode },
       },
+      rerouteList = [],
       approveLoading,
     } = this.props;
+    const rerouteSelectList = rerouteList.map(item => (
+      <Option key={item} value={item}>
+        {item}
+      </Option>
+    ));
 
     return (
       <Spin spinning={approveLoading === true}>
@@ -108,11 +136,11 @@ class Approval extends React.PureComponent {
               <Card>
                 <Row type="flex" justify="space-around">
                   <Col span={24}>
-                    <ApprovalHistory/>
+                    <ApprovalHistory />
                     {activityStatus === '02' ? (
                       <div className="no-shadow no-border">
                         <div className={detailStyles.titleHeader}>
-                          <span>{formatMessage({id: 'COMMON_APPROVAL'})}</span>
+                          <span>{formatMessage({ id: 'COMMON_APPROVAL' })}</span>
                         </div>
                         <div
                           className={classNames(detailStyles.searchDiv, 'no-shadow', 'no-border')}
@@ -122,7 +150,7 @@ class Approval extends React.PureComponent {
                               <Col {...ColProps}>
                                 <Form.Item
                                   {...formItemLayout}
-                                  label={formatMessage({id: 'APPROVAL_RE_ROUTE'})}
+                                  label={formatMessage({ id: 'APPROVAL_RE_ROUTE' })}
                                 >
                                   {getFieldDecorator(`bReroute`, {
                                     rules: [
@@ -132,11 +160,12 @@ class Approval extends React.PureComponent {
                                       },
                                     ],
                                   })(
-                                    <div style={{marginTop: '4px'}}>
+                                    <div style={{ marginTop: '4px' }}>
                                       <Switch
-                                        checkedChildren={<Icon type="check"/>}
-                                        unCheckedChildren={<Icon type="close"/>}
-                                        style={{marginRight: '20px'}}
+                                        disabled={rerouteList == null || rerouteList.length === 0}
+                                        checkedChildren={<Icon type="check" />}
+                                        unCheckedChildren={<Icon type="close" />}
+                                        style={{ marginRight: '20px' }}
                                         onChange={this.reroute}
                                         checked={bReroute}
                                       />
@@ -148,7 +177,7 @@ class Approval extends React.PureComponent {
                                 <Col {...ColProps}>
                                   <Form.Item
                                     {...formItemLayout}
-                                    label={formatMessage({id: 'STATUS'})}
+                                    label={formatMessage({ id: 'STATUS' })}
                                   >
                                     {getFieldDecorator(`approvalStatus`, {
                                       rules: [
@@ -165,14 +194,14 @@ class Approval extends React.PureComponent {
                                           checked={approvalStatus === 'A'}
                                           onChange={this.radioDrawChange}
                                         >
-                                          {formatMessage({id: 'APPROVAL_ACCEPT'})}
+                                          {formatMessage({ id: 'APPROVAL_ACCEPT' })}
                                         </Radio>
                                         <Radio
                                           value="R"
                                           checked={approvalStatus === 'R'}
                                           onChange={this.radioDrawChange}
                                         >
-                                          {formatMessage({id: 'APPROVAL_REJECT'})}
+                                          {formatMessage({ id: 'APPROVAL_REJECT' })}
                                         </Radio>
                                       </Radio.Group>
                                     )}
@@ -183,26 +212,19 @@ class Approval extends React.PureComponent {
                                 <Col {...ColProps}>
                                   <Form.Item
                                     {...formItemLayout}
-                                    label={formatMessage({id: 'APPROVAL_APPROVER'})}
+                                    label={formatMessage({ id: 'APPROVAL_APPROVER' })}
                                   >
                                     {getFieldDecorator(`approver`, {
                                       rules: [
                                         {
                                           required: bReroute,
                                           msg: 'Required',
+                                          type: 'array',
                                         },
                                       ],
                                     })(
-                                      <Select placeholder="Please Select">
-                                        <Option key="reroute_user_test.rm" value="test.rm">
-                                          test.rm
-                                        </Option>
-                                        <Option key="reroute_user_main.ta" value="main.ta">
-                                          main.ta
-                                        </Option>
-                                        <Option key="reroute_user_sub.ta" value="sub.ta">
-                                          sub.ta
-                                        </Option>
+                                      <Select placeholder="Please Select" mode="multiple">
+                                        {rerouteSelectList}
                                       </Select>
                                     )}
                                   </Form.Item>
@@ -212,7 +234,7 @@ class Approval extends React.PureComponent {
                                 <Col {...ColProps}>
                                   <Form.Item
                                     {...formItemLayout}
-                                    label={formatMessage({id: 'APPROVAL_REASON'})}
+                                    label={formatMessage({ id: 'APPROVAL_REASON' })}
                                   >
                                     {getFieldDecorator(`reason`, {
                                       rules: [
@@ -221,7 +243,43 @@ class Approval extends React.PureComponent {
                                           msg: 'Required',
                                         },
                                       ],
-                                    })(<Input.TextArea placeholder="Please Enter"/>)}
+                                    })(<Input.TextArea placeholder="Please Enter" />)}
+                                  </Form.Item>
+                                </Col>
+                              ) : null}
+                              {approvalStatus === 'R' &&
+                              !bReroute &&
+                              activityTplCode === 'TA-SIGN-UP' ? (
+                                <Col {...ColProps}>
+                                  <Form.Item
+                                    className={detailStyles.allowRestart}
+                                    {...formItemLayoutNonLable}
+                                  >
+                                    {getFieldDecorator(
+                                      `allowRestart`,
+                                      {}
+                                    )(
+                                      <Checkbox>
+                                        {formatMessage({ id: 'TA_REGISTRATION_NOT_ALLOW_RESTART' })}
+                                      </Checkbox>
+                                    )}
+                                  </Form.Item>
+                                </Col>
+                              ) : null}
+                              {approvalStatus === 'A' && !bReroute ? (
+                                <Col {...ColProps}>
+                                  <Form.Item
+                                    {...formItemLayout}
+                                    label={formatMessage({ id: 'COMMON_REMARKS' })}
+                                  >
+                                    {getFieldDecorator(`reason`, {
+                                      rules: [
+                                        {
+                                          required: approvalStatus === 'R' && !bReroute,
+                                          msg: 'Required',
+                                        },
+                                      ],
+                                    })(<Input.TextArea placeholder="Please Enter" />)}
                                   </Form.Item>
                                 </Col>
                               ) : null}

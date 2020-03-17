@@ -6,7 +6,7 @@ export default {
   TA_SIGNED_CONTRACT: 'SIGNED CONTRACT',
   TA_SIGNED_UPLOADED_BY: 'Uploaded By',
   TA_SIGNED_UPLOADED_TIME: 'Uploaded Time',
-  TA_SIGNED_REGISTRATION_DOCS: 'Registration Docs ',
+  TA_SIGNED_REGISTERATION_DOCS: 'Registration Docs ',
   ACTIVITY_ID: 'Activity Id',
   ACTIVITY_TYPE: 'Type',
   REMARKS: 'Remarks',
@@ -15,4 +15,5 @@ export default {
   APPROVAL_ACCEPT: 'Accept',
   APPROVAL_REJECT: 'Reject',
   APPROVAL_APPROVER: 'Approver',
+  BUSINESS_ID: 'Agent ID/Company Name',
 };

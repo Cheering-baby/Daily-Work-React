@@ -1,9 +1,11 @@
 import moment from 'moment';
 import { routerRedux } from 'dva/router';
 import { formatMessage } from 'umi/locale';
+import { message } from 'antd';
 import { parse, stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 import loginSession from './loginSession';
+import 'isomorphic-fetch';
 
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
@@ -223,9 +225,9 @@ export function isMatchPwdRule(password, composition, userCode) {
     return formatMessage({ id: 'PWD_NOT_USER_CODE' });
   }
   if (password.length < composition.userPwdMinLength || password.length > userPwdMaxLength) {
-    msg = formatMessage({ id: 'PWD_LENGTH' })
-      .replace('{1}', composition.userPwdMinLength)
-      .replace('{2}', userPwdMaxLength);
+    msg = formatMessage({ id: 'PWD_LENGTH' });
+    msg = msg.replace('{1}', composition.userPwdMinLength);
+    msg = msg.replace('{2}', userPwdMaxLength);
     return msg;
   }
   const hasUpperCase = /[A-Z]/.test(password);
@@ -453,4 +455,65 @@ export const isString = obj => Object.prototype.toString.call(obj) === '[object 
 export function isNvl(obj) {
   if (obj === null || obj === '' || obj === undefined) return true;
   return false;
+}
+
+export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown, afterDown) {
+  if (beforeDown) {
+    beforeDown();
+  }
+  fetch(apiUrl, {
+    method: 'post',
+    body: JSON.stringify(reqParamJson),
+    credentials: 'include',
+    headers: new Headers({
+      'Content-Type': 'application/json',
+      'App-Code': 'PAMS',
+    }),
+  })
+    .then(response => {
+      response.blob().then(blob => {
+        if (afterDown) {
+          afterDown();
+        }
+        if (response.status !== 200) {
+          message.warn(
+            formatMessage({ id: 'EXPORT_FILE_STATUS' })
+              .replace('XXX', response.status)
+              .replace('YYY', response.status)
+          );
+          return;
+        }
+        let fileName = response.headers.get('Content-Disposition');
+        fileName = !isNvl(fileName) ? fileName : defaultFileName;
+        fileName = fileName.replace('attachment;filename=', '');
+        if (window.navigator.msSaveOrOpenBlob) {
+          navigator.msSaveBlob(blob, fileName);
+        } else {
+          const blobUrl = window.URL.createObjectURL(blob);
+          const aElement = document.createElement('a');
+          document.body.appendChild(aElement);
+          aElement.style.display = 'none';
+          aElement.href = blobUrl;
+          aElement.download = !isNvl(fileName) ? fileName : 'test.xlsx';
+          aElement.click();
+          document.body.removeChild(aElement);
+        }
+      });
+    })
+    .catch(error => {
+      message.warn(String(error), 10);
+      if (afterDown) {
+        afterDown();
+      }
+    });
+}
+
+export function getUrl() {
+  return `${UAAService.defaults.uaaPath}/${UAAService.defaults.backendContextPath}`;
+  // return `http://10.25.159.206:18091/pams`;
+}
+
+export function getLocalUrl() {
+  return `${UAAService.defaults.uaaPath}`;
+  // return 'http://localhost:8000';
 }

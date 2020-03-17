@@ -19,4 +19,6 @@ export default {
     'Hello, I sincerely invite you to register for PAMS. Please click the link to register',
   GI_USER_PERSPECTIVE_URL: 'URL',
   GI_USER_PERSPECTIVE_AGENCY: 'Main travel agency: XXX',
+  SEND_EMAIL_IS_NULL: 'Please enter email address.',
+  SEND_SUCCESS: 'Send Success',
 };

@@ -1,145 +1,603 @@
 import { message } from 'antd';
-import { createBooking, queryBookingStatus } from '@/pages/TicketManagement/services/bookingAndPay';
+import router from 'umi/router';
+import moment from 'moment';
+import { cloneDeep } from 'lodash';
+import {
+  createBooking,
+  queryBookingStatus,
+  paymentOrder,
+  ticketDownload,
+  accountTopUp,
+  sendTransactionPaymentOrder,
+} from '@/pages/TicketManagement/services/bookingAndPay';
+
+import {
+  queryAccountInfo,
+  queryInfoWithNoId,
+  queryAccount,
+  queryTaInfo,
+} from '@/pages/TicketManagement/services/taMgrService';
 
 export default {
   namespace: 'ticketBookingAndPayMgr',
 
   state: {
+    payPageLoading: false,
+    deliveryMode: undefined,
+    payModeList: [{
+      value: 1,
+      label: 'eWallet',
+      check: true,
+    },{
+      value: 2,
+      label: 'Credit Card',
+      check: false,
+    },{
+      value: 3,
+      label: 'AR',
+      check: false,
+    }],
+    collectionDate: null,
+    ticketAmount: 0,
+    bocaFeePax: 2.00,
     bookingOrderData: [],
     packageOrderData: [],
     generalTicketOrderData: [],
     onceAPirateOrderData: [],
+    payModelShow: false,
+    bookingNo: null,
+    taDetailInfo: null,
+    accountInfo: null,
+    bookDetail: {
+      totalPrice: 20000.00,
+    },
+    downloadFileLoading: false,
   },
 
   effects: {
-    *orderCheckOut({ payload }, { call, put }) {},
 
-    *orderBooking({ payload }, { call, put }) {
-      const patronInfo = {
-        firstName: '',
-        lastName: '',
-        gender: '',
-        email: '',
-        nationality: '',
-        phoneNo: '',
+    *initPage({ payload }, { call, put }) {
+
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+
+      yield put({
+        type: 'fetchAccountDetail',
+        payload: {
+        },
+      });
+
+      yield put({
+        type: 'fetchQueryTaDetail',
+        payload: {
+        },
+      });
+
+    },
+
+    *fetchAccountTopUp({payload}, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+      const params = { topupAmount: payload.topupAmount };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(accountTopUp, params);
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: false,
+        },
+      });
+      if (resultCode === '0') {
+        return result;
+      } else throw resultMsg;
+    },
+
+    *fetchTicketDownload(_, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          downloadFileLoading: true,
+        },
+      });
+      const {
+        bookingNo
+      } = yield select(state => state.ticketBookingAndPayMgr);
+      const params = { forderNo: bookingNo };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(ticketDownload, params);
+      yield put({
+        type: 'save',
+        payload: {
+          downloadFileLoading: false,
+        },
+      });
+      if (resultCode === '0') {
+        return result
+      } else throw resultMsg;
+    },
+
+    *fetchAccountDetail(_, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+      const {
+        userCompanyInfo: { companyId = '' },
+      } = yield select(state => state.global);
+      const params = { taId: companyId };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(queryAccount, params);
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: false,
+        },
+      });
+      if (resultCode === '0') {
+        if (!result.accountProfileBean) return;
+        let bean = cloneDeep(result.accountProfileBean);
+        bean.accountBookBeanList.forEach(item => {
+          if (item.accountBookType === 'E_WALLET') {
+            bean['eWallet'] = cloneDeep(item);
+          }
+          if (item.accountBookType === 'AR_CREDIT') {
+            bean['ar'] = cloneDeep(item);
+          }
+        });
+        yield put({
+          type: 'save',
+          payload: {
+            accountInfo: bean,
+          },
+        });
+      } else throw resultMsg;
+    },
+
+    *fetchQueryTaDetail(_, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+      const {
+        userCompanyInfo: { companyId = '' },
+      } = yield select(state => state.global);
+      const params = { taId: companyId };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(queryTaInfo, params);
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: false,
+        },
+      });
+      console.log(result);
+      if (resultCode === '0') {
+        yield put({
+          type: 'save',
+          payload: {
+            taDetailInfo: result,
+          },
+        });
+      } else throw resultMsg;
+    },
+
+    *sendTransactionPaymentOrder(_, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+      const {
+        bookingNo,
+        taDetailInfo,
+      } = yield select(state => state.ticketBookingAndPayMgr);
+
+      let emailNo = "";
+      if (taDetailInfo && taDetailInfo.otherInfo && taDetailInfo.otherInfo.billingInfo) {
+        emailNo = taDetailInfo.otherInfo.billingInfo.email;
+      }
+      const params = {
+        orderNo: bookingNo,
+        emailNo,
       };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(sendTransactionPaymentOrder, params);
+      yield put({
+        type: 'queryBookingStatus',
+        payload: {
+        },
+      });
+      if (resultCode === '0') {
+        return result;
+        message.success('Confirm successfully!');
+      } else throw resultMsg;
+    },
 
-      const param = {
+    *confirmEvent(_, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+      const {
+        userCompanyInfo: { companyId = '' },
+      } = yield select(state => state.global);
+      const {
+        bookingNo,
+        payModeList,
+      } = yield select(state => state.ticketBookingAndPayMgr);
+
+      const payMode = payModeList.filter(payMode=>payMode.check);
+      const params = {
+        bookingNo,
+        paymentMode: payMode.label,
+      };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(paymentOrder, params);
+      yield put({
+        type: 'queryBookingStatus',
+        payload: {
+        },
+      });
+      if (resultCode === '0') {
+        message.success('Confirm successfully!');
+      } else throw resultMsg;
+    },
+
+    *queryBookingStatus({ payload }, { call, put, select }) {
+
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+
+      const {
+        bookingNo
+      } = yield select(state => state.ticketBookingAndPayMgr);
+      let status = 'WaitingForPaying';
+      let statusResult = {};
+      while (status === 'WaitingForPaying') {
+        const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
+        const { resultCode: statusResultCode, result: newResult = {} } = statusData;
+        if (statusResultCode === '0') {
+          const { transStatus } = newResult;
+          status = transStatus;
+          statusResult = newResult;
+        } else {
+          status = 'Failed';
+        }
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          checkOutLoading: false,
+        },
+      });
+      if (status === 'Complete') {
+        yield put({
+          type: 'save',
+          payload: {
+            payPageLoading: false,
+            payModelShow: true,
+          },
+        });
+      }
+      if (status === 'Failed') {
+        const { failedReason } = statusResult;
+        message.error(failedReason);
+      }
+
+    },
+
+    *queryTaDetailInfo({ payload }, { call, put }) {
+      const response = yield call(queryInfoWithNoId);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        console.log(result);
+        yield put({
+          type: 'save',
+          payload: {
+            taDetailInfo: result,
+          },
+        });
+        yield put({
+          type: 'queryAccountInfo',
+          payload: {
+            taId: result.taId
+          },
+        });
+      } else throw resultMsg;
+    },
+
+    *queryAccountInfo({ payload }, { call, put }) {
+      const param = { taId: payload.taId };
+      const response = yield call(queryAccountInfo, param);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: false,
+        },
+      });
+      if (resultCode === '0') {
+        console.log(result);
+        yield put({
+          type: 'save',
+          payload: {
+            taAccountInfo: result,
+          },
+        });
+      } else throw resultMsg;
+    },
+
+    *orderCheckOut({ payload }, { call, put }) {
+      const {
+        generalTicketOrderData = [],
+        packageOrderData = [],
+        onceAPirateOrderData = [],
+      } = payload;
+
+      yield put({
+        type: 'save',
+        payload: {
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+        },
+      });
+    },
+
+    *orderCreate({ payload }, { call, put }) {
+
+      const {
+        deliveryMode,
+        collectionDate,
+        ticketAmount,
+        generalTicketOrderData = [],
+        packageOrderData = [],
+        onceAPirateOrderData = [],
+      } = payload;
+
+      let bookingParam = {
         customerId: '',
         commonOffers: [],
-        patronInfo,
+        patronInfo: null,
         totalPrice: 0,
         identificationNo: null,
         identificationType: null,
         voucherNos: [],
       };
 
-      const manageParam = list => {
-        for (let i = 0; i < list.length; i += 1) {
-          const { offerList } = list[i];
-          for (let j = 0; j < offerList.length; j += 1) {
+      const ticketOrderData = [...packageOrderData,...generalTicketOrderData];
+      ticketOrderData.forEach(orderData=>{
+        orderData.orderOfferList.forEach(orderOffer=>{
+          const {
+            queryInfo,
+            offerInfo,
+            orderInfo,
+            deliveryInfo,
+          } = orderOffer;
+          let totalPrice = 0;
+          const attractionProducts = [];
+          orderInfo.forEach(orderInfo => {
+            totalPrice += orderInfo.pricePax * orderInfo.quantity;
             const {
-              offerNo,
-              selectedRuleId,
-              // hotel param
-              arrivalTime,
-              departureTime,
-              checkInDate,
-              checkOutDate,
-              numOfAdult,
-              numOfChild,
-              withBreakfast,
-              special = [],
-              // attraction
-              visitDate,
-              products = [],
-            } = offerList[j];
-            const submitCommonOffer = {
-              offerNo,
-              priceRuleId: selectedRuleId,
-              offerCount: 1,
-              hotelProducts: [],
-              attractionProducts: [],
-              totalPrice: '',
-              voucherNos: [],
-              patronInfo,
+              productInfo,
+            } = orderInfo;
+            const attractionProduct = {
+              productNo: productInfo.productNo,
+              numOfAttraction: orderInfo.quantity,
+              visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
             };
-            for (let k = 0; k < products.length; k += 1) {
-              const { productNo, productType, quantity } = products[k];
-              if (productType === 'Hotel') {
-                const submitHotelProduct = {
-                  productNo,
-                  numOfRoom: quantity,
-                  numOfAdult,
-                  numOfChild,
-                  checkInDate: moment(checkInDate).format('YYYY-MM-DD'),
-                  checkOutDate: moment(checkOutDate).format('YYYY-MM-DD'),
-                  arrivalTime,
-                  departTime: departureTime,
-                  withBreakfast,
-                  itemNos: special.map(({ serviceCode }) => serviceCode),
-                  patronInfo,
-                };
-                submitCommonOffer.hotelProducts.push(submitHotelProduct);
-              }
-              if (productType === 'Attraction') {
-                const submitAttractionProduct = {
-                  productNo,
-                  numOfAttraction: quantity,
-                  visitDate: moment(visitDate).format('YYYY-MM-DD'),
-                  patronInfo,
-                };
-                submitCommonOffer.attractionProducts.push(submitAttractionProduct);
-              }
-            }
-            param.commonOffers.push(submitCommonOffer);
-          }
-        }
-      };
+            attractionProducts.push(attractionProduct);
+          });
+          const submitCommonOffer = {
+            offerNo: offerInfo.offerNo,
+            priceRuleId: null,
+            offerCount: 1,
+            attractionProducts,
+            totalPrice,
+            patronInfo: null,
+            deliveryInfo: {
+              referenceNo: deliveryInfo.taNo,
+              contactNo: deliveryInfo.customerContactNo,
+              lastName: deliveryInfo.guestLastName,
+              firstName: deliveryInfo.guestFirstName,
+              country: deliveryInfo.country,
+              collectionDate,
+              deliveryMode: deliveryMode ? moment(deliveryMode, 'x').format('YYYY-MM-DD') : null,
+            },
+          };
+          bookingParam.commonOffers.push(submitCommonOffer);
+          bookingParam.totalPrice += totalPrice;
+        })
+      });
 
-      const { data } = yield call(createBooking, param);
+      onceAPirateOrderData.forEach(orderData=>{
+        const {
+          queryInfo,
+        } = orderData;
+        orderData.orderOfferList.forEach(orderOffer=>{
+          const {
+            offerInfo,
+            orderInfo,
+          } = orderOffer;
+          let totalPrice = orderInfo.offerSumPrice * orderInfo.orderQuantity;
+          let mealsProductList = [];
+          if (orderInfo.voucherType==='1') {
+            mealsProductList = orderInfo.groupSettingList;
+          } else {
+            mealsProductList = orderInfo.individualSettingList;
+          }
+          const attractionProducts = [];
+          mealsProductList.forEach(mealsProduct=>{
+            const attractionProduct = {
+              productNo: mealsProduct.meals,
+              numOfAttraction: mealsProduct.number,
+              visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
+              comment: mealsProduct.remarks.join(","),
+              accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
+            };
+            attractionProducts.push(attractionProduct);
+            offerInfo.voucherProductList.map(voucherProduct=>{
+              if (voucherProduct.productNo === mealsProduct.meals) {
+                voucherProduct.priceRule.forEach(rule => {
+                  if (rule.priceRuleName === 'DefaultPrice' && rule.productPrice) {
+                    rule.productPrice.forEach(productPrice => {
+                      if (productPrice.priceDate === requestParam.validTimeFrom) {
+                        const { discountUnitPrice } = productPrice;
+                        totalPrice += voucherProduct.needChoiceCount * discountUnitPrice;
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          });
+          if (orderOffer.offerProfile && orderOffer.offerProfile.productGroup) {
+            orderOffer.offerProfile.productGroup.forEach(productGroupInfo => {
+              if (productGroupInfo && productGroupInfo.productType === 'Attraction') {
+                productGroupInfo.productGroup.forEach(productList => {
+                  if (productList.products) {
+                    productList.products.forEach(product => {
+                      const attractionProduct = {
+                        productNo: product.productNo,
+                        numOfAttraction: 1,
+                        visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
+                        accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
+                      };
+                      attractionProducts.push(attractionProduct);
+                    });
+                  }
+                });
+              }
+            });
+          }
+          const submitCommonOffer = {
+            offerNo: offerInfo.offerNo,
+            priceRuleId: null,
+            offerCount: orderInfo.orderQuantity,
+            attractionProducts,
+            totalPrice,
+            patronInfo: null,
+            deliveryInfo: {
+              referenceNo: null,
+              contactNo: null,
+              lastName: null,
+              firstName: null,
+              country: null,
+              collectionDate,
+              deliveryMode: deliveryMode ? moment(deliveryMode, 'x').format('YYYY-MM-DD') : null,
+            },
+          };
+          bookingParam.commonOffers.push(submitCommonOffer);
+          bookingParam.totalPrice += totalPrice;
+        })
+      });
+
+      bookingParam.totalPrice = parseFloat(bookingParam.totalPrice);
+      console.log(bookingParam);
+
+      yield put({
+        type: 'save',
+        payload: {
+          deliveryMode,
+          collectionDate,
+          ticketAmount,
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+        },
+      });
+
+      // router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
+
+      const { data } = yield call(createBooking, bookingParam);
       if (data) {
         const { resultCode, resultMsg, result = {} } = data;
         if (resultCode !== '0') {
           yield put({
-            type: 'save',
-            payload: { payLoading: false },
+            type: 'ticketOrderCartMgr/save',
+            payload: {
+              type: 'CreateErrors',
+              resultMsg: resultMsg
+            },
           });
-          return { type: 'CreateErrors', resultMsg };
         }
         // query status
         const { bookingNo } = result;
         let status = 'Creating';
         let statusResult = {};
         while (status === 'Creating') {
-          try {
-            const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
-            const { resultCode: statusResultCode, result: newResult = {} } = statusData;
-            if (statusResultCode === '0') {
-              const { transStatus } = newResult;
-              status = transStatus;
-              statusResult = newResult;
-            }
-          } catch (e) {}
+          const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
+          const { resultCode: statusResultCode, result: newResult = {} } = statusData;
+          if (statusResultCode === '0') {
+            const { transStatus } = newResult;
+            status = transStatus;
+            statusResult = newResult;
+          } else {
+            status = 'Failed';
+          }
         }
         // status: WaitingForPaying
         if (status === 'WaitingForPaying') {
+          yield put({
+            type: 'save',
+            payload: {
+              bookingNo,
+            },
+          });
+          router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
         }
         // status: Failed
         if (status === 'Failed') {
           const { failedReason } = statusResult;
           yield put({
-            type: 'save',
-            payload: { payLoading: false },
+            type: 'ticketOrderCartMgr/save',
+            payload: {
+              checkOutLoading: false,
+              type: 'BookingFailed',
+              resultMsg: failedReason
+            },
           });
-          return { type: 'BookingFailed', resultMsg: failedReason };
         }
       } else {
         yield put({
-          type: 'save',
-          payload: { payLoading: false },
+          type: 'ticketOrderCartMgr/save',
+          payload: {
+            checkOutLoading: false,
+            type: 'Error',
+            resultMsg: ''
+          },
         });
-        return { type: 'Error' };
       }
     },
   },

@@ -24,7 +24,7 @@ class TAFinanceContactToFrom extends PureComponent {
       onHandleToTAFinanceCheckBoxEdit,
     } = this.props;
     const { getFieldDecorator } = form;
-    const { financeContactList = [] } = otherInfo || {};
+    const financeContactList = (otherInfo || {}).financeContactList || [];
     const { financeTypeOne, financeTypeTwo } = getFinanceType() || {};
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });
     let financeInfoOne = {};

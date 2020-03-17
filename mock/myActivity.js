@@ -74,23 +74,23 @@ const statusList = {
       pageSize: 5,
       totalSize: 20,
     },
-    statusList: [
+    activityDictList: [
       {
-        status: '00',
-        statusName: 'Complete',
+        code: '00',
+        value: 'Complete',
       },
       {
-        status: '01',
-        statusName: 'Rejected',
+        code: '01',
+        value: 'Rejected',
       },
       {
-        status: '02',
-        statusName: 'Pending Approval',
+        code: '02',
+        value: 'Pending Approval',
       },
 
       {
-        status: '03',
-        statusName: 'Pending Others Approval',
+        code: '03',
+        value: 'Pending Others Approval',
       },
     ],
   },
@@ -162,7 +162,7 @@ const detail = 'POST /pams/api/statusDetail';
 const templateApi = 'POST /pams/api/templateList';
 module.exports = {
   [api](req, res) {
-    res.json({list: myActivityResult});
+    res.json({ list: myActivityResult });
   },
   [statusApi](req, res) {
     res.json(statusList);

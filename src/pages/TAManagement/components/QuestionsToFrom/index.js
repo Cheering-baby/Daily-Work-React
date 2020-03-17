@@ -57,7 +57,7 @@ class QuestionsToFrom extends PureComponent {
       onHandleNationChange,
     } = this.props;
     const { getFieldDecorator } = form;
-    const { companyInfo = {} } = customerInfo || {};
+    const companyInfo = (customerInfo || {}).companyInfo || {};
     const { productTypeRoom, productTypeAttractions } = getProductType() || {};
     let isRwsNewRoom = isRwsRoom;
     let isRwsNewAttraction = isRwsAttraction;

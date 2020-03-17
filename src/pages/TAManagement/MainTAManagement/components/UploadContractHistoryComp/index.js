@@ -5,8 +5,8 @@ import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import PaginationComp from '../PaginationComp';
 import styles from './index.less';
-import { isNvl } from '@/utils/utils';
-import { getKeyValue, getUrl, handleDownFile } from '../../../utils/pubUtils';
+import { getUrl, handleDownFile, isNvl } from '@/utils/utils';
+import { getKeyValue } from '../../../utils/pubUtils';
 
 const downUrl = `${getUrl()}/common/downloadFile`;
 
@@ -49,11 +49,17 @@ class UploadContractHistoryComp extends PureComponent {
       title: formatMessage({ id: 'TA_TABLE_NO' }),
       dataIndex: 'number',
       width: '10%',
+      render: text => {
+        return !isNvl(text) ? text : '-';
+      },
     },
     {
       title: formatMessage({ id: 'TA_TABLE_CONTACT_UPLOADED_BY' }),
       dataIndex: 'uploadedBy',
       width: '20%',
+      render: text => {
+        return !isNvl(text) ? text : '-';
+      },
     },
     {
       title: formatMessage({ id: 'TA_TABLE_CONTACT_UPLOADED_TIME' }),

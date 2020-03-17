@@ -1,12 +1,47 @@
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi/locale';
+import { connect } from 'dva';
 import { Avatar, Badge, Col, Divider, Icon, Popover, Row, Spin } from 'antd';
 import { abbreviateName } from '@/utils/utils';
 import styles from './index.less';
+import UserNotificationView from './UserNotificationView';
 
 const downImg = require('../../assets/image/icon-pull-down.svg');
 
-export default class GlobalHeaderRight extends PureComponent {
+@connect(({ notificationMgr }) => ({
+  notificationMgr,
+}))
+class GlobalHeaderRight extends PureComponent {
+  handleNotificationIconClick = () => {
+    const {
+      dispatch,
+      // notificationMgr: { visibleFlag },
+    } = this.props;
+    dispatch({
+      type: 'notificationMgr/querySystemList',
+    });
+    dispatch({
+      type: 'notificationMgr/saveData',
+      payload: {
+        visibleFlag: true,
+      },
+    });
+  };
+
+  handleNotificationVisibleChange = visible => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'notificationMgr/saveData',
+      payload: {
+        visibleFlag: visible,
+      },
+    });
+    dispatch({
+      type: 'notificationMgr/fetchSystemList',
+      payload: {},
+    });
+  };
+
   render() {
     const {
       currentUser = {},
@@ -15,6 +50,7 @@ export default class GlobalHeaderRight extends PureComponent {
       currentUserRole,
       popoverVisible,
       onHandleVisibleChange,
+      notificationMgr: { systemList, systemCount },
     } = this.props;
     const { userName } = currentUser;
     const menu = (
@@ -56,18 +92,25 @@ export default class GlobalHeaderRight extends PureComponent {
     return (
       <div className={className}>
         <Popover
-          content={<div>this is notice</div>}
+          content={
+            <UserNotificationView
+              handleClick={this.handleClick}
+              {...this.props}
+              systemList={systemList}
+              systemCount={systemCount}
+            />
+          }
           placement="bottomRight"
           trigger="click"
           style={{ width: '400px !important' }}
-          // onVisibleChange={this.handleNotificationVisibleChange}
+          onVisibleChange={this.handleNotificationVisibleChange}
           // visible={visibleFlag}
         >
           <Badge count={0} style={{ marginRight: '22px' }}>
             <Icon
               type="bell"
               style={{ marginRight: '12px', cursor: 'pointer', fontSize: '22px' }}
-              // onClick={this.handleNotificationIconClick}
+              onClick={this.handleNotificationIconClick}
             />
           </Badge>
         </Popover>
@@ -94,3 +137,4 @@ export default class GlobalHeaderRight extends PureComponent {
     );
   }
 }
+export default GlobalHeaderRight;

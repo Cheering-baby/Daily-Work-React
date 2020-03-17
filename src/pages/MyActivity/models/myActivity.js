@@ -1,8 +1,7 @@
-// import React from 'react';
+import { message } from 'antd';
 import * as service from '../services/myActivity';
-import {ERROR_CODE_SUCCESS} from '@/utils/commonResultCode';
+import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
-/* eslint-disable */
 export default {
   namespace: 'myActivity',
   state: {
@@ -11,6 +10,8 @@ export default {
       endDate: undefined,
       activityTplCode: undefined,
       status: undefined,
+      activityId: undefined,
+      businessId: undefined,
     },
     pagination: {
       currentPage: 1,
@@ -24,28 +25,29 @@ export default {
     statusList: [],
     templateList: [],
     isMyActivityPage: false,
-  },
-  subscriptions: {
-    setup({ dispatch }) {},
+    contractFileList: [],
+    selectTaId: null,
+    contractFileUploading: false,
   },
   effects: {
     *fetchApprovalList(_, { call, put, select }) {
-      const {filter, pagination} = yield select(state => state.myActivity);
+      const { filter, pagination } = yield select(state => state.myActivity);
       const requestData = {
+        queryType: '02',
         ...filter,
         ...pagination,
       };
       const result = yield call(service.approvalList, requestData);
 
-      const {data: resultData, success: success, errorMsg: errorMsg} = result;
+      const { data: resultData, success, errorMsg } = result;
 
       if (success) {
         const {
-          resultCode: resultCode,
-          resultMsg: resultMsg,
+          resultCode,
+          resultMsg,
           result: {
             activityInfoList,
-            pageInfo: {currentPage, pageSize, totalSize},
+            pageInfo: { currentPage, pageSize, totalSize },
           },
         } = resultData;
 
@@ -55,8 +57,8 @@ export default {
 
         if (activityInfoList && activityInfoList.length > 0) {
           activityInfoList.map(v => {
-            Object.assign(v, {key: `${v.activityId}`});
-            return v
+            Object.assign(v, { key: `${v.activityId}` });
+            return v;
           });
         }
 
@@ -73,6 +75,18 @@ export default {
         });
       } else throw errorMsg;
     },
+    *fetchRegisterContractFile({ payload }, { call, put }) {
+      yield put({ type: 'save', payload: { contractFileUploading: true } });
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.registerContractFile, { ...payload });
+      yield put({ type: 'save', payload: { qryTaTableLoading: false } });
+      if (resultCode === '0' || resultCode === 0) {
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
     *tableChanged({ payload }, { put }) {
       yield put({
         type: 'save',
@@ -83,7 +97,7 @@ export default {
         type: 'fetchApprovalList',
       });
     },
-    *search({ payload }, { call, put }) {
+    *search({ payload }, { put }) {
       yield put({
         type: 'clear',
       });
@@ -95,7 +109,7 @@ export default {
         type: 'fetchApprovalList',
       });
     },
-    *fetchSelectReset({ payload }, { call, put }) {
+    *fetchSelectReset(_, { put }) {
       yield put({
         type: 'clear',
       });
@@ -109,15 +123,12 @@ export default {
         pageSize: 1000,
       };
 
-      const {data: resultData, success: success, errorMsg: errorMsg} = yield call(
-        service.statusList,
-        pagination
-      );
+      const { data: resultData } = yield call(service.statusList, pagination);
 
       const {
         resultCode,
         resultMsg,
-        result: {statusList},
+        result: { activityDictList },
       } = resultData;
 
       if (resultCode !== ERROR_CODE_SUCCESS) {
@@ -127,25 +138,22 @@ export default {
       yield put({
         type: 'save',
         payload: {
-          statusList: statusList,
+          statusList: activityDictList,
         },
       });
     },
-    * templateList(_, {call, put}) {
+    *templateList(_, { call, put }) {
       const pagination = {
         current: 1,
         pageSize: 1000,
       };
 
-      const {data: resultData, success: success, errorMsg: errorMsg} = yield call(
-        service.templateList,
-        pagination
-      );
+      const { data: resultData } = yield call(service.templateList, pagination);
 
       const {
-        resultCode: resultCode,
-        resultMsg: resultMsg,
-        result: {templateList: templateList},
+        resultCode,
+        resultMsg,
+        result: { templateList },
       } = resultData;
 
       if (resultCode !== ERROR_CODE_SUCCESS) {
@@ -155,11 +163,11 @@ export default {
       yield put({
         type: 'save',
         payload: {
-          templateList: templateList,
+          templateList,
         },
       });
     },
-    * setIsMyActivityPageToFalse({payload, callback}, {call, put}) {
+    *setIsMyActivityPageToFalse({ callback }, { put }) {
       yield put({
         type: 'save',
         payload: {
@@ -191,9 +199,10 @@ export default {
         detailVisible: false,
         userAddVisible: false,
         downloadVisible: false,
-        statusList: [],
-        templateList: [],
         isMyActivityPage: false,
+        contractFileList: [],
+        selectTaId: null,
+        contractFileUploading: false,
       };
     },
     toggleModal(state, { payload }) {
@@ -202,6 +211,15 @@ export default {
         ...state,
         [key]: val,
       };
+    },
+  },
+  subscriptions: {
+    setup({ dispatch, history }) {
+      history.listen(location => {
+        if (location.pathname !== '/MyActivity') {
+          dispatch({ type: 'clear' });
+        }
+      });
     },
   },
 };

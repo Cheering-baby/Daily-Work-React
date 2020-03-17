@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Card, Col, Icon, message, Upload } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { getUrl, handleDownFile } from '@/utils/utils';
 import styles from './index.less';
-import { getUrl, handleDownFile } from '../../../utils/pubUtils';
 
 const actionUrl = `${getUrl()}/common/upload`;
 const downUrl = `${getUrl()}/common/downloadFile`;
@@ -81,16 +81,10 @@ class UploadContractComp extends PureComponent {
       accept: '.csv, .pdf, .txt, .doc, .docx, .xls, .xlsx, .zip, .rar',
       name: 'file',
       action: actionUrl,
-      headers: {
-        Authorization: 'fCm7Pc1OXg7XXWPW4DUqO3s2fa8ObSX2',
-        contentType: 'multipart/form-data',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Access-Control-Allow-Headers':
-          'Authorization,Origin, X-Requested-With, Content-Type, Accept',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET,POST',
+      headers: new Headers({
+        Origin: '*',
         'App-Code': 'PAMS',
-      },
+      }),
       multiple: false,
     };
     const contractProps = {

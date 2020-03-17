@@ -107,7 +107,7 @@ class AccountInformationToSubTa extends PureComponent {
                       rules: [
                         { required: true, message: formatMessage({ id: 'SUB_TA_REQUIRED' }) },
                         {
-                          pattern: /^[a-zA-Z]+$/g,
+                          pattern: /^[^\u4e00-\u9fa5]+$/g,
                           message: formatMessage({ id: 'INPUT_ONLY_ENGLISH' }),
                         },
                         { max: 200, message: numFormat },

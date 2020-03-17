@@ -3,7 +3,7 @@ import UAAService from '@/uaa-npm';
 /* eslint-disable */
 
 export async function queryMainTAList(params) {
-  return UAAService.request(`/proxy/ali/pams/profile/queryTaList`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryTaList`, {
     method: 'POST',
     body: {
       ...params,
@@ -12,7 +12,7 @@ export async function queryMainTAList(params) {
 }
 
 export async function updateProfileStatus(params) {
-  return UAAService.request(`/proxy/ali/pams/profile/updateProfileStatus`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/updateProfileStatus`, {
     method: 'POST',
     body: {
       ...params,
@@ -21,7 +21,7 @@ export async function updateProfileStatus(params) {
 }
 
 export async function registerContractFile(params) {
-  return UAAService.request(`/proxy/ali/pams/contract/registerContractFile`, {
+  return UAAService.request(`/proxy/ali/b2b/contract/registerContractFile`, {
     method: 'POST',
     body: {
       ...params,
@@ -30,7 +30,7 @@ export async function registerContractFile(params) {
 }
 
 export async function queryContractHistoryList(params) {
-  return UAAService.request(`/proxy/ali/pams/contract/queryContractHistoryList`, {
+  return UAAService.request(`/proxy/ali/b2b/contract/queryContractHistoryList`, {
     method: 'POST',
     body: {
       ...params,
@@ -39,7 +39,7 @@ export async function queryContractHistoryList(params) {
 }
 
 export async function queryProfileStatusHistoryList(params) {
-  return UAAService.request(`/proxy/ali/pams/profile/queryProfileStatusHistory`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryProfileStatusHistory`, {
     method: 'POST',
     body: {
       ...params,

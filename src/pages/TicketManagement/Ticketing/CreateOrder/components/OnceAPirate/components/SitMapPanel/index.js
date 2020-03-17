@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Spin, Radio  } from 'antd';
+import { Spin, Radio, Row, Col  } from 'antd';
 import styles from './index.less';
 import siteMapDataEmpty from './assets/empty.png';
 import regularActive from './assets/regularActive.png';
@@ -46,11 +46,9 @@ class SitMapPanel extends Component {
   render() {
 
     const {
-      ticketMgr: {
-        activeGroupSelectData,
-      },
       onceAPirateTicketMgr: {
-        onceAPirateOfferData,
+        queryInfo,
+        onceAPirateOfferData = [],
         showCategory,
         showCategoryLoading
       }
@@ -58,39 +56,48 @@ class SitMapPanel extends Component {
 
     return (
       <Spin spinning={showCategoryLoading}>
-        <Radio.Group defaultValue={showCategory} buttonStyle="solid" onChange={this.callback}>
-          <Radio.Button value="1">Regular</Radio.Button>
+        <Radio.Group defaultValue={showCategory} value={showCategory} buttonStyle="solid" onChange={this.callback}>
+          <Radio.Button value="1">General</Radio.Button>
           {
-            !activeGroupSelectData.accessibleSeat && (
+            (queryInfo && !queryInfo.accessibleSeat) && (
               <Radio.Button value="2">VIP</Radio.Button>
             )
           }
         </Radio.Group>
         {
-          (showCategory === "0" && onceAPirateOfferData.length === 0) && (
-            <img className={styles.sitMapImg} alt='Site Map' src={siteMapDataEmpty} />
+          (queryInfo && !queryInfo.accessibleSeat) && (
+            <span style={{marginLeft:'15px'}}>Please click the button to choose the show category.</span>
           )
         }
-        {
-          (showCategory === "1" && onceAPirateOfferData.length > 0) && (
-            <img className={styles.sitMapImg} alt='Site Map' src={regularActive} />
-          )
-        }
-        {
-          (showCategory === "2" && onceAPirateOfferData.length > 0) && (
-            <img className={styles.sitMapImg} alt='Site Map' src={VIPActive} />
-          )
-        }
-        {
-          (showCategory === "1" && onceAPirateOfferData.length === 0)  && (
-            <img className={styles.sitMapImg} alt='Site Map' src={regularInactive} />
-          )
-        }
-        {
-          (showCategory === "2" && onceAPirateOfferData.length === 0) && (
-            <img className={styles.sitMapImg} alt='Site Map' src={VIPInActive} />
-          )
-        }
+        <Row>
+          <Col span={24}>
+            {
+              (showCategory === "0" && onceAPirateOfferData.length === 0) && (
+                <img className={styles.sitMapImg} alt='Site Map' src={siteMapDataEmpty} />
+              )
+            }
+            {
+              (showCategory === "1" && onceAPirateOfferData.length > 0) && (
+                <img className={styles.sitMapImg} alt='Site Map' src={regularActive} />
+              )
+            }
+            {
+              (showCategory === "2" && onceAPirateOfferData.length > 0) && (
+                <img className={styles.sitMapImg} alt='Site Map' src={VIPActive} />
+              )
+            }
+            {
+              (showCategory === "1" && onceAPirateOfferData.length === 0)  && (
+                <img className={styles.sitMapImg} alt='Site Map' src={regularInactive} />
+              )
+            }
+            {
+              (showCategory === "2" && onceAPirateOfferData.length === 0) && (
+                <img className={styles.sitMapImg} alt='Site Map' src={VIPInActive} />
+              )
+            }
+          </Col>
+        </Row>
       </Spin>
     );
   }

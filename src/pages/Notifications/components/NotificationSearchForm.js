@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Button, Card, Col, Form, Input, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
 import styles from '../index.less';
 
 const { Option } = Select;
@@ -22,10 +23,26 @@ const formItemLayout = {
   colon: false,
 };
 
+@connect(({ notificationSearchForm }) => ({
+  notificationSearchForm,
+}))
 class NotificationSearchForm extends PureComponent {
   static defaultProps = {
     onSearch: () => {},
   };
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'notificationSearchForm/queryNotificationTypeList',
+    });
+    dispatch({
+      type: 'notificationSearchForm/queryTargetTypeList',
+    });
+    dispatch({
+      type: 'notificationSearchForm/queryStatusList',
+    });
+  }
 
   handleReset = () => {
     const { form } = this.props;
@@ -36,18 +53,28 @@ class NotificationSearchForm extends PureComponent {
   };
 
   handleSubmit = e => {
-    const { form } = this.props;
     e.preventDefault();
+    const { form, onSearch } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        const { onSearch } = this.props;
+        let startDate;
+        let endDate;
+        if (Array.isArray(values.createDate)) {
+          startDate = values.createDate[0].format('YYYY-MM-DD');
+          endDate = values.createDate[1].format('YYYY-MM-DD');
+        }
+        values.startDate = startDate;
+        values.endDate = endDate;
         onSearch(values);
       }
     });
   };
 
   render() {
-    const { form, targetTypes = [], types = [], status = [] } = this.props;
+    const {
+      form,
+      notificationSearchForm: { notificationTypeList = [], targetTypeList = [], statusList = [] },
+    } = this.props;
     const { getFieldDecorator } = form;
 
     return (
@@ -66,7 +93,7 @@ class NotificationSearchForm extends PureComponent {
                 })(
                   <Input
                     allowClear
-                    placeholder={formatMessage({ id: 'SEARCH' })}
+                    placeholder={formatMessage({ id: 'TITLE' })}
                     autoComplete="off"
                   />
                 )}
@@ -83,7 +110,7 @@ class NotificationSearchForm extends PureComponent {
                   ],
                 })(
                   <Select allowClear placeholder={formatMessage({ id: 'TARGET_TYPE' })}>
-                    {targetTypes.map(item => (
+                    {targetTypeList.map(item => (
                       <Option key={item.id} value={item.value}>
                         {item.dicName}
                       </Option>
@@ -103,7 +130,7 @@ class NotificationSearchForm extends PureComponent {
                   ],
                 })(
                   <Select allowClear placeholder={formatMessage({ id: 'TYPE' })}>
-                    {types.map(item => (
+                    {notificationTypeList.map(item => (
                       <Option key={item.id} value={item.value}>
                         {item.dicName}
                       </Option>
@@ -123,7 +150,7 @@ class NotificationSearchForm extends PureComponent {
                   ],
                 })(
                   <Select allowClear placeholder={formatMessage({ id: 'STATUS' })}>
-                    {status.map(item => (
+                    {statusList.map(item => (
                       <Option key={item.id} value={item.value}>
                         {item.dicName}
                       </Option>

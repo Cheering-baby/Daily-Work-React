@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Col, Drawer, Row, Spin } from 'antd';
+import { Button, Col, Drawer, message, Row, Spin } from 'antd';
 import { formatMessage } from 'umi/locale';
-import AccountInformationToSubTa from '../../../components/AccountInformationToSubTa';
+import AccountInformationToSubTaWithDrawer from '../../../components/AccountInformationToSubTaWithDrawer';
 import SubTaDetailComp from '../SubTaDetailComp';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue } from '../../../utils/pubUtils';
@@ -11,13 +11,14 @@ import styles from './index.less';
 const mapStateToProps = store => {
   const { subTaId, subTaInfo, subTaInfoLoadingFlag, countryList } = store.subTaMgr;
   const { pagePrivileges = [] } = store.global;
-  const { selectSubTaId, isDetail, isEdit, operationVisible } = store.subTAManagement;
+  const { searchForm, searchList, isDetail, isEdit, operationVisible } = store.subTAManagement;
   return {
     subTaId,
     subTaInfo,
     subTaInfoLoadingFlag,
     countryList,
-    selectSubTaId,
+    searchForm,
+    searchList,
     isDetail,
     isEdit,
     operationVisible,
@@ -27,24 +28,6 @@ const mapStateToProps = store => {
 
 @connect(mapStateToProps)
 class SubTaInformationToDrawer extends PureComponent {
-  componentDidMount() {
-    const { dispatch, selectSubTaId } = this.props;
-    dispatch({
-      type: 'subTaMgr/doCleanData',
-      payload: {
-        subTaId: !isNvl(selectSubTaId) ? selectSubTaId : null,
-      },
-    }).then(() => {
-      dispatch({ type: 'subTaMgr/fetchQueryCountryList' });
-      if (!isNvl(selectSubTaId)) {
-        dispatch({
-          type: 'subTaMgr/fetchQrySubTaInfo',
-          payload: { subTaId: !isNvl(selectSubTaId) ? selectSubTaId : null },
-        });
-      }
-    });
-  }
-
   onHandleChange = (key, keyValue, fieldKey) => {
     const { dispatch, subTaInfo } = this.props;
     const { form } = this.editRef.props;
@@ -80,6 +63,7 @@ class SubTaInformationToDrawer extends PureComponent {
         },
       }).then(flag => {
         if (flag) {
+          message.success(formatMessage({ id: 'EDIT_SUB_TA_SUCCESS' }), 10);
           this.onClose();
         }
       });
@@ -87,7 +71,7 @@ class SubTaInformationToDrawer extends PureComponent {
   };
 
   onClose = () => {
-    const { dispatch } = this.props;
+    const { dispatch, searchList } = this.props;
     dispatch({
       type: 'subTAManagement/save',
       payload: {
@@ -97,6 +81,7 @@ class SubTaInformationToDrawer extends PureComponent {
       },
     });
     dispatch({ type: 'subTaMgr/doCleanData' });
+    this.qrySubTAList(searchList.currentPage, searchList.pageSize);
   };
 
   goModify = () => {
@@ -107,6 +92,23 @@ class SubTaInformationToDrawer extends PureComponent {
         isDetail: false,
         isEdit: true,
         operationVisible: true,
+      },
+    });
+  };
+
+  qrySubTAList = (currentPage, pageSize) => {
+    const { dispatch, searchForm, searchList } = this.props;
+    dispatch({
+      type: 'subTAManagement/fetchQrySubTAList',
+      payload: {
+        companyName: searchForm.companyName,
+        applyStartDate: searchForm.applyStartDate,
+        applyEndDate: searchForm.applyEndDate,
+        pageInfo: {
+          currentPage,
+          pageSize,
+          totalSize: searchList.total,
+        },
       },
     });
   };
@@ -124,16 +126,16 @@ class SubTaInformationToDrawer extends PureComponent {
       <Drawer
         id="subTaDrawerView"
         title={formatMessage({ id: 'COMMON_EDIT' })}
-        width={320}
-        closable={false}
+        className={styles.subTaDrawer}
+        onClose={this.onClose}
         visible={operationVisible}
         bodyStyle={{ padding: '8px' }}
       >
         <Row type="flex" justify="space-around">
           <Col span={24}>
-            <Spin spining={subTaInfoLoadingFlag}>
+            <Spin spinning={subTaInfoLoadingFlag}>
               {isEdit && !isDetail && (
-                <AccountInformationToSubTa
+                <AccountInformationToSubTaWithDrawer
                   wrappedComponentRef={ref => {
                     this.editRef = ref;
                   }}

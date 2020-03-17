@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, Progress, Row } from 'antd';
+import { Alert, Button, Col, Divider, Form, Input, Progress, Row } from 'antd';
+import { Icon as MobileIcon, NavBar } from 'antd-mobile';
 import { formatMessage } from 'umi/locale';
-import { isMatchPwdRule } from '@/utils/utils';
+import MediaQuery from 'react-responsive';
 import CommonModal from '@/components/CommonModal';
+import { isMatchPwdRule } from '@/utils/utils';
+import SCREEN from '@/utils/screen';
 import styles from './ResetPwd.less';
 
 const FormItem = Form.Item;
@@ -188,12 +191,59 @@ class Restmodal extends Component {
     return `${percent}% ${securityTxt}`;
   };
 
+  getFooter = (needChangePassword, loading) => {
+    if (String(needChangePassword) === '01' || String(needChangePassword) === '02') {
+      return [
+        <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>
+          {formatMessage({ id: 'COMMON_OK' })}
+        </Button>,
+      ];
+    }
+    return [
+      <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>
+        {formatMessage({ id: 'COMMON_OK' })}
+      </Button>,
+      <Button key="cancel" loading={loading} onClick={this.handleClose}>
+        {formatMessage({ id: 'COMMON_CANCEL' })}
+      </Button>,
+    ];
+  };
+
+  getMobileFooter = (needChangePassword, loading) => {
+    if (String(needChangePassword) === '01' || String(needChangePassword) === '02') {
+      return (
+        <Row gutter={8}>
+          <Col span={24}>
+            <Button type="primary" block loading={loading} onClick={this.handleSubmit}>
+              {formatMessage({ id: 'COMMON_OK' })}
+            </Button>
+          </Col>
+        </Row>
+      );
+    }
+    return (
+      <Row gutter={8}>
+        <Col span={12}>
+          <Button type="primary" block loading={loading} onClick={this.handleSubmit}>
+            {formatMessage({ id: 'COMMON_OK' })}
+          </Button>
+        </Col>
+        <Col span={12}>
+          <Button block loading={loading} onClick={this.handleClose}>
+            {formatMessage({ id: 'COMMON_CANCEL' })}
+          </Button>
+        </Col>
+      </Row>
+    );
+  };
+
   render() {
     const {
       data,
       loading,
       onOk,
       iconArr,
+      needChangePassword,
       form: { getFieldDecorator },
       ...modalProps
     } = this.props;
@@ -201,12 +251,81 @@ class Restmodal extends Component {
       ...modalProps,
       onCancel: this.handleClose,
       width: 700,
+      className: styles.resetModal,
       title: formatMessage({ id: 'PWD_CHANGE_PWD' }),
-      footer: null,
+      footer: this.getFooter(needChangePassword, loading),
+      closable: !(String(needChangePassword) === '01' || String(needChangePassword) === '02'),
     };
     const { securityPer } = this.state;
-    return (
-      <CommonModal modalOpts={modalOpts}>
+    const mobileModalOpts = {
+      mode: 'light',
+      icon:
+        String(needChangePassword) === '01' || String(needChangePassword) === '02' ? null : (
+          <MobileIcon type="left" />
+        ),
+      onLeftClick: this.handleClose,
+      rightContent: [],
+    };
+    const childrenHtml = (
+      <React.Fragment>
+        <Alert
+          message={formatMessage({ id: 'PWD_CONDITIONS_ALERT' })}
+          type="warning"
+          showIcon
+          style={{ marginBottom: '1rem' }}
+        />
+        <Row gutter={24}>
+          <div className={styles.resetContent}>
+            <Col {...ColProps}>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_SECURITY_LEVEL' })}>
+                <Progress percent={securityPer} format={this.handleFormat} />
+              </FormItem>
+            </Col>
+            <Col {...ColProps}>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_OLD_PWD' })}>
+                {getFieldDecorator('OLD_PWD', {
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'PWD_OLD_PWD_REQUIRED' }),
+                    },
+                  ],
+                })(<Input type="password" />)}
+              </FormItem>
+            </Col>
+            <Col {...ColProps}>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_NEW_PWD' })}>
+                {getFieldDecorator('NEW_PWD', {
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'PWD_NEW_PWD_REQUIRED' }),
+                    },
+                    {
+                      validator: this.checkPwd,
+                    },
+                  ],
+                })(<Input type="password" onKeyUp={this.calculate} />)}
+              </FormItem>
+            </Col>
+            <Col {...ColProps}>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_CONFIRM_PWD' })}>
+                {getFieldDecorator('NEW_PWD_CONFIR', {
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'PWD_CONFIRM_PWD_REQUIRED' }),
+                    },
+                    {
+                      validator: this.compareToPwd,
+                    },
+                  ],
+                })(<Input type="password" onBlur={this.handleConfirmBlur} />)}
+              </FormItem>
+            </Col>
+          </div>
+        </Row>
+        <Divider className={styles.resetDivider} style={{ height: '1px !important' }} />
         <Row type="flex" justify="space-around">
           <Col span={24} className={styles.resetHeadTop}>
             <p>{formatMessage({ id: 'PWD_CONDITIONS' })}</p>
@@ -226,67 +345,43 @@ class Restmodal extends Component {
             </ul>
           </Col>
         </Row>
-        <Row gutter={24}>
-          <div className={styles.resetContent}>
-            <Form onSubmit={this.handleSubmit}>
-              <Col {...ColProps}>
-                <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_SECURITY_LEVEL' })}>
-                  <Progress percent={securityPer} format={this.handleFormat} />
-                </FormItem>
-              </Col>
-              <Col {...ColProps}>
-                <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_OLD_PWD' })}>
-                  {getFieldDecorator('OLD_PWD', {
-                    rules: [
-                      {
-                        required: true,
-                        message: formatMessage({ id: 'PWD_OLD_PWD_REQUIRED' }),
-                      },
-                    ],
-                  })(<Input type="password" />)}
-                </FormItem>
-              </Col>
-              <Col {...ColProps}>
-                <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_NEW_PWD' })}>
-                  {getFieldDecorator('NEW_PWD', {
-                    rules: [
-                      {
-                        required: true,
-                        message: formatMessage({ id: 'PWD_NEW_PWD_REQUIRED' }),
-                      },
-                      {
-                        validator: this.checkPwd,
-                      },
-                    ],
-                  })(<Input type="password" onKeyUp={this.calculate} />)}
-                </FormItem>
-              </Col>
-              <Col {...ColProps}>
-                <FormItem {...formItemLayout} label={formatMessage({ id: 'PWD_CONFIRM_PWD' })}>
-                  {getFieldDecorator('NEW_PWD_CONFIR', {
-                    rules: [
-                      {
-                        required: true,
-                        message: formatMessage({ id: 'PWD_CONFIRM_PWD_REQUIRED' }),
-                      },
-                      {
-                        validator: this.compareToPwd,
-                      },
-                    ],
-                  })(<Input type="password" onBlur={this.handleConfirmBlur} />)}
-                </FormItem>
-              </Col>
-              <Col {...ColProps} style={{ textAlign: 'right' }}>
-                <FormItem {...formItemLayout}>
-                  <Button type="primary" htmlType="submit">
-                    {formatMessage({ id: 'COMMON_CONFIRM' })}
-                  </Button>
-                </FormItem>
-              </Col>
-            </Form>
+      </React.Fragment>
+    );
+    return (
+      <React.Fragment>
+        <MediaQuery
+          maxWidth={SCREEN.screenMdMax}
+          minWidth={SCREEN.screenSmMin}
+          maxHeight={SCREEN.screenXsMax}
+        >
+          <div className={styles.mobileModelWrapper}>
+            <NavBar {...mobileModalOpts}>{formatMessage({ id: 'PWD_CHANGE_PWD' })}</NavBar>
+            <div className={styles.contentWrapper}>{childrenHtml}</div>
+            <div className={styles.buttonWrapper}>
+              {this.getMobileFooter(needChangePassword, loading)}
+            </div>
           </div>
-        </Row>
-      </CommonModal>
+        </MediaQuery>
+        <MediaQuery
+          maxWidth={SCREEN.screenMdMax}
+          minWidth={SCREEN.screenSmMin}
+          minHeight={SCREEN.screenSmMin}
+        >
+          <CommonModal modalOpts={modalOpts}>{childrenHtml}</CommonModal>
+        </MediaQuery>
+        <MediaQuery minWidth={SCREEN.screenLgMin}>
+          <CommonModal modalOpts={modalOpts}>{childrenHtml}</CommonModal>
+        </MediaQuery>
+        <MediaQuery maxWidth={SCREEN.screenXsMax}>
+          <div className={styles.mobileModelWrapper}>
+            <NavBar {...mobileModalOpts}>{formatMessage({ id: 'PWD_CHANGE_PWD' })}</NavBar>
+            <div className={styles.contentWrapper}>{childrenHtml}</div>
+            <div className={styles.buttonWrapper}>
+              {this.getMobileFooter(needChangePassword, loading)}
+            </div>
+          </div>
+        </MediaQuery>
+      </React.Fragment>
     );
   }
 }

@@ -4,6 +4,7 @@ import { Breadcrumb, Col, Form } from 'antd';
 import { connect } from 'dva';
 import { router } from 'umi';
 import MappingDetail from '../../components/MappingDetail';
+import Index from '../../index';
 
 @Form.create()
 @connect(({ mappingDetails }) => ({

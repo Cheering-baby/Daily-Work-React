@@ -163,13 +163,13 @@ export default {
       };
       yield put({ type: 'save', payload: { salesPersonLoadingFlag: true } });
       const {
-        data: { resultCode, resultMsg, result },
+        data: { resultCode, resultMsg, resultData },
       } = yield call(querySalesPerson, { ...reqParam });
       yield put({ type: 'save', payload: { salesPersonLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
         yield put({
           type: 'save',
-          payload: { salesPersonList: result.userProfiles || [] },
+          payload: { salesPersonList: resultData.userProfiles || [] },
         });
       } else message.warn(resultMsg, 10);
     },

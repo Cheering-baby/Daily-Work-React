@@ -1,23 +1,28 @@
 import React, { PureComponent } from 'react';
-import { Button, Card, Col, Drawer, Form, Row, Select, Spin } from 'antd';
+import { Button, Card, Col, Drawer, Form, message, Row, Select, Spin } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
-import { getUrl } from '../../../utils/pubUtils';
 
 const mapStateToProps = store => {
   const {
     taId = null,
     companyName = null,
+    searchList,
+    searchForm,
     emailList = [],
+    emailContent = {},
     invitationVisible = false,
     sendInvitationLoading = false,
   } = store.generateInvitation;
   return {
     taId,
     companyName,
+    searchList,
+    searchForm,
     emailList,
+    emailContent,
     invitationVisible,
     sendInvitationLoading,
   };
@@ -27,11 +32,26 @@ const mapStateToProps = store => {
 @connect(mapStateToProps)
 class InvitationComp extends PureComponent {
   onClose = () => {
-    const { dispatch } = this.props;
+    const { dispatch, taId, searchList, searchForm } = this.props;
     dispatch({
       type: 'generateInvitation/save',
       payload: {
         invitationVisible: false,
+      },
+    });
+    dispatch({
+      type: 'generateInvitation/fetchQryInvitationRecordList',
+      payload: {
+        taId,
+        email: searchForm.email || null,
+        invitationStartDate: searchForm.invitationStartDate || null,
+        invitationEndDate: searchForm.invitationEndDate || null,
+        status: searchForm.status || null,
+        pageInfo: {
+          totalSize: searchList.total,
+          currentPage: searchList.currentPage,
+          pageSize: searchList.pageSize,
+        },
       },
     });
   };
@@ -63,36 +83,34 @@ class InvitationComp extends PureComponent {
   };
 
   onSend = () => {
-    const { dispatch } = this.props;
-    dispatch({ type: 'generateInvitation/fetchSendInvitation' });
+    const { dispatch, form, emailList } = this.props;
+    form.validateFieldsAndScroll(error => {
+      if (error) {
+        return;
+      }
+      if (isNvl(emailList) || emailList.length <= 0) {
+        message.warn(formatMessage({ id: 'SEND_EMAIL_IS_NULL' }), 10);
+        return;
+      }
+      dispatch({ type: 'generateInvitation/fetchSendInvitation' });
+    });
   };
 
-  getUrl = (companyName, taId) => {
-    let urlStr = `${getUrl().replace('/pams', '')}/#/SubTAManagement/SignUp`;
-    if (!isNvl(taId) && !isNvl(companyName)) urlStr += `?taId=${taId}&companyName=${companyName}`;
-    else if (!isNvl(taId) && isNvl(companyName)) urlStr += `?taId=${taId}`;
-    else if (isNvl(taId) && !isNvl(companyName)) urlStr += `?companyName=${companyName}`;
-    return urlStr;
+  showHtml = htmlString => {
+    const html = { __html: htmlString };
+    return <div dangerouslySetInnerHTML={html} />;
   };
 
   render() {
-    const {
-      form,
-      taId,
-      companyName,
-      invitationVisible,
-      emailList,
-      sendInvitationLoading,
-    } = this.props;
+    const { form, invitationVisible, emailList, emailContent, sendInvitationLoading } = this.props;
     const { getFieldDecorator } = form;
-    const subTaUrl = this.getUrl(companyName, taId);
     return (
       <div>
         <Drawer
           title={formatMessage({ id: 'GI_BTN_INVITATION' })}
-          width={320}
-          closable={false}
+          className={styles.userPerspectiveDrawer}
           visible={invitationVisible}
+          onClose={this.onClose}
           bodyStyle={{ padding: '8px' }}
         >
           <Row type="flex" justify="space-around">
@@ -135,24 +153,7 @@ class InvitationComp extends PureComponent {
                 className={styles.userPerspectiveCard}
               >
                 <div className={styles.userPerspectiveContent}>
-                  <div className={styles.userPerspectiveDear}>
-                    {formatMessage({ id: 'GI_USER_PERSPECTIVE_DEAR' })}
-                  </div>
-                  <div className={styles.userPerspectiveP}>
-                    {formatMessage({ id: 'GI_USER_PERSPECTIVE_CONTENT' })}
-                  </div>
-                  <div className={styles.userPerspectiveRul}>
-                    {formatMessage({ id: 'GI_USER_PERSPECTIVE_URL' })}:
-                    <a href={subTaUrl} rel="noopener noreferrer" target="_blank">
-                      {String(subTaUrl)}
-                    </a>
-                  </div>
-                  <div className={styles.userPerspectiveAgency}>
-                    {formatMessage({ id: 'GI_USER_PERSPECTIVE_AGENCY' }).replace(
-                      'XXX',
-                      companyName
-                    )}
-                  </div>
+                  {this.showHtml(emailContent.content || null)}
                 </div>
               </Card>
             </Col>

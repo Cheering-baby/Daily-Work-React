@@ -47,30 +47,36 @@ class StateChangeHistoryComp extends PureComponent {
       title: formatMessage({ id: 'SUB_TA_HIS_TABLE_NO' }),
       dataIndex: 'number',
       width: '10%',
+      render: text => {
+        return !isNvl(text) ? text : '-';
+      },
     },
     {
       title: formatMessage({ id: 'SUB_TA_HIS_TABLE_CONTACT_UPLOADED_BY' }),
-      dataIndex: 'uploadedBy',
+      dataIndex: 'updatedBy',
       width: '20%',
+      render: text => {
+        return !isNvl(text) ? text : '-';
+      },
     },
     {
       title: formatMessage({ id: 'SUB_TA_HIS_TABLE_CONTACT_UPLOADED_TIME' }),
-      dataIndex: 'uploadedTime',
+      dataIndex: 'updatedTime',
       width: '20%',
       render: text => {
-        return !isNvl(text) ? moment(text, 'YYYYMMDD').format('DD-MMM-YYYY') : '-';
+        return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';
       },
     },
     {
       title: formatMessage({ id: 'SUB_TA_HIS_TABLE_STATE_STATUS_BEFORE' }),
       dataIndex: 'statusBefore',
-      width: '25%',
+      width: '24%',
       render: text => this.getStatus(text),
     },
     {
       title: formatMessage({ id: 'SUB_TA_HIS_TABLE_STATE_STATUS_AFTER' }),
       dataIndex: 'statusAfter',
-      width: '25%',
+      width: '24%',
       render: text => this.getStatus(text),
     },
   ];
@@ -102,7 +108,8 @@ class StateChangeHistoryComp extends PureComponent {
       payload: {
         taId: selectSubTaId,
         type: 'subta',
-        ...{ searchStateForm },
+        updatedStartTime: searchStateForm.updatedStartTime,
+        updatedEndTime: searchStateForm.updatedEndTime,
         pageInfo: {
           totalSize,
           currentPage,
@@ -128,8 +135,8 @@ class StateChangeHistoryComp extends PureComponent {
       type: 'subTAStateChangeHistory/doSaveData',
       payload: {
         searchStateForm: {
-          uploadedStartTime: null,
-          uploadedEndTime: null,
+          updatedStartTime: null,
+          updatedEndTime: null,
         },
       },
     }).then(() => {
@@ -139,22 +146,25 @@ class StateChangeHistoryComp extends PureComponent {
 
   onHandleChange = (key, keyValue, fieldKey) => {
     const { dispatch, form, searchStateForm } = this.props;
-    const queryInfo = { ...searchStateForm };
+    let queryInfo = {};
+    if (!isNvl(searchStateForm)) {
+      queryInfo = { ...searchStateForm };
+    }
     const noVal = getKeyValue(keyValue);
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));
     const source = JSON.parse(`{"${key}":"${noVal}"}`);
     Object.assign(queryInfo, source);
     dispatch({
-      type: 'stateChangeHistory/save',
+      type: 'subTAStateChangeHistory/save',
       payload: {
-        searchStateForm: queryInfo,
+        searchStateForm: { ...queryInfo },
       },
     });
   };
 
   disabledStartDate = startValue => {
     const { form } = this.props;
-    const endTime = form.getFieldValue('uploadedEndTime');
+    const endTime = form.getFieldValue('updatedEndTime');
     if (!startValue || !endTime) {
       return false;
     }
@@ -163,7 +173,7 @@ class StateChangeHistoryComp extends PureComponent {
 
   disabledEndDate = endValue => {
     const { form } = this.props;
-    const startTime = form.getFieldValue('uploadedStartTime');
+    const startTime = form.getFieldValue('updatedStartTime');
     if (!endValue || !startTime) {
       return false;
     }
@@ -171,7 +181,13 @@ class StateChangeHistoryComp extends PureComponent {
   };
 
   render() {
-    const { form, searchStateForm, searchList, qryStateHistoryLoading, historyList } = this.props;
+    const {
+      form,
+      searchStateForm,
+      searchStateList,
+      qryStateHistoryLoading,
+      historyList,
+    } = this.props;
     const { getFieldDecorator } = form;
     const startDateOpts = {
       placeholder: formatMessage({ id: 'SUB_TA_HIS_TABLE_Q_START_TIME' }),
@@ -198,11 +214,11 @@ class StateChangeHistoryComp extends PureComponent {
         ),
     };
     const pageOpts = {
-      total: searchList.total,
-      current: searchList.currentPage,
-      pageSize: searchList.pageSize,
+      total: searchStateList.total,
+      current: searchStateList.currentPage,
+      pageSize: searchStateList.pageSize,
       pageChange: (page, pageSize) => {
-        this.searchStateHisList(page, pageSize, searchList.total);
+        this.searchStateHisList(page, pageSize, searchStateList.total);
       },
     };
     const hisTableOpts = {
@@ -214,16 +230,16 @@ class StateChangeHistoryComp extends PureComponent {
         <Spin spinning={qryStateHistoryLoading}>
           <Row type="flex" justify="space-around" className={styles.stateCardQryRow}>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.stateCompCol}>
-              {getFieldDecorator('uploadedStartTime', {
-                initialValue: !isNvl(searchStateForm.uploadedStartTime)
-                  ? moment(searchStateForm.uploadedStartTime, 'YYYYMMDD')
+              {getFieldDecorator('updatedStartTime', {
+                initialValue: !isNvl(searchStateForm.updatedStartTime)
+                  ? moment(searchStateForm.updatedStartTime, 'YYYYMMDD')
                   : null,
               })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.stateCompCol}>
-              {getFieldDecorator('uploadedEndTime', {
-                initialValue: !isNvl(searchStateForm.uploadedEndTime)
-                  ? moment(searchStateForm.uploadedEndTime, 'YYYYMMDD')
+              {getFieldDecorator('updatedEndTime', {
+                initialValue: !isNvl(searchStateForm.updatedEndTime)
+                  ? moment(searchStateForm.updatedEndTime, 'YYYYMMDD')
                   : null,
               })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
             </Col>
@@ -250,7 +266,7 @@ class StateChangeHistoryComp extends PureComponent {
               rowKey={record => `stateHisList_${String(record.number)}`}
               dataSource={historyList || []}
               loading={qryStateHistoryLoading}
-              scroll={{ x: 660 }}
+              scroll={{ x: 600 }}
               {...hisTableOpts}
             />
           </Col>

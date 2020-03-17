@@ -4,7 +4,7 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
-import { isNullOrUndefined } from 'util';
+import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../components/BreadcrumbComp';
@@ -16,14 +16,13 @@ import MyOrderButton from '@/pages/TicketManagement/components/MyOrderButton';
 
 const productPanelList = [<Attraction />, <OnceAPirate />, <DolphinIslandOffer />];
 
-@connect(({ ticketMgr,ticketOrderCartMgr, loading }) => ({
+@connect(({ ticketMgr, ticketOrderCartMgr, loading }) => ({
   ticketMgr,
   ticketOrderCartMgr,
   productPanelListLoading:
     loading.effects['ticketMgr/queryOfferList'] || loading.effects['ticketMgr/queryDolphinIsland'],
 }))
 class CreateOrder extends PureComponent {
-
   constructor(props) {
     super(props);
     const clientHeight =
@@ -37,11 +36,20 @@ class CreateOrder extends PureComponent {
   componentDidMount() {
     const {
       dispatch,
-      ticketMgr: { orderIndex,themeParkList },
+      ticketMgr: { orderIndex },
       location: {
         query: { operateType },
       },
     } = this.props;
+    dispatch({
+      type: 'ticketOrderCartMgr/createShoppingCart',
+      payload: {},
+    }).then(()=>{
+      dispatch({
+        type: 'ticketOrderCartMgr/queryShoppingCart',
+        payload: {},
+      })
+    });
     if (operateType && operateType === 'editOnceAPirateOrder' && orderIndex !== null) {
       dispatch({
         type: 'ticketMgr/initEditOnceAPirateOrder',
@@ -49,7 +57,7 @@ class CreateOrder extends PureComponent {
       });
     } else if (operateType && operateType === 'return') {
       // to do some thing
-    } else if (operateType && operateType === 'goBack'){
+    } else if (operateType && operateType === 'goBack') {
       if (orderIndex !== null) {
         dispatch({
           type: 'ticketMgr/resetEditOnceAPirateOrder',
@@ -72,9 +80,7 @@ class CreateOrder extends PureComponent {
     const {
       productPanelListLoading,
       ticketMgr: { tipVisible, activeDataPanel, mainPageLoading = false },
-      ticketOrderCartMgr: {
-        orderCartDataAmount,
-      }
+      ticketOrderCartMgr: { orderCartDataAmount },
     } = this.props;
 
     const { clientHeight } = this.state;
@@ -97,16 +103,19 @@ class CreateOrder extends PureComponent {
           <Col {...infoPanelGrid} className={styles.marginBottom8}>
             <MyOrderButton
               tipVisible={tipVisible}
-              tipString = {formatMessage({ id: 'ORDER_TITLE_TIP' })}
-              orderAmount = {orderCartDataAmount}
+              tipString={formatMessage({ id: 'ORDER_TITLE_TIP' })}
+              orderAmount={orderCartDataAmount}
               onClickOrder={() => this.clickOrder()}
             />
             <Spin spinning={!!productPanelListLoading}>
               <div className={styles.marginTop4}>
-                {!isNullOrUndefined(activeDataPanel) ? (
+                {!isNvl(activeDataPanel) ? (
                   productPanelList[activeDataPanel]
                 ) : (
-                  <Card title={null} style={{ minHeight: clientHeight }}>
+                  <Card
+                    title={null}
+                    style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
+                  >
                     <List style={{ marginTop: 100 }} />
                     <div className={styles.emptyListFont}>
                       {formatMessage({ id: 'EMPTY_PRODUCT_TIP' })}

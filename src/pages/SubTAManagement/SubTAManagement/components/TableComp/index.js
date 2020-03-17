@@ -3,10 +3,16 @@ import { connect } from 'dva';
 import { Badge, Col, Icon, Modal, Table, Tooltip } from 'antd';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
+import MediaQuery from 'react-responsive';
+import MobileModal from '@/components/MobileModal';
 import StateChangeHistoryComp from '../StateChangeHistoryComp';
+import SCREEN from '@/utils/screen';
 import { isMainTaRoleSub } from '../../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
+import prohibit from '../../../../../assets/pams/prohibit.svg';
+import circleURL from '../../../../../assets/pams/circle.svg';
+import PaginationComp from '@/pages/TAManagement/MainTAManagement/components/PaginationComp';
 
 const mapStateToProps = store => {
   const {
@@ -60,7 +66,7 @@ class TableComp extends PureComponent {
         dataIndex: 'applicationDate',
         width: '180px',
         render: text => {
-          return !isNvl(text) ? moment(text, 'YYYYMMDD').format('DD-MMM-YYYY') : '-';
+          return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';
         },
       },
       {
@@ -70,11 +76,11 @@ class TableComp extends PureComponent {
         render: text => {
           let statusStr = 'default';
           let statusTxt = '';
-          if (String(text).toLowerCase() === 'success') {
-            statusStr = 'active';
+          if (String(text).toLowerCase() === 'active') {
+            statusStr = 'success';
             statusTxt = formatMessage({ id: 'SUB_TA_M_TABLE_STATUS_ACTIVE' });
           } else {
-            statusStr = 'inactive';
+            statusStr = 'default';
             statusTxt = formatMessage({ id: 'SUB_TA_M_TABLE_STATUS_INACTIVE' });
           }
           return <Badge status={statusStr} text={statusTxt || null} />;
@@ -90,16 +96,48 @@ class TableComp extends PureComponent {
           return (
             <div>
               <Tooltip placement="top" title={formatMessage({ id: 'COMMON_DETAIL' })}>
-                <Icon type="eye" onClick={e => this.goOperationInformation(e, record.subTaId)} />
+                <Icon
+                  type="eye"
+                  onClick={e => this.goOperationInformation(e, record.subTaId, true, false)}
+                />
               </Tooltip>
               {isMainTaRoleFlag && (
                 <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}>
-                  <Icon type="edit" onClick={e => this.goOperationInformation(e, record.subTaId)} />
+                  <Icon
+                    type="edit"
+                    onClick={e => this.goOperationInformation(e, record.subTaId, false, true)}
+                  />
                 </Tooltip>
               )}
               <Tooltip placement="top" title={formatMessage({ id: 'SUB_TA_TABLE_HISTORY' })}>
                 <Icon type="file-text" onClick={e => this.onShowHisModal(e, record.subTaId)} />
               </Tooltip>
+              {isMainTaRoleFlag && String(record.statusName).toLowerCase() === 'active' && (
+                <Tooltip
+                  placement="top"
+                  className={styles.inactiveImg}
+                  title={formatMessage({ id: 'SUB_TA_TABLE_PROHIBIT' })}
+                >
+                  <img
+                    src={prohibit}
+                    alt=""
+                    onClick={() => this.modifyStatus(record.subTaId, 'inactive')}
+                  />
+                </Tooltip>
+              )}
+              {isMainTaRoleFlag && String(record.statusName).toLowerCase() === 'inactive' && (
+                <Tooltip
+                  placement="top"
+                  className={styles.inactiveImg}
+                  title={formatMessage({ id: 'SUB_TA_TABLE_ENABLE' })}
+                >
+                  <img
+                    src={circleURL}
+                    alt=""
+                    onClick={() => this.modifyStatus(record.subTaId, 'active')}
+                  />
+                </Tooltip>
+              )}
             </div>
           );
         },
@@ -107,15 +145,46 @@ class TableComp extends PureComponent {
     ];
   };
 
-  goOperationInformation = (e, subTaId) => {
+  modifyStatus = (subTaId, status) => {
+    const { dispatch, searchList } = this.props;
+    dispatch({
+      type: 'subTAManagement/fetchUpdateProfileStatus',
+      payload: {
+        taId: !isNvl(subTaId) ? subTaId : null,
+        type: 'subta',
+        status: String(status).toLowerCase(),
+      },
+    }).then(flag => {
+      if (flag) {
+        this.qrySubTAList(searchList.currentPage, searchList.pageSize);
+      }
+    });
+  };
+
+  goOperationInformation = (e, subTaId, isDetail, isEdit) => {
     const { dispatch } = this.props;
     e.preventDefault();
     dispatch({
       type: 'subTAManagement/save',
       payload: {
-        selectSubTaId: subTaId,
         operationVisible: true,
+        isDetail,
+        isEdit,
       },
+    });
+    dispatch({
+      type: 'subTaMgr/doCleanData',
+      payload: {
+        subTaId: !isNvl(subTaId) ? subTaId : null,
+      },
+    }).then(() => {
+      dispatch({ type: 'subTaMgr/fetchQueryCountryList' });
+      if (!isNvl(subTaId)) {
+        dispatch({
+          type: 'subTaMgr/fetchQrySubTaInfo',
+          payload: { subTaId: !isNvl(subTaId) ? subTaId : null },
+        });
+      }
     });
   };
 
@@ -162,34 +231,88 @@ class TableComp extends PureComponent {
   };
 
   render() {
-    const { subTaList, qrySubTaTableLoading, hisVisible } = this.props;
-    const tableOpts = {};
+    const { subTaList, searchList, qrySubTaTableLoading, hisVisible } = this.props;
+    const pageOpts = {
+      total: searchList.total,
+      current: searchList.currentPage,
+      pageSize: searchList.pageSize,
+      pageChange: (page, pageSize) => {
+        this.qrySubTAList(page, pageSize);
+      },
+    };
+    const tableOpts = {
+      pagination: false,
+      footer: () => <PaginationComp {...pageOpts} />,
+    };
+    const modalOpts = {
+      title: formatMessage({ id: 'SUB_TA_STATE_CHANGE_HISTORY' }),
+      visible: hisVisible,
+      onCancel: () => this.handleHisModalCancel(),
+      footer: null,
+    };
     return (
       <Col span={24}>
         <Table
           size="small"
           className={`tabs-no-padding ${styles.searchTitle}`}
           columns={this.getColumns()}
-          rowKey={record => `subTAList${record.taId}`}
+          rowKey={record => `subTAList${record.subTaId}`}
           dataSource={subTaList}
           loading={qrySubTaTableLoading}
           scroll={{ x: 660 }}
           {...tableOpts}
         />
         {hisVisible && (
-          <Modal
-            title={formatMessage({ id: 'SUB_TA_STATE_CHANGE_HISTORY' })}
-            visible={hisVisible}
-            onCancel={this.handleHisModalCancel}
-            footer={null}
-            width="700px"
-            bodyStyle={{
-              height: '450px',
-              overflowY: 'auto',
-            }}
-          >
-            <StateChangeHistoryComp />
-          </Modal>
+          <React.Fragment>
+            <MediaQuery
+              maxWidth={SCREEN.screenMdMax}
+              minWidth={SCREEN.screenSmMin}
+              maxHeight={SCREEN.screenXsMax}
+            >
+              <MobileModal modalOpts={modalOpts}>
+                <StateChangeHistoryComp />
+              </MobileModal>
+            </MediaQuery>
+            <MediaQuery
+              maxWidth={SCREEN.screenMdMax}
+              minWidth={SCREEN.screenSmMin}
+              minHeight={SCREEN.screenSmMin}
+            >
+              <Modal
+                title={formatMessage({ id: 'SUB_TA_STATE_CHANGE_HISTORY' })}
+                visible={hisVisible}
+                onCancel={this.handleHisModalCancel}
+                footer={null}
+                width="700px"
+                bodyStyle={{
+                  height: '450px',
+                  overflowY: 'auto',
+                }}
+              >
+                <StateChangeHistoryComp />
+              </Modal>
+            </MediaQuery>
+            <MediaQuery minWidth={SCREEN.screenLgMin}>
+              <Modal
+                title={formatMessage({ id: 'SUB_TA_STATE_CHANGE_HISTORY' })}
+                visible={hisVisible}
+                onCancel={this.handleHisModalCancel}
+                footer={null}
+                width="700px"
+                bodyStyle={{
+                  height: '450px',
+                  overflowY: 'auto',
+                }}
+              >
+                <StateChangeHistoryComp />
+              </Modal>
+            </MediaQuery>
+            <MediaQuery maxWidth={SCREEN.screenXsMax}>
+              <MobileModal modalOpts={modalOpts}>
+                <StateChangeHistoryComp />
+              </MobileModal>
+            </MediaQuery>
+          </React.Fragment>
         )}
       </Col>
     );

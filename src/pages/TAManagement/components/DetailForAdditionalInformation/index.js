@@ -22,7 +22,7 @@ class DetailForAdditionalInformation extends PureComponent {
       settlementCycleList = [],
     } = this.props;
     const { companyInfo = {} } = customerInfo || {};
-    console.log('settlementCycleList:', settlementCycleList);
+    // console.log('settlementCycleList:', settlementCycleList);
     return (
       <Row type="flex" justify="space-around">
         <Col span={24}>

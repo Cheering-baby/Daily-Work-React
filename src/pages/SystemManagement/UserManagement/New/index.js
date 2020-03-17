@@ -1,5 +1,5 @@
 import React from 'react';
-import { Breadcrumb, Card, Col, Form, Select } from 'antd';
+import { Breadcrumb, Card, Col, Form } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
@@ -9,9 +9,9 @@ import styles from '../index.less';
 import UserForm from '../components/UserForm';
 
 @Form.create()
-@connect(({ userManagement, loading }) => ({
-  userManagement,
-  addLoading: loading.effects['userManagement/addTAUser'],
+@connect(({ userMgr, loading }) => ({
+  userMgr,
+  addLoading: loading.effects['userMgr/addTAUser'],
 }))
 class Index extends React.PureComponent {
   componentDidMount() {

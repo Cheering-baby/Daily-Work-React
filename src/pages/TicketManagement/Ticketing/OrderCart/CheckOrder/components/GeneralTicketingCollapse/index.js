@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Collapse, Form } from 'antd';
+import {Icon, Collapse, Form, message} from 'antd';
 import { connect } from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
@@ -7,8 +7,8 @@ import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/At
 import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
-@connect(({ ticketOrderCartMgr }) => ({
-  ticketOrderCartMgr,
+@connect(({ global,ticketOrderCartMgr }) => ({
+  global,ticketOrderCartMgr,
 }))
 class GeneralTicketingCollapse extends Component {
   constructor(props) {
@@ -21,17 +21,25 @@ class GeneralTicketingCollapse extends Component {
       ticketOrderCartMgr: { generalTicketOrderData = [] },
     } = this.props;
     if (opType === 'delete' && offerIndex !== null) {
-      generalTicketOrderData[orderIndex].orderOfferList.splice(offerIndex, 1);
+      const orderItem = generalTicketOrderData[orderIndex].orderOfferList[offerIndex];
       dispatch({
-        type: 'ticketOrderCartMgr/save',
+        type: 'ticketOrderCartMgr/removeShoppingCart',
         payload: {
-          generalTicketOrderData,
+          offerInstances: [{
+            offerNo: orderItem.offerInfo.offerNo,
+            offerInstanceId: orderItem.offerInstanceId,
+          }],
+          callbackFn: null,
         },
+      }).then((resultCode)=>{
+        if (resultCode==='0') {
+          message.success('Delete successfully!');
+        }
       });
     } else if (opType === 'edit') {
       const editOrderOffer = generalTicketOrderData[orderIndex].orderOfferList[offerIndex];
-      const attractionProduct = [{...editOrderOffer.orderInfo[0].productInfo}];
-      const deliverInfomation = {...editOrderOffer.deliveryInfo};
+      const attractionProduct = [{ ...editOrderOffer.orderInfo[0].productInfo }];
+      const deliverInfomation = { ...editOrderOffer.deliveryInfo };
       dispatch({
         type: 'ticketOrderCartMgr/save',
         payload: {
@@ -69,7 +77,7 @@ class GeneralTicketingCollapse extends Component {
       ticketOrderCartMgr: { generalTicketOrderData = [] },
     } = this.props;
     const activeKeyList = generalTicketOrderData.map((orderData, orderIndex) => {
-      return `${orderData.themeParkCode  }_${  orderIndex}`;
+      return `${orderData.themeParkCode}_${orderIndex}`;
     });
     return activeKeyList;
   };
@@ -144,7 +152,6 @@ class GeneralTicketingCollapse extends Component {
   };
 
   order = () => {
-
     const {
       dispatch,
       ticketOrderCartMgr: {
@@ -174,14 +181,14 @@ class GeneralTicketingCollapse extends Component {
         numOfGuests,
       },
       orderInfo,
-      offerInfo: {...detail},
+      offerInfo: { ...detail },
       deliveryInfo: deliverInfomation,
     };
     dispatch({
       type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
-      payload:{
+      payload: {
         orderIndex,
-        orderData
+        orderData,
       },
     });
     this.onClose();
@@ -189,14 +196,17 @@ class GeneralTicketingCollapse extends Component {
 
   render() {
     const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
       ticketOrderCartMgr: {
         countrys,
         showToCartModalType,
         showToCartModal = false,
         editOrderOffer = {},
         generalTicketOrderData = [],
-        attractionProduct= [],
-        deliverInfomation= {},
+        attractionProduct = [],
+        deliverInfomation = {},
       },
       form,
     } = this.props;
@@ -232,13 +242,14 @@ class GeneralTicketingCollapse extends Component {
         {generalTicketOrderData.map((orderData, orderIndex) => (
           <Collapse.Panel
             className={styles.collapsePanelStyles}
-            key={`${orderData.themeParkCode  }_${  orderIndex}`}
+            key={`${orderData.themeParkCode}_${orderIndex}`}
             header={
               <span className={styles.collapsePanelHeaderStyles}>{orderData.themeParkName}</span>
             }
           >
             <OrderItemCollapse
               form={form}
+              companyType={companyType}
               orderIndex={orderIndex}
               orderData={orderData}
               changeOrderCheck={(orderIndex, onceAPirateOrder) => {
@@ -250,7 +261,7 @@ class GeneralTicketingCollapse extends Component {
             />
           </Collapse.Panel>
         ))}
-        {(showToCartModal && showToCartModalType===0) && (
+        {showToCartModal && showToCartModalType === 0 && (
           <ToCart
             ticketType={ticketType}
             description={description}
@@ -264,6 +275,7 @@ class GeneralTicketingCollapse extends Component {
             order={this.order}
             deliverInfomation={deliverInfomation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
+            initialAcceptTermsAndConditions
           />
         )}
       </Collapse>

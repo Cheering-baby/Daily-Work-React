@@ -90,15 +90,21 @@ class StateChangeHistoryComp extends PureComponent {
       title: formatMessage({ id: 'TA_TABLE_NO' }),
       dataIndex: 'number',
       width: '10%',
+      render: text => {
+        return !isNvl(text) ? text : '-';
+      },
     },
     {
       title: formatMessage({ id: 'TA_TABLE_CONTACT_UPLOADED_BY' }),
-      dataIndex: 'uploadedBy',
+      dataIndex: 'updatedBy',
       width: '20%',
+      render: text => {
+        return !isNvl(text) ? text : '-';
+      },
     },
     {
       title: formatMessage({ id: 'TA_TABLE_CONTACT_UPLOADED_TIME' }),
-      dataIndex: 'uploadedTime',
+      dataIndex: 'updatedTime',
       width: '20%',
       render: text => {
         return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';

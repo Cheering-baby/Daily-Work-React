@@ -1,4 +1,16 @@
 @prefix-cls: ~'@{ant-prefix}';
+
+.resetModal {
+  :global {
+    .@{prefix-cls}-modal-body {
+      padding: 1rem;
+      font-size: 14px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+  }
+}
+
 .resetHeadTop {
   > p {
     font-size: 14px;
@@ -11,6 +23,7 @@
 .resetHeadBottom {
   > ul {
     padding-left: 0;
+    margin: 0;
 
     .resetHeadBottomP {
       font-size: 14px;
@@ -21,10 +34,49 @@
     }
   }
 }
+
 .resetContent {
   :global {
     .@{prefix-cls}-progress-inner {
       background-color: #bfbfbf;
     }
+  }
+}
+
+.resetDivider {
+  background: #FFF;
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.10);
+  margin: 1rem 0;
+  height: 1px !important;
+}
+
+.mobileModelWrapper {
+  background-color: #f9f9f9;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  .contentWrapper {
+    padding: 15px 15px 100px 15px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .buttonWrapper {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 52px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 15px;
+    background-color: #FFF;
+    z-index: 21;
   }
 }

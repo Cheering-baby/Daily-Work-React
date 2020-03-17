@@ -51,13 +51,6 @@ class MappingDetailList extends React.PureComponent {
         taId,
       },
     });
-    // const {
-    //   mappingDetails: { queryMappingInfo },
-    //   form: { setFidlesValue },
-    // } = this.props;
-    // setFidlesValue({
-    //   // idOrName: queryMappingInfo.idOrName
-    // });
   }
 
   cancel = () => {

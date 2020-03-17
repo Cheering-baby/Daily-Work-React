@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { BackTop, Layout } from 'antd';
+import { BackTop, Layout, Spin } from 'antd';
 import DocumentTitle from 'react-document-title';
 import memoizeOne from 'memoize-one';
 import { connect } from 'dva';
@@ -312,6 +312,8 @@ class BasicLayout extends React.PureComponent {
       rawMenu,
       currentUserRole,
       resetModal,
+      menuLoaded,
+      needChangePassword,
     } = this.props;
     const isSignUp =
       pathname.indexOf('/TAManagement/SignUp') >= 0 ||
@@ -356,6 +358,7 @@ class BasicLayout extends React.PureComponent {
       }
       return true;
     };
+
     const layout = (
       <Layout style={{ height: 'inherit' }}>
         <MediaQuery
@@ -407,9 +410,13 @@ class BasicLayout extends React.PureComponent {
           />
           <Content style={this.getContentStyle()} className="main-layout-content">
             <Fragment>
-              <Authorized authority={hasAuthority} noMatch={<Exception403 />}>
-                <PageContainer>{children}</PageContainer>
-              </Authorized>
+              {!menuLoaded ? (
+                <Spin />
+              ) : (
+                <Authorized authority={hasAuthority} noMatch={<Exception403 />}>
+                  {!menuLoaded ? <Spin /> : <PageContainer>{children}</PageContainer>}
+                </Authorized>
+              )}
               <ContextMenu />
               <MediaQuery
                 maxWidth={SCREEN.screenMdMax}
@@ -429,7 +436,7 @@ class BasicLayout extends React.PureComponent {
               </MediaQuery>
             </Fragment>
           </Content>
-          {resetModal && <ResetPwd />}
+          {resetModal && <ResetPwd needChangePassword={needChangePassword} />}
         </Layout>
       </Layout>
     );
@@ -493,6 +500,8 @@ export default withRouter(
     menuData: global.menu,
     rawMenu: global.rawMenu,
     resetModal: login.resetModal,
+    needChangePassword: global.needChangePassword,
+    menuLoaded: global.menuLoaded,
     ...setting,
   }))(BasicLayout)
 );

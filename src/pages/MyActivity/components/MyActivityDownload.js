@@ -1,8 +1,6 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
-// import { connect } from 'dva';
-import { Button, Table } from 'antd';
-import router from 'umi/router';
+import { Table } from 'antd';
 import { connect } from 'dva';
 import CommonModal from '@/components/CommonModal';
 import detailStyles from '../index.less';
@@ -26,12 +24,41 @@ class MyActivityDownload extends React.PureComponent {
 
   componentDidMount() {
     isMyActivity = true;
-    const { dispatch } = this.props;
+    const { dispatch, record } = this.props;
     dispatch({
       type: 'myActivityDownload/save',
       payload: {
         isMyActivityPage: true,
       },
+    });
+    dispatch({
+      type: 'myActivityDownload/contractHistoryList',
+      payload: {
+        isMyActivityPage: true,
+      },
+    });
+    dispatch({
+      type: 'myActivityDownload/taInfo',
+      payload: {
+        taId: record ? record.businessId : '',
+      },
+    }).then(() => {
+      const {
+        myActivityDownload: { fileList },
+      } = this.props;
+      let fileName = '';
+      let filePath = '';
+      fileList.forEach(item => {
+        fileName = item.name;
+        filePath = item.path;
+      });
+      dispatch({
+        type: 'myActivityDownload/downloadFile',
+        payload: {
+          fileName,
+          filePath,
+        },
+      });
     });
   }
 
@@ -47,9 +74,9 @@ class MyActivityDownload extends React.PureComponent {
 
   render() {
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      },
+      // onChange: (selectedRowKeys, selectedRows) => {
+      //   // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      // },
       getCheckboxProps: record => ({
         disabled: record.name === 'Disabled User', // Column configuration not to be checked
         name: record.name,
@@ -75,7 +102,7 @@ class MyActivityDownload extends React.PureComponent {
           size="small"
           rowSelection={rowSelection}
           columns={this.columns}
-          // dataSource={dataSource}
+          // dataSource={fileList}
           pagination={false}
           // loading={loading}
         />

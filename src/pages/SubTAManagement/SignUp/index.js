@@ -29,7 +29,7 @@ class SignUp extends PureComponent {
     const {
       dispatch,
       location: {
-        query: { taId, mainCompanyName },
+        query: { taId, companyName },
       },
     } = this.props;
     dispatch({
@@ -37,10 +37,13 @@ class SignUp extends PureComponent {
       payload: {
         subTaInfo: {
           taId: !isNvl(taId) ? taId : null,
-          mainCompanyName: !isNvl(mainCompanyName) ? mainCompanyName : null,
+          mainCompanyName: !isNvl(companyName) ? companyName : null,
         },
       },
     }).then(() => {
+      dispatch({ type: 'global/getLocale' }).then(() =>
+        dispatch({ type: 'global/getSupportLanguage' })
+      );
       dispatch({ type: 'subTaMgr/fetchQueryCountryList' });
     });
   };

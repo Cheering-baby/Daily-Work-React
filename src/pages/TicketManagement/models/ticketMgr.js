@@ -1,12 +1,15 @@
 import { message } from 'antd';
 import moment from 'moment';
-import { isNullOrUndefined } from 'util';
 import {
   queryAttributeList,
   queryOfferList,
   queryOfferDetail,
   queryCountry,
 } from '../services/ticketCommon';
+
+import {
+  getSessionTimeList
+} from '../utils/ticketOfferInfoUtil';
 
 const takeLatest = { type: 'takeLatest' };
 export default {
@@ -23,31 +26,55 @@ export default {
       {
         group: 1,
         value: 'USS',
-        label: 'Universal Studios Singapore',
+        label: 'UNIVERSAL STUDIOS SINGAPORE',
         disabled: false,
       },
       {
         group: 1,
         value: 'ACW',
-        label: 'Adventure Cove Water Park',
+        label: 'ADVENTURE COVE WATER PARK',
         disabled: false,
       },
       {
         group: 1,
         value: 'SEA',
-        label: 'S.E.A Aquarium',
+        label: 'S.E.A AQUARIUM',
+        disabled: false,
+      },
+      {
+        group: 1,
+        value: 'MEM',
+        label: 'MARITIME EXPERIENTIAL MUSEUM',
+        disabled: false,
+      },
+      {
+        group: 1,
+        value: 'Voucher',
+        label: 'VOUCHER',
+        disabled: false,
+      },
+      {
+        group: 1,
+        value: 'RE',
+        label: 'RESORT EVENTS',
+        disabled: false,
+      },
+      {
+        group: 1,
+        value: 'HHN',
+        label: 'HALLOWEEN HORROR NIGHTS',
         disabled: false,
       },
       {
         group: 2,
         value: 'DOL',
-        label: 'Dolphin Island',
+        label: 'DOLPHIN ISLAND',
         disabled: false,
       },
       {
         group: 3,
         value: 'OAP',
-        label: 'Once A Pirate',
+        label: 'ONCE A PIRATE',
         disabled: false,
       },
     ],
@@ -66,6 +93,7 @@ export default {
     onceAPirateOrder: null,
     searchPanelActive: false,
     mainPageLoading: false,
+    onceAPirateLoading: false,
   },
 
   effects: {
@@ -84,13 +112,13 @@ export default {
       });
     },
     *resetEditOnceAPirateOrder({ payload }, { put, select, take }) {
-      const { themeParkList } = yield select(state => state.ticketMgr);
+      const { themeParkList, } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
           {},
           {
             ...themePark,
-            disabled: themePark.value !== 'OAP',
+            disabled: themePark.value!=='OAP',
           }
         );
         return newData;
@@ -106,7 +134,7 @@ export default {
       });
     },
     *initEditOnceAPirateOrder({ payload }, { put, select, take }) {
-      const { onceAPirateOrder, themeParkList } = yield select(state => state.ticketMgr);
+      const { onceAPirateOrder, themeParkList, } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
           {},
@@ -156,11 +184,81 @@ export default {
     },
     *querySessionTime({ payload }, { call, put, select }) {
       const { dateOfVisit, themeParkChooseList = [] } = yield select(state => state.ticketMgr);
-      const sessionTimeList = [];
+      let sessionTimeList = [];
 
       const attractionParams = themeParkChooseList.map(() => ({
         paramCode: 'ThemeParkCode',
-        paramValue: 'USS',
+        paramValue: 'OAP',
+      }));
+      const requestParam = {
+        pageSize: 100,
+        currentPage: 1,
+        validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
+        attractionParams,
+      };
+      const response = yield call(queryOfferList, requestParam);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        const { offerList = [] } = result;
+        for (let i = 0; i < offerList.length; i += 1) {
+          const queryOfferDetailReqParam = {
+            offerNo: offerList[i].offerNo,
+            validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
+          };
+          const responseDetail = yield call(queryOfferDetail, queryOfferDetailReqParam);
+          if (responseDetail && responseDetail.success) {
+            const {
+              data: { resultCode, resultMsg },
+            } = responseDetail;
+            if (resultCode !== '0') {
+              message.error(resultMsg);
+              continue;
+            }
+            const {
+              data: {
+                result: { offerProfile },
+              },
+            } = responseDetail;
+            offerList[i].offerProfile = offerProfile;
+            sessionTimeList = getSessionTimeList(offerProfile,requestParam.validTimeFrom);
+          } else {
+            message.error(responseDetail.errorMsg);
+          }
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            selectOfferData: offerList,
+            sessionTimeList,
+          },
+        });
+      } else throw resultMsg;
+    },
+
+    *queryOAPOfferList({ payload }, { call, put, select }) {
+      const { selectOfferData, orderIndex, onceAPirateOrder, dateOfVisit, themeParkChooseList = [] } = yield select(
+        state => state.ticketMgr
+      );
+
+      yield put({
+        type: 'save',
+        payload: {
+          onceAPirateLoading: true,
+          activeDataPanel: 1,
+          activeGroupSelectData: {
+            themeParkCode: 'OAP',
+            themeParkChooseList,
+            ...payload.formData,
+          },
+        },
+      });
+
+      const attractionParams = themeParkChooseList.map(() => ({
+        paramCode: 'ThemeParkCode',
+        paramValue: 'OAP',
       }));
       const requestParam = {
         pageSize: 100,
@@ -196,102 +294,41 @@ export default {
               },
             } = responseDetail;
             offerList[i].offerProfile = offerProfile;
-            if (offerProfile && offerProfile.productGroup) {
-              offerProfile.productGroup.forEach(productGroupInfo => {
-                if (productGroupInfo && productGroupInfo.productType === 'Attraction') {
-                  productGroupInfo.productGroup.forEach(productList => {
-                    if (productList.products) {
-                      productList.products.forEach(product => {
-                        if (product.priceRule) {
-                          product.priceRule.forEach(rule => {
-                            if (rule.priceRuleName === 'DefaultPrice' && rule.productPrice) {
-                              rule.productPrice.forEach(productPrice => {
-                                if (productPrice.priceDate === requestParam.validTimeFrom) {
-                                  const { priceTimeFrom } = productPrice;
-                                  const existSession = sessionTimeList.find(
-                                    item => item.value === priceTimeFrom
-                                  );
-                                  if (priceTimeFrom && !existSession) {
-                                    sessionTimeList.push({
-                                      value: priceTimeFrom,
-                                      label: priceTimeFrom,
-                                    });
-                                  }
-                                }
-                              });
-                            }
-                          });
-                        }
-                      });
-                    }
-                  });
-                }
-              });
-            }
           } else {
             message.error(responseDetail.errorMsg);
           }
-        }
-        if (sessionTimeList.length === 0) {
-          sessionTimeList.push({
-            value: '12:30:00',
-            label: '12:30:00',
-          });
         }
         yield put({
           type: 'save',
           payload: {
             selectOfferData: offerList,
-            sessionTimeList,
+            onceAPirateLoading: false,
           },
         });
-      } else throw resultMsg;
-    },
 
-    *queryOAPOfferList({ payload }, { call, put, select }) {
-      const {
-        selectOfferData,
-        orderIndex,
-        onceAPirateOrder,
-        dateOfVisit,
-        themeParkChooseList = [],
-      } = yield select(state => state.ticketMgr);
-
-      yield put({
-        type: 'save',
-        payload: {
-          activeDataPanel: 1,
-          activeGroupSelectData: {
-            themeParkCode: 'OAP',
-            themeParkChooseList,
-            ...payload.formData,
+        yield put({
+          type: 'onceAPirateTicketMgr/saveOfferData',
+          payload: {
+            orderIndex,
+            onceAPirateOrder,
+            offerList,
+            requestParam,
+            activeGroupSelectData: {
+              ...payload.formData,
+            },
           },
-        },
-      });
+        });
 
-      const attractionParams = themeParkChooseList.map(() => ({
-        paramCode: 'ThemeParkCode',
-        paramValue: 'USS',
-      }));
-      const requestParam = {
-        pageSize: 100,
-        currentPage: 1,
-        validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
-        attractionParams,
-      };
-
-      yield put({
-        type: 'onceAPirateTicketMgr/saveOfferData',
-        payload: {
-          orderIndex,
-          onceAPirateOrder,
-          offerList: selectOfferData,
-          requestParam,
-          activeGroupSelectData: {
-            ...payload.formData,
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            onceAPirateLoading: false,
           },
-        },
-      });
+        });
+        throw resultMsg;
+      }
+
     },
 
     *queryAttributeList(_, { put, call }) {
@@ -314,7 +351,8 @@ export default {
       } else throw resultMsg;
     },
     queryOfferList: [
-      function* queryOfferListFunction({ payload }, { select, put, call }) {
+      // eslint-disable-next-line func-names
+      function*({ payload }, { select, put, call }) {
         const response = yield call(queryOfferList, payload);
         const {
           themeParkList: attractionList = [],
@@ -364,6 +402,7 @@ export default {
             }
             let attractionProduct;
             const prices = [];
+            // eslint-disable-next-line no-loop-func
             resultDetail.offerProfile.productGroup.forEach(item => {
               const { productType } = item;
               if (productType === 'Attraction') {
@@ -445,7 +484,8 @@ export default {
     ],
 
     queryDolphinIsland: [
-      function* queryDolphinIslandFunction({ payload }, { call, put, select }) {
+      // eslint-disable-next-line func-names
+      function*({ payload }, { call, put, select }) {
         const response = yield call(queryOfferList, payload);
         const { dateOfVisit, numOfGuests } = yield select(({ ticketMgr }) => ticketMgr);
         if (!response) return false;
@@ -597,31 +637,55 @@ export default {
           {
             group: 1,
             value: 'USS',
-            label: 'Universal Studios Singapore',
+            label: 'UNIVERSAL STUDIOS SINGAPORE',
             disabled: false,
           },
           {
             group: 1,
             value: 'ACW',
-            label: 'Adventure Cove Water Park',
+            label: 'ADVENTURE COVE WATER PARK',
             disabled: false,
           },
           {
             group: 1,
             value: 'SEA',
-            label: 'S.E.A Aquarium',
+            label: 'S.E.A AQUARIUM',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'MEM',
+            label: 'MARITIME EXPERIENTIAL MUSEUM',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'Voucher',
+            label: 'VOUCHER',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'RE',
+            label: 'RESORT EVENTS',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'HHN',
+            label: 'HALLOWEEN HORROR NIGHTS',
             disabled: false,
           },
           {
             group: 2,
             value: 'DOL',
-            label: 'Dolphin Island',
+            label: 'DOLPHIN ISLAND',
             disabled: false,
           },
           {
             group: 3,
             value: 'OAP',
-            label: 'Once A Pirate',
+            label: 'ONCE A PIRATE',
             disabled: false,
           },
         ],
@@ -636,12 +700,11 @@ export default {
           accessibleSeat: undefined,
         },
         selectOfferData: [],
-        numOfGuests: undefined,
-        deliverInfomation: {},
         orderIndex: null,
         onceAPirateOrder: null,
         searchPanelActive: false,
         mainPageLoading: false,
+        onceAPirateLoading: false,
       };
     },
   },

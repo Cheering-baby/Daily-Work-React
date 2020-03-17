@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Button, Col, Form, Icon, message, Popover, Row, Spin, Upload } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { getUrl, handleDownFile } from '@/utils/utils';
 import styles from './index.less';
-import { getUrl, handleDownFile } from '../../utils/pubUtils';
 
 const actionUrl = `${getUrl()}/common/upload`;
 const downUrl = `${getUrl()}/common/downloadFile`;
@@ -241,8 +241,8 @@ class FileUploadToFrom extends PureComponent {
   render() {
     const { form, viewId, formItemRowLayout, applyArAccount, onHandleDelTaFile } = this.props;
     const {
-      newTaFileList,
-      newArAccountFileList,
+      newTaFileList = [],
+      newArAccountFileList = [],
       taFileLoadingFlag = false,
       arAccountFileLoadingFlag = false,
     } = this.state;
@@ -252,14 +252,7 @@ class FileUploadToFrom extends PureComponent {
       name: 'file',
       action: actionUrl,
       headers: new Headers({
-        Accept: 'application/json, text/plain',
-        Authorization: 'fCm7Pc1OXg7XXWPW4DUqO3s2fa8ObSX2',
-        contentType: 'multipart/form-data',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Access-Control-Allow-Headers':
-          'Authorization,Origin, X-Requested-With, Content-Type, Accept',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET,POST',
+        Origin: '*',
         'App-Code': 'PAMS',
       }),
       FormData: 'file',

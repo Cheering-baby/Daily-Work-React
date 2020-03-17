@@ -1,3 +1,6 @@
+@prefix-cls: ~'@{ant-prefix}';
+@import '../../../../../theme/screen';
+
 .subTaEditBtn {
   position: absolute;
   right: 0;
@@ -7,4 +10,18 @@
   padding: 10px 16px;
   background: #fff;
   text-align: right;
+}
+
+.subTaDrawer {
+  :global {
+    .@{prefix-cls}-drawer-content-wrapper {
+      width: 480px !important;
+      @media screen and (max-width: @screenXsMax) {
+        width: 100% !important;
+      }
+      @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
+        width: 100% !important;
+      }
+    }
+  }
 }

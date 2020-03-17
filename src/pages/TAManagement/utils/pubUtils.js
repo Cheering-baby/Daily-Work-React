@@ -1,8 +1,5 @@
 import { formatMessage } from 'umi/locale';
-import { message } from 'antd';
-import { isNvl } from '@/utils/utils';
-import 'isomorphic-fetch';
-import * as setting from '@/uaa-npm/setting';
+import { getLocalUrl, isNvl } from '@/utils/utils';
 
 export function getTravelAgentNoLabel(country) {
   if (String(country).toLowerCase() === 'singapore') {
@@ -15,8 +12,10 @@ export function getSalutationStr(salutationList, salutation) {
   let salutationStr = '';
   if (salutation && salutationList && salutationList.length) {
     const salutationInfo = salutationList.find(n => String(n.dictId) === String(salutation)) || {};
-    salutationStr += `${salutationInfo.dictName}.`;
-    return salutationStr;
+    if (!isNvl(salutationInfo) && !isNvl(salutationInfo.dictName)) {
+      salutationStr += `${salutationInfo.dictName}.`;
+      return salutationStr;
+    }
   }
   return '-';
 }
@@ -25,9 +24,9 @@ export function getTelStr(countryList, country, phone) {
   let countryStr = '';
   if (country && countryList && countryList.length) {
     const countryInfo = countryList.find(n => String(n.dictId) === String(country)) || {};
-    countryStr += '(';
-    countryStr += `${countryInfo.dictName} +${countryInfo.dictId}`;
-    countryStr += ')';
+    if (!isNvl(countryInfo) && !isNvl(countryInfo.dictName)) {
+      countryStr += `(${countryInfo.dictName} +${countryInfo.dictId})`;
+    }
   }
   if (phone) {
     return countryStr + phone;
@@ -39,7 +38,9 @@ export function getOrganizationRoleStr(organizationRoleList, organizationRole) {
   if (organizationRole && organizationRoleList && organizationRoleList.length > 0) {
     const organizationRoleInfo =
       organizationRoleList.find(n => String(n.dictId) === String(organizationRole)) || {};
-    return organizationRoleInfo.dictName;
+    if (!isNvl(organizationRoleInfo) && !isNvl(organizationRoleInfo.dictName)) {
+      return organizationRoleInfo.dictName;
+    }
   }
   return '-';
 }
@@ -48,12 +49,16 @@ export function getCountryAndCityStr(countryList, country, city, cityList) {
   let countryAndCityStr = '';
   if (country && countryList && countryList.length > 0) {
     const countryInfo = countryList.find(n => String(n.dictId) === String(country)) || {};
-    countryAndCityStr += countryInfo.dictName;
+    if (!isNvl(countryInfo) && !isNvl(countryInfo.dictName)) {
+      countryAndCityStr += `${countryInfo.dictName}`;
+    }
   }
   if (city && cityList && cityList.length > 0) {
     const cityInfo = cityList.find(n => String(n.dictId) === String(city)) || {};
-    if (isNvl(countryAndCityStr)) countryAndCityStr += cityInfo.dictName;
-    else countryAndCityStr += `,${cityInfo.dictName}`;
+    if (!isNvl(cityInfo) && !isNvl(cityInfo.dictName)) {
+      if (isNvl(countryAndCityStr)) countryAndCityStr += cityInfo.dictName;
+      else countryAndCityStr += `,${cityInfo.dictName}`;
+    }
   }
   return !isNvl(countryAndCityStr) ? countryAndCityStr : '-';
 }
@@ -68,7 +73,9 @@ export function getTopNationalitiesStr(countryList, topNationalities) {
         if (!isNvl(topNationalitiesStr)) {
           topNationalitiesStr += ',';
         }
-        topNationalitiesStr += countryInfo.dictName;
+        if (!isNvl(countryInfo) && !isNvl(countryInfo.dictName)) {
+          topNationalitiesStr += `${countryInfo.dictName}`;
+        }
       }
     });
   }
@@ -86,8 +93,10 @@ export function getCurrencyStr(currencyList, currency) {
   let salutationStr = '';
   if (currency && currencyList && currencyList.length) {
     const currencyInfo = currencyList.find(n => String(n.dictId) === String(currency)) || {};
-    salutationStr += `${currencyInfo.dictName}`;
-    return salutationStr;
+    if (!isNvl(currencyInfo) && !isNvl(currencyInfo.dictName)) {
+      salutationStr += `${currencyInfo.dictName}`;
+      return salutationStr;
+    }
   }
   return '-';
 }
@@ -101,12 +110,16 @@ export function getCategoryAndCustomerGroupStr(
   let categoryAndCustomerGroupStr = '';
   if (category && categoryList && categoryList.length > 0) {
     const countryInfo = categoryList.find(n => String(n.dictId) === String(category)) || {};
-    categoryAndCustomerGroupStr += countryInfo.dictName;
+    if (!isNvl(countryInfo) && !isNvl(countryInfo.dictName)) {
+      categoryAndCustomerGroupStr += `${countryInfo.dictName}`;
+    }
   }
   if (customerGroup && customerGroupList && customerGroupList.length > 0) {
     const cityInfo = customerGroupList.find(n => String(n.dictId) === String(customerGroup)) || {};
-    if (isNvl(categoryAndCustomerGroupStr)) categoryAndCustomerGroupStr += cityInfo.dictName;
-    else categoryAndCustomerGroupStr += `,${cityInfo.dictName}`;
+    if (!isNvl(cityInfo) && !isNvl(cityInfo.dictName)) {
+      if (isNvl(categoryAndCustomerGroupStr)) categoryAndCustomerGroupStr += cityInfo.dictName;
+      else categoryAndCustomerGroupStr += `,${cityInfo.dictName}`;
+    }
   }
   return !isNvl(categoryAndCustomerGroupStr) ? categoryAndCustomerGroupStr : '-';
 }
@@ -115,9 +128,11 @@ export function getSalesPersonStr(salesPersonList, salesPerson) {
   let salesPersonStr = '';
   if (salesPerson && salesPersonList && salesPersonList.length) {
     const salesPersonInfo =
-      salesPersonList.find(n => String(n.dictId) === String(salesPerson)) || {};
-    salesPersonStr += `${salesPersonInfo.dictName}`;
-    return salesPersonStr;
+      salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
+    if (!isNvl(salesPersonInfo) && !isNvl(salesPersonInfo.userCode)) {
+      salesPersonStr += `${salesPersonInfo.userCode}`;
+      return salesPersonStr;
+    }
   }
   return '-';
 }
@@ -127,8 +142,10 @@ export function getSettlementCycleStr(settlementCycleList, settlementCycle, sett
   if (settlementCycle && settlementCycleList && settlementCycleList.length) {
     const settlementCycleInfo =
       settlementCycleList.find(n => String(n.dictId) === String(settlementCycle)) || {};
-    settlementCycleStr += ` ${settlementCycleInfo.dictName}`;
-    return settlementCycleStr;
+    if (!isNvl(settlementCycleInfo) && !isNvl(settlementCycleInfo.dictName)) {
+      settlementCycleStr += ` ${settlementCycleInfo.dictName}`;
+      return settlementCycleStr;
+    }
   }
   if (!isNvl(settlementValue)) {
     return `The ${settlementValue} th day`;
@@ -138,10 +155,12 @@ export function getSettlementCycleStr(settlementCycleList, settlementCycle, sett
 
 export function getMarketStr(marketList, market) {
   let marketStr = '';
-  if (market && marketList && marketList.length) {
+  if (market && marketList && marketList.length > 0) {
     const marketInfo = marketList.find(n => String(n.dictId) === String(market)) || {};
-    marketStr += `${marketInfo.dictName}`;
-    return marketStr;
+    if (!isNvl(marketInfo) && !isNvl(marketInfo.dictName)) {
+      marketStr += `${marketInfo.dictName}`;
+      return marketStr;
+    }
   }
   return '-';
 }
@@ -331,58 +350,6 @@ export function getYesOrNo(val) {
   return '-';
 }
 
-export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown, afterDown) {
-  if (beforeDown) {
-    beforeDown();
-  }
-  fetch(apiUrl, {
-    method: 'post',
-    body: JSON.stringify(reqParamJson),
-    credentials: 'include',
-    headers: new Headers({
-      'Content-Type': 'application/json',
-      'App-Code': 'PAMS',
-    }),
-  })
-    .then(response => {
-      response.blob().then(blob => {
-        afterDown();
-        if (response.status !== 200) {
-          message.warn(
-            formatMessage({ id: 'EXPORT_FILE_STATUS' })
-              .replace('XXX', response.status)
-              .replace('YYY', response.status)
-          );
-          return;
-        }
-        let fileName = response.headers.get('Content-Disposition');
-        fileName = !isNvl(fileName) ? fileName : defaultFileName;
-        fileName = fileName.replace('attachment;filename=', '');
-        if (window.navigator.msSaveOrOpenBlob) {
-          navigator.msSaveBlob(blob, fileName);
-        } else {
-          const blobUrl = window.URL.createObjectURL(blob);
-          const aElement = document.createElement('a');
-          document.body.appendChild(aElement);
-          aElement.style.display = 'none';
-          aElement.href = blobUrl;
-          aElement.download = !isNvl(fileName) ? fileName : 'test.xlsx';
-          aElement.click();
-          document.body.removeChild(aElement);
-        }
-      });
-    })
-    .catch(error => {
-      message.warn(String(error), 10);
-      afterDown();
-    });
-}
-
-export function getUrl() {
-  return `${setting.uaaPath}/pams`;
-  // return `http://10.25.159.206:18091/pams`;
-}
-
 export function getProductType() {
   return {
     productTypeRoom: '01',
@@ -395,4 +362,12 @@ export function getFinanceType() {
     financeTypeOne: '01',
     financeTypeTwo: '02',
   };
+}
+
+export function getRegistionLink(companyName, taId) {
+  let urlStr = `${getLocalUrl().replace('/pams', '')}/#/SubTAManagement/SignUp`;
+  if (!isNvl(taId) && !isNvl(companyName)) urlStr += `?taId=${taId}&companyName=${companyName}`;
+  else if (!isNvl(taId) && isNvl(companyName)) urlStr += `?taId=${taId}`;
+  else if (isNvl(taId) && !isNvl(companyName)) urlStr += `?companyName=${companyName}`;
+  return urlStr;
 }

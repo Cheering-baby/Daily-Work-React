@@ -2,6 +2,7 @@ import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import * as service from '../services/menuMgr';
 import { getDefaultExpandedRowKeys, menuAdapter } from '../utils/pubUtils';
+import * as setting from '@/uaa-npm/setting';
 
 export default {
   namespace: 'menuMgr',
@@ -20,25 +21,24 @@ export default {
     menuInfo: {},
     menuInfoLoadingFlag: false,
     menuFormVisible: false,
+    selectMenuCode: null,
+    menuMoreVisible: false,
     viewId: 'menuView',
   },
   effects: {
     *fetchAllMenus(_, { call, put }) {
       yield put({ type: 'save', payload: { qryMenuTableLoading: true } });
-      const { success, errorMsg, data } = yield call(service.queryAllMenus);
+      const {
+        data: { resultCode, resultMsg, resultData },
+      } = yield call(service.queryAllMenus, { appCode: `${setting.appCode}` });
       yield put({ type: 'save', payload: { qryMenuTableLoading: false } });
-      if (success) {
+      if (resultCode === 0 || resultCode === '0') {
         const menuTop = {
-          id: -1,
-          key: 'PAMS',
-          menuCode: 'PAMS',
-          menuName: formatMessage({ id: 'MENU_DIR_MENU_ROOT' }),
-          menuType: '01',
-          appCode: 'PAMS',
-          seq: -1,
+          key: resultData.menuCode,
           children: [],
+          ...resultData,
         };
-        const menuData = menuAdapter(menuTop, data);
+        const menuData = menuAdapter(menuTop, resultData.subMenus || []);
         menuTop.children = menuData;
         const menuTree = [menuTop];
         const keys = getDefaultExpandedRowKeys(menuTree, []) || [];
@@ -49,7 +49,7 @@ export default {
             keys,
           },
         });
-      } else message.warn(errorMsg, 10);
+      } else message.warn(resultMsg, 10);
     },
     *fetchAllFontIcons(_, { call, put }) {
       const { success, errorMsg, data } = yield call(service.queryAllFontIcons);
@@ -69,6 +69,7 @@ export default {
       } = yield call(service.addMenu, { ...payload });
       yield put({ type: 'save', payload: { menuInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({ id: 'ADD_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
@@ -81,6 +82,7 @@ export default {
       } = yield call(service.modifyMenu, { ...payload });
       yield put({ type: 'save', payload: { menuInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({ id: 'MODIFY_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
@@ -93,6 +95,7 @@ export default {
       } = yield call(service.removeMenu, { ...payload });
       yield put({ type: 'save', payload: { menuInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({ id: 'DELETE_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
@@ -105,6 +108,7 @@ export default {
       } = yield call(service.moveUpMenu, { ...payload });
       yield put({ type: 'save', payload: { menuInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({ id: 'MOVE_UP_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
@@ -117,6 +121,7 @@ export default {
       } = yield call(service.moveDownMenu, { ...payload });
       yield put({ type: 'save', payload: { menuInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({ id: 'MOVE_DOWN_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
@@ -154,6 +159,8 @@ export default {
           menuInfo: {},
           menuInfoLoadingFlag: false,
           menuFormVisible: false,
+          selectMenuCode: null,
+          menuMoreVisible: false,
           viewId: 'menuView',
         },
         ...payload,

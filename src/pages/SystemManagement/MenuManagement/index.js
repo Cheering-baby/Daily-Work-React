@@ -20,8 +20,10 @@ const mapStateToProps = store => {
 class MenuManagement extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({ type: 'menuMgr/fetchAllMenus' });
-    dispatch({ type: 'menuMgr/fetchAllFontIcons' });
+    dispatch({ type: 'menuMgr/doCleanData' }).then(() => {
+      dispatch({ type: 'menuMgr/fetchAllMenus' });
+      dispatch({ type: 'menuMgr/fetchAllFontIcons' });
+    });
   }
 
   render() {

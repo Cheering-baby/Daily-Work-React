@@ -1,0 +1,36 @@
+import UAAService from '@/uaa-npm';
+
+const dev = 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams';
+const mock =
+  'http://easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e1c1fb0f5006f0021bfc342/PAMS';
+const uaaPath = process.env.NODE_ENV === 'development' ? dev : '';
+
+const uaaPathWithMock = process.env.NODE_ENV === 'development' ? mock : '';
+
+const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
+
+
+export function queryAccount(params) {
+  return UAAService.request(`${uaaPath}/proxy/ali/b2b/account/queryAccountDetail`, {
+    method: 'GET',
+    params: params,
+  });
+}
+
+export async function queryAccountInfo(taId) {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryAccountInfo?taId=${taId}`, {
+    method: 'GET',
+  });
+}
+
+export async function queryInfoWithNoId(taId) {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryInfoWithNoId`, {
+    method: 'GET',
+  });
+}
+
+export async function queryTaInfo(params) {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryTaInfo?taId=${params.taId}`, {
+    method: 'GET',
+  });
+}

@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import * as service from '../services/mainTAManagement';
 
 export default {
@@ -17,6 +18,9 @@ export default {
     },
     mainTAList: [],
     qryTaTableLoading: false,
+
+    selectMoreTaId: null,
+    taMoreVisible: false,
 
     modalVisible: false,
     constraintVisible: false,
@@ -66,6 +70,12 @@ export default {
       } = yield call(service.updateProfileStatus, { ...payload });
       yield put({ type: 'save', payload: { qryTaTableLoading: false } });
       if (resultCode === '0' || resultCode === 0) {
+        if (String(payload.status).toLowerCase() === 'inactive') {
+          message.success(formatMessage({ id: 'PROHIBIT_TA_PROFILE_SUCCESS' }), 10);
+        }
+        if (String(payload.status).toLowerCase() === 'active') {
+          message.success(formatMessage({ id: 'ENABLE_TA_PROFILE_SUCCESS' }), 10);
+        }
         return true;
       }
       message.warn(resultMsg, 10);
@@ -120,6 +130,9 @@ export default {
           },
           mainTAList: [],
           qryTaTableLoading: false,
+
+          selectMoreTaId: null,
+          taMoreVisible: false,
 
           modalVisible: false,
           constraintVisible: false,

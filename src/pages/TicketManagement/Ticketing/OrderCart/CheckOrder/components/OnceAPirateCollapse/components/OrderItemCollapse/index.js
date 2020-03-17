@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Icon, Row, Col, Checkbox, Collapse, Tooltip, Modal } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
+import AccessibleSeat from './assets/accessible_seat.png';
 
 const { confirm } = Modal;
 
@@ -48,10 +49,10 @@ class OrderItemCollapse extends Component {
     let orderSumPrice = 0;
     if (onceAPirateOrder && onceAPirateOrder.orderOfferList) {
       onceAPirateOrder.orderOfferList.forEach(orderOffer => {
-        orderSumPrice += orderOffer.orderInfo.offerSumPrice * orderOffer.orderInfo.orderQuantity;
+        orderSumPrice += orderOffer.orderInfo.offerSumPrice;
       });
     }
-    return `$${orderSumPrice}`;
+    return `$${Number(orderSumPrice).toFixed(2)}`;
   };
 
   getMealsAmount = orderOffer => {
@@ -68,8 +69,8 @@ class OrderItemCollapse extends Component {
 
   getOfferSumPrice = orderOffer => {
     let offerSumPrice = 0;
-    offerSumPrice = orderOffer.orderInfo.offerSumPrice * orderOffer.orderInfo.orderQuantity;
-    return `$${offerSumPrice}`;
+    offerSumPrice = orderOffer.orderInfo.offerSumPrice;
+    return `$${Number(offerSumPrice).toFixed(2)}`;
   };
 
   checkOrderEvent = e => {
@@ -121,9 +122,9 @@ class OrderItemCollapse extends Component {
 
   render() {
     const {
+      companyType,
       orderIndex,
       onceAPirateOrder,
-      form: { getFieldDecorator },
     } = this.props;
 
     return (
@@ -153,9 +154,20 @@ class OrderItemCollapse extends Component {
                   onChange={this.checkOrderEvent}
                 />
                 <span className={styles.collapsePanelHeaderTitle}>{this.getTitleNameStr()}</span>
+                {
+                  onceAPirateOrder.queryInfo.accessibleSeat && (
+                    <Tooltip title={'Accessible Seat'} >
+                      <img className={styles.collapsePanelHeaderSeat} alt='accessible seat' src={AccessibleSeat} />
+                    </Tooltip>
+                  )
+                }
               </Col>
               <Col span={3} className={styles.sumPriceCol}>
-                <span className={styles.sumPriceSpan}>{this.getOrderSumPrice()}</span>
+                {
+                  companyType === '01' && (
+                    <span className={styles.sumPriceSpan}>{this.getOrderSumPrice()}</span>
+                  )
+                }
               </Col>
               <Col span={3}>
                 <Tooltip title="Delete">
@@ -182,14 +194,14 @@ class OrderItemCollapse extends Component {
               <div key={`order_${orderIndex}_${offerIndex}`}>
                 <Row gutter={24} className={styles.contentRow}>
                   <Col span={10} className={styles.titleCol}>
-                    <Checkbox
+                    {/*<Checkbox
                       value={1}
                       checked={orderOffer.orderCheck}
                       onClick={this.allClickEvent}
                       onChange={e => {
                         this.checkOfferEvent(e, offerIndex, orderOffer);
                       }}
-                    />
+                    />*/}
                     <span className={styles.titleSpan}>{orderOffer.offerInfo.offerName}</span>
                   </Col>
                   <Col span={4} className={styles.dataCol}>
@@ -203,17 +215,25 @@ class OrderItemCollapse extends Component {
                     </span>
                   </Col>
                   <Col span={3} className={styles.priceCol}>
-                    <span className={styles.priceSpan}>{this.getOfferSumPrice(orderOffer)}</span>
+                    {
+                      companyType === '01' && (
+                        <span className={styles.priceSpan}>{this.getOfferSumPrice(orderOffer)}</span>
+                      )
+                    }
                   </Col>
                 </Row>
               </div>
             ))}
-          <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
-            <Col span={11} className={styles.titleCol} />
-            <Col span={10} className={styles.totalPriceCol}>
-              <span className={styles.totalPriceSpan}>TOTAL: {this.getOrderSumPrice()}</span>
-            </Col>
-          </Row>
+          {
+            companyType === '01' && (
+              <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
+                <Col span={11} className={styles.titleCol} />
+                <Col span={10} className={styles.totalPriceCol}>
+                  <span className={styles.totalPriceSpan}>TOTAL: {this.getOrderSumPrice()}</span>
+                </Col>
+              </Row>
+            )
+          }
         </Collapse.Panel>
       </Collapse>
     );

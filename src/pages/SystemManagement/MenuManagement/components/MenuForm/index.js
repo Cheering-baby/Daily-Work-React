@@ -70,30 +70,32 @@ class MenuForm extends PureComponent {
             </Form.Item>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
-          <Col span={24}>
-            <Form.Item
-              label={formatMessage({ id: 'MENU_FORM_MENU_URL' })}
-              colon={false}
-              labelCol={{ span: 24 }}
-              wrapperCol={{ span: 24 }}
-            >
-              {getFieldDecorator('menuUrl', {
-                initialValue: menuInfo.menuUrl || null,
-                rules: [
-                  { required: true, message: formatMessage({ id: 'MENU_FORM_REQUIRED' }) },
-                  { max: 200, message: numFormat },
-                ],
-              })(
-                <Input
-                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                  onChange={e => onHandleChange('menuUrl', e.target.value, 'menuUrl')}
-                  onPressEnter={e => onHandleChange('menuUrl', e.target.value, 'menuUrl')}
-                />
-              )}
-            </Form.Item>
-          </Col>
-        </Row>
+        {String(menuInfo.menuType) === '02' && (
+          <Row type="flex" justify="space-around">
+            <Col span={24}>
+              <Form.Item
+                label={formatMessage({ id: 'MENU_FORM_MENU_URL' })}
+                colon={false}
+                labelCol={{ span: 24 }}
+                wrapperCol={{ span: 24 }}
+              >
+                {getFieldDecorator('menuUrl', {
+                  initialValue: menuInfo.menuUrl || null,
+                  rules: [
+                    { required: true, message: formatMessage({ id: 'MENU_FORM_REQUIRED' }) },
+                    { max: 200, message: numFormat },
+                  ],
+                })(
+                  <Input
+                    placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                    onChange={e => onHandleChange('menuUrl', e.target.value, 'menuUrl')}
+                    onPressEnter={e => onHandleChange('menuUrl', e.target.value, 'menuUrl')}
+                  />
+                )}
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
         <Row type="flex" justify="space-around">
           <Col span={24}>
             <Form.Item

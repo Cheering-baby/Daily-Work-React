@@ -1,11 +1,40 @@
 import { message } from 'antd';
 import router from 'umi/router';
+import moment from "moment";
 import { queryCountry } from '@/pages/TicketManagement/services/ticketCommon';
+import {
+  queryPluAttribute,
+  queryPluListByCondition,
+  createShoppingCart,
+  queryShoppingCart,
+  addToShoppingCart,
+  removeShoppingCart,
+  calculateOrderOfferPrice,
+} from '@/pages/TicketManagement/services/orderCart';
+import {
+  createBooking,
+  queryBookingStatus,
+} from "@/pages/TicketManagement/services/bookingAndPay";
+import {
+  transOrderToOfferInfos,
+  transGetOrderList,
+  createOrderItemId,
+  demolitionOrder,
+  getOapOrderProductList
+} from "@/pages/TicketManagement/utils/orderCartUtil";
+import {
+  getAttractionProductList,
+  getVoucherProductList
+} from '../utils/ticketOfferInfoUtil';
+import {isNvl} from "@/utils/utils";
 
 export default {
   namespace: 'ticketOrderCartMgr',
 
   state: {
+    deliveryMode: undefined,
+    collectionDate: null,
+    bocaFeePax: 2.00,
     offerOrderData: [],
     selectAllOrder: true,
     selectAllIndeterminate: false,
@@ -20,29 +49,273 @@ export default {
     deliverInfomation: {},
     countrys: [],
     checkOutLoading: false,
+    cartId: null,
   },
 
   effects: {
-    *orderCheckOut({ payload }, { call, put, select }) {
+
+    *calculateOrderOfferPrice({ payload }, { call }) {
+
+      const {
+        queryInfo,
+        orderOffer,
+        callbackFn
+      } = payload;
+
+      const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
+      const attractionProductList = getAttractionProductList(orderOffer.offerInfo.offerProfile,validTimeFrom);
+      const voucherProductList = getVoucherProductList(orderOffer.offerInfo.offerProfile,validTimeFrom);
+      const orderProductList = getOapOrderProductList(queryInfo,orderOffer,attractionProductList,voucherProductList,validTimeFrom);
+
+      const commonOffers = [];
+      const calculateCommonOffer = {
+        offerNo: orderOffer.offerInfo.offerNo,
+        offerCount: orderOffer.orderInfo.orderQuantity,
+        priceRuleId: null,
+        attractionProducts: orderProductList,
+      };
+      commonOffers.push(calculateCommonOffer);
+
+      const params = {
+        commonOffers,
+        voucherNos: [],
+      };
+      const { data: { resultCode, resultMsg, result } } = yield call(calculateOrderOfferPrice, params);
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
+      }
+
+      if (callbackFn) {
+        callbackFn.setFnCode(resultCode);
+        callbackFn.setOrderOfferSumPrice(result.prePayPrice+result.postPayPrice);
+      }
+
+    },
+
+    *createShoppingCart({ payload }, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          checkOutLoading: true,
+        },
+      });
+      const {
+        userCompanyInfo: { companyId = '' },
+      } = yield select(state => state.global);
+      const params = {
+        "customerType": "TA",
+        "customerId": companyId,
+      };
+      const { data: { resultCode, resultMsg, result } } = yield call(createShoppingCart, params);
       yield put({
         type: 'save',
         payload: {
           checkOutLoading: false,
         },
       });
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          cartId: result.cartId,
+        },
+      });
+    },
+
+    *queryShoppingCart({ payload }, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          checkOutLoading: true,
+        },
+      });
+      const {
+        userCompanyInfo: { companyId = '' },
+      } = yield select(state => state.global);
+      const params = {
+        "customerType": "TA",
+        "customerId": companyId,
+      };
+      const { data: { resultCode, resultMsg, result } } = yield call(queryShoppingCart, params);
+      yield put({
+        type: 'save',
+        payload: {
+          checkOutLoading: false,
+        },
+      });
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
+      }
+      if (result && result.offerInstances) {
+        const orderDataList = transGetOrderList(result.offerInstances);
+        yield put({
+          type: 'save',
+          payload: {
+            packageOrderData: orderDataList.packageOrderData,
+            generalTicketOrderData: orderDataList.generalTicketOrderData,
+            onceAPirateOrderData: orderDataList.onceAPirateOrderData,
+          },
+        });
+      }
+      yield put({
+        type: 'countTicketOrderAmount',
+        payload: {},
+      });
+
+    },
+
+    *addToShoppingCart({ payload }, { call, put, select }) {
 
       const {
+        offerNo,
+        themeParkCode,
+        themeParkName,
+        orderData,
+        callbackFn,
+      } = payload;
+
+      const {
+        cartId,
+      } = yield select(state => state.ticketOrderCartMgr);
+      const params = {
+        "cartId": cartId,
+        "offerInfos": transOrderToOfferInfos(offerNo,themeParkCode,themeParkName,orderData),
+      };
+      const { data: { resultCode, resultMsg } } = yield call(addToShoppingCart, params);
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
+      }
+      if (callbackFn) {
+        callbackFn.setFnCode(resultCode);
+      }
+      yield put({
+        type: 'queryShoppingCart',
+        payload: {},
+      });
+
+    },
+
+    *removeShoppingCart({ payload }, { call, put, select }) {
+      const {
+        offerInstances,
+        callbackFn,
+      } = payload;
+      const {
+        cartId,
+      } = yield select(state => state.ticketOrderCartMgr);
+      const params = {
+        "cartId": cartId,
+        "offerInstances": offerInstances,
+      };
+      const { data: { resultCode, resultMsg } } = yield call(removeShoppingCart, params);
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
+      }
+      if (callbackFn) {
+        callbackFn.setFnCode(resultCode);
+      }
+      yield put({
+        type: 'queryShoppingCart',
+        payload: {},
+      });
+      return resultCode;
+    },
+
+    *queryPluAttribute({ payload }, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          checkOutLoading: true,
+        },
+      });
+      const params = {
+        "attributeItem":payload.attributeItem,
+      };
+      const { data: { resultCode, resultMsg, result } } = yield call(queryPluAttribute, params);
+      yield put({ type: 'save', payload: {checkOutLoading: false}, });
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
+      }
+      if (!result.items || result.items.length===0) {
+        // eslint-disable-next-line no-throw-literal
+        message.warn(`${payload.attributeItem} config is null`);
+        return;
+      }
+      let queryPluKey = 0;
+      result.items.map(item=>{
+        if (item.item === 'DeliveryPLU') {
+          queryPluKey = item.itemValue;
+        }
+      });
+      yield put({
+        type: 'queryPluListByCondition',
+        payload: {
+          queryPluKey,
+        },
+      });
+    },
+
+    *queryPluListByCondition({ payload }, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          checkOutLoading: true,
+        },
+      });
+      const params = {
+        "queryPluKey":payload.queryPluKey,
+      };
+      const { data: { resultCode, resultMsg, result } } = yield call(queryPluListByCondition, params);
+      yield put({ type: 'save', payload: {checkOutLoading: false}, });
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
+      }
+      let bocaFeePax = 0;
+      for (const pluObj of result.pluInfos) {
+        bocaFeePax = pluObj.unitPrice;
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          bocaFeePax,
+        },
+      });
+    },
+
+    *orderCheckOut({ payload }, { put, select }) {
+
+      yield put({
+        type: 'save',
+        payload: {
+          checkOutLoading: true,
+        },
+      });
+
+      const {
+        bocaFeePax,
         generalTicketOrderData = [],
         packageOrderData = [],
         onceAPirateOrderData = [],
+        deliveryMode,
+        collectionDate,
       } = yield select(state => state.ticketOrderCartMgr);
 
       const orderArray = [packageOrderData, generalTicketOrderData, onceAPirateOrderData];
       const newOrderArray = [
-        [...packageOrderData],
-        [...generalTicketOrderData],
-        [...onceAPirateOrderData],
+        JSON.parse(JSON.stringify(packageOrderData)),
+        JSON.parse(JSON.stringify(generalTicketOrderData)),
+        JSON.parse(JSON.stringify(onceAPirateOrderData)),
       ];
+      let ticketAmount = 0;
       orderArray.forEach((orderList, listIndex) => {
         orderList.forEach((orderData, orderIndex) => {
           const newOrderOfferList = [];
@@ -52,6 +325,7 @@ export default {
               const orderInfo = [];
               orderOffer.orderInfo.forEach(info => {
                 if (info.orderCheck) {
+                  ticketAmount += info.quantity;
                   orderCheckExist = true;
                   orderInfo.push(
                     Object.assign(
@@ -76,6 +350,7 @@ export default {
               }
             } else if (listIndex === 2) {
               if (orderOffer.orderCheck) {
+                ticketAmount += orderOffer.orderInfo.orderQuantity;
                 newOrderOfferList.push(
                   Object.assign(
                     {},
@@ -94,14 +369,277 @@ export default {
           }
         });
       });
-      console.log(newOrderArray);
+      yield put({
+        type: 'orderBooking',
+        payload: {
+          deliveryMode,
+          collectionDate,
+          ticketAmount,
+          bocaFeePax,
+          packageOrderData: newOrderArray[0],
+          generalTicketOrderData: newOrderArray[1],
+          onceAPirateOrderData: newOrderArray[2],
+        },
+      });
+    },
+
+    *orderBooking({ payload }, { call, put, select }) {
+
+      const {
+        deliveryMode,
+        collectionDate,
+        ticketAmount,
+        bocaFeePax,
+        generalTicketOrderData = [],
+        packageOrderData = [],
+        onceAPirateOrderData = [],
+      } = payload;
+
+      const {
+        cartId,
+      } = yield select(state => state.ticketOrderCartMgr);
+
+      let bookingParam = {
+        customerId: '',
+        commonOffers: [],
+        patronInfo: null,
+        totalPrice: 0,
+        identificationNo: null,
+        identificationType: null,
+        voucherNos: [],
+        cardId: cartId,
+      };
+
+      const ticketOrderData = [...packageOrderData,...generalTicketOrderData];
+      ticketOrderData.forEach(orderData=>{
+        orderData.orderOfferList.forEach(orderOffer=>{
+          const {
+            offerInstanceId,
+            queryInfo,
+            offerInfo,
+            orderInfo,
+            deliveryInfo,
+          } = orderOffer;
+          let totalPrice = 0;
+          const attractionProducts = [];
+          orderInfo.forEach(orderInfo => {
+            totalPrice += orderInfo.pricePax * orderInfo.quantity;
+            const {
+              productInfo,
+            } = orderInfo;
+            const attractionProduct = {
+              productNo: productInfo.productNo,
+              numOfAttraction: orderInfo.quantity,
+              visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
+              noOfPax: null,
+            };
+            attractionProducts.push(attractionProduct);
+          });
+          const submitCommonOffer = {
+            offerNo: offerInfo.offerNo,
+            offerId: offerInstanceId,
+            priceRuleId: null,
+            offerCount: 1,
+            attractionProducts,
+            totalPrice,
+            patronInfo: null,
+            deliveryInfo: {
+              referenceNo: deliveryInfo.taNo,
+              contactNo: deliveryInfo.customerContactNo,
+              lastName: deliveryInfo.guestLastName,
+              firstName: deliveryInfo.guestFirstName,
+              country: deliveryInfo.country,
+              email: deliveryInfo.customerEmail,
+              collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
+              deliveryMode,
+            },
+          };
+          bookingParam.commonOffers.push(submitCommonOffer);
+          bookingParam.totalPrice += totalPrice;
+        })
+      });
+
+      onceAPirateOrderData.forEach(orderData=>{
+        const {
+          queryInfo,
+        } = orderData;
+        orderData.orderOfferList.forEach(orderOffer=>{
+          const {
+            offerInstanceId,
+            offerInfo,
+            orderInfo,
+          } = orderOffer;
+          let totalPrice = orderInfo.offerSumPrice * orderInfo.orderQuantity;
+          let mealsProductList = [];
+          if (orderInfo.voucherType==='1') {
+            mealsProductList = orderInfo.groupSettingList;
+          } else {
+            mealsProductList = orderInfo.individualSettingList;
+          }
+          const attractionProducts = [];
+          mealsProductList.forEach(mealsProduct=>{
+            const attractionProduct = {
+              productNo: mealsProduct.meals,
+              numOfAttraction: mealsProduct.number,
+              visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
+              comment: mealsProduct.remarks.join(","),
+              accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
+              noOfPax: null,
+            };
+            attractionProducts.push(attractionProduct);
+          });
+          const attractionProductList = getAttractionProductList(orderOffer.offerProfile,moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'));
+          attractionProductList.forEach(product => {
+            const attractionProduct = {
+              productNo: product.productNo,
+              numOfAttraction: 1,
+              visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
+              accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
+            };
+            attractionProducts.push(attractionProduct);
+          });
+          const submitCommonOffer = {
+            offerNo: offerInfo.offerNo,
+            offerId: offerInstanceId,
+            priceRuleId: null,
+            offerCount: orderInfo.orderQuantity,
+            attractionProducts,
+            totalPrice,
+            patronInfo: null,
+            deliveryInfo: {
+              referenceNo: null,
+              contactNo: null,
+              lastName: null,
+              firstName: null,
+              country: null,
+              email: null,
+              collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
+              deliveryMode,
+            },
+          };
+          bookingParam.commonOffers.push(submitCommonOffer);
+          bookingParam.totalPrice += totalPrice;
+        })
+      });
+
+      bookingParam.totalPrice = parseFloat(bookingParam.totalPrice);
+      console.log(bookingParam);
+
+      const { data } = yield call(createBooking, bookingParam);
+      if (data) {
+        const { resultCode, resultMsg, result = {} } = data;
+        if (resultCode === '0') {
+          const { bookingNo } = result;
+          yield put({
+            type: 'queryBookingStatus',
+            payload: {
+              bookingNo,
+              deliveryMode,
+              collectionDate,
+              ticketAmount,
+              bocaFeePax,
+              generalTicketOrderData,
+              packageOrderData,
+              onceAPirateOrderData,
+              totalPrice: bookingParam.totalPrice,
+            },
+          });
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              checkOutLoading: false,
+              type: 'Error',
+              resultMsg: resultMsg
+            },
+          });
+          message.error(resultMsg);
+        }
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            checkOutLoading: false,
+            type: 'Error',
+            resultMsg: ''
+          },
+        });
+        message.error('createBooking error');
+      }
+    },
+
+    *queryBookingStatus({ payload }, { call, put }) {
+
+      const {
+        bookingNo,
+        deliveryMode,
+        collectionDate,
+        ticketAmount,
+        bocaFeePax,
+        generalTicketOrderData,
+        packageOrderData,
+        onceAPirateOrderData,
+        totalPrice,
+      } = payload;
+
+      let status = 'Creating';
+      let statusResult = {};
+      while (status === 'Creating') {
+        const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
+        const { resultCode: statusResultCode, result: newResult = {} } = statusData;
+        if (statusResultCode === '0') {
+          const { transStatus } = newResult;
+          status = transStatus;
+          statusResult = newResult;
+        } else {
+          status = 'Failed';
+        }
+      }
       yield put({
         type: 'save',
         payload: {
           checkOutLoading: false,
         },
       });
-      // router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
+      // status: WaitingForPaying
+      if (status === 'WaitingForPaying' || status === 'PendingApproval') {
+        yield put({
+          type: 'ticketBookingAndPayMgr/save',
+          payload: {
+            bookingNo,
+            deliveryMode,
+            collectionDate,
+            ticketAmount,
+            bocaFeePax,
+            generalTicketOrderData,
+            packageOrderData,
+            onceAPirateOrderData,
+            bookDetail: {
+              transStatus: status,
+              totalPrice,
+            }
+          },
+        });
+        message.success('Check out successfully!');
+        router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
+        return;
+      }
+      // status: Failed
+      if (status === 'Failed') {
+        const { failedReason } = statusResult;
+        yield put({
+          type: 'save',
+          payload: {
+            checkOutLoading: false,
+            type: 'BookingFailed',
+            resultMsg: failedReason
+          },
+        });
+        message.error(failedReason);
+      } else {
+        message.error("Check out error!");
+      }
+
     },
 
     *queryCountry({ payload }, { call, put }) {
@@ -122,11 +660,8 @@ export default {
       } else throw resultMsg;
     },
 
-    *settingPackAgeTicketOrderData({ payload }, { call, put, select }) {
-      console.log(payload);
+    *settingPackAgeTicketOrderData({ payload }, { put, take }) {
       const { orderIndex, orderData } = payload;
-      const { packageOrderData = [] } = yield select(state => state.ticketOrderCartMgr);
-      const newOrderData = [...packageOrderData];
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
           orderCheck: true,
@@ -142,35 +677,57 @@ export default {
           orderInfo: newOrderInfo,
         }
       );
-      if (orderIndex !== null && orderIndex > -1) {
-        newOrderData[0].orderOfferList[orderIndex] = Object.assign({}, newOrderItem);
-      } else if (newOrderData.length === 0) {
-        newOrderData.push({
-          themeParkCode: 'package',
-          themeParkName: 'Attraction Package',
-          orderOfferList: [newOrderItem],
+      const themeParkCode = 'package';
+      const themeParkName = 'Attraction Package';
+      if (!isNvl(orderIndex) && orderIndex > -1) {
+        const removeShoppingFn = {
+          callbackFnCode: 1,
+          setFnCode: function (callbackCode) {
+            this.callbackFnCode = callbackCode;
+          }
+        };
+        yield put({
+          type: 'removeShoppingCart',
+          payload: {
+            offerInstances: [{
+              offerNo: newOrderItem.offerInfo.offerNo,
+              offerInstanceId: newOrderItem.offerInstanceId,
+            }],
+            callbackFn: removeShoppingFn,
+          },
         });
-      } else {
-        newOrderData[0].orderOfferList.push(newOrderItem);
+        yield take('removeShoppingCart/@@end');
+        if (removeShoppingFn.callbackFnCode!==0 && removeShoppingFn.callbackFnCode!=="0") {
+          return;
+        }
       }
+
+      const callbackFn = {
+        callbackFnCode: 1,
+        setFnCode: function (callbackCode) {
+          this.callbackFnCode = callbackCode;
+        }
+      };
       yield put({
-        type: 'save',
+        type: 'addToShoppingCart',
         payload: {
-          packageOrderData: newOrderData,
+          offerNo: newOrderItem.offerInfo.offerNo,
+          themeParkCode: themeParkCode,
+          themeParkName: themeParkName,
+          orderData: newOrderItem,
+          callbackFn,
         },
       });
-      yield put({
-        type: 'countTicketOrderAmount',
-        payload: {},
-      });
-      message.success('Order successfully!');
+      yield take('addToShoppingCart/@@end');
+
+      if (callbackFn.callbackFnCode==='0') {
+        message.success('Order successfully!');
+      }
+
     },
 
-    *settingGeneralTicketOrderData({ payload }, { put, select }) {
-      console.log(payload);
+    *settingGeneralTicketOrderData({ payload }, { put, take }) {
       const { orderIndex, orderData } = payload;
-      const { generalTicketOrderData = [] } = yield select(state => state.ticketOrderCartMgr);
-      const newOrderData = [...generalTicketOrderData];
       const { themeParkCode, themeParkName } = orderData;
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
@@ -187,83 +744,175 @@ export default {
           orderInfo: newOrderInfo,
         }
       );
-      if (orderIndex !== null && orderIndex > -1) {
-        generalTicketOrderData.forEach((orderDataItem, index) => {
-          if (themeParkCode === orderDataItem.themeParkCode) {
-            newOrderData[index].orderOfferList[orderIndex] = Object.assign({}, newOrderItem);
+      if (!isNvl(orderIndex) && orderIndex > -1) {
+        const removeShoppingFn = {
+          callbackFnCode: 1,
+          setFnCode: function (callbackCode) {
+            this.callbackFnCode = callbackCode;
           }
+        };
+        yield put({
+          type: 'removeShoppingCart',
+          payload: {
+            offerInstances: [{
+              offerNo: newOrderItem.offerInfo.offerNo,
+              offerInstanceId: newOrderItem.offerInstanceId,
+            }],
+            callbackFn: removeShoppingFn,
+          },
         });
-      } else {
-        let isNewOrder = true;
-        newOrderData.forEach(orderDataItem => {
-          if (themeParkCode === orderDataItem.themeParkCode) {
-            orderDataItem.orderOfferList.push(newOrderItem);
-            isNewOrder = false;
-          }
-        });
-        if (isNewOrder) {
-          newOrderData.push({
-            themeParkCode,
-            themeParkName,
-            orderOfferList: [newOrderItem],
-          });
+        yield take('removeShoppingCart/@@end');
+        if (removeShoppingFn.callbackFnCode!==0 && removeShoppingFn.callbackFnCode!=="0") {
+          return;
         }
       }
+
+      const callbackFn = {
+        callbackFnCode: 1,
+        setFnCode: function (callbackCode) {
+          this.callbackFnCode = callbackCode;
+        }
+      };
       yield put({
-        type: 'save',
+        type: 'addToShoppingCart',
         payload: {
-          generalTicketOrderData: newOrderData,
+          offerNo: newOrderItem.offerInfo.offerNo,
+          themeParkCode: themeParkCode,
+          themeParkName: themeParkName,
+          orderData: newOrderItem,
+          callbackFn,
         },
       });
-      yield put({
-        type: 'countTicketOrderAmount',
-        payload: {},
-      });
-      message.success('Order successfully!');
-    },
+      yield take('addToShoppingCart/@@end');
 
-    *settingOnceAPirateOrderData({ payload }, { put, select }) {
-      const { onceAPirateOrderData = [] } = yield select(state => state.ticketOrderCartMgr);
-      const { orderIndex, orderData } = payload;
-      const newOrderData = [...onceAPirateOrderData];
-      if (orderIndex && orderIndex > -1) {
-        newOrderData[orderIndex] = Object.assign({}, orderData);
-      } else {
-        const orderOfferList = orderData.orderOfferList.map(orderOffer => {
-          return {
-            orderCheck: true,
-            ...orderOffer,
-            orderInfo: {
-              ...orderOffer.orderInfo,
-              voucherType: orderData.voucherType,
-            },
-          };
-        });
-        newOrderData.push(
-          Object.assign(
-            {},
-            {
-              orderAll: true,
-              indeterminate: false,
-              voucherType: orderData.voucherType,
-              ...orderData,
-              orderOfferList,
-            }
-          )
-        );
+      if (callbackFn.callbackFnCode==='0') {
+        message.success('Order successfully!');
       }
 
-      yield put({
-        type: 'save',
-        payload: {
-          onceAPirateOrderData: newOrderData,
-        },
-      });
+    },
 
-      yield put({
-        type: 'countTicketOrderAmount',
-        payload: {},
+    *settingOnceAPirateOrderData({ payload }, { put, take }) {
+
+      const {
+        orderIndex,
+        orderData,
+        settingOnceAPirateOrderDataCallbackFn
+      } = payload;
+
+      let addOrderItem = null;
+      // delete old data
+      if (!isNvl(orderIndex) && orderIndex > -1) {
+        addOrderItem = {...orderData};
+        const removeOfferInstanceList = [];
+        for (let orderOfferIndex=0;orderOfferIndex<addOrderItem.orderOfferList.length;orderOfferIndex++) {
+          const offerDetail = addOrderItem.orderOfferList[orderOfferIndex];
+          removeOfferInstanceList.push({
+            offerNo: offerDetail.offerInfo.offerNo,
+            offerInstanceId: offerDetail.offerInstanceId,
+          })
+        }
+        const removeShoppingFn = {
+          callbackFnCode: 1,
+          setFnCode: function (callbackCode) {
+            this.callbackFnCode = callbackCode;
+          }
+        };
+        yield put({
+          type: 'removeShoppingCart',
+          payload: {
+            offerInstances: removeOfferInstanceList,
+            callbackFn: removeShoppingFn,
+          },
+        });
+        yield take('removeShoppingCart/@@end');
+        if (removeShoppingFn.callbackFnCode!==0 && removeShoppingFn.callbackFnCode!=="0") {
+          return;
+        }
+      }
+      // new data setting
+      const orderOfferList = orderData.orderOfferList.map(orderOffer => {
+        return {
+          orderCheck: true,
+          ...orderOffer,
+          orderInfo: {
+            ...orderOffer.orderInfo,
+            voucherType: orderData.voucherType,
+          },
+        };
       });
+      addOrderItem = Object.assign(
+        {},
+        {
+          orderAll: true,
+          indeterminate: false,
+          voucherType: orderData.voucherType,
+          ...orderData,
+          orderOfferList,
+        }
+      );
+      // add shopping cart
+      let batchPullResult = 'done';
+      const orderItemId = createOrderItemId(addOrderItem);
+      for (let orderOfferIndex=0;orderOfferIndex<addOrderItem.orderOfferList.length;orderOfferIndex++) {
+
+        const offerDetail = addOrderItem.orderOfferList[orderOfferIndex];
+
+        const calculateOrderOfferPriceCallbackFn = {
+          callbackFnCode: 1,
+          orderOfferSumPrice: 0,
+          setFnCode: function (callbackCode) {
+            this.callbackFnCode = callbackCode;
+          },
+          setOrderOfferSumPrice: function (sumPrice) {
+            this.orderOfferSumPrice = sumPrice;
+          }
+        };
+        yield put({
+          type: 'calculateOrderOfferPrice',
+          payload: {
+            queryInfo: addOrderItem.queryInfo,
+            orderOffer: offerDetail,
+            callbackFn: calculateOrderOfferPriceCallbackFn,
+          },
+        });
+        yield take('calculateOrderOfferPrice/@@end');
+        if (calculateOrderOfferPriceCallbackFn.callbackFnCode!==0 && calculateOrderOfferPriceCallbackFn.callbackFnCode!=="0") {
+          batchPullResult = 'fail';
+          break;
+        }
+
+        const orderOfferSumPrice = calculateOrderOfferPriceCallbackFn.orderOfferSumPrice;
+        offerDetail.orderInfo = Object.assign({},{
+          ...offerDetail.orderInfo,
+          offerSumPrice: orderOfferSumPrice
+        });
+        const callbackFn = {
+          callbackFnCode: 1,
+          setFnCode: function (callbackCode) {
+            this.callbackFnCode = callbackCode;
+          }
+        };
+        yield put({
+          type: 'addToShoppingCart',
+          payload: {
+            offerNo: offerDetail.offerInfo.offerNo,
+            themeParkCode: "OAP",
+            themeParkName: "ONCE A PIRATE",
+            orderData: demolitionOrder(orderItemId,addOrderItem,offerDetail),
+            callbackFn,
+          },
+        });
+        yield take('addToShoppingCart/@@end');
+        if (callbackFn.callbackFnCode!==0 && callbackFn.callbackFnCode!=="0") {
+          batchPullResult = 'fail';
+          break;
+        }
+
+      }
+      if (settingOnceAPirateOrderDataCallbackFn) {
+        settingOnceAPirateOrderDataCallbackFn.setFnCode(batchPullResult);
+      }
+
     },
   },
 
@@ -274,19 +923,20 @@ export default {
         ...payload,
       };
     },
-    countTicketOrderAmount(state, { payload }) {
+    countTicketOrderAmount(state, _) {
       const {
         generalTicketOrderData = [],
         packageOrderData = [],
         onceAPirateOrderData = [],
       } = state;
       let orderCartDataAmount = 0;
-      const orderList = [generalTicketOrderData, packageOrderData, onceAPirateOrderData];
+      const orderList = [generalTicketOrderData, packageOrderData];
       orderList.forEach(orderItem => {
         orderItem.forEach(orderData => {
           orderCartDataAmount += orderData.orderOfferList.length;
         });
       });
+      orderCartDataAmount += onceAPirateOrderData.length;
       return {
         ...state,
         orderCartDataAmount,
@@ -398,7 +1048,7 @@ export default {
             indeterminate: selectAllIndeterminate,
           }
         );
-        newOrderInfo.orderOfferList = orderInfo.orderOfferList.map((offerInfo, offerInfoIndex) => {
+        newOrderInfo.orderOfferList = orderInfo.orderOfferList.map((offerInfo) => {
           return Object.assign(
             {},
             {

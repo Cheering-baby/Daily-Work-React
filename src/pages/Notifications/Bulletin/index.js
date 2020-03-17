@@ -7,7 +7,7 @@ import NotificationMgr from '@/pages/Notifications/components/NotificationMgr';
 const mapStateToProps = store => {
   const { loading, bulletin } = store;
   return {
-    notificationListLoading: loading.effects['bulletin/queryNotifications'],
+    notificationListLoading: loading.effects['bulletin/queryNotificationList'],
     ...bulletin,
   };
 };
@@ -17,76 +17,55 @@ class bulletin extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'bulletin/queryNotifications',
-    });
-    dispatch({
-      type: 'bulletin/queryNotificationTypeList',
-    });
-    dispatch({
-      type: 'bulletin/queryTargetTypeList',
-    });
-    dispatch({
-      type: 'bulletin/queryStatusList',
+      type: 'bulletin/queryNotificationList',
     });
   }
 
   onSearch = param => {
     const { dispatch } = this.props;
-    console.log(param);
     Object.keys(param).map(key => {
       if (param[key] === undefined) param[key] = '';
+      return key;
     });
     dispatch({
-      type: 'bulletin/saveData',
+      type: 'bulletin/change',
       payload: {
-        queryParams: { ...param },
-        currentPage: 1,
-        pageSize: 5,
+        filter: { ...param },
       },
-    });
-    dispatch({
-      type: 'bulletin/queryNotifications',
     });
   };
 
-  onTableChange = pagination => {
-    const { dispatch } = this.props;
-    const { current, pageSize } = pagination;
-    dispatch({
-      type: 'bulletin/save',
-      payload: {
-        currentPage: current,
-        pageSize,
-      },
-    });
-    dispatch({
-      type: 'bulletin/queryNotifications',
-    });
+  onTableChange = page => {
+    const { dispatch, pagination } = this.props;
+
+    if (page.current !== pagination.currentPage || page.pageSize !== pagination.pageSize) {
+      pagination.currentPage = page.current;
+      pagination.pageSize = page.pageSize;
+      dispatch({
+        type: 'bulletin/change',
+        payload: {
+          pagination,
+        },
+      });
+    }
   };
 
   render() {
     const {
-      currentPage,
-      pageSize,
-      totalSize,
+      pagination: { currentPage, pageSize, totalSize },
       notificationList,
       notificationListLoading,
-      notificationTypeList,
-      targetTypeList,
-      statusList,
     } = this.props;
-    console.log(notificationTypeList);
     const notificationSearchParam = {
-      types: notificationTypeList,
-      targetTypes: targetTypeList,
-      status: statusList,
       onSearch: param => this.onSearch(param),
     };
 
     const notificationMgrParam = {
-      currentPage,
-      pageSize,
-      totalSize,
+      pagination: {
+        currentPage,
+        pageSize,
+        totalSize,
+      },
       notificationList,
       notificationListLoading,
       onTableChange: pagination => this.onTableChange(pagination),

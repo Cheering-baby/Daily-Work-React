@@ -51,6 +51,10 @@ export default {
   SUB_TA_M_TABLE_STATUS: 'Status',
   SUB_TA_M_TABLE_OPERATION: 'Operation',
   SUB_TA_TABLE_HISTORY: 'History',
+  SUB_TA_TABLE_ENABLE: 'Enable',
+  SUB_TA_TABLE_PROHIBIT: 'Prohibit',
+  SUB_TA_M_TABLE_STATUS_ACTIVE: 'ACTIVE',
+  SUB_TA_M_TABLE_STATUS_INACTIVE: 'INACTIVE',
 
   SUB_TA_HIS_TABLE_Q_START_TIME: 'Start Time',
   SUB_TA_HIS_TABLE_Q_END_TIME: 'End Time',
@@ -61,4 +65,7 @@ export default {
   SUB_TA_HIS_TABLE_STATE_STATUS_AFTER: 'Status After',
   SUB_TA_STATE_CHANGE_HISTORY: 'STATE CHANGE HISTORY',
   SUB_TA_BTN_MODIFY: 'Modify',
+  PROHIBIT_SUB_TA_PROFILE_SUCCESS: 'Prohibit Sub-ta profile success.',
+  ENABLE_SUB_TA_PROFILE_SUCCESS: 'Enable Sub-ta profile success.',
+  EDIT_SUB_TA_SUCCESS: 'Modify Sub-ta success.',
 };

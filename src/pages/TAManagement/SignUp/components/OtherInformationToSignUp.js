@@ -32,6 +32,11 @@ const mapStateToProps = store => {
 };
 @connect(mapStateToProps)
 class OtherInformationToSignUp extends PureComponent {
+  componentDidMount() {
+    const { form } = this.props;
+    form.resetFields();
+  }
+
   onHandleBilChange = (key, keyValue, fieldKey) => {
     const { dispatch, form, otherInfo } = this.props;
     let newBillingInfo = {};

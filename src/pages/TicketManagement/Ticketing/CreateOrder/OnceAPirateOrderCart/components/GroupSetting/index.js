@@ -61,10 +61,33 @@ class GroupSetting extends Component {
     });
   };
 
+  showAddMenuScheme = (offerDetail) => {
+    let show = false;
+    if (offerDetail.offerInfo.voucherProductList.length!==1) {
+      if (offerDetail.offerInfo.voucherProductList.length !== offerDetail.orderInfo.groupSettingList.length) {
+        show = true;
+      }
+    }
+    if (offerDetail.offerInfo.offerProfile && offerDetail.offerInfo.offerProfile.productGroup) {
+      const productGroupList = offerDetail.offerInfo.offerProfile.productGroup;
+      productGroupList.forEach(productGroup=>{
+        if (productGroup.productType === "Voucher") {
+          productGroup.productGroup.forEach(productGroupItem=>{
+            if (productGroupItem.choiceConstrain==="Single") {
+              show = false;
+            }
+          })
+        }
+      })
+    }
+    return show;
+  };
+
   render() {
 
     const {
       onceAPirateTicketMgr: {
+        queryInfo,
         onceAPirateOrderData = [],
         diningRemarkList
       },
@@ -87,6 +110,7 @@ class GroupSetting extends Component {
                     <MealsItem
                       key={index+'_'+mealItemIndex}
                       form={form}
+                      queryInfo={queryInfo}
                       offerIndex={index}
                       offerDetail={item}
                       mealItemIndex={mealItemIndex}
@@ -97,7 +121,7 @@ class GroupSetting extends Component {
                   ))
                 }
                 {
-                  (item.offerInfo.voucherProductList.length!==1 && item.offerInfo.voucherProductList.length !== item.orderInfo.groupSettingList.length) && (
+                  this.showAddMenuScheme(item) && (
                     <Row >
                       <Col span={8}>
                         <Row>

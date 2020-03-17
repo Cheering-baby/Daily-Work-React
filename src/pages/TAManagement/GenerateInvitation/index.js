@@ -10,6 +10,7 @@ import InvitationComp from './components/InvitationComp';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
 import { isNvl } from '@/utils/utils';
+import { getRegistionLink } from '../utils/pubUtils';
 
 const mapStateToProps = store => {
   const { taId = null, searchForm, searchList, statusList = [] } = store.generateInvitation;
@@ -24,13 +25,13 @@ const mapStateToProps = store => {
 @connect(mapStateToProps)
 class GenerateInvitation extends PureComponent {
   componentDidMount() {
-    const { taInfo = {} } = window.g_app.login_data || {};
+    const { taInfo = {}, companyInfo = {} } = window.g_app.login_data || {};
     const { dispatch, searchForm, searchList } = this.props;
     dispatch({
       type: 'generateInvitation/doCleanData',
       payload: {
         taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null,
-        companyName: !isNvl(taInfo.companyName) ? taInfo.companyName : null,
+        companyName: !isNvl(companyInfo.companyName) ? companyInfo.companyName : null,
       },
     }).then(() => {
       dispatch({ type: 'generateInvitation/fetchQueryStatusList' });
@@ -46,6 +47,16 @@ class GenerateInvitation extends PureComponent {
             totalSize: searchList.total,
             currentPage: 1,
             pageSize: searchList.pageSize || '10',
+          },
+        },
+      });
+      dispatch({
+        type: 'generateInvitation/fetchGenerateContent',
+        payload: {
+          content: {
+            companyName: !isNvl(companyInfo.companyName) ? companyInfo.companyName : null,
+            companyFullName: !isNvl(companyInfo.companyName) ? companyInfo.companyName : null,
+            registrationLink: getRegistionLink(companyInfo.companyName, taInfo.companyId),
           },
         },
       });

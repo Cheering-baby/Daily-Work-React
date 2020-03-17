@@ -1,4 +1,4 @@
-import Base64 from 'js-base64';
+import { Base64 } from 'js-base64';
 import UAAService from '@/uaa-npm';
 
 /**
@@ -25,12 +25,12 @@ export async function getSupportLanguage() {
  * @param newPwd
  */
 export async function changePassword(userCode, oldPwd, newPwd) {
-  return UAAService.request('/user/modifyUserPwd', {
+  return UAAService.request('/proxy/ali/b2b/user/v1/user/changePassword', {
     method: 'POST',
     body: {
-      newPwd: Base64.encode(newPwd),
-      oldPwd: Base64.encode(oldPwd),
-      userCode,
+      oldPassword: Base64.encode(oldPwd),
+      newPassword: Base64.encode(newPwd),
+      confirmPassword: Base64.encode(newPwd),
     },
   });
 }
@@ -44,7 +44,7 @@ export async function queryCurrentUserRoles() {
 }
 
 export function queryOrgListByUser(userCode) {
-  return UAAService.request(`/profile/getSuperTaList?userCode=${userCode}`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/getSuperTaList?userCode=${userCode}`, {
     method: 'GET',
   });
 }

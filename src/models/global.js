@@ -44,6 +44,7 @@ export default {
     isFullScreen: false,
     pagePrivileges: [],
     userCompanyInfo: {},
+    needChangePassword: '00', // 00: no 01: Initial password 02: 90 days
   },
 
   effects: {
@@ -91,22 +92,35 @@ export default {
      * @param put
      * @returns {IterableIterator<*>}
      */ *logged({ payload = {} }, { call, put }) {
+      watchObj.refreshed = false;
       const umiLocale = loginSession.getLanguage();
       if (!umiLocale) {
         setLocale('en-US');
       }
-      const data = yield call(UAAService.postLogin);
+      const data = yield call(UAAService.postLogin, { ...payload });
 
       window.g_app.login_data = data;
+
+      if (String(data.needChangePassword) === '01' || String(data.needChangePassword) === '02') {
+        yield put({
+          type: 'login/save',
+          payload: {
+            resetModal: true,
+          },
+        });
+        yield put({
+          type: 'updateState',
+          payload: {
+            needChangePassword: data.needChangePassword,
+          },
+        });
+      }
 
       if (!window.portal) {
         window.portal = {};
       }
 
       if (Object.keys(data).length > 0) {
-        // postLogin 接口调用成功，通知 privilege 接口调用
-        watchObj.refreshed = true;
-
         // 抛出全局对象portal：登录状态logonStatus/获取菜单路由方法collapseMenu/打开菜单方法openMenu
         window.portal.collapseMenu = collapseMenu;
         window.portal.openMenu = openMenu;
@@ -129,13 +143,16 @@ export default {
             userCompanyInfo: data.companyInfo || {},
           },
         });
-
-        yield put({
-          type: 'fetchCurrentUserMenu',
-          payload: {
-            ...payload,
-          },
-        });
+        // postLogin 接口调用成功，通知 privilege 接口调用
+        watchObj.refreshed = true;
+        if (String(data.needChangePassword) !== '01' && String(data.needChangePassword) !== '02') {
+          yield put({
+            type: 'fetchCurrentUserMenu',
+            payload: {
+              ...payload,
+            },
+          });
+        }
       } else {
         watchObj.refreshed = false;
         yield put({

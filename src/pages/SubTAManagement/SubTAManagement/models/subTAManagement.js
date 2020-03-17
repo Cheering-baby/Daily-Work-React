@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import * as service from '../services/subTAManagement';
 
 export default {
@@ -52,6 +53,24 @@ export default {
         });
       } else message.warn(resultMsg, 10);
     },
+    *fetchUpdateProfileStatus({ payload }, { call, put }) {
+      yield put({ type: 'save', payload: { qrySubTaTableLoading: true } });
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.updateProfileStatus, { ...payload });
+      yield put({ type: 'save', payload: { qrySubTaTableLoading: false } });
+      if (resultCode === '0' || resultCode === 0) {
+        if (String(payload.status).toLowerCase() === 'inactive') {
+          message.success(formatMessage({ id: 'PROHIBIT_SUB_TA_PROFILE_SUCCESS' }), 10);
+        }
+        if (String(payload.status).toLowerCase() === 'active') {
+          message.success(formatMessage({ id: 'ENABLE_SUB_TA_PROFILE_SUCCESS' }), 10);
+        }
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
     *doSaveData({ payload }, { put }) {
       yield put({ type: 'save', payload });
     },
@@ -80,6 +99,7 @@ export default {
       return {
         ...state,
         ...{
+          selectSubTaId: null,
           searchList: {
             total: 0,
             currentPage: 1,

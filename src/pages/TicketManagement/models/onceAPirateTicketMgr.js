@@ -1,5 +1,8 @@
 import router from "umi/router";
 import {message} from "antd";
+import {
+  getAttractionProductList, getPluProductByRule
+} from '../utils/ticketOfferInfoUtil';
 
 export default  {
 
@@ -7,20 +10,14 @@ export default  {
 
   state: {
 
+    showPageLoading: false,
     orderIndex: null,
     showDetail: false,
     offerDetail: {},
     onceAPirateOrderData: [],
     diffMinutesLess: false,
     settingMethodType: '1',
-    diningRemarkList: [
-      {
-        label: 'No Peanut'
-      },
-      {
-        label: 'No Ice'
-      }
-    ],
+    diningRemarkList: [],
     showCategory: "0",
     showCategoryLoading: false,
     queryInfo: null,
@@ -58,7 +55,7 @@ export default  {
         offerOrderInfo.orderInfo.groupSettingList=[{
           meals: null,
           remarks: [],
-          number: 0,
+          number: 1,
         }];
         offerOrderInfo.orderInfo.individualSettingList=[];
         for (let i=0; i<offerOrderInfo.orderInfo.orderQuantity;i++) {
@@ -99,7 +96,7 @@ export default  {
         const {offerProfile} = item;
         if (offerProfile.productGroup && offerProfile.productGroup.length>0) {
           for (let groupIndex = 0; groupIndex < offerProfile.productGroup.length; groupIndex += 1) {
-            if (offerProfile.productGroup[groupIndex] && offerProfile.productGroup[groupIndex].productType==="Attraction") {
+            if (offerProfile.productGroup[groupIndex] && offerProfile.productGroup[groupIndex].productType==="Voucher") {
               const productGroups = offerProfile.productGroup[groupIndex].productGroup;
               for (let groupsIndex = 0; groupsIndex < productGroups.length; groupsIndex+=1) {
                 offerOrderInfo.offerInfo.voucherProductList = productGroups[groupsIndex].products;
@@ -109,7 +106,6 @@ export default  {
         }
         return offerOrderInfo;
       });
-
 
       yield put({
         type: 'save',
@@ -122,7 +118,7 @@ export default  {
       });
 
       if (diffMinutesLess) {
-        message.warn("The session time less than current 3 hour.");
+        message.warn("The session time less than current 3 hour,No meals setting.");
       }
       if (orderIndex!==null && orderIndex>-1) {
         router.push({
@@ -137,7 +133,14 @@ export default  {
 
     },
 
-    *orderToCheck({ payload },{ put, select }) {
+    *orderToCheck({ payload },{ put, select, take }) {
+
+      yield put({
+        type: 'save',
+        payload: {
+          showPageLoading: true,
+        },
+      });
 
       const {
         orderIndex,
@@ -145,6 +148,13 @@ export default  {
         queryInfo,
         onceAPirateOrderData = []
       } = yield select(state => state.onceAPirateTicketMgr);
+
+      const settingOnceAPirateOrderDataCallbackFn = {
+        callbackFnCode: 1,
+        setFnCode: function (callbackCode) {
+          this.callbackFnCode = callbackCode;
+        }
+      };
 
       yield put({
         type: 'ticketOrderCartMgr/settingOnceAPirateOrderData',
@@ -154,11 +164,22 @@ export default  {
             queryInfo,
             voucherType: settingMethodType,
             orderOfferList: onceAPirateOrderData,
-          }
+          },
+          settingOnceAPirateOrderDataCallbackFn
         },
       });
 
-      router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
+      yield take('ticketOrderCartMgr/settingOnceAPirateOrderData/@@end');
+      if (settingOnceAPirateOrderDataCallbackFn.callbackFnCode === 'done') {
+        message.success('Order successfully!');
+        router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          showPageLoading: false,
+        },
+      });
 
     },
 
@@ -179,14 +200,7 @@ export default  {
         onceAPirateOrderData: [],
         diffMinutesLess: false,
         settingMethodType: '1',
-        diningRemarkList: [
-          {
-            label: 'No Peanut'
-          },
-          {
-            label: 'No Ice'
-          }
-        ],
+        diningRemarkList: [],
         showCategory: "0",
         showCategoryLoading: false,
         queryInfo: null,
@@ -209,32 +223,16 @@ export default  {
         let offerMaxAvailable = 0;
         let offerProductMaxAvailable = 0;
         let sessionTimeFix = false;
-        if (offerProfile && offerProfile.productGroup && offerProfile.productGroup.length>0) {
-          for (let groupIndex = 0; groupIndex < offerProfile.productGroup.length; groupIndex+=1) {
-            if (offerProfile.productGroup[groupIndex] && offerProfile.productGroup[groupIndex].productType==="Attraction") {
-              const productGroups = offerProfile.productGroup[groupIndex].productGroup;
-              for (let groupsIndex = 0; groupsIndex < productGroups.length; groupsIndex+=1) {
-                const productsList = productGroups[groupsIndex].products;
-                for (let productsIndex = 0; productsIndex < productsList.length; productsIndex+=1) {
-                  const priceRuleList = productsList[productsIndex].priceRule;
-                  for (let priceRuleIndex = 0; priceRuleIndex < priceRuleList.length; priceRuleIndex+=1) {
-                    if (priceRuleList[priceRuleIndex].priceRuleName === "DefaultPrice") {
-                      const productPriceList = priceRuleList[priceRuleIndex].productPrice;
-                      for (let priceIndex = 0; priceIndex < productPriceList.length; priceIndex+=1) {
-                        if (productPriceList[priceIndex].priceDate === requestParam.validTimeFrom) {
-                          offerSumPrice += productPriceList[priceIndex].discountUnitPrice;
-                          if (productPriceList[priceIndex].priceTimeFrom === activeGroupSelectData.sessionTime) {
-                            sessionTimeFix = true;
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+        const attractionProductList = getAttractionProductList(offerProfile,requestParam.validTimeFrom);
+        attractionProductList.forEach(productInfo=>{
+          const pluProduct = getPluProductByRule(productInfo,"DefaultPrice",requestParam.validTimeFrom);
+          if (pluProduct) {
+            offerSumPrice += pluProduct.discountUnitPrice * productInfo.needChoiceCount;
+            if (pluProduct.priceTimeFrom === activeGroupSelectData.sessionTime) {
+              sessionTimeFix = true;
             }
           }
-        }
+        });
         if (offerProfile && offerProfile.inventories && offerProfile.inventories.length) {
           for (let inventoriesIndex = 0; inventoriesIndex < offerProfile.inventories.length; inventoriesIndex+=1) {
             const inventorieObj = offerProfile.inventories[inventoriesIndex];

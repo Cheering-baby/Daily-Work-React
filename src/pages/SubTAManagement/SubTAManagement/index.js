@@ -47,7 +47,7 @@ class SubTAManagement extends PureComponent {
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_SUB_TA_MANAGEMENT' }),
-        url: '/SubTAManagement/SubTAManagement/',
+        url: '/SubTAManagement/SubTAManagement',
       },
       {
         breadcrumbName: formatMessage({ id: 'MENU_SUB_TA_MAIN_MANAGEMENT' }),

@@ -190,6 +190,7 @@ class CommonService {
     const config = {
       url: urlN,
       ...newOptions,
+      withCredentials: true,
     };
 
     return this.axios

@@ -13,6 +13,7 @@ const mapStateToProps = store => {
     searchList,
     searchForm,
     invitationList,
+    statusList,
     qryInvitationTableLoading,
     invitationVisible,
   } = store.generateInvitation;
@@ -21,6 +22,7 @@ const mapStateToProps = store => {
     searchList,
     searchForm,
     invitationList,
+    statusList,
     qryInvitationTableLoading,
     invitationVisible,
   };
@@ -33,16 +35,22 @@ class TableComp extends PureComponent {
       {
         title: formatMessage({ id: 'GI_TABLE_NO' }),
         dataIndex: 'number',
+        render: text => {
+          return !isNvl(text) ? text : '-';
+        },
       },
       {
         title: formatMessage({ id: 'GI_TABLE_EMAIL_ADDRESS' }),
         dataIndex: 'email',
+        render: text => {
+          return !isNvl(text) ? text : '-';
+        },
       },
       {
         title: formatMessage({ id: 'GI_TABLE_INVITATION_DATE' }),
         dataIndex: 'invitationDate',
         render: text => {
-          return !isNvl(text) ? moment(text, 'YYYYMMDD').format('DD-MMM-YYYY') : '-';
+          return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';
         },
       },
       {
@@ -51,7 +59,7 @@ class TableComp extends PureComponent {
         render: text => {
           let statusStr = 'default';
           let statusTxt = '';
-          switch (String(text).toLowerCase()) {
+          switch (`${text}`.toLowerCase()) {
             case 'fail':
               statusStr = 'error';
               statusTxt = formatMessage({ id: 'GI_TABLE_STATUS_ERROR' });

@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import { Spin, Card, Checkbox, Form, Button, List } from 'antd';
+import {Spin, Card, Checkbox, Form, Button, List, Row, Col, Select, DatePicker, message} from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import router from 'umi/router';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import styles from './index.less';
 import PackageTicketCollapse from './components/PackageTicketCollapse';
 import OnceAPirateCollapse from './components/OnceAPirateCollapse';
 import GeneralTicketingCollapse from './components/GeneralTicketingCollapse';
+import BOCAOfferCollapse from '@/pages/TicketManagement/components/BOCAOfferCollapse';
+import moment from "moment";
+
+const FormItem = Form.Item;
 
 @Form.create()
 @connect(({ global, ticketOrderCartMgr }) => ({
@@ -22,11 +25,23 @@ class CheckOrder extends Component {
     const clientHeight =
       document.getElementsByClassName('main-layout-content ant-layout-content')[0].clientHeight -
       50 -
-      70;
+      70 -
+      97;
     this.state = {
       clientHeight,
     };
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      ticketOrderCartMgr: {
+        cartId
+      }
+    } = this.props;
+    dispatch({
+      type: 'ticketOrderCartMgr/queryPluAttribute',
+      payload: {
+        attributeItem: 'BOCA_PLU',
+      },
+    });
     dispatch({
       type: 'ticketOrderCartMgr/queryCountry',
       payload: {
@@ -34,6 +49,17 @@ class CheckOrder extends Component {
         columnName: 'NOTIONALITY',
       },
     });
+    if (cartId===null) {
+      dispatch({
+        type: 'ticketOrderCartMgr/createShoppingCart',
+        payload: {},
+      }).then(()=>{
+        dispatch({
+          type: 'ticketOrderCartMgr/queryShoppingCart',
+          payload: {},
+        })
+      });
+    }
   }
 
   offerPrice = (products = []) => {
@@ -63,17 +89,21 @@ class CheckOrder extends Component {
   payTotal = () => {
     const {
       ticketOrderCartMgr: {
+        deliveryMode,
+        bocaFeePax,
         packageOrderData = [],
         generalTicketOrderData = [],
         onceAPirateOrderData = [],
       },
     } = this.props;
     let payTotal = 0;
+    let ticketAmount = 0;
     generalTicketOrderData.forEach(orderData => {
       orderData.orderOfferList.forEach(orderOffer => {
         orderOffer.orderInfo.forEach(orderInfo => {
           if (orderInfo.orderCheck) {
             payTotal += orderInfo.pricePax * orderInfo.quantity;
+            ticketAmount += orderInfo.quantity;
           }
         });
       });
@@ -83,6 +113,7 @@ class CheckOrder extends Component {
         orderOffer.orderInfo.forEach(orderInfo => {
           if (orderInfo.orderCheck) {
             payTotal += orderInfo.pricePax * orderInfo.quantity;
+            ticketAmount += orderInfo.quantity;
           }
         });
       });
@@ -90,18 +121,26 @@ class CheckOrder extends Component {
     onceAPirateOrderData.forEach(orderData => {
       orderData.orderOfferList.forEach(orderOffer => {
         if (orderOffer.orderCheck) {
-          payTotal += orderOffer.orderInfo.offerSumPrice * orderOffer.orderInfo.orderQuantity;
+          payTotal += orderOffer.orderInfo.offerSumPrice;
+          ticketAmount += orderOffer.orderInfo.orderQuantity;
         }
       });
     });
-    return payTotal;
+    if (deliveryMode==='BOCA') {
+      payTotal += ticketAmount * bocaFeePax;
+    }
+    return Number(payTotal).toFixed(2);
   };
 
   checkOutEvent = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'ticketOrderCartMgr/orderCheckOut',
-      payload: {},
+    const { dispatch,form } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        dispatch({
+          type: 'ticketOrderCartMgr/orderCheckOut',
+          payload: {},
+        });
+      }
     });
   };
 
@@ -117,17 +156,139 @@ class CheckOrder extends Component {
     const orderList = [generalTicketOrderData, packageOrderData, onceAPirateOrderData];
     orderList.forEach(orderItem => {
       orderItem.forEach(orderData => {
-        orderCartDataAmount += orderData.orderOfferList.length;
+        orderCartDataAmount += orderData.orderOfferList ? orderData.orderOfferList.length : 0;
       });
     });
     return orderCartDataAmount;
   };
 
+  changeCollectionDate = value => {
+    const { dispatch, form } = this.props;
+    const collectionDate = value ? value.format('x') : value;
+    dispatch({
+      type: 'ticketOrderCartMgr/save',
+      payload: {
+        collectionDate,
+      },
+    });
+    const data = {
+      collectionDate,
+    };
+    form.setFieldsValue(data);
+    form.validateFields(['collectionDate']);
+
+    this.checkCollectionWithVisitOfDate(collectionDate);
+
+  };
+
+  checkCollectionWithVisitOfDate = (collectionDate) => {
+
+    // compare CollectionDate with visit of date
+    const {
+      ticketOrderCartMgr: {
+        packageOrderData = [],
+        generalTicketOrderData = [],
+        onceAPirateOrderData = [],
+      },
+    } = this.props;
+
+    generalTicketOrderData.forEach(orderData => {
+      orderData.orderOfferList.forEach(orderOffer => {
+        if (orderOffer.queryInfo.dateOfVisit<collectionDate) {
+          message.warn('The collection more than visit of date!');
+          return;
+        }
+      });
+    });
+    packageOrderData.forEach(orderData => {
+      orderData.orderOfferList.forEach(orderOffer => {
+        if (orderOffer.queryInfo.dateOfVisit<collectionDate) {
+          message.warn('The collection more than visit of date!');
+          return;
+        }
+      });
+    });
+    onceAPirateOrderData.forEach(orderData => {
+      if (orderData.queryInfo.dateOfVisit<collectionDate) {
+        message.warn('The collection more than visit of date!');
+        return;
+      }
+    });
+
+  };
+
+  disabledCollectionDate = current => {
+    // Can not select days before today and today
+    return (
+      current &&
+      current <
+      moment(new Date())
+        .add(2, 'days')
+        .endOf('day')
+    );
+  };
+
+  changeDeliveryMode = value => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'ticketOrderCartMgr/save',
+      payload: {
+        deliveryMode: value,
+      },
+    });
+  };
+
+  getTicketAmount = () => {
+
+    const {
+      ticketOrderCartMgr: {
+        packageOrderData = [],
+        generalTicketOrderData = [],
+        onceAPirateOrderData = [],
+      },
+    } = this.props;
+
+    let ticketAmount = 0;
+    generalTicketOrderData.forEach(orderData => {
+      orderData.orderOfferList.forEach(orderOffer => {
+        orderOffer.orderInfo.forEach(orderInfo => {
+          if (orderInfo.orderCheck) {
+            ticketAmount += orderInfo.quantity;
+          }
+        });
+      });
+    });
+    packageOrderData.forEach(orderData => {
+      orderData.orderOfferList.forEach(orderOffer => {
+        orderOffer.orderInfo.forEach(orderInfo => {
+          if (orderInfo.orderCheck) {
+            ticketAmount += orderInfo.quantity;
+          }
+        });
+      });
+    });
+    onceAPirateOrderData.forEach(orderData => {
+      orderData.orderOfferList.forEach(orderOffer => {
+        if (orderOffer.orderCheck) {
+          ticketAmount += orderOffer.orderInfo.orderQuantity;
+        }
+      });
+    });
+    return ticketAmount || 0;
+
+  };
+
   render() {
     const {
-      global: { userCompanyInfo },
+      global: {
+        userCompanyInfo: { companyType },
+      },
       form,
+      form: { getFieldDecorator },
       ticketOrderCartMgr: {
+        deliveryMode,
+        collectionDate,
+        bocaFeePax,
         checkOutLoading = false,
         selectAllOrder,
         selectAllIndeterminate,
@@ -145,7 +306,25 @@ class CheckOrder extends Component {
       { name: 'Check Order' },
     ];
 
-    console.log(userCompanyInfo);
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 10 },
+        sm: { span: 9 },
+        md: { span: 8 },
+        lg: { span: 8 },
+        xl: { span: 8 },
+        xxl: { span: 8 },
+      },
+      wrapperCol: {
+        xs: { span: 14 },
+        sm: { span: 15 },
+        md: { span: 16 },
+        lg: { span: 16 },
+        xl: { span: 16 },
+        xxl: { span: 16 },
+      },
+      colon: false,
+    };
 
     return (
       <Spin spinning={checkOutLoading}>
@@ -154,10 +333,90 @@ class CheckOrder extends Component {
             <BreadcrumbComp title={title} />
           </div>
         </MediaQuery>
-        <Card style={{ minHeight: clientHeight }}>
+        <Card className={styles.cardDeliverStyles}>
+          <Row style={{ padding: '15px' }}>
+            <Col span={24}>
+              <Row>
+                <Col span={24} className={styles.titleBlack}>
+                  {formatMessage({ id: 'DELIVER_INFORMATION' })}
+                </Col>
+              </Row>
+              <Row>
+                <Col offer={2} span={10}>
+                  <FormItem {...formItemLayout} label={formatMessage({ id: 'DELIVERY_MODE' })}>
+                    {getFieldDecorator('deliveryMode', {
+                      initialValue: deliveryMode,
+                      rules: [
+                        {
+                          required: true,
+                          message: 'Required',
+                        },
+                      ],
+                    })(
+                      <Select
+                        placeholder="Please Select"
+                        allowClear
+                        showSearch
+                        style={{ width: '100%' }}
+                        onChange={this.changeDeliveryMode}
+                      >
+                        <Select.Option value={'BOCA'}>BOCA</Select.Option>
+                        <Select.Option value={'VID'}>VID</Select.Option>
+                        <Select.Option value={'eTicket'}>e-Ticket</Select.Option>
+                      </Select>
+                    )}
+                  </FormItem>
+                </Col>
+                <Col offer={2} span={10}>
+                  {deliveryMode && deliveryMode === 'BOCA' && (
+                    <FormItem {...formItemLayout} label={formatMessage({ id: 'COLLECTION_DATE' })}>
+                      {getFieldDecorator('collectionDate', {
+                        initialValue: collectionDate,
+                        rules: [
+                          {
+                            required: true,
+                            message: 'Required',
+                          },
+                        ],
+                      })(
+                        <div
+                          className={`${styles.formatTime} ${
+                            collectionDate ? styles.formatPadding : null
+                          }`}
+                        >
+                          <DatePicker
+                            allowClear
+                            value={collectionDate ? moment(collectionDate, 'x') : null}
+                            style={{ width: '100%' }}
+                            placeholder="Select Date"
+                            showToday={false}
+                            format="DD-MMM-YYYY"
+                            onChange={this.changeCollectionDate}
+                            disabledDate={this.disabledCollectionDate}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </Card>
+        <Card style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}>
           {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
           {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
           {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
+          {
+            (companyType !== '02' && deliveryMode==='BOCA' && this.getOrderAmount() !== 0) && (
+              <BOCAOfferCollapse
+                form={form}
+                companyType={companyType}
+                quantity={this.getTicketAmount()}
+                pricePax={bocaFeePax}
+              />
+            )
+          }
           {this.getOrderAmount() === 0 && (
             <div>
               <List style={{ marginTop: 100 }} />
@@ -165,7 +424,6 @@ class CheckOrder extends Component {
             </div>
           )}
         </Card>
-
         <Card className={styles.cardStyles} style={{ marginTop: '0' }}>
           <div className={styles.checkOut}>
             <Checkbox
@@ -178,9 +436,13 @@ class CheckOrder extends Component {
               Select All
             </Checkbox>
             <div className={styles.checkOutPayDiv}>
-              <div className={styles.payFont}>
-                Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
-              </div>
+              {
+                companyType === '01' && (
+                  <div className={styles.payFont}>
+                    Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
+                  </div>
+                )
+              }
             </div>
             <Button
               disabled={this.payTotal() <= 0}

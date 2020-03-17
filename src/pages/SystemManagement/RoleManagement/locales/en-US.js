@@ -6,7 +6,7 @@ export default {
   ROLE: 'Role',
   OPERATION: 'Operation',
   SYSTEM_MANAGEMENT: 'System Management',
-  ROLE_MANAGEMENT: 'User Management',
+  ROLE_MANAGEMENT: 'Role Management',
   PLEASE_ENTER: 'Please Enter',
   PLEASE_SELECT: 'Please Select',
   REQUIRED: 'Required',

@@ -1,10 +1,5 @@
 import { message } from 'antd';
-import {
-  queryUserRolesByCondition,
-  addUserRole,
-  modifyUserRole,
-  queryMenuTree,
-} from '../service/userService';
+import { queryMenuTree, queryUserRolesByCondition } from '../service/roleService';
 import { appCode } from '../../../../uaa-npm/setting';
 
 const generateList = (data = [], result = []) => {

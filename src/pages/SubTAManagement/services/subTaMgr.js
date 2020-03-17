@@ -1,7 +1,7 @@
 import UAAService from '@/uaa-npm';
 
 export async function registrationSubTaInfo(params) {
-  return UAAService.request(`/subprofile/subTARegistration`, {
+  return UAAService.request(`/proxy/ali/b2b/subprofile/subTARegistration`, {
     method: 'POST',
     body: {
       ...params,
@@ -10,21 +10,24 @@ export async function registrationSubTaInfo(params) {
 }
 
 export async function querySubTaInfo(params) {
-  return UAAService.request(`/proxy/ali/pams/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
+  return UAAService.request(`/proxy/ali/b2b/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
     method: 'GET',
   });
 }
 
 export async function querySubTaInfoWithNoId() {
-  return UAAService.request(`/subprofile/querySubInfoWithNoId`, {
+  return UAAService.request(`/proxy/ali/b2b/subprofile/querySubInfoWithNoId`, {
     method: 'GET',
   });
 }
 
 export async function querySubTaInfoWithMask(params) {
-  return UAAService.request(`/subprofile/querySubTaInfoWithMask?subTaId=${params.subTaId}`, {
-    method: 'GET',
-  });
+  return UAAService.request(
+    `/proxy/ali/b2b/subprofile/querySubTaInfoWithMask?subTaId=${params.subTaId}`,
+    {
+      method: 'GET',
+    }
+  );
 }
 
 export async function queryDictionary(params) {

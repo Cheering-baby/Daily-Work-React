@@ -39,20 +39,22 @@ class MenuDetail extends PureComponent {
               </Col>
             </Row>
           </Col>
-          <Col span={24}>
-            <Row type="flex" justify="space-around">
-              <Col span={24}>
-                <div className={styles.detailRightStyleRequired}>
-                  <span>{formatMessage({ id: 'MENU_FORM_MENU_URL' })}</span>
-                </div>
-              </Col>
-              <Col span={24}>
-                <div className={styles.detailLeftStyle}>
-                  <span>{!isNvl(menuInfo.menuUrl) ? menuInfo.menuUrl : '-'}</span>
-                </div>
-              </Col>
-            </Row>
-          </Col>
+          {String(menuInfo.menuType) === '02' && (
+            <Col span={24}>
+              <Row type="flex" justify="space-around">
+                <Col span={24}>
+                  <div className={styles.detailRightStyleRequired}>
+                    <span>{formatMessage({ id: 'MENU_FORM_MENU_URL' })}</span>
+                  </div>
+                </Col>
+                <Col span={24}>
+                  <div className={styles.detailLeftStyle}>
+                    <span>{!isNvl(menuInfo.menuUrl) ? menuInfo.menuUrl : '-'}</span>
+                  </div>
+                </Col>
+              </Row>
+            </Col>
+          )}
           <Col span={24}>
             <Row type="flex" justify="space-around">
               <Col span={24}>

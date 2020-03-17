@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Form, Row, Col, Select, InputNumber, Tooltip, Button } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from '../../index.less';
+import moment from "moment";
 
 class MealsItem extends Component {
 
@@ -83,6 +84,112 @@ class MealsItem extends Component {
     itemValueChangeEvent(offerIndex,offerDetail);
   };
 
+  getMealsContent = () => {
+
+    const {
+      offerDetail,
+      mealItem,
+    } = this.props;
+
+    const {
+      offerInfo: {
+        voucherProductList = []
+      }
+    } = offerDetail;
+
+    let resultContent = '';
+
+    voucherProductList.forEach(voucherProduct=>{
+      if (voucherProduct.productNo === mealItem.meals) {
+        if (voucherProduct.productContentList && voucherProduct.productContentList.length>0) {
+          voucherProduct.productContentList.map(productContent=>{
+            if (productContent.contentType === "productDescription" && productContent.contentLanguage==="en-us") {
+              resultContent =  productContent.contentValue;
+            }
+          })
+        }
+      }
+    });
+
+    return resultContent;
+
+  };
+
+  getMealMaxAvailable = () => {
+
+    const {
+      queryInfo,
+      offerDetail,
+      mealItem,
+    } = this.props;
+    const {
+      offerInfo: {
+        voucherProductList = []
+      }
+    } = offerDetail;
+
+    const dateOfVisit = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
+
+    let maxAvailable = 0;
+    let needChoiceCount = 1;
+    voucherProductList.forEach(voucherProduct=>{
+      if (voucherProduct.productNo === mealItem.meals) {
+        needChoiceCount = voucherProduct.needChoiceCount || 1;
+        voucherProduct.priceRule.forEach(priceRule=>{
+          if (priceRule.priceRuleName === "DefaultPrice") {
+            priceRule.productPrice.forEach(productPrice=>{
+              if (productPrice.priceDate === dateOfVisit) {
+                maxAvailable = productPrice.productInventory === -1 ? 2147483647 : productPrice.productInventory;
+              }
+            })
+          }
+        });
+      }
+    });
+
+    maxAvailable = parseInt(maxAvailable / needChoiceCount);
+
+    return maxAvailable;
+
+  };
+
+  getAvailableVoucherList = () => {
+
+    const {
+      queryInfo,
+      offerDetail,
+    } = this.props;
+    const {
+      offerInfo: {
+        voucherProductList = []
+      }
+    } = offerDetail;
+
+    const dateOfVisit = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
+
+    const newVoucherList = [];
+    voucherProductList.forEach(voucherProduct=>{
+      let maxAvailable = 0;
+      const needChoiceCount = voucherProduct.needChoiceCount || 1;
+      voucherProduct.priceRule.forEach(priceRule=>{
+        if (priceRule.priceRuleName === "DefaultPrice") {
+          priceRule.productPrice.forEach(productPrice=>{
+            if (productPrice.priceDate === dateOfVisit) {
+              maxAvailable = productPrice.productInventory === -1 ? 2147483647 : productPrice.productInventory;
+              maxAvailable = parseInt(maxAvailable / needChoiceCount);
+              if (maxAvailable>0) {
+                newVoucherList.push(Object.assign({},{...voucherProduct}));
+              }
+            }
+          })
+        }
+      });
+    });
+
+    return newVoucherList;
+
+  };
+
   render() {
 
     const {
@@ -95,11 +202,7 @@ class MealsItem extends Component {
 
     const { getFieldDecorator } = form;
 
-    const {
-      offerInfo: {
-        voucherProductList
-      }
-    } = offerDetail;
+    const voucherProductList = this.getAvailableVoucherList();
 
     const gridOpts = { xs: 24, sm: 24, md: 8, lg:8, xl: 8, xxl: 8 };
     const formItemLayout = {
@@ -174,7 +277,7 @@ class MealsItem extends Component {
               }
             </Form.Item>
           </Col>
-          <Col {...gridOpts} className={styles.basicInfoContent}>
+          {/*<Col {...gridOpts} className={styles.basicInfoContent}>
             <Form.Item
               label={formatMessage({ id:'REMARK' })}
               {...formItemLayout}
@@ -202,7 +305,7 @@ class MealsItem extends Component {
               )
               }
             </Form.Item>
-          </Col>
+          </Col>*/}
           <Col {...gridOpts} className={styles.basicInfoContent}>
             <Row>
               <Col span={16}>
@@ -216,7 +319,7 @@ class MealsItem extends Component {
                     ],
                     initialValue: mealItem.number,
                   })(
-                    <InputNumber onChange={this.numberChangeEvent} allowClear min={0}  />
+                    <InputNumber onChange={this.numberChangeEvent} allowClear min={1} max={this.getMealMaxAvailable()}  />
                   )}
                 </Form.Item>
               </Col>
@@ -239,7 +342,7 @@ class MealsItem extends Component {
             <Row>
               <Col span={8}> </Col>
               <Col span={16}>
-                <span>Slightly Spicy pork strips in a mushroom, garlic, ginger and pepper sauce.</span>
+                <span>{this.getMealsContent()}</span>
               </Col>
             </Row>
           </Col>

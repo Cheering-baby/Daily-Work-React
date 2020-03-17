@@ -11,7 +11,7 @@ class NormalLoginForm extends React.Component {
     e.preventDefault();
     const {
       form: { validateFields },
-      appcode,
+      appCode,
       redirect,
     } = this.props;
     validateFields((err, values) => {
@@ -21,7 +21,8 @@ class NormalLoginForm extends React.Component {
           type: 'login/login',
           payload: {
             ...values,
-            appcode: appcode === undefined ? 'PAMS' : appcode,
+            appCode: appCode === undefined ? 'PAMS' : appCode,
+            loginType: '01',
             redirect,
           },
         });

@@ -1,20 +1,24 @@
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import {
-  queryUserOrgTree,
-  queryUsersInOrg,
-  queryUsersInCompany,
+  addSubTARelation,
   addUserOrg,
-  orgBatchAddUser,
   modifyUserOrg,
-  orgBatchRemoveUser,
-  operateMoveUpOrg,
   operateMoveDownOrg,
+  operateMoveUpOrg,
+  orgBatchAddUser,
+  orgBatchRemoveUser,
+  queryAllCompany,
+  queryRootOrgByCompany,
+  queryUserOrgTree,
+  queryUsersInCompany,
+  queryUsersInOrg,
+  removeSubTARelation,
   removeUserOrg,
 } from '../service/orgService';
 
 const generateList = (data = [], result = []) => {
-  for (let i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i += 1) {
     const node = data[i];
     const { code, orgName } = node;
     if (i === 0) {
@@ -54,7 +58,7 @@ const getCanAddUsers = (operType = 'ADD_USER_ORG', companyUsers = [], orgUsers =
 };
 
 export default {
-  namespace: 'orgManagement',
+  namespace: 'orgMgr',
   state: {
     orgTree: [],
     orgList: [],
@@ -71,6 +75,7 @@ export default {
     userSearchValue: '',
     canAddUsers: [],
     filteredCanAddUsers: [],
+    companyList: [],
   },
   subscriptions: {
     // setup({ dispatch }) {},
@@ -85,7 +90,7 @@ export default {
         const { code = '' } = resultData;
         const expandedKeys = [code];
         generateList([resultData], orgList);
-        let { selectedOrg = {} } = yield select(state => state.orgManagement);
+        let { selectedOrg = {} } = yield select(state => state.orgMgr);
         if (Object.keys(selectedOrg).length !== 0) {
           selectedOrg = getSelectedOrg(selectedOrg, orgList);
           const { operType = '' } = payload;
@@ -104,8 +109,65 @@ export default {
         });
       } else message.warn(resultMsg, 10);
     },
+    *queryAllCompany(_, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, result = [] },
+      } = yield call(queryAllCompany);
+      if (resultCode === '0') {
+        result.map(item =>
+          Object.assign(item, { id: Number.parseInt(item.key, 10), companyName: item.value })
+        );
+        yield put({
+          type: 'save',
+          payload: {
+            companyList: result,
+          },
+        });
+      } else message.warn(resultMsg, 10);
+    },
+    *getSubTAOrg({ payload }, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, resultData = {} },
+      } = yield call(queryRootOrgByCompany, { ...payload });
+      if (resultCode === '0') {
+        const subTAOrg = resultData || {};
+        yield put({
+          type: 'save',
+          payload: {
+            subTAOrg,
+          },
+        });
+        return subTAOrg;
+      }
+      message.warn(resultMsg, 10);
+      return {};
+    },
+    *querySubCompany(_, { put }) {
+      // const {
+      //   data: { resultCode, resultMsg, resultData },
+      // } = yield call(queryAllCompany);
+      const resultCode = '0';
+      const resultMsg = '0';
+      if (resultCode === '0') {
+        // const orgList = [];
+        // const { userOrgs = [] } = resultData;
+
+        const companyList = [
+          { id: 11, companyName: '11' },
+          { id: 118, companyName: '118' },
+          { id: 17, companyName: '17' },
+          { id: 16, companyName: '16' },
+        ];
+        yield put({
+          type: 'save',
+          payload: {
+            companyList,
+          },
+        });
+      } else message.warn(resultMsg, 10);
+    },
     *queryUsersInOrg(_, { call, put, select }) {
-      const { selectedOrg = {} } = yield select(state => state.orgManagement);
+      const { selectedOrg = {} } = yield select(state => state.orgMgr);
       const {
         data: { resultCode, resultMsg, resultData },
       } = yield call(queryUsersInOrg, {
@@ -115,6 +177,9 @@ export default {
       });
       if (resultCode === '0') {
         const { userProfiles = [] } = resultData;
+        for (let i = 0; i < userProfiles.length; i += 1) {
+          userProfiles[i].seq = i + 1;
+        }
         yield put({
           type: 'save',
           payload: {
@@ -125,7 +190,7 @@ export default {
     },
     *queryUsersInCompany(_, { call, put, select }) {
       const { selectedOrg = {}, operType = 'ADD_USER_ORG', orgUsers = [] } = yield select(
-        state => state.orgManagement
+        state => state.orgMgr
       );
       const {
         data: { resultCode, resultMsg, resultData },
@@ -164,6 +229,28 @@ export default {
       } = yield call(modifyUserOrg, { ...payload });
       if (resultCode === '0') {
         message.success(formatMessage({ id: 'MODIFY_SUCCESS' }), 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+    *removeSubTARelation({ payload }, { call }) {
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(removeSubTARelation, { ...payload });
+      if (resultCode === '0') {
+        message.success(formatMessage({ id: 'REMOVE_SUCCESS' }), 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+    *addSubTARelation({ payload }, { call }) {
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(addSubTARelation, { ...payload });
+      if (resultCode === '0') {
+        message.success(formatMessage({ id: 'ADD_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
@@ -238,20 +325,23 @@ export default {
         ...payload,
       };
     },
-    clean(state, { payload }) {
+    clean() {
       return {
-        detailVisible: false,
-        userRoles: [],
-        pageInfo: {},
-        queryParam: {
-          roleName: '',
-          roleType: '',
-          pageSize: 10,
-          currentPage: 1,
-        },
+        orgTree: [],
+        orgList: [],
+        searchValue: '',
+        expandedKeys: [],
+        autoExpandParent: true,
+        selectedKeys: [],
+        selectedOrg: {},
+        orgUsers: [],
         drawerShowFlag: false,
-        menuTree: [],
-        menuList: [],
+        operType: 'ADD_USER_ORG',
+        companyUsers: [],
+        selectedUserKeys: [],
+        userSearchValue: '',
+        canAddUsers: [],
+        filteredCanAddUsers: [],
       };
     },
   },

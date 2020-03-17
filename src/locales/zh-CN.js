@@ -73,6 +73,7 @@ export default {
   PWD_LENGTH: '请输入{1}到{2}个字符',
   PWD_CONTINUOUS_CHAR_NUM: '密码中字符连续出现次数超过{0}次.',
   PWD_NOT_USER_CODE: '密码不能和账号或者账号的逆序相同',
+  PWD_MOD_PWD_SUCCESSFULLY: '密码修改成功',
   // portalMgr
   PORTAL_ADD_SUCCESS: '成功新增门户信息',
   PORTAL_EDIT_SUCCESS: '成功修改选中的门户信息',

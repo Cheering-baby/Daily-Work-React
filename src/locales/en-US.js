@@ -543,6 +543,7 @@ export default {
   PWD_CONTINUOUS_CHAR_NUM:
     'The number of consecutive characters in the password exceeds {0} times.',
   PWD_NOT_USER_CODE: 'Password cannot be the same with user ID or reversed user ID.',
+  PWD_MOD_PWD_SUCCESSFULLY: 'Modify password successful.',
 
   // role
   JOBMGR_ROLE_NAME: 'Role Name',
@@ -711,4 +712,5 @@ export default {
   MOBILE_NOT_EXIST: 'Your mobilePhone does not exist.',
   APPROVAL_RE_ROUTE: 'Re-Route',
   APPROVAL_REASON: 'Reason For Rejection',
+  TA_REGISTRATION_NOT_ALLOW_RESTART: 'Not allow to do re_registration',
 };

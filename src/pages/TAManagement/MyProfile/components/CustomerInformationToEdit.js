@@ -51,6 +51,11 @@ const mapStateToProps = store => {
 
 @connect(mapStateToProps)
 class CustomerInformationToEdit extends PureComponent {
+  componentDidMount() {
+    const { form } = this.props;
+    form.resetFields();
+  }
+
   onHandleContactEditChange = (key, keyValue, fieldKey) => {
     const { dispatch, form, customerInfo } = this.props;
     let newContactInfo = {};

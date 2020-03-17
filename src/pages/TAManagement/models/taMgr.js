@@ -23,6 +23,7 @@ export default {
     mappingInfo: {},
     accountInfo: {},
     taId: null,
+    signature: null,
     status: null,
     remark: null,
     taInfoLoadingFlag: false,
@@ -72,7 +73,7 @@ export default {
           });
           return true;
         }
-        return false;
+        return true;
       }
       yield put({ type: 'save', payload: { taInfoLoadingFlag: false } });
       message.warn(resultMsg, 10);
@@ -289,7 +290,10 @@ export default {
             },
           },
           otherInfo: {},
+          mappingInfo: {},
+          accountInfo: {},
           taId: null,
+          signature: null,
           status: null,
           remark: null,
           taInfoLoadingFlag: false,

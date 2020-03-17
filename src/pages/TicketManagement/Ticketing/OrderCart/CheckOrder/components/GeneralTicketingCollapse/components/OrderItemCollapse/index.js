@@ -52,7 +52,7 @@ class OrderItemCollapse extends Component {
         offerSumPrice += orderInfo.pricePax * orderInfo.quantity;
       });
     }
-    return `$${offerSumPrice}`;
+    return `$${Number(offerSumPrice).toFixed(2)}`;
   };
 
   checkOrderEvent = (e, offerIndex, orderOffer) => {
@@ -126,7 +126,7 @@ class OrderItemCollapse extends Component {
   };
 
   render() {
-    const { orderIndex, orderData } = this.props;
+    const { orderIndex, orderData, companyType } = this.props;
 
     const { orderOfferList = [] } = orderData;
 
@@ -171,7 +171,11 @@ class OrderItemCollapse extends Component {
                   </span>
                 </Col>
                 <Col span={3} className={styles.sumPriceCol}>
-                  <span className={styles.sumPriceSpan}>{this.getOfferSumPrice(orderOffer)}</span>
+                  {
+                    companyType === '01' && (
+                      <span className={styles.sumPriceSpan}>{this.getOfferSumPrice(orderOffer)}</span>
+                    )
+                  }
                 </Col>
                 <Col span={3}>
                   <Tooltip title="Delete">
@@ -215,18 +219,26 @@ class OrderItemCollapse extends Component {
                   </span>
                 </Col>
                 <Col span={3} className={styles.priceCol}>
-                  <span className={styles.priceSpan}>${orderInfo.pricePax}</span>
+                  {
+                    companyType === '01' && (
+                      <span className={styles.priceSpan}>${orderInfo.pricePax}/pax</span>
+                    )
+                  }
                 </Col>
               </Row>
             ))}
-            <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
-              <Col span={11} className={styles.titleCol} />
-              <Col span={10} className={styles.totalPriceCol}>
-                <span className={styles.totalPriceSpan}>
-                  TOTAL: {this.getOfferSumPrice(orderOffer)}
-                </span>
-              </Col>
-            </Row>
+            {
+              companyType === '01' && (
+                <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
+                  <Col span={11} className={styles.titleCol} />
+                  <Col span={10} className={styles.totalPriceCol}>
+                    <span className={styles.totalPriceSpan}>
+                      TOTAL: {this.getOfferSumPrice(orderOffer)}
+                    </span>
+                  </Col>
+                </Row>
+              )
+            }
           </Collapse.Panel>
         ))}
       </Collapse>

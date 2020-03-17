@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Button, Checkbox, Col, Form, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { getUrl, handleDownFile } from '@/utils/utils';
 import styles from './index.less';
-import { getUrl, handleDownFile } from '../../utils/pubUtils';
 
 const downUrl = `${getUrl()}/common/downloadFile`;
 

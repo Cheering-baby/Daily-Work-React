@@ -1,10 +1,9 @@
 import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-// const rwsUrl = 'http://10.25.159.206:18091/pams';
 export async function mappingList(pagination) {
   return UAAService.request(
-    `/proxy/ali/pams/profile/queryMappingList?pageInfo.pageSize=${pagination.pageSize}&pageInfo.currentPage=${pagination.currentPage}`,
+    `/proxy/ali/b2b/profile/queryMappingList?pageInfo.pageSize=${pagination.pageSize}&pageInfo.currentPage=${pagination.currentPage}`,
     {
       method: 'GET',
     }
@@ -20,7 +19,7 @@ export async function like(filter, pagination) {
     'pageInfo.applicationEndDate': pagination.applicationEndDate,
     'pageInfo.status': pagination.status,
   });
-  const url = `/proxy/ali/pams/profile/queryMappingList?${paramstring}`;
+  const url = `/proxy/ali/b2b/profile/queryMappingList?${paramstring}`;
   return UAAService.request(url, {
     method: 'GET',
   });
@@ -36,13 +35,13 @@ export async function queryDictionary(params) {
 }
 
 export async function queryMappingDetail(taId) {
-  return UAAService.request(`/proxy/ali/pams/profile/queryMappingInfo?taId=${taId}`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryMappingInfo?taId=${taId}`, {
     method: 'GET',
   });
 }
 
 export async function endInvitation(params) {
-  return UAAService.request(`/proxy/ali/pams/profile/registerMappingInfo`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/registerMappingInfo`, {
     method: 'POST',
     body: { params },
   });

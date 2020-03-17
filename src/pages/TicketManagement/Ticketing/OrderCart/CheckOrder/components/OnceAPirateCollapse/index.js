@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { Icon, Collapse, Form } from 'antd';
+import {Icon, Collapse, Form, message} from 'antd';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
 
 @Form.create()
-@connect(({ ticketOrderCartMgr }) => ({
-  ticketOrderCartMgr,
+@connect(({ global, ticketOrderCartMgr }) => ({
+  global, ticketOrderCartMgr,
 }))
 class OnceAPirateCollapse extends Component {
 
@@ -21,12 +21,25 @@ class OnceAPirateCollapse extends Component {
       ticketOrderCartMgr: { onceAPirateOrderData = [] },
     } = this.props;
     if (opType === 'delete' && orderIndex !== null) {
-      onceAPirateOrderData.splice(orderIndex, 1);
+      const orderItem = onceAPirateOrderData[orderIndex];
+      const removeOfferInstanceList = [];
+      for (let orderOfferIndex=0;orderOfferIndex<orderItem.orderOfferList.length;orderOfferIndex++) {
+        const offerDetail = orderItem.orderOfferList[orderOfferIndex];
+        removeOfferInstanceList.push({
+          offerNo: offerDetail.offerInfo.offerNo,
+          offerInstanceId: offerDetail.offerInstanceId,
+        })
+      }
       dispatch({
-        type: 'ticketOrderCartMgr/save',
+        type: 'ticketOrderCartMgr/removeShoppingCart',
         payload: {
-          onceAPirateOrderData,
+          offerInstances: removeOfferInstanceList,
+          callbackFn: null,
         },
+      }).then((resultCode)=>{
+        if (resultCode==='0') {
+          message.success('Delete successfully!');
+        }
       });
     } else if (opType === 'edit') {
       dispatch({
@@ -65,6 +78,9 @@ class OnceAPirateCollapse extends Component {
 
   render() {
     const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
       ticketOrderCartMgr: { onceAPirateOrderData = [] },
       form,
       form: { getFieldDecorator },
@@ -85,13 +101,14 @@ class OnceAPirateCollapse extends Component {
         <Collapse.Panel
           className={styles.collapsePanelStyles}
           key="OnceAPirateCollapsePanel"
-          header={<span className={styles.collapsePanelHeaderStyles}>Once A Pirate</span>}
+          header={<span className={styles.collapsePanelHeaderStyles}>ONCE A PIRATE</span>}
         >
           {onceAPirateOrderData.map((onceAPirateOrder, orderIndex) => {
             return (
               <OrderItemCollapse
                 key={`OrderItemCollapse_${orderIndex}`}
                 form={form}
+                companyType={companyType}
                 orderIndex={orderIndex}
                 onceAPirateOrder={onceAPirateOrder}
                 changeOrderCheck={(orderIndex, onceAPirateOrder) => {

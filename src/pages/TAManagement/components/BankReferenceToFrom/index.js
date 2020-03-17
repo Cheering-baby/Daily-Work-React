@@ -6,7 +6,7 @@ class BankReferenceToFrom extends PureComponent {
   render() {
     const { form, formItemLayout, otherInfo = {}, onHandleChange } = this.props;
     const { getFieldDecorator } = form;
-    const { bankReference = {} } = otherInfo || {};
+    const bankReference = (otherInfo || {}).bankReference || {};
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });
     return (
       <Col span={24}>

@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Col, Row, Steps, Collapse, Icon } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
+import moment from 'moment';
 import styles from './ApprovalHistory.less';
 
 const { Step } = Steps;
@@ -35,10 +36,23 @@ class ApprovalHistory extends PureComponent {
       const stepTitle = (
         <div className={styles.stepTitle}>
           <span className={styles.approveStyle}>{historyHandler.statusName}</span>
-          <span>{historyHandler.userName}</span>
+          <span>
+            {historyHandler.statusTime
+              ? moment(historyHandler.statusTime).format('DD-MMM-YYYY HH:mm')
+              : ''}
+          </span>
         </div>
       );
-      const stepDesc = historyHandler.reason;
+      const stepDesc = (
+        <div>
+          <span>{historyHandler.userCode}</span>
+          {historyHandler.reason ? (
+            <p className={styles.stepReason}>{historyHandler.reason}</p>
+          ) : (
+            ''
+          )}
+        </div>
+      );
       steps.push({
         stepsIcon,
         stepTitle,

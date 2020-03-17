@@ -28,11 +28,11 @@ export default {
       } = yield call(service.queryContractHistoryList, { ...reqParam });
       yield put({ type: 'save', payload: { qryContractHistoryLoading: false } });
       if (resultCode === '0' || resultCode === 0) {
-        const { pageInfo, contractList } = result;
+        const { pageInfo, contractHisList } = result;
         yield put({
           type: 'save',
           payload: {
-            contractList: contractList || [],
+            contractList: contractHisList || [],
             searchContractList: {
               total: Number(pageInfo.totalSize || '0'),
               currentPage: Number(pageInfo.currentPage || '1'),

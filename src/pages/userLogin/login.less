@@ -1,4 +1,5 @@
 @import '~antd/lib/style/themes/default.less';
+@import '../../theme/screen';
 
 @prefix-cls: ~'@{ant-prefix}';
 @filter: 3px;
@@ -85,18 +86,41 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  //width: 88%;
-  //min-height: @login-height;
-  margin: -196px 0 0 -164px;
-  background: rgba(255, 255, 255, 0.9);
+  width: 420px;
+  min-height: 416px;
+  margin: -208px 0 0 -223px;
+  background: hsla(0,0%,100%,.9);
   border-radius: 2px;
   z-index: 1;
 
+  @media screen and (max-width: @screenXsMax) {
+    width: 88%;
+    background: hsla(0, 0%, 100%, .7);
+    border-radius: 4px;
+    margin: 9% 6% 0 6%;
+    top: 20%;
+    left: inherit;
+  }
+  @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
+    width: 88%;
+    background: hsla(0, 0%, 100%, .7);
+    border-radius: 4px;
+    margin: 9% 6% 0 6%;
+    top: 20%;
+    left: inherit;
+  }
+
   :global {
     .@{prefix-cls}-tabs-tab {
-      width: 100%;
+      width: 80%;
       text-align: center;
       margin: 0;
+      @media screen and (max-width: @screenXsMax) {
+        width: 78%;
+      }
+      @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
+        width: 78%;
+      }
     }
     .@{prefix-cls}-tabs-tabpane {
       padding: 0 0 6px;
@@ -152,6 +176,12 @@ body {
 
 .loginBox {
   padding: 22px 40px;
+  @media screen and (max-width: @screenXsMax) {
+    padding: 22px;
+  }
+  @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
+    padding: 22px;
+  }
 }
 
 .name {
@@ -233,3 +263,24 @@ body {
   line-height: 23px;
 }
 
+
+@media screen and (max-width: 576px){
+  .loginContent {
+    width: 88%;
+    background: hsla(0,0%,100%,.7);
+    border-radius: 4px;
+    margin: 9% 6% 0 6%;
+    top: 20%;
+    left: inherit;
+  }
+}
+
+@media screen and (max-width: 576px){
+  .loginContent {
+    :global {
+      .ant-tabs-tab {
+        margin: 0 10px 0 0;
+      }
+    }
+  }
+}

@@ -8,10 +8,11 @@ import styles from '../index.less';
 import { isNvl } from '@/utils/utils';
 
 const mapStateToProps = store => {
-  const { taId, status, remark } = store.taMgr;
+  const { taId, signature, status, remark } = store.taMgr;
   const { countryList = [], categoryList = [] } = store.taCommon;
   return {
     taId,
+    signature,
     status,
     remark,
     countryList,
@@ -34,7 +35,7 @@ class RegistrationFailedToSignUp extends PureComponent {
 
   showViewInformation = e => {
     e.preventDefault();
-    const { dispatch, taId, status, remark, countryList, categoryList } = this.props;
+    const { dispatch, taId, signature, status, remark, countryList, categoryList } = this.props;
     dispatch({
       type: 'signUp/doCleanData',
       payload: {
@@ -73,7 +74,7 @@ class RegistrationFailedToSignUp extends PureComponent {
       if (!isNvl(taId)) {
         dispatch({
           type: 'taMgr/fetchQueryTaInfoWithMask',
-          payload: { taId },
+          payload: { taId, signature },
         });
       }
     });

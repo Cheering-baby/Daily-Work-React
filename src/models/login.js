@@ -1,5 +1,6 @@
 import { routerRedux } from 'dva/router';
 import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 import loginSession from '../utils/loginSession';
@@ -17,12 +18,19 @@ export default {
     orgType: '01',
     companyList: [],
     userCode: null,
-    selectCompanyId: null,
+    agentId: null,
   },
 
   effects: {
     *login({ payload }, { call, put }) {
-      const data = yield call(UAAService.login, payload.username, payload.password);
+      const data = yield call(
+        UAAService.login,
+        payload.username,
+        payload.password,
+        payload.appCode,
+        payload.loginType || '01',
+        payload.agentId
+      );
 
       if (data.success) {
         window.g_app.login_payload = payload;
@@ -45,19 +53,32 @@ export default {
     },
 
     *changeUserPwd({ payload }, { call, put, select }) {
-      yield call(CommonService.changePassword, payload.username, payload.oldPwd, payload.newPwd);
-      message.success('密码修改成功');
-      yield put({
-        type: 'closeModal',
-      });
-      const { userMsg } = yield select(state => state.login);
-      yield put({
-        type: 'login',
-        payload: {
-          username: userMsg.username,
-          password: payload.newPwd,
-        },
-      });
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(
+        CommonService.changePassword,
+        payload.username,
+        payload.oldPwd,
+        payload.newPwd
+      );
+      if (resultCode === 0 || resultCode === '0') {
+        message.success(formatMessage({ id: 'PWD_MOD_PWD_SUCCESSFULLY' }));
+        yield put({
+          type: 'closeModal',
+        });
+        const { currentUser } = yield select(state => state.global);
+        const { orgType } = yield select(state => state.login);
+        yield put({
+          type: 'login',
+          payload: {
+            username: currentUser.userCode,
+            password: payload.newPwd,
+            appCode: `${UAAService.defaults.appCode}`,
+            loginType: orgType || '01',
+            agentId: currentUser.taInfo.companyId,
+          },
+        });
+      } else message.warn(resultMsg, 10);
     },
 
     *logout({ payload }, { call, put }) {

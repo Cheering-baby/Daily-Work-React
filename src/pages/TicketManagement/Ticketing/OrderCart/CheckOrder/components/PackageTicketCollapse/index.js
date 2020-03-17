@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Collapse, Form } from 'antd';
+import {Icon, Collapse, Form, message} from 'antd';
 import { connect } from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
@@ -7,8 +7,8 @@ import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/At
 import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
-@connect(({ ticketOrderCartMgr }) => ({
-  ticketOrderCartMgr,
+@connect(({ global, ticketOrderCartMgr }) => ({
+  global, ticketOrderCartMgr,
 }))
 class PackageTicketingCollapse extends Component {
 
@@ -22,12 +22,29 @@ class PackageTicketingCollapse extends Component {
       ticketOrderCartMgr: { packageOrderData = [] },
     } = this.props;
     if (opType === 'delete' && offerIndex !== null) {
-      packageOrderData[orderIndex].orderOfferList.splice(offerIndex, 1);
+      const orderItem = packageOrderData[orderIndex].orderOfferList[offerIndex];
+      const amount = packageOrderData[orderIndex].orderOfferList.length;
       dispatch({
-        type: 'ticketOrderCartMgr/save',
+        type: 'ticketOrderCartMgr/removeShoppingCart',
         payload: {
-          packageOrderData,
+          offerInstances: [{
+            offerNo: orderItem.offerInfo.offerNo,
+            offerInstanceId: orderItem.offerInstanceId,
+          }],
+          callbackFn: null,
         },
+      }).then((resultCode)=>{
+        if (resultCode==='0') {
+          if (amount===1) {
+            dispatch({
+              type: 'ticketOrderCartMgr/save',
+              payload: {
+                packageOrderData: []
+              },
+            });
+          }
+          message.success('Delete successfully!');
+        }
       });
     } else if (opType === 'edit') {
       const editOrderOffer = packageOrderData[orderIndex].orderOfferList[offerIndex];
@@ -65,34 +82,6 @@ class PackageTicketingCollapse extends Component {
         packageOrderData,
       },
     });
-  };
-
-  changeOrderCheck = (orderIndex, orderData) => {
-    const {
-      dispatch,
-      ticketOrderCartMgr: { generalTicketOrderData = [] },
-    } = this.props;
-    Object.assign(generalTicketOrderData, {
-      [orderIndex]: {
-        ...orderData,
-      },
-    });
-    dispatch({
-      type: 'ticketOrderCartMgr/ticketOrderCheckSave',
-      payload: {
-        generalTicketOrderData,
-      },
-    });
-  };
-
-  getActiveKeyList = () => {
-    const {
-      ticketOrderCartMgr: { generalTicketOrderData = [] },
-    } = this.props;
-    const activeKeyList = generalTicketOrderData.map((orderData, orderIndex) => {
-      return `${orderData.themeParkCode  }_${  orderIndex}`;
-    });
-    return activeKeyList;
   };
 
   onClose = () => {
@@ -211,6 +200,9 @@ class PackageTicketingCollapse extends Component {
   render() {
 
     const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
       ticketOrderCartMgr: {
         showToCartModalType,
         countrys,
@@ -222,8 +214,6 @@ class PackageTicketingCollapse extends Component {
       },
       form,
     } = this.props;
-
-    console.log(packageOrderData);
 
     const ticketTypeItems = [];
     const descriptionItems = [];
@@ -260,6 +250,7 @@ class PackageTicketingCollapse extends Component {
               <OrderItemCollapse
                 key={`PackageOrderItemCollapse_${orderIndex}`}
                 form = {form}
+                companyType = {companyType}
                 orderIndex = {orderIndex}
                 orderData = {orderData}
                 changeOrderCheck={(orderIndex, onceAPirateOrder) => {

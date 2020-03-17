@@ -1,12 +1,15 @@
 import React from 'react';
-import { Icon, Select, Table, Card, Button, Tooltip, Popover } from 'antd';
+import { Button, Card, Icon, Modal, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../index.less';
+import { checkAuthority } from '@/utils/authority';
+import constants from '../constants';
 
-@connect(({ orgManagement, loading }) => ({
-  orgManagement,
-  loadUserInOrg: loading.effects['orgManagement/queryUsersInOrg'],
+@connect(({ orgMgr, global, loading }) => ({
+  orgMgr,
+  global,
+  loadUserInOrg: loading.effects['orgMgr/queryUsersInOrg'],
 }))
 class OrgInformation extends React.Component {
   constructor(props) {
@@ -15,11 +18,20 @@ class OrgInformation extends React.Component {
     this.columns = [
       {
         title: this.showTableTitle(formatMessage({ id: 'NO' })),
-        dataIndex: 'seq',
+        render: (text, record, index) => {
+          return index + 1;
+        },
       },
       {
         title: this.showTableTitle(formatMessage({ id: 'SUB_ORG_NAME' })),
         dataIndex: 'orgName',
+      },
+      {
+        title: this.showTableTitle(formatMessage({ id: 'ORG_TYPE' })),
+        dataIndex: 'orgType',
+        render: text => {
+          return constants.ORG_TYPE_MAP.get(text);
+        },
       },
       {
         title: this.showTableTitle(formatMessage({ id: 'OPERATION' })),
@@ -58,12 +70,13 @@ class OrgInformation extends React.Component {
     this.memberColumns = [
       {
         title: this.showTableTitle(formatMessage({ id: 'NO' })),
-        dataIndex: 'id',
+        dataIndex: 'seq',
       },
       {
         title: this.showTableTitle(formatMessage({ id: 'FULL_NAME' })),
         render: (text, record) => {
-          let { userType, rwsInfo = {}, taInfo = {} } = record;
+          let { rwsInfo = {}, taInfo = {} } = record;
+          const { userType } = record;
           rwsInfo = rwsInfo || {};
           taInfo = taInfo || {};
           if (userType === '01') {
@@ -81,10 +94,9 @@ class OrgInformation extends React.Component {
       {
         title: this.showTableTitle(formatMessage({ id: 'OPERATION' })),
         render: (text, record) => {
-          const { userType = '01' } = record;
           return (
             <div>
-              <Tooltip title={formatMessage({ id: 'REMOVE_MEMBER' })}>
+              <Tooltip title={formatMessage({ id: 'REMOVE' })}>
                 <Icon
                   type="delete"
                   onClick={() => {
@@ -100,22 +112,78 @@ class OrgInformation extends React.Component {
   }
 
   removeOrg = item => {
+    Modal.confirm({
+      title: formatMessage({ id: 'ORG_DEL_CONFIRM' }),
+      okText: formatMessage({ id: 'COMMON_YES' }),
+      cancelText: formatMessage({ id: 'COMMON_NO' }),
+      icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
+      onOk: () => {
+        const {
+          orgMgr: {
+            selectedOrg: { code: parentOrgCode = '', orgType: parentOrgType = '' },
+          },
+        } = this.props;
+        const { code = '', orgType = '' } = item;
+
+        if (parentOrgType === '01' && orgType === '02') {
+          this.removeSubTARelation(parentOrgCode, code);
+        } else {
+          this.removeUserOrg(code);
+        }
+      },
+    });
+  };
+
+  removeSubTARelation = (taOrgCode, subTaOrgCode) => {
     const { dispatch } = this.props;
-    const { code = '' } = item;
     dispatch({
-      type: 'orgManagement/removeUserOrg',
+      type: 'orgMgr/removeSubTARelation',
+      payload: {
+        taOrgCode,
+        subTaOrgCode,
+      },
+    }).then(result => {
+      if (result) {
+        this.queryUserOrgTree();
+      }
+    });
+  };
+
+  removeUserOrg = code => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'orgMgr/removeUserOrg',
       payload: {
         code,
       },
     }).then(result => {
       if (result) {
-        dispatch({
-          type: 'orgManagement/queryUserOrgTree',
-          payload: {
-            orgCode: 'TEST_TA_1',
-          },
-        });
+        this.queryUserOrgTree();
       }
+    });
+  };
+
+  queryUserOrgTree = () => {
+    const {
+      dispatch,
+      global: { currentUser = {}, userCompanyInfo = {} },
+    } = this.props;
+    const { userType = '' } = currentUser;
+    let payload;
+    if (userType === '01') {
+      payload = {
+        orgCode: constants.RWS_ORG_CODE,
+      };
+    } else {
+      const { companyId, companyType } = userCompanyInfo;
+      payload = {
+        companyId,
+        companyType,
+      };
+    }
+    dispatch({
+      type: 'orgMgr/queryUserOrgTree',
+      payload,
     });
   };
 
@@ -123,24 +191,36 @@ class OrgInformation extends React.Component {
     e.preventDefault();
     const {
       dispatch,
-      orgManagement: {
+      global: { currentUser = {}, userCompanyInfo = {} },
+      orgMgr: {
         selectedOrg: { code: parentOrgCode = '' },
       },
     } = this.props;
     const { code: orgCode = '' } = item;
     dispatch({
-      type: 'orgManagement/operateMoveUpOrg',
+      type: 'orgMgr/operateMoveUpOrg',
       payload: {
         orgCode,
         parentOrgCode,
       },
     }).then(result => {
       if (result) {
+        const { userType = '' } = currentUser;
+        let payload = {};
+        if (userType === '01') {
+          payload = {
+            orgCode: constants.RWS_ORG_CODE,
+          };
+        } else {
+          const { companyId, companyType } = userCompanyInfo;
+          payload = {
+            companyId,
+            companyType,
+          };
+        }
         dispatch({
-          type: 'orgManagement/queryUserOrgTree',
-          payload: {
-            orgCode: 'TEST_TA_1',
-          },
+          type: 'orgMgr/queryUserOrgTree',
+          payload,
         });
       }
     });
@@ -150,24 +230,36 @@ class OrgInformation extends React.Component {
     e.preventDefault();
     const {
       dispatch,
-      orgManagement: {
+      global: { currentUser = {}, userCompanyInfo = {} },
+      orgMgr: {
         selectedOrg: { code: parentOrgCode = '' },
       },
     } = this.props;
     const { code: orgCode = '' } = item;
     dispatch({
-      type: 'orgManagement/operateMoveDownOrg',
+      type: 'orgMgr/operateMoveDownOrg',
       payload: {
         orgCode,
         parentOrgCode,
       },
     }).then(result => {
       if (result) {
+        const { userType = '' } = currentUser;
+        let payload = {};
+        if (userType === '01') {
+          payload = {
+            orgCode: constants.RWS_ORG_CODE,
+          };
+        } else {
+          const { companyId, companyType } = userCompanyInfo;
+          payload = {
+            companyId,
+            companyType,
+          };
+        }
         dispatch({
-          type: 'orgManagement/queryUserOrgTree',
-          payload: {
-            orgCode: 'TEST_TA_1',
-          },
+          type: 'orgMgr/queryUserOrgTree',
+          payload,
         });
       }
     });
@@ -183,70 +275,169 @@ class OrgInformation extends React.Component {
     );
   };
 
+  addOrgBtnClick = e => {
+    const {
+      global: { currentUser = {} },
+    } = this.props;
+    if (currentUser.userType === '01') {
+      this.showOperDrawer(e, 'ADD_TA_COMPANY');
+    } else {
+      this.showOperDrawer(e, 'ADD_USER_ORG');
+    }
+  };
+
   showOperDrawer = (e, type = 'ADD_USER_ORG') => {
     e.preventDefault();
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      global: { currentUser = {}, companyInfo = {} },
+    } = this.props;
     dispatch({
-      type: 'orgManagement/saveData',
+      type: 'orgMgr/saveData',
       payload: {
         drawerShowFlag: true,
         operType: type,
       },
     }).then(() => {
-      dispatch({
-        type: 'orgManagement/queryUsersInCompany',
-      });
+      if (type === 'ADD_USER_ORG' || type === 'ADD_MEMBER') {
+        dispatch({
+          type: 'orgMgr/queryUsersInCompany',
+        });
+      }
+      if (type === 'ADD_TA_COMPANY') {
+        dispatch({
+          type: 'orgMgr/queryAllCompany',
+        });
+      }
+      const { userType = '' } = currentUser;
+      const { companyId } = companyInfo;
+      // TODO 查询ta 的子公司
+      if (userType === '02' && type === 'ADD_USER_ORG') {
+        dispatch({
+          type: 'orgMgr/querySubCompany',
+          payload: {
+            companyId,
+          },
+        });
+      }
     });
   };
 
   removeMember = item => {
-    const {
-      dispatch,
-      orgManagement: {
-        selectedOrg: { code = '' },
+    Modal.confirm({
+      title: formatMessage({ id: 'MEMBER_DEL_CONFIRM' }),
+      okText: formatMessage({ id: 'COMMON_YES' }),
+      cancelText: formatMessage({ id: 'COMMON_NO' }),
+      icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
+      onOk: () => {
+        const {
+          dispatch,
+          orgMgr: {
+            selectedOrg: { code = '' },
+          },
+        } = this.props;
+        const { userCode = '' } = item;
+        dispatch({
+          type: 'orgMgr/orgBatchRemoveUser',
+          payload: {
+            orgCode: code,
+            userCodes: [userCode],
+          },
+        }).then(() => {
+          dispatch({
+            type: 'orgMgr/queryUsersInOrg',
+          });
+        });
       },
-    } = this.props;
-    const { userCode = '' } = item;
-    dispatch({
-      type: 'orgManagement/orgBatchRemoveUser',
-      payload: {
-        orgCode: code,
-        userCodes: [userCode],
-      },
-    }).then(() => {
-      dispatch({
-        type: 'orgManagement/queryUsersInOrg',
-      });
     });
+  };
+
+  getAddOrgBtnDisable = () => {
+    const {
+      orgMgr: { selectedOrg = {}, orgList = [] },
+      global: { pagePrivileges = [] },
+    } = this.props;
+
+    // 如果不是同一家公司 禁止操作 其他公司的组织结构
+    if (orgList.length > 0 && Object.keys(selectedOrg).length > 0) {
+      if (orgList[0].companyId !== selectedOrg.companyId) {
+        return true;
+      }
+    }
+
+    return (
+      Object.keys(selectedOrg).length === 0 ||
+      !(
+        checkAuthority(pagePrivileges, constants.MAIN_TA_PRIVILEGE) ||
+        checkAuthority(pagePrivileges, constants.SUB_TA_PRIVILEGE) ||
+        checkAuthority(pagePrivileges, constants.SALES_SUPPORT_PRIVILEGE)
+      )
+    );
+  };
+
+  getAddMemberBtnDisable = () => {
+    const {
+      orgMgr: { selectedOrg = {}, orgList = [] },
+      global: { pagePrivileges = [] },
+    } = this.props;
+
+    // 如果不是同一家公司 禁止操作 其他公司的组织结构
+    if (orgList.length > 0 && Object.keys(selectedOrg).length > 0) {
+      if (orgList[0].companyId !== selectedOrg.companyId) {
+        return true;
+      }
+    }
+
+    return (
+      Object.keys(selectedOrg).length === 0 ||
+      !(
+        checkAuthority(pagePrivileges, constants.MAIN_TA_PRIVILEGE) ||
+        checkAuthority(pagePrivileges, constants.SUB_TA_PRIVILEGE)
+      )
+    );
+  };
+
+  getCardTitle = () => {
+    const {
+      orgMgr: { selectedOrg = {} },
+    } = this.props;
+
+    const { orgName = '', orgType = '' } = selectedOrg;
+    return orgName
+      ? `${orgName}(${constants.ORG_TYPE_MAP.get(orgType)})`
+      : formatMessage({ id: 'CHECK_ORG_FIRST' });
   };
 
   render() {
     const {
-      orgManagement: { selectedOrg = {}, orgUsers = [] },
+      orgMgr: { selectedOrg = {}, orgUsers = [] },
       loadUserInOrg = false,
     } = this.props;
-    const { orgName = '', subOrgs = [] } = selectedOrg;
+
+    const { subOrgs = [] } = selectedOrg;
+    const cardTitle = this.getCardTitle();
     return (
       <Card
         className={`has-shadow no-border ${styles.tableClass} ${styles.cardClass}`}
-        title={orgName}
+        title={cardTitle}
         extra={this.getExtra()}
       >
         <div className={styles.titleHeader}>{formatMessage({ id: 'SUB_ORG' })}</div>
         <Button
-          disabled={Object.keys(selectedOrg).length === 0}
+          disabled={this.getAddOrgBtnDisable()}
           type="link"
           className={styles.addBtnClass}
-          onClick={e => this.showOperDrawer(e, 'ADD_USER_ORG')}
+          onClick={e => this.addOrgBtnClick(e)}
         >
           {formatMessage({ id: 'ADD_BTN_TEXT' })}
         </Button>
         <Table
+          rowKey="id"
           bordered={false}
           size="small"
           dataSource={subOrgs}
           columns={this.columns}
-          scroll={{ y: 188 }}
+          scroll={{ y: 190 }}
           className="no-border"
           pagination={false}
         />
@@ -254,7 +445,7 @@ class OrgInformation extends React.Component {
           {formatMessage({ id: 'PERSONNEL' })}({orgUsers.length})
         </div>
         <Button
-          disabled={Object.keys(selectedOrg).length === 0}
+          disabled={this.getAddMemberBtnDisable()}
           type="link"
           className={styles.addBtnClass}
           onClick={e => this.showOperDrawer(e, 'ADD_MEMBER')}
@@ -262,12 +453,13 @@ class OrgInformation extends React.Component {
           {formatMessage({ id: 'ADD_BTN_TEXT' })}
         </Button>
         <Table
+          rowKey="userCode"
           loading={loadUserInOrg}
           bordered={false}
           size="small"
           dataSource={orgUsers}
           columns={this.memberColumns}
-          scroll={{ y: 188 }}
+          scroll={{ y: 190 }}
           className="no-border"
           pagination={false}
         />

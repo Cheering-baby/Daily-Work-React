@@ -3,10 +3,11 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import router from 'umi/router';
 import { Button, message, Tabs } from 'antd';
+import classNames from 'classnames';
 import LoginForm from './components/LoginForm';
 import SubLoginForm from './components/SubLoginForm';
+import UAAService from '@/uaa-npm';
 import loginStyles from './login.less';
-import classNames from 'classnames';
 
 const {
   containerMain,
@@ -50,17 +51,17 @@ class PamsLogin extends Component {
     e.preventDefault();
     let pathname = '/TAManagement/SignUp';
     const {
-      loginModel: { orgType, selectCompanyId },
+      loginModel: { orgType, agentId },
     } = this.props;
     const queryParams = {};
     if (String(orgType) === '02') {
       // 01: TA 02: Sub TA 03: Normal Org
       pathname = '/SubTAManagement/SignUp';
-      if (!selectCompanyId) {
+      if (!agentId) {
         message.warn(formatMessage({ id: 'SIGN_UP_CHECK' }), 10);
         return;
       }
-      queryParams.companyId = selectCompanyId;
+      queryParams.taId = agentId;
     }
     router.push({
       pathname,
@@ -84,9 +85,10 @@ class PamsLogin extends Component {
     const {
       loginModel: { orgType = null },
       location: {
-        query: { app, redirect },
+        query: { redirect },
       },
     } = this.props;
+    const appCode = `${UAAService.defaults.appCode}`;
     return (
       <div id="pams" className={classNames(containerMain, 'login-wrap')}>
         <div className={loginBackdropBg} />
@@ -107,10 +109,10 @@ class PamsLogin extends Component {
                 }}
               >
                 <Tabs.TabPane tab={formatMessage({ id: 'TA_RWS_USER' })} key="01">
-                  <LoginForm appcode={app} redirect={redirect} />
+                  <LoginForm appcode={appCode} redirect={redirect} />
                 </Tabs.TabPane>
                 <Tabs.TabPane tab={formatMessage({ id: 'SUB_TA' })} key="02">
-                  <SubLoginForm appcode={app} redirect={redirect} />
+                  <SubLoginForm appcode={appCode} redirect={redirect} />
                 </Tabs.TabPane>
               </Tabs>
               {String(orgType) === '01' && (

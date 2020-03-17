@@ -93,8 +93,8 @@ export default class BaseMenu extends PureComponent {
   };
 
   // Get the currently selected menu
-  getSelectedMenuKeys = pathname => {
-    const { menuData } = this.props;
+  getSelectedMenuKeys = (menuData, pathname) => {
+    // const { menuData } = this.props;
     // let keys = this.getFlatMenuKeys(menuData);
     // let selectedKey = urlToList(pathname).map(itemPath => getMenuMatches(keys, itemPath).pop()).filter(item => item);
     return getItemPath(pathname, menuData) || [];
@@ -193,8 +193,9 @@ export default class BaseMenu extends PureComponent {
       theme,
       location: { pathname },
     } = this.props;
+    const { handleOpenChange, menuData } = this.props;
     // if pathname can't match, use the nearest parent's key
-    let selectedKeys = this.getSelectedMenuKeys(pathname);
+    let selectedKeys = this.getSelectedMenuKeys(menuData, pathname);
     if (!selectedKeys.length && openKeys) {
       selectedKeys = [openKeys[openKeys.length - 1]];
     }
@@ -204,7 +205,11 @@ export default class BaseMenu extends PureComponent {
         openKeys,
       };
     }
-    const { handleOpenChange, menuData } = this.props;
+    if (selectedKeys && selectedKeys.length > 0 && !(openKeys && openKeys.length > 0)) {
+      props = {
+        openKeys: selectedKeys,
+      };
+    }
     return (
       <Menu
         key="Menu"

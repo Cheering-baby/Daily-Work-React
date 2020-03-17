@@ -1,15 +1,29 @@
 import React from 'react';
 import router from 'umi/router';
-import { Button, Card, Col, DatePicker, Form, Icon, Row, Select, Table, Tooltip } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Icon,
+  message,
+  Modal,
+  Row,
+  Select,
+  Table,
+  Tooltip,
+  Input,
+} from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
 import detailStyles from './index.less';
 import MyActivityDownload from './components/MyActivityDownload';
-import UploadModal from '@/components/Upload/Upload';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
+import UploadContractComp from '../TAManagement/MainTAManagement/components/UploadContractComp';
 
 const { Option } = Select;
 
@@ -28,21 +42,33 @@ const ColProps = {
 };
 
 @Form.create()
-@connect(({ myActivity, loading }) => ({
+@connect(({ myActivity, loading, taMgr }) => ({
   myActivity,
   loading: loading.effects['myActivity/fetchApprovalList'],
+  contractFileUploading: loading.effects['myActivity/fetchRegisterContractFile'],
+  taMgr,
 }))
 class MyActivity extends React.PureComponent {
   constructor(props) {
     super(props);
     this.columns = [
       {
+        title: 'No.',
+        dataIndex: 'index',
+        key: 'index',
+        render: (text, record, index) => `${index + 1}`,
+      },
+      {
         title: formatMessage({ id: 'ACTIVITY_ID' }),
         dataIndex: 'activityId',
+        sorter: (a, b) => (a.activityId > b.activityId ? -1 : 1),
+        sortDirections: ['descend', 'ascend'],
       },
       {
         title: formatMessage({ id: 'ACTIVITY_TYPE' }),
         dataIndex: 'activityTypeName',
+        sorter: (a, b) => (a.activityTypeName > b.activityTypeName ? -1 : 1),
+        sortDirections: ['descend', 'ascend'],
       },
       {
         title: formatMessage({ id: 'REMARKS' }),
@@ -51,7 +77,8 @@ class MyActivity extends React.PureComponent {
       {
         title: formatMessage({ id: 'CREATE_DATE' }),
         dataIndex: 'createTime',
-        sorter: true,
+        sorter: (a, b) => (a.createTime > b.createTime ? -1 : 1),
+        sortDirections: ['descend', 'ascend'],
         render: text => {
           const timeText = text ? moment(text).format('DD-MMM-YYYY') : '';
           return timeText ? (
@@ -66,6 +93,8 @@ class MyActivity extends React.PureComponent {
       {
         title: formatMessage({ id: 'STATUS' }),
         dataIndex: 'status',
+        sorter: (a, b) => (a.status > b.status ? -1 : 1),
+        sortDirections: ['descend', 'ascend'],
         render: (text, record) => {
           let flagClass = '';
           if (text === '02' || text === '03') flagClass = detailStyles.flagStyle1;
@@ -83,20 +112,20 @@ class MyActivity extends React.PureComponent {
         title: formatMessage({ id: 'OPERATION' }),
         dataIndex: 'operation',
         render: (text, record) => {
-          let iconType = '';
-          let message = {};
-          if (record.statusName === 'Pending Others Operation') {
-            iconType = 'upload';
-            message = formatMessage({ id: 'COMMON_UPLOAD' });
-          }
-          // if (record.statusName === 'Pending Operation') {
-          //   iconType = 'block';
-          //   message = formatMessage({ id: 'COMMON_UPLOAD_MAPPING' });
+          // let iconType = '';
+          // let message = {};
+          // if (record.activityTplCode === 'TA-SIGN-UP') {
+          //   iconType = 'upload';
+          //   message = formatMessage({ id: 'COMMON_UPLOAD' });
           // }
-          if (record.statusName === 'Pending Operation') {
-            iconType = 'audit';
-            message = formatMessage({ id: 'COMMON_UPLOAD_APPROVAL' });
-          }
+          // // if (record.statusName === 'Pending Operation') {
+          // //   iconType = 'block';
+          // //   message = formatMessage({ id: 'COMMON_UPLOAD_MAPPING' });
+          // // }
+          // if (record.activityTplCode === 'TA-SIGN-UP') {
+          //   iconType = 'audit';
+          //   message = formatMessage({ id: 'COMMON_UPLOAD_APPROVAL' });
+          // }
           return (
             <div>
               <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
@@ -107,12 +136,22 @@ class MyActivity extends React.PureComponent {
                   }}
                 />
               </Tooltip>
-              {record.statusName ? (
-                <Tooltip title={message}>
+              {record.activityTplCode === 'TA-SIGN-UP' ? (
+                <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
                   <Icon
-                    type={iconType}
+                    type="upload"
                     onClick={() => {
-                      this.detail(iconType, record);
+                      this.detail('upload', record);
+                    }}
+                  />
+                </Tooltip>
+              ) : null}
+              {record.activityTplCode === 'TA-SIGN-UP' ? (
+                <Tooltip title={formatMessage({ id: 'COMMON_DOWNLOAD' })}>
+                  <Icon
+                    type="audit"
+                    onClick={() => {
+                      this.detail('audit', record);
                     }}
                   />
                 </Tooltip>
@@ -175,6 +214,8 @@ class MyActivity extends React.PureComponent {
               endDate,
               activityTplCode: values.activityTplCode,
               status: values.status,
+              activityId: values.activityId,
+              businessId: values.businessId,
             },
           },
         });
@@ -193,6 +234,35 @@ class MyActivity extends React.PureComponent {
     });
   };
 
+  handleModalCancel = () => {
+    const {
+      dispatch,
+      myActivity: { pagination },
+    } = this.props;
+    dispatch({
+      type: 'myActivity/save',
+      payload: {
+        contractFileList: [],
+        selectTaId: null,
+        uploadVisible: false,
+      },
+    });
+    this.qryMainTAList(pagination.currentPage, pagination.pageSize);
+  };
+
+  qryMainTAList = (currentPage, pageSize) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'myActivity/fetchApprovalList',
+      payload: {
+        pagination: {
+          currentPage,
+          pageSize,
+        },
+      },
+    });
+  };
+
   handleTableChange = page => {
     const {
       dispatch,
@@ -200,12 +270,13 @@ class MyActivity extends React.PureComponent {
     } = this.props;
 
     if (page.current !== pagination.currentPage || page.pageSize !== pagination.pageSize) {
-      pagination.currentPage = page.current;
-      pagination.pageSize = page.pageSize;
       dispatch({
         type: 'myActivity/tableChanged',
         payload: {
-          pagination,
+          pagination: {
+            currentPage: page.current,
+            pageSize: page.pageSize,
+          },
         },
       });
     }
@@ -215,7 +286,6 @@ class MyActivity extends React.PureComponent {
     if (type === 'eye') {
       router.push({
         pathname: `/MyActivity/${record.activityId}`,
-        query: { activityTplCode: record.activityTplCode },
       });
     } else if (type === 'upload') {
       this.uploadProps = {
@@ -241,11 +311,9 @@ class MyActivity extends React.PureComponent {
           id: 'COMMON_DOWNLOAD',
         }),
         type: 'audit',
+        okText: formatMessage({ id: 'COMMON_OK' }),
         record,
         onCancel: () => {
-          this.handleModal('downloadVisible', false);
-        },
-        onNext: () => {
           this.handleModal('downloadVisible', false);
         },
       };
@@ -253,9 +321,103 @@ class MyActivity extends React.PureComponent {
     }
   };
 
-  showTotal(total) {
+  handleModalOk = () => {
+    const { dispatch, selectTaId, contractFileList, searchList } = this.props;
+    const newContractList = [];
+    if (!contractFileList || contractFileList.length <= 0) {
+      message.warn(formatMessage({ id: 'TA_UPLOAD_FILE_MSG' }), 10);
+      dispatch({
+        type: 'myActivity/save',
+        payload: {
+          contractFileList: newContractList,
+        },
+      });
+      return;
+    }
+    contractFileList.forEach(n => {
+      if (String(n.status) === 'done') {
+        newContractList.push({
+          name: n.name,
+          path: n.path,
+          sourceName: n.sourceName,
+        });
+      }
+    });
+    dispatch({
+      type: 'myActivity/fetchRegisterContractFile',
+      payload: {
+        taId: selectTaId,
+        contractList: newContractList || [],
+      },
+    }).then(flag => {
+      if (flag) {
+        this.qryMainTAList(searchList.currentPage, searchList.pageSize);
+        dispatch({
+          type: 'myActivity/save',
+          payload: {
+            contractFileList: [],
+            selectTaId: null,
+            modalVisible: false,
+          },
+        });
+      }
+    });
+  };
+
+  onHandleContractFileChange = (contractFile, isDel) => {
+    const { dispatch, contractFileList = [] } = this.props;
+    let newContractFileList = [];
+    if (contractFileList && contractFileList.length > 0) {
+      newContractFileList = [...contractFileList].filter(
+        n => String(n.uid) !== String(contractFile.uid)
+      );
+    }
+    if (!isDel && String(contractFile.status) !== 'removed') {
+      newContractFileList.push(contractFile);
+    }
+    dispatch({
+      type: 'myActivity/save',
+      payload: {
+        contractFileList: newContractFileList,
+      },
+    });
+  };
+
+  onHandleDelContactFile = (file, fileType) => {
+    const { dispatch, contractFileList = [] } = this.props;
+    dispatch({
+      type: 'taMgr/fetchDeleteTAFile',
+      payload: {
+        fileName: file.name,
+        path: file.filePath,
+        filePath: file.filePath,
+      },
+    }).then(flag => {
+      if (flag && String(fileType) === 'contractFile') {
+        this.onHandleContractFileChange(file, true);
+      }
+      if (!flag && String(fileType) === 'contractFile') {
+        let newContractFileList = [];
+        if (contractFileList && contractFileList.length > 0) {
+          newContractFileList = [...contractFileList].filter(
+            n => String(n.uid) !== String(file.uid)
+          );
+        }
+        file.status = 'error';
+        newContractFileList.push(file);
+        dispatch({
+          type: 'myActivity/save',
+          payload: {
+            contractFileList: newContractFileList,
+          },
+        });
+      }
+    });
+  };
+
+  showTotal = total => {
     return <div>Total {total} items</div>;
-  }
+  };
 
   render() {
     const {
@@ -270,6 +432,8 @@ class MyActivity extends React.PureComponent {
         statusList,
         templateList,
         downloadVisible,
+        contractFileList = [],
+        contractFileUploading = false,
       },
     } = this.props;
     const pagination = {
@@ -291,6 +455,12 @@ class MyActivity extends React.PureComponent {
         url: null,
       },
     ];
+    const myFileProps = {
+      contractFileList,
+      contractFileUploading,
+      onHandleContractFileChange: this.onHandleContractFileChange,
+      onHandleDelContactFile: this.onHandleDelContactFile,
+    };
     return (
       <Row type="flex" justify="space-around" id="myActivity">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
@@ -323,7 +493,7 @@ class MyActivity extends React.PureComponent {
                         placeholder={formatMessage({ id: 'ACTIVITY_TYPE' })}
                         optionFilterProp="children"
                         style={{ width: '100%' }}
-                        // allowClear=true
+                        allowClear
                       >
                         {templateList.map(record => (
                           <Option
@@ -357,9 +527,10 @@ class MyActivity extends React.PureComponent {
                 </Col>
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
-                    {getFieldDecorator('status', {
-                      // initialValue: this.handleInitVal('status'),
-                    })(
+                    {getFieldDecorator(
+                      'status',
+                      {}
+                    )(
                       <Select
                         placeholder={formatMessage({ id: 'STATUS' })}
                         optionFilterProp="children"
@@ -367,32 +538,81 @@ class MyActivity extends React.PureComponent {
                         allowClear
                       >
                         {statusList.map(record => (
-                          <Option key={`status_option_${record.status}`} value={record.status}>
-                            {record.statusName}
+                          <Option key={`status_option_${record.code}`} value={record.code}>
+                            {record.value}
                           </Option>
                         ))}
                       </Select>
                     )}
                   </Form.Item>
                 </Col>
-                <Col {...ColProps} style={{ textAlign: 'right' }}>
-                  <Button type="primary" htmlType="submit">
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator(
+                      'activityId',
+                      {}
+                    )(
+                      <Input
+                        allowClear
+                        placeholder={formatMessage({ id: 'ACTIVITY_ID' })}
+                        autoComplete="off"
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={24} style={{ paddingTop: '15px' }}>
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator(
+                      'businessId',
+                      {}
+                    )(
+                      <Input
+                        allowClear
+                        placeholder={formatMessage({ id: 'BUSINESS_ID' })}
+                        autoComplete="off"
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col span={18} style={{ textAlign: 'right', paddingRight: '24px' }}>
+                  <Button type="primary" htmlType="submit" style={{ marginRight: 15 }}>
                     {formatMessage({ id: 'BTN_SEARCH' })}
                   </Button>
-                  <Button style={{ marginLeft: 8 }} onClick={this.handleReset}>
-                    {formatMessage({ id: 'BTN_RESET' })}
-                  </Button>
+                  <Button onClick={this.handleReset}>{formatMessage({ id: 'BTN_RESET' })}</Button>
                 </Col>
               </Row>
             </Form>
           </Card>
         </Col>
-        {uploadVisible && <UploadModal {...this.uploadProps} />}
+        <Modal
+          title={formatMessage({ id: 'TA_UPLOAD_CONTRACT' })}
+          visible={uploadVisible}
+          onOk={this.handleModalOk}
+          confirmLoading={contractFileUploading}
+          onCancel={this.handleModalCancel}
+          footer={[
+            <Button key="back" loading={contractFileUploading} onClick={this.handleModalCancel}>
+              {formatMessage({ id: 'COMMON_CANCEL' })}
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={contractFileUploading}
+              onClick={this.handleModalOk}
+            >
+              {formatMessage({ id: 'COMMON_OK' })}
+            </Button>,
+          ]}
+        >
+          <UploadContractComp {...myFileProps} />
+        </Modal>
         {downloadVisible && <MyActivityDownload {...this.downloadProps} />}
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
             <Table
-              rowKey="id"
+              rowKey={record => `activityList${record.activityId}`}
               bordered={false}
               size="small"
               dataSource={approvalList}

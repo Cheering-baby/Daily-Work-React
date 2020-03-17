@@ -55,7 +55,7 @@ class MainTAManagement extends PureComponent {
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
-        url: '/TAManagement/MainTAManagement/',
+        url: '/TAManagement/MainTAManagement',
       },
       {
         breadcrumbName: formatMessage({ id: 'MENU_TA_MAIN_MANAGEMENT' }),

@@ -5,6 +5,69 @@
   letter-spacing: 0.24px;
 }
 
+.basicInfoContent {
+  margin-bottom: 6px;
+
+  > div:not(.basicInfoInput) {
+    padding: 4px;
+  }
+
+  > div:nth-child(1) {
+    text-align: right;
+    font-family: Calibri;
+    font-size: 15px;
+    color: #858585;
+  }
+
+  > div:nth-child(2):not(.basicInfoInput) {
+    font-family: Calibri;
+    font-size: 15px;
+    color: #3B414A;
+  }
+
+  .basicInfoInput {
+    padding: 0 4px;
+    margin-top: -3px
+  }
+}
+
+.formatTime {
+  position: relative;
+  .time {
+    position: absolute;
+    background-color: #fff;
+    top: 9px;
+    left: 10px;
+    height: 20px;
+    width: 100px;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.formatPadding {
+  :global {
+    .ant-calendar-picker-input {
+      padding-left: 24px;
+    }
+  }
+}
+
+.cardDeliverStyles {
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  :global {
+    .ant-card-body {
+      padding: 0 !important;
+    }
+  }
+  .titleBlack {
+    font-family: calibriBold;
+    font-size: 14px;
+    color: #171B21;
+    margin-bottom: 6px;
+  }
+}
+
 .cardStyles {
   :global {
     .ant-card-body {
@@ -175,3 +238,35 @@
     right: 15px;
   }
 }
+
+.payModelIconDiv {
+  text-align: center;
+  :global {
+    .anticon-check-circle {
+      background-color: #fff !important;
+    }
+  }
+  .payModelIcon {
+    font-size: 60px;
+  }
+}
+.payModelP {
+  margin-top: 18px;
+  font-family: Calibri;
+  font-size: 15px;
+  color: #3B414A;
+  letter-spacing: 0.24px;
+  text-align: center;
+  line-height: 22px;
+}
+.payModelBtnRow {
+  margin-top: 18px;
+  text-align: center;
+  .payModelOneBtn {
+    padding: 0 36px;
+  }
+  .payModelTwoBtn {
+    margin-left: 20px;
+  }
+}
+

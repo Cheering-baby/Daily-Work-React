@@ -2,25 +2,32 @@ import React, { PureComponent } from 'react';
 import { Col, Collapse, Icon, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
+import moment from 'moment';
 import styles from './TASignUpDetails.less';
 
 const { Panel } = Collapse;
 const colParams = {
   xs: 24,
   md: 12,
-  // lg: 8,
 };
 
-@connect(({ activityDetail }) => ({
-  activityDetail,
+@connect(({ taSignUpDetails }) => ({
+  taSignUpDetails,
 }))
 class TASignUpDetails extends PureComponent {
   componentDidMount() {
-    const { dispatch, content } = this.props;
+    const { dispatch, businessId } = this.props;
     dispatch({
-      type: 'activityDetail/queryMappingDetail',
+      type: 'taSignUpDetails/queryMappingDetail',
       payload: {
-        content,
+        taId: businessId,
+      },
+    });
+
+    dispatch({
+      type: 'taSignUpDetails/queryContractInfo',
+      payload: {
+        taId: businessId,
       },
     });
   }
@@ -39,7 +46,7 @@ class TASignUpDetails extends PureComponent {
       </div>
     );
     const {
-      activityDetail: { queryMappingInfo },
+      taSignUpDetails: { queryMappingInfo, contractInfo },
     } = this.props;
     // const stepsIcon = <div className={styles.circelStyle} />;
     return (
@@ -63,7 +70,7 @@ class TASignUpDetails extends PureComponent {
                   </Col>
                   <Col {...colParams}>
                     <div>
-                      <span>FSDFSF</span>
+                      <span>{contractInfo ? contractInfo.uploadedBy : ''}</span>
                     </div>
                   </Col>
                 </Row>
@@ -77,7 +84,9 @@ class TASignUpDetails extends PureComponent {
                   </Col>
                   <Col {...colParams}>
                     <div>
-                      <span>FSDFSF</span>
+                      <span>
+                        {contractInfo ? moment(contractInfo.uploadedTime).format('YYYY-MM-DD') : ''}
+                      </span>
                     </div>
                   </Col>
                 </Row>
@@ -86,12 +95,22 @@ class TASignUpDetails extends PureComponent {
                 <Row gutter={10}>
                   <Col {...colParams} className={styles.detailRightStyle}>
                     <div>
-                      <span>{formatMessage({ id: 'TA_SIGNED_REGISTRATION_DOCS' })}</span>
+                      <span>{formatMessage({ id: 'TA_SIGNED_REGISTERATION_DOCS' })}</span>
                     </div>
                   </Col>
                   <Col {...colParams}>
-                    <div>
-                      <span>FSDFSF</span>
+                    <div className={styles.detailLeftStyle}>
+                      {contractInfo &&
+                        contractInfo.fileList &&
+                        contractInfo.fileList.length > 0 &&
+                        contractInfo.fileList.map(item => (
+                          <div key={item.field + Math.random()} className={styles.uploadListItem}>
+                            <div className={styles.uploadListItemInfo}>
+                              <Icon type="paper-clip" className={styles.uploadPaperClip} />
+                              <span className={styles.uploadListItemName}>{item.sourceName}</span>
+                            </div>
+                          </div>
+                        ))}
                     </div>
                   </Col>
                 </Row>
@@ -121,7 +140,7 @@ class TASignUpDetails extends PureComponent {
                   </Col>
                   <Col {...colParams}>
                     <div>
-                      <span>FSDFSF</span>
+                      <span>{queryMappingInfo ? queryMappingInfo.companyName : ''}</span>
                     </div>
                   </Col>
                 </Row>

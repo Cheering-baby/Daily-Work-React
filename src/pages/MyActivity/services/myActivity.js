@@ -1,11 +1,9 @@
-import axios from 'axios';
-import {stringify} from 'qs';
+import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-// const rwsUrl = 'http://10.25.159.199:18091/pams';
 export async function approvalList(data) {
   return UAAService.request(
-    `/proxy/ali/pams/user/v1/activity/queryActivityList?${stringify(data)}`,
+    `/proxy/ali/b2b/user/v1/activity/queryActivityList?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -14,16 +12,7 @@ export async function approvalList(data) {
 
 export async function queryDetail(data) {
   return UAAService.request(
-    `/proxy/ali/pams/user/v1/activity/queryActivityDetail?${stringify(data)}`,
-    {
-      method: 'GET',
-    }
-  );
-}
-
-export async function createActivity(data) {
-  return UAAService.request(
-    `/proxy/ali/pams/user/v1/activity/createActivity?${stringify(data)}`,
+    `/proxy/ali/b2b/user/v1/activity/queryActivityDetail?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -31,44 +20,86 @@ export async function createActivity(data) {
 }
 
 export async function accept(data) {
-  return UAAService.request(`/proxy/ali/pams/user/v1/activity/accept`, {
+  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/accept`, {
     method: 'POST',
     body: data,
   });
 }
 
 export async function reject(data) {
-  return UAAService.request(`/proxy/ali/pams/user/v1/activity/reject`, {
+  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/reject`, {
     method: 'POST',
     body: data,
   });
 }
 
 export async function reroute(data) {
-  return UAAService.request(`/proxy/ali/pams/user/v1/activity/reroute`, {
+  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/reroute`, {
+    method: 'POST',
+    body: data,
+  });
+}
+
+export async function upload(data) {
+  return UAAService.request(`/common/upload`, {
     method: 'POST',
     body: data,
   });
 }
 
 export async function queryMappingDetail(taId) {
-  return UAAService.request(`/proxy/ali/pams/profile/queryMappingInfo?taId=${taId}`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryMappingInfo?taId=${taId}`, {
     method: 'GET',
   });
 }
 
-export async function statusList(data) {
-  return axios({
-    url: `/pams/api/status`,
+export async function registerContractFile(params) {
+  return UAAService.request(`/contract/registerContractFile`, {
     method: 'POST',
-    data,
+    body: {
+      ...params,
+    },
   });
 }
 
-export async function templateList(data) {
-  return axios({
-    url: `/pams/api/templateList`,
+export async function taInfo(taId) {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryTaInfo?taId=${taId}`, {
+    method: 'GET',
+  });
+}
+
+export async function queryContractInfo(taId) {
+  return UAAService.request(`/proxy/ali/b2b/contract/queryContractInfo?taId=${taId}`, {
+    method: 'GET',
+  });
+}
+
+export async function downloadFile(params) {
+  return UAAService.request(`/common/downloadFile`, {
     method: 'POST',
-    data,
+    body: {
+      ...params,
+    },
+  });
+}
+
+export async function statusList(type) {
+  return UAAService.request(
+    `/proxy/ali/b2b/user/v1/activity/queryActivityDict?dictType=ActivityStatus`,
+    {
+      method: 'GET',
+    }
+  );
+}
+
+export async function templateList(data) {
+  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/queryTemplateList`, {
+    method: 'GET',
+  });
+}
+
+export async function queryRerouteList() {
+  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/queryRerouteList`, {
+    method: 'GET',
   });
 }

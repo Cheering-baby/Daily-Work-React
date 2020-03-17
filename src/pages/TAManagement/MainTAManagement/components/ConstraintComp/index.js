@@ -172,8 +172,8 @@ class ConstraintComp extends PureComponent {
         <Drawer
           id={`${viewId}`}
           title={formatMessage({ id: 'ADDITIONAL_INFORMATION' })}
-          width={320}
-          closable={false}
+          className={styles.additionalConstraintDrawer}
+          onClose={this.onClose}
           visible={constraintVisible}
           bodyStyle={{ padding: '8px' }}
         >
@@ -301,10 +301,10 @@ class ConstraintComp extends PureComponent {
                         {salesPersonList && salesPersonList.length > 0
                           ? salesPersonList.map(item => (
                             <Select.Option
-                              key={`salesPersonList${item.dictId}`}
-                              value={`${item.dictId}`}
+                              key={`salesPersonList${item.userCode}`}
+                              value={`${item.userCode}`}
                             >
-                              {item.dictName}
+                              {item.userCode}
                             </Select.Option>
                             ))
                           : null}

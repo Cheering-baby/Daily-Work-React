@@ -1,16 +1,17 @@
-/* eslint-disable */
 import React from 'react';
-import { Col, Row, Input, Tree, Icon, Card, Button, Spin } from 'antd';
+import { Button, Card, Icon, Input, Spin, Tree } from 'antd';
 import { formatMessage } from 'umi/locale';
-import styles from '../index.less';
 import { connect } from 'dva';
+import styles from '../index.less';
+import constants from '../constants';
+import { checkAuthority } from '@/utils/authority';
 
 const { Search } = Input;
 const { TreeNode } = Tree;
 
 const getParentKey = (key, tree) => {
   let parentKey;
-  for (let i = 0; i < tree.length; i++) {
+  for (let i = 0; i < tree.length; i += 1) {
     const node = tree[i];
     if (node.subOrgs) {
       if (node.subOrgs.some(item => item.code === key)) {
@@ -23,22 +24,18 @@ const getParentKey = (key, tree) => {
   return parentKey;
 };
 
-@connect(({ orgManagement, loading }) => ({
-  orgManagement,
-  loadTreeFlag: loading.effects['orgManagement/queryUserOrgTree'],
+@connect(({ orgMgr, global, loading }) => ({
+  orgMgr,
+  global,
+  loadTreeFlag: loading.effects['orgMgr/queryUserOrgTree'] || loading.effects['orgMgr/queryAllTAs'],
 }))
 class OrgTree extends React.Component {
-  componentDidMount() {
-    const { dispatch } = this.props;
-  }
-
   onExpand = expandedKeys => {
-    console.log('onExpand', expandedKeys);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
     const { dispatch } = this.props;
     dispatch({
-      type: 'orgManagement/saveData',
+      type: 'orgMgr/saveData',
       payload: {
         expandedKeys,
         autoExpandParent: false,
@@ -54,29 +51,37 @@ class OrgTree extends React.Component {
     } = info;
     const {
       dispatch,
-      orgManagement: {
+      orgMgr: {
         selectedOrg: { code = '' },
       },
+      global: { pagePrivileges = [] },
     } = this.props;
     if (code === dataRef.code) {
       return;
     }
+
+    const privilege =
+      checkAuthority(pagePrivileges, constants.MAIN_TA_PRIVILEGE) ||
+      checkAuthority(pagePrivileges, constants.SUB_TA_PRIVILEGE);
+
     dispatch({
-      type: 'orgManagement/saveData',
+      type: 'orgMgr/saveData',
       payload: {
         selectedKeys,
         selectedOrg: dataRef,
       },
     }).then(() => {
-      dispatch({
-        type: 'orgManagement/queryUsersInOrg',
-      });
+      if (privilege) {
+        dispatch({
+          type: 'orgMgr/queryUsersInOrg',
+        });
+      }
     });
   };
 
   renderTreeNodes = data => {
     const {
-      orgManagement: { searchValue = '' },
+      orgMgr: { searchValue = '' },
     } = this.props;
     return data.map(item => {
       const index = item.orgName.indexOf(searchValue);
@@ -104,7 +109,7 @@ class OrgTree extends React.Component {
           key={item.code}
           title={this.getTreeNodeTitle(title, item)}
           dataRef={item}
-          className={'treeNodeClass'}
+          className="treeNodeClass"
         />
       );
     });
@@ -112,7 +117,7 @@ class OrgTree extends React.Component {
 
   getTreeNodeTitle = (title, item) => {
     const {
-      orgManagement: {
+      orgMgr: {
         selectedOrg: { code = '' },
       },
     } = this.props;
@@ -129,7 +134,7 @@ class OrgTree extends React.Component {
   modifyOrg = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'orgManagement/saveData',
+      type: 'orgMgr/saveData',
       payload: {
         drawerShowFlag: true,
         operType: 'MODIFY_USER_ORG',
@@ -139,7 +144,7 @@ class OrgTree extends React.Component {
 
   onChange = e => {
     const {
-      orgManagement: { orgTree = [], orgList = [] },
+      orgMgr: { orgTree = [], orgList = [] },
     } = this.props;
     const { value } = e.target;
     const expandedKeys = orgList
@@ -152,7 +157,7 @@ class OrgTree extends React.Component {
       .filter((item, i, self) => item && self.indexOf(item) === i);
     const { dispatch } = this.props;
     dispatch({
-      type: 'orgManagement/saveData',
+      type: 'orgMgr/saveData',
       payload: {
         expandedKeys,
         searchValue: value,
@@ -162,21 +167,12 @@ class OrgTree extends React.Component {
   };
 
   getAddOrgBtn = () => {
-    return (
-      <Button type="link" className={styles.addBtnClass}>
-        {formatMessage({ id: 'ADD_BTN_TEXT' })}
-      </Button>
-    );
+    return <Button style={{ visibility: 'hidden' }} />;
   };
 
   render() {
     const {
-      orgManagement: {
-        orgTree = [],
-        expandedKeys = [],
-        autoExpandParent = true,
-        selectedKeys = [],
-      },
+      orgMgr: { orgTree = [], expandedKeys = [], autoExpandParent = true, selectedKeys = [] },
       loadTreeFlag = false,
     } = this.props;
 

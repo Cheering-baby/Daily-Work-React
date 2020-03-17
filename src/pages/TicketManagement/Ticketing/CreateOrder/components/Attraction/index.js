@@ -167,7 +167,7 @@ class Attraction extends Component {
       orderInfo.push({
         ageGroup,
         quantity: ticketNumber,
-        pricePax: price,
+        pricePax: price / ticketNumber,
         productInfo: attractionProduct[0],
       });
       const orderData = {

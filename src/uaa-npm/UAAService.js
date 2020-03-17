@@ -20,7 +20,7 @@ class UAAService extends CommonService {
    * @param appCode
    * @returns {Promise<{redirect: boolean, redirectUrl: string, success: boolean, accessToken: string, userGivenName: string, refreshToken: string, username: string, userSurname: string}>}
    */
-  async login(userCode, password, appCode) {
+  async login(userCode, password, appCode, loginType, agentId) {
     let result = {
       success: false,
       accessToken: '',
@@ -38,8 +38,9 @@ class UAAService extends CommonService {
         username: userCode,
         password: Base64.encode(password),
         appcode: appCode,
-        loginType: '01',
-        agentId: '01',
+        appCode,
+        loginType,
+        agentId,
       }),
       withCredentials: this.defaults.withCredentials,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
@@ -58,10 +59,11 @@ class UAAService extends CommonService {
    * Determine whether the user has logged in
    * @returns {Promise<void>}
    */
-  async postLogin() {
+  async postLogin(params) {
     let result = {};
 
     const { success, errorMsg, data } = await this.request('/v1/postLogin', {
+      params,
       withCredentials: this.defaults.withCredentials,
     });
 

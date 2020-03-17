@@ -2,7 +2,7 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { Modal, Form, Button, Input } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
 
 import styles from './topup.less';
 
@@ -20,25 +20,38 @@ const formItemLayout = {
 };
 
 @Form.create()
-@connect(({ myWallet }) => ({
+@connect(({ myWallet, topup, loading }) => ({
   myWallet,
+  topup,
+  loading: loading.effects['topup/featchTopup'],
 }))
-class Topup extends React.PureComponent {
+class Arapply extends React.PureComponent {
   state = {
-    loading: false,
     visible: false,
   };
 
-  componentDidMount() {
-    this.props.onRef(this);
-  }
+  componentDidMount() {}
 
-  open = () => {
+  handleClick = () => {
     this.setState({ visible: true });
   };
 
-  handlerOk = e => {
-    this.setState({ visible: false });
+  handleOk = e => {
+    const { dispatch, form } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        dispatch({
+          type: 'topup/featchTopup',
+          payload: values,
+          callback: (result = {}) => {
+            if (!result || !result.paymentPageUrl) return;
+            const w = window.open('about:blank');
+            w.location.href = result.paymentPageUrl;
+            // this.setState({ visible: false });
+          },
+        });
+      }
+    });
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -47,9 +60,11 @@ class Topup extends React.PureComponent {
   };
 
   render() {
-    const vm = this;
-    const { getFieldDecorator } = vm.props.form;
-    const { visible, loading } = this.state;
+    const {
+      form: { getFieldDecorator },
+      loading,
+    } = this.props;
+    const { visible } = this.state;
     const {
       myWallet: { account = {} },
     } = this.props;
@@ -70,26 +85,36 @@ class Topup extends React.PureComponent {
       ],
     };
     return (
-      <Modal {...modelProps}>
-        <Form {...formItemLayout}>
-          <Form.Item {...formItemLayout} label="Ewallet Balanc">
-            {' '}
-            <span className={`${styles.labelValue} ${styles.colorOrange}`}>${eWallet.balance}</span>
-          </Form.Item>
-          <Form.Item {...formItemLayout} label="Topup Amount">
-            {getFieldDecorator(`topup_amount`, {
-              rules: [
-                {
-                  required: true,
-                  message: '',
-                },
-              ],
-            })(<Input placeholder="amount" allowClear />)}
-          </Form.Item>
-        </Form>
-      </Modal>
+      <React.Fragment>
+        <Button type="primary" className={styles.button} onClick={this.handleClick}>
+          {formatMessage({ id: 'TOPUP' })}
+        </Button>
+        <Modal {...modelProps}>
+          <Form {...formItemLayout}>
+            <Form.Item {...formItemLayout} label="Ewallet Balanc">
+              <span className={`${styles.labelValue} ${styles.colorOrange}`}>
+                ${eWallet.balance}
+              </span>
+            </Form.Item>
+            <Form.Item {...formItemLayout} label="Topup Amount">
+              {getFieldDecorator(`topupAmount`, {
+                rules: [
+                  {
+                    pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/,
+                    message: 'Please enter the topup amountxx',
+                  },
+                  {
+                    required: true,
+                    message: 'Please enter the topup amount',
+                  },
+                ],
+              })(<Input placeholder="Topup Amount" allowClear />)}
+            </Form.Item>
+          </Form>
+        </Modal>
+      </React.Fragment>
     );
   }
 }
 
-export default Topup;
+export default Arapply;

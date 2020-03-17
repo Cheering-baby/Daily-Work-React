@@ -43,7 +43,6 @@ export function getDefaultExpandedRowKeys(srcData, keys = []) {
       getDefaultExpandedRowKeys(item.children, keys);
     }
   }
-  console.log('keys: ', keys);
   return keys;
 }
 
@@ -62,7 +61,7 @@ export function getMenuTypeStr(menuTypeList, menuType) {
   let menuTypeStr = '';
   if (menuType && menuTypeList && menuTypeList.length > 0) {
     const typeInfo = menuTypeList.find(n => String(n.dicValue) === String(menuType)) || {};
-    menuTypeStr += typeInfo.dictName;
+    menuTypeStr += typeInfo.dicName;
   }
   return !isNvl(menuTypeStr) ? menuTypeStr : '-';
 }
