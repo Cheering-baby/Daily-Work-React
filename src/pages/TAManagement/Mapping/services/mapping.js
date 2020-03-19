@@ -1,37 +1,37 @@
-import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-export async function mappingList(pagination) {
-  return UAAService.request(
-    `/proxy/ali/b2b/profile/queryMappingList?pageInfo.pageSize=${pagination.pageSize}&pageInfo.currentPage=${pagination.currentPage}`,
-    {
-      method: 'GET',
-    }
-  );
+export async function mappingList(params) {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryMappingList`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
 }
 
-export async function like(filter, pagination) {
-  const paramstring = stringify({
-    'pageInfo.pageSize': pagination.pageSize,
-    'pageInfo.currentPage': pagination.currentPage,
-    'pageInfo.idOrName': pagination.idOrName,
-    'pageInfo.applicationBeginDate': pagination.applicationBeginDate,
-    'pageInfo.applicationEndDate': pagination.applicationEndDate,
-    'pageInfo.status': pagination.status,
-  });
-  const url = `/proxy/ali/b2b/profile/queryMappingList?${paramstring}`;
+// export async function like(filter, pagination) {
+//   const paramstring = stringify({
+//     'pageInfo.pageSize': pagination.pageSize,
+//     'pageInfo.currentPage': pagination.currentPage,
+//     'pageInfo.idOrName': pagination.idOrName,
+//     'pageInfo.applicationBeginDate': pagination.applicationBeginDate,
+//     'pageInfo.applicationEndDate': pagination.applicationEndDate,
+//     'pageInfo.status': pagination.status,
+//   });
+//   const url = `/proxy/ali/b2b/profile/queryMappingList?${paramstring}`;
+//   return UAAService.request(url, {
+//     method: 'GET',
+//   });
+// }
+
+export async function queryDictionary(params) {
+  let url = `/agent/common/queryDictionary?dictType=${params.dictType}`;
+  if (params.dictSubType) {
+    url += `&dictSubType=${params.dictSubType}`;
+  }
   return UAAService.request(url, {
     method: 'GET',
   });
-}
-
-export async function queryDictionary(params) {
-  return UAAService.request(
-    `/common/queryDictionary?dictType=${params.dictType}&dictSubType=${params.dictSubType}`,
-    {
-      method: 'GET',
-    }
-  );
 }
 
 export async function queryMappingDetail(taId) {

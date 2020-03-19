@@ -27,7 +27,13 @@ class MobileModal extends PureComponent {
     return modalOpts.visible === false ? null : (
       <div className={style.mobileModelWrapper}>
         <NavBar {...defaultProps}>{mobileModalOpts.title}</NavBar>
-        <div className={style.contentWrapper}>{children}</div>
+        <div
+          className={
+            modalOpts.footer === null ? style.contentWrapperNoFooter : style.contentWrapper
+          }
+        >
+          {children}
+        </div>
         {modalOpts.footer === null ? (
           ''
         ) : (

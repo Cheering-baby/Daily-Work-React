@@ -14,6 +14,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
+import { calculateProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -255,11 +256,13 @@ class ToCart extends Component {
                     const priceRuleFilter = priceRule.filter(
                       item2 => item2.priceRuleName === 'DefaultPrice'
                     );
+                    const { priceRuleId } = priceRule[1];
                     const currentPriceRule = priceRuleFilter[0];
                     const { productPrice } = currentPriceRule;
                     const { discountUnitPrice, productInventory } = productPrice[priceRuleIndex];
                     const ticketNumberLabel = `attractionProduct${index}`;
                     const maxProductInventory = this.calculateMaxTickets(index, productInventory);
+                    const priceShow = calculateProductPrice(item, priceRuleId);
                     return (
                       <Col span={24} className={styles.ageItem} key={productName}>
                         <Col span={12} className={styles.age}>
@@ -267,9 +270,7 @@ class ToCart extends Component {
                             {item.attractionProduct.ageGroup}
                           </span>
                           {companyType === '02' ? null : (
-                            <span style={{ color: '#171B21' }}>
-                              $ {discountUnitPrice.toFixed(2)}
-                            </span>
+                            <span style={{ color: '#171B21' }}>$ {priceShow.toFixed(2)}</span>
                           )}
                         </Col>
                         <Col span={6}>
@@ -292,7 +293,7 @@ class ToCart extends Component {
                                     this.changeTicketNumber(
                                       index,
                                       value,
-                                      productPrice,
+                                      priceShow,
                                       maxProductInventory
                                     )
                                   }
@@ -306,7 +307,7 @@ class ToCart extends Component {
                         </Col>
                         {companyType === '02' ? null : (
                           <Col span={6} className={styles.money}>
-                            $ {price || '0.00'}
+                            $ {price ? price.toFixed(2) : '0.00'}
                           </Col>
                         )}
                       </Col>

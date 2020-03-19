@@ -55,8 +55,10 @@ export default {
     *fetchQueryCityList({ payload }, { call, put }) {
       const reqParam = {
         dictType: '1002',
-        dictSubType: payload.countryId || '',
       };
+      if (payload.countryId) {
+        reqParam.dictSubType = payload.countryId;
+      }
       if (payload.isBil) {
         yield put({ type: 'save', payload: { bilCityLoadingFlag: true } });
       } else {
@@ -114,8 +116,10 @@ export default {
     *fetchQueryCustomerGroupList({ payload }, { call, put }) {
       const reqParam = {
         dictType: '1004',
-        dictSubType: payload.categoryId || '',
       };
+      if (payload.categoryId) {
+        reqParam.dictSubType = payload.categoryId;
+      }
       yield put({ type: 'save', payload: { customerGroupLoadingFlag: true } });
       const {
         data: { resultCode, resultMsg, result },
@@ -159,7 +163,7 @@ export default {
     },
     *fetchQrySalesPersonList(_, { call, put }) {
       const reqParam = {
-        market: '',
+        market: null,
       };
       yield put({ type: 'save', payload: { salesPersonLoadingFlag: true } });
       const {

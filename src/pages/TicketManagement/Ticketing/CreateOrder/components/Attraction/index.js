@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
+import { isNullOrUndefined } from 'util';
 import { Tabs, Table, Button, Tooltip, Icon, message } from 'antd';
-import { calculateTicketPrice, arrToString } from '../../../../utils/utils';
+import {
+  arrToString,
+  calculateAllProductPrice,
+  calculateProductPrice,
+} from '../../../../utils/utils';
 import styles from './index.less';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
 
 const { TabPane } = Tabs;
-@connect(({ ticketMgr, global }) => ({
+@connect(({ ticketMgr }) => ({
   ticketMgr,
-  global,
 }))
 class Attraction extends Component {
   constructor(props) {
@@ -122,7 +126,7 @@ class Attraction extends Component {
       (testReg.test(value) && value <= productInventory)
     ) {
       attractionProductCopy[index].ticketNumber = value;
-      attractionProductCopy[index].price = calculateTicketPrice(value, productPrice);
+      attractionProductCopy[index].price = value * productPrice;
       dispatch({
         type: 'ticketMgr/save',
         payload: {
@@ -178,14 +182,14 @@ class Attraction extends Component {
           numOfGuests,
         },
         orderInfo,
-        offerInfo: { ...detail },
+        offerInfo: {...detail},
         deliveryInfo: deliverInfomation,
       };
       dispatch({
         type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
-        payload: {
+        payload:{
           orderIndex: null,
-          orderData,
+          orderData
         },
       });
     } else {
@@ -205,7 +209,7 @@ class Attraction extends Component {
           numOfGuests,
         },
         orderInfo,
-        offerInfo: { ...detail },
+        offerInfo: {...detail},
         deliveryInfo: deliverInfomation,
       };
       dispatch({
@@ -230,9 +234,6 @@ class Attraction extends Component {
         countrys,
         deliverInfomation = {},
       },
-      global: {
-        userCompanyInfo: { companyType },
-      },
     } = this.props;
     const ticketTypeItems = [];
     const descriptionItems = [];
@@ -250,6 +251,7 @@ class Attraction extends Component {
         width: '40%',
         render: record => {
           const {
+            bundleName,
             detail: {
               offerBasicInfo: { offerName },
             },
@@ -260,7 +262,7 @@ class Attraction extends Component {
               placement="topLeft"
               overlayStyle={{ whiteSpace: 'pre-wrap' }}
             >
-              <span style={{ whiteSpace: 'pre' }}>{offerName}</span>
+              <span style={{ whiteSpace: 'pre' }}>{bundleName || offerName}</span>
             </Tooltip>
           );
         },
@@ -270,22 +272,43 @@ class Attraction extends Component {
         key: 'Price',
         align: 'right',
         render: record => {
+          const {
+            bundleName,
+            offers = [],
+            detail: { priceRuleId },
+          } = record;
+          if (!isNullOrUndefined(bundleName)) {
+            return (
+              <div>
+                {offers.map(offerItem => {
+                  const {
+                    attractionProduct: attractionProductItems = [],
+                    detail: {
+                      offerBasicInfo: { offerName, offerNo },
+                      priceRuleId: offerPriceRuleId,
+                    },
+                  } = offerItem;
+                  return (
+                    <div key={offerNo} className={styles.productPrice}>
+                      <div>{offerName}</div>
+                      <div>
+                        From $ {calculateAllProductPrice(attractionProductItems, offerPriceRuleId)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
           return (
             <div>
               {record.attractionProduct.map(item => {
-                let price;
-                const { productNo, priceRule } = item;
+                const { productNo } = item;
                 const { ageGroup } = item.attractionProduct;
-                priceRule.forEach(item2 => {
-                  const { priceRuleName, productPrice } = item2;
-                  if (priceRuleName === 'DefaultPrice') {
-                    price = productPrice[0].discountUnitPrice;
-                  }
-                });
                 return (
                   <div key={productNo} className={styles.productPrice}>
                     <div>{ageGroup}</div>
-                    <div>From ${price.toFixed(2)}</div>
+                    <div>From ${calculateProductPrice(item, priceRuleId)}</div>
                   </div>
                 );
               })}
@@ -299,59 +322,6 @@ class Attraction extends Component {
         width: '10%',
         render: () => {
           return <div />;
-        },
-      },
-      {
-        title: 'Operation',
-        key: 'Operation',
-        width: '30%',
-        render: (_, record) => {
-          return (
-            <div className={styles.operation}>
-              <Tooltip title="Detail">
-                <Icon
-                  type="eye"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.viewDetail(record);
-                  }}
-                  style={{ marginRight: '10px' }}
-                />
-              </Tooltip>
-              <Button
-                type="primary"
-                onClick={e => {
-                  e.stopPropagation();
-                  this.showToCart(record);
-                }}
-              >
-                Add to Cart
-              </Button>
-            </div>
-          );
-        },
-      },
-    ];
-    const columns2 = [
-      {
-        title: 'Offer Name',
-        key: 'name',
-        width: '40%',
-        render: record => {
-          const {
-            detail: {
-              offerBasicInfo: { offerName },
-            },
-          } = record;
-          return (
-            <Tooltip
-              title={offerName}
-              placement="topLeft"
-              overlayStyle={{ whiteSpace: 'pre-wrap' }}
-            >
-              <span style={{ whiteSpace: 'pre' }}>{offerName}</span>
-            </Tooltip>
-          );
         },
       },
       {
@@ -439,7 +409,7 @@ class Attraction extends Component {
                       {showDetail ? (
                         <Table
                           className={styles.table}
-                          columns={companyType === '02' ? columns2 : columns}
+                          columns={columns}
                           dataSource={products}
                           pagination={false}
                           rowKey={record => record.id}

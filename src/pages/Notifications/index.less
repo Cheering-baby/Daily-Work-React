@@ -1,29 +1,204 @@
+@prefix-cls: ~'@{ant-prefix}';
+
+.pageHeaderTitle {
+  margin-bottom: 0.5rem;
+}
+
 .formCardClass {
+  background: #FFF;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+
   :global {
-    .ant-card-body {
+    .@{prefix-cls}-card-body {
       padding-bottom: 7px !important;
     }
 
-    .ant-form-explain-holder {
+    .@{prefix-cls}-form-explain-holder {
       height: 0;
     }
+  }
+}
 
+.tableCardClass {
+  background: #FFF;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
 
+  .tableCardClassCol {
+    padding: 0 12px 12px;
+  }
+
+  .fileList {
+    font-size: 14px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 18px;
+    position: relative;
+    text-align: left;
+    padding-left: 5px;
+    word-break: break-all;
+    word-wrap: break-word;
+
+    .fileListItem {
+      position: relative;
+      height: 22px;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .fileListItemInfo {
+      height: 100%;
+      padding: 0 12px 0 4px;
+      -webkit-transition: background-color 0.3s;
+      transition: background-color 0.3s;
+
+      > span {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .fileListItemInfoPaperClip {
+      position: absolute;
+      top: 2px;
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 14px;
+      cursor: default;
+    }
+
+    .fileListItemName {
+      display: inline-block;
+      width: calc(100% - 70px);
+      padding-left: 22px;
+      overflow: hidden !important;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .fileListLenInfo {
+    font-size: 15px;
+    color: #171B21;
+    letter-spacing: 0;
+    position: relative;
+    text-align: left;
+    word-break: break-all;
+    word-wrap: break-word;
+
+    height: 100%;
+    padding: 0 12px 0 0;
+    -webkit-transition: background-color 0.3s;
+    transition: background-color 0.3s;
+
+    > span {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .fileListLenInfoPaperClip {
+      position: absolute;
+      top: 4px;
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 14px;
+      cursor: default;
+    }
+
+    .fileListLenItemName {
+      display: inline-block;
+      width: calc(100% - 50px);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.detailCardClass {
+  background: #FFF;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+
+  :global {
+    .@{prefix-cls}-card-head {
+      padding: 0 24px !important;
+      border: 0;
+    }
+
+    .@{prefix-cls}-card-head-title {
+      display: inline-block;
+      -ms-flex: 1 1;
+      flex: 1 1;
+      padding: 12px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-family: 'calibriBold';
+      font-size: 18px;
+      color: #3B414A;
+      letter-spacing: 0.29px;
+    }
+
+    .@{prefix-cls}-card-body {
+      padding: 0 15px 15px !important;
+    }
+  }
+
+  .detailCardContentTop {
+    padding: 0 12px;
+
+    > span {
+      font-size: 15px;
+      color: #C0C0C0;
+      letter-spacing: 0.24px;
+      line-height: 22px;
+      margin-right: 1rem;
+      word-wrap: break-word;
+    }
+  }
+
+  .detailCardContent {
+    font-size: 15px;
+    color: #3B414A;
+    letter-spacing: 0.24px;
+    line-height: 22px;
+    word-wrap: break-word;
+    padding: 12px;
+  }
+}
+
+.searchTitle {
+  border: 0;
+
+  :global {
+    .@{prefix-cls}-table-title {
+      padding: 10px 0 !important;
+    }
+
+    .@{prefix-cls}-table-row {
+      overflow: hidden;
+
+      :hover {
+        overflow: initial;
+      }
+    }
+
+    th div {
+      font-weight: 600;
+    }
   }
 }
 
 .tableClass {
 
   :global {
-    .ant-table-wrapper {
+    .@{prefix-cls}-table-wrapper {
       border: 0 !important;
     }
 
-    .ant-table-expanded-row > td {
+    .@{prefix-cls}-table-expanded-row > td {
       padding: 0 !important;
     }
 
-    .ant-table-expanded-row td, th {
+    .@{prefix-cls}-table-expanded-row td, th {
       background-color: #F8F8F8 !important;
       font-size: 15px !important;
       color: #565656 !important;
@@ -32,40 +207,65 @@
   }
 }
 
+.notificationEditCard {
+  background: #FFF;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+
+  .titleLabelItem {
+    :global {
+      .@{prefix-cls}-form-item-children {
+        width: calc(100% + 100px);
+      }
+
+      .@{prefix-cls}-input-group-compact {
+        width: calc(100% + 100px);
+      }
+    }
+  }
+
+  .titleItem {
+    width: calc(100% - 100px);
+  }
+
+  .fileUploadBtn {
+    background: #FFF;
+    border: 1px solid #D9D9D9 !important;
+    border-radius: 4px;
+  }
+
+  .fileUploadBtn:hover {
+    color: #4db9e8;
+    border: 1px solid #4db9e8 !important;
+  }
+
+  .fileUploadBtn:focus {
+    color: #4db9e8;
+    border: 1px solid #4db9e8 !important;
+  }
+
+
+  .templateSelect {
+    margin-left: 10px;
+    line-height: 32px;
+    width: 90px;
+  }
+}
+
+.templatePopover {
+  :global {
+    .@{prefix-cls}-popover-inner-content {
+      padding: 0 !important;
+    }
+  }
+}
+
+
 .iconClass {
   margin-right: 5px;
 }
 
-
-.flagStyle3 {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: #FF9A1B;
-  border-radius: 3px;
-  margin-right: 6px;
-}
-
-.flagStyle2 {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: #40c940;
-  border-radius: 6px;
-  margin-right: 6px;
-}
-
-.flagStyle1 {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: #c0c0c0;
-  border-radius: 6px;
-  margin-right: 6px;
-}
-
 .title {
-  font-family: Calibri-Bold;
+  font-family: 'calibriBold';
   font-size: 14px;
   color: #3B414A;
   letter-spacing: 0.23px;
@@ -74,7 +274,7 @@
 
 .note {
   display: block;
-  font-family: Calibri;
+  font-family: 'calibri';
   font-size: 15px;
   color: #C0C0C0;
   letter-spacing: 0.24px;
@@ -85,6 +285,18 @@
   :global {
     .ql-editor {
       height: 190px;
+    }
+
+    .ql-toolbar {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      border-color: #d9d9d9;
+    }
+
+    .ql-container {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+      border-color: #d9d9d9;
     }
   }
 }
@@ -107,13 +319,19 @@
 .extension {
   margin-left: 25px;
   display: block;
-  font-family: Calibri;
+  font-family: 'calibri';
   font-size: 15px;
   color: #C0C0C0;
   letter-spacing: 0.24px;
   line-height: 22px;
 }
 
-.templateSelect {
-  margin-left: 10px;
+.searchTemplate {
+  padding: 12px 0 1rem;
+
+  input {
+    background: #FFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 4px !important;
+  }
 }

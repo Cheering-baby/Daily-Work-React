@@ -95,6 +95,12 @@ class CustomerInformationToSignUp extends PureComponent {
         Object.assign(newCompanyInfo, sourceOne);
       }
     }
+    if (String(key) === 'registrationNo') {
+      dispatch({
+        type: 'taMgr/fetchCheckCompanyExist',
+        payload: { registrationNo: keyValue },
+      });
+    }
     if (String(key) === 'isGstRegIndicator') {
       form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
       form.setFieldsValue({ gstEffectiveDate: newCompanyInfo.gstEffectiveDate });

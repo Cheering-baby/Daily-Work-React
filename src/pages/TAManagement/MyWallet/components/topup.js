@@ -101,11 +101,11 @@ class Arapply extends React.PureComponent {
                 rules: [
                   {
                     pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/,
-                    message: 'Please enter the topup amountxx',
+                    message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MESSAGE' }),
                   },
                   {
                     required: true,
-                    message: 'Please enter the topup amount',
+                    message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MESSAGE' }),
                   },
                 ],
               })(<Input placeholder="Topup Amount" allowClear />)}

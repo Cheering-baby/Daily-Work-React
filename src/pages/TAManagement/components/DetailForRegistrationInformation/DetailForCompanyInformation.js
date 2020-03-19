@@ -135,7 +135,9 @@ const DetailForCompanyInformation = props => {
               <div className={styles.detailLeftStyle}>
                 <span>
                   {!isNvl(companyInfo.incorporationDate)
-                    ? moment(companyInfo.incorporationDate).format('DD-MMM-YYYY')
+                    ? moment(companyInfo.incorporationDate, 'YYYY-MM-DD HH:mm:ss').format(
+                        'DD-MMM-YYYY'
+                      )
                     : '-'}
                 </span>
               </div>
@@ -196,7 +198,9 @@ const DetailForCompanyInformation = props => {
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(companyInfo.gstEffectiveDate)
-                      ? moment(companyInfo.gstEffectiveDate).format('DD-MMM-YYYY')
+                      ? moment(companyInfo.gstEffectiveDate, 'YYYY-MM-DD HH:mm:ss').format(
+                          'DD-MMM-YYYY'
+                        )
                       : '-'}
                   </span>
                 </div>

@@ -18,6 +18,7 @@ class OrgInformation extends React.Component {
     this.columns = [
       {
         title: this.showTableTitle(formatMessage({ id: 'NO' })),
+        key: 'code',
         render: (text, record, index) => {
           return index + 1;
         },
@@ -70,6 +71,7 @@ class OrgInformation extends React.Component {
     this.memberColumns = [
       {
         title: this.showTableTitle(formatMessage({ id: 'NO' })),
+        key: 'seq',
         dataIndex: 'seq',
       },
       {
@@ -93,6 +95,7 @@ class OrgInformation extends React.Component {
       },
       {
         title: this.showTableTitle(formatMessage({ id: 'OPERATION' })),
+        key: 'id',
         render: (text, record) => {
           return (
             <div>
@@ -290,7 +293,7 @@ class OrgInformation extends React.Component {
     e.preventDefault();
     const {
       dispatch,
-      global: { currentUser = {}, companyInfo = {} },
+      global: { currentUser = {}, userCompanyInfo = {} },
     } = this.props;
     dispatch({
       type: 'orgMgr/saveData',
@@ -310,7 +313,7 @@ class OrgInformation extends React.Component {
         });
       }
       const { userType = '' } = currentUser;
-      const { companyId } = companyInfo;
+      const { companyId } = userCompanyInfo;
       // TODO 查询ta 的子公司
       if (userType === '02' && type === 'ADD_USER_ORG') {
         dispatch({

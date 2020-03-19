@@ -9,17 +9,19 @@ import RegistrationInformationToSubTaEdit from './components/RegistrationInforma
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import SCREEN from '@/utils/screen';
-import { isAdminRoleSub, isMainTaRoleSub } from '../utils/pubUtils';
+import {
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SUB_TA_ADMIN_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const { subTaId, subTaInfo, subTaInfoLoadingFlag, countryList } = store.subTaMgr;
-  const { pagePrivileges = [] } = store.global;
   return {
     subTaId,
     subTaInfo,
     subTaInfoLoadingFlag,
     countryList,
-    pagePrivileges,
   };
 };
 
@@ -70,7 +72,7 @@ class SubTAProfile extends PureComponent {
   };
 
   render() {
-    const { subTaInfo = {}, countryList = [], subTaInfoLoadingFlag, pagePrivileges } = this.props;
+    const { subTaInfo = {}, countryList = [], subTaInfoLoadingFlag } = this.props;
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_SUB_TA_MANAGEMENT' }),
@@ -81,8 +83,8 @@ class SubTAProfile extends PureComponent {
         url: null,
       },
     ];
-    const isMainTaRoleSubFlag = isMainTaRoleSub(pagePrivileges);
-    const isAdminRoleSubFlag = isAdminRoleSub(pagePrivileges);
+    const isMainTaRoleSubFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
+    const isAdminRoleSubFlag = hasAllPrivilege([SUB_TA_ADMIN_PRIVILEGE]);
     const isEdit = isMainTaRoleSubFlag || isAdminRoleSubFlag;
     const isProfile = true;
     return (

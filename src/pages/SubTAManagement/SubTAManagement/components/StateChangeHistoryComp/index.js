@@ -64,7 +64,7 @@ class StateChangeHistoryComp extends PureComponent {
       dataIndex: 'updatedTime',
       width: '20%',
       render: text => {
-        return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';
+        return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
       },
     },
     {
@@ -168,7 +168,7 @@ class StateChangeHistoryComp extends PureComponent {
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime).valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   disabledEndDate = endValue => {
@@ -177,7 +177,7 @@ class StateChangeHistoryComp extends PureComponent {
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime).valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   render() {
@@ -232,14 +232,14 @@ class StateChangeHistoryComp extends PureComponent {
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.stateCompCol}>
               {getFieldDecorator('updatedStartTime', {
                 initialValue: !isNvl(searchStateForm.updatedStartTime)
-                  ? moment(searchStateForm.updatedStartTime, 'YYYYMMDD')
+                  ? moment(searchStateForm.updatedStartTime, 'YYYY-MM-DD HH:mm:ss')
                   : null,
               })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.stateCompCol}>
               {getFieldDecorator('updatedEndTime', {
                 initialValue: !isNvl(searchStateForm.updatedEndTime)
-                  ? moment(searchStateForm.updatedEndTime, 'YYYYMMDD')
+                  ? moment(searchStateForm.updatedEndTime, 'YYYY-MM-DD HH:mm:ss')
                   : null,
               })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
             </Col>

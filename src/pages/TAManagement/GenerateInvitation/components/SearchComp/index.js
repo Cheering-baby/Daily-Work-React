@@ -74,7 +74,7 @@ class SearchComp extends Component {
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime).valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   disabledEndDate = endValue => {
@@ -83,7 +83,7 @@ class SearchComp extends Component {
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime).valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   resetSearch = () => {
@@ -168,14 +168,14 @@ class SearchComp extends Component {
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
             {getFieldDecorator('invitationStartDate', {
               initialValue: !isNvl(searchForm.invitationStartDate)
-                ? moment(searchForm.invitationStartDate, 'YYYYMMDD')
+                ? moment(searchForm.invitationStartDate, 'YYYY-MM-DD HH:mm:ss')
                 : null,
             })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
             {getFieldDecorator('invitationEndDate', {
               initialValue: !isNvl(searchForm.invitationEndDate)
-                ? moment(searchForm.invitationEndDate, 'YYYYMMDD')
+                ? moment(searchForm.invitationEndDate, 'YYYY-MM-DD HH:mm:ss')
                 : null,
             })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
           </Col>

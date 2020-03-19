@@ -4,6 +4,8 @@ import {
   addTAUser,
   modifyUser,
   queryAllCompany,
+  queryCompanyInfo,
+  queryDictionary,
   queryUserRolesByCondition,
   queryUsersByCondition,
   queryUsersInCompany,
@@ -19,6 +21,8 @@ export default {
       userCode: '',
       companyIds: [],
       orgCodes: [],
+      categoryId: '',
+      customerGroupId: '',
       pageSize: 10,
       currentPage: 1,
     },
@@ -28,6 +32,13 @@ export default {
     orgList: [],
     userFormOkDisable: false,
     userRoles: [],
+    companyDetailInfo: {},
+    categories: [],
+    customerGroups: [],
+    searchUserCode: undefined,
+    searchCompanyId: undefined,
+    searchCategoryId: undefined,
+    searchCustomerGroupId: undefined,
   },
   effects: {
     *queryUsersByCondition(_, { call, put, select }) {
@@ -74,7 +85,7 @@ export default {
               currentUserProfile: userProfiles[0],
             },
           });
-          const { userType = '' } = userProfiles[0];
+          const { userType = '', taInfo = {} } = userProfiles[0];
           yield put({
             type: 'queryUserRoles',
             payload: {
@@ -84,6 +95,15 @@ export default {
           yield put({
             type: 'queryAllCompany',
           });
+          if (userType === constants.TA_USER_TYPE) {
+            const { companyId } = taInfo;
+            yield put({
+              type: 'getTACompanyDetail',
+              payload: {
+                companyId,
+              },
+            });
+          }
         } else {
           message.warn(formatMessage({ id: 'USER_NOT_FOND' }), 10);
         }
@@ -113,11 +133,35 @@ export default {
       message.warn(resultMsg, 10);
       return false;
     },
+    *getTACompanyDetail({ payload }, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(queryCompanyInfo, { taId: payload.companyId });
+      if (resultCode === '0') {
+        yield put({
+          type: 'save',
+          payload: {
+            companyDetailInfo: result,
+          },
+        });
+      } else {
+        message.warn(resultMsg, 10);
+        yield put({
+          type: 'save',
+          payload: {
+            companyDetailInfo: {},
+          },
+        });
+      }
+    },
     *queryAllCompany(_, { call, put, select }) {
       const {
         currentUser: { userType = '' },
         userCompanyInfo = {},
       } = yield select(state => state.global);
+
+      const companyMap = new Map();
+
       if (constants.RWS_USER_TYPE === userType) {
         const currentCompany = {
           id: -1,
@@ -128,17 +172,16 @@ export default {
           data: { resultCode, resultMsg, result = [] },
         } = yield call(queryAllCompany);
         if (resultCode === '0') {
-          const companyMap = new Map();
           result.forEach(item => {
             Object.assign(item, {
               id: Number.parseInt(item.key, 10),
               companyName: `${item.value}(${constants.TA_TYPE})`,
               companyType: '01',
             });
-            companyMap.set(item.id, item);
+            companyMap.set(`${item.id}`, item);
           });
           result.unshift(currentCompany);
-          companyMap.set(currentCompany.id, currentCompany);
+          companyMap.set(`${currentCompany.id}`, currentCompany);
           yield put({
             type: 'save',
             payload: {
@@ -153,40 +196,36 @@ export default {
           companyName: userCompanyInfo.companyName,
           companyType: userCompanyInfo.companyType,
         };
-        // const {
-        //   data: {resultCode, resultMsg, result = []},
-        // } = yield call(querySubTaCompany);
-        // if (resultCode === '0') {
-        const result = [
-          { key: 118, value: 'SUB TA 01' },
-          { key: 12, value: 'SUB TA 02' },
-        ];
-        const companyMap = new Map();
-        result.forEach(item => {
-          Object.assign(item, {
-            id: Number.parseInt(item.key, 10),
-            companyName: `${item.value}(${constants.SUB_TA_TYPE})`,
-            companyType: '02',
+        const {
+          data: { resultCode, resultMsg, result = {} },
+        } = yield call(queryCompanyInfo, { taId: userCompanyInfo.companyId });
+        if (resultCode === '0') {
+          const { subTaList = [] } = result;
+          subTaList.forEach(item => {
+            Object.assign(item, {
+              companyName: `${item.companyName}(${constants.SUB_TA_TYPE})`,
+              companyType: '02',
+            });
+            companyMap.set(`${item.id}`, item);
           });
-          companyMap.set(item.id, item);
-        });
-        result.unshift(currentCompany);
-        companyMap.set(currentCompany.id, currentCompany);
-        yield put({
-          type: 'save',
-          payload: {
-            companyList: result,
-            companyMap,
-          },
-        });
-        // } else message.warn(resultMsg, 10);
+          subTaList.unshift(currentCompany);
+          companyMap.set(`${currentCompany.id}`, currentCompany);
+          yield put({
+            type: 'save',
+            payload: {
+              companyList: subTaList,
+              companyDetailInfo: result,
+              companyMap,
+            },
+          });
+        } else message.warn(resultMsg, 10);
       } else if (constants.SUB_TA_USER_TYPE === userType) {
         const currentCompany = {
           id: userCompanyInfo.companyId,
           companyName: userCompanyInfo.companyName,
           companyType: userCompanyInfo.companyType,
         };
-        const companyMap = new Map([[userCompanyInfo.companyId, userCompanyInfo]]);
+        companyMap.set(`${userCompanyInfo.companyId}`, userCompanyInfo);
         yield put({
           type: 'save',
           payload: {
@@ -234,6 +273,33 @@ export default {
         });
       } else message.warn(resultMsg, 10);
     },
+    *queryCategories(_, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, result = [] },
+      } = yield call(queryDictionary, { dictType: '10', dictSubType: '1004' });
+      if (resultCode === '0') {
+        yield put({
+          type: 'save',
+          payload: {
+            categories: result,
+          },
+        });
+      } else message.warn(resultMsg, 10);
+    },
+    *queryCustomerGroups({ payload }, { call, put }) {
+      const { categoryId } = payload;
+      const {
+        data: { resultCode, resultMsg, result = [] },
+      } = yield call(queryDictionary, { dictType: '1004', dictSubType: categoryId });
+      if (resultCode === '0') {
+        yield put({
+          type: 'save',
+          payload: {
+            customerGroups: result,
+          },
+        });
+      } else message.warn(resultMsg, 10);
+    },
     *saveData({ payload }, { put }) {
       yield put({
         type: 'save',
@@ -256,11 +322,35 @@ export default {
           userCode: '',
           companyIds: [],
           orgCodes: [],
+          categoryId: '',
+          customerGroupId: '',
           pageSize: 10,
           currentPage: 1,
         },
         currentUserProfile: {},
+        companyList: [],
+        companyMap: new Map([]),
+        orgList: [],
+        userFormOkDisable: false,
+        userRoles: [],
+        companyDetailInfo: {},
+        categories: [],
+        customerGroups: [],
+
+        searchUserCode: undefined,
+        searchCompanyId: undefined,
+        searchCategoryId: undefined,
+        searchCustomerGroupId: undefined,
       };
+    },
+  },
+  subscriptions: {
+    setup({ dispatch, history }) {
+      history.listen(location => {
+        if (location.pathname.indexOf('/SystemManagement/UserManagement') === -1) {
+          dispatch({ type: 'clear' });
+        }
+      });
     },
   },
 };

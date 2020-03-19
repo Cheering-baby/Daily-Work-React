@@ -114,7 +114,6 @@ class MyWallet extends React.PureComponent {
       form: { getFieldDecorator },
       myWallet: {
         dataSource = [],
-        walletTypes = [],
         transactionTypes = [],
         account = {},
         pagination = {},
@@ -143,7 +142,7 @@ class MyWallet extends React.PureComponent {
         title: 'No',
         width: 80,
         key: 'index',
-        render: (text, record, index) => (index < 10 ? `0${index + 1}` : `${index + 1}`),
+        render: (text, record, index) => (index < 9 ? `0${index + 1}` : `${index + 1}`),
       },
       {
         title: formatMessage({ id: 'TRANSACTION_NO' }),
@@ -159,7 +158,7 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'Transaction Time',
+        title: 'Transaction Date',
         key: 'time',
         render: (text, record) => {
           const timeText = record.sourceSystem ? record.sourceTransactionTime : record.createTime;
@@ -167,14 +166,35 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'Income',
-        key: 'income',
-        render: (text, record) => (record.flow === 0 ? `+${record.charge.toFixed(2)}` : ''),
+        title: 'Amount',
+        key: 'charge',
+        render: (text, record) =>
+          (record.flow === 0 ? '+' : '-') +
+          record.charge.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','),
       },
       {
-        title: 'Expenditure',
-        key: 'expenditure',
-        render: (text, record) => (record.flow === 1 ? `-${record.charge.toFixed(2)}` : ''),
+        title: 'Invoice No',
+        key: 'invoiceNo',
+        render: (text, record) =>
+          (record.sourceSystem ? record.sourceInvoiceNo : record.invoiceNo) || '-',
+      },
+      {
+        title: 'Reference No',
+        key: 'referenceNo',
+        dataIndex: 'referenceNo',
+        render: text => text || '-',
+      },
+      {
+        title: 'Galaxy Order No',
+        key: 'galaxyOrderNo',
+        dataIndex: 'galaxyOrderNo',
+        render: text => text || '-',
+      },
+      {
+        title: 'TA Reference No',
+        key: 'taReferenceNo',
+        dataIndex: 'taReferenceNo',
+        render: text => text || '-',
       },
       {
         title: formatMessage({ id: 'STATUS' }),
@@ -193,7 +213,7 @@ class MyWallet extends React.PureComponent {
         title: formatMessage({ id: 'OPERATION' }),
         key: 'operation',
         render: (text, record) => {
-          if (record.tranType === 'ONLINE_TOPUP' || record.type === 'OFFILNE_TOPUP') {
+          if (record.tranType === 'ONLINE_TOPUP' || record.tranType === 'OFFLINE_TOPUP') {
             return (
               <Tooltip title={formatMessage({ id: 'INVOICE' })}>
                 <span>
@@ -237,7 +257,9 @@ class MyWallet extends React.PureComponent {
                     <div className={styles.label}>eWallet:</div>
                     {eWallet && (
                       <div className={`${styles.labelValue} ${styles.colorBlack}`}>
-                        ${eWallet.balance}
+                        <span className={styles.symbolPart}>$</span>
+                        <span className={styles.integerPart}>{eWallet.integer}</span>
+                        <span className={styles.decimalPart}>.{eWallet.decimal}</span>
                       </div>
                     )}
                   </div>
@@ -255,7 +277,9 @@ class MyWallet extends React.PureComponent {
                     <div className={styles.label}>AR:</div>
                     {ar && (
                       <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        ${ar.balance}
+                        <span className={styles.symbolPart}>$</span>
+                        <span className={styles.integerPart}>{ar.integer}</span>
+                        <span className={styles.decimalPart}>.{ar.decimal}</span>
                       </div>
                     )}
                     {!ar &&
@@ -294,28 +318,6 @@ class MyWallet extends React.PureComponent {
               </Col>
               <Col lg={6} xs={24}>
                 <Form.Item>
-                  {getFieldDecorator(`walletType`, {
-                    rules: [
-                      {
-                        required: false,
-                      },
-                    ],
-                  })(
-                    <Select placeholder="Wallet Type" allowClear>
-                      {walletTypes.map((item, index) => {
-                        return (
-                          // eslint-disable-next-line react/no-array-index-key
-                          <Select.Option value={item.value} key={`wt_options_${index}`}>
-                            {item.label}
-                          </Select.Option>
-                        );
-                      })}
-                    </Select>
-                  )}
-                </Form.Item>
-              </Col>
-              <Col lg={6} xs={24}>
-                <Form.Item>
                   {getFieldDecorator(`transactionType`, {
                     rules: [{ required: false, message: '' }],
                   })(
@@ -345,9 +347,7 @@ class MyWallet extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-            </Row>
-            <Row style={{ marginTop: '15px' }}>
-              <Col span={24} style={{ textAlign: 'right' }}>
+              <Col lg={6} xs={24} style={{ textAlign: 'right' }}>
                 <Button
                   type="primary"
                   htmlType="submit"

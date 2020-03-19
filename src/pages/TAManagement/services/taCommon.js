@@ -1,4 +1,5 @@
 import UAAService from '@/uaa-npm';
+import { isNvl } from '@/utils/utils';
 
 export async function registrationTaInfo(params) {
   return UAAService.request(`/proxy/ali/b2b/profile/TARegistration`, {
@@ -31,9 +32,17 @@ export async function queryInfoWithNoId() {
 }
 
 export async function queryTaInfoWithMask(params) {
-  return UAAService.request(`/proxy/ali/b2b/profile/queryTaInfo?taId=${params.taId}`, {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryTaInfoWithMask?taId=${params.taId}`, {
     method: 'GET',
   });
+}
+
+export async function checkCompanyExist(params) {
+  let exitUrl = `/proxy/ali/b2b/profile/checkCompanyExist?registrationNo=${params.registrationNo}`;
+  if (!isNvl(params.taId)) {
+    exitUrl += `&taId=${params.taId}`;
+  }
+  return UAAService.request(exitUrl, { method: 'GET' });
 }
 
 export async function queryTaMappingInfo(params) {
@@ -49,12 +58,13 @@ export async function queryTaAccountInfo(params) {
 }
 
 export async function queryDictionary(params) {
-  return UAAService.request(
-    `/common/queryDictionary?dictType=${params.dictType}&dictSubType=${params.dictSubType}`,
-    {
-      method: 'GET',
-    }
-  );
+  let url = `/agent/common/queryDictionary?dictType=${params.dictType}`;
+  if (params.dictSubType) {
+    url += `&dictSubType=${params.dictSubType}`;
+  }
+  return UAAService.request(url, {
+    method: 'GET',
+  });
 }
 
 export async function queryUserDictionary(params) {

@@ -6,8 +6,8 @@ import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
 
 @Form.create()
-@connect(({ global, ticketOrderCartMgr }) => ({
-  global, ticketOrderCartMgr,
+@connect(({ ticketOrderCartMgr }) => ({
+  ticketOrderCartMgr,
 }))
 class OnceAPirateCollapse extends Component {
 
@@ -78,9 +78,6 @@ class OnceAPirateCollapse extends Component {
 
   render() {
     const {
-      global: {
-        userCompanyInfo: { companyType },
-      },
       ticketOrderCartMgr: { onceAPirateOrderData = [] },
       form,
       form: { getFieldDecorator },
@@ -101,14 +98,13 @@ class OnceAPirateCollapse extends Component {
         <Collapse.Panel
           className={styles.collapsePanelStyles}
           key="OnceAPirateCollapsePanel"
-          header={<span className={styles.collapsePanelHeaderStyles}>ONCE A PIRATE</span>}
+          header={<span className={styles.collapsePanelHeaderStyles}>Once A Pirate</span>}
         >
           {onceAPirateOrderData.map((onceAPirateOrder, orderIndex) => {
             return (
               <OrderItemCollapse
                 key={`OrderItemCollapse_${orderIndex}`}
                 form={form}
-                companyType={companyType}
                 orderIndex={orderIndex}
                 onceAPirateOrder={onceAPirateOrder}
                 changeOrderCheck={(orderIndex, onceAPirateOrder) => {

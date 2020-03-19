@@ -1,4 +1,5 @@
 import UAAService from '@/uaa-npm';
+import { isNvl } from '@/utils/utils';
 
 export async function registrationSubTaInfo(params) {
   return UAAService.request(`/proxy/ali/b2b/subprofile/subTARegistration`, {
@@ -30,9 +31,17 @@ export async function querySubTaInfoWithMask(params) {
   );
 }
 
+export async function querySubTaInfoWithEmail(params) {
+  let emailUrl = `/proxy/ali/b2b/subprofile/fetchInfoByMail?email=${params.email}`;
+  if (!isNvl(params.subTaId)) {
+    emailUrl += `&subTaId=${params.subTaId}`;
+  }
+  return UAAService.request(emailUrl, { method: 'GET' });
+}
+
 export async function queryDictionary(params) {
   return UAAService.request(
-    `/common/queryDictionary?dictType=${params.dictType}&dictSubType=${params.dictSubType}`,
+    `/agent/common/queryDictionary?dictType=${params.dictType}&dictSubType=${params.dictSubType}`,
     {
       method: 'GET',
     }

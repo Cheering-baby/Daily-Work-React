@@ -6,6 +6,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import TextArea from 'antd/es/input/TextArea';
 import router from 'umi/router';
+import moment from 'moment';
 import styles from '../index.less';
 import constants from '../constants';
 
@@ -64,6 +65,8 @@ class Index extends React.PureComponent {
     }
   }
 
+  componentWillUnmount() {}
+
   getRoleCodes = (currentUserProfile = {}) => {
     const { type = 'NEW' } = this.props;
     if (type === 'NEW') {
@@ -93,7 +96,7 @@ class Index extends React.PureComponent {
         if (type === 'NEW') {
           dispatchType = 'userMgr/addTAUser';
           const { companyId } = values;
-          const companyInfo = companyMap.get(companyId);
+          const companyInfo = companyMap.get(`${companyId}`);
           if (companyInfo.companyType === '01') {
             values.userType = '02';
           } else if (companyInfo.companyType === '02') {
@@ -110,6 +113,18 @@ class Index extends React.PureComponent {
           const addRoleCodes = this.getAddRoleCodes(userRoles, roleCodes);
           if (userType === constants.RWS_USER_TYPE) {
             delete values.companyId;
+            values.userType = '01';
+          } else {
+            const { companyId } = values;
+            const companyInfo = companyMap.get(`${companyId}`);
+            if (companyInfo.companyType === '01') {
+              values.userType = '02';
+            } else if (companyInfo.companyType === '02') {
+              values.userType = '03';
+            } else {
+              message.warn(formatMessage({ id: 'COMPANY_TYPE_ERROR' }), 10);
+              return;
+            }
           }
           values.removeRoleCodes = removeRoleCodes;
           values.addRoleCodes = addRoleCodes;
@@ -160,7 +175,7 @@ class Index extends React.PureComponent {
     return companyList.map(item => {
       if (item.id === -1) return null;
       return (
-        <Option key={item.id} value={item.id}>
+        <Option key={item.id} value={`${item.id}`}>
           {item.companyName}
         </Option>
       );
@@ -176,7 +191,7 @@ class Index extends React.PureComponent {
       form: { setFields },
     } = this.props;
     const { userType = '' } = currentUser;
-    const { companyId, companyType = '' } = userCompanyInfo;
+    const { companyId } = userCompanyInfo;
     const { userType: currentUserType = '', taInfo = {} } = currentUserProfile;
     let flag = false;
     if (userType === constants.RWS_USER_TYPE) {
@@ -186,8 +201,8 @@ class Index extends React.PureComponent {
     }
 
     if (currentUserType !== constants.RWS_USER_TYPE && type === 'EDIT') {
-      const { companyId } = taInfo;
-      if (String(companyId) === String(value)) {
+      const { companyId: userCompanyId } = taInfo;
+      if (String(userCompanyId) === String(value)) {
         flag = false;
       }
     }
@@ -224,7 +239,7 @@ class Index extends React.PureComponent {
 
     if (value) {
       const userCompanyType = currentUserType === constants.TA_USER_TYPE ? '01' : '02';
-      const companyInfo = companyMap.get(value);
+      const companyInfo = companyMap.get(`${value}`);
       const { companyType: selectedCompanyType = '' } = companyInfo;
       setFields({
         roleCodes: {
@@ -233,7 +248,20 @@ class Index extends React.PureComponent {
         },
       });
       this.getUserRoles(value);
+      if (userType === constants.RWS_USER_TYPE) {
+        this.getTACompanyDetail(value);
+      }
     }
+  };
+
+  getTACompanyDetail = companyId => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'userMgr/getTACompanyDetail',
+      payload: {
+        companyId,
+      },
+    });
   };
 
   getUserRoles = companyId => {
@@ -241,7 +269,7 @@ class Index extends React.PureComponent {
       dispatch,
       userMgr: { companyMap = new Map() },
     } = this.props;
-    const companyInfo = companyMap.get(companyId);
+    const companyInfo = companyMap.get(`${companyId}`);
     let roleType = '';
     if (companyInfo.companyType === '01') {
       roleType = '02';
@@ -295,14 +323,25 @@ class Index extends React.PureComponent {
     };
   };
 
+  toDateTime = value => {
+    if (!value) {
+      return '';
+    }
+    return moment(value).format('YYYY-MM-DD HH:mm:ss');
+  };
+
   render() {
     const {
       type = 'NEW',
-      userMgr: { userFormOkDisable = false, currentUserProfile = {} },
+      userMgr: { userFormOkDisable = false, currentUserProfile = {}, companyDetailInfo = {} },
+      global: { currentUser = {} },
       addLoading = false,
       modifyLoading = false,
       form: { getFieldDecorator },
     } = this.props;
+
+    const { userType: loginUserType = '' } = currentUser;
+
     const { userType = '' } = currentUserProfile;
     const userInfo = this.getUserInfo();
     const {
@@ -314,6 +353,17 @@ class Index extends React.PureComponent {
       address = '',
       remarks = '',
     } = userInfo;
+
+    const {
+      marketName = '',
+      categoryName = '',
+      customerGroupName = '',
+      effectiveDate,
+      endDate,
+      salesPerson = '',
+      settlementCycle = '',
+      settlementValue,
+    } = companyDetailInfo;
 
     return (
       <Fragment>
@@ -328,7 +378,7 @@ class Index extends React.PureComponent {
               <Col {...colProps}>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'COMPANY_NAME' })}>
                   {getFieldDecorator(`companyId`, {
-                    initialValue: companyId,
+                    initialValue: type === 'NEW' ? undefined : String(companyId),
                     rules: [
                       {
                         required: userType !== constants.RWS_USER_TYPE,
@@ -477,7 +527,8 @@ class Index extends React.PureComponent {
                 </Form.Item>
               </Col>
             </Row>
-            {userType === constants.RWS_USER_TYPE ? null : (
+            {userType === constants.RWS_USER_TYPE ||
+            loginUserType === constants.SUB_TA_USER_TYPE ? null : (
               <React.Fragment>
                 <Row>
                   <Col className={styles.headerClass}>
@@ -491,32 +542,44 @@ class Index extends React.PureComponent {
                       label={formatMessage({ id: 'SETTLEMENT_CYCLE' })}
                     >
                       <span className={styles.spanClass}>{formatMessage({ id: 'THE' })}</span>
-                      {getFieldDecorator(`aa`)(
+                      {getFieldDecorator(`settlementValue`, {
+                        initialValue: settlementValue,
+                      })(
                         <InputNumber style={{ marginLeft: '10px', marginRight: '10px' }} disabled />
                       )}
                       <span className={styles.spanClass}>
-                        {formatMessage({ id: 'TH_DATA_OF_THE_MONTH' })}
+                        {settlementCycle === '01'
+                          ? formatMessage({ id: 'TH_DATA_OF_THE_QUARTER' })
+                          : formatMessage({ id: 'TH_DATA_OF_THE_MONTH' })}
                       </span>
                     </Form.Item>
                   </Col>
                   <Col span={24}>
                     <Form.Item {...formItemLayoutFull1} label={formatMessage({ id: 'MARKET' })}>
-                      {getFieldDecorator(`market`)(<Input disabled />)}
+                      {getFieldDecorator(`market`, {
+                        initialValue: marketName,
+                      })(<Input disabled />)}
                     </Form.Item>
                   </Col>
                   <Col {...colProps}>
                     <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
-                      {getFieldDecorator(`effectiveDate`)(<Input disabled />)}
+                      {getFieldDecorator(`effectiveDate`, {
+                        initialValue: this.toDateTime(effectiveDate),
+                      })(<Input disabled />)}
                     </Form.Item>
                   </Col>
                   <Col {...colProps}>
                     <Form.Item {...formItemLayout} label={formatMessage({ id: 'END_DATE' })}>
-                      {getFieldDecorator(`endDate`)(<Input disabled />)}
+                      {getFieldDecorator(`endDate`, {
+                        initialValue: this.toDateTime(endDate),
+                      })(<Input disabled />)}
                     </Form.Item>
                   </Col>
                   <Col {...colProps}>
                     <Form.Item {...formItemLayout} label={formatMessage({ id: 'SALES_PERSON' })}>
-                      {getFieldDecorator(`salePerson`)(<Input disabled />)}
+                      {getFieldDecorator(`salesPerson`, {
+                        initialValue: salesPerson,
+                      })(<Input disabled />)}
                     </Form.Item>
                   </Col>
                   <Col {...colProps}>
@@ -524,7 +587,9 @@ class Index extends React.PureComponent {
                       {...formItemLayout}
                       label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}
                     >
-                      {getFieldDecorator(`cateAndGroup`)(<Input disabled />)}
+                      {getFieldDecorator(`cateAndGroup`, {
+                        initialValue: `${categoryName}/${customerGroupName}`,
+                      })(<Input disabled />)}
                     </Form.Item>
                   </Col>
                 </Row>

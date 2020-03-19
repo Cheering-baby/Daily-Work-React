@@ -1,5 +1,11 @@
 import { formatMessage } from 'umi/locale';
 import { getLocalUrl, isNvl } from '@/utils/utils';
+import {
+  AR_ACCOUNT_PRIVILEGE,
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SALES_SUPPORT_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 export function getTravelAgentNoLabel(country) {
   if (String(country).toLowerCase() === 'singapore') {
@@ -165,39 +171,10 @@ export function getMarketStr(marketList, market) {
   return '-';
 }
 
-export function isMainTaRole(pagePrivileges) {
-  let isMainTaRoleFlag = false;
-  if (pagePrivileges && pagePrivileges.length > 0) {
-    isMainTaRoleFlag =
-      pagePrivileges.findIndex(n => String(n.componentCode).toUpperCase() === 'MAIN_TA') !== -1;
-  }
-  return isMainTaRoleFlag;
-}
-
-export function isSaleSupportRole(pagePrivileges) {
-  let isSaleSupportRoleFlag = false;
-  if (pagePrivileges && pagePrivileges.length > 0) {
-    isSaleSupportRoleFlag =
-      pagePrivileges.findIndex(n => String(n.componentCode).toUpperCase() === 'SALE_SUPPORT') !==
-      -1;
-  }
-  return isSaleSupportRoleFlag;
-}
-
-export function isAccountingArRole(pagePrivileges) {
-  let isAccountingArRoleFlag = false;
-  if (pagePrivileges && pagePrivileges.length > 0) {
-    isAccountingArRoleFlag =
-      pagePrivileges.findIndex(n => String(n.componentCode).toUpperCase() === 'ACCOUTING_AR') !==
-      -1;
-  }
-  return isAccountingArRoleFlag;
-}
-
-export function getModifyTYpe(pagePrivileges) {
-  const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
-  const isMainTaRoleFlag = isMainTaRole(pagePrivileges);
-  const isSaleSupportRoleFlag = isSaleSupportRole(pagePrivileges);
+export function getModifyTYpe() {
+  const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
+  const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
+  const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
   let modifyType = '';
   if (isMainTaRoleFlag) {
     modifyType = 'Main TA';
@@ -365,7 +342,7 @@ export function getFinanceType() {
 }
 
 export function getRegistionLink(companyName, taId) {
-  let urlStr = `${getLocalUrl().replace('/pams', '')}/#/SubTAManagement/SignUp`;
+  let urlStr = `${getLocalUrl()}#/SubTAManagement/SignUp`;
   if (!isNvl(taId) && !isNvl(companyName)) urlStr += `?taId=${taId}&companyName=${companyName}`;
   else if (!isNvl(taId) && isNvl(companyName)) urlStr += `?taId=${taId}`;
   else if (isNvl(taId) && !isNvl(companyName)) urlStr += `?companyName=${companyName}`;

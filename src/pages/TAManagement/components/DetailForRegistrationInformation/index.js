@@ -5,7 +5,12 @@ import DetailForQuestionsInformation from './DetailForQuestionsInformation';
 import DetailForFileUploadInformation from './DetailForFileUploadInformation';
 import DetailForBillingInformation from './DetailForBillingInformation';
 import DetailForTaFinanceContact from './DetailForTaFinanceContact';
-import { isAccountingArRole, isMainTaRole, isSaleSupportRole } from '../../utils/pubUtils';
+import {
+  AR_ACCOUNT_PRIVILEGE,
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SALES_SUPPORT_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 class DetailForRegistrationInformation extends PureComponent {
   state = {
@@ -25,7 +30,6 @@ class DetailForRegistrationInformation extends PureComponent {
       currencyList = [],
       categoryList = [],
       customerGroupList = [],
-      pagePrivileges,
     } = this.props;
     const { downFileLoadingFlag = false } = this.state;
     const detailProps = {
@@ -37,9 +41,9 @@ class DetailForRegistrationInformation extends PureComponent {
       currencyList,
       categoryList,
       customerGroupList,
-      isMainTaRoleFlag: isMainTaRole(pagePrivileges),
-      isSaleSupportRoleFlag: isSaleSupportRole(pagePrivileges),
-      isAccountingArRoleFlag: isAccountingArRole(pagePrivileges),
+      isMainTaRoleFlag: hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]),
+      isSaleSupportRoleFlag: hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]),
+      isAccountingArRoleFlag: hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]),
     };
     return (
       <>

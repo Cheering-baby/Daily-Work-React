@@ -59,16 +59,15 @@ class UAAService extends CommonService {
    * Determine whether the user has logged in
    * @returns {Promise<void>}
    */
-  async postLogin(params) {
+  async postLogin() {
     let result = {};
 
-    const { success, errorMsg, data } = await this.request('/v1/postLogin', {
-      params,
+    const {success, errorMsg, data} = await this.request('/v1/postLogin', {
       withCredentials: this.defaults.withCredentials,
     });
 
     if (success) {
-      const { accessToken, refreshToken } = data;
+      const {accessToken, refreshToken} = data;
       if (accessToken) {
         this.axiosConfig.AT = accessToken;
       }

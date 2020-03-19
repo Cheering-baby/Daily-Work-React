@@ -66,7 +66,7 @@ class UploadContractHistoryComp extends PureComponent {
       dataIndex: 'uploadedTime',
       width: '20%',
       render: text => {
-        return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';
+        return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
       },
     },
     {
@@ -193,7 +193,7 @@ class UploadContractHistoryComp extends PureComponent {
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime).valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   disabledEndDate = endValue => {
@@ -202,7 +202,7 @@ class UploadContractHistoryComp extends PureComponent {
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime).valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   render() {
@@ -257,14 +257,14 @@ class UploadContractHistoryComp extends PureComponent {
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.contractCompCol}>
               {getFieldDecorator('uploadedStartTime', {
                 initialValue: !isNvl(searchContractForm.uploadedStartTime)
-                  ? moment(searchContractForm.uploadedStartTime, 'YYYYMMDD')
+                  ? moment(searchContractForm.uploadedStartTime, 'YYYY-MM-DD HH:mm:ss')
                   : null,
               })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.contractCompCol}>
               {getFieldDecorator('uploadedEndTime', {
                 initialValue: !isNvl(searchContractForm.uploadedEndTime)
-                  ? moment(searchContractForm.uploadedEndTime, 'YYYYMMDD')
+                  ? moment(searchContractForm.uploadedEndTime, 'YYYY-MM-DD HH:mm:ss')
                   : null,
               })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
             </Col>

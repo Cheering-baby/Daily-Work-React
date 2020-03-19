@@ -69,7 +69,7 @@ class DetailForAccountingInformation extends PureComponent {
               <div className={styles.detailLeftStyle}>
                 <span>
                   {!isNvl(mappingInfo.effectiveDate)
-                    ? moment(mappingInfo.effectiveDate).format('DD-MMM-YYYY')
+                    ? moment(mappingInfo.effectiveDate, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY')
                     : '-'}
                 </span>
               </div>
@@ -87,7 +87,9 @@ class DetailForAccountingInformation extends PureComponent {
               <div className={styles.detailLeftStyle}>
                 <span>
                   {!isNvl(accountInfo.lastActivityDate)
-                    ? moment(accountInfo.lastActivityDate).format('DD-MMM-YYYY')
+                    ? moment(accountInfo.lastActivityDate, 'YYYY-MM-DD HH:mm:ss').format(
+                        'DD-MMM-YYYY'
+                      )
                     : '-'}
                 </span>
               </div>
@@ -105,7 +107,7 @@ class DetailForAccountingInformation extends PureComponent {
               <div className={styles.detailLeftStyle}>
                 <span>
                   {!isNvl(accountInfo.modifiedTime)
-                    ? moment(accountInfo.modifiedTime).format('DD-MMM-YYYY')
+                    ? moment(accountInfo.modifiedTime, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY')
                     : '-'}
                 </span>
               </div>

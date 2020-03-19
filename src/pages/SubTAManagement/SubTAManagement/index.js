@@ -12,11 +12,9 @@ import styles from './index.less';
 
 const mapStateToProps = store => {
   const { searchForm, searchList } = store.subTAManagement;
-  const { pagePrivileges = [] } = store.global;
   return {
     searchForm,
     searchList,
-    pagePrivileges,
   };
 };
 

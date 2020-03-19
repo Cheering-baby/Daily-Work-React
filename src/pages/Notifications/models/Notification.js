@@ -1,56 +1,43 @@
-import { templateList } from '../services/notification';
+import {message} from 'antd';
+import {formatMessage} from 'umi/locale';
+import * as service from '../services/notification';
 
 export default {
   namespace: 'notification',
-
   state: {
     filter: {
       keyword: undefined,
       type: undefined,
-      startDate: undefined,
-      endDat: undefined,
     },
     pagination: {
       currentPage: 1,
       pageSize: 10,
     },
     templateList: [],
+    visibleFlag: false,
+    templateId: undefined,
+    templateViewVisible: false,
     type: '',
     notificationType: '',
+    notificationInfo: {},
+    notificationInfoLoadingFlag: false,
   },
-
   effects: {
-    *queryTemplateList({ payload }, { call, put, select }) {
-      const { filter, pagination } = yield select(state => state.notification);
+    * queryNotificationTemplateList(_, {call, put, select}) {
+      const {filter, pagination} = yield select(state => state.notification);
       const requestData = {
         ...filter,
         ...pagination,
       };
-      const result = yield call(templateList, requestData);
-
-      const { data: resultData, success, errorMsg } = result;
-
-      if (success) {
+      const {
+        data: {resultCode, resultMsg, result},
+      } = yield call(service.templateList, requestData);
+      if (resultCode === '0' || resultCode === 0) {
         const {
-          resultCode,
-          resultMsg,
-          result: {
-            templateList,
-            pageInfo: { currentPage, pageSize, totalSize },
-          },
-        } = resultData;
-
-        if (resultCode !== '0') {
-          throw resultMsg;
-        }
-
-        if (templateList && templateList.length > 0) {
-          templateList.map(v => {
-            Object.assign(v, { key: `${v.id}` });
-            return v;
-          });
-        }
-
+          templateList,
+          pageInfo: {currentPage, pageSize, totalSize},
+        } = result;
+        console.log('templateList: ', templateList);
         yield put({
           type: 'save',
           payload: {
@@ -62,38 +49,71 @@ export default {
             templateList,
           },
         });
-      } else throw errorMsg;
+      } else message.warn(resultMsg, 10);
     },
-
-    *addNotification({ payload }, { call, put }) {
-      const { data } = yield call(queryNotificationsType, 4);
-      // const { resultCode, resultMsg } = data;
-      // if (resultCode === '0') {
-      const { dictionaryInfos } = data;
-      yield put({
-        type: 'save',
-        payload: {
-          statusList: dictionaryInfos,
-        },
-      });
-      // } else message.warn(resultMsg, 10);
+    * fetchAddNotification({payload}, {call, put}) {
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+      const {
+        data: {resultCode, resultMsg},
+      } = yield call(service.createNotification, {...payload});
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+      if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({id: 'ADD_SUCCESS'}), 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
     },
-
-    *modifyNotification({ payload }, { call, put }) {
-      const { data } = yield call(queryNotificationsType, 4);
-      // const { resultCode, resultMsg } = data;
-      // if (resultCode === '0') {
-      const { dictionaryInfos } = data;
-      yield put({
-        type: 'save',
-        payload: {
-          statusList: dictionaryInfos,
-        },
-      });
-      // } else message.warn(resultMsg, 10);
+    * fetchModifyNotification({payload}, {call, put}) {
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+      const {
+        data: {resultCode, resultMsg},
+      } = yield call(service.modifyNotification, {...payload});
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+      if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({id: 'MODIFY_SUCCESS'}), 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
     },
-
-    *saveData({ payload }, { put }) {
+    * fetchDeleteNotification({payload}, {call, put}) {
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+      const {
+        data: {resultCode, resultMsg},
+      } = yield call(service.deleteNotification, {...payload});
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+      if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({id: 'DELETE_SUCCESS'}), 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+    * fetchDeleteNotificationFile({payload}, {call}) {
+      const {
+        data: {resultCode, resultMsg},
+      } = yield call(service.deleteFile, {...payload});
+      if (resultCode === '0' || resultCode === 0) {
+        message.success(formatMessage({id: 'DELETE_FILE_SUCCESS'}), 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+    * fetchUpdateNotificationStatus({payload}, {call, put}) {
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+      const {
+        data: {resultCode, resultMsg},
+      } = yield call(service.updateReadStatus, {...payload});
+      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+      if (resultCode === '0' || resultCode === 0) {
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+    * saveData({payload}, {put}) {
       yield put({
         type: 'save',
         payload: {
@@ -101,31 +121,44 @@ export default {
         },
       });
     },
-
-    *change({ payload }, { put }) {
+    * change({payload}, {put}) {
       yield put({
         type: 'save',
         payload: {
           ...payload,
         },
       });
-
       yield put({
         type: 'queryNotificationTemplateList',
       });
     },
   },
-
   reducers: {
     save(state, { payload }) {
       return { ...state, ...payload };
     },
-    clear(state) {
+    clean(state, {payload}) {
       return {
         ...state,
-        notificationTypeList: [],
-        targetTypeList: [],
-        statusList: [],
+        ...{
+          filter: {
+            keyword: undefined,
+            type: undefined,
+          },
+          pagination: {
+            currentPage: 1,
+            pageSize: 10,
+          },
+          templateList: [],
+          visibleFlag: false,
+          templateId: undefined,
+          templateViewVisible: false,
+          type: '',
+          notificationType: '',
+          notificationInfo: {},
+          notificationInfoLoadingFlag: false,
+        },
+        ...payload,
       };
     },
   },

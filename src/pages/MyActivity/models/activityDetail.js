@@ -1,7 +1,7 @@
-import { router } from 'umi';
-import { message } from 'antd';
+import {router} from 'umi';
+import {message} from 'antd';
 import * as service from '../services/myActivity';
-import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
+import {ERROR_CODE_SUCCESS} from '@/utils/commonResultCode';
 
 export default {
   namespace: 'activityDetail',
@@ -18,32 +18,25 @@ export default {
   },
   effects: {
     *queryDetail({ payload }, { call, put }) {
-      const { activityId } = payload;
-      const result = yield call(service.queryDetail, { activityId });
+      const {activityId} = payload;
+      const {
+        data: {resultCode, resultMsg, result},
+      } = yield call(service.queryDetail, {activityId});
 
-      const { data: resultData, success, errorMsg } = result;
+      if (resultCode !== ERROR_CODE_SUCCESS) {
+        throw resultMsg;
+      }
 
-      if (success) {
-        const {
-          resultCode,
-          resultMsg,
-          result: { activityInfo, historyHandlers, pendingHandlers },
-        } = resultData;
-
-        if (resultCode !== ERROR_CODE_SUCCESS) {
-          throw resultMsg;
-        }
-
-        yield put({
-          type: 'save',
-          payload: {
-            activityId,
-            activityInfo,
-            historyHandlers,
-            pendingHandlers,
-          },
-        });
-      } else throw errorMsg;
+      const {activityInfo, historyHandlers, pendingHandlers} = result;
+      yield put({
+        type: 'save',
+        payload: {
+          activityId,
+          activityInfo,
+          historyHandlers,
+          pendingHandlers,
+        },
+      });
     },
     *approve({ payload }, { call, select }) {
       const { reason, approver, allowRestart } = payload;
@@ -104,11 +97,11 @@ export default {
     *queryRerouteList(_, { call, put }) {
       const res = yield call(service.queryRerouteList);
       const { resultCode, resultMsg, result } = res.data;
-      if (resultCode === '00' || resultCode === 0) {
-        const { userList } = result;
+      if (resultCode !== ERROR_CODE_SUCCESS) {
+        const {userList} = result;
         if (userList && userList.length > 0) {
           userList.map(v => {
-            Object.assign(v, { key: `${v.activityId}` });
+            Object.assign(v, {key: `${v.activityId}`});
             return v;
           });
         }

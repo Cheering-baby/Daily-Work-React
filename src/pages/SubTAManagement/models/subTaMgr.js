@@ -1,5 +1,6 @@
 import { message } from 'antd';
 import * as service from '../services/subTaMgr';
+import { isNvl } from '@/utils/utils';
 
 export default {
   namespace: 'subTaMgr',
@@ -8,6 +9,7 @@ export default {
     subTaInfo: {},
     subTaInfoLoadingFlag: false,
     countryList: [],
+    hasSubTaWithEmail: false,
   },
   effects: {
     *fetchSubTARegistration({ payload }, { call, put }) {
@@ -91,6 +93,23 @@ export default {
       message.warn(resultMsg, 10);
       return false;
     },
+    *fetchQrySubTaInfoWithEmail({ payload }, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.querySubTaInfoWithEmail, { ...payload });
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({
+          type: 'save',
+          payload: {
+            subTaInfo: result,
+            hasSubTaWithEmail: !isNvl(result),
+          },
+        });
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
     *fetchQueryCountryList(_, { call, put }) {
       const reqParam = {
         dictType: '10',
@@ -125,6 +144,7 @@ export default {
           subTaInfo: {},
           subTaInfoLoadingFlag: false,
           countryList: [],
+          hasSubTaWithEmail: false,
         },
         ...payload,
       };

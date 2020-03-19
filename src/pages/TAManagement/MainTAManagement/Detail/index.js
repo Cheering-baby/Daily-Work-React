@@ -10,7 +10,7 @@ import DetailForAdditionalInformation from '../../components/DetailForAdditional
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
 import { isNvl } from '@/utils/utils';
-import { isAccountingArRole } from '../../utils/pubUtils';
+import { AR_ACCOUNT_PRIVILEGE, hasAllPrivilege } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const {
@@ -36,7 +36,6 @@ const mapStateToProps = store => {
     taMappingInfoLoadingFlag,
     taAccountInfoLoadingFlag,
   } = store.taMgr;
-  const { pagePrivileges = [] } = store.global;
   return {
     otherInfo,
     customerInfo,
@@ -57,7 +56,6 @@ const mapStateToProps = store => {
     marketList,
     salesPersonList,
     settlementCycleList,
-    pagePrivileges,
   };
 };
 
@@ -169,7 +167,6 @@ class DetailToTA extends PureComponent {
       taInfoLoadingFlag,
       taMappingInfoLoadingFlag,
       taAccountInfoLoadingFlag,
-      pagePrivileges,
     } = this.props;
     const detailProps = {
       taId,
@@ -188,7 +185,6 @@ class DetailToTA extends PureComponent {
       marketList,
       salesPersonList,
       settlementCycleList,
-      pagePrivileges,
     };
     const breadcrumbArr = [
       {
@@ -204,7 +200,7 @@ class DetailToTA extends PureComponent {
         url: null,
       },
     ];
-    const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
+    const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
     return (
       <Col span={24}>
         <Row type="flex" justify="space-around">

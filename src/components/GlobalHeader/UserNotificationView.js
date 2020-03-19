@@ -1,86 +1,39 @@
 import React, { PureComponent } from 'react';
 import moment from 'moment';
-import { Tabs, List } from 'antd';
-import Spin from 'antd/es/spin';
-import { connect } from 'dva';
-import router from 'umi/router';
+import { List, Spin, Tabs } from 'antd';
+import { formatMessage } from 'umi/locale';
 import styles from './index.less';
+import { hasAllPrivilege, SALES_SUPPORT_PRIVILEGE } from '@/utils/PrivilegeUtil';
 
 const { TabPane } = Tabs;
 
-@connect(({ notificationMgr, system }) => ({
-  notificationMgr,
-  system,
-}))
 class UserNotificationView extends PureComponent {
-  callback = key => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'notificationMgr/saveData',
-      payload: {
-        activeKey: key,
-      },
-    });
-    if (key === '2') {
-      dispatch({
-        type: 'notificationMgr/querySystemList',
-      });
-    } else if (key === '3') {
-      dispatch({
-        type: 'notificationMgr/querybulletinList',
-      });
-    }
-  };
-
-  routerTo = () => {
-    const {
-      notificationMgr: { activeKey },
-    } = this.props;
-    if (activeKey === '1') {
-      router.push('/Notifications/SystemNotification');
-    } else if (activeKey === '2') {
-      router.push('/Notifications/Bulletin');
-    } else {
-      router.push('/MyActivity');
-    }
-  };
-
   render() {
     const {
-      systemList,
-      systemCount,
-      notificationMgr: { systemLoading, activeKey, bulletinList, bulletinLoading, bulletinCount },
+      notificationMgr: {
+        systemNotificationList,
+        systemNotificationCount,
+        pendingActivityList,
+        pendingActivityCount,
+        bulletinList,
+        bulletinCount,
+        circularList,
+        circularCount,
+        bellNotificationLoading,
+      },
+      isMobile,
+      routerTo,
     } = this.props;
-    let system = systemList;
-
-    if (systemList && systemList.length > 5) {
-      system = systemList.slice(0, 5);
-    }
-    let count = 0;
-    if (systemCount > 99) {
-      count = `${99}+`;
-    } else {
-      count = systemCount;
-    }
-
-    let bulletin = bulletinList;
-    if (bulletinList && bulletinList.length > 5) {
-      bulletin = bulletinList.slice(0, 5);
-    }
-    let bcount = 0;
-    if (bulletinCount > 99) {
-      bcount = `${99}+`;
-    } else {
-      bcount = bulletinCount;
-    }
     return (
-      <Tabs activeKey={activeKey} onChange={this.callback} className={styles.userNotificationStyle}>
-        <TabPane tab={`SYSTEM (${count})`} key="1">
-          <Spin spinning={systemLoading}>
+      <Tabs className={styles.userNotificationStyle} style={{ width: isMobile ? 'auto' : '460px' }}>
+        <TabPane
+          tab={`${formatMessage({ id: 'NOTICE_SYSTEM' })} (${systemNotificationCount})`}
+          key="1"
+        >
+          <Spin spinning={bellNotificationLoading}>
             <List
               itemLayout="horizontal"
-              dataSource={system}
+              dataSource={systemNotificationList}
               size="small"
               renderItem={item => (
                 <List.Item>
@@ -91,18 +44,21 @@ class UserNotificationView extends PureComponent {
                 </List.Item>
               )}
             />
-            {system && system.length >= 5 ? (
+            {systemNotificationCount >= 5 ? (
               <div className={styles.moreStyle}>
-                <span onClick={this.routerTo}>More</span>
+                <span onClick={() => routerTo('1')}>{formatMessage({ id: 'NOTICE_MORE' })}</span>
               </div>
             ) : null}
           </Spin>
         </TabPane>
-        <TabPane tab={`PENDING APPROVAL (${count})`} key="2">
-          <Spin spinning={systemLoading}>
+        <TabPane
+          tab={`${formatMessage({ id: 'NOTICE_PENDING_APPROVAL' })} (${pendingActivityCount})`}
+          key="2"
+        >
+          <Spin spinning={bellNotificationLoading}>
             <List
               itemLayout="horizontal"
-              dataSource={system}
+              dataSource={pendingActivityList}
               size="small"
               renderItem={item => (
                 <List.Item>
@@ -113,18 +69,18 @@ class UserNotificationView extends PureComponent {
                 </List.Item>
               )}
             />
-            {system && system.length >= 5 ? (
+            {pendingActivityCount >= 5 ? (
               <div className={styles.moreStyle}>
-                <span onClick={this.routerTo}>More</span>
+                <span onClick={() => routerTo('2')}>{formatMessage({ id: 'NOTICE_MORE' })}</span>
               </div>
             ) : null}
           </Spin>
         </TabPane>
-        <TabPane tab={`BULLETIN (${bcount})`} key="3">
-          <Spin spinning={bulletinLoading}>
+        <TabPane tab={`${formatMessage({ id: 'NOTICE_BULLETIN' })} (${bulletinCount})`} key="3">
+          <Spin spinning={bellNotificationLoading}>
             <List
               itemLayout="horizontal"
-              dataSource={bulletin}
+              dataSource={bulletinList}
               size="small"
               renderItem={item => (
                 <List.Item>
@@ -135,13 +91,37 @@ class UserNotificationView extends PureComponent {
                 </List.Item>
               )}
             />
-            {bulletin && bulletin.length >= 5 ? (
+            {bulletinCount >= 5 ? (
               <div className={styles.moreStyle}>
-                <span onClick={this.routerTo}>More</span>
+                <span onClick={() => routerTo('3')}>{formatMessage({ id: 'NOTICE_MORE' })}</span>
               </div>
             ) : null}
           </Spin>
         </TabPane>
+        {hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]) && (
+          <TabPane tab={`${formatMessage({ id: 'NOTICE_CIRCULAR' })} (${circularCount})`} key="4">
+            <Spin spinning={bellNotificationLoading}>
+              <List
+                itemLayout="horizontal"
+                dataSource={circularList}
+                size="small"
+                renderItem={item => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={item.title}
+                      description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
+                    />
+                  </List.Item>
+                )}
+              />
+              {circularCount >= 5 ? (
+                <div className={styles.moreStyle}>
+                  <span onClick={() => routerTo('4')}>{formatMessage({ id: 'NOTICE_MORE' })}</span>
+                </div>
+              ) : null}
+            </Spin>
+          </TabPane>
+        )}
       </Tabs>
     );
   }

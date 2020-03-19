@@ -70,7 +70,7 @@ class DetailForAdditionalInformation extends PureComponent {
               <div className={styles.addDetailLeftStyle}>
                 <span>
                   {!isNvl(companyInfo.effectiveDate)
-                    ? moment(companyInfo.effectiveDate).format('DD-MMM-YYYY')
+                    ? moment(companyInfo.effectiveDate, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY')
                     : '-'}
                 </span>
               </div>
@@ -88,7 +88,7 @@ class DetailForAdditionalInformation extends PureComponent {
               <div className={styles.addDetailLeftStyle}>
                 <span>
                   {!isNvl(companyInfo.endDate)
-                    ? moment(companyInfo.endDate).format('DD-MMM-YYYY')
+                    ? moment(companyInfo.endDate, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY')
                     : '-'}
                 </span>
               </div>

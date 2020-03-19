@@ -7,9 +7,7 @@ import {
   queryCountry,
 } from '../services/ticketCommon';
 
-import {
-  getSessionTimeList
-} from '../utils/ticketOfferInfoUtil';
+import { getSessionTimeList } from '../utils/ticketOfferInfoUtil';
 
 const takeLatest = { type: 'takeLatest' };
 export default {
@@ -112,13 +110,13 @@ export default {
       });
     },
     *resetEditOnceAPirateOrder({ payload }, { put, select, take }) {
-      const { themeParkList, } = yield select(state => state.ticketMgr);
+      const { themeParkList } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
           {},
           {
             ...themePark,
-            disabled: themePark.value!=='OAP',
+            disabled: themePark.value !== 'OAP',
           }
         );
         return newData;
@@ -134,7 +132,7 @@ export default {
       });
     },
     *initEditOnceAPirateOrder({ payload }, { put, select, take }) {
-      const { onceAPirateOrder, themeParkList, } = yield select(state => state.ticketMgr);
+      const { onceAPirateOrder, themeParkList } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
           {},
@@ -223,11 +221,12 @@ export default {
               },
             } = responseDetail;
             offerList[i].offerProfile = offerProfile;
-            sessionTimeList = getSessionTimeList(offerProfile,requestParam.validTimeFrom);
+            sessionTimeList = getSessionTimeList(offerProfile, requestParam.validTimeFrom);
           } else {
             message.error(responseDetail.errorMsg);
           }
         }
+        sessionTimeList.sort();
         yield put({
           type: 'save',
           payload: {
@@ -235,13 +234,19 @@ export default {
             sessionTimeList,
           },
         });
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      };
     },
 
     *queryOAPOfferList({ payload }, { call, put, select }) {
-      const { selectOfferData, orderIndex, onceAPirateOrder, dateOfVisit, themeParkChooseList = [] } = yield select(
-        state => state.ticketMgr
-      );
+      const {
+        selectOfferData,
+        orderIndex,
+        onceAPirateOrder,
+        dateOfVisit,
+        themeParkChooseList = [],
+      } = yield select(state => state.ticketMgr);
 
       yield put({
         type: 'save',
@@ -318,7 +323,6 @@ export default {
             },
           },
         });
-
       } else {
         yield put({
           type: 'save',
@@ -326,9 +330,8 @@ export default {
             onceAPirateLoading: false,
           },
         });
-        throw resultMsg;
+        message.error(resultMsg);
       }
-
     },
 
     *queryAttributeList(_, { put, call }) {
@@ -367,7 +370,7 @@ export default {
         if (resultCode === '0') {
           const themeParkList = [];
           const tags = ['Admission', 'VIP Tour', 'Express', 'Promo', 'Group'];
-          const categories = tags.map(item => ({ tag: item, products: [] }));
+          const categories = tags.map(item => ({ tag: item, products: [], bundleNames: [] }));
           themeParkChooseList.forEach(item => {
             attractionList.forEach(item2 => {
               if (item2.value === item) {
@@ -401,7 +404,11 @@ export default {
               continue;
             }
             let attractionProduct;
-            const prices = [];
+            let noMatchPriceRule = false;
+            let priceRuleId;
+            const {
+              offerProfile: { inventories = [] },
+            } = resultDetail;
             // eslint-disable-next-line no-loop-func
             resultDetail.offerProfile.productGroup.forEach(item => {
               const { productType } = item;
@@ -409,22 +416,29 @@ export default {
                 item.productGroup.forEach(item2 => {
                   if (item2.groupName === 'Attraction') {
                     attractionProduct = item2.products;
-                    attractionProduct[0].priceRule.forEach(item3 => {
-                      if (item3.priceRuleName === 'DefaultPrice') {
-                        prices.push(item3);
-                      }
-                    });
+                    if (attractionProduct[0].priceRule.length <= 1) {
+                      noMatchPriceRule = true;
+                    } else {
+                      // eslint-disable-next-line prefer-destructuring
+                      priceRuleId = attractionProduct[0].priceRule[1].priceRuleId;
+                    }
+                    if (noMatchPriceRule) return false;
                     let allProductInventory = 0;
                     attractionProduct.forEach(item3 => {
-                      const { priceRule } = item3;
+                      const { priceRule, needChoiceCount } = item3;
                       priceRule.forEach(item4 => {
                         const { priceRuleName, productPrice = [] } = item4;
                         if (priceRuleName === 'DefaultPrice') {
-                          const maxProductInventory =
+                          // eslint-disable-next-line no-unused-vars
+                          const maxProductInventory1 =
                             productPrice[0].productInventory === -1
-                              ? 100000000
-                              : productPrice[0].productInventory;
-                          allProductInventory += maxProductInventory;
+                              ? 100000000 / needChoiceCount
+                              : productPrice[0].productInventory / needChoiceCount;
+                          const maxProductInventory2 =
+                            inventories[0].available === -1
+                              ? 100000000 / needChoiceCount
+                              : inventories[0].available / needChoiceCount;
+                          allProductInventory += maxProductInventory1;
                         }
                       });
                     });
@@ -438,7 +452,7 @@ export default {
                             const data = {};
                             data.attractionProduct = attractionProduct;
                             data.detail = resultDetail.offerProfile;
-                            data.detail.prices = prices;
+                            data.detail.priceRuleId = priceRuleId;
                             data.detail.offerPrice = offerList[i].offerPrice;
                             data.detail.dateOfVisit = dateOfVisit;
                             data.detail.numOfGuests = numOfGuests;
@@ -454,19 +468,47 @@ export default {
               }
             });
           }
+
           themeParkList.forEach((item, index) => {
             const { categories: categoriesItem = [], products = [] } = item;
             categoriesItem.forEach((item2, index2) => {
               const { tag } = item2;
               products.forEach(item3 => {
                 const {
-                  detail: { offerTagList = [], offerNo },
+                  detail: { offerTagList = [], offerNo, OfferBundle = [] },
                 } = item3;
                 offerTagList.forEach(item4 => {
                   const { tagName } = item4;
                   if (tag === tagName) {
                     item3.id = offerNo;
-                    themeParkList[index].categories[index2].products.push(item3);
+                    if (OfferBundle.length > 0) {
+                      const { bundleName, bundleLabel } = OfferBundle[0];
+                      if (
+                        themeParkList[index].categories[index2].bundleNames.indexOf(bundleName) ===
+                        -1
+                      ) {
+                        themeParkList[index].categories[index2].bundleNames.push(bundleName);
+                        themeParkList[index].categories[index2].products.push({
+                          bundleName,
+                          bundleLabel,
+                          offers: [item3],
+                          ...item3,
+                        });
+                      } else {
+                        themeParkList[index].categories[index2].products.forEach(
+                          (item5, index5) => {
+                            if (item5.bundleName === bundleName) {
+                              themeParkList[index].categories[index2].products[index5] = {
+                                ...item5,
+                                offers: item5.offers.concat([item3]),
+                              };
+                            }
+                          }
+                        );
+                      }
+                    } else {
+                      themeParkList[index].categories[index2].products.push(item3);
+                    }
                   }
                 });
               });
@@ -478,7 +520,9 @@ export default {
               themeParkListByCode: themeParkList,
             },
           });
-        } else throw resultMsg;
+        } else {
+          message.error(resultMsg);
+        }
       },
       takeLatest,
     ],
@@ -607,7 +651,9 @@ export default {
             countrys: resultList,
           },
         });
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      }
     },
 
     *effectSave({ payload }, { put }) {

@@ -3,7 +3,7 @@ module.exports = {
   appCode: 'PAMS',
   uaaPath:
     process.env.NODE_ENV === 'development'
-      ? 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com'
+      ? 'http://10.25.159.217:18091'
       : window.location.origin,
   publicPath: '',
   backendContextPath: '/pams',

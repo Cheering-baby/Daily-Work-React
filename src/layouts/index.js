@@ -313,8 +313,12 @@ class BasicLayout extends React.PureComponent {
       currentUserRole,
       resetModal,
       menuLoaded,
+      privilegeLoading,
       needChangePassword,
     } = this.props;
+
+    console.log(privilegeLoading);
+
     const isSignUp =
       pathname.indexOf('/TAManagement/SignUp') >= 0 ||
       pathname.indexOf('/SubTAManagement/SignUp') >= 0;
@@ -410,11 +414,15 @@ class BasicLayout extends React.PureComponent {
           />
           <Content style={this.getContentStyle()} className="main-layout-content">
             <Fragment>
-              {!menuLoaded ? (
+              {!menuLoaded || privilegeLoading ? (
                 <Spin />
               ) : (
                 <Authorized authority={hasAuthority} noMatch={<Exception403 />}>
-                  {!menuLoaded ? <Spin /> : <PageContainer>{children}</PageContainer>}
+                  {!menuLoaded || privilegeLoading ? (
+                    <Spin />
+                  ) : (
+                    <PageContainer>{children}</PageContainer>
+                  )}
                 </Authorized>
               )}
               <ContextMenu />
@@ -492,7 +500,7 @@ class BasicLayout extends React.PureComponent {
 }
 
 export default withRouter(
-  connect(({ global, setting, login }) => ({
+  connect(({ global, setting, login, loading }) => ({
     collapsed: global.collapsed,
     currentUserRole: global.currentUserRole,
     currentUserGlobal: global.currentUser,
@@ -502,6 +510,7 @@ export default withRouter(
     resetModal: login.resetModal,
     needChangePassword: global.needChangePassword,
     menuLoaded: global.menuLoaded,
+    privilegeLoading: loading.effects['global/fetchPrivileges'],
     ...setting,
   }))(BasicLayout)
 );

@@ -1,157 +1,53 @@
+import { message } from 'antd';
 import * as service from '../services/notification';
 
 export default {
   namespace: 'notificationMgr',
 
   state: {
-    pagination: {
-      currentPage: 1,
-      pageSize: 5,
-    },
-    notificationList: [],
-    systemFilter: {
-      queryType: '02',
-      title: undefined,
-      type: undefined,
-      status: undefined,
-      // circular
-      notificationTypeList: ['03', '04'],
-      targetList: [],
-      startDate: undefined,
-      endDate: undefined,
-    },
-    bulletinFilter: {
-      queryType: '02',
-      title: undefined,
-      type: undefined,
-      status: undefined,
-      // bulletin
-      notificationTypeList: ['01'],
-      targetList: [],
-      startDate: undefined,
-      endDate: undefined,
-    },
-    visibleFlag: false,
-    systemList: [],
-    systemLoading: false,
-    systemCount: 0,
-    activeKey: '1',
+    systemNotificationList: [],
+    systemNotificationCount: 0,
+    pendingActivityList: [],
+    pendingActivityCount: 0,
     bulletinList: [],
-    bulletinLoading: false,
     bulletinCount: 0,
+    circularList: [],
+    circularCount: 0,
+    nextQueryTime: 120,
+    bellNotificationLoading: false,
+    notificationVisibleFlag: false,
   },
 
   effects: {
-    *querySystemList(_, { call, put, select }) {
-      yield put({
-        type: 'updateState',
-        payload: {
-          systemLoading: true,
-        },
-      });
-      const { systemFilter, pagination } = yield select(state => state.notificationMgr);
-      const requestData = {
-        ...systemFilter,
-        ...pagination,
-      };
-      const result = yield call(service.queryNotificationList, requestData);
-      const { data, success, errorMsg } = result;
-
+    *fetchBellNotification({ payload }, { call, put }) {
+      yield put({ type: 'save', payload: { bellNotificationLoading: true } });
+      const resultData = yield call(service.queryBellNotification, { ...payload });
+      const { data, success, errorMsg } = resultData;
+      yield put({ type: 'save', payload: { bellNotificationLoading: false } });
       if (success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            systemLoading: false,
-          },
-        });
-        const {
-          resultCode,
-          resultMsg,
-          result: {
-            notificationList,
-            pageInfo: { currentPage, pageSize, totalSize },
-          },
-        } = data;
-
-        if (resultCode !== '00' && resultCode !== '0') {
-          throw resultMsg;
-        }
-        if (notificationList && notificationList.length > 0) {
-          notificationList.map(v => {
-            Object.assign(v, { key: `${v.id}` });
-            return v;
-          });
-        }
-
-        yield put({
-          type: 'save',
-          payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
+        const { resultCode, resultMsg, result } = data;
+        if (resultCode === '0' || resultCode === 0) {
+          yield put({
+            type: 'save',
+            payload: {
+              systemNotificationList: result.systemNotificationList || [],
+              systemNotificationCount: result.systemNotificationCount || 0,
+              pendingActivityList: result.pendingActivityList || [],
+              pendingActivityCount: result.pendingActivityCount || 0,
+              bulletinList: result.bulletinList || [],
+              bulletinCount: result.bulletinCount || 0,
+              circularList: result.circularList || [],
+              circularCount: result.circularCount || 0,
+              nextQueryTime: result.nextQueryTime || 120,
             },
-            systemCount: totalSize,
-            systemList: notificationList,
-          },
-        });
-      } else throw errorMsg;
-    },
-    *querybulletinList(_, { call, put, select }) {
-      yield put({
-        type: 'updateState',
-        payload: {
-          bulletinLoading: true,
-        },
-      });
-      const { bulletinFilter, pagination } = yield select(state => state.notificationMgr);
-      const requestData = {
-        ...bulletinFilter,
-        ...pagination,
-      };
-      const result = yield call(service.queryNotificationList, requestData);
-      const { data, success, errorMsg } = result;
-
-      if (success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            bulletinLoading: false,
-          },
-        });
-        const {
-          resultCode,
-          resultMsg,
-          result: {
-            notificationList,
-            pageInfo: { currentPage, pageSize, totalSize },
-          },
-        } = data;
-
-        if (resultCode !== '00' && resultCode !== '0') {
-          throw resultMsg;
-        }
-
-        if (notificationList && notificationList.length > 0) {
-          notificationList.map(v => {
-            Object.assign(v, { key: `${v.id}` });
-            return v;
           });
+          return result.nextQueryTime || 120;
         }
-
-        yield put({
-          type: 'save',
-          payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            bulletinList: notificationList,
-            bulletinCount: totalSize,
-          },
-        });
-      } else throw errorMsg;
+        message.warn(resultMsg, 10);
+        return null;
+      }
+      message.warn(errorMsg, 10);
+      return null;
     },
     *saveData({ payload }, { put }) {
       yield put({
@@ -176,19 +72,26 @@ export default {
     clear(state) {
       return {
         ...state,
-        notificationTypeList: [],
-        visibleFlag: false,
-        notificationList: [],
+        systemNotificationList: [],
+        systemNotificationCount: 0,
+        pendingActivityList: [],
+        pendingActivityCount: 0,
+        bulletinList: [],
+        bulletinCount: 0,
+        circularList: [],
+        circularCount: 0,
+        bellNotificationLoading: false,
+        notificationVisibleFlag: false,
       };
     },
   },
   subscriptions: {
-    setup({ dispatch, history }) {
-      history.listen(location => {
-        if (location.pathname !== '/') {
-          dispatch({ type: 'clear' });
-        }
-      });
-    },
+    // setup({ dispatch, history }) {
+    //   history.listen(location => {
+    //     if (location.pathname !== '/') {
+    //       dispatch({ type: 'clear' });
+    //     }
+    //   });
+    // },
   },
 };

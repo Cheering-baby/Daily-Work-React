@@ -18,7 +18,7 @@ class OrderItemCollapse extends Component {
 
   getOrderSumPrice = (orderOffer) => {
     let orderSumPrice = 0;
-    return `$${orderSumPrice}`;
+    return `$${Number(orderSumPrice).toFixed(2)}`;
   };
 
   getOfferSumPrice = orderOffer => {
@@ -28,7 +28,7 @@ class OrderItemCollapse extends Component {
         offerSumPrice += orderInfo.pricePax * orderInfo.quantity;
       });
     }
-    return `$${offerSumPrice}`;
+    return `$${Number(offerSumPrice).toFixed(2)}`;
   };
 
   getActiveKeyList = () => {
@@ -109,7 +109,7 @@ class OrderItemCollapse extends Component {
                     <Col span={3} className={styles.priceCol}>
                       {
                         companyType === "01" && (
-                          <span className={styles.priceSpan}>${orderInfo.pricePax}/pax</span>
+                          <span className={styles.priceSpan}>${Number(orderInfo.pricePax).toFixed(2)}/pax</span>
                         )
                       }
                     </Col>

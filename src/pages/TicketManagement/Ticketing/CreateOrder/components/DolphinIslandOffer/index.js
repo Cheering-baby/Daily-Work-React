@@ -7,9 +7,8 @@ import ToCart from '../AttractionToCart';
 import { calculateTicketPrice, arrToString } from '../../../../utils/utils';
 import styles from './index.less';
 
-@connect(({ ticketMgr, global }) => ({
+@connect(({ ticketMgr }) => ({
   ticketMgr,
-  global,
 }))
 class DolphinIslandOffer extends Component {
   constructor(props) {
@@ -89,11 +88,7 @@ class DolphinIslandOffer extends Component {
     const originalValue = attractionProduct[index].ticketNumber;
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
+    if (value === '' || testZero.test(value) || (testReg.test(value) && value <= productInventory)) {
       return value;
     }
     return originalValue;
@@ -108,11 +103,7 @@ class DolphinIslandOffer extends Component {
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
+    if (value === '' || testZero.test(value) || (testReg.test(value) && value <= productInventory)) {
       attractionProductCopy[index].ticketNumber = value;
       attractionProductCopy[index].price = calculateTicketPrice(value, productPrice);
       dispatch({
@@ -197,15 +188,15 @@ class DolphinIslandOffer extends Component {
           numOfGuests,
         },
         orderInfo,
-        offerInfo: { ...detail },
+        offerInfo: {...detail},
         deliveryInfo: deliverInfomation,
       };
       dispatch({
         type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
         payload: {
           orderIndex: null,
-          orderData,
-        },
+          orderData
+        }
       });
     } else {
       const orderInfo = [];
@@ -224,7 +215,7 @@ class DolphinIslandOffer extends Component {
           numOfGuests,
         },
         orderInfo,
-        offerInfo: { ...detail },
+        offerInfo: {...detail},
         deliveryInfo: deliverInfomation,
       };
       dispatch({
@@ -251,9 +242,6 @@ class DolphinIslandOffer extends Component {
         countrys = [],
         eventSession,
         deliverInfomation = {},
-      },
-      global: {
-        userCompanyInfo: { companyType },
       },
     } = this.props;
     const ticketTypeItems = [];
@@ -298,7 +286,6 @@ class DolphinIslandOffer extends Component {
       {
         title: 'Price',
         key: 'Price',
-        width: companyType === '02' ? 0 : null,
         align: 'right',
         render: record => {
           const {
@@ -319,68 +306,6 @@ class DolphinIslandOffer extends Component {
         width: '2%',
         render: () => {
           return <div />;
-        },
-      },
-      {
-        title: 'Operation',
-        key: 'Operation',
-        width: '30%',
-        render: (_, record) => {
-          return (
-            <div className={styles.operation}>
-              <Tooltip title="Detail">
-                <Icon
-                  type="eye"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.viewDetail(record);
-                  }}
-                  style={{ marginRight: '10px' }}
-                />
-              </Tooltip>
-              <Button
-                type="primary"
-                onClick={e => {
-                  e.stopPropagation();
-                  this.showToCart(record);
-                }}
-              >
-                Add to Cart
-              </Button>
-            </div>
-          );
-        },
-      },
-    ];
-    const columns2 = [
-      {
-        title: 'Offer Name',
-        key: 'name',
-        render: record => {
-          const {
-            detail: {
-              offerBasicInfo: { offerName },
-            },
-          } = record;
-          return (
-            <Tooltip
-              title={offerName}
-              placement="topLeft"
-              overlayStyle={{ whiteSpace: 'pre-wrap' }}
-            >
-              <span style={{ whiteSpace: 'pre' }}>{offerName}</span>
-            </Tooltip>
-          );
-        },
-      },
-      {
-        title: 'Session',
-        key: 'Session',
-        render: record => {
-          const {
-            session: { priceTimeFrom },
-          } = record;
-          return <div>{priceTimeFrom}</div>;
         },
       },
       {
@@ -470,7 +395,7 @@ class DolphinIslandOffer extends Component {
                   {showDetail ? (
                     <Table
                       className={styles.table}
-                      columns={companyType === '02' ? columns2 : columns}
+                      columns={columns}
                       dataSource={offer}
                       pagination={false}
                       rowKey={record => record.id}

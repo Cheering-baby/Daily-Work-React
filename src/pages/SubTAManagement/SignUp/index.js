@@ -11,7 +11,13 @@ import { isNvl } from '@/utils/utils';
 import { getFormKeyValue, getFormLayout } from '../utils/pubUtils';
 
 const mapStateToProps = store => {
-  const { subTaId, subTaInfo, subTaInfoLoadingFlag, countryList } = store.subTaMgr;
+  const {
+    subTaId,
+    subTaInfo,
+    subTaInfoLoadingFlag,
+    countryList,
+    hasSubTaWithEmail,
+  } = store.subTaMgr;
   const { currentStep, isShowDetail } = store.subTaSignUp;
   return {
     subTaId,
@@ -20,6 +26,7 @@ const mapStateToProps = store => {
     countryList,
     currentStep,
     isShowDetail,
+    hasSubTaWithEmail,
   };
 };
 
@@ -124,6 +131,14 @@ class SignUp extends PureComponent {
       newSubTaInfo = { ...subTaInfo };
     }
     const noVal = getFormKeyValue(keyValue);
+    if (String(key).toLowerCase() === 'email') {
+      dispatch({
+        type: 'subTaMgr/fetchQrySubTaInfoWithEmail',
+        payload: {
+          email: keyValue,
+        },
+      });
+    }
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));
     const source = JSON.parse(`{"${key}":"${noVal}"}`);
     Object.assign(newSubTaInfo, source);
@@ -168,6 +183,7 @@ class SignUp extends PureComponent {
       subTaInfo = {},
       subTaInfoLoadingFlag = false,
       countryList = [],
+      hasSubTaWithEmail = false,
     } = this.props;
     if (isShowDetail) {
       return (
@@ -233,6 +249,7 @@ class SignUp extends PureComponent {
                   this.accountRef = ref;
                 }}
                 subTaInfo={subTaInfo || {}}
+                hasSubTaWithEmail={hasSubTaWithEmail || false}
                 countryList={countryList || []}
                 onHandleChange={this.onHandleChange}
                 detailOpt={getFormLayout()}

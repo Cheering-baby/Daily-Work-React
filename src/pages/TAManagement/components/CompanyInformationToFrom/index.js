@@ -262,7 +262,7 @@ class CompanyInformationToFrom extends PureComponent {
             >
               {getFieldDecorator('incorporationDate', {
                 initialValue: !isNvl(companyInfo.incorporationDate)
-                  ? moment(companyInfo.incorporationDate)
+                  ? moment(companyInfo.incorporationDate, 'YYYY-MM-DD HH:mm:ss')
                   : null,
                 rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
               })(
@@ -428,7 +428,7 @@ class CompanyInformationToFrom extends PureComponent {
                 >
                   {getFieldDecorator('gstEffectiveDate', {
                     initialValue: !isNvl(companyInfo.gstEffectiveDate)
-                      ? moment(companyInfo.gstEffectiveDate)
+                      ? moment(companyInfo.gstEffectiveDate, 'YYYY-MM-DD HH:mm:ss')
                       : null,
                     rules: this.getGstRegNoRules(companyInfo.isGstRegIndicator),
                   })(

@@ -1,4 +1,4 @@
-import { queryNotificationList } from '../../services/notification';
+import {queryNotificationList} from '../../services/notification';
 
 export default {
   namespace: 'bulletin',
@@ -20,54 +20,48 @@ export default {
       pageSize: 10,
     },
     notificationList: [],
+    notificationInfo: {},
   },
 
   effects: {
     *queryNotificationList(_, { call, put, select }) {
-      const { filter, pagination } = yield select(state => state.bulletin);
+      const {filter, pagination} = yield select(state => state.bulletin);
       const requestData = {
         ...filter,
         ...pagination,
       };
-      const result = yield call(queryNotificationList, requestData);
+      const {
+        data: {result, resultCode, resultMsg},
+      } = yield call(queryNotificationList, requestData);
 
-      const { data: resultData, success, errorMsg } = result;
+      if (resultCode !== '0') {
+        throw resultMsg;
+      }
 
-      if (success) {
-        const {
-          resultCode,
-          resultMsg,
-          result: {
-            notificationList = [],
-            pageInfo: { currentPage, pageSize, totalSize },
-          },
-        } = resultData;
+      const {
+        notificationList = [],
+        pageInfo: {currentPage, pageSize, totalSize},
+      } = result;
 
-        if (resultCode !== '0') {
-          throw resultMsg;
-        }
-
-        if (notificationList && notificationList.length > 0) {
-          notificationList.map(v => {
-            Object.assign(v, { key: `${v.id}` });
-            return v;
-          });
-        }
-
-        yield put({
-          type: 'save',
-          payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            notificationList,
-          },
+      if (notificationList && notificationList.length > 0) {
+        notificationList.map(v => {
+          Object.assign(v, {key: `${v.id}`});
+          return v;
         });
-      } else throw errorMsg;
-    },
+      }
 
+      yield put({
+        type: 'save',
+        payload: {
+          pagination: {
+            currentPage,
+            pageSize,
+            totalSize,
+          },
+          notificationList,
+        },
+      });
+    },
     *change({ payload }, { put }) {
       yield put({
         type: 'save',
@@ -89,15 +83,16 @@ export default {
     clear(state) {
       return {
         ...state,
+        type: '02',
         filter: {
-          title: '',
-          type: '',
-          status: '',
+          title: undefined,
+          type: undefined,
+          status: undefined,
           // bulletin
           notificationTypeList: ['01'],
           targetList: [],
-          startDate: '',
-          endDate: '',
+          startDate: undefined,
+          endDate: undefined,
         },
         pagination: {
           currentPage: 1,

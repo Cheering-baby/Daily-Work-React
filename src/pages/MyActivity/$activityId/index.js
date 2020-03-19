@@ -1,22 +1,25 @@
 import React from 'react';
-import { Breadcrumb, Col, Form } from 'antd';
-import { connect } from 'dva';
-import { router, withRouter } from 'umi';
+import {Breadcrumb, Col, Form} from 'antd';
+import {connect} from 'dva';
+import {router, withRouter} from 'umi';
 import detailStyles from './index.less';
 import Approval from '../components/Approval';
 import ApprovalDetail from '../components/ApprovalDetail';
 
 @withRouter
 @Form.create()
-@connect(({ activityDetail }) => ({
+@connect(({activityDetail}) => ({
   activityDetail,
 }))
 class ActivityDetail extends React.PureComponent {
   componentDidMount() {
     const {
       dispatch,
-      match: { params },
+      match: {params},
     } = this.props;
+    dispatch({
+      type: 'activityDetail/reset',
+    });
     dispatch({
       type: 'activityDetail/queryDetail',
       payload: {

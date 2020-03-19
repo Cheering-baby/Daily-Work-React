@@ -8,8 +8,8 @@ import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import DetailForRegistrationInformation from '../components/DetailForRegistrationInformation';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
+import { hasAllPrivilege, MAIN_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
 import SCREEN from '@/utils/screen';
-import { isMainTaRole } from '../utils/pubUtils';
 
 const mapStateToProps = store => {
   const { currentStep } = store.myProfile;
@@ -36,7 +36,6 @@ const mapStateToProps = store => {
     taMappingInfoLoadingFlag,
     taAccountInfoLoadingFlag,
   } = store.taMgr;
-  const { pagePrivileges = [] } = store.global;
   return {
     otherInfo,
     customerInfo,
@@ -58,7 +57,6 @@ const mapStateToProps = store => {
     customerGroupList,
     marketList,
     currentStep,
-    pagePrivileges,
   };
 };
 
@@ -143,7 +141,6 @@ class MyProfile extends PureComponent {
       taInfoLoadingFlag,
       taMappingInfoLoadingFlag,
       taAccountInfoLoadingFlag,
-      pagePrivileges,
     } = this.props;
     const detailProps = {
       otherInfo,
@@ -158,7 +155,6 @@ class MyProfile extends PureComponent {
       currencyList,
       categoryList,
       customerGroupList,
-      pagePrivileges,
     };
     const breadcrumbArr = [
       {
@@ -170,7 +166,7 @@ class MyProfile extends PureComponent {
         url: null,
       },
     ];
-    const isEdit = isMainTaRole(pagePrivileges);
+    const isEdit = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
     return (
       <Col span={24}>
         <Row type="flex" justify="space-around">

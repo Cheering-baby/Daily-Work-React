@@ -34,7 +34,10 @@ class CheckOrder extends Component {
       dispatch,
       ticketOrderCartMgr: {
         cartId
-      }
+      },
+      global: {
+        userCompanyInfo: { companyType },
+      },
     } = this.props;
     dispatch({
       type: 'ticketOrderCartMgr/queryPluAttribute',
@@ -49,6 +52,18 @@ class CheckOrder extends Component {
         columnName: 'NOTIONALITY',
       },
     });
+    if (companyType==='02') {
+      dispatch({
+        type: 'ticketOrderCartMgr/fetchQuerySubTaDetail',
+        payload: {},
+      });
+    } else {
+      dispatch({
+        type: 'ticketOrderCartMgr/fetchQueryTaDetail',
+        payload: {},
+      });
+    }
+
     if (cartId===null) {
       dispatch({
         type: 'ticketOrderCartMgr/createShoppingCart',
@@ -192,26 +207,33 @@ class CheckOrder extends Component {
       },
     } = this.props;
 
+    let isMoreThan = false;
     generalTicketOrderData.forEach(orderData => {
       orderData.orderOfferList.forEach(orderOffer => {
         if (orderOffer.queryInfo.dateOfVisit<collectionDate) {
-          message.warn('The collection more than visit of date!');
-          return;
+          if (!isMoreThan) {
+            isMoreThan = true;
+            message.warn('The collection date is later than date of visit!');
+          }
         }
       });
     });
     packageOrderData.forEach(orderData => {
       orderData.orderOfferList.forEach(orderOffer => {
         if (orderOffer.queryInfo.dateOfVisit<collectionDate) {
-          message.warn('The collection more than visit of date!');
-          return;
+          if (!isMoreThan) {
+            isMoreThan = true;
+            message.warn('The collection date is later than date of visit!');
+          }
         }
       });
     });
     onceAPirateOrderData.forEach(orderData => {
       if (orderData.queryInfo.dateOfVisit<collectionDate) {
-        message.warn('The collection more than visit of date!');
-        return;
+        if (!isMoreThan) {
+          isMoreThan = true;
+          message.warn('The collection date is later than date of visit!');
+        }
       }
     });
 

@@ -40,17 +40,15 @@ class OfferDetail extends Component {
     if (offerDetail && offerDetail.offerProfile) {
       const { offerProfile: { offerContentList = [] } } = offerDetail;
       for (const offerContents of offerContentList) {
-        const { contentLanguage, contentType, contentValue } = offerContents;
-        if (contentLanguage === 'en-us') {
-          if(contentType === 'longDescription') {
-            longDescription = contentValue;
-          }
-          if(contentType === 'offerIncludes') {
-            offerIncludes = contentValue;
-          }
-          if(contentType === 'termsAndConditions') {
-            termsAndConditions = contentValue;
-          }
+        const { contentType, contentValue } = offerContents;
+        if(contentType === 'longDescription') {
+          longDescription = contentValue;
+        }
+        if(contentType === 'offerIncludes') {
+          offerIncludes = contentValue;
+        }
+        if(contentType === 'termsAndConditions') {
+          termsAndConditions = contentValue;
         }
       }
     }

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { message } from 'antd';
+import {message} from 'antd';
 import * as service from '../services/myWallet';
 
 const InvoiceModel = {
@@ -10,13 +10,13 @@ const InvoiceModel = {
       address: 'NaN',
     },
     descriptions: [
-      { label: 'AR NO:', dataKey: 'AR_NO' },
-      { label: 'Tax Invoice:', dataKey: 'Tax_Invoice' },
-      { label: 'Date:', dataKey: 'Date' },
-      { label: 'GST Reg No:', dataKey: 'GST_Reg_No' },
-      { label: 'Co. Reg No:', dataKey: 'Co_Reg_No' },
-      { label: 'Payment Term:', dataKey: 'Payment_Term' },
-      { label: 'Page:', dataKey: 'Page' },
+      {label: 'AR NO:', dataKey: 'AR_NO'},
+      {label: 'Tax Invoice:', dataKey: 'Tax_Invoice'},
+      {label: 'Date:', dataKey: 'Date'},
+      {label: 'GST Reg No:', dataKey: 'GST_Reg_No'},
+      {label: 'Co. Reg No:', dataKey: 'Co_Reg_No'},
+      {label: 'Payment Term:', dataKey: 'Payment_Term'},
+      {label: 'Page:', dataKey: 'Page'},
     ],
     descriptionsData: {
       AR_NO: 'NaN',
@@ -29,7 +29,7 @@ const InvoiceModel = {
     },
     details: {
       Date: 'NaN',
-      Line_Description: 'WIN1300001-TOP up prepayment \nfor Nov19',
+      Line_Description: 'WIN1300001-Top up prepayment \nfor Nov19',
       Total_Amount: 'NaN',
       internal: {
         befGstAmount: 'NaN',
@@ -60,7 +60,7 @@ const InvoiceModel = {
             },
             descriptionsData: {
               AR_NO: mappingInfo.peoplesoftEwalletId,
-              Tax_Invoice: flow.invoiceNo,
+              Tax_Invoice: flow.invoiceNo || flow.sourceInvoiceNo,
               Date: moment(flow.createTime)
                 .format('DD/MM/YYYY')
                 .toString(),
@@ -73,14 +73,14 @@ const InvoiceModel = {
               Date: moment(flow.createTime)
                 .format('DD/MM/YYYY')
                 .toString(),
-              Total_Amount: flow.charge,
-              Line_Description: 'WIN1300001-TOP up \nprepayment for Nov19',
+              Total_Amount: flow.charge.toFixed(2),
+              Line_Description: 'WIN1300001-Top up prepayment \nfor Nov19',
               internal: {
-                befGstAmount: flow.befGstAmount,
-                gstAmount: flow.gstAmount,
-                totalAmount: flow.charge,
+                befGstAmount: Number(flow.befGstAmount.toFixed(2)),
+                gstAmount: flow.gstAmount.toFixed(2),
+                totalAmount: flow.charge.toFixed(2),
               },
-              taxRatio: flow.taxRatio,
+              taxRatio: `${(flow.taxRatio * 100).toFixed(2)} %`,
             },
           },
         });
@@ -109,7 +109,7 @@ const InvoiceModel = {
         },
         details: {
           Date: 'NaN',
-          Line_Description: 'WIN1300001-TOP up prepayment \nfor Nov19',
+          Line_Description: 'WIN1300001-Top up prepayment \nfor Nov19',
           Total_Amount: 'NaN',
           internal: {
             befGstAmount: 'NaN',

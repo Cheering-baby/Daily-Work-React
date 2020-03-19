@@ -6,6 +6,7 @@ import { parse, stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 import loginSession from './loginSession';
 import 'isomorphic-fetch';
+import defaultSettings from '@/defaultSettings';
 
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
@@ -442,8 +443,11 @@ export function loginRedirect() {
 }
 
 export function getServicePath() {
-  const uaaPath = `${UAAService.defaults.uaaPath}/${UAAService.defaults.backendContextPath}`;
-  return uaaPath;
+  const backendContextPath = `${UAAService.defaults.backendContextPath}`;
+  if (backendContextPath.startsWith('/')) {
+    return `${UAAService.defaults.uaaPath}${backendContextPath}`;
+  }
+  return `${UAAService.defaults.uaaPath}/${backendContextPath}`;
 }
 
 export const isString = obj => Object.prototype.toString.call(obj) === '[object String]';
@@ -509,11 +513,15 @@ export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown
 }
 
 export function getUrl() {
+  const backendContextPath = `${UAAService.defaults.backendContextPath}`;
+  if (backendContextPath.startsWith('/')) {
+    return `${UAAService.defaults.uaaPath}${UAAService.defaults.backendContextPath}`;
+  }
   return `${UAAService.defaults.uaaPath}/${UAAService.defaults.backendContextPath}`;
-  // return `http://10.25.159.206:18091/pams`;
+  //return `http://10.25.159.206:18091/pams`;
 }
 
 export function getLocalUrl() {
-  return `${UAAService.defaults.uaaPath}`;
+  return `${window.location.protocol}//${window.location.host}${defaultSettings.publicPath}`;
   // return 'http://localhost:8000';
 }

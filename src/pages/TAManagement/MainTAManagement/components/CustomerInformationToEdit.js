@@ -7,15 +7,14 @@ import CompanyInformationToFrom from '../../components/CompanyInformationToFrom'
 import QuestionsToFrom from '../../components/QuestionsToFrom';
 import ApplyARCreditToFrom from '../../components/ApplyARCreditToFrom';
 import FileUploadToFrom from '../../components/FileUploadToFrom';
-import {
-  getFormKeyValue,
-  getFormLayout,
-  getProductType,
-  isAccountingArRole,
-  isMainTaRole,
-  isSaleSupportRole,
-} from '../../utils/pubUtils';
+import { getFormKeyValue, getFormLayout, getProductType } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
+import {
+  AR_ACCOUNT_PRIVILEGE,
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SALES_SUPPORT_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const {
@@ -29,7 +28,6 @@ const mapStateToProps = store => {
     customerGroupLoadingFlag,
   } = store.taCommon;
   const { customerInfo, taId } = store.taMgr;
-  const { pagePrivileges = [] } = store.global;
   const { isRwsRoom, isRwsAttraction, viewId } = store.mainTAManagement;
   return {
     organizationRoleList,
@@ -44,7 +42,6 @@ const mapStateToProps = store => {
     taId,
     isRwsRoom,
     isRwsAttraction,
-    pagePrivileges,
     viewId,
   };
 };
@@ -78,7 +75,7 @@ class CustomerInformationToEdit extends PureComponent {
   };
 
   onHandleCompanyEditChange = (key, keyValue, fieldKey) => {
-    const { dispatch, form, customerInfo } = this.props;
+    const { dispatch, form, customerInfo, taId } = this.props;
     let newCompanyInfo = {};
     if (!isNvl(customerInfo) && !isNvl(customerInfo.companyInfo)) {
       newCompanyInfo = { ...customerInfo.companyInfo };
@@ -104,6 +101,12 @@ class CustomerInformationToEdit extends PureComponent {
         form.setFieldsValue(sourceOne);
         Object.assign(newCompanyInfo, sourceOne);
       }
+    }
+    if (String(key) === 'registrationNo') {
+      dispatch({
+        type: 'taMgr/fetchCheckCompanyExist',
+        payload: { registrationNo: keyValue, taId },
+      });
     }
     if (String(key) === 'isGstRegIndicator') {
       form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
@@ -327,7 +330,6 @@ class CustomerInformationToEdit extends PureComponent {
   render() {
     const {
       form,
-      pagePrivileges,
       organizationRoleList,
       countryList,
       cityList,
@@ -342,9 +344,9 @@ class CustomerInformationToEdit extends PureComponent {
       viewId,
     } = this.props;
     const { companyInfo = {} } = customerInfo || {};
-    const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
-    const isMainTaRoleFlag = isMainTaRole(pagePrivileges);
-    const isSaleSupportRoleFlag = isSaleSupportRole(pagePrivileges);
+    const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
+    const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
+    const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
     const detailOpt = getFormLayout();
     const arCreditProps = {
       form,

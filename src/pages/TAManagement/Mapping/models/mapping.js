@@ -20,12 +20,20 @@ export default {
     *fetchMappingList(_, { call, put, select }) {
       const { filter, pagination } = yield select(state => state.mapping);
       const { likeParam } = filter;
-      let response;
-      if (isEmpty(likeParam)) {
-        response = yield call(service.mappingList, pagination);
-      } else {
-        response = yield call(service.like, likeParam, pagination);
+      let reqParams = {
+        pageInfo: {
+          ...pagination,
+        },
+      };
+      if (!isEmpty(likeParam)) {
+        reqParams = {
+          pageInfo: {
+            ...pagination,
+          },
+          ...likeParam,
+        };
       }
+      const response = yield call(service.mappingList, reqParams);
       const { success, errorMsg, data } = response;
       const {
         result: { mappingList, pageInfo },

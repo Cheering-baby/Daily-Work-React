@@ -334,7 +334,7 @@ class Index extends React.PureComponent {
       return constants.ORG_TYPE_MAP.get(orgType);
     }
     if (operType === 'ADD_TA_COMPANY') {
-      return constants.ORG_TYPE_MAP.get('01');
+      return '01';
     }
     return undefined;
   };
@@ -374,7 +374,7 @@ class Index extends React.PureComponent {
         selectedOrg: { subOrgs = [] },
       },
     } = this.props;
-    return subOrgs.findIndex(org => org.companyId === item.id) > -1;
+    return subOrgs.findIndex(org => String(org.companyId) === String(item.id)) > -1;
   };
 
   orgTypeChange = value => {

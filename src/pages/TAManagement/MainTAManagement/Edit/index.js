@@ -24,8 +24,8 @@ const mapStateToProps = store => {
     taInfoLoadingFlag,
     taMappingInfoLoadingFlag,
     taAccountInfoLoadingFlag,
+    isCompanyExist,
   } = store.taMgr;
-  const { pagePrivileges = [] } = store.global;
   return {
     otherInfo,
     customerInfo,
@@ -40,7 +40,7 @@ const mapStateToProps = store => {
     currentStep,
     isAllInformationToRws,
     viewId,
-    pagePrivileges,
+    isCompanyExist,
   };
 };
 
@@ -118,15 +118,7 @@ class EditToTa extends PureComponent {
   };
 
   onHandleSubmit = () => {
-    const {
-      dispatch,
-      otherInfo,
-      customerInfo,
-      mappingInfo,
-      currentStep,
-      taId,
-      pagePrivileges,
-    } = this.props;
+    const { dispatch, otherInfo, customerInfo, mappingInfo, currentStep, taId } = this.props;
     if (String(currentStep) === '0') {
       const { form } = this.customerEditRef.props;
       form.validateFieldsAndScroll(error => {
@@ -163,7 +155,7 @@ class EditToTa extends PureComponent {
             customerInfo,
             mappingInfo,
             taId,
-            modifyType: getModifyTYpe(pagePrivileges),
+            modifyType: getModifyTYpe(),
           },
         }).then(flag => {
           if (flag)
@@ -230,6 +222,7 @@ class EditToTa extends PureComponent {
       taAccountInfoLoadingFlag,
       isAllInformationToRws,
       viewId,
+      isCompanyExist,
     } = this.props;
     const breadcrumbArr = [
       {
@@ -296,7 +289,10 @@ class EditToTa extends PureComponent {
                               taAccountInfoLoadingFlag
                             }
                           onClick={this.onHandleSubmit}
-                          disabled={!isAllInformationToRws && String(currentStep) === '1'}
+                          disabled={
+                              (!isAllInformationToRws && String(currentStep) === '1') ||
+                              isCompanyExist
+                            }
                         >
                           {formatMessage({ id: 'COMMON_OK' })}
                         </Button>

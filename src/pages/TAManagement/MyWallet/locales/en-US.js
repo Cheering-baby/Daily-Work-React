@@ -11,6 +11,7 @@ export default {
   BTN_PRINT: 'Print',
   EWALLET_TOPUP_TITLE: 'EWALLET TOPUP',
   TOPUP: 'Top Up',
+  TOPUP_AMOUNT_VALIDATE_MESSAGE: 'Please enter the valid topup amount.',
   INVOICE_TITLE: 'TAX INVOICE',
   AR_APPLY_BTN: 'Apply',
   AR_APPLY_TITLE: 'Apply',

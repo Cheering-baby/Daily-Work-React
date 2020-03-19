@@ -82,24 +82,6 @@ export function getFormKeyValue(keyValue) {
   return noVal;
 }
 
-export function isMainTaRoleSub(pagePrivileges) {
-  let isMainTaRoleSubFlag = false;
-  if (pagePrivileges && pagePrivileges.length > 0) {
-    isMainTaRoleSubFlag =
-      pagePrivileges.findIndex(n => String(n.componentCode).toUpperCase() === 'MAIN_TA') !== -1;
-  }
-  return isMainTaRoleSubFlag;
-}
-
-export function isAdminRoleSub(pagePrivileges) {
-  let isAdminRoleSubFlag = false;
-  if (pagePrivileges && pagePrivileges.length > 0) {
-    isAdminRoleSubFlag =
-      pagePrivileges.findIndex(n => String(n.componentCode).toUpperCase() === 'ADMIN') !== -1;
-  }
-  return isAdminRoleSubFlag;
-}
-
 export function getKeyValue(keyValue) {
   let noVal = '';
   if (!isNvl(keyValue)) {

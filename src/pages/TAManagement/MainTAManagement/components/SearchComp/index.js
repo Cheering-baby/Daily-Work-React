@@ -3,16 +3,15 @@ import { Button, Col, Form, Input, Row, Spin } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
-import { getKeyValue, isAccountingArRole } from '../../../utils/pubUtils';
+import { getKeyValue } from '../../../utils/pubUtils';
+import { AR_ACCOUNT_PRIVILEGE, hasAllPrivilege } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const { selectTaId = null, searchForm, searchList, qryTaTableLoading } = store.mainTAManagement;
-  const { pagePrivileges = [] } = store.global;
   return {
     selectTaId,
     searchForm,
     searchList,
-    pagePrivileges,
     qryTaTableLoading,
   };
 };
@@ -81,9 +80,8 @@ class SearchComp extends PureComponent {
       peoplesoftEwalletId,
       peoplesoftArAccountId,
       qryTaTableLoading,
-      pagePrivileges,
     } = this.props;
-    const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
+    const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
     let colSpan = 6;
     if (!isAccountingArRoleFlag) {
       colSpan = 18;

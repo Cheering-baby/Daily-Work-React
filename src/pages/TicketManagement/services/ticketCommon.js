@@ -7,27 +7,11 @@ const uaaPath = process.env.NODE_ENV === 'development' ? dev : window.location.o
 
 const uaaPathWithMock = process.env.NODE_ENV === 'development' ? dev : window.location.origin;
 
-export async function registrationTaInfo(params) {
-  return UAAService.request(`${uaaPath}/profile/TARegistration`, {
-    method: 'POST',
-    body: {
-      ...params,
-    },
-  });
-}
-
-export async function queryTaInfo(params) {
-  return UAAService.request(`${uaaPath}/profile/queryTaInfo`, {
-    method: 'GET',
-    body: {
-      ...params,
-    },
-  });
-}
+const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export async function queryAttributeList(params) {
   return UAAService.request(
-    `${uaaPath}/proxy/ali/cxm/rwscxm/api/v1/basicproduct/attributeConfig/queryAttributeListByCode`,
+    `${localPath}/proxy/ali/cxm/rwscxm/api/v1/basicproduct/attributeConfig/queryAttributeListByCode`,
     {
       method: 'POST',
       body: {
@@ -38,7 +22,7 @@ export async function queryAttributeList(params) {
 }
 
 export async function queryCountry(params) {
-  return UAAService.request(`${dev}/proxy/ali/b2c/customer/v1/domain/query`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2c/customer/v1/domain/query`, {
     method: 'GET',
     params,
     body: {
@@ -48,7 +32,7 @@ export async function queryCountry(params) {
 }
 
 export async function queryOfferList(params) {
-  return UAAService.request(`${uaaPath}/proxy/ali/b2b/product/v1/offer/list`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2b/product/v1/offer/list`, {
     method: 'POST',
     body: {
       ...params,
@@ -57,7 +41,7 @@ export async function queryOfferList(params) {
 }
 
 export async function queryOfferDetail(params) {
-  return UAAService.request(`${uaaPath}/proxy/ali/b2b/product/v1/offer/detail`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2b/product/v1/offer/detail`, {
     method: 'GET',
     params,
     body: {

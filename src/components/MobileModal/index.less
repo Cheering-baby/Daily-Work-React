@@ -1,3 +1,5 @@
+@import '../../theme/screen';
+
 .mobileModelWrapper {
   background-color: #f9f9f9;
   position: fixed;
@@ -17,6 +19,25 @@
 
     div {
       height: auto !important;
+    }
+  }
+
+  .contentWrapperNoFooter {
+    padding: 15px 15px 50px 15px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    width: 100%;
+    overflow-x: auto;
+
+    div {
+      height: auto !important;
+    }
+  }
+
+  @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+    .contentWrapperNoFooter {
+      padding: 15px 15px 50px 15px;
     }
   }
 

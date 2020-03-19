@@ -1,9 +1,9 @@
 import React from 'react';
-import { Badge, Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
+import {Badge, Button, Card, Col, Icon, Row, Table, Tooltip} from 'antd';
 // import MediaQuery from 'react-responsive';
-import { formatMessage } from 'umi/locale';
+import {formatMessage} from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen'*;
-import { connect } from 'dva';
+import {connect} from 'dva';
 import router from 'umi/router';
 import styles from '../index.less';
 import constants from '../constants';
@@ -27,6 +27,7 @@ class Index extends React.PureComponent {
       {
         title: this.showTableTitle(formatMessage({ id: 'FULL_NAME' })),
         width: '12.5%',
+        key: 'id',
         render: (text, record) => {
           let { rwsInfo = {}, taInfo = {} } = record;
           const { userType } = record;
@@ -55,6 +56,7 @@ class Index extends React.PureComponent {
       {
         title: this.showTableTitle(formatMessage({ id: 'USER_LOGIN' })),
         width: '12.5%',
+        key: 'userCode',
         dataIndex: 'userCode',
       },
       {
@@ -71,7 +73,7 @@ class Index extends React.PureComponent {
             return constants.RWS_ORG;
           }
           const { companyId = '' } = taInfo;
-          const { companyName = '' } = companyMap.get(companyId) || {};
+          const { companyName = '' } = companyMap.get(`${companyId}`) || {};
           return <Tooltip title={companyName}>{companyName}</Tooltip>;
         },
       },
@@ -181,6 +183,7 @@ class Index extends React.PureComponent {
       type: 'userMgr/modifyUser',
       payload: {
         userCode: userInfo.userCode,
+        userType: userInfo.userType,
         status,
       },
     }).then(() => {
@@ -234,7 +237,7 @@ class Index extends React.PureComponent {
       orgs.push(orgText);
     });
 
-    const orgBody = orgs.map(item => <div key={item.code}>{item}</div>);
+    const orgBody = orgs.map(item => <div key={item}>{item}</div>);
 
     return (
       <Tooltip overlayClassName={styles.overlayClass} title={orgBody}>
@@ -330,7 +333,7 @@ class Index extends React.PureComponent {
         </Row>
         <Table
           {...tableOpts}
-          rowKey="id"
+          rowKey="userCode"
           bordered={false}
           size="small"
           dataSource={userProfiles}

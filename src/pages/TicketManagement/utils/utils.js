@@ -54,3 +54,42 @@ export function calculateTicketPrice(ticketNumber, productPrice = []) {
   }
   return '0.00';
 }
+
+export function calculateProductPrice(product, selectRuleId) {
+  const { priceRule = [], productType, special = [], needChoiceCount } = product;
+  const ruleId = selectRuleId || null;
+  const { productPrice } = priceRule.find(({ priceRuleId }) => priceRuleId === ruleId);
+  let price = 0;
+
+  if (productType === 'Hotel') {
+    const specialPriceArray = special.map(({ servicePriceValue }) => servicePriceValue);
+    const specialTotalPrice =
+      specialPriceArray.length > 0
+        ? specialPriceArray.reduce((a, b) => parseFloat(a) + parseFloat(b))
+        : 0;
+    const hotelPrice = productPrice.map(
+      ({ discountUnitPrice }) => parseFloat(discountUnitPrice) + parseFloat(specialTotalPrice)
+    );
+    price +=
+      hotelPrice.length === 0 ? 0 : hotelPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
+  } else if (productType === 'Attraction') {
+    const priceArray = productPrice.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
+    const attractionPrice = priceArray.map(
+      ({ perPiece, discountUnitPrice }) =>
+        parseFloat(perPiece || needChoiceCount) * parseFloat(discountUnitPrice)
+    );
+    price +=
+      attractionPrice.length === 0
+        ? 0
+        : attractionPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
+  }
+  return price;
+}
+
+export function calculateAllProductPrice(products = [], selectRuleId) {
+  let price = 0;
+  products.forEach(item => {
+    price += calculateProductPrice(item, selectRuleId);
+  });
+  return price.toFixed(2);
+}

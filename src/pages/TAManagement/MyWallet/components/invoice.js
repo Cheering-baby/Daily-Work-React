@@ -1,14 +1,14 @@
 /* eslint-disable */
 import React from 'react';
 import ReactToPrint from 'react-to-print';
-import { formatMessage } from 'umi/locale';
-import { connect } from 'dva';
-import { Button, Modal, Spin } from 'antd';
+import {formatMessage} from 'umi/locale';
+import {connect} from 'dva';
+import {Button, Modal, Spin} from 'antd';
 import styles from './invoice.less';
 
 const logoImage = require('@/assets/image/logi-mini.png');
 
-@connect(({ invoice, global, loading }) => ({
+@connect(({invoice, global, loading}) => ({
   invoice,
   global,
   loading: loading.effects['invoice/fetchInvoiceDetail'],
@@ -154,7 +154,12 @@ class Invoice extends React.PureComponent {
                         colSpan={1}
                         className={`${styles['descriptions-table-item-label']} ${styles['descriptions-table-item-right']}`}
                       >
-                        Total Amount(SGD)
+                        <div className={styles['descriptions-table-width']}>
+                          <span>{'Total Amount'}</span>
+                        </div>
+                        <div className={styles['descriptions-table-width']}>
+                          <span>{'(SGD)'}</span>
+                        </div>
                       </th>
                     </tr>
                     <tr className={styles['descriptions-table-row']}>
@@ -168,7 +173,9 @@ class Invoice extends React.PureComponent {
                         colSpan={1}
                         className={`${styles['descriptions-table-item-content']} ${styles['descriptions-table-item-right']}`}
                       >
-                        {details.Total_Amount}
+                        {Number(details.Total_Amount)
+                          .toFixed(2)
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       </td>
                     </tr>
                     <tr>
@@ -190,9 +197,21 @@ class Invoice extends React.PureComponent {
                         colSpan={1}
                         className={`${styles['descriptions-table-item-content']} ${styles['descriptions-table-item-right']}`}
                       >
-                        <div>{details.internal.befGstAmount}</div>
-                        <div>{details.internal.gstAmount}</div>
-                        <div>{details.internal.totalAmount}</div>
+                        <div>
+                          {Number(details.internal.befGstAmount)
+                            .toFixed(2)
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        </div>
+                        <div>
+                          {Number(details.internal.gstAmount)
+                            .toFixed(2)
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        </div>
+                        <div>
+                          {Number(details.internal.totalAmount)
+                            .toFixed(2)
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        </div>
                       </td>
                     </tr>
                   </tbody>

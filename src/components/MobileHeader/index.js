@@ -151,7 +151,7 @@ class MobileHeader extends PureComponent {
           </div>
         </Col>
         <Col span={3}>
-          <Notification />
+          <Notification {...this.props} />
         </Col>
         <Col span={3}>
           <Popover

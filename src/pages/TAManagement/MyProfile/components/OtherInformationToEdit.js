@@ -4,15 +4,14 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import BillingInformationToFrom from '../../components/BillingInformationToFrom';
 import TAFinanceContactToFrom from '../../components/TAFinanceContactToFrom';
-import {
-  getBillingInfo,
-  getFormKeyValue,
-  getFormLayout,
-  isAccountingArRole,
-  isMainTaRole,
-  isSaleSupportRole,
-} from '../../utils/pubUtils';
+import { getBillingInfo, getFormKeyValue, getFormLayout } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
+import {
+  AR_ACCOUNT_PRIVILEGE,
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SALES_SUPPORT_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const {
@@ -33,7 +32,6 @@ const mapStateToProps = store => {
     remark,
     taInfoLoadingFlag,
   } = store.taMgr;
-  const { pagePrivileges = [] } = store.global;
   const { isBilCheckBox, isAllInformationToRws, viewId } = store.myProfile;
   return {
     otherInfo,
@@ -52,7 +50,6 @@ const mapStateToProps = store => {
     bilCityLoadingFlag,
     isBilCheckBox,
     isAllInformationToRws,
-    pagePrivileges,
     viewId,
   };
 };
@@ -187,11 +184,10 @@ class OtherInformationToEdit extends PureComponent {
       bilCityLoadingFlag = false,
       isBilCheckBox,
       isAllInformationToRws,
-      pagePrivileges,
     } = this.props;
-    const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
-    const isMainTaRoleFlag = isMainTaRole(pagePrivileges);
-    const isSaleSupportRoleFlag = isSaleSupportRole(pagePrivileges);
+    const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
+    const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
+    const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
     const detailOpt = getFormLayout();
     const myBilProps = {
       form,

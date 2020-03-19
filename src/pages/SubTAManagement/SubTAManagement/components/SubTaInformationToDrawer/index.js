@@ -9,8 +9,13 @@ import { getFormKeyValue } from '../../../utils/pubUtils';
 import styles from './index.less';
 
 const mapStateToProps = store => {
-  const { subTaId, subTaInfo, subTaInfoLoadingFlag, countryList } = store.subTaMgr;
-  const { pagePrivileges = [] } = store.global;
+  const {
+    subTaId,
+    subTaInfo,
+    subTaInfoLoadingFlag,
+    countryList,
+    hasSubTaWithEmail,
+  } = store.subTaMgr;
   const { searchForm, searchList, isDetail, isEdit, operationVisible } = store.subTAManagement;
   return {
     subTaId,
@@ -22,7 +27,7 @@ const mapStateToProps = store => {
     isDetail,
     isEdit,
     operationVisible,
-    pagePrivileges,
+    hasSubTaWithEmail,
   };
 };
 
@@ -36,6 +41,15 @@ class SubTaInformationToDrawer extends PureComponent {
       newSubTaInfo = { ...subTaInfo };
     }
     const noVal = getFormKeyValue(keyValue);
+    if (String(key).toLowerCase() === 'email') {
+      dispatch({
+        type: 'subTaMgr/fetchQrySubTaInfoByEmail',
+        payload: {
+          email: keyValue,
+          subTaId: subTaInfo.subTaId,
+        },
+      });
+    }
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));
     const source = JSON.parse(`{"${key}":"${noVal}"}`);
     Object.assign(newSubTaInfo, source);
@@ -121,6 +135,7 @@ class SubTaInformationToDrawer extends PureComponent {
       isDetail,
       isEdit,
       subTaInfoLoadingFlag,
+      hasSubTaWithEmail,
     } = this.props;
     return (
       <Drawer
@@ -175,7 +190,12 @@ class SubTaInformationToDrawer extends PureComponent {
             </Button>
           )}
           {isEdit && (
-            <Button onClick={this.onOk} type="primary" loading={subTaInfoLoadingFlag}>
+            <Button
+              onClick={this.onOk}
+              type="primary"
+              loading={subTaInfoLoadingFlag}
+              disabled={hasSubTaWithEmail}
+            >
               {formatMessage({ id: 'COMMON_OK' })}
             </Button>
           )}

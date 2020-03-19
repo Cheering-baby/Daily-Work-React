@@ -7,12 +7,12 @@ import MediaQuery from 'react-responsive';
 import MobileModal from '@/components/MobileModal';
 import StateChangeHistoryComp from '../StateChangeHistoryComp';
 import SCREEN from '@/utils/screen';
-import { isMainTaRoleSub } from '../../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import prohibit from '../../../../../assets/pams/prohibit.svg';
 import circleURL from '../../../../../assets/pams/circle.svg';
 import PaginationComp from '@/pages/TAManagement/MainTAManagement/components/PaginationComp';
+import { hasAllPrivilege, MAIN_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const {
@@ -24,7 +24,6 @@ const mapStateToProps = store => {
     editVisible,
     hisVisible,
   } = store.subTAManagement;
-  const { pagePrivileges = [] } = store.global;
   return {
     selectSubTaId,
     searchList,
@@ -33,7 +32,6 @@ const mapStateToProps = store => {
     qrySubTaTableLoading,
     editVisible,
     hisVisible,
-    pagePrivileges,
   };
 };
 
@@ -66,7 +64,7 @@ class TableComp extends PureComponent {
         dataIndex: 'applicationDate',
         width: '180px',
         render: text => {
-          return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';
+          return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
         },
       },
       {
@@ -91,8 +89,7 @@ class TableComp extends PureComponent {
         dataIndex: '',
         width: '120px',
         render: (text, record) => {
-          const { pagePrivileges } = this.props;
-          const isMainTaRoleFlag = isMainTaRoleSub(pagePrivileges);
+          const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
           return (
             <div>
               <Tooltip placement="top" title={formatMessage({ id: 'COMMON_DETAIL' })}>

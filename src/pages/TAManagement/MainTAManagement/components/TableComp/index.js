@@ -14,9 +14,14 @@ import StateChangeHistoryComp from '../StateChangeHistoryComp';
 import SCREEN from '@/utils/screen';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
-import { isAccountingArRole, isMainTaRole, isSaleSupportRole } from '../../../utils/pubUtils';
 import circleURL from '../../../../../assets/pams/circle.svg';
 import prohibit from '../../../../../assets/pams/prohibit.svg';
+import {
+  AR_ACCOUNT_PRIVILEGE,
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SALES_SUPPORT_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const { countryList, categoryList, marketList } = store.taCommon;
@@ -34,7 +39,6 @@ const mapStateToProps = store => {
     taMoreVisible = false,
   } = store.mainTAManagement;
   const { contractFileList = [], contractFileUploading = false } = store.uploadContract;
-  const { pagePrivileges = [] } = store.global;
   return {
     taId,
     searchForm,
@@ -52,7 +56,6 @@ const mapStateToProps = store => {
     countryList,
     categoryList,
     marketList,
-    pagePrivileges,
   };
 };
 
@@ -90,7 +93,7 @@ class TableComp extends PureComponent {
         dataIndex: 'effectiveDate',
         width: '140px',
         render: text => {
-          return !isNvl(text) ? moment(text, 'YYYYMMDD').format('DD-MMM-YYYY') : '-';
+          return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
         },
       },
       {
@@ -122,10 +125,10 @@ class TableComp extends PureComponent {
         dataIndex: '',
         width: '100px',
         render: (text, record) => {
-          const { pagePrivileges, selectMoreTaId, taMoreVisible } = this.props;
-          const isAccountingArRoleFlag = isAccountingArRole(pagePrivileges);
-          const isMainTaRoleFlag = isMainTaRole(pagePrivileges);
-          const isSaleSupportRoleFlag = isSaleSupportRole(pagePrivileges);
+          const { selectMoreTaId, taMoreVisible } = this.props;
+          const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
+          const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
+          const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
           return (
             <div>
               <Tooltip placement="top" title={formatMessage({ id: 'COMMON_DETAIL' })}>

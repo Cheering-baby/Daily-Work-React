@@ -12,13 +12,11 @@ import styles from './index.less';
 
 const mapStateToProps = store => {
   const { taList, qryTaTableLoading, modalVisible, searchList } = store.mainTAManagement;
-  const { pagePrivileges = [] } = store.global;
   return {
     taList,
     qryTaTableLoading,
     modalVisible,
     searchList,
-    pagePrivileges,
   };
 };
 

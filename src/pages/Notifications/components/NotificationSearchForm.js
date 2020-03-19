@@ -1,15 +1,30 @@
-import React, { PureComponent } from 'react';
-import { Button, Card, Col, Form, Input, Row, Select } from 'antd';
-import { formatMessage } from 'umi/locale';
-import { connect } from 'dva';
+import React, {PureComponent} from 'react';
+import {Button, Card, Col, Form, Input, Row, Select, TreeSelect} from 'antd';
+import {formatMessage} from 'umi/locale';
+import {connect} from 'dva';
+import {getAllChildrenTargetList, getAllTargetList} from '../utils/pubUtils';
 import styles from '../index.less';
 
-const { Option } = Select;
+const {Option} = Select;
 
 const colLayout = {
   lg: 6,
   md: 8,
   sm: 12,
+  xs: 24,
+};
+
+const colAdminBtnLayout = {
+  lg: 18,
+  md: 16,
+  sm: 12,
+  xs: 24,
+};
+
+const colBtnLayout = {
+  lg: 12,
+  md: 8,
+  sm: 24,
   xs: 24,
 };
 
@@ -42,19 +57,12 @@ class NotificationSearchForm extends PureComponent {
     dispatch({
       type: 'notificationSearchForm/queryStatusList',
     });
+    dispatch({type: 'notificationSearchForm/queryAllCompanyConfig'});
   }
 
   handleReset = () => {
-    const { form } = this.props;
+    const {form, onSearch} = this.props;
     form.resetFields();
-    form.validateFields((err, values) => {
-      this.query(values);
-    });
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
-    const { form, onSearch } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
         let startDate;
@@ -70,30 +78,73 @@ class NotificationSearchForm extends PureComponent {
     });
   };
 
+  handleSubmit = e => {
+    e.preventDefault();
+    const {
+      form,
+      notificationSearchForm: {targetTreeData = []},
+      onSearch,
+    } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        let startDate;
+        let endDate;
+        if (Array.isArray(values.createDate)) {
+          startDate = values.createDate[0].format('YYYY-MM-DD');
+          endDate = values.createDate[1].format('YYYY-MM-DD');
+        }
+        values.startDate = startDate;
+        values.endDate = endDate;
+        const newTargetList = [];
+        if (values.targetList && values.targetList.length > 0) {
+          const aaList = [];
+          getAllTargetList(values.targetList, targetTreeData, aaList);
+          getAllChildrenTargetList(aaList, newTargetList);
+        }
+        values.targetList = newTargetList;
+        onSearch(values);
+      }
+    });
+  };
+
   render() {
     const {
       form,
-      notificationSearchForm: { notificationTypeList = [], targetTypeList = [], statusList = [] },
+      notificationSearchForm: {notificationTypeList = [], statusList = [], targetTreeData = []},
+      isAdminRoleFlag = false,
     } = this.props;
-    const { getFieldDecorator } = form;
-
+    const {getFieldDecorator} = form;
+    const viewId = 'notificationSearchView';
+    const tProps = {
+      allowClear: true,
+      showSearch: true,
+      multiple: true,
+      treeDefaultExpandAll: true,
+      treeData: targetTreeData,
+      treeCheckable: true,
+      treeNodeFilterProp: 'title',
+      showCheckedStrategy: TreeSelect.SHOW_PARENT,
+      searchPlaceholder: formatMessage({id: 'NOTICE_PLEASE_SELECT'}),
+      getPopupContainer: () => document.getElementById(`${viewId}`),
+      style: {
+        width: '100%',
+      },
+      dropdownStyle: {
+        maxHeight: '300px',
+      },
+    };
     return (
-      <Card className={`as-shadow no-border ${styles.formCardClass}`}>
+      <Card id={`${viewId}`} className={`as-shadow no-border ${styles.formCardClass}`}>
         <Form onSubmit={this.handleSubmit}>
           <Row gutter={24}>
             <Col {...colLayout}>
               <Form.Item {...formItemLayout}>
                 {getFieldDecorator(`title`, {
-                  rules: [
-                    {
-                      require: false,
-                      message: '',
-                    },
-                  ],
+                  rules: [],
                 })(
                   <Input
                     allowClear
-                    placeholder={formatMessage({ id: 'TITLE' })}
+                    placeholder={formatMessage({id: 'TITLE'})}
                     autoComplete="off"
                   />
                 )}
@@ -101,72 +152,109 @@ class NotificationSearchForm extends PureComponent {
             </Col>
             <Col {...colLayout}>
               <Form.Item {...formItemLayout}>
-                {getFieldDecorator(`targetType`, {
-                  rules: [
-                    {
-                      required: false,
-                      message: '',
-                    },
-                  ],
+                {getFieldDecorator(`readStatus`, {
+                  rules: [],
                 })(
-                  <Select allowClear placeholder={formatMessage({ id: 'TARGET_TYPE' })}>
-                    {targetTypeList.map(item => (
-                      <Option key={item.id} value={item.value}>
-                        {item.dicName}
-                      </Option>
-                    ))}
+                  <Select
+                    allowClear
+                    placeholder={formatMessage({id: 'READ_STATUS'})}
+                    getPopupContainer={() => document.getElementById(`${viewId}`)}
+                  >
+                    <Option key={`readStatusList01}`} value="01">
+                      {formatMessage({id: 'READ_STATUS_READ'})}
+                    </Option>
+                    <Option key={`readStatusList02}`} value="02">
+                      {formatMessage({id: 'READ_STATUS_UNREAD'})}
+                    </Option>
+                    {/* 01: read */}
+                    {/* 02: unread */}
                   </Select>
                 )}
               </Form.Item>
             </Col>
-            <Col {...colLayout}>
-              <Form.Item {...formItemLayout}>
-                {getFieldDecorator(`type`, {
-                  rules: [
-                    {
-                      required: false,
-                      message: '',
-                    },
-                  ],
-                })(
-                  <Select allowClear placeholder={formatMessage({ id: 'TYPE' })}>
-                    {notificationTypeList.map(item => (
-                      <Option key={item.id} value={item.value}>
-                        {item.dicName}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              </Form.Item>
-            </Col>
-            <Col {...colLayout}>
-              <Form.Item {...formItemLayout}>
-                {getFieldDecorator(`status`, {
-                  rules: [
-                    {
-                      required: false,
-                      message: '',
-                    },
-                  ],
-                })(
-                  <Select allowClear placeholder={formatMessage({ id: 'STATUS' })}>
-                    {statusList.map(item => (
-                      <Option key={item.id} value={item.value}>
-                        {item.dicName}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              </Form.Item>
-            </Col>
-            <Col span={24} style={{ textAlign: 'right' }}>
-              <Button type="primary" htmlType="submit" style={{ marginRight: 15 }}>
-                {formatMessage({ id: 'SEARCH' })}
-              </Button>
-              <Button htmlType="reset" onClick={this.handleReset}>
-                {formatMessage({ id: 'RESET' })}
-              </Button>
-            </Col>
+            {isAdminRoleFlag && (
+              <Col {...colLayout}>
+                <Form.Item {...formItemLayout}>
+                  {getFieldDecorator(`targetList`, {
+                    rules: [],
+                  })(
+                    <TreeSelect {...tProps} />
+                    // <Select
+                    //   allowClear
+                    //   placeholder={formatMessage({ id: 'TARGET_TYPE' })}
+                    //   getPopupContainer={() => document.getElementById(`${viewId}`)}
+                    // >
+                    //   {targetTypeList.map(item => (
+                    //     <Option key={`targetTypeList${item.id}`} value={item.dicValue}>
+                    //       {item.dicName}
+                    //     </Option>
+                    //   ))}
+                    // </Select>
+                  )}
+                </Form.Item>
+              </Col>
+            )}
+            {isAdminRoleFlag && (
+              <Col {...colLayout}>
+                <Form.Item {...formItemLayout}>
+                  {getFieldDecorator(`type`, {
+                    rules: [],
+                  })(
+                    <Select
+                      allowClear
+                      placeholder={formatMessage({id: 'TYPE'})}
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                    >
+                      {notificationTypeList.map(item => (
+                        <Option key={`notificationTypeList${item.id}`} value={item.dicValue}>
+                          {item.dicName}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </Form.Item>
+              </Col>
+            )}
+            {isAdminRoleFlag && (
+              <Col {...colLayout}>
+                <Form.Item {...formItemLayout}>
+                  {getFieldDecorator(`status`, {
+                    rules: [],
+                  })(
+                    <Select
+                      allowClear
+                      placeholder={formatMessage({id: 'STATUS'})}
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                    >
+                      {statusList.map(item => (
+                        <Option key={`statusList${item.id}`} value={item.dicValue}>
+                          {item.dicName}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </Form.Item>
+              </Col>
+            )}
+            {isAdminRoleFlag ? (
+              <Col {...colAdminBtnLayout} style={{textAlign: 'right'}}>
+                <Button type="primary" htmlType="submit" style={{marginRight: 15}}>
+                  {formatMessage({id: 'SEARCH'})}
+                </Button>
+                <Button htmlType="reset" onClick={this.handleReset}>
+                  {formatMessage({id: 'RESET'})}
+                </Button>
+              </Col>
+            ) : (
+              <Col {...colBtnLayout} style={{textAlign: 'right'}}>
+                <Button type="primary" htmlType="submit" style={{marginRight: 15}}>
+                  {formatMessage({id: 'SEARCH'})}
+                </Button>
+                <Button htmlType="reset" onClick={this.handleReset}>
+                  {formatMessage({id: 'RESET'})}
+                </Button>
+              </Col>
+            )}
           </Row>
         </Form>
       </Card>

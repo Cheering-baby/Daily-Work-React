@@ -17,11 +17,6 @@ import styles from './index.less';
   loading: loading.effects['userMgr/queryUsersByCondition'],
 }))
 class Index extends React.PureComponent {
-  componentWillUnmount() {
-    // const {dispatch} = this.props;
-    // dispatch({type: 'orgMgr/clean'});
-  }
-
   render() {
     return (
       <Col lg={24} md={24}>

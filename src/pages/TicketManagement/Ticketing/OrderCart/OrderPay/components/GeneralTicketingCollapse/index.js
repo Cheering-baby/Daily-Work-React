@@ -9,8 +9,8 @@ import OrderItemCollapse from './components/OrderItemCollapse';
 import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/AttractionToCart';
 
 @Form.create()
-@connect(({ global, ticketBookingAndPayMgr }) => ({
-  global, ticketBookingAndPayMgr,
+@connect(({ ticketBookingAndPayMgr }) => ({
+  ticketBookingAndPayMgr,
 }))
 class GeneralTicketingCollapse extends Component {
   constructor(props) {
@@ -34,9 +34,6 @@ class GeneralTicketingCollapse extends Component {
 
   render() {
     const {
-      global: {
-        userCompanyInfo: { companyType },
-      },
       ticketBookingAndPayMgr: { generalTicketOrderData = [] },
       form,
     } = this.props;
@@ -70,7 +67,6 @@ class GeneralTicketingCollapse extends Component {
               operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
                 this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
               }}
-              companyType={companyType}
             />
           </Collapse.Panel>
         ))}

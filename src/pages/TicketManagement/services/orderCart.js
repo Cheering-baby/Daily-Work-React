@@ -28,7 +28,7 @@ export async function queryPluListByCondition(params) {
 }
 
 export async function createShoppingCart(params) {
-  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/createShoppingCart`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/create`, {
     method: 'POST',
     body: {
       ...params,
@@ -37,7 +37,7 @@ export async function createShoppingCart(params) {
 }
 
 export async function queryShoppingCart(params) {
-  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/queryShoppingCart`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/query`, {
     method: 'GET',
     params,
     body: {
@@ -47,7 +47,7 @@ export async function queryShoppingCart(params) {
 }
 
 export async function addToShoppingCart(params) {
-  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/addToShoppingCart`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/add`, {
     method: 'POST',
     body: {
       ...params,
@@ -56,7 +56,7 @@ export async function addToShoppingCart(params) {
 }
 
 export async function removeShoppingCart(params) {
-  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/removeShoppingCart`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/shoppingcart/remove`, {
     method: 'POST',
     body: {
       ...params,
@@ -65,7 +65,7 @@ export async function removeShoppingCart(params) {
 }
 
 export async function calculateOrderOfferPrice(params) {
-  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/book/calculateBooking`, {
+  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/booking/calculate`, {
     method: 'POST',
     body: {
       ...params,

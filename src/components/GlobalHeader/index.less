@@ -370,7 +370,11 @@ i.trigger {
 }
 
 .userNotificationStyle {
+  width: 462px;
   :global {
+    .@{prefix-cls}-tabs-tab {
+      margin: 0 16px 0 0;
+    }
 
     .@{prefix-cls}-tabs-tabpane {
       height: auto !important;
@@ -410,14 +414,14 @@ i.trigger {
       text-align: center;
     }
     .@{prefix-cls}-list-item-meta-title {
-      font-family: Calibri-Bold;
+      font-family: calibriBold;
       font-size: 14px;
       color: #3B414A;
       letter-spacing: 0.23px;
       line-height: 20px;
     }
     .@{prefix-cls}-list-item {
-      height: 50px;
+      min-height: 50px;
     }
   }
 }
@@ -429,5 +433,10 @@ i.trigger {
     display: flex;
     justify-content: center;
     line-height: 30px;
+    font-size: 13px;
+    color: #858585;
+    letter-spacing: 0.22px;
+    text-align: center;
+    cursor: pointer;
   }
 }

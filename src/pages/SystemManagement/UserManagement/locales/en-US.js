@@ -28,6 +28,7 @@ export default {
   VALID_EMAIL: 'The input is not valid E-mail!',
   USER_NOT_FOND: 'User Detail Not Fond',
   CATEGORY: 'Category',
+  CUSTOMER_GROUP: 'Customer Group',
   COMMISSION_SETTLEMENT_DATE: 'COMMISSION SETTLEMENT DATE',
   SETTLEMENT_CYCLE: 'Settlement Cycle',
   COMMISSION_QUARTER: 'Quarter',
@@ -36,6 +37,7 @@ export default {
   GRANT_OFFER: 'Grant offer&commison for Hong Tai ',
   TA_SUPPLEMENTARY_INFORMATION: 'TA SUPPLEMENTARY INFORMATION',
   TH_DATA_OF_THE_MONTH: 'th day of the Month',
+  TH_DATA_OF_THE_QUARTER: 'th day of the Quarter',
   THE: 'The',
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
@@ -45,4 +47,5 @@ export default {
   THIS_COMPANY_ALREADY_HAS_USER: 'This Company Already has user',
   COMPANY_TYPE_ERROR: 'Company Type Error',
   SEND_EMAIL: 'Send Email',
+  DETAIL: 'Detail',
 };

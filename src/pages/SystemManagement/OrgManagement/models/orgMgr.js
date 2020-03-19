@@ -9,6 +9,7 @@ import {
   orgBatchAddUser,
   orgBatchRemoveUser,
   queryAllCompany,
+  queryCompanyInfo,
   queryRootOrgByCompany,
   queryUserOrgTree,
   queryUsersInCompany,
@@ -142,26 +143,17 @@ export default {
       message.warn(resultMsg, 10);
       return {};
     },
-    *querySubCompany(_, { put }) {
-      // const {
-      //   data: { resultCode, resultMsg, resultData },
-      // } = yield call(queryAllCompany);
-      const resultCode = '0';
-      const resultMsg = '0';
+    *querySubCompany({ payload }, { call, put }) {
+      const { companyId } = payload;
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(queryCompanyInfo, { taId: companyId });
       if (resultCode === '0') {
-        // const orgList = [];
-        // const { userOrgs = [] } = resultData;
-
-        const companyList = [
-          { id: 11, companyName: '11' },
-          { id: 118, companyName: '118' },
-          { id: 17, companyName: '17' },
-          { id: 16, companyName: '16' },
-        ];
+        const { subTaList = [] } = result;
         yield put({
           type: 'save',
           payload: {
-            companyList,
+            companyList: subTaList,
           },
         });
       } else message.warn(resultMsg, 10);

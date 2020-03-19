@@ -1,14 +1,14 @@
 import {stringify} from 'qs';
 import UAAService from '@/uaa-npm';
 
-export function create(params) {
+export function createNotification(params) {
   return UAAService.request(`/proxy/ali/b2b/user/v1/notification/create`, {
     method: 'POST',
     body: params,
   });
 }
 
-export function modify(params) {
+export function modifyNotification(params) {
   return UAAService.request(`/proxy/ali/b2b/user/v1/notification/modify`, {
     method: 'POST',
     body: params,
@@ -45,4 +45,29 @@ export function queryNotificationsType(type) {
       method: 'GET',
     }
   );
+}
+
+export function queryAllCompanyConfig() {
+  return UAAService.request(
+    `/proxy/ali/b2b/profile/queryAllCompanyConfig?showColumnName=companyName`,
+    {
+      method: 'GET',
+    }
+  );
+}
+
+export async function deleteFile(params) {
+  return UAAService.request(`/common/deleteFile`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
+export async function updateReadStatus(params) {
+  return UAAService.request(`/proxy/ali/b2b/user/v1/notification/updateReadStatus`, {
+    method: 'POST',
+    body: params,
+  });
 }

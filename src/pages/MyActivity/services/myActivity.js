@@ -1,4 +1,4 @@
-import { stringify } from 'qs';
+import {stringify} from 'qs';
 import UAAService from '@/uaa-npm';
 
 export async function approvalList(data) {
@@ -83,7 +83,7 @@ export async function downloadFile(params) {
   });
 }
 
-export async function statusList(type) {
+export async function statusList() {
   return UAAService.request(
     `/proxy/ali/b2b/user/v1/activity/queryActivityDict?dictType=ActivityStatus`,
     {
@@ -93,9 +93,12 @@ export async function statusList(type) {
 }
 
 export async function templateList(data) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/queryTemplateList`, {
-    method: 'GET',
-  });
+  return UAAService.request(
+    `/proxy/ali/b2b/user/v1/activity/queryTemplateList?${stringify(data)}`,
+    {
+      method: 'GET',
+    }
+  );
 }
 
 export async function queryRerouteList() {

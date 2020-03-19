@@ -1,9 +1,13 @@
-import { stringify } from 'qs';
+import {stringify} from 'qs';
 import UAAService from '@/uaa-npm';
 
 const urlPathPrefix = '/proxy/ali/b2b/account';
+// const test = 'http://10.25.159.214:18091/pams';
+// const urlPathPrefix = 'http://10.25.159.214:18091/pams/account';
+// const urlPathPrefix = 'http://localhost:8000/pams/account';
 
 export function queryAccount(params) {
+  //
   return UAAService.request(`${urlPathPrefix}/queryAccountDetail`, {
     method: 'GET',
     params,

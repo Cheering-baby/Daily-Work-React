@@ -7,6 +7,7 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../index.less';
 import UserForm from '../components/UserForm';
+import constants from '@/pages/SystemManagement/UserManagement/constants';
 
 @Form.create()
 @connect(({ userMgr, loading }) => ({
@@ -26,6 +27,23 @@ class UserCode extends React.PureComponent {
           userCode,
         },
       }).then(() => {});
+    } else {
+      const { userType = '', taInfo = {} } = currentUserProfile;
+      dispatch({
+        type: 'userMgr/queryUserRoles',
+        payload: {
+          roleType: userType,
+        },
+      });
+      if (userType === constants.TA_USER_TYPE) {
+        const { companyId } = taInfo;
+        dispatch({
+          type: 'userMgr/getTACompanyDetail',
+          payload: {
+            companyId,
+          },
+        });
+      }
     }
   }
 

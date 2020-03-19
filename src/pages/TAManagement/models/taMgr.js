@@ -1,5 +1,6 @@
 import { message } from 'antd';
 import {
+  checkCompanyExist,
   deleteFile,
   modifyTaInfo,
   queryInfoWithNoId,
@@ -9,6 +10,7 @@ import {
   queryTaMappingInfo,
   registrationTaInfo,
 } from '../services/taCommon';
+import { isNvl } from '@/utils/utils';
 
 export default {
   namespace: 'taMgr',
@@ -29,6 +31,7 @@ export default {
     taInfoLoadingFlag: false,
     taMappingInfoLoadingFlag: false,
     taAccountInfoLoadingFlag: false,
+    isCompanyExist: false,
   },
   effects: {
     *fetchTARegistration({ payload }, { call, put }) {
@@ -271,6 +274,21 @@ export default {
       message.warn(resultMsg, 10);
       return false;
     },
+    *fetchCheckCompanyExist({ payload }, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(checkCompanyExist, { ...payload });
+      if (resultCode === '0' || resultCode === 0) {
+        if (isNvl(result) && !isNvl(result.companyName)) {
+          yield put({
+            type: 'save',
+            payload: {
+              isCompanyExist: true,
+            },
+          });
+        }
+      } else message.warn(resultMsg, 10);
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -299,6 +317,7 @@ export default {
           taInfoLoadingFlag: false,
           taMappingInfoLoadingFlag: false,
           taAccountInfoLoadingFlag: false,
+          isCompanyExist: false,
         },
         ...payload,
       };

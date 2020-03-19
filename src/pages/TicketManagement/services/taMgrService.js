@@ -34,3 +34,9 @@ export async function queryTaInfo(params) {
     method: 'GET',
   });
 }
+
+export async function querySubTaInfo(params) {
+  return UAAService.request(`/proxy/ali/b2b/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
+    method: 'GET',
+  });
+}

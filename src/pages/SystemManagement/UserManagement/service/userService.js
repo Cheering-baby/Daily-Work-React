@@ -44,12 +44,17 @@ export async function queryUserRolesByCondition(params) {
   });
 }
 
-export async function querySubTaCompany(params) {
-  // TODO
+export async function queryCompanyInfo(params) {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryCompanyInfo`, {
+    params,
+    method: 'GET',
+  });
+}
+
+export async function queryDictionary(params) {
   return UAAService.request(
-    `/proxy/ali/b2b/profile/queryAllCompanyConfig?showColumnName=companyName`,
+    `/agent/common/queryDictionary?dictType=${params.dictType}&dictSubType=${params.dictSubType}`,
     {
-      params,
       method: 'GET',
     }
   );

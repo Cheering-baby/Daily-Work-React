@@ -1,6 +1,6 @@
-import { message } from 'antd';
+import {message} from 'antd';
 import * as service from '../services/myActivity';
-import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
+import {ERROR_CODE_SUCCESS} from '@/utils/commonResultCode';
 
 export default {
   namespace: 'myActivity',
@@ -31,49 +31,43 @@ export default {
   },
   effects: {
     *fetchApprovalList(_, { call, put, select }) {
-      const { filter, pagination } = yield select(state => state.myActivity);
+      const {filter, pagination} = yield select(state => state.myActivity);
       const requestData = {
         queryType: '02',
         ...filter,
         ...pagination,
       };
-      const result = yield call(service.approvalList, requestData);
+      const {
+        data: {resultCode, resultMsg, result},
+      } = yield call(service.approvalList, requestData);
 
-      const { data: resultData, success, errorMsg } = result;
+      if (resultCode !== ERROR_CODE_SUCCESS) {
+        throw resultMsg;
+      }
 
-      if (success) {
-        const {
-          resultCode,
-          resultMsg,
-          result: {
-            activityInfoList,
-            pageInfo: { currentPage, pageSize, totalSize },
-          },
-        } = resultData;
+      const {
+        activityInfoList,
+        pageInfo: {currentPage, pageSize, totalSize},
+      } = result;
 
-        if (resultCode !== ERROR_CODE_SUCCESS) {
-          throw resultMsg;
-        }
-
-        if (activityInfoList && activityInfoList.length > 0) {
-          activityInfoList.map(v => {
-            Object.assign(v, { key: `${v.activityId}` });
-            return v;
-          });
-        }
-
-        yield put({
-          type: 'save',
-          payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            approvalList: activityInfoList,
-          },
+      if (activityInfoList && activityInfoList.length > 0) {
+        activityInfoList.map(v => {
+          Object.assign(v, {key: `${v.activityId}`});
+          return v;
         });
-      } else throw errorMsg;
+      }
+
+      yield put({
+        type: 'save',
+        payload: {
+          pagination: {
+            currentPage,
+            pageSize,
+            totalSize,
+          },
+          approvalList: activityInfoList,
+        },
+      });
     },
     *fetchRegisterContractFile({ payload }, { call, put }) {
       yield put({ type: 'save', payload: { contractFileUploading: true } });
@@ -118,23 +112,14 @@ export default {
       });
     },
     *statusList(_, { call, put }) {
-      const pagination = {
-        current: 1,
-        pageSize: 1000,
-      };
-
-      const { data: resultData } = yield call(service.statusList, pagination);
-
       const {
-        resultCode,
-        resultMsg,
-        result: { activityDictList },
-      } = resultData;
+        data: {resultCode, resultMsg, result},
+      } = yield call(service.statusList);
 
       if (resultCode !== ERROR_CODE_SUCCESS) {
         throw resultMsg;
       }
-
+      const {activityDictList} = result;
       yield put({
         type: 'save',
         payload: {
@@ -147,19 +132,14 @@ export default {
         current: 1,
         pageSize: 1000,
       };
-
-      const { data: resultData } = yield call(service.templateList, pagination);
-
       const {
-        resultCode,
-        resultMsg,
-        result: { templateList },
-      } = resultData;
+        data: {resultCode, resultMsg, result},
+      } = yield call(service.templateList, pagination);
 
       if (resultCode !== ERROR_CODE_SUCCESS) {
         throw resultMsg;
       }
-
+      const {templateList} = result;
       yield put({
         type: 'save',
         payload: {

@@ -30,6 +30,10 @@ class SearchPanel extends Component {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
+      type: 'ticketMgr/queryAttributeList',
+      payload: {},
+    });
+    dispatch({
       type: 'ticketMgr/queryCountry',
       payload: {
         tableName: 'CUST_PROFILE',

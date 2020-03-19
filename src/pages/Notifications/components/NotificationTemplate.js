@@ -1,10 +1,14 @@
-import React, { PureComponent } from 'react';
-import { Icon, Table, Form, Popover } from 'antd';
-import { connect } from 'dva';
-import { formatMessage } from 'umi/locale';
+import React, {PureComponent} from 'react';
+import {Col, Form, Input, Popover, Row, Table} from 'antd';
+import {connect} from 'dva';
+import {formatMessage} from 'umi/locale';
+import PaginationComp from './PaginationComp';
+import {showTableTitle} from '../utils/pubUtils';
+import styles from '../index.less';
+import NotificationDetail from '@/pages/Notifications/components/NotificationDetail';
 
 @Form.create()
-@connect(({ notification, loading }) => ({
+@connect(({notification, loading}) => ({
   notification,
   queryLoading: loading.effects['notification/queryNotificationTemplateList'],
 }))
@@ -13,113 +17,188 @@ class NotificationTemplate extends PureComponent {
     super(props);
     this.column = [
       {
-        title: this.showTableTitle(formatMessage({ id: 'NO' })),
-        render: (text, record, index) => `${index + 1}`,
-        key: 'index',
+        title: showTableTitle(formatMessage({id: 'NO'})),
+        key: 'id',
+        dataIndex: 'id',
         width: '10%',
       },
       {
-        title: this.showTableTitle(formatMessage({ id: 'TITLE' })),
+        title: showTableTitle(formatMessage({id: 'TITLE'})),
         dataIndex: 'title',
         key: 'title',
-        width: '30%',
+        width: '50%',
       },
       {
-        title: this.showTableTitle(formatMessage({ id: 'TITLE' })),
-        dataIndex: 'title',
-        key: 'title',
-        width: '30%',
+        title: showTableTitle(formatMessage({id: 'CATEGORISED'})),
+        dataIndex: 'Categorised',
+        key: 'View',
+        width: '25%',
       },
       {
-        title: this.showTableTitle(formatMessage({ id: 'OPERATION' })),
-        width: '20%',
-        render: (text, record) => (
-          <div>
-            <Popover
-              content={<p>{record.content}</p>}
-              placement="bottomRight"
-              trigger="click"
-              style={{ width: '400px !important' }}
-              onVisibleChange={this.handleNotificationVisibleChange}
-              title={record.title}
-            >
-              <a>View</a>
-            </Popover>
-          </div>
-        ),
+        title: showTableTitle(formatMessage({id: 'OPERATION'})),
+        width: '15%',
+        render: (text, record) => {
+          const {
+            notification: {templateViewVisible = false, templateId = null},
+          } = this.props;
+          return (
+            <div>
+              <Popover
+                content={this.getTemplateContent(record)}
+                placement="bottomRight"
+                trigger="click"
+                visible={templateViewVisible && String(templateId) === String(record.id)}
+                style={{width: '400px !important'}}
+                onVisibleChange={visible => this.handleTemplateVisibleChange(visible, record.id)}
+                overlayClassName={styles.templatePopover}
+              >
+                <a>{formatMessage({id: 'VIEW'})}</a>
+              </Popover>
+            </div>
+          );
+        },
       },
     ];
   }
 
   componentDidMount() {
-    const { dispatch } = this.props;
+    const {dispatch} = this.props;
     dispatch({
-      type: 'notification/queryTemplateList',
+      type: 'notification/queryNotificationTemplateList',
     });
   }
 
-  showTableTitle = value => <span>{value}</span>;
+  getTemplateContent = notificationInfo => {
+    return <NotificationDetail notificationInfo={notificationInfo}/>;
+  };
 
-  showTotalRender = total => (
-    <div>
-      <span>Total {total} items</span>
-    </div>
-  );
+  showHtml = htmlString => {
+    const html = {__html: htmlString};
+    return <div dangerouslySetInnerHTML={html}/>;
+  };
 
-  onTableChange = page => {
-    const { dispatch, pagination } = this.props;
-
-    if (page.current !== pagination.currentPage || page.pageSize !== pagination.pageSize) {
-      pagination.currentPage = page.current;
-      pagination.pageSize = page.pageSize;
-      dispatch({
-        type: 'notification/change',
-        payload: {
-          pagination,
-        },
-      });
+  handleTemplateVisibleChange = (visible, templateId) => {
+    const {dispatch} = this.props;
+    let newTemplateId;
+    if (visible) {
+      newTemplateId = templateId;
     }
+    console.log('templateId: ', templateId);
+    dispatch({
+      type: 'notification/save',
+      payload: {
+        templateViewVisible: visible,
+        templateId: newTemplateId,
+      },
+    });
+  };
+
+  onTableChange = (page, keyword) => {
+    const {
+      notification: {pagination},
+    } = this.props;
+    if (page.current !== pagination.currentPage || page.pageSize !== pagination.pageSize) {
+      this.onSearch(page, keyword);
+    }
+  };
+
+  onSearch = (page, keyword) => {
+    const {
+      dispatch,
+      notification: {
+        filter: {type},
+        pagination,
+      },
+    } = this.props;
+    pagination.currentPage = page.current;
+    pagination.pageSize = page.pageSize;
+    dispatch({
+      type: 'notification/change',
+      payload: {
+        pagination,
+        filter: {keyword, type},
+      },
+    });
   };
 
   render() {
     const {
-      notification: {
-        templateList,
-        pagination: { currentPage, pageSize, totalSize },
-      },
+      notification: {templateList, pagination},
       queryLoading,
     } = this.props;
-    const paginationConfig = {
-      current: currentPage,
-      pageSize,
-      total: totalSize,
+    const rowSelection = {
+      onChange: (selectedRowKeys, selectedRows) => {
+        const {
+          dispatch,
+          notification: {notificationInfo},
+        } = this.props;
+        if (selectedRows && selectedRows.length > 0) {
+          notificationInfo.type = selectedRows[0].type;
+          notificationInfo.title = selectedRows[0].title;
+          notificationInfo.content = selectedRows[0].content;
+          notificationInfo.fileList = selectedRows[0].fileList;
+          notificationInfo.targetList = selectedRows[0].targetList;
+        }
+        dispatch({
+          type: 'notification/saveData',
+          payload: {
+            visibleFlag: false,
+            notificationInfo,
+          },
+        });
+      },
+    };
+    const pageOpts = {
+      total: pagination.totalSize,
+      current: pagination.currentPage,
+      pageSize: pagination.pageSize,
       showSizeChanger: true,
       showQuickJumper: true,
       pageSizeOptions: ['5', '10', '15', '20'],
-      showTotal: total => this.showTotalRender(total),
-    };
-    const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        // todo save notificaton info
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      pageChange: (page, pageSize) => {
+        const {
+          notification: {
+            filter: {keyword},
+          },
+        } = this.props;
+        this.onTableChange({current: page, pageSize}, keyword);
       },
     };
+    const tableOpts = {
+      pagination: false,
+      footer: () => <PaginationComp {...pageOpts} />,
+    };
     return (
-      <Table
-        rowSelection={{
-          type: 'radio',
-          ...rowSelection,
-        }}
-        rowKey="index"
-        bordered={false}
-        dataSource={templateList}
-        pagination={paginationConfig}
-        columns={this.column}
-        onChange={(pagination, filters, sorter, extra) => {
-          this.onChangeEvent(pagination, filters, sorter, extra);
-        }}
-        loading={queryLoading}
-      />
+      <React.Fragment>
+        <Row type="flex" justify="space-around">
+          <Col span={24} className={styles.searchTemplate}>
+            <Input.Search
+              allowClear
+              placeholder={formatMessage({id: 'BTN_SEARCH'})}
+              loading={queryLoading}
+              onSearch={value => {
+                const {
+                  notification: {
+                    pagination: {pageSize},
+                  },
+                } = this.props;
+                this.onSearch({current: 1, pageSize}, value);
+              }}
+            />
+          </Col>
+        </Row>
+        <Table
+          size="small"
+          className={`tabs-no-padding ${styles.searchTitle}`}
+          columns={this.column}
+          rowKey={record => `templateList${record.id}`}
+          dataSource={templateList || []}
+          scroll={{x: 660}}
+          loading={queryLoading}
+          rowSelection={{type: 'radio', ...rowSelection}}
+          {...tableOpts}
+        />
+      </React.Fragment>
     );
   }
 }

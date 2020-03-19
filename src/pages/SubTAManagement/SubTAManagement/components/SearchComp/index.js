@@ -9,12 +9,10 @@ import { getFormKeyValue } from '@/pages/SubTAManagement/utils/pubUtils';
 
 const mapStateToProps = store => {
   const { searchForm, searchList, qrySubTaTableLoading, viewId } = store.subTAManagement;
-  const { pagePrivileges = [] } = store.global;
   return {
     searchForm,
     searchList,
     qrySubTaTableLoading,
-    pagePrivileges,
     viewId,
   };
 };
@@ -82,7 +80,7 @@ class SearchComp extends PureComponent {
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime).valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   disabledEndDate = endValue => {
@@ -91,7 +89,7 @@ class SearchComp extends PureComponent {
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime).valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   render() {
@@ -141,14 +139,14 @@ class SearchComp extends PureComponent {
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.subTaMSearchCompCol}>
             {getFieldDecorator('applyStartDate', {
               initialValue: !isNvl(searchForm.applyStartDate)
-                ? moment(searchForm.applyStartDate, 'YYYYMMDD')
+                ? moment(searchForm.applyStartDate, 'YYYY-MM-DD HH:mm:ss')
                 : null,
             })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.subTaMSearchCompCol}>
             {getFieldDecorator('applyEndDate', {
               initialValue: !isNvl(searchForm.applyEndDate)
-                ? moment(searchForm.applyEndDate, 'YYYYMMDD')
+                ? moment(searchForm.applyEndDate, 'YYYY-MM-DD HH:mm:ss')
                 : null,
             })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
           </Col>

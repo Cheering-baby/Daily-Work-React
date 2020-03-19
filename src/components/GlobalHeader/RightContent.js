@@ -1,44 +1,100 @@
 import React, { PureComponent } from 'react';
-import { FormattedMessage } from 'umi/locale';
-import { connect } from 'dva';
 import { Avatar, Badge, Col, Divider, Icon, Popover, Row, Spin } from 'antd';
+import { FormattedMessage } from 'umi/locale';
+import router from 'umi/router';
+import { connect } from 'dva';
+import UserNotificationView from './UserNotificationView';
 import { abbreviateName } from '@/utils/utils';
 import styles from './index.less';
-import UserNotificationView from './UserNotificationView';
 
 const downImg = require('../../assets/image/icon-pull-down.svg');
 
-@connect(({ notificationMgr }) => ({
-  notificationMgr,
-}))
+const mapStateToProps = store => {
+  const { notificationMgr } = store;
+  return {
+    notificationMgr,
+  };
+};
+
+@connect(mapStateToProps)
 class GlobalHeaderRight extends PureComponent {
-  handleNotificationIconClick = () => {
-    const {
-      dispatch,
-      // notificationMgr: { visibleFlag },
-    } = this.props;
+  state = {
+    pageInfo: {
+      currentPage: 1,
+      pageSize: 5,
+    },
+  };
+
+  componentWillMount() {
+    const { dispatch } = this.props;
+    const { pageInfo } = this.state;
     dispatch({
-      type: 'notificationMgr/querySystemList',
+      type: 'notificationMgr/fetchBellNotification',
+      payload: { pageInfo },
+    }).then(diff => {
+      if (diff) {
+        clearInterval(window.notificationInterval);
+        window.notificationInterval = setInterval(() => {
+          dispatch({
+            type: 'notificationMgr/fetchBellNotification',
+            payload: { pageInfo },
+          });
+        }, diff * 1000);
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    clearInterval(window.notificationInterval);
+  }
+
+  handleNotificationIconClick = () => {
+    const { dispatch } = this.props;
+    const { pageInfo } = this.state;
+    dispatch({
+      type: 'notificationMgr/fetchBellNotification',
+      payload: { pageInfo },
     });
     dispatch({
       type: 'notificationMgr/saveData',
       payload: {
-        visibleFlag: true,
+        notificationVisibleFlag: true,
       },
     });
   };
 
   handleNotificationVisibleChange = visible => {
     const { dispatch } = this.props;
+    const { pageInfo } = this.state;
     dispatch({
       type: 'notificationMgr/saveData',
       payload: {
-        visibleFlag: visible,
+        notificationVisibleFlag: visible,
       },
     });
     dispatch({
-      type: 'notificationMgr/fetchSystemList',
-      payload: {},
+      type: 'notificationMgr/fetchBellNotification',
+      payload: { pageInfo },
+    });
+  };
+
+  routerTo = activeKey => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'notificationMgr/saveData',
+      payload: {
+        notificationVisibleFlag: false,
+      },
+    }).then(() => {
+      if (activeKey === '1') {
+        router.push('/Notifications/SystemNotification');
+      } else if (activeKey === '2') {
+        router.push('/MyActivity');
+      } else if (activeKey === '3') {
+        router.push('/Notifications/Bulletin');
+      } else if (activeKey === '4') {
+        router.push('/Notifications/Circular');
+      }
     });
   };
 
@@ -50,9 +106,15 @@ class GlobalHeaderRight extends PureComponent {
       currentUserRole,
       popoverVisible,
       onHandleVisibleChange,
-      notificationMgr: { systemList, systemCount },
+      notificationMgr: {
+        systemNotificationCount,
+        pendingActivityCount,
+        bulletinCount,
+        circularCount,
+        notificationVisibleFlag,
+      },
     } = this.props;
-    const { userName } = currentUser;
+    const { userName, userType } = currentUser;
     const menu = (
       <div className={styles.menu}>
         <div className={styles.avatarCard}>
@@ -89,27 +151,33 @@ class GlobalHeaderRight extends PureComponent {
     if (theme === 'dark') {
       className = `${styles.right}  ${styles.dark}`;
     }
+    let notificationCount = 0;
+    if (systemNotificationCount) notificationCount += Number(systemNotificationCount);
+    if (pendingActivityCount) notificationCount += Number(pendingActivityCount);
+    if (bulletinCount) notificationCount += Number(bulletinCount);
+    if (String(userType) !== '03' && circularCount) {
+      notificationCount += Number(circularCount);
+    }
     return (
       <div className={className}>
         <Popover
           content={
             <UserNotificationView
-              handleClick={this.handleClick}
+              // handleClick={this.handleClick}
+              routerTo={this.routerTo}
               {...this.props}
-              systemList={systemList}
-              systemCount={systemCount}
             />
           }
           placement="bottomRight"
           trigger="click"
-          style={{ width: '400px !important' }}
+          style={{ width: '460px !important', height: '360px' }}
           onVisibleChange={this.handleNotificationVisibleChange}
-          // visible={visibleFlag}
+          visible={notificationVisibleFlag}
         >
-          <Badge count={0} style={{ marginRight: '22px' }}>
+          <Badge count={notificationCount} style={{ marginRight: '22px' }}>
             <Icon
               type="bell"
-              style={{ marginRight: '12px', cursor: 'pointer', fontSize: '22px' }}
+              style={{ marginRight: '22px', cursor: 'pointer', fontSize: '22px' }}
               onClick={this.handleNotificationIconClick}
             />
           </Badge>

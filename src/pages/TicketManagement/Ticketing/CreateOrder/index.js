@@ -4,7 +4,7 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
-import { isNvl } from '@/utils/utils';
+import { isNullOrUndefined } from 'util';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../components/BreadcrumbComp';
@@ -36,7 +36,7 @@ class CreateOrder extends PureComponent {
   componentDidMount() {
     const {
       dispatch,
-      ticketMgr: { orderIndex },
+      ticketMgr: { orderIndex, themeParkList },
       location: {
         query: { operateType },
       },
@@ -109,7 +109,7 @@ class CreateOrder extends PureComponent {
             />
             <Spin spinning={!!productPanelListLoading}>
               <div className={styles.marginTop4}>
-                {!isNvl(activeDataPanel) ? (
+                {!isNullOrUndefined(activeDataPanel) ? (
                   productPanelList[activeDataPanel]
                 ) : (
                   <Card

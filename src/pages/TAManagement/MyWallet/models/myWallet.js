@@ -5,19 +5,17 @@ import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 const DEFAULTS = {
   transactionId: null,
   transactionType: null,
-  walletType: null,
-  dateRange: null,
+  walletType: 'E_WALLET',
+  dateRange: [],
   currentPage: 1,
   pageSize: 20,
 };
 const MyWalletModel = {
   namespace: 'myWallet',
   state: {
-    taId: 20000,
     filter: {
       transactionId: DEFAULTS.transactionId,
       transactionType: DEFAULTS.transactionType,
-      walletType: DEFAULTS.walletType,
       dateRange: DEFAULTS.dateRange,
     },
     pagination: {
@@ -38,18 +36,17 @@ const MyWalletModel = {
       yield put({ type: 'save', payload });
       const { filter, pagination } = yield select(state => state.myWallet);
       const params = {
-        // startDate: filter.dateRange? filter.dateRange[0]: null,
-        // endDate: filter.dateRange? filter.dateRange[1]: null
+        walletType: DEFAULTS.walletType,
       };
       Object.assign(params, filter, pagination);
-      // console.log('parmas',params);
       delete params.dateRange;
-      if (filter.dateRange) {
-        params.dateRange = [
-          filter.dateRange[0].format('YYYY-MM-DD').toString(),
-          filter.dateRange[1].format('YYYY-MM-DD').toString(),
-        ];
+      if (filter.dateRange && filter.dateRange.length > 0) {
+        const startDate = filter.dateRange[0].format('YYYY-MM-DD');
+        const endDate = filter.dateRange[1].format('YYYY-MM-DD');
+        params.startDate = startDate;
+        params.endDate = endDate;
       }
+
       const {
         data: { resultCode, resultMsg, result = [] },
       } = yield call(service.search, params);
@@ -112,10 +109,38 @@ const MyWalletModel = {
         const bean = cloneDeep(result.accountProfileBean);
         bean.accountBookBeanList.forEach(item => {
           if (item.accountBookType === 'E_WALLET') {
-            bean.eWallet = cloneDeep(item);
+            const strs = item.balance
+              .toFixed(3)
+              .toString()
+              .split('.');
+            strs[0] =
+              strs[0].length > 3
+                ? `${strs[0].substring(0, strs[0].length - 3)},${strs[0].substring(
+                    strs[0].length - 3
+                  )}`
+                : strs[0];
+            bean.eWallet = {
+              balance: item.balance.toFixed(2),
+              integer: strs[0],
+              decimal: strs[1].substring(0, 2),
+            };
           }
           if (item.accountBookType === 'AR_CREDIT') {
-            bean.ar = cloneDeep(item);
+            const strs = item.balance
+              .toFixed(3)
+              .toString()
+              .split('.');
+            strs[0] =
+              strs[0].length > 3
+                ? `${strs[0].substring(0, strs[0].length - 3)},${strs[0].substring(
+                    strs[0].length - 3
+                  )}`
+                : strs[0];
+            bean.ar = {
+              balance: item.balance,
+              integer: strs[0],
+              decimal: strs[1].substring(0, 2),
+            };
           }
         });
 
@@ -173,7 +198,6 @@ const MyWalletModel = {
         filter: {
           transactionId: DEFAULTS.transactionId,
           transactionType: DEFAULTS.transactionType,
-          walletType: DEFAULTS.walletType,
           dateRange: DEFAULTS.dateRange,
         },
         pagination: {

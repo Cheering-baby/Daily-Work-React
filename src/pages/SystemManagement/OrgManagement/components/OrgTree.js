@@ -124,7 +124,7 @@ class OrgTree extends React.Component {
     return (
       <div className={styles.treeTitleClass}>
         {title}
-        {code === item.code ? (
+        {code === item.code && code !== constants.RWS_ORG_CODE ? (
           <Icon onClick={this.modifyOrg} type="edit" className={styles.treeTitleRightIcon} />
         ) : null}
       </div>

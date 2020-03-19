@@ -1,8 +1,12 @@
 import router from "umi/router";
 import {message} from "antd";
 import {
-  getAttractionProductList, getPluProductByRule
+  getAttractionProductList,
+  getPluProductByRuleId,
+  getVoucherProductList,
+  getSumPriceOfOfferPaxOfferProfile
 } from '../utils/ticketOfferInfoUtil';
+import moment from "moment";
 
 export default  {
 
@@ -30,7 +34,7 @@ export default  {
 
     },
 
-    *addToCartSaveOrderData({ payload },{ put, take }) {
+    *addToCartSaveOrderData({ payload },{ put, select }) {
 
       const {
         orderIndex,
@@ -38,6 +42,10 @@ export default  {
         diffMinutesLess,
         onceAPirateOrderData = [],
       } = payload;
+
+      const {
+        queryInfo,
+      } = yield select(state => state.onceAPirateTicketMgr);
 
       let newOnceAPirateOrderData = onceAPirateOrderData.map((item)=>{
         let offerOrderInfo = {
@@ -94,16 +102,8 @@ export default  {
           }
         }
         const {offerProfile} = item;
-        if (offerProfile.productGroup && offerProfile.productGroup.length>0) {
-          for (let groupIndex = 0; groupIndex < offerProfile.productGroup.length; groupIndex += 1) {
-            if (offerProfile.productGroup[groupIndex] && offerProfile.productGroup[groupIndex].productType==="Voucher") {
-              const productGroups = offerProfile.productGroup[groupIndex].productGroup;
-              for (let groupsIndex = 0; groupsIndex < productGroups.length; groupsIndex+=1) {
-                offerOrderInfo.offerInfo.voucherProductList = productGroups[groupsIndex].products;
-              }
-            }
-          }
-        }
+        const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
+        offerOrderInfo.offerInfo.voucherProductList = getVoucherProductList(offerProfile,validTimeFrom);
         return offerOrderInfo;
       });
 
@@ -225,9 +225,9 @@ export default  {
         let sessionTimeFix = false;
         const attractionProductList = getAttractionProductList(offerProfile,requestParam.validTimeFrom);
         attractionProductList.forEach(productInfo=>{
-          const pluProduct = getPluProductByRule(productInfo,"DefaultPrice",requestParam.validTimeFrom);
-          if (pluProduct) {
-            offerSumPrice += pluProduct.discountUnitPrice * productInfo.needChoiceCount;
+          const pluProductList = getPluProductByRuleId(productInfo,null,requestParam.validTimeFrom);
+          if (pluProductList && pluProductList.length>0) {
+            const pluProduct = pluProductList[0];
             if (pluProduct.priceTimeFrom === activeGroupSelectData.sessionTime) {
               sessionTimeFix = true;
             }
@@ -241,6 +241,7 @@ export default  {
             }
           }
         }
+        offerSumPrice = getSumPriceOfOfferPaxOfferProfile(offerProfile,requestParam.validTimeFrom);
         if (sessionTimeFix && offerSumPrice>0 && offerMaxAvailable>0) {
           let orderQuantity = 0;
           if (orderIndex!==null && onceAPirateOrder!==null) {
@@ -270,7 +271,10 @@ export default  {
         onceAPirateOrder,
         onceAPirateOfferData,
         showCategory,
-        queryInfo: activeGroupSelectData,
+        queryInfo: {
+          ...activeGroupSelectData,
+          dateOfVisit: activeGroupSelectData.dateOfVisit ? activeGroupSelectData.dateOfVisit.format('x') : activeGroupSelectData.dateOfVisit
+        },
       };
 
     },

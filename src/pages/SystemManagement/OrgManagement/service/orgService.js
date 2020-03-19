@@ -99,3 +99,10 @@ export async function queryRootOrgByCompany(params) {
     method: 'GET',
   });
 }
+
+export async function queryCompanyInfo(params) {
+  return UAAService.request(`/proxy/ali/b2b/profile/queryCompanyInfo`, {
+    params,
+    method: 'GET',
+  });
+}

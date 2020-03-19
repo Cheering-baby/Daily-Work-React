@@ -28,8 +28,6 @@ export default {
     currentUser: {},
     languages: [],
     currentUserRole: [],
-    // 组件权限
-    menuComponentPrivs: [],
     defaultUrl: '/',
     menu: [],
     rawMenu: [],
@@ -43,6 +41,7 @@ export default {
     },
     isFullScreen: false,
     pagePrivileges: [],
+    appPrivileges: [],
     userCompanyInfo: {},
     needChangePassword: '00', // 00: no 01: Initial password 02: 90 days
   },
@@ -97,7 +96,7 @@ export default {
       if (!umiLocale) {
         setLocale('en-US');
       }
-      const data = yield call(UAAService.postLogin, { ...payload });
+      const data = yield call(UAAService.postLogin);
 
       window.g_app.login_data = data;
 
@@ -134,6 +133,15 @@ export default {
         window.AppGlobal.userName = data.username;
         window.AppGlobal.webroot = getServicePath();
         window.AppGlobal.version = '0.0.1';
+        const {
+          appInfo: { appComponents = [] },
+        } = data;
+        const appComponentMap = new Map();
+        appComponents.forEach(item => {
+          const { componentCode = '' } = item;
+          appComponentMap.set(componentCode, item);
+        });
+        window.AppGlobal.appPrivilegeMap = appComponentMap;
 
         yield put({
           type: 'updateState',
@@ -141,6 +149,7 @@ export default {
             currentUser: { userName: data.username, ...data },
             currentUserRole: data.roles || [],
             userCompanyInfo: data.companyInfo || {},
+            appPrivileges: appComponents,
           },
         });
         // postLogin 接口调用成功，通知 privilege 接口调用
@@ -246,10 +255,26 @@ export default {
       const { currentUser = {} } = yield select(state => state.global);
       if (Object.keys(currentUser).length > 0) {
         const { pageComponents = [] } = yield call(UAAService.privileges, '', pathname);
+        const pagePrivilegeMap = new Map();
+        pageComponents.forEach(item => {
+          const { componentCode = '' } = item;
+          pagePrivilegeMap.set(componentCode, item);
+        });
+        window.AppGlobal.pagePrivilegeMap = pagePrivilegeMap;
         yield put({
           type: 'updateState',
           payload: {
             pagePrivileges: pageComponents,
+            privilegeLoaded: true,
+          },
+        });
+      } else {
+        window.AppGlobal.pagePrivilegeMap = new Map();
+        yield put({
+          type: 'updateState',
+          payload: {
+            pagePrivileges: [],
+            privilegeLoaded: true,
           },
         });
       }

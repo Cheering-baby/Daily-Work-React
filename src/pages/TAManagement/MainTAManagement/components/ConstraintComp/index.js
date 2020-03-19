@@ -28,7 +28,6 @@ const mapStateToProps = store => {
     customerGroupList = [],
     customerGroupLoadingFlag = false,
   } = store.taCommon;
-  const { pagePrivileges = [] } = store.global;
   return {
     selectTaId,
     searchForm,
@@ -44,7 +43,6 @@ const mapStateToProps = store => {
     customerGroupList,
     customerGroupLoadingFlag,
     constraintVisible,
-    pagePrivileges,
   };
 };
 
@@ -140,7 +138,7 @@ class ConstraintComp extends PureComponent {
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime).valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   disabledEndDate = endValue => {
@@ -149,7 +147,7 @@ class ConstraintComp extends PureComponent {
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime).valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
   };
 
   render() {
@@ -224,7 +222,7 @@ class ConstraintComp extends PureComponent {
                   >
                     {getFieldDecorator('effectiveDate', {
                       initialValue: !isNvl(companyInfo.effectiveDate)
-                        ? moment(companyInfo.effectiveDate)
+                        ? moment(companyInfo.effectiveDate, 'YYYY-MM-DD HH:mm:ss')
                         : null,
                       rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                     })(
@@ -256,7 +254,7 @@ class ConstraintComp extends PureComponent {
                   >
                     {getFieldDecorator('endDate', {
                       initialValue: !isNvl(companyInfo.endDate)
-                        ? moment(companyInfo.endDate)
+                        ? moment(companyInfo.endDate, 'YYYY-MM-DD HH:mm:ss')
                         : null,
                       rules: [],
                     })(

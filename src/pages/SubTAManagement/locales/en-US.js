@@ -68,4 +68,5 @@ export default {
   PROHIBIT_SUB_TA_PROFILE_SUCCESS: 'Prohibit Sub-ta profile success.',
   ENABLE_SUB_TA_PROFILE_SUCCESS: 'Enable Sub-ta profile success.',
   EDIT_SUB_TA_SUCCESS: 'Modify Sub-ta success.',
+  EDIT_CHECK_EMAIL: 'Email has registered other Sub-ta',
 };

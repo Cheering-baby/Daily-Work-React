@@ -1,12 +1,12 @@
-import { message } from 'antd';
-import { queryMenuTree, queryUserRolesByCondition } from '../service/roleService';
-import { appCode } from '../../../../uaa-npm/setting';
+import {message} from 'antd';
+import {queryMenuTree, queryUserRolesByCondition} from '../service/userService';
+import {appCode} from '../../../../uaa-npm/setting';
 
 const generateList = (data = [], result = []) => {
   for (let i = 0; i < data.length; i++) {
     const node = data[i];
-    const { menuCode, menuName, appCode } = node;
-    result.push({ key: menuCode + appCode, title: menuName });
+    const {menuCode, menuName, appCode} = node;
+    result.push({key: menuCode + appCode, title: menuName});
     if (node.subMenus) {
       generateList(node.subMenus, result);
     }

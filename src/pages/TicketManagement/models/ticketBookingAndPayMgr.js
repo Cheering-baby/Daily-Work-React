@@ -27,14 +27,17 @@ export default {
     payModeList: [{
       value: 1,
       label: 'eWallet',
+      key: 'E_WALLET',
       check: true,
     },{
       value: 2,
       label: 'Credit Card',
+      key: 'CREDIT_CARD',
       check: false,
     },{
       value: 3,
       label: 'AR',
+      key: 'AR_CREDIT',
       check: false,
     }],
     collectionDate: null,
@@ -98,7 +101,9 @@ export default {
       });
       if (resultCode === '0') {
         return result;
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      }
     },
 
     *fetchTicketDownload(_, { call, put, select }) {
@@ -123,7 +128,9 @@ export default {
       });
       if (resultCode === '0') {
         return result
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      }
     },
 
     *fetchAccountDetail(_, { call, put, select }) {
@@ -163,7 +170,9 @@ export default {
             accountInfo: bean,
           },
         });
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      }
     },
 
     *fetchQueryTaDetail(_, { call, put, select }) {
@@ -194,7 +203,9 @@ export default {
             taDetailInfo: result,
           },
         });
-      } else throw resultMsg;
+      }  else {
+        message.error(resultMsg);
+      }
     },
 
     *sendTransactionPaymentOrder(_, { call, put, select }) {
@@ -228,7 +239,9 @@ export default {
       if (resultCode === '0') {
         return result;
         message.success('Confirm successfully!');
-      } else throw resultMsg;
+      }  else {
+        message.error(resultMsg);
+      }
     },
 
     *confirmEvent(_, { call, put, select }) {
@@ -239,7 +252,7 @@ export default {
         },
       });
       const {
-        userCompanyInfo: { companyId = '' },
+        userCompanyInfo: { companyId = '', companyType },
       } = yield select(state => state.global);
       const {
         bookingNo,
@@ -248,20 +261,31 @@ export default {
 
       const payMode = payModeList.filter(payMode=>payMode.check);
       const params = {
-        bookingNo,
-        paymentMode: payMode.label,
+        orderNo: bookingNo,
+        paymentMode: payMode[0].key,
       };
       const {
         data: { resultCode, resultMsg, result = {} },
       } = yield call(paymentOrder, params);
       yield put({
-        type: 'queryBookingStatus',
+        type: 'save',
         payload: {
+          payPageLoading: false,
         },
       });
       if (resultCode === '0') {
-        message.success('Confirm successfully!');
-      } else throw resultMsg;
+        if (companyType === "02") {
+          message.success('Confirm successfully!');
+        } else {
+          yield put({
+            type: 'queryBookingStatus',
+            payload: {
+            },
+          });
+        }
+      } else {
+        message.error(resultMsg);
+      }
     },
 
     *queryBookingStatus({ payload }, { call, put, select }) {
@@ -278,7 +302,7 @@ export default {
       } = yield select(state => state.ticketBookingAndPayMgr);
       let status = 'WaitingForPaying';
       let statusResult = {};
-      while (status === 'WaitingForPaying') {
+      while (status === 'WaitingForPaying' || status === 'Archiving') {
         const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
         const { resultCode: statusResultCode, result: newResult = {} } = statusData;
         if (statusResultCode === '0') {
@@ -292,7 +316,7 @@ export default {
       yield put({
         type: 'save',
         payload: {
-          checkOutLoading: false,
+          payPageLoading: false,
         },
       });
       if (status === 'Complete') {
@@ -331,7 +355,9 @@ export default {
             taId: result.taId
           },
         });
-      } else throw resultMsg;
+      }  else {
+        message.error(resultMsg);
+      }
     },
 
     *queryAccountInfo({ payload }, { call, put }) {
@@ -355,7 +381,9 @@ export default {
             taAccountInfo: result,
           },
         });
-      } else throw resultMsg;
+      }  else {
+        message.error(resultMsg);
+      }
     },
 
     *orderCheckOut({ payload }, { call, put }) {

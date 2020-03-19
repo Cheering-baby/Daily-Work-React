@@ -6,8 +6,8 @@ import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
 
 @Form.create()
-@connect(({ global, ticketBookingAndPayMgr }) => ({
-  global, ticketBookingAndPayMgr,
+@connect(({ ticketBookingAndPayMgr }) => ({
+  ticketBookingAndPayMgr,
 }))
 class OnceAPirateCollapse extends Component {
 
@@ -22,11 +22,9 @@ class OnceAPirateCollapse extends Component {
 
   render() {
     const {
-      global: {
-        userCompanyInfo: { companyType },
-      },
       ticketBookingAndPayMgr: { onceAPirateOrderData = [] },
       form,
+      form: { getFieldDecorator },
     } = this.props;
 
     return (
@@ -44,7 +42,7 @@ class OnceAPirateCollapse extends Component {
         <Collapse.Panel
           className={styles.collapsePanelStyles}
           key="OnceAPirateCollapsePanel"
-          header={<span className={styles.collapsePanelHeaderStyles}>ONCE A PIRATE</span>}
+          header={<span className={styles.collapsePanelHeaderStyles}>Once A Pirate</span>}
         >
           {onceAPirateOrderData.map((onceAPirateOrder, orderIndex) => {
             return (
@@ -56,7 +54,6 @@ class OnceAPirateCollapse extends Component {
                 operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
                   this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
                 }}
-                companyType={companyType}
               />
             );
           })}

@@ -17,13 +17,22 @@ import styles from './index.less';
 const mapStateToProps = store => {
   const { currentStep, isShowDetail, isBilCheckBox, isAllInformationToRws, viewId } = store.signUp;
   const { countryList = [], categoryList = [] } = store.taCommon;
-  const { otherInfo, customerInfo, taId, taInfoLoadingFlag, status, remark } = store.taMgr;
+  const {
+    otherInfo,
+    customerInfo,
+    taId,
+    taInfoLoadingFlag,
+    status,
+    remark,
+    isCompanyExist,
+  } = store.taMgr;
   return {
     otherInfo,
     customerInfo,
     taId,
     status,
     remark,
+    isCompanyExist,
     countryList,
     categoryList,
     taInfoLoadingFlag,
@@ -141,7 +150,8 @@ class SignUp extends PureComponent {
     status,
     isShowDetail,
     taInfoLoadingFlag,
-    isAllInformationToRws
+    isAllInformationToRws,
+    isCompanyExist
   ) => {
     if (isShowDetail) {
       return (
@@ -188,7 +198,9 @@ class SignUp extends PureComponent {
                       className={styles.informationButton}
                       loading={taInfoLoadingFlag}
                       onClick={this.onHandleSubmit}
-                      disabled={!isAllInformationToRws && String(currentStep) === '1'}
+                      disabled={
+                          (!isAllInformationToRws && String(currentStep) === '1') || isCompanyExist
+                        }
                     >
                       {formatMessage({ id: 'COMMON_OK' })}
                     </Button>

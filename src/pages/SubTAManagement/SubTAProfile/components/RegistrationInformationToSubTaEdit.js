@@ -8,8 +8,13 @@ import { isNvl } from '@/utils/utils';
 import { getFormKeyValue } from '../../utils/pubUtils';
 
 const mapStateToProps = store => {
-  const { subTaId, subTaInfo, subTaInfoLoadingFlag, countryList } = store.subTaMgr;
-  const { pagePrivileges = [] } = store.global;
+  const {
+    subTaId,
+    subTaInfo,
+    subTaInfoLoadingFlag,
+    countryList,
+    hasSubTaWithEmail,
+  } = store.subTaMgr;
   const { editVisible } = store.subTaProfile;
   return {
     subTaId,
@@ -17,7 +22,7 @@ const mapStateToProps = store => {
     subTaInfoLoadingFlag,
     countryList,
     editVisible,
-    pagePrivileges,
+    hasSubTaWithEmail,
   };
 };
 
@@ -36,7 +41,7 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
   };
 
   onHandleChange = (key, keyValue, fieldKey) => {
-    const { subTaInfo } = this.props;
+    const { dispatch, subTaInfo } = this.props;
     const { subTaInfoState } = this.state;
     const { form } = this.editRef.props;
     let newSubTaInfo = {};
@@ -47,6 +52,15 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
       newSubTaInfo = { ...subTaInfoState };
     }
     const noVal = getFormKeyValue(keyValue);
+    if (String(key).toLowerCase() === 'email') {
+      dispatch({
+        type: 'subTaMgr/fetchQrySubTaInfoWithEmail',
+        payload: {
+          email: keyValue,
+          subTaId: subTaInfo.subTaId,
+        },
+      });
+    }
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));
     const source = JSON.parse(`{"${key}":"${noVal}"}`);
     Object.assign(newSubTaInfo, source);
@@ -102,7 +116,7 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
   };
 
   render() {
-    const { countryList, editVisible, subTaInfoLoadingFlag } = this.props;
+    const { countryList, editVisible, subTaInfoLoadingFlag, hasSubTaWithEmail } = this.props;
     return (
       <div>
         <Drawer
@@ -146,7 +160,12 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
             <Button onClick={this.onClose} style={{ marginRight: 8 }}>
               {formatMessage({ id: 'COMMON_CANCEL' })}
             </Button>
-            <Button onClick={this.onOk} type="primary" loading={subTaInfoLoadingFlag}>
+            <Button
+              onClick={this.onOk}
+              type="primary"
+              loading={subTaInfoLoadingFlag}
+              disabled={hasSubTaWithEmail}
+            >
               {formatMessage({ id: 'COMMON_OK' })}
             </Button>
           </div>

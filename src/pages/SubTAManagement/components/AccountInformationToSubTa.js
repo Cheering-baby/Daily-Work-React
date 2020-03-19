@@ -12,9 +12,14 @@ class AccountInformationToSubTa extends PureComponent {
       onHandleChange,
       detailOpt,
       viewId,
+      hasSubTaWithEmail,
     } = this.props;
     const { getFieldDecorator } = form;
     const numFormat = formatMessage({ id: 'SUB_TA_INPUT_MAX_NUM' });
+    let isDisabled = false;
+    if (hasSubTaWithEmail) {
+      isDisabled = true;
+    }
     return (
       <React.Fragment>
         <Row type="flex" justify="space-around">
@@ -68,6 +73,7 @@ class AccountInformationToSubTa extends PureComponent {
                         placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                         onChange={e => onHandleChange('fullName', e.target.value, 'fullName')}
                         onPressEnter={e => onHandleChange('fullName', e.target.value, 'fullName')}
+                        disabled={isDisabled}
                       />
                     )}
                   </Form.Item>
@@ -119,6 +125,7 @@ class AccountInformationToSubTa extends PureComponent {
                         onPressEnter={e =>
                           onHandleChange('companyName', e.target.value, 'companyName')
                         }
+                        disabled={isDisabled}
                       />
                     )}
                   </Form.Item>
@@ -142,6 +149,7 @@ class AccountInformationToSubTa extends PureComponent {
                         getPopupContainer={() => document.getElementById(`${viewId}`)}
                         onChange={value => onHandleChange('country', value, 'country')}
                         style={{ width: '100%' }}
+                        disabled={isDisabled}
                       >
                         {countryList && countryList.length > 0
                           ? countryList.map(item => (
@@ -176,6 +184,7 @@ class AccountInformationToSubTa extends PureComponent {
                         placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                         onChange={e => onHandleChange('address', e.target.value, 'address')}
                         onPressEnter={e => onHandleChange('address', e.target.value, 'address')}
+                        disabled={isDisabled}
                       />
                     )}
                   </Form.Item>

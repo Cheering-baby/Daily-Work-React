@@ -10,8 +10,13 @@ import OtherInformationToEdit from '../components/OtherInformationToEdit';
 import EditSuccessfullyToEdit from '../components/EditSuccessfullyToEdit';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
-import { getModifyTYpe, isMainTaRole, isSaleSupportRole } from '../../utils/pubUtils';
+import { getModifyTYpe } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
+import {
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SALES_SUPPORT_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const { currentStep, isAllInformationToRws, viewId } = store.myProfile;
@@ -25,8 +30,8 @@ const mapStateToProps = store => {
     taInfoLoadingFlag,
     taMappingInfoLoadingFlag,
     taAccountInfoLoadingFlag,
+    isCompanyExist,
   } = store.taMgr;
-  const { pagePrivileges = [] } = store.global;
   return {
     otherInfo,
     customerInfo,
@@ -36,12 +41,12 @@ const mapStateToProps = store => {
     taInfoLoadingFlag,
     taMappingInfoLoadingFlag,
     taAccountInfoLoadingFlag,
+    isCompanyExist,
     countryList,
     categoryList,
     currentStep,
     isAllInformationToRws,
     viewId,
-    pagePrivileges,
   };
 };
 
@@ -111,15 +116,7 @@ class Edit extends PureComponent {
   };
 
   onHandleSubmit = () => {
-    const {
-      dispatch,
-      otherInfo,
-      customerInfo,
-      mappingInfo,
-      currentStep,
-      taId,
-      pagePrivileges,
-    } = this.props;
+    const { dispatch, otherInfo, customerInfo, mappingInfo, currentStep, taId } = this.props;
     if (String(currentStep) === '0') {
       const { form } = this.customerEditRef.props;
       form.validateFieldsAndScroll(error => {
@@ -157,7 +154,7 @@ class Edit extends PureComponent {
             customerInfo,
             mappingInfo,
             taId,
-            modifyType: getModifyTYpe(pagePrivileges),
+            modifyType: getModifyTYpe(),
           },
         }).then(flag => {
           if (flag)
@@ -172,9 +169,9 @@ class Edit extends PureComponent {
     }
   };
 
-  getEditForm = (pagePrivileges, currentStep) => {
-    const isMainTaRoleFlag = isMainTaRole(pagePrivileges);
-    const isSaleSupportRoleFlag = isSaleSupportRole(pagePrivileges);
+  getEditForm = currentStep => {
+    const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
+    const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
     if (isMainTaRoleFlag || isSaleSupportRoleFlag) {
       return (
         <React.Fragment>
@@ -227,9 +224,9 @@ class Edit extends PureComponent {
       taInfoLoadingFlag,
       taMappingInfoLoadingFlag,
       taAccountInfoLoadingFlag,
-      pagePrivileges,
       isAllInformationToRws,
       viewId,
+      isCompanyExist,
     } = this.props;
     const breadcrumbArr = [
       {
@@ -296,7 +293,10 @@ class Edit extends PureComponent {
                               taMappingInfoLoadingFlag ||
                               taAccountInfoLoadingFlag
                             }
-                          disabled={!isAllInformationToRws && String(currentStep) === '1'}
+                          disabled={
+                              (!isAllInformationToRws && String(currentStep) === '1') ||
+                              isCompanyExist
+                            }
                         >
                           {formatMessage({ id: 'COMMON_OK' })}
                         </Button>
@@ -307,7 +307,7 @@ class Edit extends PureComponent {
               }
               loading={taInfoLoadingFlag || taMappingInfoLoadingFlag || taAccountInfoLoadingFlag}
             >
-              {this.getEditForm(pagePrivileges, currentStep)}
+              {this.getEditForm(currentStep)}
             </Card>
           </Col>
         </Row>

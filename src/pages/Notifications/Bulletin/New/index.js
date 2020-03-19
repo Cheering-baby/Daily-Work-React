@@ -1,23 +1,61 @@
 import React from 'react';
-import { Breadcrumb, Col } from 'antd';
+import {Col, Row} from 'antd';
+import {connect} from 'dva';
+import MediaQuery from 'react-responsive';
+import {formatMessage} from 'umi/locale';
+import SCREEN from '@/utils/screen';
+import BreadcrumbComp from '@/components/BreadcrumbComp';
+import NotificationEdit from '../../components/NotificationEdit';
 import 'react-quill/dist/quill.snow.css';
-import NotificationEdit from '@/pages/Notifications/components/NotificationEdit';
+import styles from './index.less';
 
-class index extends React.PureComponent {
+const mapStateToProps = store => {
+  const {notificationInfo} = store.notification;
+  const {pagePrivileges = []} = store.global;
+  return {
+    pagePrivileges,
+    notificationInfo,
+  };
+};
+
+@connect(mapStateToProps)
+class BulletinNew extends React.PureComponent {
   render() {
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({id: 'MENU_NOTIFICATIONS'}),
+        url: '/Notifications/Bulletin',
+      },
+      {
+        breadcrumbName: formatMessage({id: 'MENU_BULLETIN'}),
+        url: '/Notifications/Bulletin',
+      },
+      {
+        breadcrumbName: formatMessage({id: 'MENU_NEW'}),
+        url: null,
+      },
+    ];
+
     return (
-      <Col lg={24} md={24}>
-        <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-          <Breadcrumb.Item className="breadcrumb-style">Notifications</Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumb-style" onClick={this.routerTo}>
-            Bulletin
-          </Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumbbold">New</Breadcrumb.Item>
-        </Breadcrumb>
-        <NotificationEdit type="NEW" notificationType="01" />
-      </Col>
+      <Row type="flex" justify="space-around">
+        <Col span={24} className={styles.pageHeaderTitle}>
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr}/>
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr}/>
+          </MediaQuery>
+        </Col>
+        <Col span={24}>
+          <NotificationEdit type="NEW" notificationType="01"/>
+        </Col>
+      </Row>
     );
   }
 }
 
-export default index;
+export default BulletinNew;
