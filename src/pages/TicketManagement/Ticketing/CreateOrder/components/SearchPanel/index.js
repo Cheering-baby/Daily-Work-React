@@ -30,10 +30,6 @@ class SearchPanel extends Component {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'ticketMgr/queryAttributeList',
-      payload: {},
-    });
-    dispatch({
       type: 'ticketMgr/queryCountry',
       payload: {
         tableName: 'CUST_PROFILE',
@@ -82,43 +78,84 @@ class SearchPanel extends Component {
     dispatch({
       type: 'ticketMgr/save',
       payload: {
-        dateOfVisit: undefined,
-        themeParkChooseList: [],
+        offerType: '',
+        themeParkTipType: 'NoTip',
+        activeDataPanel: undefined,
+        activeGroup: 0,
+        showToCart: false,
+        tipVisible: true,
         themeParkList: [
           {
             group: 1,
             value: 'USS',
-            label: 'Universal Studios Singapore',
+            label: 'UNIVERSAL STUDIOS SINGAPORE',
             disabled: false,
           },
           {
             group: 1,
             value: 'ACW',
-            label: 'Adventure Cove Water Park',
+            label: 'ADVENTURE COVE WATER PARK',
             disabled: false,
           },
           {
             group: 1,
             value: 'SEA',
-            label: 'S.E.A Aquarium',
+            label: 'S.E.A AQUARIUM',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'MEM',
+            label: 'MARITIME EXPERIENTIAL MUSEUM',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'Voucher',
+            label: 'VOUCHER',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'RE',
+            label: 'RESORT EVENTS',
+            disabled: false,
+          },
+          {
+            group: 1,
+            value: 'HHN',
+            label: 'HALLOWEEN HORROR NIGHTS',
             disabled: false,
           },
           {
             group: 2,
             value: 'DOL',
-            label: 'Dolphin Island',
+            label: 'DOLPHIN ISLAND',
             disabled: false,
           },
           {
             group: 3,
             value: 'OAP',
-            label: 'Once A Pirate',
+            label: 'ONCE A PIRATE',
             disabled: false,
           },
         ],
-        activeGroup: 0,
-        themeParkTipType: 'NoTip',
-        numOfGuests: undefined,
+        themeParkChooseList: [],
+        dateOfVisit: null,
+        sessionTimeList: [],
+        activeGroupSelectData: {
+          themeParkCode: undefined,
+          visitOfDate: undefined,
+          sessionTime: undefined,
+          numOfGuests: undefined,
+          accessibleSeat: undefined,
+        },
+        selectOfferData: [],
+        orderIndex: null,
+        onceAPirateOrder: null,
+        searchPanelActive: false,
+        mainPageLoading: false,
+        onceAPirateLoading: false,
       },
     });
   };
@@ -153,19 +190,19 @@ class SearchPanel extends Component {
       dispatch,
       ticketMgr: { dateOfVisit, themeParkChooseList = [] },
     } = this.props;
-    let attractionParams;
+    let requestParams;
     const paramValue = arrToString(themeParkChooseList);
     if (themeParkChooseList.length > 1) {
-      attractionParams = [
+      requestParams = [
         {
-          paramCode: 'ThemeParkCodes',
+          paramCode: 'BookingCategory',
           paramValue,
         },
       ];
     } else {
-      attractionParams = [
+      requestParams = [
         {
-          paramCode: 'ThemeParkCode',
+          paramCode: 'BookingCategory',
           paramValue: themeParkChooseList[0],
         },
       ];
@@ -174,7 +211,7 @@ class SearchPanel extends Component {
       type: 'ticketMgr/queryOfferList',
       payload: {
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
-        attractionParams,
+        requestParams,
       },
     }).then(() => {
       dispatch({
@@ -204,9 +241,9 @@ class SearchPanel extends Component {
       dispatch,
       ticketMgr: { dateOfVisit, themeParkChooseList = [] },
     } = this.props;
-    const attractionParams = [
+    const requestParams = [
       {
-        paramCode: 'ThemeParkCode',
+        paramCode: 'BookingCategory',
         paramValue: themeParkChooseList[0],
       },
     ];
@@ -214,7 +251,7 @@ class SearchPanel extends Component {
       type: 'ticketMgr/queryDolphinIsland',
       payload: {
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
-        attractionParams,
+        requestParams,
       },
     }).then(() => {
       dispatch({

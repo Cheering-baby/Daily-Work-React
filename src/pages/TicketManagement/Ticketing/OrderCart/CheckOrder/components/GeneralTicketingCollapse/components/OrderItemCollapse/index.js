@@ -203,14 +203,14 @@ class OrderItemCollapse extends Component {
             {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
               <Row key={`package_orderInfo_${  infoIndex}`} gutter={24} className={styles.contentRow}>
                 <Col span={10} className={styles.titleCol}>
-                  <Checkbox
+                  {/*<Checkbox
                     value={1}
                     checked={orderInfo.orderCheck}
                     onClick={this.allClickEvent}
                     onChange={e => {
                       this.checkOfferEvent(e, offerIndex, orderOffer, infoIndex, orderInfo);
                     }}
-                  />
+                  />*/}
                   <span className={styles.titleSpan}>{orderInfo.productInfo.productName}</span>
                 </Col>
                 <Col span={8} className={styles.dataCol}>
@@ -221,7 +221,7 @@ class OrderItemCollapse extends Component {
                 <Col span={3} className={styles.priceCol}>
                   {
                     companyType === '01' && (
-                      <span className={styles.priceSpan}>${orderInfo.pricePax}/pax</span>
+                      <span className={styles.priceSpan}>${Number(orderInfo.pricePax).toFixed(2)}/pax</span>
                     )
                   }
                 </Col>

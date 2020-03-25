@@ -6,6 +6,7 @@ export default {
   EMPTY_PRODUCT_TIP: 'Please use the filter for product screening！',
   EMPTY_ORDER_TIP: 'Please add some offer to cart！',
   Ticketing: 'Ticketing',
+  TICKETING_TYPE: 'Ticket Type',
   SELECT_INDIVIDUALLY_TIP: '* Can only be selected individually',
   DATE_OF_VISIT: 'Date of Visit',
   SESSION_TIME: 'Event Session',
@@ -35,4 +36,6 @@ export default {
   DELIVERY_MODE: 'Delivery Mode',
   COLLECTION_DATE: 'Collection Date',
   PAYMENT_MODE: 'PAYMENT MODE',
+  YEAR: 'Year',
+  THEME_PARK: 'Theme Park',
 };

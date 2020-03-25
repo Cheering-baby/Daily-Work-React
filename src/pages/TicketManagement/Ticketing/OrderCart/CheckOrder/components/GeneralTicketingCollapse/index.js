@@ -7,8 +7,8 @@ import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/At
 import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
-@connect(({ ticketOrderCartMgr }) => ({
-  ticketOrderCartMgr,
+@connect(({ global,ticketOrderCartMgr }) => ({
+  global,ticketOrderCartMgr,
 }))
 class GeneralTicketingCollapse extends Component {
   constructor(props) {
@@ -196,6 +196,9 @@ class GeneralTicketingCollapse extends Component {
 
   render() {
     const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
       ticketOrderCartMgr: {
         countrys,
         showToCartModalType,
@@ -246,6 +249,7 @@ class GeneralTicketingCollapse extends Component {
           >
             <OrderItemCollapse
               form={form}
+              companyType={companyType}
               orderIndex={orderIndex}
               orderData={orderData}
               changeOrderCheck={(orderIndex, onceAPirateOrder) => {

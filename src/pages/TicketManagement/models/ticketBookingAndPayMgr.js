@@ -186,16 +186,21 @@ export default {
         userCompanyInfo: { companyId = '' },
       } = yield select(state => state.global);
       const params = { taId: companyId };
+      const queryTaInfoResponse = yield call(queryTaInfo, params);
+      console.log(queryTaInfoResponse);
+      if (!queryTaInfoResponse || !queryTaInfoResponse.data) {
+        message.error("Query ta info service error!");
+        return ;
+      }
       const {
         data: { resultCode, resultMsg, result = {} },
-      } = yield call(queryTaInfo, params);
+      } = queryTaInfoResponse;
       yield put({
         type: 'save',
         payload: {
           payPageLoading: false,
         },
       });
-      console.log(result);
       if (resultCode === '0') {
         yield put({
           type: 'save',

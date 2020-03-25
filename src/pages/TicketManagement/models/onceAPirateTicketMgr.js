@@ -4,7 +4,8 @@ import {
   getAttractionProductList,
   getPluProductByRuleId,
   getVoucherProductList,
-  getSumPriceOfOfferPaxOfferProfile
+  getSumPriceOfOfferPaxOfferProfile,
+  getPamsPriceRuleIdByOfferProfile
 } from '../utils/ticketOfferInfoUtil';
 import moment from "moment";
 
@@ -241,7 +242,8 @@ export default  {
             }
           }
         }
-        offerSumPrice = getSumPriceOfOfferPaxOfferProfile(offerProfile,requestParam.validTimeFrom);
+        const selectRuleId = getPamsPriceRuleIdByOfferProfile(offerProfile);
+        offerSumPrice = getSumPriceOfOfferPaxOfferProfile(offerProfile,requestParam.validTimeFrom,selectRuleId);
         if (sessionTimeFix && offerSumPrice>0 && offerMaxAvailable>0) {
           let orderQuantity = 0;
           if (orderIndex!==null && onceAPirateOrder!==null) {
@@ -252,6 +254,7 @@ export default  {
             });
           }
           onceAPirateOfferData.push(Object.assign(offerList[i],{
+            selectRuleId,
             offerSumPrice,
             showPrice: `$${offerSumPrice}`,
             orderQuantity,

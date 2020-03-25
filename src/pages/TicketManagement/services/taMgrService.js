@@ -9,9 +9,8 @@ const uaaPathWithMock = process.env.NODE_ENV === 'development' ? mock : '';
 
 const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
-
 export function queryAccount(params) {
-  return UAAService.request(`${uaaPath}/proxy/ali/b2b/account/queryAccountDetail`, {
+  return UAAService.request(`/proxy/ali/b2b/account/queryAccountDetail`, {
     method: 'GET',
     params: params,
   });

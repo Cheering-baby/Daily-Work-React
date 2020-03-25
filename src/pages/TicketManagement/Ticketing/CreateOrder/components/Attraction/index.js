@@ -10,10 +10,12 @@ import {
 import styles from './index.less';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
+import BundleToCart from '../BundleToCart';
 
 const { TabPane } = Tabs;
-@connect(({ ticketMgr }) => ({
+@connect(({ ticketMgr, global }) => ({
   ticketMgr,
+  global,
 }))
 class Attraction extends Component {
   constructor(props) {
@@ -28,15 +30,27 @@ class Attraction extends Component {
 
   showToCart = record => {
     const { dispatch } = this.props;
-    const { attractionProduct = [], detail } = record;
+    const { bundleName, offers = [], attractionProduct = [], detail } = record;
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const detailCopy = JSON.parse(JSON.stringify(detail));
+    let bundleOfferDetail = {};
+    if (!isNullOrUndefined(bundleName)) {
+      bundleOfferDetail = {
+        bundleName,
+        offers,
+        dateOfVisit: offers[0].detail.dateOfVisit,
+        numOfGuests: offers[0].detail.numOfGuests,
+      };
+    }
+
     dispatch({
       type: 'ticketMgr/save',
       payload: {
         attractionProduct: attractionProductCopy,
         detail: detailCopy,
-        showToCartModal: true,
+        showToCartModal: isNullOrUndefined(bundleName),
+        showBundleToCart: !isNullOrUndefined(bundleName),
+        bundleOfferDetail,
       },
     });
   };
@@ -89,29 +103,34 @@ class Attraction extends Component {
       payload: {
         showDetailModal: false,
         showToCartModal: false,
+        showBundleToCart: false,
         deliverInfomation: {},
       },
     });
   };
 
-  formatInputValue = (index, value, productInventory) => {
+  formatInputValue = (index, value, type) => {
     const {
-      ticketMgr: { attractionProduct = [] },
+      ticketMgr: {
+        attractionProduct = [],
+        bundleOfferDetail: { offers = [] },
+      },
     } = this.props;
-    const originalValue = attractionProduct[index].ticketNumber;
+    let originalValue;
+    if (type === 'Bundle') {
+      originalValue = offers[index].ticketNumber;
+    } else {
+      originalValue = attractionProduct[index].ticketNumber;
+    }
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
+    if (value === '' || testZero.test(value) || testReg.test(value)) {
       return value;
     }
     return originalValue;
   };
 
-  changeTicketNumber = async (index, value, productPrice, productInventory) => {
+  changeTicketNumber = async (index, value, productPrice) => {
     const {
       dispatch,
       ticketMgr: { attractionProduct = [] },
@@ -120,17 +139,42 @@ class Attraction extends Component {
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
+    if (value === '' || testZero.test(value) || testReg.test(value)) {
       attractionProductCopy[index].ticketNumber = value;
       attractionProductCopy[index].price = value * productPrice;
       dispatch({
         type: 'ticketMgr/save',
         payload: {
           attractionProduct: attractionProductCopy,
+        },
+      });
+      return value;
+    }
+    return originalValue;
+  };
+
+  changeBundleOfferNumber = async (index, value, productPrice) => {
+    const {
+      dispatch,
+      ticketMgr: {
+        bundleOfferDetail,
+        bundleOfferDetail: { offers = [] },
+      },
+    } = this.props;
+    const originalValue = offers[index].ticketNumber;
+    const offersCopy = JSON.parse(JSON.stringify(offers));
+    const testReg = /^[1-9]\d*$/;
+    const testZero = /^0$/;
+    if (value === '' || testZero.test(value) || testReg.test(value)) {
+      offersCopy[index].ticketNumber = value;
+      offersCopy[index].price = value * productPrice;
+      dispatch({
+        type: 'ticketMgr/save',
+        payload: {
+          bundleOfferDetail: {
+            ...bundleOfferDetail,
+            offers: offersCopy,
+          },
         },
       });
       return value;
@@ -160,7 +204,7 @@ class Attraction extends Component {
         deliverInfomation = {},
         attractionProduct = [],
         detail,
-        detail: { dateOfVisit, numOfGuests },
+        detail: { dateOfVisit, numOfGuests, priceRuleId },
       },
     } = this.props;
     if (attractionProduct.length === 1) {
@@ -177,23 +221,25 @@ class Attraction extends Component {
       const orderData = {
         themeParkCode,
         themeParkName,
+        orderType: 'offer',
         queryInfo: {
           dateOfVisit,
           numOfGuests,
         },
         orderInfo,
-        offerInfo: {...detail},
+        offerInfo: { ...detail, selectRuleId: priceRuleId },
         deliveryInfo: deliverInfomation,
       };
       dispatch({
         type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
-        payload:{
+        payload: {
           orderIndex: null,
-          orderData
+          orderData,
         },
       });
     } else {
       const orderInfo = [];
+      const { themeParkName, themePark: themeParkCode } = attractionProduct[0].attractionProduct;
       attractionProduct.forEach(item => {
         const { ticketNumber, price } = item;
         orderInfo.push({
@@ -204,12 +250,15 @@ class Attraction extends Component {
         });
       });
       const orderData = {
+        themeParkCode,
+        themeParkName,
+        orderType: 'offer',
         queryInfo: {
           dateOfVisit,
           numOfGuests,
         },
         orderInfo,
-        offerInfo: {...detail},
+        offerInfo: { ...detail, selectRuleId: priceRuleId },
         deliveryInfo: deliverInfomation,
       };
       dispatch({
@@ -223,6 +272,51 @@ class Attraction extends Component {
     this.onClose();
   };
 
+  bundleOrder = () => {
+    const {
+      dispatch,
+      ticketMgr: {
+        deliverInfomation = {},
+        bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
+      },
+    } = this.props;
+    const orderInfo = offers.map(item => {
+      const {
+        ticketNumber: quantity,
+        detail,
+        detail: { priceRuleId },
+        attractionProduct = [],
+      } = item;
+      return {
+        quantity,
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
+        offerInfo: {
+          ...detail,
+        },
+      };
+    });
+    const orderData = {
+      themeParkCode: offers[0].attractionProduct[0].attractionProduct.themePark,
+      themeParkName: offers[0].attractionProduct[0].attractionProduct.themeParkName,
+      orderType: 'offerBundle',
+      bundleName,
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderInfo,
+      deliveryInfo: deliverInfomation,
+    };
+    dispatch({
+      type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
+      payload: {
+        orderIndex: null,
+        orderData,
+      },
+    });
+    this.onClose();
+  };
+
   render() {
     const {
       ticketMgr: {
@@ -233,6 +327,11 @@ class Attraction extends Component {
         showToCartModal,
         countrys,
         deliverInfomation = {},
+        showBundleToCart,
+        bundleOfferDetail = {},
+      },
+      global: {
+        userCompanyInfo: { companyType },
       },
     } = this.props;
     const ticketTypeItems = [];
@@ -319,7 +418,7 @@ class Attraction extends Component {
       {
         title: '',
         key: 'empty',
-        width: '10%',
+        width: '5%',
         render: () => {
           return <div />;
         },
@@ -377,6 +476,18 @@ class Attraction extends Component {
             priceRuleIndex={0}
             countrys={countrys}
             order={this.order}
+            deliverInfomation={deliverInfomation}
+            changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
+          />
+        ) : null}
+        {showBundleToCart ? (
+          <BundleToCart
+            {...bundleOfferDetail}
+            onClose={this.onClose}
+            countrys={countrys}
+            order={this.bundleOrder}
+            formatInputValue={this.formatInputValue}
+            changeTicketNumber={this.changeBundleOfferNumber}
             deliverInfomation={deliverInfomation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
           />

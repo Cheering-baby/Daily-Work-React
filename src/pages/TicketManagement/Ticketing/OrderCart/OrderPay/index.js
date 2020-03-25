@@ -86,8 +86,12 @@ class OrderPay extends Component {
         },
       }).then((result)=>{
         if (result && result.url) {
-          const w = window.open('about:blank');
-          w.location.href = result.url;
+          const openWindow = window.open('about:blank');
+          if (openWindow) {
+            openWindow.location.href = result.url;
+          } else {
+            message.error('Open window error!');
+          }
         }
       });
     } else if (payMode.label==='AR') {
@@ -125,13 +129,17 @@ class OrderPay extends Component {
     let active = true;
     const payMode = payModeList.find(payMode=>payMode.check);
     if (payMode.label==='eWallet') {
-      if (accountInfo.eWallet.balance<bookDetail.totalPrice) {
+      if (!accountInfo.eWallet) {
+        active = false;
+      } else if (accountInfo.eWallet.balance<bookDetail.totalPrice) {
         active = false;
       }
     } else if (payMode.label==='Credit Card') {
 
     } else if (payMode.label==='AR') {
-      if (accountInfo.ar.balance<bookDetail.totalPrice) {
+      if (!accountInfo.ar) {
+        active = false;
+      } else if (accountInfo.ar.balance<bookDetail.totalPrice) {
         active = false;
       }
     }
@@ -192,8 +200,12 @@ class OrderPay extends Component {
       payload: {
       },
     }).then((result)=>{
-      // console.log(result);
-      window.open(result);
+      if (result) {
+        const openWindow = window.open(result);
+        if (!openWindow) {
+          message.error('Open window error!');
+        }
+      }
     });
     // handleDownFile();
   };

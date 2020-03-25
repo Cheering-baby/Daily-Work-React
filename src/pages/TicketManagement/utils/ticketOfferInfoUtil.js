@@ -161,9 +161,11 @@ export function getPamsPriceRuleIdByOfferProfile(offerProfile) {
 
 }
 
-export function getSumPriceOfOfferPaxOfferProfile(offerProfile,dateOfVisit) {
+export function getSumPriceOfOfferPaxOfferProfile(offerProfile,dateOfVisit,selectRuleId) {
+  if (!selectRuleId) {
+    selectRuleId = getPamsPriceRuleIdByOfferProfile(offerProfile);
+  }
   const attractionProductList = getAttractionProductList(offerProfile,dateOfVisit);
-  const selectRuleId = getPamsPriceRuleIdByOfferProfile(offerProfile);
   let sumPriceOfOfferPax = 0.00;
   if (attractionProductList && attractionProductList.length>0) {
     attractionProductList.forEach(attractionProduct=>{

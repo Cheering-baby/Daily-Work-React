@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
-import { calculateProductPrice } from '../../../../utils/utils';
+import { calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -36,7 +36,7 @@ class ToCart extends Component {
     const { form, changeTicketNumber } = this.props;
     changeTicketNumber(index, value, productPrice).then(res => {
       const data = {};
-      const ticketNumberLabel = `attractionProduct${index}`;
+      const ticketNumberLabel = `offer${index}`;
       if (res !== '') {
         data[ticketNumberLabel] = res;
         form.setFieldsValue(data);
@@ -44,12 +44,12 @@ class ToCart extends Component {
     });
   };
 
-  formatInputValue = (index, value, productInventory) => {
+  formatInputValue = (index, value) => {
     const { formatInputValue } = this.props;
-    if (isNullOrUndefined(formatInputValue(index, value, productInventory))) {
+    if (isNullOrUndefined(formatInputValue(index, value, 'Bundle'))) {
       return '';
     }
-    return formatInputValue(index, value, productInventory);
+    return formatInputValue(index, value, 'Bundle');
   };
 
   calculateTotalPrice = () => {
@@ -66,23 +66,18 @@ class ToCart extends Component {
 
   order = () => {
     const { checkTermsAndCondition } = this.state;
-    const {
-      form,
-      order,
-      attractionProduct = [],
-      detail: { numOfGuests },
-    } = this.props;
+    const { form, order, offers = [], numOfGuests } = this.props;
     const data = {};
-    attractionProduct.forEach((item, index) => {
+    offers.forEach((item, index) => {
       const { ticketNumber } = item;
-      const ticketNumberLabel = `attractionProduct${index}`;
+      const ticketNumberLabel = `offer${index}`;
       data[ticketNumberLabel] = ticketNumber;
     });
     form.setFieldsValue(data);
     form.validateFields(err => {
       if (!err) {
         let allTicketNumbers = 0;
-        attractionProduct.forEach(item => {
+        offers.forEach(item => {
           const { ticketNumber } = item;
           allTicketNumbers += ticketNumber;
         });
@@ -97,31 +92,6 @@ class ToCart extends Component {
         order();
       }
     });
-  };
-
-  calculateMaxTickets = (index, productInventory) => {
-    const {
-      attractionProduct = [],
-      detail: { numOfGuests },
-    } = this.props;
-    const maxProductInventory = productInventory === -1 ? 100000000 : productInventory;
-    const attractionProductFilter = attractionProduct.filter((_, index2) => {
-      return index2 !== index;
-    });
-    let allInputTicketNumbers = 0;
-    attractionProductFilter.forEach(item => {
-      const { ticketNumber } = item;
-      if (!isNullOrUndefined(ticketNumber) && ticketNumber !== '') {
-        allInputTicketNumbers += Number(ticketNumber);
-      } else {
-        allInputTicketNumbers += 0;
-      }
-    });
-    const leftInputTickets = numOfGuests - allInputTicketNumbers;
-    if (maxProductInventory <= leftInputTickets) {
-      return maxProductInventory;
-    }
-    return leftInputTickets;
   };
 
   changeCountry = value => {
@@ -149,14 +119,12 @@ class ToCart extends Component {
     const { showTermsAndCondition, checkTermsAndCondition } = this.state;
     const {
       form: { getFieldDecorator },
-      attractionProduct = [],
-      detail: { dateOfVisit, offerContentList = [] },
+      dateOfVisit,
       onClose,
-      priceRuleIndex,
       countrys = [],
       ticketType,
       description,
-      eventSession,
+      offers,
       deliverInfomation: { country, taNo, guestFirstName, guestLastName, customerContactNo },
       changeDeliveryInformation,
       global: {
@@ -164,6 +132,7 @@ class ToCart extends Component {
       },
     } = this.props;
     let termsAndCondition;
+    let offerContentList = [];
     offerContentList.forEach(item => {
       const { contentType, contentLanguage, contentValue } = item;
       if (contentLanguage === 'en-us' && contentType === 'termsAndConditions') {
@@ -236,40 +205,30 @@ class ToCart extends Component {
                     </span>
                   </Col>
                 </Col>
-                {eventSession ? (
-                  <Col span={24} style={{ marginBottom: '5px' }}>
-                    <Col span={9} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Event Session</span>
-                    </Col>
-                    <Col span={15}>
-                      <span className={styles.detailText}>{eventSession}</span>
-                    </Col>
-                  </Col>
-                ) : null}
                 <Col style={{ margin: '5px 0' }} className={styles.title}>
                   BOOKING INFORMATION
                 </Col>
                 <Form className={styles.product}>
-                  {attractionProduct.map((item, index) => {
-                    const { priceRule = [], productName, ticketNumber, price } = item;
-                    const priceRuleFilter = priceRule.filter(
-                      item2 => item2.priceRuleName === 'DefaultPrice'
-                    );
-                    const { priceRuleId } = priceRule[1];
-                    const currentPriceRule = priceRuleFilter[0];
-                    const { productPrice } = currentPriceRule;
-                    const { discountUnitPrice, productInventory } = productPrice[priceRuleIndex];
-                    const ticketNumberLabel = `attractionProduct${index}`;
-                    const maxProductInventory = this.calculateMaxTickets(index, productInventory);
-                    const priceShow = calculateProductPrice(item, priceRuleId);
+                  {offers.map((item, index) => {
+                    const {
+                      id,
+                      ticketNumber,
+                      price,
+                      attractionProduct = [],
+                      detail: {
+                        priceRuleId,
+                        offerBasicInfo: { offerName },
+                      },
+                    } = item;
+                    const priceShow = calculateAllProductPrice(attractionProduct, priceRuleId);
+                    const ticketNumberLabel = `offer${index}`;
+                    const max = 1000000;
                     return (
-                      <Col span={24} className={styles.ageItem} key={productName}>
+                      <Col span={24} className={styles.ageItem} key={id}>
                         <Col span={12} className={styles.age}>
-                          <span style={{ color: '#565656' }}>
-                            {item.attractionProduct.ageGroup}
-                          </span>
+                          <span style={{ color: '#565656' }}>{offerName}</span>
                           {companyType === '02' ? null : (
-                            <span style={{ color: '#171B21' }}>$ {priceShow.toFixed(2)}</span>
+                            <span style={{ color: '#171B21' }}>$ {priceShow}</span>
                           )}
                         </Col>
                         <Col span={6}>
@@ -285,20 +244,13 @@ class ToCart extends Component {
                             })(
                               <div>
                                 <InputNumber
-                                  max={maxProductInventory}
+                                  max={max}
                                   min={0}
                                   value={ticketNumber}
                                   onChange={value =>
-                                    this.changeTicketNumber(
-                                      index,
-                                      value,
-                                      priceShow,
-                                      maxProductInventory
-                                    )
+                                    this.changeTicketNumber(index, value, priceShow)
                                   }
-                                  parser={value =>
-                                    this.formatInputValue(index, value, maxProductInventory)
-                                  }
+                                  parser={value => this.formatInputValue(index, value)}
                                 />
                               </div>
                             )}

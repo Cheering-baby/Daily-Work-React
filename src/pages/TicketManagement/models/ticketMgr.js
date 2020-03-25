@@ -261,15 +261,16 @@ export default {
         },
       });
 
-      const attractionParams = themeParkChooseList.map(() => ({
-        paramCode: 'ThemeParkCode',
+      const requestParams = [{
+        paramCode: 'BookingCategory',
         paramValue: 'OAP',
-      }));
+      }];
+
       const requestParam = {
         pageSize: 100,
         currentPage: 1,
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
-        attractionParams,
+        requestParams,
       };
 
       const response = yield call(queryOfferList, requestParam);
@@ -475,14 +476,14 @@ export default {
               const { tag } = item2;
               products.forEach(item3 => {
                 const {
-                  detail: { offerTagList = [], offerNo, OfferBundle = [] },
+                  detail: { offerTagList = [], offerNo, offerBundle = [] },
                 } = item3;
                 offerTagList.forEach(item4 => {
                   const { tagName } = item4;
                   if (tag === tagName) {
                     item3.id = offerNo;
-                    if (OfferBundle.length > 0) {
-                      const { bundleName, bundleLabel } = OfferBundle[0];
+                    if (offerBundle.length > 0) {
+                      const { bundleName, bundleLabel } = offerBundle[0];
                       if (
                         themeParkList[index].categories[index2].bundleNames.indexOf(bundleName) ===
                         -1

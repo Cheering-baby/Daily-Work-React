@@ -27,6 +27,7 @@ import {
   transBookingCommonOffers,
   transOapCommonOffers,
   transBookingOffersTotalPrice,
+  transPackageCommonOffers,
 } from "@/pages/TicketManagement/utils/orderCartUtil";
 import {
   getAttractionProductList,
@@ -433,11 +434,11 @@ export default {
         cardId: cartId,
       };
 
-      const ticketOrderData = [...packageOrderData,...generalTicketOrderData];
-      const bookingCommonOffers = transBookingCommonOffers(ticketOrderData,collectionDate,deliveryMode);
+      const packageCommonOffers = transPackageCommonOffers(packageOrderData,collectionDate,deliveryMode);
+      const bookingCommonOffers = transBookingCommonOffers(generalTicketOrderData,collectionDate,deliveryMode);
       const oapCommonOffers = transOapCommonOffers(onceAPirateOrderData,collectionDate,deliveryMode);
-      bookingParam.commonOffers = [...bookingCommonOffers,...oapCommonOffers];
-      bookingParam.totalPrice = transBookingOffersTotalPrice(ticketOrderData,onceAPirateOrderData);
+      bookingParam.commonOffers = [...packageCommonOffers,...bookingCommonOffers,...oapCommonOffers];
+      bookingParam.totalPrice = transBookingOffersTotalPrice(packageOrderData,generalTicketOrderData,onceAPirateOrderData);
       if (deliveryMode && deliveryMode === 'BOCA') {
         bookingParam.totalPrice += ticketAmount * bocaFeePax;
       }
@@ -580,69 +581,12 @@ export default {
       } else throw resultMsg;
     },
 
-    *settingPackAgeTicketOrderData({ payload }, { put, take }) {
-      const { orderIndex, orderData } = payload;
-      const newOrderInfo = orderData.orderInfo.map(orderInfo => {
-        return {
-          orderCheck: true,
-          ...orderInfo,
-        };
-      });
-      const newOrderItem = Object.assign(
-        {},
-        {
-          orderAll: true,
-          indeterminate: false,
-          ...orderData,
-          orderInfo: newOrderInfo,
-        }
-      );
-      const themeParkCode = 'package';
-      const themeParkName = 'Attraction Package';
-      if (!isNvl(orderIndex) && orderIndex > -1) {
-        const removeShoppingFn = {
-          callbackFnCode: 1,
-          setFnCode: function (callbackCode) {
-            this.callbackFnCode = callbackCode;
-          }
-        };
-        yield put({
-          type: 'removeShoppingCart',
-          payload: {
-            offerInstances: [{
-              offerNo: newOrderItem.offerInfo.offerNo,
-              offerInstanceId: newOrderItem.offerInstanceId,
-            }],
-            callbackFn: removeShoppingFn,
-          },
-        });
-        yield take('removeShoppingCart/@@end');
-        if (removeShoppingFn.callbackFnCode!==0 && removeShoppingFn.callbackFnCode!=="0") {
-          return;
-        }
-      }
+    *settingPackAgeTicketOrderData({ payload }, { put }) {
 
-      const callbackFn = {
-        callbackFnCode: 1,
-        setFnCode: function (callbackCode) {
-          this.callbackFnCode = callbackCode;
-        }
-      };
       yield put({
-        type: 'addToShoppingCart',
-        payload: {
-          offerNo: newOrderItem.offerInfo.offerNo,
-          themeParkCode: themeParkCode,
-          themeParkName: themeParkName,
-          orderData: newOrderItem,
-          callbackFn,
-        },
+        type: 'settingGeneralTicketOrderData',
+        payload,
       });
-      yield take('addToShoppingCart/@@end');
-
-      if (callbackFn.callbackFnCode==='0') {
-        message.success('Order successfully!');
-      }
 
     },
 

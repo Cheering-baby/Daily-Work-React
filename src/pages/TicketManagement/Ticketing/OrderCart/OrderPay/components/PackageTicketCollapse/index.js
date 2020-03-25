@@ -7,8 +7,8 @@ import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/At
 import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
-@connect(({ ticketBookingAndPayMgr }) => ({
-  ticketBookingAndPayMgr,
+@connect(({ global, ticketBookingAndPayMgr }) => ({
+  global, ticketBookingAndPayMgr,
 }))
 class PackageTicketingCollapse extends Component {
 
@@ -25,6 +25,9 @@ class PackageTicketingCollapse extends Component {
   render() {
 
     const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
       ticketBookingAndPayMgr: {
         packageOrderData = [],
       },
@@ -57,6 +60,7 @@ class PackageTicketingCollapse extends Component {
                 operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
                   this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
                 }}
+                companyType={companyType}
               />
             ))
           }

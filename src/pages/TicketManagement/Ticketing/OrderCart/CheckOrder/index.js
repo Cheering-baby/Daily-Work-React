@@ -11,8 +11,11 @@ import OnceAPirateCollapse from './components/OnceAPirateCollapse';
 import GeneralTicketingCollapse from './components/GeneralTicketingCollapse';
 import BOCAOfferCollapse from '@/pages/TicketManagement/components/BOCAOfferCollapse';
 import moment from "moment";
-
 const FormItem = Form.Item;
+
+import {
+  getCheckTicketAmount,
+} from "@/pages/TicketManagement/utils/orderCartUtil";
 
 @Form.create()
 @connect(({ global, ticketOrderCartMgr }) => ({
@@ -270,32 +273,7 @@ class CheckOrder extends Component {
       },
     } = this.props;
 
-    let ticketAmount = 0;
-    generalTicketOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        orderOffer.orderInfo.forEach(orderInfo => {
-          if (orderInfo.orderCheck) {
-            ticketAmount += orderInfo.quantity;
-          }
-        });
-      });
-    });
-    packageOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        orderOffer.orderInfo.forEach(orderInfo => {
-          if (orderInfo.orderCheck) {
-            ticketAmount += orderInfo.quantity;
-          }
-        });
-      });
-    });
-    onceAPirateOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        if (orderOffer.orderCheck) {
-          ticketAmount += orderOffer.orderInfo.orderQuantity;
-        }
-      });
-    });
+    const ticketAmount = getCheckTicketAmount(packageOrderData,generalTicketOrderData,onceAPirateOrderData);
     return ticketAmount || 0;
 
   };
