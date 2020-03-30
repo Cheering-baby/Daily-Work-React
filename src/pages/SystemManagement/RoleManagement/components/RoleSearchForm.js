@@ -1,12 +1,9 @@
-import React, { Fragment } from 'react';
-import { Breadcrumb, Button, Card, Col, Form, Input, Row, Select, Table } from 'antd';
+import React from 'react';
+import { Button, Card, Col, Form, Input, Row } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
 import { connect } from 'dva';
-import TextArea from 'antd/es/input/TextArea';
-import router from 'umi/router';
-import styles from '../index.less';
 
 const colProps = {
   xs: 24,
@@ -24,15 +21,9 @@ const btnColProps = {
 @Form.create()
 @connect()
 class Index extends React.PureComponent {
-  componentDidMount() {
-    // TODO get ROLES
-    // TODO get companies
-    //
-  }
-
   handleSearch = e => {
     e.preventDefault();
-    const { dispatch, form } = this.props;
+    const { form } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
         this.query(values);
@@ -43,7 +34,7 @@ class Index extends React.PureComponent {
   query = values => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'roleManagement/saveData',
+      type: 'roleMgr/saveData',
       payload: {
         queryParam: {
           ...values,
@@ -53,7 +44,7 @@ class Index extends React.PureComponent {
       },
     }).then(() => {
       dispatch({
-        type: 'roleManagement/queryUserRolesByCondition',
+        type: 'roleMgr/queryUserRolesByCondition',
       });
     });
   };
@@ -67,30 +58,21 @@ class Index extends React.PureComponent {
   };
 
   render() {
-    const { getFieldDecorator } = this.props.form;
+    const {
+      form: { getFieldDecorator },
+    } = this.props;
     return (
       <Card className="has-shadow no-border">
         <Form onSubmit={e => this.handleSearch(e)}>
           <Row gutter={24}>
             <Col {...colProps}>
               <Form.Item>
-                {getFieldDecorator(`roleName`)(
+                {getFieldDecorator(`fuzzyRoleName`)(
                   <Input placeholder={formatMessage({ id: 'ROLE_NAME' })} allowClear />
                 )}
               </Form.Item>
             </Col>
-            <Col {...colProps}>
-              <Form.Item>
-                {getFieldDecorator(`roleType`)(
-                  <Select
-                    placeholder={formatMessage({ id: 'COMPANY_NAME' })}
-                    optionFilterProp="children"
-                    style={{ width: '100%' }}
-                    allowClear
-                  />
-                )}
-              </Form.Item>
-            </Col>
+            <Col {...colProps} />
             <Col {...btnColProps} style={{ textAlign: 'right' }}>
               <Button type="primary" htmlType="submit">
                 {formatMessage({ id: 'BTN_SEARCH' })}

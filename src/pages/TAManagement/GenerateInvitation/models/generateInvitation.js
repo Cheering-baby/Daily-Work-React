@@ -113,7 +113,6 @@ export default {
     *fetchGenerateContent({ payload }, { call, put }) {
       const reqParam = {
         type: 'TA_MGMT_SUB_TA_REGISTER_INVITATION',
-        centerCode: 'Agent',
         content: {
           companyName: '',
           companyFullName: '',

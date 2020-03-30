@@ -10,7 +10,7 @@ const uaaPathWithMock = process.env.NODE_ENV === 'development' ? mock : '';
 const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export async function createBooking(params) {
-  return UAAService.request(`${localPath}/proxy/ali/b2b/transaction/v1/booking/create`, {
+  return UAAService.request(`${localPath}/b2b/transaction/v1/booking/create`, {
     method: 'POST',
     body: {
       ...params,
@@ -20,7 +20,7 @@ export async function createBooking(params) {
 
 export async function queryBookingStatus(params) {
   return UAAService.request(
-    `${localPath}/proxy/ali/b2b/transaction/v1/booking/status?bookingNo=${params.bookingNo}`,
+    `${localPath}/b2b/transaction/v1/booking/status?bookingNo=${params.bookingNo}`,
     {
       method: 'GET',
       body: {
@@ -32,7 +32,7 @@ export async function queryBookingStatus(params) {
 
 export async function queryBookingDetail(params) {
   return UAAService.request(
-    `${localPath}/proxy/ali/b2b/transaction/v1/booking/query?isSubOrder=0&bookingNo=${params.bookingNo}`,
+    `${localPath}/b2b/transaction/v1/booking/query?isSubOrder=0&bookingNo=${params.bookingNo}`,
     {
       method: 'GET',
       body: {
@@ -43,39 +43,31 @@ export async function queryBookingDetail(params) {
 }
 
 export async function paymentOrder(params) {
-  return UAAService.request(
-    `${localPath}/proxy/ali/b2b/transaction/v1/payment/transactionPaymentOrder/pay`,
-    {
-      method: 'POST',
-      body: {
-        ...params,
-      },
-    }
-  );
+  return UAAService.request(`${localPath}/b2b/transaction/v1/payment/transactionPaymentOrder/pay`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
 }
 
 export async function ticketDownload(params) {
-  return UAAService.request(
-    `${localPath}/proxy/ali/b2b/transaction/v1/attraction/ticket/download`,
-    {
-      method: 'GET',
-      params,
-    }
-  );
+  return UAAService.request(`${localPath}/b2b/transaction/v1/attraction/ticket/download`, {
+    method: 'GET',
+    params,
+  });
 }
 
 export function accountTopUp(params) {
-  return UAAService.request(`${uaaPath}/proxy/ali/b2b/account/topup`, {
+  return UAAService.request(`${uaaPath}/b2b/account/topup`, {
     method: 'POST',
     body: params,
   });
 }
 
 export function sendTransactionPaymentOrder(params) {
-  return UAAService.request(`${localPath}/proxy/ali/b2c/transaction/v1/payment/send`, {
+  return UAAService.request(`${localPath}/b2c/transaction/v1/payment/send`, {
     method: 'POST',
     body: params,
   });
 }
-
-

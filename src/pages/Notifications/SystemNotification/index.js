@@ -9,7 +9,7 @@ import NotificationMgr from '../components/NotificationMgr';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
 import styles from '../index.less';
-import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
+import { isNvl } from '@/utils/utils';
 
 const mapStateToProps = store => {
   const { loading, systemNotification } = store;
@@ -22,22 +22,28 @@ const mapStateToProps = store => {
 @connect(mapStateToProps)
 class SystemNotification extends PureComponent {
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'systemNotification/queryNotificationList',
-    });
+    this.onSearch({});
   }
 
   onSearch = param => {
     const { dispatch, filter } = this.props;
-    Object.keys(param).map(key => {
-      if (param[key] === undefined) param[key] = '';
-      return key;
-    });
+    if (param) {
+      Object.keys(param).map(key => {
+        if (isNvl(param[key])) param[key] = null;
+        return key;
+      });
+    }
+    const reqParams = { ...filter, ...param };
+    const isAdminRoleFlag = false;
+    if (!isAdminRoleFlag) {
+      reqParams.queryType = '02';
+    } else {
+      reqParams.queryType = '01';
+    }
     dispatch({
       type: 'systemNotification/change',
       payload: {
-        filter: { ...filter, ...param },
+        filter: { ...reqParams },
       },
     });
   };
@@ -64,18 +70,8 @@ class SystemNotification extends PureComponent {
         notificationInfo,
       },
     }).then(() => {
-      dispatch({
-        type: 'notification/fetchUpdateNotificationStatus',
-        payload: {
-          notificationId: notificationInfo.id,
-          status: '01',
-        },
-      }).then(flag => {
-        if (flag) {
-          router.push({
-            pathname: `/Notifications/SystemNotification/Detail/${notificationInfo.id}`,
-          });
-        }
+      router.push({
+        pathname: `/Notifications/SystemNotification/Detail/${notificationInfo.id}`,
       });
     });
   };
@@ -87,9 +83,7 @@ class SystemNotification extends PureComponent {
       notificationListLoading,
     } = this.props;
     const notificationSearchParam = {
-      isAdminRoleFlag: hasAllPrivilege([
-        'NOTIFICATION_SYSTEM_NOTIFICATION_LANDING_ADMIN_PRIVILEGE',
-      ]),
+      isAdminRoleFlag: false,
       onSearch: param => this.onSearch(param),
     };
 

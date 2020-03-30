@@ -53,9 +53,9 @@ class ToCart extends Component {
   };
 
   calculateTotalPrice = () => {
-    const { attractionProduct = [] } = this.props;
+    const { offers = [] } = this.props;
     let totalPrice = 0;
-    attractionProduct.forEach(item => {
+    offers.forEach(item => {
       const { price } = item;
       if (!isNullOrUndefined(price) && price !== '') {
         totalPrice += Number(price);
@@ -66,8 +66,15 @@ class ToCart extends Component {
 
   order = () => {
     const { checkTermsAndCondition } = this.state;
-    const { form, order, offers = [], numOfGuests } = this.props;
+    const {
+      form,
+      order,
+      offers = [],
+      numOfGuests,
+      deliverInfomation: { country },
+    } = this.props;
     const data = {};
+    data.country = country;
     offers.forEach((item, index) => {
       const { ticketNumber } = item;
       const ticketNumberLabel = `offer${index}`;
@@ -125,19 +132,36 @@ class ToCart extends Component {
       ticketType,
       description,
       offers,
-      deliverInfomation: { country, taNo, guestFirstName, guestLastName, customerContactNo },
+      deliverInfomation: {
+        country,
+        taNo,
+        guestFirstName,
+        guestLastName,
+        customerContactNo,
+        customerEmailAddress,
+      },
       changeDeliveryInformation,
       global: {
         userCompanyInfo: { companyType },
       },
     } = this.props;
-    let termsAndCondition;
-    let offerContentList = [];
-    offerContentList.forEach(item => {
-      const { contentType, contentLanguage, contentValue } = item;
-      if (contentLanguage === 'en-us' && contentType === 'termsAndConditions') {
-        termsAndCondition = contentValue;
-      }
+    const termsAndConditionItems = [];
+    offers.forEach(item => {
+      const {
+        detail: { offerContentList = [] },
+      } = item;
+      offerContentList.forEach(item2 => {
+        const { contentLanguage, contentType, contentValue } = item2;
+        if (contentLanguage === 'en-us') {
+          switch (contentType) {
+            case 'termsAndConditions':
+              termsAndConditionItems.push(contentValue);
+              break;
+            default:
+              break;
+          }
+        }
+      });
     });
     return (
       <div>
@@ -156,11 +180,13 @@ class ToCart extends Component {
           onClose={() => this.toShowTermsAndCondtion(false)}
         >
           <div className={styles.termsAndConditionTitle}>Terms and Condition</div>
-          <div className={styles.termsAndConditionText}>{termsAndCondition}</div>
+          {termsAndConditionItems.map(item => (
+            <div className={styles.termsAndConditionText}>{item}</div>
+          ))}
         </Drawer>
         <Drawer
           visible={!showTermsAndCondition}
-          title={<div className={styles.title}>Add to Cart</div>}
+          title={<div className={styles.title}>ADD TO CART</div>}
           placement="right"
           destroyOnClose
           maskClosable={false}
@@ -213,19 +239,17 @@ class ToCart extends Component {
                     const {
                       id,
                       ticketNumber,
-                      price,
                       attractionProduct = [],
                       detail: {
                         priceRuleId,
-                        offerBasicInfo: { offerName },
+                        offerBasicInfo: { offerName, offerMinQuantity, offerMaxQuantity },
                       },
                     } = item;
                     const priceShow = calculateAllProductPrice(attractionProduct, priceRuleId);
                     const ticketNumberLabel = `offer${index}`;
-                    const max = 1000000;
                     return (
                       <Col span={24} className={styles.ageItem} key={id}>
-                        <Col span={12} className={styles.age}>
+                        <Col span={18} className={styles.age}>
                           <span style={{ color: '#565656' }}>{offerName}</span>
                           {companyType === '02' ? null : (
                             <span style={{ color: '#171B21' }}>$ {priceShow}</span>
@@ -244,8 +268,8 @@ class ToCart extends Component {
                             })(
                               <div>
                                 <InputNumber
-                                  max={max}
-                                  min={0}
+                                  max={offerMaxQuantity}
+                                  min={offerMinQuantity}
                                   value={ticketNumber}
                                   onChange={value =>
                                     this.changeTicketNumber(index, value, priceShow)
@@ -256,11 +280,6 @@ class ToCart extends Component {
                             )}
                           </FormItem>
                         </Col>
-                        {companyType === '02' ? null : (
-                          <Col span={6} className={styles.money}>
-                            $ {price ? price.toFixed(2) : '0.00'}
-                          </Col>
-                        )}
                       </Col>
                     );
                   })}
@@ -307,7 +326,7 @@ class ToCart extends Component {
                         {countrys.map((item, index) => {
                           const { lookupName } = item;
                           return (
-                            <Option key={'country_' + index} value={lookupName}>
+                            <Option key={`country_${  index}`} value={lookupName}>
                               {lookupName}
                             </Option>
                           );
@@ -367,6 +386,19 @@ class ToCart extends Component {
                     value={customerContactNo}
                     onChange={e => {
                       changeDeliveryInformation('customerContactNo', e.target.value);
+                    }}
+                  />
+                </FormItem>
+              </Col>
+              <Col span={24} className={styles.deliverCol} style={{ marginBottom: '5px' }}>
+                <FormItem className={styles.label} label="Customer Email Address" colon={false}>
+                  <Input
+                    allowClear
+                    placeholder="Please Enter"
+                    style={{ width: '100%' }}
+                    value={customerEmailAddress}
+                    onChange={e => {
+                      changeDeliveryInformation('customerEmailAddress', e.target.value);
                     }}
                   />
                 </FormItem>

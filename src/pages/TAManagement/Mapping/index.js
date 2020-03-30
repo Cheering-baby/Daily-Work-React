@@ -33,10 +33,8 @@ const formItemLayout = {
 };
 
 const ColProps = {
-  xs: 4,
-  sm: 4,
+  xs: 24,
   md: 6,
-  xl: 6,
 };
 
 @Form.create()
@@ -73,14 +71,11 @@ class Index extends React.PureComponent {
         dataIndex: 'effectiveDate',
         key: 'effectiveDate',
         render: text => {
-          const timeText = text ? moment(text, 'YYYYMMDD').format('YYYY-MM-DD') : '';
+          const timeText = text ? moment(text).format('YYYY-MM-DD hh:mm:ss') : '';
           return timeText ? (
             <div>
-              <Tooltip
-                title={text ? moment(text, 'YYYYMMDD').format('YYYY-MM-DD') : ''}
-                placement="topLeft"
-              >
-                {text ? moment(text, 'YYYYMMDD').format('YYYY-MM-DD') : ''}
+              <Tooltip title={timeText} placement="topLeft">
+                {timeText}
               </Tooltip>
             </div>
           ) : null;
@@ -188,7 +183,7 @@ class Index extends React.PureComponent {
       });
     } else if (type === 'block') {
       router.push({
-        pathname: `/TAManagement/Mapping/Edit/${row.taId}`,
+        pathname: `/TAManagement/Mapping/New/${row.taId}`,
         query: { companyName: row.companyName },
       });
     }
@@ -388,6 +383,7 @@ class Index extends React.PureComponent {
               columns={this.columns}
               className={`tabs-no-padding ${detailStyles.searchTitle}`}
               onChange={this.handleTableChange}
+              rowKey={record => record.taId}
             />
           </Card>
         </Col>

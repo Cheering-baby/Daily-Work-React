@@ -1,4 +1,4 @@
-import {queryNotificationList} from '../../services/notification';
+import { queryNotificationList } from '../../services/notification';
 
 export default {
   namespace: 'bulletin',
@@ -25,13 +25,13 @@ export default {
 
   effects: {
     *queryNotificationList(_, { call, put, select }) {
-      const {filter, pagination} = yield select(state => state.bulletin);
+      const { filter, pagination } = yield select(state => state.bulletin);
       const requestData = {
         ...filter,
         ...pagination,
       };
       const {
-        data: {result, resultCode, resultMsg},
+        data: { result, resultCode, resultMsg },
       } = yield call(queryNotificationList, requestData);
 
       if (resultCode !== '0') {
@@ -40,15 +40,8 @@ export default {
 
       const {
         notificationList = [],
-        pageInfo: {currentPage, pageSize, totalSize},
+        pageInfo: { currentPage, pageSize, totalSize },
       } = result;
-
-      if (notificationList && notificationList.length > 0) {
-        notificationList.map(v => {
-          Object.assign(v, {key: `${v.id}`});
-          return v;
-        });
-      }
 
       yield put({
         type: 'save',

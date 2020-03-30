@@ -1,7 +1,9 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import {connect} from 'dva';
-import {Button, Col, DatePicker, Form, Input, Row, Select, Table} from 'antd';
+import { connect } from 'dva';
+import moment from 'moment';
+import { formatMessage } from 'umi/locale';
+import { Button, Col, DatePicker, Form, Input, message, Row, Select, Table, Upload } from 'antd';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import styles from './index.less';
@@ -9,8 +11,8 @@ import Card from '../../../components/Card';
 import PaginationComp from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaginationComp';
 
 const FormItem = Form.Item;
-const {Option} = Select;
-const {Search} = Input;
+const { Option } = Select;
+const { Search } = Input;
 
 const formLayout = {
   labelCol: {
@@ -23,31 +25,32 @@ const formLayout = {
 };
 
 @Form.create()
-@connect(({revalidationRequestMgr, loading}) => ({
+@connect(({ revalidationRequestMgr, loading, global }) => ({
   revalidationRequestMgr,
+  global,
   tableLoading: loading.effects['revalidationRequestMgr/queryBookingDetail'],
 }))
 class RevalidationRequest extends Component {
   columns = [
     {
-      title: <span className={styles.tableTitle}>No.</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
       dataIndex: 'vidNo',
       key: 'vidNo',
     },
     {
-      title: <span className={styles.tableTitle}>VID Code</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
       dataIndex: 'vidCode',
     },
     {
-      title: <span className={styles.tableTitle}>Status</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
       dataIndex: 'status',
     },
     {
-      title: <span className={styles.tableTitle}>Expiry Date</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'EXPIRY_DATE' })}</span>,
       dataIndex: 'expiryDate',
     },
     {
-      title: <span className={styles.tableTitle}>Offer Name</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' })}</span>,
       dataIndex: 'offerName',
     },
   ];
@@ -55,16 +58,15 @@ class RevalidationRequest extends Component {
   componentDidMount() {
     const {
       location: {
-        query: {isSubOrder, bookingNo},
+        query: { bookingNo },
       },
     } = this.props;
-    if (isSubOrder !== undefined && bookingNo !== undefined) {
-      const {dispatch} = this.props;
+    if (bookingNo !== undefined) {
+      const { dispatch } = this.props;
       dispatch({
         type: 'revalidationRequestMgr/queryBookingDetail',
         payload: {
           bookingNo,
-          isSubOrder,
         },
       }).then(vidResultList => {
         dispatch({
@@ -81,24 +83,56 @@ class RevalidationRequest extends Component {
   }
 
   componentWillUnmount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'revalidationRequestMgr/resetData',
     });
   }
 
   changeDeliveryMode = value => {
-    const {dispatch} = this.props;
+    const { dispatch, form } = this.props;
     dispatch({
       type: 'revalidationRequestMgr/save',
       payload: {
         deliveryMode: value !== undefined ? value : null,
+        collectionDate: null,
       },
+    });
+    form.setFieldsValue({
+      deliveryMode: value !== undefined ? value : null,
+      collectionDate: null,
+    });
+  };
+
+  disabledCollectionDate = (current, orderCreateTime) => {
+    return (
+      current && current < moment(orderCreateTime.substring(0, 10), 'YYYY-MM-DD').add(3, 'days')
+    );
+  };
+
+  showCollectionDate = collectionDate => {
+    if (collectionDate !== null) {
+      return moment(collectionDate, 'DD-MMM-YYYY');
+    }
+    return null;
+  };
+
+  collectionDateChange = date => {
+    const { dispatch, form } = this.props;
+    const dateString = date !== null ? moment(date).format('YYYY-MM-DD') : null;
+    dispatch({
+      type: 'revalidationRequestMgr/save',
+      payload: {
+        collectionDate: dateString,
+      },
+    });
+    form.setFieldsValue({
+      collectionDate: dateString,
     });
   };
 
   onSelectChange = selectedRowKeys => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'revalidationRequestMgr/saveSelectVid',
       payload: {
@@ -108,7 +142,7 @@ class RevalidationRequest extends Component {
   };
 
   changeSearchValue = e => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'revalidationRequestMgr/saveSearchList',
       payload: {
@@ -117,46 +151,115 @@ class RevalidationRequest extends Component {
     });
   };
 
-  searchByVidCode = (vidResultList, currentPage, pageSize, value) => {
-    const {dispatch} = this.props;
+  searchByVidCode = (vidResultList, pageSize, value) => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'revalidationRequestMgr/saveSearchVidList',
       payload: {
         vidResultList,
-        currentPage,
+        currentPage: 1,
         pageSize,
         vidCode: value,
       },
     });
   };
 
+  revalidationTicket = (deliveryMode, collectionDate, selectedVidList, bookingNo) => {
+    const { dispatch, form } = this.props;
+    if (selectedVidList.length < 1) {
+      message.warning('Select at least one VID.');
+    } else {
+      form.validateFields(err => {
+        if (!err) {
+          const visualIds = [];
+          for (let i = 0; i < selectedVidList.length; i += 1) {
+            visualIds.push(selectedVidList[i].vidCode);
+          }
+          dispatch({
+            type: 'revalidationRequestMgr/revalidationTicket',
+            payload: {
+              bookingNo,
+              visualIds,
+              deliveryInfo: {
+                deliveryMode,
+                collectionDate,
+              },
+            },
+          }).then(resultCode => {
+            if (resultCode === '0') {
+              message.success('Submit successfully.');
+            } else {
+              message.warning(resultCode);
+            }
+          });
+        }
+      });
+    }
+  };
+
+  getUploadProps = (file, nowPageSize) => {
+    const { dispatch } = this.props;
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = function() {
+      dispatch({
+        type: 'revalidationRequestMgr/uploadFile',
+        payload: {
+          uploadVidList: this.result,
+          pageSize: nowPageSize,
+        },
+      }).then(uploadStatus => {
+        if (uploadStatus) {
+          message.success('Update successfully.');
+        } else {
+          message.warning('Failed to update.');
+        }
+      });
+    };
+    return false;
+  };
+
+  showButtonText = userType => {
+    if (userType === '02') {
+      return formatMessage({ id: 'CONFIRM' });
+    }
+    if (userType === '03') {
+      return formatMessage({ id: 'SUBMIT' });
+    }
+  };
+
   render() {
     const {
       tableLoading,
-      form: {getFieldDecorator},
+      form: { getFieldDecorator },
       revalidationRequestMgr: {
+        orderCreateTime,
         deliveryMode,
         collectionDate,
         vidList,
         total,
         vidResultList,
-        searchList: {vidCode, currentPage: current, pageSize: nowPageSize},
+        searchList: { bookingNo, vidCode, currentPage, pageSize: nowPageSize },
         selectedRowKeys,
+        selectedVidList,
+      },
+      global: {
+        currentUser: { userType },
       },
     } = this.props;
 
     const title = [
-      {name: 'Ticketing'},
-      {name: 'Query Order', href: '#/TicketManagement/Ticketing/QueryOrder'},
-      {name: 'Revalidation Request'},
+      { name: 'Ticketing' },
+      { name: 'Query Order', href: '#/TicketManagement/Ticketing/QueryOrder' },
+      { name: 'Revalidation Request' },
     ];
 
     const pageOpts = {
       total,
-      current,
+      current: currentPage,
       pageSize: nowPageSize,
       pageChange: (page, pageSize) => {
-        const {dispatch} = this.props;
+        const { dispatch } = this.props;
         dispatch({
           type: 'revalidationRequestMgr/saveSearchVidList',
           payload: {
@@ -179,13 +282,25 @@ class RevalidationRequest extends Component {
         <Row gutter={12}>
           <Col span={12}>
             <MediaQuery minWidth={SCREEN.screenSm}>
-              <BreadcrumbComp title={title}/>
+              <BreadcrumbComp title={title} />
             </MediaQuery>
           </Col>
           <Col span={12}>
             <div className={styles.orderTitleStyles}>
               <div className={styles.orderTitleButtonStyles}>
-                <Button type="primary">Submit</Button>
+                <Button
+                  type="primary"
+                  onClick={() =>
+                    this.revalidationTicket(
+                      deliveryMode,
+                      collectionDate,
+                      selectedVidList,
+                      bookingNo
+                    )
+                  }
+                >
+                  {this.showButtonText(userType)}
+                </Button>
               </div>
             </div>
           </Col>
@@ -193,16 +308,22 @@ class RevalidationRequest extends Component {
         <Row type="flex">
           <Col span={24}>
             <Card>
-              <span className={styles.cardTitleStyle}>DELIVERY INFORMATION</span>
+              <span className={styles.cardTitleStyle}>
+                {formatMessage({ id: 'DELIVERY_INFORMATION' })}
+              </span>
               <Form>
                 <Row>
                   <Col md={24} lg={12}>
                     <FormItem
-                      label={<span className={styles.formLabelStyle}>Delivery Mode</span>}
+                      label={
+                        <span className={styles.formLabelStyle}>
+                          {formatMessage({ id: 'DELIVERY_MODE' })}
+                        </span>
+                      }
                       {...formLayout}
                     >
                       {getFieldDecorator('deliveryMode', {
-                        rules: [{required: true, message: 'Required'}],
+                        rules: [{ required: true, message: 'Required' }],
                         initialValue: deliveryMode !== null ? deliveryMode : undefined,
                       })(
                         <div>
@@ -224,17 +345,26 @@ class RevalidationRequest extends Component {
                   {deliveryMode === 'BOCA' ? (
                     <Col md={24} lg={12}>
                       <FormItem
-                        label={<span className={styles.formLabelStyle}>Collection Date</span>}
+                        label={
+                          <span className={styles.formLabelStyle}>
+                            {formatMessage({ id: 'COLLECTION_DATE' })}
+                          </span>
+                        }
                         {...formLayout}
                       >
                         {getFieldDecorator('collectionDate', {
-                          rules: [{required: true, message: 'Required'}],
-                          initialValue: collectionDate,
+                          rules: [{ required: true, message: 'Required' }],
+                          initialValue: this.showCollectionDate(collectionDate),
                         })(
                           <DatePicker
                             allowClear
                             placeholder="Please Select"
                             className={styles.selectStyle}
+                            format="DD-MMM-YYYY"
+                            disabledDate={current =>
+                              this.disabledCollectionDate(current, orderCreateTime)
+                            }
+                            onChange={this.collectionDateChange}
                           />
                         )}
                       </FormItem>
@@ -248,15 +378,19 @@ class RevalidationRequest extends Component {
             <Card>
               <Row>
                 <Col span={24}>
-                  <Button type="primary">Upload</Button>
+                  <Upload
+                    action=""
+                    beforeUpload={file => this.getUploadProps(file, nowPageSize)}
+                    showUploadList={false}
+                  >
+                    <Button type="primary">{formatMessage({ id: 'UPLOAD' })}</Button>
+                  </Upload>
                   <Search
                     allowClear
-                    placeholder="VID Code"
+                    placeholder={formatMessage({ id: 'VID_CODE' })}
                     value={vidCode}
                     onChange={this.changeSearchValue}
-                    onSearch={value =>
-                      this.searchByVidCode(vidResultList, current, nowPageSize, value)
-                    }
+                    onSearch={value => this.searchByVidCode(vidResultList, nowPageSize, value)}
                     className={styles.inputStyle}
                   />
                 </Col>
@@ -264,14 +398,14 @@ class RevalidationRequest extends Component {
                   <Table
                     loading={!!tableLoading}
                     size="small"
-                    style={{marginTop: 10}}
+                    style={{ marginTop: 10 }}
                     columns={this.columns}
                     dataSource={vidList}
                     rowSelection={rowSelection}
                     pagination={false}
                     bordered={false}
                   />
-                  <PaginationComp style={{marginTop: 10}} {...pageOpts} />
+                  <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
                 </Col>
               </Row>
             </Card>

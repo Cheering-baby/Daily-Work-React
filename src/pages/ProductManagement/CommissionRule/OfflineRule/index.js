@@ -1,24 +1,16 @@
 import React from 'react';
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Col,
-  Form,
-  Icon,
-  Input,
-  Row,
-  Select,
-  Table,
-  Tooltip,
-} from 'antd';
+import { Button, Card, Col, Form, Icon, Input, Row, Select, Table, Tooltip, Popover } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
+import MediaQuery from 'react-responsive';
 import detailStyles from './index.less';
+import SCREEN from '@/utils/screen';
+import BreadcrumbComp from '@/components/BreadcrumbComp';
+import Edit from './components/Edit';
 
 const { Option } = Select;
-
+const FormItem = Form.Item;
 const formItemLayout = {
   labelCol: {
     span: 6,
@@ -26,6 +18,16 @@ const formItemLayout = {
   wrapperCol: {
     span: 23,
   },
+};
+
+const formItemLayout2 = {
+  labelCol: {
+    span: 10,
+  },
+  wrapperCol: {
+    span: 14,
+  },
+  colon: false,
 };
 
 const ColProps = {
@@ -43,35 +45,24 @@ const ColProps = {
 class Offline extends React.PureComponent {
   columns = [
     {
-      title: formatMessage({ id: 'PRODUCT_COMMISSION_NAME' }),
-      dataIndex: 'name',
-      key: 'name',
+      title: formatMessage({ id: 'NO' }),
+      dataIndex: 'PLUName',
     },
     {
-      title: formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' }),
-      dataIndex: 'type',
-      key: 'type',
+      title: formatMessage({ id: 'PLU_CODE' }),
+      dataIndex: 'PLUName',
+    },
+    {
+      title: formatMessage({ id: 'PLU_DESCRIPTION' }),
+      dataIndex: 'PLUDescription',
+    },
+    {
+      title: formatMessage({ id: 'THEME_PARK' }),
+      dataIndex: 'themePark',
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
-      dataIndex: 'scheme',
-      key: 'scheme',
-    },
-    {
-      title: formatMessage({ id: 'STATUS' }),
-      dataIndex: 'status',
-      key: 'status',
-      render: text => {
-        let flagClass = '';
-        if (text === 'ACTIVE') flagClass = detailStyles.flagStyle1;
-        if (text === 'INACTIVE') flagClass = detailStyles.flagStyle2;
-        return (
-          <div>
-            <span className={flagClass} />
-            {text}
-          </div>
-        );
-      },
+      dataIndex: 'commissionScheme',
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
@@ -80,21 +71,18 @@ class Offline extends React.PureComponent {
       render: (text, record) => {
         return (
           <div>
-            <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
-              <Icon
-                type="eye"
-                onClick={() => {
-                  this.detail(record);
-                }}
-              />
-            </Tooltip>
+            <Popover trigger="click" placement="leftTop" content={this.getContent()}>
+              <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
+                <Icon
+                  type="eye"
+                  onClick={() => {
+                    // this.detail(record);
+                  }}
+                />
+              </Tooltip>
+            </Popover>
             <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
-              <Icon
-                type="edit"
-                onClick={() => {
-                  this.edit(record);
-                }}
-              />
+              <Icon type="edit" onClick={() => this.edit(record, 'edit')} />
             </Tooltip>
           </div>
         );
@@ -108,20 +96,110 @@ class Offline extends React.PureComponent {
       type: 'offline/fetchOfflineList',
       payload: {},
     });
+    dispatch({
+      type: 'offline/queryPluAttribute',
+      payload: {
+        attributeItem: 'THEME_PARK',
+      },
+    });
   }
+
+  getContent = () => {
+    return (
+      <div className={detailStyles.msgBodyStyle}>
+        <div>
+          <span className={detailStyles.detailMsgStyle}>
+            {formatMessage({ id: 'FIXED_COMMISSION' })}
+          </span>
+        </div>
+        <Form className={detailStyles.formStyle}>
+          <FormItem
+            {...formItemLayout2}
+            label={
+              <span className={detailStyles.labelStyle}>
+                {formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' })}
+              </span>
+            }
+          >
+            <span className={detailStyles.infoStyle}>dfgdg</span>
+          </FormItem>
+          <FormItem
+            {...formItemLayout2}
+            label={
+              <span className={detailStyles.labelStyle}>
+                {formatMessage({ id: 'ACCOUNTING_CREATED_BY' })}
+              </span>
+            }
+          >
+            <span className={detailStyles.infoStyle}>dfgdg</span>
+          </FormItem>
+          <FormItem
+            {...formItemLayout2}
+            label={
+              <span className={detailStyles.labelStyle}>
+                {formatMessage({ id: 'COMMISSION_CREATED_TIME' })}
+              </span>
+            }
+          >
+            <span className={detailStyles.infoStyle}>dfgdg</span>
+          </FormItem>
+        </Form>
+      </div>
+    );
+  };
 
   detail = record => {
     router.push(`/ProductManagement/CommissionRule/OfflineRule/Detail/${record.type}`);
   };
 
-  newOffline = () => {
+  new = () => {
     router.push({
       pathname: '/ProductManagement/CommissionRule/OfflineRule/New',
+      query: { type: 'new' },
     });
   };
 
-  edit = record => {
-    router.push(`/ProductManagement/CommissionRule/OfflineRule/Edit/${record.type}`);
+  edit = (record, type) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'offline/save',
+      payload: {
+        drawerVisible: true,
+        type,
+      },
+    });
+  };
+
+  handleSearch = ev => {
+    ev.preventDefault();
+    const { form } = this.props;
+    const { dispatch } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        dispatch({
+          type: 'offline/search',
+          payload: {
+            filter: {
+              commissionName: values.commissionName,
+              commissionType: values.commissionType,
+              status: values.status,
+            },
+          },
+        });
+      }
+    });
+  };
+
+  handleReset = () => {
+    const { dispatch, form } = this.props;
+    form.resetFields();
+    dispatch({
+      type: 'offline/fetchSelectReset',
+      payload: {
+        currentPage: 1,
+        pageSize: 10,
+      },
+    });
   };
 
   showTotal(total) {
@@ -129,10 +207,24 @@ class Offline extends React.PureComponent {
   }
 
   render() {
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'OFFLINE_FIXED_COMMISSION' }),
+        url: null,
+      },
+    ];
     const {
       form: { getFieldDecorator },
       loading,
-      offline: { offlineList, currentPage, pageSize, totalSize },
+      offline: { offlineList, currentPage, pageSize, totalSize, themeParkList },
     } = this.props;
     const pagination = {
       current: currentPage,
@@ -146,13 +238,16 @@ class Offline extends React.PureComponent {
     return (
       <Row type="flex" justify="space-around" id="mainTaView">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
-          {/* <MediaQuery> */}
-          <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-            <Breadcrumb.Item className="breadcrumb-style">Product Management</Breadcrumb.Item>
-            <Breadcrumb.Item className="breadcrumb-style">Commission Rule</Breadcrumb.Item>
-            <Breadcrumb.Item className="breadcrumbbold">Offine Rule</Breadcrumb.Item>
-          </Breadcrumb>
-          {/* </MediaQuery> */}
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
         </Col>
         <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
@@ -161,11 +256,11 @@ class Offline extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      `search`,
+                      `commissionName`,
                       {}
                     )(
                       <Input
-                        placeholder={formatMessage({ id: 'PRODUCT_COMMISSION_NAME' })}
+                        placeholder={formatMessage({ id: 'PLU_CODE_AND_DESCRIPTION' })}
                         allowClear
                       />
                     )}
@@ -174,35 +269,20 @@ class Offline extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      `companyName`,
+                      `commissionType`,
                       {}
                     )(
                       <Select
-                        placeholder={formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' })}
+                        placeholder={formatMessage({ id: 'THEME_PARK' })}
                         optionFilterProp="children"
                         style={{ width: '100%' }}
                         allowClear
                       >
-                        <Option value="Attendance">Attendance</Option>
-                        <Option value="Tiered">Tiered</Option>
-                      </Select>
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col {...ColProps}>
-                  <Form.Item {...formItemLayout}>
-                    {getFieldDecorator(
-                      `category`,
-                      {}
-                    )(
-                      <Select
-                        placeholder={formatMessage({ id: 'STATUS' })}
-                        optionFilterProp="children"
-                        style={{ width: '100%' }}
-                        allowClear
-                      >
-                        <Option value="ACTIVE">ACTIVE</Option>
-                        <Option value="ACTIVE">INACTIVE</Option>
+                        {themeParkList.map(role => (
+                          <Option key={`roleCode_option_${role}`} value={role}>
+                            {role}
+                          </Option>
+                        ))}
                       </Select>
                     )}
                   </Form.Item>
@@ -223,7 +303,7 @@ class Offline extends React.PureComponent {
           <Card>
             <Row gutter={24}>
               <Col {...ColProps} style={{ padding: '12px' }}>
-                <Button type="primary" onClick={() => this.newOffline()}>
+                <Button type="primary" onClick={() => this.new()}>
                   {formatMessage({ id: 'COMMON_NEW' })}
                 </Button>
               </Col>
@@ -241,6 +321,7 @@ class Offline extends React.PureComponent {
             />
           </Card>
         </Col>
+        <Edit />
       </Row>
     );
   }

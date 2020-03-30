@@ -25,23 +25,22 @@ class GlobalHeaderRight extends PureComponent {
     },
   };
 
-  componentWillMount() {
-    const { dispatch } = this.props;
+  componentDidUpdate(prevProps) {
+    const {
+      dispatch,
+      notificationMgr: { nextQueryTime },
+    } = this.props;
+    const { notificationMgr } = prevProps;
     const { pageInfo } = this.state;
-    dispatch({
-      type: 'notificationMgr/fetchBellNotification',
-      payload: { pageInfo },
-    }).then(diff => {
-      if (diff) {
-        clearInterval(window.notificationInterval);
-        window.notificationInterval = setInterval(() => {
-          dispatch({
-            type: 'notificationMgr/fetchBellNotification',
-            payload: { pageInfo },
-          });
-        }, diff * 1000);
-      }
-    });
+    if (nextQueryTime && nextQueryTime !== notificationMgr.nextQueryTime) {
+      clearInterval(window.notificationInterval);
+      window.notificationInterval = setInterval(() => {
+        dispatch({
+          type: 'notificationMgr/fetchBellNotification',
+          payload: { pageInfo },
+        });
+      }, nextQueryTime * 1000);
+    }
   }
 
   componentWillUnmount() {
@@ -170,7 +169,7 @@ class GlobalHeaderRight extends PureComponent {
           }
           placement="bottomRight"
           trigger="click"
-          style={{ width: '460px !important', height: '360px' }}
+          popupClassName={styles.userNotificationPopover}
           onVisibleChange={this.handleNotificationVisibleChange}
           visible={notificationVisibleFlag}
         >

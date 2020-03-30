@@ -1,12 +1,13 @@
 import React from 'react';
-import {Badge, Button, Card, Col, Icon, Row, Table, Tooltip} from 'antd';
+import { Badge, Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
 // import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen'*;
-import {connect} from 'dva';
+import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../index.less';
 import constants from '../constants';
+import PrivilegeUtil from '../../../../utils/PrivilegeUtil';
 
 const colProps = {
   xs: 24,
@@ -326,7 +327,17 @@ class Index extends React.PureComponent {
       <Card className={`has-shadow no-border ${styles.tableClass}`}>
         <Row gutter={24}>
           <Col {...colProps} style={{ padding: '12px' }}>
-            <Button type="primary" onClick={e => this.addUser(e)}>
+            <Button
+              type="primary"
+              onClick={e => this.addUser(e)}
+              disabled={
+                !PrivilegeUtil.hasAnyPrivilege([
+                  PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+                  PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE,
+                  constants.RWS_USER_PRIVILEGE,
+                ])
+              }
+            >
               {formatMessage({ id: 'COMMON_NEW' })}
             </Button>
           </Col>
@@ -340,7 +351,7 @@ class Index extends React.PureComponent {
           pagination={pagination}
           loading={loading}
           columns={this.columns}
-          // className={styles.tableWrapper}
+          className={`tabs-no-padding ${styles.searchTitle}`}
           onChange={(paginationConfig, filters, sorter, extra) => {
             this.onChangeEvent(paginationConfig, filters, sorter, extra);
           }}

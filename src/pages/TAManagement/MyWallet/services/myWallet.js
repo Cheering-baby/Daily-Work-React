@@ -1,7 +1,7 @@
-import {stringify} from 'qs';
+import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-const urlPathPrefix = '/proxy/ali/b2b/account';
+const urlPathPrefix = '/b2b/account';
 // const test = 'http://10.25.159.214:18091/pams';
 // const urlPathPrefix = 'http://10.25.159.214:18091/pams/account';
 // const urlPathPrefix = 'http://localhost:8000/pams/account';
@@ -50,17 +50,14 @@ export function topup(params) {
 }
 
 export function createActivity(params) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/create`, {
+  return UAAService.request(`/b2b/user/v1/activity/create`, {
     method: 'POST',
     body: params,
   });
 }
 
 export async function queryActivityList(data) {
-  return UAAService.request(
-    `/proxy/ali/b2b/user/v1/activity/queryActivityList?${stringify(data)}`,
-    {
-      method: 'GET',
-    }
-  );
+  return UAAService.request(`/b2b/user/v1/activity/queryActivityList?${stringify(data)}`, {
+    method: 'GET',
+  });
 }

@@ -16,6 +16,11 @@
     .@{prefix-cls}-form-explain-holder {
       height: 0;
     }
+
+    .@{prefix-cls}-select-selection--multiple {
+      height: 32px;
+      overflow-y: auto;
+    }
   }
 }
 
@@ -176,9 +181,18 @@
     .@{prefix-cls}-table-row {
       overflow: hidden;
 
-      :hover {
-        overflow: initial;
-      }
+      //:hover {
+      //  overflow: initial;
+      //}
+    }
+
+    .@{prefix-cls}-table-footer {
+      position: relative;
+      padding: 16px 16px;
+      color: #565656;
+      background: rgba(0, 0, 0, 0);
+      border-top: 1px solid #f3f3f3;
+      border-radius: 0 0 4px 4px;
     }
 
     th div {
@@ -243,11 +257,18 @@
     border: 1px solid #4db9e8 !important;
   }
 
-
   .templateSelect {
     margin-left: 10px;
     line-height: 32px;
     width: 90px;
+  }
+
+  .saveTemplateItem {
+    :global {
+      .@{prefix-cls}-form-extra {
+        margin-left: 24px;
+      }
+    }
   }
 }
 

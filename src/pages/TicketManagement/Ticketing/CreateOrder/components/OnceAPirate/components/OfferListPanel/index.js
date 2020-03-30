@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { message } from 'antd';
-import { Form, Table, Tooltip, Icon, InputNumber } from 'antd';
+import { message , Form, Table, Tooltip, Icon, InputNumber } from 'antd';
+
+import moment from 'moment';
 import styles from './index.less';
 import OfferDetail from './components/OfferDetail';
+import {
+  getAttractionProductList,
+  getPluProductByRuleId,
+} from '@/pages/TicketManagement/utils/ticketOfferInfoUtil';
 
 @Form.create()
 @connect(({ global, ticketMgr, loading, onceAPirateTicketMgr }) => ({
@@ -13,12 +18,9 @@ import OfferDetail from './components/OfferDetail';
   showLoading: loading.effects['ticketMgr/queryOfferList'],
 }))
 class OfferListPanel extends Component {
+  componentDidMount() {}
 
-  componentDidMount() {
-
-  }
-
-  showOperation = (record) => {
+  showOperation = record => {
     return (
       <div>
         <Tooltip title="Detail" placement="top">
@@ -28,7 +30,7 @@ class OfferListPanel extends Component {
     );
   };
 
-  showDetail = (offerDetail) => {
+  showDetail = offerDetail => {
     const { dispatch } = this.props;
     dispatch({
       type: 'onceAPirateTicketMgr/save',
@@ -39,14 +41,10 @@ class OfferListPanel extends Component {
     });
   };
 
-  changeOrderQuantity = (offerInfo,quantityValue) => {
-
+  changeOrderQuantity = (offerInfo, quantityValue) => {
     const {
       dispatch,
-      onceAPirateTicketMgr: {
-        queryInfo,
-        onceAPirateOfferData = [],
-      }
+      onceAPirateTicketMgr: { queryInfo, onceAPirateOfferData = [] },
     } = this.props;
 
     let orderQuantity = 0;
@@ -54,10 +52,10 @@ class OfferListPanel extends Component {
       if (onceAPirateOffer.offerNo === offerInfo.offerNo) {
         onceAPirateOffer.orderQuantity = quantityValue;
       }
-      orderQuantity+=onceAPirateOffer.orderQuantity;
+      orderQuantity += onceAPirateOffer.orderQuantity;
     }
 
-    if (orderQuantity>queryInfo.numOfGuests) {
+    if (orderQuantity > queryInfo.numOfGuests) {
       message.warn('Offer order quantity more than No. of Guests');
     }
 
@@ -67,20 +65,20 @@ class OfferListPanel extends Component {
         onceAPirateOfferData,
       },
     });
+  };
 
+  getOfferMaxAvailable = offerInfo => {
+    const { offerMaxQuantity } = offerInfo;
+
+    return offerMaxQuantity;
   };
 
   render() {
-
     const {
       global: {
         userCompanyInfo: { companyType },
       },
-      onceAPirateTicketMgr: {
-        showCategory,
-        onceAPirateOfferData = [],
-        showCategoryLoading,
-      }
+      onceAPirateTicketMgr: { showCategory, onceAPirateOfferData = [], showCategoryLoading },
     } = this.props;
 
     const columns = [
@@ -91,10 +89,10 @@ class OfferListPanel extends Component {
         render: text => (
           <div className={styles.tableColDiv}>
             <Tooltip title={text} placement="topLeft">
-              {text||'-'}
+              {text || '-'}
             </Tooltip>
           </div>
-        )
+        ),
       },
       {
         title: 'Price',
@@ -103,55 +101,59 @@ class OfferListPanel extends Component {
         render: text => (
           <div className={styles.tableColDiv}>
             <Tooltip title={text} placement="topLeft">
-              {text||'-'}
+              {text || '-'}
             </Tooltip>
           </div>
-        )
+        ),
       },
       {
         title: '',
         dataIndex: 'offerNo',
-        width:'16%',
-        render: () => (
-          <div className={styles.tableColDiv} />
-        )
+        width: '16%',
+        render: () => <div className={styles.tableColDiv} />,
       },
       {
         title: 'Quantity',
         dataIndex: 'orderQuantity',
-        render: (text,record) => (
+        render: (text, record) => (
           <div className={styles.tableColDiv}>
-            <InputNumber value={text} min={0} max={record.offerMaxAvailable} onChange={value => this.changeOrderQuantity(record,value)} />
+            <InputNumber
+              value={text}
+              min={0}
+              max={this.getOfferMaxAvailable(record)}
+              onChange={value => this.changeOrderQuantity(record, value)}
+              placeholder="Please Input"
+            />
           </div>
-        )
+        ),
       },
       {
         title: 'Operation',
-        render: (text,record) => (this.showOperation(record)),
+        render: (text, record) => this.showOperation(record),
       },
     ];
 
-    if (companyType==='02') {
-       // delete price column
+    if (companyType === '02') {
+      // delete price column
       columns.splice(1, 1);
     }
 
-    const onceAPirateOfferDataNew = onceAPirateOfferData.filter(offerData=>{
+    const onceAPirateOfferDataNew = onceAPirateOfferData.filter(offerData => {
       let isVip = false;
       let isRegular = false;
       if (offerData.offerProfile && offerData.offerProfile.offerCategory) {
-        offerData.offerProfile.offerCategory.forEach(offerCategory=>{
-          if (offerCategory.categoryName === 'VIP'){
+        offerData.offerProfile.offerCategory.forEach(offerCategory => {
+          if (offerCategory.categoryName === 'VIP') {
             isVip = true;
           }
-          if (offerCategory.categoryName === 'Regular'){
+          if (offerCategory.categoryName === 'Regular') {
             isRegular = true;
           }
         });
       }
       if (showCategory === '1' && isRegular) {
         return offerData;
-      } else if (showCategory === '2' && isVip){
+      } if (showCategory === '2' && isVip) {
         return offerData;
       }
     });
@@ -166,10 +168,10 @@ class OfferListPanel extends Component {
           columns={columns}
           dataSource={onceAPirateOfferDataNew}
           pagination={false}
-          rowKey='offerNo'
+          rowKey="offerNo"
           loading={showCategoryLoading}
         />
-        <OfferDetail/>
+        <OfferDetail />
       </div>
     );
   }

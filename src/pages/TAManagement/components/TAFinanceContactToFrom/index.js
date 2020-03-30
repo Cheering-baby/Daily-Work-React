@@ -448,7 +448,7 @@ class TAFinanceContactToFrom extends PureComponent {
                 >
                   {getFieldDecorator('guaranteeExpiryDate', {
                     initialValue: !isNvl(mappingInfo.guaranteeExpiryDate)
-                      ? moment(mappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD HH:mm:ss')
+                      ? moment(mappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD')
                       : null,
                   })(
                     <DatePicker

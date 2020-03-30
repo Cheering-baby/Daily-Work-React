@@ -2,6 +2,8 @@ const axios = require('axios');
 const { codeMessage, promptMessage, globalConst } = require('./constant');
 const { parseURL } = require('./utils');
 
+const REQUEST_BY_RT = 'REQUEST_BY_RT';
+
 /**
  * CommonService ,定义请求的公共方法
  */
@@ -44,6 +46,12 @@ class CommonService {
       ) {
         ret.headers[globalConst.HEADER_AUTHORIZATION] =
           globalConst.TOKEN_PREFIX + this.axiosConfig.RT;
+      }
+
+      if (config.url.indexOf(REQUEST_BY_RT) !== -1) {
+        ret.headers[globalConst.HEADER_AUTHORIZATION] =
+          globalConst.TOKEN_PREFIX + this.axiosConfig.RT;
+        config.url = config.url.replace(REQUEST_BY_RT, '');
       }
 
       if (this.axiosConfig.appCode) {
@@ -138,6 +146,11 @@ class CommonService {
 
   getWebRoot() {
     return this.defaults.uaaPath + this.defaults.backendContextPath;
+  }
+
+  requestByRT(url, option) {
+    url += REQUEST_BY_RT;
+    return this.request(url, option);
   }
 
   /**

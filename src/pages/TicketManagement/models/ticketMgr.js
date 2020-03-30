@@ -1,11 +1,6 @@
 import { message } from 'antd';
 import moment from 'moment';
-import {
-  queryAttributeList,
-  queryOfferList,
-  queryOfferDetail,
-  queryCountry,
-} from '../services/ticketCommon';
+import { queryOfferList, queryOfferDetail, queryCountry } from '../services/ticketCommon';
 
 import { getSessionTimeList } from '../utils/ticketOfferInfoUtil';
 
@@ -86,6 +81,7 @@ export default {
       numOfGuests: undefined,
       accessibleSeat: undefined,
     },
+    numOfGuests: undefined,
     selectOfferData: [],
     orderIndex: null,
     onceAPirateOrder: null,
@@ -165,14 +161,14 @@ export default {
           dateOfVisit: onceAPirateOrder.queryInfo.dateOfVisit,
         },
       });
-      yield take('querySessionTime/@@end'); //go on after waiting querySessionTime finish.
+      yield take('querySessionTime/@@end'); // go on after waiting querySessionTime finish.
       yield put({
         type: 'queryOAPOfferList',
         payload: {
           formData: onceAPirateOrder.queryInfo,
         },
       });
-      yield take('queryOAPOfferList/@@end'); //go on after waiting queryOAPOfferList finish.
+      yield take('queryOAPOfferList/@@end'); // go on after waiting queryOAPOfferList finish.
       yield put({
         type: 'save',
         payload: {
@@ -184,15 +180,15 @@ export default {
       const { dateOfVisit, themeParkChooseList = [] } = yield select(state => state.ticketMgr);
       let sessionTimeList = [];
 
-      const attractionParams = themeParkChooseList.map(() => ({
-        paramCode: 'ThemeParkCode',
+      const requestParams = themeParkChooseList.map(() => ({
+        paramCode: 'BookingCategory',
         paramValue: 'OAP',
       }));
       const requestParam = {
         pageSize: 100,
         currentPage: 1,
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
-        attractionParams,
+        requestParams,
       };
       const response = yield call(queryOfferList, requestParam);
       if (!response) return false;
@@ -236,7 +232,7 @@ export default {
         });
       } else {
         message.error(resultMsg);
-      };
+      }
     },
 
     *queryOAPOfferList({ payload }, { call, put, select }) {
@@ -261,10 +257,12 @@ export default {
         },
       });
 
-      const requestParams = [{
-        paramCode: 'BookingCategory',
-        paramValue: 'OAP',
-      }];
+      const requestParams = [
+        {
+          paramCode: 'BookingCategory',
+          paramValue: 'OAP',
+        },
+      ];
 
       const requestParam = {
         pageSize: 100,
@@ -333,26 +331,6 @@ export default {
         });
         message.error(resultMsg);
       }
-    },
-
-    *queryAttributeList(_, { put, call }) {
-      const response = yield call(queryAttributeList, {
-        attributeType: 'Attraction',
-        attributeCode: 'THEME_PARK',
-      });
-      if (!response) return false;
-      const {
-        data: { resultCode, resultMsg, result },
-      } = response;
-      if (resultCode === '0') {
-        const { attributeList = [] } = result;
-        yield put({
-          type: 'save',
-          payload: {
-            themeParkList2: attributeList,
-          },
-        });
-      } else throw resultMsg;
     },
     queryOfferList: [
       // eslint-disable-next-line func-names
@@ -680,6 +658,7 @@ export default {
         activeGroup: 0,
         showToCart: false,
         tipVisible: true,
+        showBundleDetailModal: false,
         themeParkList: [
           {
             group: 1,

@@ -17,7 +17,7 @@ class TiredCommissionRule extends React.PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'commissionNew/fetchTieredCommissionRuleList',
+      type: 'commissionNew/fetchOfferList',
       payload: {},
     });
   }
@@ -193,14 +193,14 @@ class TiredCommissionRule extends React.PureComponent {
     } = this.props;
     const arr = cloneDeep(commission);
     const tabPanelChild = arr.map((list, idx) => {
-      if (!list.find(({ type }) => type === 'ADD_BUTTON')) {
-        list.unshift({ type: 'ADD_BUTTON' });
-      }
+      // if (!list.find(({ type }) => type === 'ADD_BUTTON')) {
+      //   list.unshift({ type: 'ADD_BUTTON' });
+      // }
       return (
         <TabPane tab={`Theme Park ${idx + 1}`} key={idx}>
           <Table
             columns={this.columnsFactory(idx)}
-            dataSource={list}
+            dataSource={[{ type: 'ADD_BUTTON' }, ...list]}
             scroll={{ x: 'max-content' }}
           />
         </TabPane>

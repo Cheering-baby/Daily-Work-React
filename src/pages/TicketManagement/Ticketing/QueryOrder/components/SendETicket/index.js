@@ -1,49 +1,77 @@
 import React from 'react';
-import {Button, Form, Input, Modal} from 'antd';
-import {connect} from 'dva';
+import { formatMessage } from 'umi/locale';
+import { Button, Form, Input, message, Modal } from 'antd';
+import { connect } from 'dva';
 import styles from './index.less';
 
 const FormItem = Form.Item;
 
 @Form.create()
-@connect(({sendETicketMgr}) => ({
+@connect(({ sendETicketMgr }) => ({
   sendETicketMgr,
 }))
 class SendETicket extends React.Component {
   componentWillUnmount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'sendETicketMgr/resetData',
     });
   }
 
-  handleOk = () => {
-    const {dispatch, form} = this.props;
+  handleOk = (bookingNo, email) => {
+    const { dispatch, form } = this.props;
     form.validateFields(err => {
       if (!err) {
         dispatch({
-          type: 'sendETicketMgr/save',
+          type: 'sendETicketMgr/sendEmail',
           payload: {
-            sendETicketVisible: false,
+            forderNo: bookingNo,
+            email,
+            busiType: 'eTicket',
           },
+        }).then(resultCode => {
+          if (resultCode === '0') {
+            message.success('Send successfully.');
+            this.handleCancel();
+          } else {
+            message.warning(resultCode);
+          }
         });
       }
     });
   };
 
   handleCancel = () => {
-    const {dispatch} = this.props;
+    const { dispatch, form } = this.props;
     dispatch({
-      type: 'sendETicketMgr/resetData',
+      type: 'sendETicketMgr/effectSave',
+      payload: {
+        sendETicketVisible: false,
+      },
+    }).then(() => {
+      setTimeout(() => {
+        dispatch({
+          type: 'sendETicketMgr/save',
+          payload: {
+            bookingNo: null,
+            email: null,
+          },
+        });
+      }, 500);
+      form.setFieldsValue({
+        email: null,
+      });
     });
   };
 
   emailChange = value => {
-    const {dispatch, form} = this.props;
+    const { dispatch, form } = this.props;
+    const emailCorrect = !/^[a-zA-Z0-9_-]+@([a-zA-Z0-9]+\.)+(com|cn|net|org)$/.test(value);
     dispatch({
       type: 'sendETicketMgr/save',
       payload: {
         email: value,
+        emailCorrect,
       },
     });
     form.setFieldsValue({
@@ -53,27 +81,40 @@ class SendETicket extends React.Component {
 
   render() {
     const {
-      form: {getFieldDecorator},
-      sendETicketMgr: {sendETicketVisible, email},
+      form: { getFieldDecorator },
+      sendETicketMgr: { sendETicketVisible, bookingNo, email, emailCorrect },
     } = this.props;
     return (
       <Modal
-        title={<span className={styles.modelTitleStyle}>SEND E-TICKET</span>}
+        title={
+          <span className={styles.modelTitleStyle}>
+            {formatMessage({ id: 'SEND_ETICKET_TITLE' })}
+          </span>
+        }
         visible={sendETicketVisible}
         centered
         onCancel={this.handleCancel}
         footer={
           <div>
-            <Button onClick={() => this.handleOk()} type="primary">
-              Confirm
+            <Button
+              disabled={emailCorrect}
+              onClick={() => this.handleOk(bookingNo, email)}
+              type="primary"
+            >
+              {formatMessage({ id: 'CONFIRM' })}
             </Button>
-            <Button onClick={this.handleCancel}>Cancel</Button>
+            <Button onClick={this.handleCancel}>{formatMessage({ id: 'CANCEL' })}</Button>
           </div>
         }
       >
-        <FormItem label={<span className={styles.modelFormItem}>Email Address</span>} colon={false}>
+        <FormItem
+          label={
+            <span className={styles.modelFormItem}>{formatMessage({ id: 'EMAIL_ADDRESS' })}</span>
+          }
+          colon={false}
+        >
           {getFieldDecorator('email', {
-            rules: [{required: true, message: 'Required'}],
+            rules: [{ required: true, message: 'Required' }],
             initialValue: email,
           })(
             <div className={styles.modelInputStyle}>

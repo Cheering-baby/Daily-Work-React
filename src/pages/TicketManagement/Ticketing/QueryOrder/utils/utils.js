@@ -1,4 +1,4 @@
-export default function serialize(obj) {
+export function serialize(obj) {
   const ary = [];
   for (const p in obj)
     if (obj.hasOwnProperty(p) && obj[p]) {

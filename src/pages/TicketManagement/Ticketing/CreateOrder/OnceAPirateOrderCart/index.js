@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { message , Form, Button, Spin, Row, Col, Radio } from 'antd';
+import { message, Form, Button, Spin, Row, Col, Radio } from 'antd';
 import { formatMessage } from 'umi/locale';
 
 import moment from 'moment';
@@ -21,7 +21,6 @@ import MyOrderButton from '@/pages/TicketManagement/components/MyOrderButton';
   ticketOrderCartMgr,
 }))
 class OnceAPirateOrderCart extends Component {
-
   constructor(props) {
     super(props);
     const clientHeight =
@@ -72,31 +71,34 @@ class OnceAPirateOrderCart extends Component {
   orderEvent = () => {
     const {
       dispatch,
-      onceAPirateTicketMgr: { settingMethodType, onceAPirateOrderData },
+      onceAPirateTicketMgr: { settingMethodType, onceAPirateOrderData, diffMinutesLess },
       form,
     } = this.props;
     form.validateFields(err => {
       if (!err) {
-        if (settingMethodType === '1') {
-          for (const offerOrderDetail of onceAPirateOrderData) {
-            let orderMealSum = 0;
-            for (const mealsItem of offerOrderDetail.orderInfo.groupSettingList) {
-              orderMealSum += mealsItem.number;
+        if (!diffMinutesLess) {
+          if (settingMethodType === '1') {
+            for (const offerOrderDetail of onceAPirateOrderData) {
+              let orderMealSum = 0;
+              for (const mealsItem of offerOrderDetail.orderInfo.groupSettingList) {
+                orderMealSum += mealsItem.number;
+              }
+              if (offerOrderDetail.orderInfo.orderQuantity < orderMealSum) {
+                message.warn(
+                  `The ${offerOrderDetail.offerInfo.offerName} meals number summer more than offer order quantity ${offerOrderDetail.orderInfo.orderQuantity}`
+                );
+                return;
+              }
+              if (offerOrderDetail.orderInfo.orderQuantity > orderMealSum) {
+                message.warn(
+                  `The ${offerOrderDetail.offerInfo.offerName} meals number summer less than offer order quantity ${offerOrderDetail.orderInfo.orderQuantity}`
+                );
+                return;
+              }
             }
-            if (offerOrderDetail.orderInfo.orderQuantity < orderMealSum) {
-              message.warn(
-                `The ${offerOrderDetail.offerInfo.offerName} meals number summer more than offer order quantity ${offerOrderDetail.orderInfo.orderQuantity}`
-              );
-              return;
-            } if (offerOrderDetail.orderInfo.orderQuantity > orderMealSum) {
-              message.warn(
-                `The ${offerOrderDetail.offerInfo.offerName} meals number summer less than offer order quantity ${offerOrderDetail.orderInfo.orderQuantity}`
-              );
-              return;
-            }
+          } else {
+            console.log('INDIVIDUAL_SETTING');
           }
-        } else {
-          console.log('INDIVIDUAL_SETTING');
         }
         dispatch({
           type: 'onceAPirateTicketMgr/orderToCheck',
@@ -113,7 +115,12 @@ class OnceAPirateOrderCart extends Component {
   render() {
     const {
       ticketMgr: { tipVisible },
-      onceAPirateTicketMgr: { showPageLoading = false, queryInfo, settingMethodType, diffMinutesLess },
+      onceAPirateTicketMgr: {
+        showPageLoading = false,
+        queryInfo,
+        settingMethodType,
+        diffMinutesLess,
+      },
       ticketOrderCartMgr: { orderCartDataAmount },
       form,
     } = this.props;
@@ -182,10 +189,12 @@ class OnceAPirateOrderCart extends Component {
               </Row>
               <Row className={styles.disclaimerLiner}>
                 <Col span={24} className={styles.basicInfoContent}>
-                  <Col {...gridOpts2} >Disclaimer Liner</Col>
-                  <Col {...gridOpts3} >
-                    <span >
-                      Please select Meal Plan (refer ingredient remarks for meal ingredients listing and allergens specification). Kindly contact (TBA by OAP BU Owner) for further assistance on allergen request.
+                  <Col {...gridOpts2}>Disclaimer Liner</Col>
+                  <Col {...gridOpts3}>
+                    <span>
+                      Please select Meal Plan (refer ingredient remarks for meal ingredients listing
+                      and allergens specification). Kindly contact (TBA by OAP BU Owner) for further
+                      assistance on allergen request.
                     </span>
                   </Col>
                 </Col>
@@ -210,42 +219,41 @@ class OnceAPirateOrderCart extends Component {
                   </Col>
                 </Col>
               </Row>
-              {
-                !diffMinutesLess && (
-                  <Row>
-                    <Col span={24} className={styles.titleBlack}>
-                      {formatMessage({ id: 'DINING_SETTING' })}
+              {!diffMinutesLess && (
+                <Row>
+                  <Col span={24} className={styles.titleBlack}>
+                    {formatMessage({ id: 'DINING_SETTING' })}
+                  </Col>
+                </Row>
+              )}
+              {!diffMinutesLess && (
+                <Form className={styles.formStyle}>
+                  <Row gutter={24}>
+                    <Col md={12} sm={24} xs={24}>
+                      <Form.Item
+                        label={formatMessage({ id: 'SETTING_METHOD' })}
+                        {...formItemLayout}
+                      >
+                        {getFieldDecorator('settingMethodType', {
+                          rules: [{ required: true, message: 'Required' }],
+                          initialValue: settingMethodType,
+                        })(
+                          <Radio.Group onChange={this.typeChange}>
+                            <Radio value="1">{formatMessage({ id: 'GROUP_SETTING' })}</Radio>
+                            <Radio value="2">{formatMessage({ id: 'INDIVIDUAL_SETTING' })}</Radio>
+                          </Radio.Group>
+                        )}
+                      </Form.Item>
                     </Col>
                   </Row>
-                )
-              }
-              {
-                !diffMinutesLess && (
-                  <Form className={styles.formStyle}>
-                    <Row gutter={24}>
-                      <Col md={12} sm={24} xs={24}>
-                        <Form.Item label={formatMessage({ id: 'SETTING_METHOD' })} {...formItemLayout}>
-                          {getFieldDecorator('settingMethodType', {
-                            rules: [{ required: true, message: 'Required' }],
-                            initialValue: settingMethodType,
-                          })(
-                            <Radio.Group onChange={this.typeChange}>
-                              <Radio value="1">{formatMessage({ id: 'GROUP_SETTING' })}</Radio>
-                              <Radio value="2">{formatMessage({ id: 'INDIVIDUAL_SETTING' })}</Radio>
-                            </Radio.Group>
-                          )}
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col>
-                        {settingMethodType === '1' && <GroupSetting form={form} />}
-                        {settingMethodType === '2' && <IndividualSetting form={form} />}
-                      </Col>
-                    </Row>
-                  </Form>
-                )
-              }
+                  <Row>
+                    <Col>
+                      {settingMethodType === '1' && <GroupSetting form={form} />}
+                      {settingMethodType === '2' && <IndividualSetting form={form} />}
+                    </Col>
+                  </Row>
+                </Form>
+              )}
             </Col>
           </Row>
           <Row className={styles.buttonControlRow}>

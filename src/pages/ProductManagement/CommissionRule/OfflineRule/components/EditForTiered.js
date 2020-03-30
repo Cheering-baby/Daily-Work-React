@@ -3,7 +3,7 @@ import { Col, Form, Input, Row, Select, Button, Radio } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import classNames from 'classnames';
-import detailStyles from '../Edit/$detail/index.less';
+import detailStyles from './Edit/$detail/index.less';
 import CommissionRulePark from './CommissionRulePark';
 import CommissionRulePLU from './CommissionRulePLU';
 import OfferUnderRule from './OfferUnderRule';

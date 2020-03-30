@@ -4,7 +4,10 @@ import * as service from '../services/mainTAManagement';
 export default {
   namespace: 'uploadContractHistory',
   state: {
-    searchContractForm: {},
+    searchContractForm: {
+      uploadedStartTime: null,
+      uploadedEndTime: null,
+    },
     searchContractList: {
       total: 0,
       currentPage: 1,
@@ -60,7 +63,10 @@ export default {
       return {
         ...state,
         ...{
-          searchContractForm: {},
+          searchContractForm: {
+            uploadedStartTime: null,
+            uploadedEndTime: null,
+          },
           searchContractList: {
             total: 0,
             currentPage: 1,

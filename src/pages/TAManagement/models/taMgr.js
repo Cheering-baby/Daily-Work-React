@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import moment from 'moment';
 import {
   checkCompanyExist,
   deleteFile,
@@ -88,6 +89,32 @@ export default {
         data: { resultCode, resultMsg, result },
       } = yield call(queryTaInfo, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
+        if (result.customerInfo && result.customerInfo.companyInfo) {
+          if (result.customerInfo.companyInfo.incorporationDate) {
+            result.customerInfo.companyInfo.incorporationDate = moment(
+              result.customerInfo.companyInfo.incorporationDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.gstEffectiveDate) {
+            result.customerInfo.companyInfo.gstEffectiveDate = moment(
+              result.customerInfo.companyInfo.gstEffectiveDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.effectiveDate) {
+            result.customerInfo.companyInfo.effectiveDate = moment(
+              result.customerInfo.companyInfo.effectiveDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.endDate) {
+            result.customerInfo.companyInfo.endDate = moment(
+              result.customerInfo.companyInfo.endDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+        }
         yield put({
           type: 'save',
           payload: {
@@ -136,6 +163,32 @@ export default {
         data: { resultCode, resultMsg, result },
       } = yield call(queryInfoWithNoId);
       if (resultCode === '0' || resultCode === 0) {
+        if (result.customerInfo && result.customerInfo.companyInfo) {
+          if (result.customerInfo.companyInfo.incorporationDate) {
+            result.customerInfo.companyInfo.incorporationDate = moment(
+              result.customerInfo.companyInfo.incorporationDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.gstEffectiveDate) {
+            result.customerInfo.companyInfo.gstEffectiveDate = moment(
+              result.customerInfo.companyInfo.gstEffectiveDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.effectiveDate) {
+            result.customerInfo.companyInfo.effectiveDate = moment(
+              result.customerInfo.companyInfo.effectiveDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.endDate) {
+            result.customerInfo.companyInfo.endDate = moment(
+              result.customerInfo.companyInfo.endDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+        }
         yield put({
           type: 'save',
           payload: {
@@ -184,6 +237,32 @@ export default {
         data: { resultCode, resultMsg, result },
       } = yield call(queryTaInfoWithMask, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
+        if (result.customerInfo && result.customerInfo.companyInfo) {
+          if (result.customerInfo.companyInfo.incorporationDate) {
+            result.customerInfo.companyInfo.incorporationDate = moment(
+              result.customerInfo.companyInfo.incorporationDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.gstEffectiveDate) {
+            result.customerInfo.companyInfo.gstEffectiveDate = moment(
+              result.customerInfo.companyInfo.gstEffectiveDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.effectiveDate) {
+            result.customerInfo.companyInfo.effectiveDate = moment(
+              result.customerInfo.companyInfo.effectiveDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+          if (result.customerInfo.companyInfo.endDate) {
+            result.customerInfo.companyInfo.endDate = moment(
+              result.customerInfo.companyInfo.endDate,
+              'YYYY-MM-DD'
+            ).format('YYYY-MM-DD');
+          }
+        }
         yield put({
           type: 'save',
           payload: {
@@ -279,14 +358,8 @@ export default {
         data: { resultCode, resultMsg, result },
       } = yield call(checkCompanyExist, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
-        if (isNvl(result) && !isNvl(result.companyName)) {
-          yield put({
-            type: 'save',
-            payload: {
-              isCompanyExist: true,
-            },
-          });
-        }
+        const isCompanyExist = !isNvl(result) && !isNvl(result.companyName);
+        yield put({ type: 'save', payload: { isCompanyExist } });
       } else message.warn(resultMsg, 10);
     },
   },

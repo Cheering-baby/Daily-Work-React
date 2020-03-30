@@ -129,20 +129,22 @@ class NotificationEdit extends React.PureComponent {
       dispatch,
       form,
       type = 'NEW',
-      notificationId,
       notification: { notificationInfo },
     } = this.props;
     form.validateFields(err => {
       if (!err) {
-        let dispatchType = '';
+        let dispatchType;
         if (type === 'NEW') {
           dispatchType = 'notification/fetchAddNotification';
           notificationInfo.id = null;
           notificationInfo.notificationId = null;
         } else {
           dispatchType = 'notification/fetchModifyNotification';
-          notificationInfo.id = notificationId;
-          notificationInfo.notificationId = notificationId;
+          notificationInfo.notificationId = notificationInfo.id;
+        }
+        if (isNvl(notificationInfo.scheduleDate) && String(notificationInfo.status) === '03') {
+          message.warn(formatMessage({ id: 'NOTICE_SCHEDULE_DATE_NULL' }), 10);
+          return;
         }
         dispatch({
           type: dispatchType,
@@ -246,9 +248,9 @@ class NotificationEdit extends React.PureComponent {
     if (!isNvl(notificationInfo)) {
       newNotificationInfo = { ...notificationInfo };
     }
-    if (String(key) === 'bSaveTemplate') {
-      form.setFieldsValue({ bSaveTemplate: keyValue });
-      Object.assign(newNotificationInfo, { bSaveTemplate: keyValue });
+    if (String(key) === 'saveTemplate') {
+      form.setFieldsValue({ saveTemplate: keyValue });
+      Object.assign(newNotificationInfo, { saveTemplate: keyValue });
     } else if (String(key) === 'content') {
       form.setFieldsValue({ content: keyValue });
       newNotificationInfo.content = keyValue;
@@ -602,7 +604,7 @@ class NotificationEdit extends React.PureComponent {
                 </a>
               </Input.Group>
             </Form.Item>
-            {notificationInfo.bSaveTemplate === true && (
+            {notificationInfo.saveTemplate === true && (
               <Form.Item {...formItemLayout} label={formatMessage({ id: 'REASON_DURATION' })}>
                 {getFieldDecorator(`reasonDuration`, {
                   initialValue: reasonDuration || [],
@@ -655,7 +657,7 @@ class NotificationEdit extends React.PureComponent {
                     id="noticeViewEditQuill"
                     bounds="#noticeViewEditQuill"
                     className={styles.reactQuillStyle}
-                    defaultValue={notificationInfo.content || null}
+                    value={notificationInfo.content || null}
                     theme="snow"
                     onChange={value => this.onHandleChange('content', value, 'content')}
                     modules={this.modules}
@@ -678,7 +680,7 @@ class NotificationEdit extends React.PureComponent {
                     }
                     return e && e.fileList;
                   },
-                  rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  rules: [],
                 })(
                   <Upload {...fileProps}>
                     <Button icon="upload" className={styles.fileUploadBtn}>
@@ -699,7 +701,7 @@ class NotificationEdit extends React.PureComponent {
                   {statusList &&
                     statusList.length > 0 &&
                     statusList.map(item => {
-                      if (String(item.dicValue) === '02') {
+                      if (String(item.dicValue) === '03') {
                         return (
                           <Radio
                             key={item.id}
@@ -708,7 +710,7 @@ class NotificationEdit extends React.PureComponent {
                           >
                             {item.dicName}
                             <DatePicker
-                              disabled={String(notificationInfo.status) !== '02'}
+                              disabled={String(notificationInfo.status) !== '03'}
                               value={
                                 !isNvl(notificationInfo.scheduleDate)
                                   ? moment(notificationInfo.scheduleDate, 'YYYY-MM-DD HH:mm:ss')
@@ -735,15 +737,20 @@ class NotificationEdit extends React.PureComponent {
                 </Radio.Group>
               )}
             </Form.Item>
-            <Form.Item {...formItemHalfLayout} label={' '} extra={formatMessage({ id: 'NOTE' })}>
-              {getFieldDecorator(`bSaveTemplate`, {
+            <Form.Item
+              {...formItemHalfLayout}
+              className={styles.saveTemplateItem}
+              label={' '}
+              extra={formatMessage({ id: 'NOTE' })}
+            >
+              {getFieldDecorator(`saveTemplate`, {
                 valuePropName: 'checked',
-                initialValue: notificationInfo.bSaveTemplate || false,
+                initialValue: notificationInfo.saveTemplate || false,
                 rules: [{ required: false, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
               })(
                 <Checkbox
                   onChange={e =>
-                    this.onHandleChange('bSaveTemplate', e.target.checked, 'bSaveTemplate')
+                    this.onHandleChange('saveTemplate', e.target.checked, 'saveTemplate')
                   }
                 >
                   {formatMessage({ id: 'SAVE_AS_TEMPLATE' })}

@@ -1,8 +1,21 @@
 import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import {Spin, Card, Checkbox, Form, Button, List, Row, Col, Select, DatePicker, message} from 'antd';
+import {
+  Spin,
+  Card,
+  Checkbox,
+  Form,
+  Button,
+  List,
+  Row,
+  Col,
+  Select,
+  DatePicker,
+  message,
+} from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
+import moment from 'moment';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import styles from './index.less';
@@ -10,12 +23,15 @@ import PackageTicketCollapse from './components/PackageTicketCollapse';
 import OnceAPirateCollapse from './components/OnceAPirateCollapse';
 import GeneralTicketingCollapse from './components/GeneralTicketingCollapse';
 import BOCAOfferCollapse from '@/pages/TicketManagement/components/BOCAOfferCollapse';
-import moment from "moment";
-const FormItem = Form.Item;
 
 import {
+  getCheckOapOrderData,
+  getCheckPackageOrderData,
   getCheckTicketAmount,
-} from "@/pages/TicketManagement/utils/orderCartUtil";
+  transBookingToPayTotalPrice,
+} from '@/pages/TicketManagement/utils/orderCartUtil';
+
+const FormItem = Form.Item;
 
 @Form.create()
 @connect(({ global, ticketOrderCartMgr }) => ({
@@ -35,9 +51,7 @@ class CheckOrder extends Component {
     };
     const {
       dispatch,
-      ticketOrderCartMgr: {
-        cartId
-      },
+      ticketOrderCartMgr: { cartId },
       global: {
         userCompanyInfo: { companyType },
       },
@@ -55,7 +69,7 @@ class CheckOrder extends Component {
         columnName: 'NOTIONALITY',
       },
     });
-    if (companyType==='02') {
+    if (companyType === '02') {
       dispatch({
         type: 'ticketOrderCartMgr/fetchQuerySubTaDetail',
         payload: {},
@@ -67,15 +81,15 @@ class CheckOrder extends Component {
       });
     }
 
-    if (cartId===null) {
+    if (cartId === null) {
       dispatch({
         type: 'ticketOrderCartMgr/createShoppingCart',
         payload: {},
-      }).then(()=>{
+      }).then(() => {
         dispatch({
           type: 'ticketOrderCartMgr/queryShoppingCart',
           payload: {},
-        })
+        });
       });
     }
   }
@@ -114,44 +128,30 @@ class CheckOrder extends Component {
         onceAPirateOrderData = [],
       },
     } = this.props;
+    const packageOrderDataNew = getCheckPackageOrderData(packageOrderData);
+    const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
+    const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
     let payTotal = 0;
-    let ticketAmount = 0;
-    generalTicketOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        orderOffer.orderInfo.forEach(orderInfo => {
-          if (orderInfo.orderCheck) {
-            payTotal += orderInfo.pricePax * orderInfo.quantity;
-            ticketAmount += orderInfo.quantity;
-          }
-        });
-      });
-    });
-    packageOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        orderOffer.orderInfo.forEach(orderInfo => {
-          if (orderInfo.orderCheck) {
-            payTotal += orderInfo.pricePax * orderInfo.quantity;
-            ticketAmount += orderInfo.quantity;
-          }
-        });
-      });
-    });
-    onceAPirateOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        if (orderOffer.orderCheck) {
-          payTotal += orderOffer.orderInfo.offerSumPrice;
-          ticketAmount += orderOffer.orderInfo.orderQuantity;
-        }
-      });
-    });
-    if (deliveryMode==='BOCA') {
-      payTotal += ticketAmount * bocaFeePax;
+    if (deliveryMode === 'BOCA') {
+      payTotal = transBookingToPayTotalPrice(
+        packageOrderDataNew,
+        generalTicketOrderDataNew,
+        onceAPirateOrderDataNew,
+        bocaFeePax
+      );
+    } else {
+      payTotal = transBookingToPayTotalPrice(
+        packageOrderDataNew,
+        generalTicketOrderDataNew,
+        onceAPirateOrderDataNew,
+        null
+      );
     }
     return Number(payTotal).toFixed(2);
   };
 
   checkOutEvent = () => {
-    const { dispatch,form } = this.props;
+    const { dispatch, form } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
         dispatch({
@@ -196,11 +196,9 @@ class CheckOrder extends Component {
     form.validateFields(['collectionDate']);
 
     this.checkCollectionWithVisitOfDate(collectionDate);
-
   };
 
-  checkCollectionWithVisitOfDate = (collectionDate) => {
-
+  checkCollectionWithVisitOfDate = collectionDate => {
     // compare CollectionDate with visit of date
     const {
       ticketOrderCartMgr: {
@@ -213,7 +211,7 @@ class CheckOrder extends Component {
     let isMoreThan = false;
     generalTicketOrderData.forEach(orderData => {
       orderData.orderOfferList.forEach(orderOffer => {
-        if (orderOffer.queryInfo.dateOfVisit<collectionDate) {
+        if (orderOffer.queryInfo.dateOfVisit < collectionDate) {
           if (!isMoreThan) {
             isMoreThan = true;
             message.warn('The collection date is later than date of visit!');
@@ -223,7 +221,7 @@ class CheckOrder extends Component {
     });
     packageOrderData.forEach(orderData => {
       orderData.orderOfferList.forEach(orderOffer => {
-        if (orderOffer.queryInfo.dateOfVisit<collectionDate) {
+        if (orderOffer.queryInfo.dateOfVisit < collectionDate) {
           if (!isMoreThan) {
             isMoreThan = true;
             message.warn('The collection date is later than date of visit!');
@@ -232,14 +230,13 @@ class CheckOrder extends Component {
       });
     });
     onceAPirateOrderData.forEach(orderData => {
-      if (orderData.queryInfo.dateOfVisit<collectionDate) {
+      if (orderData.queryInfo.dateOfVisit < collectionDate) {
         if (!isMoreThan) {
           isMoreThan = true;
           message.warn('The collection date is later than date of visit!');
         }
       }
     });
-
   };
 
   disabledCollectionDate = current => {
@@ -247,9 +244,9 @@ class CheckOrder extends Component {
     return (
       current &&
       current <
-      moment(new Date())
-        .add(2, 'days')
-        .endOf('day')
+        moment(new Date())
+          .add(2, 'days')
+          .endOf('day')
     );
   };
 
@@ -264,7 +261,6 @@ class CheckOrder extends Component {
   };
 
   getTicketAmount = () => {
-
     const {
       ticketOrderCartMgr: {
         packageOrderData = [],
@@ -273,9 +269,12 @@ class CheckOrder extends Component {
       },
     } = this.props;
 
-    const ticketAmount = getCheckTicketAmount(packageOrderData,generalTicketOrderData,onceAPirateOrderData);
+    const ticketAmount = getCheckTicketAmount(
+      packageOrderData,
+      generalTicketOrderData,
+      onceAPirateOrderData
+    );
     return ticketAmount || 0;
-
   };
 
   render() {
@@ -360,9 +359,9 @@ class CheckOrder extends Component {
                         style={{ width: '100%' }}
                         onChange={this.changeDeliveryMode}
                       >
-                        <Select.Option value={'BOCA'}>BOCA</Select.Option>
-                        <Select.Option value={'VID'}>VID</Select.Option>
-                        <Select.Option value={'eTicket'}>e-Ticket</Select.Option>
+                        <Select.Option value="BOCA">BOCA</Select.Option>
+                        <Select.Option value="VID">VID</Select.Option>
+                        <Select.Option value="e-Ticket">e-Ticket</Select.Option>
                       </Select>
                     )}
                   </FormItem>
@@ -407,16 +406,14 @@ class CheckOrder extends Component {
           {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
           {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
           {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
-          {
-            (companyType !== '02' && deliveryMode==='BOCA' && this.getOrderAmount() !== 0) && (
-              <BOCAOfferCollapse
-                form={form}
-                companyType={companyType}
-                quantity={this.getTicketAmount()}
-                pricePax={bocaFeePax}
-              />
-            )
-          }
+          {companyType !== '02' && deliveryMode === 'BOCA' && this.getOrderAmount() !== 0 && (
+            <BOCAOfferCollapse
+              form={form}
+              companyType={companyType}
+              quantity={this.getTicketAmount()}
+              pricePax={bocaFeePax}
+            />
+          )}
           {this.getOrderAmount() === 0 && (
             <div>
               <List style={{ marginTop: 100 }} />
@@ -436,13 +433,11 @@ class CheckOrder extends Component {
               Select All
             </Checkbox>
             <div className={styles.checkOutPayDiv}>
-              {
-                companyType === '01' && (
-                  <div className={styles.payFont}>
-                    Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
-                  </div>
-                )
-              }
+              {companyType === '01' && (
+                <div className={styles.payFont}>
+                  Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
+                </div>
+              )}
             </div>
             <Button
               disabled={this.payTotal() <= 0}

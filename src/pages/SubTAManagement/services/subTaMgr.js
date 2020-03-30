@@ -2,7 +2,7 @@ import UAAService from '@/uaa-npm';
 import { isNvl } from '@/utils/utils';
 
 export async function registrationSubTaInfo(params) {
-  return UAAService.request(`/proxy/ali/b2b/subprofile/subTARegistration`, {
+  return UAAService.request(`/b2b/agent/v1/subprofile/subTARegistration`, {
     method: 'POST',
     body: {
       ...params,
@@ -11,20 +11,20 @@ export async function registrationSubTaInfo(params) {
 }
 
 export async function querySubTaInfo(params) {
-  return UAAService.request(`/proxy/ali/b2b/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
+  return UAAService.request(`/b2b/agent/v1/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
     method: 'GET',
   });
 }
 
 export async function querySubTaInfoWithNoId() {
-  return UAAService.request(`/proxy/ali/b2b/subprofile/querySubInfoWithNoId`, {
+  return UAAService.request(`/b2b/agent/v1/subprofile/querySubInfoWithNoId`, {
     method: 'GET',
   });
 }
 
 export async function querySubTaInfoWithMask(params) {
   return UAAService.request(
-    `/proxy/ali/b2b/subprofile/querySubTaInfoWithMask?subTaId=${params.subTaId}`,
+    `/b2b/agent/v1/subprofile/querySubTaInfoWithMask?subTaId=${params.subTaId}`,
     {
       method: 'GET',
     }
@@ -32,7 +32,7 @@ export async function querySubTaInfoWithMask(params) {
 }
 
 export async function querySubTaInfoWithEmail(params) {
-  let emailUrl = `/proxy/ali/b2b/subprofile/fetchInfoByMail?email=${params.email}`;
+  let emailUrl = `/b2b/agent/v1/subprofile/fetchInfoByMail?email=${params.email}`;
   if (!isNvl(params.subTaId)) {
     emailUrl += `&subTaId=${params.subTaId}`;
   }

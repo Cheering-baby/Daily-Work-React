@@ -40,15 +40,24 @@ class OnceAPirate extends Component {
       orderQuantity += onceAPirateOffer.orderQuantity;
       if (onceAPirateOffer.orderQuantity > 0) {
         onceAPirateOrderData.push(onceAPirateOffer);
+        if (onceAPirateOffer.orderQuantity < onceAPirateOffer.offerMinQuantity) {
+          message.warn(
+            `${onceAPirateOffer.offerName 
+              } minimum quantity less than ${ 
+              onceAPirateOffer.offerMinQuantity 
+              }.`
+          );
+          return;
+        }
       }
     }
     if (orderQuantity > queryInfo.numOfGuests) {
-      message.warn('Offer order quantity more than No. of Guests.');
+      message.warn('Offer total quantity more than No. of Guests.');
       return;
     }
 
     if (orderQuantity === 0) {
-      message.warn('Please choose offer order quantity.');
+      message.warn('Please input offer order quantity.');
       return;
     }
 
@@ -65,30 +74,37 @@ class OnceAPirate extends Component {
       const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
       const du = moment.duration(dateOfVisitTimeMoment - moment(), 'ms');
       const diffMinutes = du.get('hour');
-      dispatch({
-        type: 'onceAPirateTicketMgr/addToCartSaveOrderData',
-        payload: {
-          orderIndex,
-          onceAPirateOrder,
-          onceAPirateOrderData,
-          diffMinutesLess: diffMinutes < 3,
-        },
-      });
+      if (diffMinutes < 3) {
+        dispatch({
+          type: 'onceAPirateTicketMgr/addToCartByDiffMinutesLess',
+          payload: {
+            orderIndex,
+            onceAPirateOrder,
+            onceAPirateOrderData,
+            diffMinutesLess: true,
+          },
+        });
+      } else {
+        dispatch({
+          type: 'onceAPirateTicketMgr/addToCartSaveOrderData',
+          payload: {
+            orderIndex,
+            onceAPirateOrder,
+            onceAPirateOrderData,
+            diffMinutesLess: false,
+          },
+        });
+      }
     } else {
       router.push(`/TicketManagement/Ticketing/CreateOrder/OnceAPirateOrderCart`);
     }
   };
 
   render() {
+    const { clientHeight } = this.state;
 
     const {
-      clientHeight,
-    } = this.state;
-
-    const {
-      ticketMgr: {
-        onceAPirateLoading = false,
-      }
+      ticketMgr: { onceAPirateLoading = false },
     } = this.props;
 
     return (

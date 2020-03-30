@@ -1,7 +1,7 @@
 import UAAService from '@/uaa-npm';
 
 export async function querySubTAList(params) {
-  return UAAService.request(`/proxy/ali/b2b/subprofile/querySubTaList`, {
+  return UAAService.request(`/b2b/agent/v1/subprofile/querySubTaList`, {
     method: 'POST',
     body: {
       ...params,
@@ -10,7 +10,7 @@ export async function querySubTAList(params) {
 }
 
 export async function updateProfileStatus(params) {
-  return UAAService.request(`/proxy/ali/b2b/profile/updateProfileStatus`, {
+  return UAAService.request(`/b2b/agent/v1/profile/updateProfileStatus`, {
     method: 'POST',
     body: {
       ...params,
@@ -19,7 +19,7 @@ export async function updateProfileStatus(params) {
 }
 
 export async function queryProfileStatusHistoryList(params) {
-  return UAAService.request(`/proxy/ali/b2b/profile/queryProfileStatusHistory`, {
+  return UAAService.request(`/b2b/agent/v1/profile/queryProfileStatusHistory`, {
     method: 'POST',
     body: {
       ...params,

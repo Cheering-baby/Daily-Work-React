@@ -33,6 +33,9 @@ export default {
     isAllInformationToRws: true,
     currentStep: 0,
     viewId: 'mainTaEditView',
+    selectedRowKeys: [],
+    rowSelected: '',
+    rowAllSelected: {},
   },
   effects: {
     *fetchQryMainTAList({ payload }, { call, put, select }) {
@@ -105,6 +108,9 @@ export default {
       yield put({ type: 'uploadContractHistory/clean', payload });
       yield put({ type: 'stateChangeHistory/clean', payload });
     },
+    *changeSelectedKey({ payload }, { put }) {
+      yield put({ type: 'updateSelectKey', payload });
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -112,6 +118,26 @@ export default {
         ...state,
         ...payload,
       };
+    },
+    saveSelect(state, { payload }) {
+      const { mainTAList } = state;
+      const { selectedRowKeys } = payload;
+      const selectedMainTA = [];
+      for (let i = 0; i < mainTAList.length; i += 1) {
+        for (let j = 0; j < mainTAList.length; j += 1) {
+          if (mainTAList[j] === mainTAList[i].key) {
+            mainTAList.push(mainTAList[i]);
+          }
+        }
+      }
+      return {
+        ...state,
+        selectedRowKeys,
+        selectedMainTA,
+      };
+    },
+    updateSelectKey(state, { payload: data }) {
+      return { ...state, rowSelected: data.rowSelected };
     },
     clean(state, { payload }) {
       return {

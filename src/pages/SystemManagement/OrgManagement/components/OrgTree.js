@@ -4,7 +4,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../index.less';
 import constants from '../constants';
-import { checkAuthority } from '@/utils/authority';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 const { Search } = Input;
 const { TreeNode } = Tree;
@@ -27,7 +27,7 @@ const getParentKey = (key, tree) => {
 @connect(({ orgMgr, global, loading }) => ({
   orgMgr,
   global,
-  loadTreeFlag: loading.effects['orgMgr/queryUserOrgTree'] || loading.effects['orgMgr/queryAllTAs'],
+  loadTreeFlag: loading.effects['orgMgr/queryUserOrgTree'],
 }))
 class OrgTree extends React.Component {
   onExpand = expandedKeys => {
@@ -54,15 +54,14 @@ class OrgTree extends React.Component {
       orgMgr: {
         selectedOrg: { code = '' },
       },
-      global: { pagePrivileges = [] },
     } = this.props;
     if (code === dataRef.code) {
       return;
     }
 
     const privilege =
-      checkAuthority(pagePrivileges, constants.MAIN_TA_PRIVILEGE) ||
-      checkAuthority(pagePrivileges, constants.SUB_TA_PRIVILEGE);
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) ||
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]);
 
     dispatch({
       type: 'orgMgr/saveData',

@@ -48,11 +48,17 @@ class TableComp extends PureComponent {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_SUB_AGENT_COMPANY_NAME' }),
         dataIndex: 'companyName',
         width: '200px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_COUNTRY_OF_INCORPORATION' }),
         dataIndex: 'countryName',
         width: '200px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_EMAIL' }),
@@ -64,7 +70,7 @@ class TableComp extends PureComponent {
         dataIndex: 'applicationDate',
         width: '180px',
         render: text => {
-          return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
+          return !isNvl(text) ? moment(text, 'YYYY-MM-DD').format('DD-MMM-YYYY') : '-';
         },
       },
       {

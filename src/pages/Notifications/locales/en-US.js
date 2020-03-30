@@ -12,9 +12,9 @@ export default {
   DELETE_SUCCESS: 'Delete Success',
   DELETE_FILE_SUCCESS: 'Delete File Success',
 
-  STATUS_PENDING: 'PENDING',
-  STATUS_DRAFT: 'Draft',
-  STATUS_PUBLISHED: 'Published',
+  NOTICE_STATUS_PENDING: 'PENDING',
+  NOTICE_STATUS_DRAFT: 'Draft',
+  NOTICE_STATUS_PUBLISHED: 'Published',
 
   TYPE_BULLETIN: 'Bulletin',
   TYPE_CIRCULAR: 'Circular',
@@ -34,10 +34,10 @@ export default {
   TITLE: 'Title',
   TARGET_OBJECT: 'Scope/Role',
   PUBLISHED_TIME: 'Published Time',
-  FILE: 'file',
+  FILE: 'File',
   OPERATION: 'operation',
   CATEGORISED: 'Categorised',
-  READ_STATUS: 'read status',
+  READ_STATUS: 'Read status',
   READ_STATUS_READ: 'Read',
   READ_STATUS_UNREAD: 'Unread',
 
@@ -47,7 +47,7 @@ export default {
   REASON_SCOPE_ROLE: 'Release Scope/Role',
   PUBLISH_CONTENT: 'Publish Content',
   COMMUNICATION_TYPE: 'Communication Type',
-  FILE_SUPPORT_EXTENSION: 'Support Extension: Csv. Pdf. Txt. Doc. Docx. Xls. XLsx. Zip. Rar.',
+  FILE_SUPPORT_EXTENSION: 'Support Extension: csv. pdf. txt. doc. docx. xls. xlsx. zip. rar.',
   NOTICE_UPLOAD_FILE_TYPE: 'You can only upload CSV/PDF/TXT/DOC/DOCX/XLS/XLSX/ZIP/RAR file!',
   STATE: 'State',
 
@@ -60,4 +60,5 @@ export default {
   VIEW: 'View',
   LEAVE_NOTICE_TITLE: 'Are you sure you want to leave?',
   LEAVE_NOTICE_CONTENT: 'Your operation is not completed. If you leave, you will lose information',
+  NOTICE_SCHEDULE_DATE_NULL: 'Please select Schedule Release Time.',
 };

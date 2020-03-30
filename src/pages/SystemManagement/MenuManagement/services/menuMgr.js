@@ -2,13 +2,13 @@
 import UAAService from '@/uaa-npm';
 
 export async function queryAllMenus(params) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/menu/queryMenuTree?appCode=${params.appCode}`, {
+  return UAAService.request(`/b2b/user/v1/menu/queryMenuTree?appCode=${params.appCode}`, {
     method: 'GET',
   });
 }
 
 export async function addMenu(params) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/menu/addMenu`, {
+  return UAAService.request(`/b2b/user/v1/menu/addMenu`, {
     method: 'POST',
     body: {
       ...params,
@@ -17,7 +17,7 @@ export async function addMenu(params) {
 }
 
 export async function modifyMenu(params) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/menu/modifyMenu`, {
+  return UAAService.request(`/b2b/user/v1/menu/modifyMenu`, {
     method: 'POST',
     body: {
       ...params,
@@ -26,7 +26,7 @@ export async function modifyMenu(params) {
 }
 
 export async function removeMenu(params) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/menu/removeMenu`, {
+  return UAAService.request(`/b2b/user/v1/menu/removeMenu`, {
     method: 'POST',
     body: {
       ...params,
@@ -35,7 +35,7 @@ export async function removeMenu(params) {
 }
 
 export async function moveUpMenu(params) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/menu/operateMoveUpMenu`, {
+  return UAAService.request(`/b2b/user/v1/menu/operateMoveUpMenu`, {
     method: 'POST',
     body: {
       ...params,
@@ -44,7 +44,7 @@ export async function moveUpMenu(params) {
 }
 
 export async function moveDownMenu(params) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/menu/operateMoveDownMenu`, {
+  return UAAService.request(`/b2b/user/v1/menu/operateMoveDownMenu`, {
     method: 'POST',
     body: {
       ...params,

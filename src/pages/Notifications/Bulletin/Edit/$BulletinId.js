@@ -1,16 +1,16 @@
-import React, {PureComponent} from 'react';
-import {Col, Row} from 'antd';
-import {connect} from 'dva';
+import React, { PureComponent } from 'react';
+import { Col, Row } from 'antd';
+import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import NotificationEdit from '@/pages/Notifications/components/NotificationEdit';
 import styles from './index.less';
 
 const mapStateToProps = store => {
-  const {notificationInfo} = store.notification;
-  const {pagePrivileges = []} = store.global;
+  const { notificationInfo } = store.notification;
+  const { pagePrivileges = [] } = store.global;
   return {
     pagePrivileges,
     notificationInfo,
@@ -22,19 +22,19 @@ class BulletinEdit extends PureComponent {
   render() {
     const breadcrumbArr = [
       {
-        breadcrumbName: formatMessage({id: 'MENU_NOTIFICATIONS'}),
+        breadcrumbName: formatMessage({ id: 'MENU_NOTIFICATIONS' }),
         url: '/Notifications/Bulletin',
       },
       {
-        breadcrumbName: formatMessage({id: 'MENU_BULLETIN'}),
+        breadcrumbName: formatMessage({ id: 'MENU_BULLETIN' }),
         url: '/Notifications/Bulletin',
       },
       {
-        breadcrumbName: formatMessage({id: 'MENU_EDIT'}),
+        breadcrumbName: formatMessage({ id: 'MENU_EDIT' }),
         url: null,
       },
     ];
-    const {notificationInfo} = this.props;
+    const { notificationInfo } = this.props;
     return (
       <Row type="flex" justify="space-around">
         <Col span={24} className={styles.pageHeaderTitle}>
@@ -43,10 +43,10 @@ class BulletinEdit extends PureComponent {
             minWidth={SCREEN.screenSmMin}
             minHeight={SCREEN.screenSmMin}
           >
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr}/>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
           </MediaQuery>
           <MediaQuery minWidth={SCREEN.screenLgMin}>
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr}/>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
           </MediaQuery>
         </Col>
         <Col span={24}>

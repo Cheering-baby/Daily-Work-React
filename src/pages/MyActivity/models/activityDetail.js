@@ -1,33 +1,29 @@
-import {router} from 'umi';
-import {message} from 'antd';
 import * as service from '../services/myActivity';
-import {ERROR_CODE_SUCCESS} from '@/utils/commonResultCode';
+import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
 export default {
   namespace: 'activityDetail',
 
   state: {
     activityId: undefined,
-    bReroute: false,
     activityInfo: {},
     historyHandlers: [],
     pendingHandlers: [],
-    approvalStatus: undefined,
-    rerouteList: [],
-    allowRestart: false,
+    isOperationApproval: undefined,
+    businessId: undefined,
   },
   effects: {
-    *queryDetail({ payload }, { call, put }) {
-      const {activityId} = payload;
+    *queryActivityDetail({ payload }, { call, put }) {
+      const { activityId } = payload;
       const {
-        data: {resultCode, resultMsg, result},
-      } = yield call(service.queryDetail, {activityId});
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.queryActivityDetail, { activityId });
 
       if (resultCode !== ERROR_CODE_SUCCESS) {
         throw resultMsg;
       }
 
-      const {activityInfo, historyHandlers, pendingHandlers} = result;
+      const { activityInfo, historyHandlers, pendingHandlers } = result;
       yield put({
         type: 'save',
         payload: {
@@ -35,83 +31,9 @@ export default {
           activityInfo,
           historyHandlers,
           pendingHandlers,
+          businessId: activityInfo.activityInfo,
         },
       });
-    },
-    *approve({ payload }, { call, select }) {
-      const { reason, approver, allowRestart } = payload;
-      const { activityId, bReroute, approvalStatus } = yield select(state => state.activityDetail);
-
-      let result = {
-        success: false,
-        errorMsg: 'Please Reroute/Accept/Reject',
-      };
-      if (bReroute === true) {
-        const targetList = [];
-        approver.forEach(item => {
-          const obj = {};
-          obj.targetType = '03';
-          obj.targetObj = item;
-          targetList.push(obj);
-        });
-        result = yield call(service.reroute, {
-          activityId,
-          targetList,
-        });
-      } else if (approvalStatus === 'A') {
-        result = yield call(service.accept, { activityId });
-      } else if (approvalStatus === 'R') {
-        result = yield call(service.reject, { activityId, reason, allowRestart });
-      }
-
-      const { data: resultData, success, errorMsg } = result;
-
-      if (success) {
-        const { resultCode, resultMsg } = resultData;
-
-        if (resultCode !== ERROR_CODE_SUCCESS) {
-          throw resultMsg;
-        }
-
-        message.success(resultMsg);
-
-        router.push({
-          pathname: '/MyActivity',
-        });
-      } else throw errorMsg;
-    },
-    *queryMappingDetail({ payload }, { call, put }) {
-      const { content } = payload;
-      const { taId } = JSON.parse(content);
-      const res = yield call(service.queryMappingDetail, taId);
-      const { resultCode, resultMsg, result } = res.data;
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({
-          type: 'save',
-          payload: {
-            queryMappingInfo: result,
-          },
-        });
-      } else message.warn(resultMsg, 10);
-    },
-    *queryRerouteList(_, { call, put }) {
-      const res = yield call(service.queryRerouteList);
-      const { resultCode, resultMsg, result } = res.data;
-      if (resultCode !== ERROR_CODE_SUCCESS) {
-        const {userList} = result;
-        if (userList && userList.length > 0) {
-          userList.map(v => {
-            Object.assign(v, {key: `${v.activityId}`});
-            return v;
-          });
-        }
-        yield put({
-          type: 'save',
-          payload: {
-            rerouteList: userList,
-          },
-        });
-      } else message.warn(resultMsg, 10);
     },
   },
   reducers: {
@@ -121,7 +43,7 @@ export default {
         ...payload,
       };
     },
-    reset(state, { payload }) {
+    doCleanAllData(state, { payload }) {
       return {
         ...state,
         ...payload,
@@ -131,6 +53,7 @@ export default {
         historyHandlers: [],
         pendingHandlers: [],
         approvalStatus: undefined,
+        businessId: undefined,
       };
     },
   },

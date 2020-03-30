@@ -1,51 +1,68 @@
 import React from 'react';
 import router from 'umi/router';
-import { Breadcrumb, Button, Col, Form, Row } from 'antd';
+import { Button, Col, Form, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
+import MediaQuery from 'react-responsive';
 import styles from './index.less';
 import DetailForTiered from '../../components/DetailForTiered';
-import DetailForAttendance from '../../components/DetailForAttendance';
+import SCREEN from '@/utils/screen';
+import BreadcrumbComp from '@/components/BreadcrumbComp';
 
 @Form.create()
 @connect(({ commissionNew }) => ({
   commissionNew,
 }))
 class OfflineDetail extends React.PureComponent {
-  routerTo = () => {
-    router.push('/ProductManagement/CommissionRule/OfflineRule');
+  edit = () => {
+    router.push({
+      pathname: '/ProductManagement/CommissionRule/OfflineRule/New',
+      query: { type: 'edit' },
+    });
   };
 
   render() {
-    const {
-      match: { params },
-    } = this.props;
-
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'OFFLINE_FIXED_COMMISSION' }),
+        url: '/ProductManagement/CommissionRule/OfflineRule',
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'COMMON_DETAILS' }),
+        url: null,
+      },
+    ];
     return (
-      <Col lg={24} md={24} id="commissionNew">
-        {/* <MediaQuery> */}
-        <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-          <Breadcrumb.Item className="breadcrumb-style">System Management</Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumb-style">Commission Rule</Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumb-style" onClick={this.routerTo}>
-            Offline Rule
-          </Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumbbold">Details</Breadcrumb.Item>
-        </Breadcrumb>
-        {/* </MediaQuery> */}
+      <Row type="flex" justify="space-around" id="mainTaView">
+        <Col span={24}>
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+        </Col>
         <Col lg={24} md={24}>
           <div className={`${styles.searchDiv} has-shadow no-border`}>
-            <Button icon="edit" style={{ marginTop: 16, marginLeft: 16 }} />
-            <div className="title-header" style={{ padding: 16 }}>
-              <span>{formatMessage({ id: 'COMMISSION_DETAIL' })}</span>
-            </div>
+            <Button icon="edit" style={{ margin: 16 }} onClick={this.edit} />
             <Row type="flex" justify="space-around">
-              {params.detail === 'Tiered' || params.detail === 'Fixed' ? <DetailForTiered /> : null}
-              {params.detail === 'Attendance' ? <DetailForAttendance /> : null}
+              <DetailForTiered />
             </Row>
           </div>
         </Col>
-      </Col>
+      </Row>
     );
   }
 }

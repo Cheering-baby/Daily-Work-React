@@ -24,9 +24,10 @@ class NotificationMgr extends PureComponent {
       return [
         {
           title: showTableTitle(formatMessage({ id: 'NO' })),
-          key: 'id',
-          dataIndex: 'id',
           width: '10%',
+          dataIndex: 'index',
+          key: 'index',
+          render: (text, record, index) => `${index + 1}`,
         },
         {
           title: showTableTitle(formatMessage({ id: 'TITLE' })),
@@ -34,7 +35,7 @@ class NotificationMgr extends PureComponent {
           key: 'title',
           width: '30%',
           render: text => {
-            return !isNvl(text) ? text : '-';
+            return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
           },
         },
         {
@@ -44,11 +45,17 @@ class NotificationMgr extends PureComponent {
           width: '15%',
           render: targetList => {
             let text = '';
-            targetList.map(target => {
-              text += target.targetObj;
-              return target;
-            });
-            return text;
+            if (targetList && targetList.length > 0) {
+              targetList.map((target, index) => {
+                if (index === 0) {
+                  text += target.targetObj;
+                } else {
+                  text += `,${target.targetObj}`;
+                }
+                return target;
+              });
+            }
+            return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
           },
         },
         {
@@ -104,19 +111,19 @@ class NotificationMgr extends PureComponent {
             switch (String(text).toLowerCase()) {
               case '01':
                 statusStr = 'default';
-                statusTxt = formatMessage({ id: 'STATUS_DRAFT' });
+                statusTxt = formatMessage({ id: 'NOTICE_STATUS_DRAFT' });
                 break;
               case '02':
-                statusStr = 'warning';
-                statusTxt = formatMessage({ id: 'STATUS_PENDING' });
+                statusStr = 'success';
+                statusTxt = formatMessage({ id: 'NOTICE_STATUS_PUBLISHED' });
                 break;
               case '03':
-                statusStr = 'success';
-                statusTxt = formatMessage({ id: 'STATUS_PUBLISHED' });
+                statusStr = 'warning';
+                statusTxt = formatMessage({ id: 'NOTICE_STATUS_PENDING' });
                 break;
               default:
                 statusStr = 'default';
-                statusTxt = formatMessage({ id: 'STATUS_DRAFT' });
+                statusTxt = formatMessage({ id: 'NOTICE_STATUS_DRAFT' });
                 break;
             }
             return <Badge status={statusStr} text={statusTxt || null} />;
@@ -182,16 +189,16 @@ class NotificationMgr extends PureComponent {
         key: 'title',
         width: '40%',
         render: text => {
-          return !isNvl(text) ? text : '-';
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
         },
       },
       {
         title: showTableTitle(formatMessage({ id: 'PUBLISHED_TIME' })),
-        dataIndex: 'currentReceiver',
-        key: 'currentReceiver',
+        dataIndex: 'scheduleDate',
+        key: 'scheduleDate',
         width: '15%',
         render: text => {
-          return !isNvl(text) && !isNvl(text.publishTime) ? text.publishTime : '-';
+          return !isNvl(text) ? moment(text, 'YYYY-MM-DD').format('YYYY-MMM-DD') : '-';
         },
       },
       {
@@ -211,7 +218,9 @@ class NotificationMgr extends PureComponent {
                       <div className={styles.fileListItemInfo}>
                         <span>
                           <Icon type="paper-clip" className={styles.fileListItemInfoPaperClip} />
-                          <div className={styles.fileListItemName}>{item.fileName}</div>
+                          <Tooltip title={item.fileName}>
+                            <div className={styles.fileListItemName}>{item.fileName}</div>
+                          </Tooltip>
                         </span>
                       </div>
                     </div>

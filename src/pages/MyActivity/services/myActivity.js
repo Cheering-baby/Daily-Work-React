@@ -1,40 +1,34 @@
-import {stringify} from 'qs';
+import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-export async function approvalList(data) {
-  return UAAService.request(
-    `/proxy/ali/b2b/user/v1/activity/queryActivityList?${stringify(data)}`,
-    {
-      method: 'GET',
-    }
-  );
+export async function queryActivityList(data) {
+  return UAAService.request(`/b2b/user/v1/activity/queryActivityList?${stringify(data)}`, {
+    method: 'GET',
+  });
 }
 
-export async function queryDetail(data) {
-  return UAAService.request(
-    `/proxy/ali/b2b/user/v1/activity/queryActivityDetail?${stringify(data)}`,
-    {
-      method: 'GET',
-    }
-  );
+export async function queryActivityDetail(data) {
+  return UAAService.request(`/b2b/user/v1/activity/queryActivityDetail?${stringify(data)}`, {
+    method: 'GET',
+  });
 }
 
 export async function accept(data) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/accept`, {
+  return UAAService.request(`/b2b/user/v1/activity/accept`, {
     method: 'POST',
     body: data,
   });
 }
 
 export async function reject(data) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/reject`, {
+  return UAAService.request(`/b2b/user/v1/activity/reject`, {
     method: 'POST',
     body: data,
   });
 }
 
 export async function reroute(data) {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/reroute`, {
+  return UAAService.request(`/b2b/user/v1/activity/reroute`, {
     method: 'POST',
     body: data,
   });
@@ -47,14 +41,8 @@ export async function upload(data) {
   });
 }
 
-export async function queryMappingDetail(taId) {
-  return UAAService.request(`/proxy/ali/b2b/profile/queryMappingInfo?taId=${taId}`, {
-    method: 'GET',
-  });
-}
-
 export async function registerContractFile(params) {
-  return UAAService.request(`/contract/registerContractFile`, {
+  return UAAService.request(`/b2b/agent/v1/contract/registerContractFile`, {
     method: 'POST',
     body: {
       ...params,
@@ -62,14 +50,8 @@ export async function registerContractFile(params) {
   });
 }
 
-export async function taInfo(taId) {
-  return UAAService.request(`/proxy/ali/b2b/profile/queryTaInfo?taId=${taId}`, {
-    method: 'GET',
-  });
-}
-
-export async function queryContractInfo(taId) {
-  return UAAService.request(`/proxy/ali/b2b/contract/queryContractInfo?taId=${taId}`, {
+export async function queryTaInfo(taId) {
+  return UAAService.request(`/b2b/agent/v1/profile/queryTaInfo?taId=${taId}`, {
     method: 'GET',
   });
 }
@@ -83,26 +65,44 @@ export async function downloadFile(params) {
   });
 }
 
-export async function statusList() {
-  return UAAService.request(
-    `/proxy/ali/b2b/user/v1/activity/queryActivityDict?dictType=ActivityStatus`,
-    {
-      method: 'GET',
-    }
-  );
+export async function queryActivityDict() {
+  return UAAService.request(`/b2b/user/v1/activity/queryActivityDict?dictType=ActivityStatus`, {
+    method: 'GET',
+  });
 }
 
-export async function templateList(data) {
-  return UAAService.request(
-    `/proxy/ali/b2b/user/v1/activity/queryTemplateList?${stringify(data)}`,
-    {
-      method: 'GET',
-    }
-  );
+export async function queryTemplateList(data) {
+  return UAAService.request(`/b2b/user/v1/activity/queryTemplateList?${stringify(data)}`, {
+    method: 'GET',
+  });
 }
 
 export async function queryRerouteList() {
-  return UAAService.request(`/proxy/ali/b2b/user/v1/activity/queryRerouteList`, {
+  return UAAService.request(`/b2b/user/v1/activity/queryRerouteList`, {
     method: 'GET',
+  });
+}
+
+export async function queryDictionary(params) {
+  return UAAService.request(
+    `/agent/common/queryDictionary?dictType=${params.dictType}&dictSubType=${params.dictSubType}`,
+    {
+      method: 'GET',
+    }
+  );
+}
+
+export async function querySubTaInfo(params) {
+  return UAAService.request(`/b2b/agent/v1/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
+    method: 'GET',
+  });
+}
+
+export async function deleteFile(params) {
+  return UAAService.request(`/common/deleteFile`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
   });
 }

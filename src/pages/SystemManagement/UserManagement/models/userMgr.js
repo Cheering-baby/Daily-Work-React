@@ -348,7 +348,7 @@ export default {
     setup({ dispatch, history }) {
       history.listen(location => {
         if (location.pathname.indexOf('/SystemManagement/UserManagement') === -1) {
-          dispatch({ type: 'clear' });
+          dispatch({ type: 'clean' });
         }
       });
     },

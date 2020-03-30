@@ -1,5 +1,5 @@
-import {message} from 'antd';
-import {formatMessage} from 'umi/locale';
+import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import * as service from '../services/notification';
 
 export default {
@@ -23,21 +23,21 @@ export default {
     notificationInfoLoadingFlag: false,
   },
   effects: {
-    * queryNotificationTemplateList(_, {call, put, select}) {
-      const {filter, pagination} = yield select(state => state.notification);
+    *queryNotificationTemplateList(_, { call, put, select }) {
+      const { filter, pagination } = yield select(state => state.notification);
       const requestData = {
         ...filter,
         ...pagination,
       };
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = yield call(service.templateList, requestData);
       if (resultCode === '0' || resultCode === 0) {
         const {
           templateList,
-          pageInfo: {currentPage, pageSize, totalSize},
+          pageInfo: { currentPage, pageSize, totalSize },
         } = result;
-        console.log('templateList: ', templateList);
+        // console.log('templateList: ', templateList);
         yield put({
           type: 'save',
           payload: {
@@ -51,69 +51,69 @@ export default {
         });
       } else message.warn(resultMsg, 10);
     },
-    * fetchAddNotification({payload}, {call, put}) {
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+    *fetchAddNotification({ payload }, { call, put }) {
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: true } });
       const {
-        data: {resultCode, resultMsg},
-      } = yield call(service.createNotification, {...payload});
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+        data: { resultCode, resultMsg },
+      } = yield call(service.createNotification, { ...payload });
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
-        message.success(formatMessage({id: 'ADD_SUCCESS'}), 10);
+        message.success(formatMessage({ id: 'ADD_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
       return false;
     },
-    * fetchModifyNotification({payload}, {call, put}) {
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+    *fetchModifyNotification({ payload }, { call, put }) {
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: true } });
       const {
-        data: {resultCode, resultMsg},
-      } = yield call(service.modifyNotification, {...payload});
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+        data: { resultCode, resultMsg },
+      } = yield call(service.modifyNotification, { ...payload });
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
-        message.success(formatMessage({id: 'MODIFY_SUCCESS'}), 10);
+        message.success(formatMessage({ id: 'MODIFY_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
       return false;
     },
-    * fetchDeleteNotification({payload}, {call, put}) {
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+    *fetchDeleteNotification({ payload }, { call, put }) {
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: true } });
       const {
-        data: {resultCode, resultMsg},
-      } = yield call(service.deleteNotification, {...payload});
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+        data: { resultCode, resultMsg },
+      } = yield call(service.deleteNotification, { ...payload });
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
-        message.success(formatMessage({id: 'DELETE_SUCCESS'}), 10);
+        message.success(formatMessage({ id: 'DELETE_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
       return false;
     },
-    * fetchDeleteNotificationFile({payload}, {call}) {
+    *fetchDeleteNotificationFile({ payload }, { call }) {
       const {
-        data: {resultCode, resultMsg},
-      } = yield call(service.deleteFile, {...payload});
+        data: { resultCode, resultMsg },
+      } = yield call(service.deleteFile, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
-        message.success(formatMessage({id: 'DELETE_FILE_SUCCESS'}), 10);
+        message.success(formatMessage({ id: 'DELETE_FILE_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
       return false;
     },
-    * fetchUpdateNotificationStatus({payload}, {call, put}) {
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: true}});
+    *fetchUpdateNotificationStatus({ payload }, { call, put }) {
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: true } });
       const {
-        data: {resultCode, resultMsg},
-      } = yield call(service.updateReadStatus, {...payload});
-      yield put({type: 'save', payload: {notificationInfoLoadingFlag: false}});
+        data: { resultCode, resultMsg },
+      } = yield call(service.updateReadStatus, { ...payload });
+      yield put({ type: 'save', payload: { notificationInfoLoadingFlag: false } });
       if (resultCode === '0' || resultCode === 0) {
         return true;
       }
       message.warn(resultMsg, 10);
       return false;
     },
-    * saveData({payload}, {put}) {
+    *saveData({ payload }, { put }) {
       yield put({
         type: 'save',
         payload: {
@@ -121,7 +121,7 @@ export default {
         },
       });
     },
-    * change({payload}, {put}) {
+    *change({ payload }, { put }) {
       yield put({
         type: 'save',
         payload: {
@@ -137,7 +137,7 @@ export default {
     save(state, { payload }) {
       return { ...state, ...payload };
     },
-    clean(state, {payload}) {
+    clean(state, { payload }) {
       return {
         ...state,
         ...{

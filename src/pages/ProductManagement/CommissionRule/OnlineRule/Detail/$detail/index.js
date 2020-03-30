@@ -1,59 +1,68 @@
-import React from 'react';
-import router from 'umi/router';
-import { Breadcrumb, Button, Col, Form, Row } from 'antd';
+import React, { Fragment } from 'react';
+import { Card, Col, Form, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import styles from './index.less';
-import DetailForTieredCommission from '../../components/DetailForTieredCommission';
-import DetailForAttendance from '../../components/DetailForAttendance';
+import MediaQuery from 'react-responsive';
+import detailStyles from '../../index.less';
+import SCREEN from '@/utils/screen';
+import BreadcrumbComp from '@/components/BreadcrumbComp';
+import DetailForCommission from '../../components/DetailForCommission';
+import DetailForBinding from '../../components/DetailForBinding';
 
 @Form.create()
 @connect(({ commissionNew }) => ({
   commissionNew,
 }))
 class CommissionDetail extends React.PureComponent {
-  routerTo = () => {
-    router.push('/ProductManagement/CommissionRule/OnlineRule');
-  };
-
-  toEdit = () => {
-    router.push('/ProductManagement/CommissionRule/OnlineRule/Edit/11');
-  };
-
   render() {
     const {
       match: { params },
     } = this.props;
 
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'TIERED_ATTENDANCE_RULE' }),
+        url: '/ProductManagement/CommissionRule/OnlineRule',
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'COMMON_DETAILS' }),
+        url: null,
+      },
+    ];
+
     return (
-      <Col lg={24} md={24} id="commissionDetail">
-        {/* <MediaQuery> */}
-        <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-          <Breadcrumb.Item className="breadcrumb-style">System Management</Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumb-style">Commission Rule</Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumb-style" onClick={this.routerTo}>
-            Online Rule
-          </Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumbbold">Details</Breadcrumb.Item>
-        </Breadcrumb>
-        {/* </MediaQuery> */}
-        <Col lg={24} md={24}>
-          <div className={`${styles.searchDiv} has-shadow no-border`}>
-            <Button
-              icon="edit"
-              style={{ marginTop: 16, marginLeft: 16 }}
-              onClick={() => this.toEdit()}
-            />
-            <div className="title-header" style={{ padding: 16 }}>
-              <span>{formatMessage({ id: 'COMMISSION_DETAIL' })}</span>
-            </div>
-            <Row type="flex" justify="space-around" style={{ paddingLeft: 16 }}>
-              {params.detail === 'Tiered' ? <DetailForTieredCommission /> : null}
-              {params.detail === 'Attendance' ? <DetailForAttendance /> : null}
-            </Row>
-          </div>
-        </Col>
-      </Col>
+      <Fragment>
+        <Form onSubmit={this.commit}>
+          <Row type="flex" justify="space-around" id="mainTaView">
+            <Col span={24} className={detailStyles.pageHeaderTitle}>
+              <MediaQuery
+                maxWidth={SCREEN.screenMdMax}
+                minWidth={SCREEN.screenSmMin}
+                minHeight={SCREEN.screenSmMin}
+              >
+                <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+              </MediaQuery>
+              <MediaQuery minWidth={SCREEN.screenLgMin}>
+                <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+              </MediaQuery>
+            </Col>
+            <Col span={24}>
+              <Card>
+                <DetailForCommission tplId={params.detail} />
+                <DetailForBinding tplId={params.detail} />
+              </Card>
+            </Col>
+          </Row>
+        </Form>
+      </Fragment>
     );
   }
 }

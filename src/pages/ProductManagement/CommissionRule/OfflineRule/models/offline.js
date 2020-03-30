@@ -13,6 +13,9 @@ export default {
     },
     offlineList: [],
     detailVisible: false,
+    type: '',
+    drawerVisible: false,
+    themeParkList: [],
   },
   effects: {
     *fetchOfflineList(_, { call, put, select }) {
@@ -20,9 +23,12 @@ export default {
       const { likeParam } = filter;
       let result;
       if (isEmpty(likeParam)) {
-        result = yield call(service.offlineList, pagination);
+        result = yield call(service.queryCommodityCommissionTplList, pagination);
       } else {
-        result = yield call(service.offlineList, { ...likeParam, ...pagination });
+        result = yield call(service.queryCommodityCommissionTplList, {
+          ...likeParam,
+          ...pagination,
+        });
       }
 
       const {
@@ -48,6 +54,54 @@ export default {
         },
       });
     },
+    *queryPluAttribute({ payload }, { call }) {
+      const params = {
+        attributeItem: payload.attributeItem,
+      };
+      const res = yield call(service.queryPluAttribute, params);
+      // yield put({ type: 'save', payload: {checkOutLoading: false}, });
+      // if (resultCode !== '0' && resultCode !== 0) {
+      //   message.warn(resultMsg);
+      //   return;
+      // }
+      // if (!result.items || result.items.length===0) {
+      //   // eslint-disable-next-line no-throw-literal
+      //   message.warn(`${payload.attributeItem} config is null`);
+      //   return;
+      // }
+      // let queryPluKey = 0;
+      // result.items.map(item=>{
+      //   if (item.item === 'DeliveryPLU') {
+      //     queryPluKey = item.itemValue;
+      //   }
+      // });
+      // yield put({
+      //   type: 'queryPluListByCondition',
+      //   payload: {
+      //     queryPluKey,
+      //   },
+      // });
+    },
+    *search({ payload }, { put }) {
+      yield put({
+        type: 'clear',
+      });
+      yield put({
+        type: 'save',
+        payload,
+      });
+      yield put({
+        type: 'fetchOfflineList',
+      });
+    },
+    *fetchSelectReset(_, { put }) {
+      yield put({
+        type: 'clear',
+      });
+      yield put({
+        type: 'fetchOfflineList',
+      });
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -63,6 +117,8 @@ export default {
         },
         commissionRuleSetupList: [],
         detailVisible: false,
+        type: '',
+        drawerVisible: false,
       };
     },
   },

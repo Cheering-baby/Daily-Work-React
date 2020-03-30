@@ -53,37 +53,13 @@ const mapStateToProps = store => {
 @connect(mapStateToProps)
 class Edit extends PureComponent {
   componentDidMount() {
-    const { dispatch, countryList, categoryList, taId = '111111' } = this.props;
+    const { dispatch, taId = '111111' } = this.props;
     dispatch({
       type: 'myProfile/doCleanData',
       payload: { taId: !isNvl(taId) ? taId : null },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQuerySalutationList' });
-      dispatch({ type: 'taCommon/fetchQueryOrganizationRoleList' });
-      dispatch({ type: 'taCommon/fetchQryMarketList' });
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      dispatch({ type: 'taCommon/fetchQueryCategoryList' }).then(flag => {
-        if (flag && isNvl(taId) && categoryList && categoryList.length > 0) {
-          const categoryInfo = categoryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCustomerGroupList',
-            payload: { categoryId: categoryInfo.dictId },
-          });
-        }
-      });
-      dispatch({ type: 'taCommon/fetchQueryCountryList' }).then(flag => {
-        if (flag && isNvl(taId) && countryList && countryList.length > 0) {
-          const countryInfo = countryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId },
-          });
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId, isBil: true },
-          });
-        }
-      });
       if (!isNvl(taId)) {
         dispatch({
           type: 'taMgr/fetchQueryTaInfo',
@@ -143,7 +119,6 @@ class Edit extends PureComponent {
     } else if (String(currentStep) === '1') {
       const { form } = this.otherEditRef.props;
       form.validateFieldsAndScroll(error => {
-        console.log('error: ', error);
         if (error) {
           return;
         }
@@ -157,13 +132,13 @@ class Edit extends PureComponent {
             modifyType: getModifyTYpe(),
           },
         }).then(flag => {
-          if (flag)
-            dispatch({
-              type: 'myProfile/save',
-              payload: {
-                currentStep: 2,
-              },
-            });
+          if (flag) message.success(formatMessage({ id: 'COMPLETED_EDIT_SUBMITTED_SUCCESS' }), 10);
+          dispatch({
+            type: 'myProfile/save',
+            payload: {
+              currentStep: 2,
+            },
+          });
         });
       });
     }

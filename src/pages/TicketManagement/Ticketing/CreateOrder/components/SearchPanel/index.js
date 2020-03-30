@@ -50,13 +50,17 @@ class SearchPanel extends Component {
     const {
       dispatch,
       form,
-      ticketMgr: { activeGroup },
+      ticketMgr: { activeGroup, activeGroupSelectData },
     } = this.props;
     const dateOfVisit = value ? value.format('x') : value;
     dispatch({
       type: 'ticketMgr/save',
       payload: {
         dateOfVisit,
+        activeGroupSelectData: {
+          ...activeGroupSelectData,
+          dateOfVisit,
+        },
       },
     });
     const data = {
@@ -150,6 +154,7 @@ class SearchPanel extends Component {
           numOfGuests: undefined,
           accessibleSeat: undefined,
         },
+        numOfGuests: undefined,
         selectOfferData: [],
         orderIndex: null,
         onceAPirateOrder: null,
@@ -229,7 +234,10 @@ class SearchPanel extends Component {
     dispatch({
       type: 'ticketMgr/queryOAPOfferList',
       payload: {
-        formData: values,
+        formData: {
+          ...values,
+          dateOfVisit: values.dateOfVisit ? values.dateOfVisit.format('x') : values.dateOfVisit,
+        },
       },
     }).then(() => {
       console.log('queryOAPOfferList done: ');
@@ -267,7 +275,7 @@ class SearchPanel extends Component {
   changeThemeParkChoose = checkedValue => {
     const {
       dispatch,
-      ticketMgr: { themeParkList },
+      ticketMgr: { themeParkList, activeGroupSelectData },
       form,
     } = this.props;
     let groupObject;
@@ -311,6 +319,10 @@ class SearchPanel extends Component {
         themeParkList: newThemeParkList,
         activeGroup: groupObject ? groupObject.group : 0,
         themeParkTipType,
+        activeGroupSelectData: {
+          ...activeGroupSelectData,
+          accessibleSeat: checkedValue,
+        },
       },
     });
   };
@@ -319,8 +331,12 @@ class SearchPanel extends Component {
     // Can not select days before today and today
     const nowDate = new Date();
     let result = false;
-    const minDate = moment(nowDate).add(-1, 'days').endOf('day');
-    const maxDate = moment(nowDate).add(6, 'months').endOf('day');
+    const minDate = moment(nowDate)
+      .add(-1, 'days')
+      .endOf('day');
+    const maxDate = moment(nowDate)
+      .add(6, 'months')
+      .endOf('day');
     if (current && (current < minDate || current > maxDate)) {
       result = true;
     }
@@ -333,23 +349,32 @@ class SearchPanel extends Component {
       dispatch,
       ticketMgr: { activeGroupSelectData },
     } = this.props;
-    activeGroupSelectData.accessibleSeat = checked;
     dispatch({
       type: 'ticketMgr/save',
       payload: {
-        activeGroupSelectData,
+        activeGroupSelectData: {
+          ...activeGroupSelectData,
+          accessibleSeat: checked,
+        },
       },
     });
   };
 
   changeNumOfGuests = value => {
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      ticketMgr: { activeGroupSelectData },
+    } = this.props;
     const testReg = /^[1-9]\d*$/;
     if (testReg.test(value) || value === '') {
       dispatch({
         type: 'ticketMgr/save',
         payload: {
           numOfGuests: value,
+          activeGroupSelectData: {
+            ...activeGroupSelectData,
+            numOfGuests: value,
+          },
         },
       });
     }
@@ -366,6 +391,22 @@ class SearchPanel extends Component {
     return numOfGuests;
   };
 
+  changeSessionTime = value => {
+    const {
+      dispatch,
+      ticketMgr: { activeGroupSelectData },
+    } = this.props;
+    dispatch({
+      type: 'ticketMgr/save',
+      payload: {
+        activeGroupSelectData: {
+          ...activeGroupSelectData,
+          sessionTime: value,
+        },
+      },
+    });
+  };
+
   render() {
     const {
       ticketMgr: {
@@ -375,7 +416,6 @@ class SearchPanel extends Component {
         themeParkChooseList,
         activeGroup,
         themeParkTipType,
-        numOfGuests,
         searchPanelActive,
         activeGroupSelectData,
       },
@@ -411,7 +451,7 @@ class SearchPanel extends Component {
                           <Checkbox
                             disabled={item.disabled}
                             value={item.value}
-                            key={`themePark_${  item.value}`}
+                            key={`themePark_${item.value}`}
                             style={{ display: 'block', color: '#3B414A', margin: '5px 0px' }}
                           >
                             {item.label}
@@ -465,10 +505,11 @@ class SearchPanel extends Component {
                       placeholder="Please Select"
                       allowClear
                       showSearch
+                      onChange={this.changeSessionTime}
                     >
                       {sessionTimeList &&
                         sessionTimeList.map((item, index) => (
-                          <Select.Option key={`${item.value  }_${  index}`} value={item.value}>
+                          <Select.Option key={`${item.value}_${index}`} value={item.value}>
                             {item.label}
                           </Select.Option>
                         ))}
@@ -478,7 +519,7 @@ class SearchPanel extends Component {
               )}
               <FormItem {...formItemLayout} label={formatMessage({ id: 'NUM_OF_GUESTS' })}>
                 {getFieldDecorator('numOfGuests', {
-                  initialValue: numOfGuests,
+                  initialValue: activeGroupSelectData.numOfGuests,
                   rules: [
                     {
                       required: true,
@@ -486,22 +527,20 @@ class SearchPanel extends Component {
                     },
                   ],
                 })(
-                  <div>
-                    <InputNumber
-                      disabled={searchPanelActive}
-                      onChange={this.changeNumOfGuests}
-                      value={numOfGuests}
-                      placeholder="Please Input"
-                      style={{ width: '100%' }}
-                      min={1}
-                      formatter={this.formatNumOfGuestsValue}
-                    />
-                  </div>
+                  <InputNumber
+                    disabled={searchPanelActive}
+                    onChange={this.changeNumOfGuests}
+                    placeholder="Please Input"
+                    style={{ width: '100%' }}
+                    min={1}
+                    formatter={this.formatNumOfGuestsValue}
+                  />
                 )}
               </FormItem>
               {activeGroup === 3 && (
                 <FormItem {...formItemLayout} label="">
                   {getFieldDecorator('accessibleSeat', {
+                    initialValue: activeGroupSelectData.accessibleSeat,
                     rules: [
                       {
                         required: false,

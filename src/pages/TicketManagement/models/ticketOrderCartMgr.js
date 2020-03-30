@@ -1,6 +1,6 @@
 import { message } from 'antd';
 import router from 'umi/router';
-import moment from "moment";
+import moment from 'moment';
 import { queryCountry } from '@/pages/TicketManagement/services/ticketCommon';
 import {
   queryPluAttribute,
@@ -11,10 +11,7 @@ import {
   removeShoppingCart,
   calculateOrderOfferPrice,
 } from '@/pages/TicketManagement/services/orderCart';
-import {
-  createBooking,
-  queryBookingStatus,
-} from "@/pages/TicketManagement/services/bookingAndPay";
+import { createBooking, queryBookingStatus } from '@/pages/TicketManagement/services/bookingAndPay';
 import {
   transOrderToOfferInfos,
   transGetOrderList,
@@ -26,18 +23,13 @@ import {
   getCheckTicketAmount,
   transBookingCommonOffers,
   transOapCommonOffers,
-  transBookingOffersTotalPrice,
   transPackageCommonOffers,
-} from "@/pages/TicketManagement/utils/orderCartUtil";
-import {
-  getAttractionProductList,
-  getVoucherProductList
-} from '../utils/ticketOfferInfoUtil';
-import {
-  queryTaInfo,
-  querySubTaInfo
-} from '@/pages/TicketManagement/services/taMgrService';
-import {isNvl} from "@/utils/utils";
+  demolitionBundleOrder,
+  transBookingToPayTotalPrice,
+} from '@/pages/TicketManagement/utils/orderCartUtil';
+import { getAttractionProductList, getVoucherProductList } from '../utils/ticketOfferInfoUtil';
+import { queryTaInfo, querySubTaInfo } from '@/pages/TicketManagement/services/taMgrService';
+import { isNvl } from '@/utils/utils';
 
 export default {
   namespace: 'ticketOrderCartMgr',
@@ -45,7 +37,7 @@ export default {
   state: {
     deliveryMode: undefined,
     collectionDate: null,
-    bocaFeePax: 2.00,
+    bocaFeePax: 2.0,
     offerOrderData: [],
     selectAllOrder: true,
     selectAllIndeterminate: false,
@@ -63,10 +55,13 @@ export default {
     cartId: null,
     taDetailInfo: null,
     subTaDetailInfo: null,
+    showBundleToCart: false,
+    bundleOfferDetail: null,
+    orderIndex: null,
+    offerIndex: null,
   },
 
   effects: {
-
     *fetchQueryTaDetail(_, { call, put, select }) {
       const {
         userCompanyInfo: { companyId = '' },
@@ -84,7 +79,7 @@ export default {
         });
       } else {
         message.error(resultMsg);
-      };
+      }
     },
 
     *fetchQuerySubTaDetail(_, { call, put, select }) {
@@ -104,21 +99,28 @@ export default {
         });
       } else {
         message.error(resultMsg);
-      };
+      }
     },
 
     *calculateOrderOfferPrice({ payload }, { call }) {
-
-      const {
-        queryInfo,
-        orderOffer,
-        callbackFn
-      } = payload;
+      const { queryInfo, orderOffer, callbackFn } = payload;
 
       const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
-      const attractionProductList = getAttractionProductList(orderOffer.offerInfo.offerProfile,validTimeFrom);
-      const voucherProductList = getVoucherProductList(orderOffer.offerInfo.offerProfile,validTimeFrom);
-      const orderProductList = getOapOrderProductList(queryInfo,orderOffer,attractionProductList,voucherProductList,validTimeFrom);
+      const attractionProductList = getAttractionProductList(
+        orderOffer.offerInfo.offerProfile,
+        validTimeFrom
+      );
+      const voucherProductList = getVoucherProductList(
+        orderOffer.offerInfo.offerProfile,
+        validTimeFrom
+      );
+      const orderProductList = getOapOrderProductList(
+        queryInfo,
+        orderOffer,
+        attractionProductList,
+        voucherProductList,
+        validTimeFrom
+      );
 
       const commonOffers = [];
       const calculateCommonOffer = {
@@ -133,7 +135,9 @@ export default {
         commonOffers,
         voucherNos: [],
       };
-      const { data: { resultCode, resultMsg, result } } = yield call(calculateOrderOfferPrice, params);
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(calculateOrderOfferPrice, params);
       if (resultCode !== '0' && resultCode !== 0) {
         message.warn(resultMsg);
         return;
@@ -141,9 +145,8 @@ export default {
 
       if (callbackFn) {
         callbackFn.setFnCode(resultCode);
-        callbackFn.setOrderOfferSumPrice(result.prePayPrice+result.postPayPrice);
+        callbackFn.setOrderOfferSumPrice(result.prePayPrice + result.postPayPrice);
       }
-
     },
 
     *createShoppingCart({ payload }, { call, put, select }) {
@@ -157,10 +160,12 @@ export default {
         userCompanyInfo: { companyId = '' },
       } = yield select(state => state.global);
       const params = {
-        "customerType": "TA",
-        "customerId": companyId,
+        customerType: 'TA',
+        customerId: companyId,
       };
-      const { data: { resultCode, resultMsg, result } } = yield call(createShoppingCart, params);
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(createShoppingCart, params);
       yield put({
         type: 'save',
         payload: {
@@ -190,10 +195,12 @@ export default {
         userCompanyInfo: { companyId = '' },
       } = yield select(state => state.global);
       const params = {
-        "customerType": "TA",
-        "customerId": companyId,
+        customerType: 'TA',
+        customerId: companyId,
       };
-      const { data: { resultCode, resultMsg, result } } = yield call(queryShoppingCart, params);
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryShoppingCart, params);
       yield put({
         type: 'save',
         payload: {
@@ -219,27 +226,25 @@ export default {
         type: 'countTicketOrderAmount',
         payload: {},
       });
-
     },
 
     *addToShoppingCart({ payload }, { call, put, select }) {
+      const { orderType, offerNo, themeParkCode, themeParkName, orderData, callbackFn } = payload;
 
-      const {
-        offerNo,
-        themeParkCode,
-        themeParkName,
-        orderData,
-        callbackFn,
-      } = payload;
-
-      const {
-        cartId,
-      } = yield select(state => state.ticketOrderCartMgr);
+      const { cartId } = yield select(state => state.ticketOrderCartMgr);
       const params = {
-        "cartId": cartId,
-        "offerInfos": transOrderToOfferInfos(offerNo,themeParkCode,themeParkName,orderData),
+        cartId,
+        offerInfos: transOrderToOfferInfos(
+          orderType,
+          offerNo,
+          themeParkCode,
+          themeParkName,
+          orderData
+        ),
       };
-      const { data: { resultCode, resultMsg } } = yield call(addToShoppingCart, params);
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(addToShoppingCart, params);
       if (resultCode !== '0' && resultCode !== 0) {
         message.warn(resultMsg);
         return;
@@ -251,22 +256,18 @@ export default {
         type: 'queryShoppingCart',
         payload: {},
       });
-
     },
 
     *removeShoppingCart({ payload }, { call, put, select }) {
-      const {
-        offerInstances,
-        callbackFn,
-      } = payload;
-      const {
-        cartId,
-      } = yield select(state => state.ticketOrderCartMgr);
+      const { offerInstances, callbackFn } = payload;
+      const { cartId } = yield select(state => state.ticketOrderCartMgr);
       const params = {
-        "cartId": cartId,
-        "offerInstances": offerInstances,
+        cartId,
+        offerInstances,
       };
-      const { data: { resultCode, resultMsg } } = yield call(removeShoppingCart, params);
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(removeShoppingCart, params);
       if (resultCode !== '0' && resultCode !== 0) {
         message.warn(resultMsg);
         return;
@@ -289,21 +290,23 @@ export default {
         },
       });
       const params = {
-        "attributeItem":payload.attributeItem,
+        attributeItem: payload.attributeItem,
       };
-      const { data: { resultCode, resultMsg, result } } = yield call(queryPluAttribute, params);
-      yield put({ type: 'save', payload: {checkOutLoading: false}, });
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryPluAttribute, params);
+      yield put({ type: 'save', payload: { checkOutLoading: false } });
       if (resultCode !== '0' && resultCode !== 0) {
         message.warn(resultMsg);
         return;
       }
-      if (!result.items || result.items.length===0) {
+      if (!result.items || result.items.length === 0) {
         // eslint-disable-next-line no-throw-literal
         message.warn(`${payload.attributeItem} config is null`);
         return;
       }
       let queryPluKey = 0;
-      result.items.map(item=>{
+      result.items.map(item => {
         if (item.item === 'DeliveryPLU') {
           queryPluKey = item.itemValue;
         }
@@ -324,10 +327,12 @@ export default {
         },
       });
       const params = {
-        "queryPluKey":payload.queryPluKey,
+        queryPluKey: payload.queryPluKey,
       };
-      const { data: { resultCode, resultMsg, result } } = yield call(queryPluListByCondition, params);
-      yield put({ type: 'save', payload: {checkOutLoading: false}, });
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryPluListByCondition, params);
+      yield put({ type: 'save', payload: { checkOutLoading: false } });
       if (resultCode !== '0' && resultCode !== 0) {
         message.warn(resultMsg);
         return;
@@ -345,7 +350,6 @@ export default {
     },
 
     *orderCheckOut({ payload }, { put, select }) {
-
       yield put({
         type: 'save',
         payload: {
@@ -365,7 +369,11 @@ export default {
       const packageOrderDataNew = getCheckPackageOrderData(packageOrderData);
       const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
       const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
-      const ticketAmount = getCheckTicketAmount(packageOrderData,generalTicketOrderData,onceAPirateOrderData);
+      const ticketAmount = getCheckTicketAmount(
+        packageOrderData,
+        generalTicketOrderData,
+        onceAPirateOrderData
+      );
 
       yield put({
         type: 'orderBooking',
@@ -382,7 +390,6 @@ export default {
     },
 
     *orderBooking({ payload }, { call, put, select }) {
-
       const {
         deliveryMode,
         collectionDate,
@@ -393,9 +400,9 @@ export default {
         onceAPirateOrderData = [],
       } = payload;
 
-      const {
-        cartId, taDetailInfo, subTaDetailInfo
-      } = yield select(state => state.ticketOrderCartMgr);
+      const { cartId, taDetailInfo, subTaDetailInfo } = yield select(
+        state => state.ticketOrderCartMgr
+      );
 
       const {
         userCompanyInfo: { companyType },
@@ -403,16 +410,15 @@ export default {
 
       let patronInfo = null;
 
-      if (companyType==='02') {
+      if (companyType === '02') {
         if (subTaDetailInfo) {
           patronInfo = {
             email: subTaDetailInfo.email,
             country: subTaDetailInfo.country,
           };
         }
-      } else {
-        if (taDetailInfo && taDetailInfo.customerInfo && taDetailInfo.customerInfo.contactInfo) {
-          const contactInfo = taDetailInfo.customerInfo.contactInfo;
+      } else if (taDetailInfo && taDetailInfo.customerInfo && taDetailInfo.customerInfo.contactInfo) {
+          const {contactInfo} = taDetailInfo.customerInfo;
           patronInfo = {
             firstName: contactInfo.firstName,
             lastName: contactInfo.lastName,
@@ -421,9 +427,8 @@ export default {
             country: contactInfo.country,
           };
         }
-      }
 
-      let bookingParam = {
+      const bookingParam = {
         customerId: '',
         commonOffers: [],
         patronInfo,
@@ -434,16 +439,42 @@ export default {
         cardId: cartId,
       };
 
-      const packageCommonOffers = transPackageCommonOffers(packageOrderData,collectionDate,deliveryMode);
-      const bookingCommonOffers = transBookingCommonOffers(generalTicketOrderData,collectionDate,deliveryMode);
-      const oapCommonOffers = transOapCommonOffers(onceAPirateOrderData,collectionDate,deliveryMode);
-      bookingParam.commonOffers = [...packageCommonOffers,...bookingCommonOffers,...oapCommonOffers];
-      bookingParam.totalPrice = transBookingOffersTotalPrice(packageOrderData,generalTicketOrderData,onceAPirateOrderData);
+      const packageCommonOffers = transPackageCommonOffers(
+        packageOrderData,
+        collectionDate,
+        deliveryMode
+      );
+      const bookingCommonOffers = transBookingCommonOffers(
+        generalTicketOrderData,
+        collectionDate,
+        deliveryMode
+      );
+      const oapCommonOffers = transOapCommonOffers(
+        onceAPirateOrderData,
+        collectionDate,
+        deliveryMode
+      );
+      bookingParam.commonOffers = [
+        ...packageCommonOffers,
+        ...bookingCommonOffers,
+        ...oapCommonOffers,
+      ];
       if (deliveryMode && deliveryMode === 'BOCA') {
         bookingParam.totalPrice += ticketAmount * bocaFeePax;
+        bookingParam.totalPrice = transBookingToPayTotalPrice(
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+          bocaFeePax
+        );
+      } else {
+        bookingParam.totalPrice = transBookingToPayTotalPrice(
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+          null
+        );
       }
-      bookingParam.totalPrice = parseFloat(bookingParam.totalPrice);
-
       console.log(bookingParam);
 
       const { data } = yield call(createBooking, bookingParam);
@@ -471,7 +502,7 @@ export default {
             payload: {
               checkOutLoading: false,
               type: 'Error',
-              resultMsg: resultMsg
+              resultMsg,
             },
           });
           message.error(resultMsg);
@@ -482,7 +513,7 @@ export default {
           payload: {
             checkOutLoading: false,
             type: 'Error',
-            resultMsg: ''
+            resultMsg: '',
           },
         });
         message.error('createBooking error');
@@ -490,7 +521,6 @@ export default {
     },
 
     *queryBookingStatus({ payload }, { call, put }) {
-
       const {
         bookingNo,
         deliveryMode,
@@ -538,7 +568,7 @@ export default {
             bookDetail: {
               transStatus: status,
               totalPrice,
-            }
+            },
           },
         });
         message.success('Check out successfully!');
@@ -553,14 +583,13 @@ export default {
           payload: {
             checkOutLoading: false,
             type: 'BookingFailed',
-            resultMsg: failedReason
+            resultMsg: failedReason,
           },
         });
         message.error(failedReason);
       } else {
-        message.error("Check out error!");
+        message.error('Check out error!');
       }
-
     },
 
     *queryCountry({ payload }, { call, put }) {
@@ -582,12 +611,95 @@ export default {
     },
 
     *settingPackAgeTicketOrderData({ payload }, { put }) {
+      const { orderData } = payload;
+      console.log(orderData);
+      if (orderData.orderType === 'offerBundle') {
+        yield put({
+          type: 'settingBundleTicketOrderData',
+          payload,
+        });
+      } else {
+        yield put({
+          type: 'settingGeneralTicketOrderData',
+          payload,
+        });
+      }
+    },
 
-      yield put({
-        type: 'settingGeneralTicketOrderData',
-        payload,
+    *settingBundleTicketOrderData({ payload }, { put, take }) {
+      const { orderIndex, offerIndex, orderData } = payload;
+      const { themeParkCode, themeParkName } = orderData;
+      const newOrderInfo = orderData.orderInfo.map(orderInfo => {
+        return {
+          orderCheck: true,
+          ...orderInfo,
+        };
       });
+      const newOrderItem = Object.assign(
+        {},
+        {
+          orderAll: true,
+          indeterminate: false,
+          ...orderData,
+          orderInfo: newOrderInfo,
+        }
+      );
+      if (!isNvl(orderIndex) && orderIndex > -1) {
+        for (const orderInfo of newOrderItem.orderInfo) {
+          const removeShoppingFn = {
+            callbackFnCode: 1,
+            setFnCode(callbackCode) {
+              this.callbackFnCode = callbackCode;
+            },
+          };
+          yield put({
+            type: 'removeShoppingCart',
+            payload: {
+              offerInstances: [
+                {
+                  offerNo: orderInfo.offerInfo.offerNo,
+                  offerInstanceId: orderInfo.offerInstanceId,
+                },
+              ],
+              callbackFn: removeShoppingFn,
+            },
+          });
+          yield take('removeShoppingCart/@@end');
+          if (removeShoppingFn.callbackFnCode !== 0 && removeShoppingFn.callbackFnCode !== '0') {
+            return;
+          }
+        }
+      }
 
+      let batchPullResult = 'done';
+      const orderItemId = createOrderItemId(newOrderItem);
+      for (const orderInfo of newOrderItem.orderInfo) {
+        const callbackFn = {
+          callbackFnCode: 1,
+          setFnCode(callbackCode) {
+            this.callbackFnCode = callbackCode;
+          },
+        };
+        yield put({
+          type: 'addToShoppingCart',
+          payload: {
+            orderType: 'offerBundle',
+            offerNo: orderInfo.offerInfo.offerNo,
+            themeParkCode,
+            themeParkName,
+            orderData: demolitionBundleOrder(orderItemId, newOrderItem, orderInfo),
+            callbackFn,
+          },
+        });
+        yield take('addToShoppingCart/@@end');
+
+        if (callbackFn.callbackFnCode !== '0') {
+          batchPullResult = 'fail';
+          return;
+        }
+      }
+
+      message.success('Order successfully!');
     },
 
     *settingGeneralTicketOrderData({ payload }, { put, take }) {
@@ -611,75 +723,77 @@ export default {
       if (!isNvl(orderIndex) && orderIndex > -1) {
         const removeShoppingFn = {
           callbackFnCode: 1,
-          setFnCode: function (callbackCode) {
+          setFnCode(callbackCode) {
             this.callbackFnCode = callbackCode;
-          }
+          },
         };
         yield put({
           type: 'removeShoppingCart',
           payload: {
-            offerInstances: [{
-              offerNo: newOrderItem.offerInfo.offerNo,
-              offerInstanceId: newOrderItem.offerInstanceId,
-            }],
+            offerInstances: [
+              {
+                offerNo: newOrderItem.offerInfo.offerNo,
+                offerInstanceId: newOrderItem.offerInstanceId,
+              },
+            ],
             callbackFn: removeShoppingFn,
           },
         });
         yield take('removeShoppingCart/@@end');
-        if (removeShoppingFn.callbackFnCode!==0 && removeShoppingFn.callbackFnCode!=="0") {
+        if (removeShoppingFn.callbackFnCode !== 0 && removeShoppingFn.callbackFnCode !== '0') {
           return;
         }
       }
 
       const callbackFn = {
         callbackFnCode: 1,
-        setFnCode: function (callbackCode) {
+        setFnCode(callbackCode) {
           this.callbackFnCode = callbackCode;
-        }
+        },
       };
       yield put({
         type: 'addToShoppingCart',
         payload: {
+          orderType: 'offer',
           offerNo: newOrderItem.offerInfo.offerNo,
-          themeParkCode: themeParkCode,
-          themeParkName: themeParkName,
+          themeParkCode,
+          themeParkName,
           orderData: newOrderItem,
           callbackFn,
         },
       });
       yield take('addToShoppingCart/@@end');
 
-      if (callbackFn.callbackFnCode==='0') {
+      if (callbackFn.callbackFnCode === '0') {
         message.success('Order successfully!');
       }
-
     },
 
-    *settingOnceAPirateOrderData({ payload }, { put, take }) {
+    *settingOnceAPirateOrderData({ payload }, { put, select, take }) {
+      const { orderIndex, orderData, settingOnceAPirateOrderDataCallbackFn } = payload;
 
-      const {
-        orderIndex,
-        orderData,
-        settingOnceAPirateOrderDataCallbackFn
-      } = payload;
+      const { onceAPirateOrderData = [] } = yield select(state => state.ticketOrderCartMgr);
 
-      let addOrderItem = null;
       // delete old data
       if (!isNvl(orderIndex) && orderIndex > -1) {
-        addOrderItem = {...orderData};
+        const deleteOrderItem = onceAPirateOrderData[orderIndex];
         const removeOfferInstanceList = [];
-        for (let orderOfferIndex=0;orderOfferIndex<addOrderItem.orderOfferList.length;orderOfferIndex++) {
-          const offerDetail = addOrderItem.orderOfferList[orderOfferIndex];
+        for (
+          let orderOfferIndex = 0;
+          orderOfferIndex < deleteOrderItem.orderOfferList.length;
+          orderOfferIndex++
+        ) {
+          const offerDetail = deleteOrderItem.orderOfferList[orderOfferIndex];
           removeOfferInstanceList.push({
             offerNo: offerDetail.offerInfo.offerNo,
             offerInstanceId: offerDetail.offerInstanceId,
-          })
+          });
         }
         const removeShoppingFn = {
           callbackFnCode: 1,
-          setFnCode: function (callbackCode) {
+          setFnCode(callbackCode) {
             this.callbackFnCode = callbackCode;
-          }
+          },
         };
         yield put({
           type: 'removeShoppingCart',
@@ -689,7 +803,7 @@ export default {
           },
         });
         yield take('removeShoppingCart/@@end');
-        if (removeShoppingFn.callbackFnCode!==0 && removeShoppingFn.callbackFnCode!=="0") {
+        if (removeShoppingFn.callbackFnCode !== 0 && removeShoppingFn.callbackFnCode !== '0') {
           return;
         }
       }
@@ -704,7 +818,7 @@ export default {
           },
         };
       });
-      addOrderItem = Object.assign(
+      const addOrderItem = Object.assign(
         {},
         {
           orderAll: true,
@@ -717,66 +831,44 @@ export default {
       // add shopping cart
       let batchPullResult = 'done';
       const orderItemId = createOrderItemId(addOrderItem);
-      for (let orderOfferIndex=0;orderOfferIndex<addOrderItem.orderOfferList.length;orderOfferIndex++) {
-
+      for (
+        let orderOfferIndex = 0;
+        orderOfferIndex < addOrderItem.orderOfferList.length;
+        orderOfferIndex++
+      ) {
         const offerDetail = addOrderItem.orderOfferList[orderOfferIndex];
-
-        const calculateOrderOfferPriceCallbackFn = {
-          callbackFnCode: 1,
-          orderOfferSumPrice: 0,
-          setFnCode: function (callbackCode) {
-            this.callbackFnCode = callbackCode;
-          },
-          setOrderOfferSumPrice: function (sumPrice) {
-            this.orderOfferSumPrice = sumPrice;
+        offerDetail.orderInfo = Object.assign(
+          {},
+          {
+            ...offerDetail.orderInfo,
           }
-        };
-        yield put({
-          type: 'calculateOrderOfferPrice',
-          payload: {
-            queryInfo: addOrderItem.queryInfo,
-            orderOffer: offerDetail,
-            callbackFn: calculateOrderOfferPriceCallbackFn,
-          },
-        });
-        yield take('calculateOrderOfferPrice/@@end');
-        if (calculateOrderOfferPriceCallbackFn.callbackFnCode!==0 && calculateOrderOfferPriceCallbackFn.callbackFnCode!=="0") {
-          batchPullResult = 'fail';
-          break;
-        }
-
-        const orderOfferSumPrice = calculateOrderOfferPriceCallbackFn.orderOfferSumPrice;
-        offerDetail.orderInfo = Object.assign({},{
-          ...offerDetail.orderInfo,
-          offerSumPrice: orderOfferSumPrice
-        });
+        );
         const callbackFn = {
           callbackFnCode: 1,
-          setFnCode: function (callbackCode) {
+          setFnCode(callbackCode) {
             this.callbackFnCode = callbackCode;
-          }
+          },
         };
         yield put({
           type: 'addToShoppingCart',
           payload: {
+            orderType: 'offerPackage',
             offerNo: offerDetail.offerInfo.offerNo,
-            themeParkCode: "OAP",
-            themeParkName: "ONCE A PIRATE",
-            orderData: demolitionOrder(orderItemId,addOrderItem,offerDetail),
+            themeParkCode: 'OAP',
+            themeParkName: 'ONCE A PIRATE',
+            orderData: demolitionOrder(orderItemId, addOrderItem, offerDetail),
             callbackFn,
           },
         });
         yield take('addToShoppingCart/@@end');
-        if (callbackFn.callbackFnCode!==0 && callbackFn.callbackFnCode!=="0") {
+        if (callbackFn.callbackFnCode !== 0 && callbackFn.callbackFnCode !== '0') {
           batchPullResult = 'fail';
           break;
         }
-
       }
       if (settingOnceAPirateOrderDataCallbackFn) {
         settingOnceAPirateOrderDataCallbackFn.setFnCode(batchPullResult);
       }
-
     },
   },
 
@@ -912,7 +1004,7 @@ export default {
             indeterminate: selectAllIndeterminate,
           }
         );
-        newOrderInfo.orderOfferList = orderInfo.orderOfferList.map((offerInfo) => {
+        newOrderInfo.orderOfferList = orderInfo.orderOfferList.map(offerInfo => {
           return Object.assign(
             {},
             {

@@ -1,0 +1,50 @@
+@prefix-cls: ~'@{ant-prefix}';
+@import '../../../theme/screen';
+
+.cancelOk {
+  position: left;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 10px 16px;
+  border-top: 2px solid #e9e9e9;
+  background: #fff;
+  text-align: right;
+  .ok {
+    margin-left: 10px;
+  }
+}
+
+.operationDrawer {
+  :global {
+    .@{prefix-cls}-drawer-content-wrapper {
+      width: 480px !important;
+      @media screen and (max-width: @screenXsMax) {
+        width: 100% !important;
+      }
+      @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
+        width: 100% !important;
+      }
+    }
+
+    .ant-drawer-title {
+      font-family: calibriBold !important;
+      font-size: 14px !important;
+      color: #3B414A !important;
+    }
+
+    .ant-drawer-header {
+      padding: 30px 16px !important;
+    }
+
+  }
+}
+
+.activityCard {
+  :global {
+    .ant-card-bordered {
+      border: 0 !important;
+    }
+  }
+}
+

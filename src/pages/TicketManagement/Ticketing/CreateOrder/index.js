@@ -44,11 +44,11 @@ class CreateOrder extends PureComponent {
     dispatch({
       type: 'ticketOrderCartMgr/createShoppingCart',
       payload: {},
-    }).then(()=>{
+    }).then(() => {
       dispatch({
         type: 'ticketOrderCartMgr/queryShoppingCart',
         payload: {},
-      })
+      });
     });
     if (operateType && operateType === 'editOnceAPirateOrder' && orderIndex !== null) {
       dispatch({

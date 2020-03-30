@@ -50,7 +50,7 @@ class MappingDetail extends PureComponent {
         url: '/TAManagement/Mapping',
       },
       {
-        breadcrumbName: formatMessage({ id: 'MENU_DEATIL' }),
+        breadcrumbName: formatMessage({ id: 'COMMON_DETAILS' }),
         url: null,
       },
     ];

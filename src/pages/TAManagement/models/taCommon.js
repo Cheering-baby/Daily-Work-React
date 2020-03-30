@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { queryDictionary, querySalesPerson } from '../services/taCommon';
+import { queryAgentOpt, queryDictionary, querySalesPerson } from '../services/taCommon';
 
 export default {
   namespace: 'taCommon',
@@ -14,6 +14,7 @@ export default {
     customerGroupList: [],
     marketList: [],
     salesPersonList: [],
+    allDictList: [],
     settlementCycleList: [
       { dictId: '01', dictName: 'Quarter' },
       { dictId: '02', dictName: 'Month' },
@@ -25,141 +26,105 @@ export default {
     salesPersonLoadingFlag: false,
   },
   effects: {
-    *fetchQuerySalutationList(_, { call, put }) {
-      const reqParam = {
-        dictType: '10',
-        dictSubType: '1001',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { salutationList: result || [] } });
-      } else message.warn(resultMsg, 10);
-    },
-    *fetchQueryCountryList(_, { call, put }) {
-      const reqParam = {
-        dictType: '10',
-        dictSubType: '1002',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { countryList: result || [] } });
-        return true;
-      }
-      message.warn(resultMsg, 10);
-      return false;
-    },
-    *fetchQueryCityList({ payload }, { call, put }) {
-      const reqParam = {
-        dictType: '1002',
-      };
-      if (payload.countryId) {
-        reqParam.dictSubType = payload.countryId;
-      }
+    *fetchQueryCityList({ payload }, { call, put, select }) {
       if (payload.isBil) {
         yield put({ type: 'save', payload: { bilCityLoadingFlag: true } });
       } else {
         yield put({ type: 'save', payload: { cityLoadingFlag: true } });
       }
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      if (payload.isBil) {
-        yield put({ type: 'save', payload: { bilCityLoadingFlag: false } });
-      } else {
-        yield put({ type: 'save', payload: { cityLoadingFlag: false } });
-      }
-      if (resultCode === '0' || resultCode === 0) {
+      let cityList = [];
+      let bilCityList = [];
+      const { allDictList } = yield select(state => state.taCommon);
+      if (allDictList && allDictList.length > 0) {
         if (payload.isBil) {
-          yield put({ type: 'save', payload: { bilCityList: result || [] } });
+          bilCityList =
+            (
+              allDictList.find(
+                n =>
+                  String(n.subDictType) === String(payload.countryId) &&
+                  String(n.dictType) === '1002'
+              ) || {}
+            ).dictionaryList || [];
         } else {
-          yield put({ type: 'save', payload: { cityList: result || [] } });
+          cityList =
+            (
+              allDictList.find(
+                n =>
+                  String(n.subDictType) === String(payload.countryId) &&
+                  String(n.dictType) === '1002'
+              ) || {}
+            ).dictionaryList || [];
         }
-      } else message.warn(resultMsg, 10);
-    },
-    *fetchQueryOrganizationRoleList(_, { call, put }) {
-      const reqParam = {
-        dictType: '10',
-        dictSubType: '1003',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { organizationRoleList: result || [] } });
-        if (result && result.length > 0) {
-          return result[0];
+      } else {
+        const reqParam = {
+          dictType: '1002',
+        };
+        if (payload.countryId) {
+          reqParam.dictSubType = payload.countryId;
         }
-        return null;
+        const {
+          data: { resultCode, resultMsg, result },
+        } = yield call(queryDictionary, { ...reqParam });
+        if (resultCode === '0' || resultCode === 0) {
+          if (payload.isBil) {
+            bilCityList = result || [];
+          } else {
+            cityList = result || [];
+          }
+        } else message.warn(resultMsg, 10);
       }
-      message.warn(resultMsg, 10);
-      return null;
-    },
-    *fetchQueryCategoryList(_, { call, put }) {
-      const reqParam = {
-        dictType: '10',
-        dictSubType: '1004',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { categoryList: result || [] } });
-        return true;
-      }
-      message.warn(resultMsg, 10);
-      return false;
-    },
-    *fetchQueryCustomerGroupList({ payload }, { call, put }) {
-      const reqParam = {
-        dictType: '1004',
-      };
-      if (payload.categoryId) {
-        reqParam.dictSubType = payload.categoryId;
-      }
-      yield put({ type: 'save', payload: { customerGroupLoadingFlag: true } });
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      yield put({ type: 'save', payload: { customerGroupLoadingFlag: false } });
-      if (resultCode === '0' || resultCode === 0) {
+      if (payload.isBil) {
         yield put({
           type: 'save',
-          payload: { customerGroupList: result || [] },
+          payload: {
+            bilCityLoadingFlag: false,
+            bilCityList,
+          },
         });
-      } else message.warn(resultMsg, 10);
-    },
-    *fetchQryArAccountEndConfig(_, { call, put }) {
-      const reqParam = {
-        dictType: '10',
-        dictSubType: '1005',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      if (resultCode === '0' || resultCode === 0) {
-        if (result && result.length > 0) {
-          yield put({ type: 'save', payload: { arAccountEndConfig: result[0].dictId || '24' } });
-        }
-      } else message.warn(resultMsg, 10);
-    },
-    *fetchQryMarketList(_, { call, put }) {
-      const reqParam = {
-        dictType: '10',
-        dictSubType: '1006',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...reqParam });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { marketList: result || [] } });
-        return true;
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            cityLoadingFlag: false,
+            cityList,
+          },
+        });
       }
-      message.warn(resultMsg, 10);
-      return false;
+    },
+    *fetchQueryCustomerGroupList({ payload }, { call, put, select }) {
+      yield put({ type: 'save', payload: { customerGroupLoadingFlag: true } });
+      let customerGroupList = [];
+      const { allDictList } = yield select(state => state.taCommon);
+      if (allDictList && allDictList.length > 0) {
+        customerGroupList =
+          (
+            allDictList.find(
+              n =>
+                String(n.subDictType) === String(payload.categoryId) &&
+                String(n.dictType) === '1004'
+            ) || {}
+          ).dictionaryList || [];
+      } else {
+        const reqParam = {
+          dictType: '1004',
+        };
+        if (payload.categoryId) {
+          reqParam.dictSubType = payload.categoryId;
+        }
+        const {
+          data: { resultCode, resultMsg, result },
+        } = yield call(queryDictionary, { ...reqParam });
+        if (resultCode === '0' || resultCode === 0) {
+          customerGroupList = result || [];
+        } else message.warn(resultMsg, 10);
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          customerGroupLoadingFlag: false,
+          customerGroupList,
+        },
+      });
     },
     *fetchQrySalesPersonList(_, { call, put }) {
       const reqParam = {
@@ -176,6 +141,102 @@ export default {
           payload: { salesPersonList: resultData.userProfiles || [] },
         });
       } else message.warn(resultMsg, 10);
+    },
+    *fetchQueryAgentOpt(_, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryAgentOpt, { queryType: 'signUp' });
+      if (resultCode === '0' || resultCode === 0) {
+        if (result && result.length > 0) {
+          const salutationList =
+            (
+              result.find(n => String(n.subDictType) === '1001' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          const countryList =
+            (
+              result.find(n => String(n.subDictType) === '1002' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          let cityList = [];
+          let bilCityList = [];
+          if (countryList && countryList.length > 0) {
+            const countryInfo = countryList[0];
+            cityList =
+              (
+                result.find(
+                  n =>
+                    String(n.subDictType) === String(countryInfo.dictId) &&
+                    String(n.dictType) === '1002'
+                ) || {}
+              ).dictionaryList || [];
+            bilCityList =
+              (
+                result.find(
+                  n =>
+                    String(n.subDictType) === String(countryInfo.dictId) &&
+                    String(n.dictType) === '1002'
+                ) || {}
+              ).dictionaryList || [];
+          }
+          const organizationRoleList =
+            (
+              result.find(n => String(n.subDictType) === '1003' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          const categoryList =
+            (
+              result.find(n => String(n.subDictType) === '1004' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          let customerGroupList = [];
+          if (categoryList && categoryList.length > 0) {
+            const categoryInfo = categoryList[0];
+            customerGroupList =
+              (
+                result.find(
+                  n =>
+                    String(n.subDictType) === String(categoryInfo.dictId) &&
+                    String(n.dictType) === '1004'
+                ) || {}
+              ).dictionaryList || [];
+          }
+          const arAccountEndConfigList =
+            (
+              result.find(n => String(n.subDictType) === '1005' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          const marketList =
+            (
+              result.find(n => String(n.subDictType) === '1006' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          yield put({
+            type: 'save',
+            payload: {
+              salutationList,
+              countryList,
+              cityList,
+              bilCityList,
+              organizationRoleList,
+              categoryList,
+              customerGroupList,
+              arAccountEndConfig:
+                arAccountEndConfigList && arAccountEndConfigList.length > 0
+                  ? arAccountEndConfigList[0].dictId
+                  : '24',
+              marketList,
+              allDictList: result || [],
+            },
+          });
+          return {
+            organizationRoleInfo: organizationRoleList[0],
+          };
+        }
+        return null;
+      }
+      message.warn(resultMsg, 10);
+      return null;
     },
     *doCleanData({ payload }, { put }) {
       yield put({ type: 'clean', payload });
@@ -206,6 +267,7 @@ export default {
             { dictId: '01', dictName: 'Quarter' },
             { dictId: '02', dictName: 'Month' },
           ],
+          allDictList: [],
           arAccountEndConfig: '24',
           bilCityLoadingFlag: false,
           cityLoadingFlag: false,

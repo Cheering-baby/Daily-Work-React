@@ -11,6 +11,7 @@ import styles from './index.less';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
 import BundleToCart from '../BundleToCart';
+import BundleDetail from '../Detail/bundleDetail';
 
 const { TabPane } = Tabs;
 @connect(({ ticketMgr, global }) => ({
@@ -68,15 +69,26 @@ class Attraction extends Component {
 
   viewDetail = record => {
     const { dispatch } = this.props;
-    const { attractionProduct = [], detail } = record;
+    const { bundleName, offers = [], attractionProduct = [], detail } = record;
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const detailCopy = JSON.parse(JSON.stringify(detail));
+    let bundleOfferDetail = {};
+    if (!isNullOrUndefined(bundleName)) {
+      bundleOfferDetail = {
+        bundleName,
+        offers,
+        dateOfVisit: offers[0].detail.dateOfVisit,
+        numOfGuests: offers[0].detail.numOfGuests,
+      };
+    }
     dispatch({
       type: 'ticketMgr/save',
       payload: {
         attractionProduct: attractionProductCopy,
         detail: detailCopy,
-        showDetailModal: true,
+        showDetailModal: isNullOrUndefined(bundleName),
+        showBundleDetailModal: !isNullOrUndefined(bundleName),
+        bundleOfferDetail,
       },
     });
   };
@@ -104,6 +116,7 @@ class Attraction extends Component {
         showDetailModal: false,
         showToCartModal: false,
         showBundleToCart: false,
+        showBundleDetailModal: false,
         deliverInfomation: {},
       },
     });
@@ -329,6 +342,7 @@ class Attraction extends Component {
         deliverInfomation = {},
         showBundleToCart,
         bundleOfferDetail = {},
+        showBundleDetailModal,
       },
       global: {
         userCompanyInfo: { companyType },
@@ -367,63 +381,6 @@ class Attraction extends Component {
         },
       },
       {
-        title: 'Price',
-        key: 'Price',
-        align: 'right',
-        render: record => {
-          const {
-            bundleName,
-            offers = [],
-            detail: { priceRuleId },
-          } = record;
-          if (!isNullOrUndefined(bundleName)) {
-            return (
-              <div>
-                {offers.map(offerItem => {
-                  const {
-                    attractionProduct: attractionProductItems = [],
-                    detail: {
-                      offerBasicInfo: { offerName, offerNo },
-                      priceRuleId: offerPriceRuleId,
-                    },
-                  } = offerItem;
-                  return (
-                    <div key={offerNo} className={styles.productPrice}>
-                      <div>{offerName}</div>
-                      <div>
-                        From $ {calculateAllProductPrice(attractionProductItems, offerPriceRuleId)}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          }
-          return (
-            <div>
-              {record.attractionProduct.map(item => {
-                const { productNo } = item;
-                const { ageGroup } = item.attractionProduct;
-                return (
-                  <div key={productNo} className={styles.productPrice}>
-                    <div>{ageGroup}</div>
-                    <div>From ${calculateProductPrice(item, priceRuleId)}</div>
-                  </div>
-                );
-              })}
-            </div>
-          );
-        },
-      },
-      {
-        title: '',
-        key: 'empty',
-        width: '5%',
-        render: () => {
-          return <div />;
-        },
-      },
-      {
         title: 'Operation',
         key: 'Operation',
         width: '30%',
@@ -456,13 +413,11 @@ class Attraction extends Component {
     ];
     return (
       <div className={styles.container} style={{ minHeight: clientHeight }}>
+        {showBundleDetailModal ? (
+          <BundleDetail bundleOfferDetail={bundleOfferDetail} onClose={this.onClose} />
+        ) : null}
         {showDetailModal ? (
-          <Detail
-            attractionProduct={attractionProduct}
-            detail={detail}
-            onClose={this.onClose}
-            showToCart={this.detailToCart}
-          />
+          <Detail attractionProduct={attractionProduct} detail={detail} onClose={this.onClose} />
         ) : null}
         {showToCartModal ? (
           <ToCart

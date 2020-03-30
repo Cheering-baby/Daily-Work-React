@@ -3,8 +3,8 @@ import { Button, Card, Icon, Modal, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../index.less';
-import { checkAuthority } from '@/utils/authority';
 import constants from '../constants';
+import PrivilegeUtil from '../../../../utils/PrivilegeUtil';
 
 @connect(({ orgMgr, global, loading }) => ({
   orgMgr,
@@ -314,7 +314,6 @@ class OrgInformation extends React.Component {
       }
       const { userType = '' } = currentUser;
       const { companyId } = userCompanyInfo;
-      // TODO 查询ta 的子公司
       if (userType === '02' && type === 'ADD_USER_ORG') {
         dispatch({
           type: 'orgMgr/querySubCompany',
@@ -358,7 +357,6 @@ class OrgInformation extends React.Component {
   getAddOrgBtnDisable = () => {
     const {
       orgMgr: { selectedOrg = {}, orgList = [] },
-      global: { pagePrivileges = [] },
     } = this.props;
 
     // 如果不是同一家公司 禁止操作 其他公司的组织结构
@@ -371,9 +369,9 @@ class OrgInformation extends React.Component {
     return (
       Object.keys(selectedOrg).length === 0 ||
       !(
-        checkAuthority(pagePrivileges, constants.MAIN_TA_PRIVILEGE) ||
-        checkAuthority(pagePrivileges, constants.SUB_TA_PRIVILEGE) ||
-        checkAuthority(pagePrivileges, constants.SALES_SUPPORT_PRIVILEGE)
+        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ||
+        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) ||
+        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])
       )
     );
   };
@@ -381,7 +379,6 @@ class OrgInformation extends React.Component {
   getAddMemberBtnDisable = () => {
     const {
       orgMgr: { selectedOrg = {}, orgList = [] },
-      global: { pagePrivileges = [] },
     } = this.props;
 
     // 如果不是同一家公司 禁止操作 其他公司的组织结构
@@ -394,8 +391,8 @@ class OrgInformation extends React.Component {
     return (
       Object.keys(selectedOrg).length === 0 ||
       !(
-        checkAuthority(pagePrivileges, constants.MAIN_TA_PRIVILEGE) ||
-        checkAuthority(pagePrivileges, constants.SUB_TA_PRIVILEGE)
+        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) ||
+        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])
       )
     );
   };

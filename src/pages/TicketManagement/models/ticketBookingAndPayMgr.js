@@ -24,25 +24,29 @@ export default {
   state: {
     payPageLoading: false,
     deliveryMode: undefined,
-    payModeList: [{
-      value: 1,
-      label: 'eWallet',
-      key: 'E_WALLET',
-      check: true,
-    },{
-      value: 2,
-      label: 'Credit Card',
-      key: 'CREDIT_CARD',
-      check: false,
-    },{
-      value: 3,
-      label: 'AR',
-      key: 'AR_CREDIT',
-      check: false,
-    }],
+    payModeList: [
+      {
+        value: 1,
+        label: 'eWallet',
+        key: 'E_WALLET',
+        check: true,
+      },
+      {
+        value: 2,
+        label: 'Credit Card',
+        key: 'CREDIT_CARD',
+        check: false,
+      },
+      {
+        value: 3,
+        label: 'AR',
+        key: 'AR_CREDIT',
+        check: false,
+      },
+    ],
     collectionDate: null,
     ticketAmount: 0,
-    bocaFeePax: 2.00,
+    bocaFeePax: 2.0,
     bookingOrderData: [],
     packageOrderData: [],
     generalTicketOrderData: [],
@@ -52,15 +56,13 @@ export default {
     taDetailInfo: null,
     accountInfo: null,
     bookDetail: {
-      totalPrice: 20000.00,
+      totalPrice: 20000.0,
     },
     downloadFileLoading: false,
   },
 
   effects: {
-
     *initPage({ payload }, { call, put }) {
-
       yield put({
         type: 'save',
         payload: {
@@ -70,19 +72,16 @@ export default {
 
       yield put({
         type: 'fetchAccountDetail',
-        payload: {
-        },
+        payload: {},
       });
 
       yield put({
         type: 'fetchQueryTaDetail',
-        payload: {
-        },
+        payload: {},
       });
-
     },
 
-    *fetchAccountTopUp({payload}, { call, put, select }) {
+    *fetchAccountTopUp({ payload }, { call, put, select }) {
       yield put({
         type: 'save',
         payload: {
@@ -101,9 +100,9 @@ export default {
       });
       if (resultCode === '0') {
         return result;
-      } else {
+      } 
         message.error(resultMsg);
-      }
+      
     },
 
     *fetchTicketDownload(_, { call, put, select }) {
@@ -113,10 +112,10 @@ export default {
           downloadFileLoading: true,
         },
       });
-      const {
-        bookingNo
-      } = yield select(state => state.ticketBookingAndPayMgr);
-      const params = { forderNo: bookingNo };
+      const { bookingNo } = yield select(state => state.ticketBookingAndPayMgr);
+      const params = {
+        forderNo: bookingNo,
+      };
       const {
         data: { resultCode, resultMsg, result = {} },
       } = yield call(ticketDownload, params);
@@ -127,10 +126,10 @@ export default {
         },
       });
       if (resultCode === '0') {
-        return result
-      } else {
+        return result;
+      } 
         message.error(resultMsg);
-      }
+      
     },
 
     *fetchAccountDetail(_, { call, put, select }) {
@@ -155,13 +154,16 @@ export default {
       });
       if (resultCode === '0') {
         if (!result.accountProfileBean) return;
-        let bean = cloneDeep(result.accountProfileBean);
+        const bean = cloneDeep(result.accountProfileBean);
         bean.accountBookBeanList.forEach(item => {
           if (item.accountBookType === 'E_WALLET') {
-            bean['eWallet'] = cloneDeep(item);
+            bean.eWallet = cloneDeep(item);
           }
           if (item.accountBookType === 'AR_CREDIT') {
-            bean['ar'] = cloneDeep(item);
+            bean.ar = cloneDeep(item);
+          }
+          if (item.accountBookType === 'CREDIT_CARD') {
+            bean.cc = cloneDeep(item);
           }
         });
         yield put({
@@ -189,8 +191,8 @@ export default {
       const queryTaInfoResponse = yield call(queryTaInfo, params);
       console.log(queryTaInfoResponse);
       if (!queryTaInfoResponse || !queryTaInfoResponse.data) {
-        message.error("Query ta info service error!");
-        return ;
+        message.error('Query ta info service error!');
+        return;
       }
       const {
         data: { resultCode, resultMsg, result = {} },
@@ -208,7 +210,7 @@ export default {
             taDetailInfo: result,
           },
         });
-      }  else {
+      } else {
         message.error(resultMsg);
       }
     },
@@ -220,12 +222,9 @@ export default {
           payPageLoading: true,
         },
       });
-      const {
-        bookingNo,
-        taDetailInfo,
-      } = yield select(state => state.ticketBookingAndPayMgr);
+      const { bookingNo, taDetailInfo } = yield select(state => state.ticketBookingAndPayMgr);
 
-      let emailNo = "";
+      let emailNo = '';
       if (taDetailInfo && taDetailInfo.otherInfo && taDetailInfo.otherInfo.billingInfo) {
         emailNo = taDetailInfo.otherInfo.billingInfo.email;
       }
@@ -238,15 +237,14 @@ export default {
       } = yield call(sendTransactionPaymentOrder, params);
       yield put({
         type: 'queryBookingStatus',
-        payload: {
-        },
+        payload: {},
       });
       if (resultCode === '0') {
         return result;
         message.success('Confirm successfully!');
-      }  else {
+      } 
         message.error(resultMsg);
-      }
+      
     },
 
     *confirmEvent(_, { call, put, select }) {
@@ -259,12 +257,9 @@ export default {
       const {
         userCompanyInfo: { companyId = '', companyType },
       } = yield select(state => state.global);
-      const {
-        bookingNo,
-        payModeList,
-      } = yield select(state => state.ticketBookingAndPayMgr);
+      const { bookingNo, payModeList } = yield select(state => state.ticketBookingAndPayMgr);
 
-      const payMode = payModeList.filter(payMode=>payMode.check);
+      const payMode = payModeList.filter(payMode => payMode.check);
       const params = {
         orderNo: bookingNo,
         paymentMode: payMode[0].key,
@@ -279,13 +274,12 @@ export default {
         },
       });
       if (resultCode === '0') {
-        if (companyType === "02") {
+        if (companyType === '02') {
           message.success('Confirm successfully!');
         } else {
           yield put({
             type: 'queryBookingStatus',
-            payload: {
-            },
+            payload: {},
           });
         }
       } else {
@@ -294,7 +288,6 @@ export default {
     },
 
     *queryBookingStatus({ payload }, { call, put, select }) {
-
       yield put({
         type: 'save',
         payload: {
@@ -302,9 +295,7 @@ export default {
         },
       });
 
-      const {
-        bookingNo
-      } = yield select(state => state.ticketBookingAndPayMgr);
+      const { bookingNo } = yield select(state => state.ticketBookingAndPayMgr);
       let status = 'WaitingForPaying';
       let statusResult = {};
       while (status === 'WaitingForPaying' || status === 'Archiving') {
@@ -332,12 +323,10 @@ export default {
             payModelShow: true,
           },
         });
-      }
-      if (status === 'Failed') {
+      } else {
         const { failedReason } = statusResult;
         message.error(failedReason);
       }
-
     },
 
     *queryTaDetailInfo({ payload }, { call, put }) {
@@ -357,10 +346,10 @@ export default {
         yield put({
           type: 'queryAccountInfo',
           payload: {
-            taId: result.taId
+            taId: result.taId,
           },
         });
-      }  else {
+      } else {
         message.error(resultMsg);
       }
     },
@@ -386,7 +375,7 @@ export default {
             taAccountInfo: result,
           },
         });
-      }  else {
+      } else {
         message.error(resultMsg);
       }
     },
@@ -409,7 +398,6 @@ export default {
     },
 
     *orderCreate({ payload }, { call, put }) {
-
       const {
         deliveryMode,
         collectionDate,
@@ -419,7 +407,7 @@ export default {
         onceAPirateOrderData = [],
       } = payload;
 
-      let bookingParam = {
+      const bookingParam = {
         customerId: '',
         commonOffers: [],
         patronInfo: null,
@@ -429,22 +417,15 @@ export default {
         voucherNos: [],
       };
 
-      const ticketOrderData = [...packageOrderData,...generalTicketOrderData];
-      ticketOrderData.forEach(orderData=>{
-        orderData.orderOfferList.forEach(orderOffer=>{
-          const {
-            queryInfo,
-            offerInfo,
-            orderInfo,
-            deliveryInfo,
-          } = orderOffer;
+      const ticketOrderData = [...packageOrderData, ...generalTicketOrderData];
+      ticketOrderData.forEach(orderData => {
+        orderData.orderOfferList.forEach(orderOffer => {
+          const { queryInfo, offerInfo, orderInfo, deliveryInfo } = orderOffer;
           let totalPrice = 0;
           const attractionProducts = [];
           orderInfo.forEach(orderInfo => {
             totalPrice += orderInfo.pricePax * orderInfo.quantity;
-            const {
-              productInfo,
-            } = orderInfo;
+            const { productInfo } = orderInfo;
             const attractionProduct = {
               productNo: productInfo.productNo,
               numOfAttraction: orderInfo.quantity,
@@ -471,36 +452,31 @@ export default {
           };
           bookingParam.commonOffers.push(submitCommonOffer);
           bookingParam.totalPrice += totalPrice;
-        })
+        });
       });
 
-      onceAPirateOrderData.forEach(orderData=>{
-        const {
-          queryInfo,
-        } = orderData;
-        orderData.orderOfferList.forEach(orderOffer=>{
-          const {
-            offerInfo,
-            orderInfo,
-          } = orderOffer;
+      onceAPirateOrderData.forEach(orderData => {
+        const { queryInfo } = orderData;
+        orderData.orderOfferList.forEach(orderOffer => {
+          const { offerInfo, orderInfo } = orderOffer;
           let totalPrice = orderInfo.offerSumPrice * orderInfo.orderQuantity;
           let mealsProductList = [];
-          if (orderInfo.voucherType==='1') {
+          if (orderInfo.voucherType === '1') {
             mealsProductList = orderInfo.groupSettingList;
           } else {
             mealsProductList = orderInfo.individualSettingList;
           }
           const attractionProducts = [];
-          mealsProductList.forEach(mealsProduct=>{
+          mealsProductList.forEach(mealsProduct => {
             const attractionProduct = {
               productNo: mealsProduct.meals,
               numOfAttraction: mealsProduct.number,
               visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
-              comment: mealsProduct.remarks.join(","),
+              comment: mealsProduct.remarks.join(','),
               accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
             };
             attractionProducts.push(attractionProduct);
-            offerInfo.voucherProductList.map(voucherProduct=>{
+            offerInfo.voucherProductList.map(voucherProduct => {
               if (voucherProduct.productNo === mealsProduct.meals) {
                 voucherProduct.priceRule.forEach(rule => {
                   if (rule.priceRuleName === 'DefaultPrice' && rule.productPrice) {
@@ -553,7 +529,7 @@ export default {
           };
           bookingParam.commonOffers.push(submitCommonOffer);
           bookingParam.totalPrice += totalPrice;
-        })
+        });
       });
 
       bookingParam.totalPrice = parseFloat(bookingParam.totalPrice);
@@ -581,7 +557,7 @@ export default {
             type: 'ticketOrderCartMgr/save',
             payload: {
               type: 'CreateErrors',
-              resultMsg: resultMsg
+              resultMsg,
             },
           });
         }
@@ -618,7 +594,7 @@ export default {
             payload: {
               checkOutLoading: false,
               type: 'BookingFailed',
-              resultMsg: failedReason
+              resultMsg: failedReason,
             },
           });
         }
@@ -628,7 +604,7 @@ export default {
           payload: {
             checkOutLoading: false,
             type: 'Error',
-            resultMsg: ''
+            resultMsg: '',
           },
         });
       }

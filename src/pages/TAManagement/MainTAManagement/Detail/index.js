@@ -64,8 +64,6 @@ class DetailToTA extends PureComponent {
   componentDidMount() {
     const {
       dispatch,
-      countryList,
-      categoryList,
       location: {
         query: { taId = '111111' },
       },
@@ -74,33 +72,8 @@ class DetailToTA extends PureComponent {
       type: 'mainTAManagement/doCleanCommonData',
       payload: { taId: !isNvl(taId) ? taId : null },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQuerySalutationList' });
-      dispatch({ type: 'taCommon/fetchQueryOrganizationRoleList' });
-      dispatch({ type: 'taCommon/fetchQryArAccountEndConfig' });
-      dispatch({ type: 'taCommon/fetchQryMarketList' });
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      dispatch({ type: 'taCommon/fetchQueryCategoryList' }).then(flag => {
-        if (flag && isNvl(taId) && categoryList && categoryList.length > 0) {
-          const categoryInfo = categoryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCustomerGroupList',
-            payload: { categoryId: categoryInfo.dictId },
-          });
-        }
-      });
-      dispatch({ type: 'taCommon/fetchQueryCountryList' }).then(flag => {
-        if (flag && isNvl(taId) && countryList && countryList.length > 0) {
-          const countryInfo = countryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId },
-          });
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId, isBil: true },
-          });
-        }
-      });
       if (!isNvl(taId)) {
         dispatch({
           type: 'taMgr/fetchQueryTaInfo',

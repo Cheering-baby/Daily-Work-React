@@ -1,14 +1,14 @@
 /* eslint-disable */
 import React from 'react';
 import ReactToPrint from 'react-to-print';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
-import {Button, Modal, Spin} from 'antd';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
+import { Button, Modal, Spin } from 'antd';
 import styles from './invoice.less';
 
 const logoImage = require('@/assets/image/logi-mini.png');
 
-@connect(({invoice, global, loading}) => ({
+@connect(({ invoice, global, loading }) => ({
   invoice,
   global,
   loading: loading.effects['invoice/fetchInvoiceDetail'],

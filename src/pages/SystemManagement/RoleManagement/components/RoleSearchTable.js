@@ -1,10 +1,11 @@
 import React from 'react';
-import { Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
+import { Badge, Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
 import { connect } from 'dva';
 import styles from '../index.less';
+import constants from '../constants';
 
 const colProps = {
   xs: 24,
@@ -13,9 +14,9 @@ const colProps = {
   xl: 6,
 };
 
-@connect(({ roleManagement, loading }) => ({
-  roleManagement,
-  loading: loading.effects['roleManagement/queryUserRolesByCondition'],
+@connect(({ roleMgr, loading }) => ({
+  roleMgr,
+  loading: loading.effects['roleMgr/queryUserRolesByCondition'],
 }))
 class Index extends React.PureComponent {
   componentDidMount() {
@@ -61,9 +62,19 @@ class Index extends React.PureComponent {
         render: (text, record) => {
           const { status } = record;
           if (status === '00') {
-            return formatMessage({ id: 'ACTIVE' });
+            return (
+              <div>
+                <Badge color="#40C940" />
+                {formatMessage({ id: 'ACTIVE' })}
+              </div>
+            );
           }
-          return formatMessage({ id: 'INACTIVE' });
+          return (
+            <div>
+              <Badge color="#FF9A1B" />
+              {formatMessage({ id: 'INACTIVE' })}
+            </div>
+          );
         },
       },
       {
@@ -82,9 +93,18 @@ class Index extends React.PureComponent {
                   }}
                 />
               </Tooltip>
+              <Tooltip title={formatMessage({ id: 'GRANT' })}>
+                <Icon
+                  style={{ marginRight: '10px' }}
+                  type="api"
+                  onClick={() => {
+                    this.grantPrivileges(record);
+                  }}
+                />
+              </Tooltip>
               <Tooltip
                 title={formatMessage({
-                  id: status !== '00' ? 'COMMON_DISABLE' : 'COMMON_ENABLE',
+                  id: status === '00' ? 'COMMON_DISABLE' : 'COMMON_ENABLE',
                 })}
               >
                 <span
@@ -92,7 +112,7 @@ class Index extends React.PureComponent {
                   onClick={() => {
                     this.oprUserStatus(record);
                   }}
-                  className={status !== '00' ? 'iconfont icon-ban' : 'iconfont icon-circle-o'}
+                  className={status === '00' ? 'iconfont icon-ban' : 'iconfont icon-circle-o'}
                 />
               </Tooltip>
             </div>
@@ -111,11 +131,11 @@ class Index extends React.PureComponent {
   onChangeEvent = pagination => {
     const {
       dispatch,
-      roleManagement: { queryParam = {} },
+      roleMgr: { queryParam = {} },
     } = this.props;
     const { current, pageSize } = pagination;
     dispatch({
-      type: 'roleManagement/saveData',
+      type: 'roleMgr/saveData',
       payload: {
         queryParam: {
           ...queryParam,
@@ -125,7 +145,67 @@ class Index extends React.PureComponent {
       },
     }).then(() => {
       dispatch({
-        type: 'roleManagement/queryUserRolesByCondition',
+        type: 'roleMgr/queryUserRolesByCondition',
+      });
+    });
+  };
+
+  edit = record => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'roleMgr/saveData',
+      payload: {
+        operType: constants.MODIFY_USER_ROLE,
+        drawerShowFlag: true,
+      },
+    });
+    const { roleCode = '' } = record;
+    dispatch({
+      type: 'roleMgr/queryUserRoleDetail',
+      payload: {
+        roleCode,
+        appCode: constants.APP_CODE,
+      },
+    });
+  };
+
+  grantPrivileges = record => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'roleMgr/saveData',
+      payload: {
+        privilegeModalShowFlag: true,
+      },
+    });
+    const { roleCode = '' } = record;
+    dispatch({
+      type: 'roleMgr/queryAllPrivileges',
+      payload: {
+        appCode: constants.APP_CODE,
+      },
+    });
+    dispatch({
+      type: 'roleMgr/queryUserRoleDetail',
+      payload: {
+        roleCode,
+        appCode: constants.APP_CODE,
+      },
+    });
+  };
+
+  oprUserStatus = record => {
+    const { dispatch } = this.props;
+    const { roleCode = '', status = '' } = record;
+    dispatch({
+      type: 'roleMgr/modifyUserRole',
+      payload: {
+        roleCode,
+        status: status === '00' ? '99' : '00',
+        appCode: constants.APP_CODE,
+      },
+    }).then(() => {
+      dispatch({
+        type: 'roleMgr/queryUserRolesByCondition',
       });
     });
   };
@@ -134,9 +214,11 @@ class Index extends React.PureComponent {
     e.preventDefault();
     const { dispatch } = this.props;
     dispatch({
-      type: 'roleManagement/saveData',
+      type: 'roleMgr/saveData',
       payload: {
         drawerShowFlag: true,
+        operType: constants.ADD_USER_ROLE,
+        expandedKeys: [constants.ROOT_CODE + constants.ROOT_CODE],
       },
     });
   };
@@ -144,7 +226,7 @@ class Index extends React.PureComponent {
   render() {
     const {
       loading,
-      roleManagement: {
+      roleMgr: {
         userRoles = [],
         pageInfo: { pageSize, currentPage, totalSize },
       },

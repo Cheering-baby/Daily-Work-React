@@ -1,8 +1,8 @@
 import React from 'react';
-import {Col, Row} from 'antd';
-import {connect} from 'dva';
+import { Col, Row } from 'antd';
+import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import NotificationEdit from '../../components/NotificationEdit';
@@ -10,8 +10,8 @@ import 'react-quill/dist/quill.snow.css';
 import styles from './index.less';
 
 const mapStateToProps = store => {
-  const {notificationInfo} = store.notification;
-  const {pagePrivileges = []} = store.global;
+  const { notificationInfo } = store.notification;
+  const { pagePrivileges = [] } = store.global;
   return {
     pagePrivileges,
     notificationInfo,
@@ -23,15 +23,15 @@ class CircularNew extends React.PureComponent {
   render() {
     const breadcrumbArr = [
       {
-        breadcrumbName: formatMessage({id: 'MENU_NOTIFICATIONS'}),
+        breadcrumbName: formatMessage({ id: 'MENU_NOTIFICATIONS' }),
         url: '/Notifications/Circular',
       },
       {
-        breadcrumbName: formatMessage({id: 'MENU_CIRCULAR'}),
+        breadcrumbName: formatMessage({ id: 'MENU_CIRCULAR' }),
         url: '/Notifications/Circular',
       },
       {
-        breadcrumbName: formatMessage({id: 'MENU_NEW'}),
+        breadcrumbName: formatMessage({ id: 'MENU_NEW' }),
         url: null,
       },
     ];
@@ -44,14 +44,14 @@ class CircularNew extends React.PureComponent {
             minWidth={SCREEN.screenSmMin}
             minHeight={SCREEN.screenSmMin}
           >
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr}/>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
           </MediaQuery>
           <MediaQuery minWidth={SCREEN.screenLgMin}>
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr}/>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
           </MediaQuery>
         </Col>
         <Col span={24}>
-          <NotificationEdit type="NEW" notificationType="02"/>
+          <NotificationEdit type="NEW" notificationType="02" />
         </Col>
       </Row>
     );

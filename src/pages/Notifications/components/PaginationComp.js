@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import {Pagination} from 'antd';
+import React, { Component } from 'react';
+import { Pagination } from 'antd';
 import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 
 class PaginationComp extends Component {
   constructor(props) {
@@ -14,8 +14,7 @@ class PaginationComp extends Component {
       total = 0,
       current = 1,
       pageSize: nowPageSize = 10,
-      pageChange = () => {
-      },
+      pageChange = () => {},
       ...otherOpts
     } = this.props;
 
@@ -26,13 +25,13 @@ class PaginationComp extends Component {
       total,
       current,
       pageSize: nowPageSize,
-      showTotal: () => `${formatMessage({id: 'PAGE_TOTAL_ITEMS'}).replace('total', total)}`,
+      showTotal: () => `${formatMessage({ id: 'PAGE_TOTAL_ITEMS' }).replace('total', total)}`,
       onChange: (page, pageSize) => pageChange(page, pageSize),
       onShowSizeChange: (page, pageSize) => pageChange(page, pageSize),
       ...otherOpts,
     };
     return (
-      <div style={{textAlign: 'right'}}>
+      <div style={{ textAlign: 'right' }}>
         <MediaQuery maxWidth={767}>{total > 0 && <Pagination simple {...pageOpts} />}</MediaQuery>
         <MediaQuery minWidth={768}>{total > 0 && <Pagination {...pageOpts} />}</MediaQuery>
       </div>

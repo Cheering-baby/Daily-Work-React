@@ -52,8 +52,6 @@ class SignUp extends PureComponent {
       location: {
         query: { taId, signature },
       },
-      countryList,
-      categoryList,
     } = this.props;
     dispatch({
       type: 'signUp/doCleanData',
@@ -73,17 +71,14 @@ class SignUp extends PureComponent {
       dispatch({ type: 'global/getLocale' }).then(() =>
         dispatch({ type: 'global/getSupportLanguage' })
       );
-      dispatch({ type: 'taCommon/fetchQuerySalutationList' });
-      dispatch({ type: 'taCommon/fetchQryMarketList' });
-      // dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      dispatch({ type: 'taCommon/fetchQueryOrganizationRoleList' }).then(organizationRoleInfo => {
-        if (isNvl(taId) && organizationRoleInfo) {
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(repInfo => {
+        if (isNvl(taId) && repInfo && repInfo.organizationRoleInfo) {
           const { customerInfo } = this.props;
           let newCompanyInfo = {};
           if (!isNvl(customerInfo) && !isNvl(customerInfo.companyInfo)) {
             newCompanyInfo = { ...customerInfo.companyInfo };
           }
-          newCompanyInfo.organizationRole = `${organizationRoleInfo.dictId}`;
+          newCompanyInfo.organizationRole = `${repInfo.organizationRoleInfo.dictId}`;
           dispatch({
             type: 'taMgr/save',
             payload: {
@@ -92,28 +87,6 @@ class SignUp extends PureComponent {
                 companyInfo: newCompanyInfo,
               },
             },
-          });
-        }
-      });
-      dispatch({ type: 'taCommon/fetchQueryCategoryList' }).then(flag => {
-        if (flag && isNvl(taId) && categoryList && categoryList.length > 0) {
-          const categoryInfo = categoryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCustomerGroupList',
-            payload: { categoryId: categoryInfo.dictId },
-          });
-        }
-      });
-      dispatch({ type: 'taCommon/fetchQueryCountryList' }).then(flag => {
-        if (flag && isNvl(taId) && countryList && countryList.length > 0) {
-          const countryInfo = countryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId },
-          });
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId, isBil: true },
           });
         }
       });
@@ -393,6 +366,7 @@ class SignUp extends PureComponent {
       status = null,
       isShowDetail = false,
       isAllInformationToRws = false,
+      isCompanyExist,
       viewId,
     } = this.props;
     return (
@@ -409,7 +383,8 @@ class SignUp extends PureComponent {
               status,
               isShowDetail,
               taInfoLoadingFlag,
-              isAllInformationToRws
+              isAllInformationToRws,
+              isCompanyExist
             )}
           </Col>
         </Row>

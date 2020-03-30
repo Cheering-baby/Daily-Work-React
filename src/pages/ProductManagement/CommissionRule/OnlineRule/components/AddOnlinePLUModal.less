@@ -1,0 +1,75 @@
+@import '../../../../../theme/screen';
+
+.title {
+  font-weight: 600;
+  color: rgb(39, 43, 48);
+}
+
+.searchReset {
+  float: right;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.minwidth {
+  div {
+    min-width: 105px;
+  }
+}
+
+.searchTitle {
+  border: 0;
+  margin-top: 10px;
+  border-bottom: 1px solid #eee;
+  overflow: auto;
+
+  :global {
+    .ant-table-title {
+      padding: 10px 0 !important;
+    }
+
+    th div {
+      font-family: calibriBold;
+    }
+
+    .ant-table-column-title {
+      font-family: calibriBold;
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0;
+      font-weight: bold;
+    }
+  }
+}
+
+.statusRadiusStyle {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 10px;
+  margin-right: 6px;
+  margin-bottom: 1px;
+}
+
+.inputColStyle {
+  padding-right: 12px;
+}
+
+@media screen and (max-width: @screenSmMax) {
+  .inputColStyle {
+    padding: 0 !important;
+    margin-bottom: 10px;
+  }
+  .container {
+    padding-bottom: 5px;
+  }
+}
+
+.inputColStyle {
+  :global {
+    .anticon-close-circle {
+      background-color: white !important;
+      color: #858585 !important;
+    }
+  }
+}

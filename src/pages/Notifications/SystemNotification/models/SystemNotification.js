@@ -26,43 +26,30 @@ export default {
         ...filter,
         ...pagination,
       };
-      const result = yield call(queryNotificationList, requestData);
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryNotificationList, requestData);
 
-      const { data: resultData, success, errorMsg } = result;
+      if (resultCode !== '0') {
+        throw resultMsg;
+      }
 
-      if (success) {
-        const {
-          resultCode,
-          resultMsg,
-          result: {
-            notificationList,
-            pageInfo: { currentPage, pageSize, totalSize },
+      const {
+        notificationList,
+        pageInfo: { currentPage, pageSize, totalSize },
+      } = result;
+
+      yield put({
+        type: 'save',
+        payload: {
+          pagination: {
+            currentPage,
+            pageSize,
+            totalSize,
           },
-        } = resultData;
-
-        if (resultCode !== '00' && resultCode !== '0') {
-          throw resultMsg;
-        }
-
-        if (notificationList && notificationList.length > 0) {
-          notificationList.map(v => {
-            Object.assign(v, { key: `${v.id}` });
-            return v;
-          });
-        }
-
-        yield put({
-          type: 'save',
-          payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            notificationList,
-          },
-        });
-      } else throw errorMsg;
+          notificationList,
+        },
+      });
     },
 
     *change({ payload }, { put }) {

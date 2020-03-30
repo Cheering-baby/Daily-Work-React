@@ -303,6 +303,7 @@ export default {
   COMMON_PAMS: 'PAMS',
   OPERATE: 'Action',
   COMMON_DETAIL: 'Detail',
+  COMMON_DETAILS: 'Details',
   COMMON_YES: 'Yes',
   COMMON_NO: 'No',
   COMMON_ACTIVE: 'Active',

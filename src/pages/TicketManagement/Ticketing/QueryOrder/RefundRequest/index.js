@@ -1,40 +1,42 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import {connect} from 'dva';
-import {Button, Col, Input, Row, Table} from 'antd';
+import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
+import { Button, Col, Input, message, Row, Table, Upload } from 'antd';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import styles from './index.less';
 import Card from '../../../components/Card';
 import PaginationComp from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaginationComp';
 
-const {Search} = Input;
+const { Search } = Input;
 
-@connect(({refundRequestMgr, loading}) => ({
+@connect(({ refundRequestMgr, loading, global }) => ({
   refundRequestMgr,
+  global,
   tableLoading: loading.effects['refundRequestMgr/queryBookingDetail'],
 }))
 class RefundRequest extends Component {
   columns = [
     {
-      title: <span className={styles.tableTitle}>No.</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
       dataIndex: 'vidNo',
       key: 'vidNo',
     },
     {
-      title: <span className={styles.tableTitle}>VID Code</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
       dataIndex: 'vidCode',
     },
     {
-      title: <span className={styles.tableTitle}>Status</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
       dataIndex: 'status',
     },
     {
-      title: <span className={styles.tableTitle}>Expiry Date</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'EXPIRY_DATE' })}</span>,
       dataIndex: 'expiryDate',
     },
     {
-      title: <span className={styles.tableTitle}>Offer Name</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' })}</span>,
       dataIndex: 'offerName',
     },
   ];
@@ -42,16 +44,15 @@ class RefundRequest extends Component {
   componentDidMount() {
     const {
       location: {
-        query: {isSubOrder, bookingNo},
+        query: { bookingNo },
       },
     } = this.props;
-    if (isSubOrder !== undefined && bookingNo !== undefined) {
-      const {dispatch} = this.props;
+    if (bookingNo !== undefined) {
+      const { dispatch } = this.props;
       dispatch({
         type: 'refundRequestMgr/queryBookingDetail',
         payload: {
           bookingNo,
-          isSubOrder,
         },
       }).then(vidResultList => {
         dispatch({
@@ -68,14 +69,14 @@ class RefundRequest extends Component {
   }
 
   componentWillUnmount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'refundRequestMgr/resetData',
     });
   }
 
   onSelectChange = selectedRowKeys => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'refundRequestMgr/saveSelectVid',
       payload: {
@@ -85,7 +86,7 @@ class RefundRequest extends Component {
   };
 
   changeSearchValue = e => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'refundRequestMgr/saveSearchList',
       payload: {
@@ -94,17 +95,73 @@ class RefundRequest extends Component {
     });
   };
 
-  searchByVidCode = (vidResultList, currentPage, pageSize, value) => {
-    const {dispatch} = this.props;
+  searchByVidCode = (vidResultList, pageSize, value) => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'refundRequestMgr/saveSearchVidList',
       payload: {
         vidResultList,
-        currentPage,
+        currentPage: 1,
         pageSize,
         vidCode: value,
       },
     });
+  };
+
+  refundTicket = (selectedVidList, bookingNo) => {
+    const { dispatch } = this.props;
+    if (selectedVidList.length < 1) {
+      message.warning('Select at least one VID.');
+    } else {
+      const visualIds = [];
+      for (let i = 0; i < selectedVidList.length; i += 1) {
+        visualIds.push(selectedVidList[i].vidCode);
+      }
+      dispatch({
+        type: 'refundRequestMgr/refundTicket',
+        payload: {
+          bookingNo,
+          visualIds,
+        },
+      }).then(resultCode => {
+        if (resultCode === '0') {
+          message.success('Submit successfully.');
+        } else {
+          message.warning(resultCode);
+        }
+      });
+    }
+  };
+
+  getRefundUploadProps = (file, nowPageSize) => {
+    const { dispatch } = this.props;
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = function() {
+      dispatch({
+        type: 'refundRequestMgr/uploadFile',
+        payload: {
+          uploadVidList: this.result,
+          pageSize: nowPageSize,
+        },
+      }).then(uploadStatus => {
+        if (uploadStatus) {
+          message.success('Update successfully.');
+        } else {
+          message.warning('Failed to update.');
+        }
+      });
+    };
+    return false;
+  };
+
+  showButtonText = userType => {
+    if (userType === '02') {
+      return formatMessage({ id: 'CONFIRM' });
+    }
+    if (userType === '03') {
+      return formatMessage({ id: 'SUBMIT' });
+    }
   };
 
   render() {
@@ -114,15 +171,19 @@ class RefundRequest extends Component {
         vidList,
         total,
         vidResultList,
-        searchList: {vidCode, currentPage: current, pageSize: nowPageSize},
+        searchList: { bookingNo, vidCode, currentPage: current, pageSize: nowPageSize },
         selectedRowKeys,
+        selectedVidList,
+      },
+      global: {
+        currentUser: { userType },
       },
     } = this.props;
 
     const title = [
-      {name: 'Ticketing'},
-      {name: 'Query Order', href: '#/TicketManagement/Ticketing/QueryOrder'},
-      {name: 'Refund Request'},
+      { name: 'Ticketing' },
+      { name: 'Query Order', href: '#/TicketManagement/Ticketing/QueryOrder' },
+      { name: 'Refund Request' },
     ];
 
     const pageOpts = {
@@ -130,7 +191,7 @@ class RefundRequest extends Component {
       current,
       pageSize: nowPageSize,
       pageChange: (page, pageSize) => {
-        const {dispatch} = this.props;
+        const { dispatch } = this.props;
         dispatch({
           type: 'refundRequestMgr/saveSearchVidList',
           payload: {
@@ -153,13 +214,18 @@ class RefundRequest extends Component {
         <Row gutter={12}>
           <Col span={12}>
             <MediaQuery minWidth={SCREEN.screenSm}>
-              <BreadcrumbComp title={title}/>
+              <BreadcrumbComp title={title} />
             </MediaQuery>
           </Col>
           <Col span={12}>
             <div className={styles.orderTitleStyles}>
               <div className={styles.orderTitleButtonStyles}>
-                <Button type="primary">Submit</Button>
+                <Button
+                  type="primary"
+                  onClick={() => this.refundTicket(selectedVidList, bookingNo)}
+                >
+                  {this.showButtonText(userType)}
+                </Button>
               </div>
             </div>
           </Col>
@@ -169,15 +235,19 @@ class RefundRequest extends Component {
             <Card>
               <Row>
                 <Col span={24}>
-                  <Button type="primary">Upload</Button>
+                  <Upload
+                    action=""
+                    beforeUpload={file => this.getRefundUploadProps(file, nowPageSize)}
+                    showUploadList={false}
+                  >
+                    <Button type="primary">{formatMessage({ id: 'UPLOAD' })}</Button>
+                  </Upload>
                   <Search
                     allowClear
-                    placeholder="VID Code"
+                    placeholder={formatMessage({ id: 'VID_CODE' })}
                     value={vidCode}
                     onChange={this.changeSearchValue}
-                    onSearch={value =>
-                      this.searchByVidCode(vidResultList, current, nowPageSize, value)
-                    }
+                    onSearch={value => this.searchByVidCode(vidResultList, nowPageSize, value)}
                     className={styles.inputStyle}
                   />
                 </Col>
@@ -185,14 +255,14 @@ class RefundRequest extends Component {
                   <Table
                     loading={!!tableLoading}
                     size="small"
-                    style={{marginTop: 10}}
+                    style={{ marginTop: 10 }}
                     columns={this.columns}
                     dataSource={vidList}
                     rowSelection={rowSelection}
                     pagination={false}
                     bordered={false}
                   />
-                  <PaginationComp style={{marginTop: 10}} {...pageOpts} />
+                  <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
                 </Col>
               </Row>
             </Card>

@@ -8,29 +8,26 @@ import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/util
 
 @Form.create()
 @connect(({ global, ticketBookingAndPayMgr }) => ({
-  global, ticketBookingAndPayMgr,
+  global,
+  ticketBookingAndPayMgr,
 }))
 class PackageTicketingCollapse extends Component {
-
   constructor(props) {
     super(props);
   }
 
-  operateButtonEvent = (opType, orderIndex, offerIndex ) => {
+  operateButtonEvent = (opType, orderIndex, offerIndex) => {
     if (opType === 'detail' && offerIndex !== null) {
       console.log('detail');
     }
   };
 
   render() {
-
     const {
       global: {
         userCompanyInfo: { companyType },
       },
-      ticketBookingAndPayMgr: {
-        packageOrderData = [],
-      },
+      ticketBookingAndPayMgr: { packageOrderData = [] },
       form,
     } = this.props;
 
@@ -38,38 +35,35 @@ class PackageTicketingCollapse extends Component {
       <Collapse
         bordered={false}
         defaultActiveKey={['PackageCollapsePanel']}
-        expandIcon={({ isActive }) =>
+        expandIcon={({ isActive }) => (
           <Icon
             style={{ color: '#FFF', right: 15, textAlign: 'right' }}
-            type='up'
+            type="up"
             rotate={isActive ? 0 : 180}
-          />}
+          />
+        )}
       >
         <Collapse.Panel
           className={styles.collapsePanelStyles}
-          key='PackageCollapsePanel'
+          key="PackageCollapsePanel"
           header={<span className={styles.collapsePanelHeaderStyles}>Attraction Package</span>}
         >
-          {
-            packageOrderData.map((orderData,orderIndex)=>(
-              <OrderItemCollapse
-                key={`PackageOrderItemCollapse_${orderIndex}`}
-                form = {form}
-                orderIndex = {orderIndex}
-                orderData = {orderData}
-                operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
-                  this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
-                }}
-                companyType={companyType}
-              />
-            ))
-          }
+          {packageOrderData.map((orderData, orderIndex) => (
+            <OrderItemCollapse
+              key={`PackageOrderItemCollapse_${orderIndex}`}
+              form={form}
+              orderIndex={orderIndex}
+              orderData={orderData}
+              operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
+                this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
+              }}
+              companyType={companyType}
+            />
+          ))}
         </Collapse.Panel>
       </Collapse>
     );
-
   }
-
 }
 
 export default PackageTicketingCollapse;

@@ -98,13 +98,22 @@ export default {
         data: { resultCode, resultMsg, result },
       } = yield call(service.querySubTaInfoWithEmail, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
-        yield put({
-          type: 'save',
-          payload: {
-            subTaInfo: result,
-            hasSubTaWithEmail: !isNvl(result),
-          },
-        });
+        if (result) {
+          yield put({
+            type: 'save',
+            payload: {
+              subTaInfo: result,
+              hasSubTaWithEmail: !isNvl(result),
+            },
+          });
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              hasSubTaWithEmail: !isNvl(result),
+            },
+          });
+        }
         return true;
       }
       message.warn(resultMsg, 10);

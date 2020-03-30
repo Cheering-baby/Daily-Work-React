@@ -2,7 +2,7 @@ export default {
   TRANSACTION_NO: 'PAMS Transaction No.',
   TRANSACTION_TYPE: 'Transaction Type',
   STATUS: 'Status',
-  INVOICE: 'invoice',
+  INVOICE: 'Print Invoice',
 
   BTN_SEND: 'Send',
   BTN_DOWNLOAD: 'Download',

@@ -317,8 +317,6 @@ class BasicLayout extends React.PureComponent {
       needChangePassword,
     } = this.props;
 
-    console.log(privilegeLoading);
-
     const isSignUp =
       pathname.indexOf('/TAManagement/SignUp') >= 0 ||
       pathname.indexOf('/SubTAManagement/SignUp') >= 0;

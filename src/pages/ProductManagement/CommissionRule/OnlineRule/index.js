@@ -1,22 +1,13 @@
 import React from 'react';
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Col,
-  Form,
-  Icon,
-  Input,
-  Row,
-  Select,
-  Table,
-  Tooltip,
-} from 'antd';
+import { Button, Card, Col, Form, Icon, Input, Row, Select, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
+import MediaQuery from 'react-responsive';
+import { isEqual } from 'lodash';
 import detailStyles from './index.less';
-import AddOfferToCommissionName from './components/AddOfferToCommissionName';
+import SCREEN from '@/utils/screen';
+import BreadcrumbComp from '@/components/BreadcrumbComp';
 
 const { Option } = Select;
 
@@ -45,27 +36,23 @@ class CommissionRuleSetup extends React.PureComponent {
   columns = [
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_NAME' }),
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'commissionName',
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' }),
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'commissionType',
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
-      dataIndex: 'scheme',
-      key: 'scheme',
+      dataIndex: 'commissionScheme',
     },
     {
       title: formatMessage({ id: 'STATUS' }),
       dataIndex: 'status',
-      key: 'status',
       render: text => {
         let flagClass = '';
-        if (text === 'ACTIVE') flagClass = detailStyles.flagStyle1;
-        if (text === 'INACTIVE') flagClass = detailStyles.flagStyle2;
+        if (text === 'Active') flagClass = detailStyles.flagStyle1;
+        if (text === 'Inactive') flagClass = detailStyles.flagStyle2;
         return (
           <div>
             <span className={flagClass} />
@@ -76,19 +63,10 @@ class CommissionRuleSetup extends React.PureComponent {
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
-      dataIndex: 'createStaff',
-      key: 'createStaff',
+      dataIndex: 'tplId',
       render: (text, record) => {
         return (
           <div>
-            <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
-              <Icon
-                type="eye"
-                onClick={() => {
-                  this.detail(record);
-                }}
-              />
-            </Tooltip>
             <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
               <Icon
                 type="edit"
@@ -97,11 +75,11 @@ class CommissionRuleSetup extends React.PureComponent {
                 }}
               />
             </Tooltip>
-            <Tooltip title={formatMessage({ id: 'COMMISSION_ADD' })}>
+            <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
               <Icon
-                type="plus"
+                type="eye"
                 onClick={() => {
-                  this.add();
+                  this.detail(record);
                 }}
               />
             </Tooltip>
@@ -119,43 +97,89 @@ class CommissionRuleSetup extends React.PureComponent {
     });
   }
 
-  add = (record = {}) => {
-    this.AddCommissioProps = {
-      ...this.AddCommissioProps,
-      title: formatMessage({
-        id: 'ADD_OFFER_COMMISSION',
-      }),
-      record,
-      onCancel: () => {
-        this.handleModal('detailVisible', false);
-      },
-    };
-    this.handleModal('detailVisible', true);
-  };
-
-  handleModal = (key, flag = true) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'commissionRuleSetup/toggleModal',
-      payload: {
-        key,
-        val: flag,
-      },
+  binding = () => {
+    router.push({
+      pathname: '/ProductManagement/CommissionRule/OnlineRule/Binding',
     });
   };
 
-  turnToNew = () => {
+  edit = record => {
+    router.push({
+      pathname: '/ProductManagement/CommissionRule/OnlineRule/Edit/${row.taId}',
+      query: { type: 'edit', tplId: record.tplId },
+    });
+  };
+
+  new = record => {
     router.push({
       pathname: '/ProductManagement/CommissionRule/OnlineRule/New',
+      query: { type: 'new', tplId: record.tplId },
     });
   };
 
   detail = record => {
-    router.push(`/ProductManagement/CommissionRule/OnlineRule/Detail/${record.type}`);
+    router.push(`/ProductManagement/CommissionRule/OnlineRule/Detail/${record.tplId}`);
   };
 
-  edit = record => {
-    router.push(`/ProductManagement/CommissionRule/OnlineRule/Edit/${record.type}`);
+  onSelectChange = selectedRowKeys => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'commissionRuleSetup/saveSelectOffer',
+      payload: {
+        selectedRowKeys,
+      },
+    });
+  };
+
+  handleSearch = ev => {
+    ev.preventDefault();
+    const { form } = this.props;
+    const { dispatch } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        dispatch({
+          type: 'commissionRuleSetup/search',
+          payload: {
+            filter: {
+              likeParam: {
+                commissionName: values.commissionName,
+                commissionType: values.commissionType,
+                status: values.status,
+              },
+            },
+          },
+        });
+      }
+    });
+  };
+
+  handleReset = () => {
+    const { dispatch, form } = this.props;
+    form.resetFields();
+    dispatch({
+      type: 'commissionRuleSetup/reset',
+      payload: {
+        currentPage: 1,
+        pageSize: 10,
+      },
+    });
+  };
+
+  handleTableChange = page => {
+    const {
+      dispatch,
+      commissionRuleSetup: { pagination },
+    } = this.props;
+
+    // If the paging changes, call the query interface again
+    if (!isEqual(page, pagination)) {
+      dispatch({
+        type: 'commissionRuleSetup/tableChanged',
+        payload: {
+          pagination: page,
+        },
+      });
+    }
   };
 
   showTotal(total) {
@@ -166,13 +190,7 @@ class CommissionRuleSetup extends React.PureComponent {
     const {
       form: { getFieldDecorator },
       loading,
-      commissionRuleSetup: {
-        commissionRuleSetupList,
-        currentPage,
-        pageSize,
-        totalSize,
-        detailVisible,
-      },
+      commissionRuleSetup: { commissionList, currentPage, pageSize, totalSize, selectedRowKeys },
     } = this.props;
     const pagination = {
       current: currentPage,
@@ -183,17 +201,38 @@ class CommissionRuleSetup extends React.PureComponent {
       pageSizeOptions: ['20', '50', '100'],
       showTotal: this.showTotal,
     };
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'ONLINE_FIXED_COMMISSION' }),
+        url: null,
+      },
+    ];
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    };
     return (
       <Row type="flex" justify="space-around" id="mainTaView">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
-          {/* <MediaQuery> */}
-          <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-            <Breadcrumb.Item className="breadcrumb-style">Product Management</Breadcrumb.Item>
-            <Breadcrumb.Item className="breadcrumb-style">Commission Rule</Breadcrumb.Item>
-            <Breadcrumb.Item className="breadcrumbbold">Online Rule</Breadcrumb.Item>
-          </Breadcrumb>
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
         </Col>
-        {/* </MediaQuery> */}
         <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
             <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
@@ -201,7 +240,7 @@ class CommissionRuleSetup extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      `search`,
+                      `commissionName`,
                       {}
                     )(
                       <Input
@@ -214,7 +253,7 @@ class CommissionRuleSetup extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      `companyName`,
+                      `commissionType`,
                       {}
                     )(
                       <Select
@@ -223,8 +262,12 @@ class CommissionRuleSetup extends React.PureComponent {
                         style={{ width: '100%' }}
                         allowClear
                       >
-                        <Option value="Attendance">Attendance</Option>
-                        <Option value="Tiered">Tiered</Option>
+                        <Option value="Attendance" key="Attendance">
+                          Attendance
+                        </Option>
+                        <Option value="Tiered" key="Tiered">
+                          Tiered
+                        </Option>
                       </Select>
                     )}
                   </Form.Item>
@@ -232,7 +275,7 @@ class CommissionRuleSetup extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      `category`,
+                      `status`,
                       {}
                     )(
                       <Select
@@ -241,8 +284,12 @@ class CommissionRuleSetup extends React.PureComponent {
                         style={{ width: '100%' }}
                         allowClear
                       >
-                        <Option value="ACTIVE">ACTIVE</Option>
-                        <Option value="ACTIVE">INACTIVE</Option>
+                        <Option value="ACTIVE" key="ACTIVE">
+                          ACTIVE
+                        </Option>
+                        <Option value="INACTIVE" key="INACTIVE">
+                          INACTIVE
+                        </Option>
                       </Select>
                     )}
                   </Form.Item>
@@ -263,22 +310,30 @@ class CommissionRuleSetup extends React.PureComponent {
           <Card>
             <Row gutter={24}>
               <Col {...ColProps} style={{ padding: '12px' }}>
-                <Button type="primary" onClick={() => this.turnToNew()}>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    this.new();
+                  }}
+                >
                   {formatMessage({ id: 'COMMON_NEW' })}
+                </Button>
+                <Button style={{ marginLeft: 8 }} onClick={() => this.binding()}>
+                  {formatMessage({ id: 'ADD_BINDING' })}
                 </Button>
               </Col>
             </Row>
-            {detailVisible && <AddOfferToCommissionName {...this.AddCommissioProps} />}
             <Table
-              rowKey="id"
+              rowKey={record => record.tplId}
               bordered={false}
               size="small"
-              dataSource={commissionRuleSetupList}
+              dataSource={commissionList}
               pagination={pagination}
               loading={loading}
               columns={this.columns}
               className="table-style"
-              // onChange={this.handleTableChange}
+              rowSelection={rowSelection}
+              onChange={this.handleTableChange}
             />
           </Card>
         </Col>

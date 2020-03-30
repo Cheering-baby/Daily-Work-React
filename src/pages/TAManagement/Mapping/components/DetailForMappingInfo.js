@@ -1,6 +1,7 @@
 import React from 'react';
 import { Col, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
+import moment from 'moment';
 import styles from '../$mappingDetails/index.less';
 
 class DetailForMapppingInfor extends React.PureComponent {
@@ -175,7 +176,13 @@ class DetailForMapppingInfor extends React.PureComponent {
               </Col>
               <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
                 <div className={styles.detailLeftStyle}>
-                  <span>{queryMappingInfo ? queryMappingInfo.arAccountCommencementDate : ''}</span>
+                  <span>
+                    {queryMappingInfo && queryMappingInfo.arAccountCommencementDate
+                      ? moment(queryMappingInfo.arAccountCommencementDate).format(
+                          'YYYY-MM-DD hh:mm:ss'
+                        )
+                      : ''}
+                  </span>
                 </div>
               </Col>
             </Row>
@@ -189,7 +196,11 @@ class DetailForMapppingInfor extends React.PureComponent {
               </Col>
               <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
                 <div className={styles.detailLeftStyle}>
-                  <span>{queryMappingInfo ? queryMappingInfo.arAccountEndDate : ''}</span>
+                  <span>
+                    {queryMappingInfo && queryMappingInfo.arAccountEndDate
+                      ? moment(queryMappingInfo.arAccountEndDate).format('YYYY-MM-DD hh:mm:ss')
+                      : ''}
+                  </span>
                 </div>
               </Col>
             </Row>
@@ -231,7 +242,11 @@ class DetailForMapppingInfor extends React.PureComponent {
               </Col>
               <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
                 <div className={styles.detailLeftStyle}>
-                  <span>{queryMappingInfo ? queryMappingInfo.guaranteeExpiryDate : ''}</span>
+                  <span>
+                    {queryMappingInfo && queryMappingInfo.guaranteeExpiryDate
+                      ? moment(queryMappingInfo.guaranteeExpiryDate).format('YYYY-MM-DD hh:mm:ss')
+                      : ''}
+                  </span>
                 </div>
               </Col>
             </Row>
@@ -245,7 +260,7 @@ class DetailForMapppingInfor extends React.PureComponent {
               </Col>
               <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
                 <div className={styles.detailLeftStyle}>
-                  <span>{queryMappingInfo ? queryMappingInfo.currencyName : ''}</span>
+                  <span>{queryMappingInfo ? queryMappingInfo.currency : ''}</span>
                 </div>
               </Col>
             </Row>

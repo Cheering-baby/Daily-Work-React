@@ -78,9 +78,6 @@ export default {
     filteredCanAddUsers: [],
     companyList: [],
   },
-  subscriptions: {
-    // setup({ dispatch }) {},
-  },
   effects: {
     *queryUserOrgTree({ payload }, { call, put, select }) {
       const {
@@ -335,6 +332,15 @@ export default {
         canAddUsers: [],
         filteredCanAddUsers: [],
       };
+    },
+  },
+  subscriptions: {
+    setup({ dispatch, history }) {
+      history.listen(location => {
+        if (location.pathname.indexOf('/SystemManagement/OrgManagement') === -1) {
+          dispatch({ type: 'clean' });
+        }
+      });
     },
   },
 };

@@ -1,66 +1,37 @@
 import React from 'react';
-import {Button, Form, Input, Modal, Radio, Select, Tooltip} from 'antd';
-import {connect} from 'dva';
+import { formatMessage } from 'umi/locale';
+import { Button, Form, Input, Modal, Radio, Select, Tooltip } from 'antd';
+import { connect } from 'dva';
 import styles from './index.less';
 
 const FormItem = Form.Item;
-const {Option} = Select;
+const { Option } = Select;
 
 @Form.create()
-@connect(({updateOrderMgr}) => ({
+@connect(({ updateOrderMgr }) => ({
   updateOrderMgr,
 }))
 class Update extends React.Component {
   componentWillUnmount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'sendETicketMgr/resetData',
     });
   }
 
   handleOk = () => {
-    const {
-      dispatch,
-      form,
-      updateOrderMgr: {
-        updateType,
-        // galaxyOrderNo,
-        refundSelected,
-        // rejectReason
-      },
-    } = this.props;
-    if (updateType === 'Refund') {
-      if (refundSelected === 'Reject') {
-        form.validateFields(err => {
-          if (!err) {
-            dispatch({
-              type: 'updateOrderMgr/save',
-              payload: {
-                updateVisible: false,
-              },
-            });
-          }
-        });
-      } else if (refundSelected === 'Complete') {
+    const { dispatch, form } = this.props;
+    form.validateFields(err => {
+      if (!err) {
         dispatch({
-          type: 'updateOrderMgr/save',
-          payload: {
-            updateVisible: false,
-          },
+          type: 'updateOrderMgr/update',
         });
       }
-    } else if (updateType === 'Revalidation') {
-      dispatch({
-        type: 'updateOrderMgr/save',
-        payload: {
-          updateVisible: false,
-        },
-      });
-    }
+    });
   };
 
   handleCancel = () => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'updateOrderMgr/resetData',
     });
@@ -68,10 +39,18 @@ class Update extends React.Component {
 
   showUpdateTitle = updateType => {
     if (updateType === 'Revalidation') {
-      return <span className={styles.modelTitleStyle}>UPDATE-REVALIDATION</span>;
+      return (
+        <span className={styles.modelTitleStyle}>
+          {formatMessage({ id: 'UPDATE_REVALIDATION_TITLE' })}
+        </span>
+      );
     }
     if (updateType === 'Refund') {
-      return <span className={styles.modelTitleStyle}>UPDATE-REFUND</span>;
+      return (
+        <span className={styles.modelTitleStyle}>
+          {formatMessage({ id: 'UPDATE_REFUND_TITLE' })}
+        </span>
+      );
     }
     return null;
   };
@@ -80,17 +59,24 @@ class Update extends React.Component {
     if (updateType === 'Revalidation') {
       return (
         <FormItem
-          label={<span className={styles.modelFormItem}>Galaxy Order No.</span>}
+          label={
+            <span className={styles.modelFormItem}>{formatMessage({ id: 'GALAXY_ORDER_NO' })}</span>
+          }
           colon={false}
         >
-          <div className={styles.modelInputStyle}>
-            <Input
-              allowClear
-              placeholder="Please Enter"
-              onChange={e => this.galaxyOrderNoChange(e.target.value)}
-              value={galaxyOrderNo}
-            />
-          </div>
+          {getFieldDecorator('galaxyOrderNo', {
+            rules: [{ required: true, message: 'Required' }],
+            initialValue: galaxyOrderNo,
+          })(
+            <div className={styles.modelInputStyle}>
+              <Input
+                allowClear
+                placeholder="Please Enter"
+                onChange={e => this.galaxyOrderNoChange(e.target.value)}
+                value={galaxyOrderNo}
+              />
+            </div>
+          )}
         </FormItem>
       );
     }
@@ -98,16 +84,20 @@ class Update extends React.Component {
       return (
         <div>
           <Radio.Group onChange={e => this.onSelectChange(e.target.value)} value={refundSelected}>
-            <Radio value="Complete">Complete</Radio>
-            <Radio value="Reject">Reject</Radio>
+            <Radio value="Complete">{formatMessage({ id: 'COMPLETE' })}</Radio>
+            <Radio value="Reject">{formatMessage({ id: 'REJECT' })}</Radio>
           </Radio.Group>
           {refundSelected === 'Reject' ? (
             <FormItem
-              label={<span className={styles.modelFormItem}>Reject Reason</span>}
+              label={
+                <span className={styles.modelFormItem}>
+                  {formatMessage({ id: 'REJECT_REASON' })}
+                </span>
+              }
               colon={false}
             >
               {getFieldDecorator('rejectReason', {
-                rules: [{required: true, message: 'Required'}],
+                rules: [{ required: true, message: 'Required' }],
                 initialValue: rejectReason,
               })(
                 <div className={styles.modelInputStyle}>
@@ -140,17 +130,18 @@ class Update extends React.Component {
   };
 
   galaxyOrderNoChange = value => {
-    const {dispatch} = this.props;
+    const { dispatch, form } = this.props;
     dispatch({
       type: 'updateOrderMgr/save',
       payload: {
         galaxyOrderNo: value,
       },
     });
+    form.setFieldsValue({ 'galaxyOrderNo': value });
   };
 
   onSelectChange = value => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'updateOrderMgr/save',
       payload: {
@@ -160,7 +151,7 @@ class Update extends React.Component {
   };
 
   rejectReasonChange = value => {
-    const {dispatch, form} = this.props;
+    const { dispatch, form } = this.props;
     dispatch({
       type: 'updateOrderMgr/save',
       payload: {
@@ -174,8 +165,8 @@ class Update extends React.Component {
 
   render() {
     const {
-      form: {getFieldDecorator},
-      updateOrderMgr: {updateVisible, updateType, galaxyOrderNo, refundSelected, rejectReason},
+      form: { getFieldDecorator },
+      updateOrderMgr: { updateVisible, updateType, galaxyOrderNo, refundSelected, rejectReason },
     } = this.props;
     return (
       <Modal
@@ -186,9 +177,9 @@ class Update extends React.Component {
         footer={
           <div>
             <Button onClick={() => this.handleOk()} type="primary">
-              Confirm
+              {formatMessage({ id: 'CONFIRM' })}
             </Button>
-            <Button onClick={this.handleCancel}>Cancel</Button>
+            <Button onClick={this.handleCancel}>{formatMessage({ id: 'CANCEL' })}</Button>
           </div>
         }
       >

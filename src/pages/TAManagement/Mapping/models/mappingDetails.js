@@ -1,5 +1,6 @@
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { isEmpty } from 'lodash';
 import * as service from '../services/mapping';
 
 export default {
@@ -8,6 +9,7 @@ export default {
     statusDetailList: [],
     type: '',
     queryMappingInfo: {},
+    userProfiles: [],
   },
   effects: {
     *queryMappingDetail({ payload }, { call, put }) {
@@ -24,8 +26,12 @@ export default {
       } else message.warn(resultMsg, 10);
     },
     *editMappingList({ payload }, { call, put }) {
-      const { params } = payload;
-      const { success, errorMsg } = yield call(service.endInvitation, params);
+      const { params, taId } = payload;
+      const reqParams = {
+        ...params,
+        taId,
+      };
+      const { success, errorMsg } = yield call(service.endInvitation, reqParams);
       if (success) {
         message.success(formatMessage({ id: 'COMMON_EDITED_SUCCESSFULLY' }));
         // fresh list data
@@ -35,8 +41,12 @@ export default {
       } else throw errorMsg;
     },
     *addMappingList({ payload }, { call, put }) {
-      const { params } = payload;
-      const { success, errorMsg } = yield call(service.endInvitation, params);
+      const { params, taId } = payload;
+      const reqParams = {
+        ...params,
+        taId,
+      };
+      const { success, errorMsg } = yield call(service.endInvitation, reqParams);
       if (success) {
         message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
 
@@ -45,6 +55,19 @@ export default {
           type: 'mapping/fetchMappingList',
         });
       } else throw errorMsg;
+    },
+    *querySalePerson(_, { call, put }) {
+      const res = yield call(service.querySalePerson);
+      const { resultCode, resultMsg, resultData } = res.data;
+      if (resultCode === '0' || resultCode === 0) {
+        const { userProfiles } = resultData;
+        yield put({
+          type: 'save',
+          payload: {
+            userProfiles,
+          },
+        });
+      } else message.warn(resultMsg, 10);
     },
   },
   reducers: {

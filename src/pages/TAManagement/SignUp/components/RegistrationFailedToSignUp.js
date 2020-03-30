@@ -35,7 +35,7 @@ class RegistrationFailedToSignUp extends PureComponent {
 
   showViewInformation = e => {
     e.preventDefault();
-    const { dispatch, taId, signature, status, remark, countryList, categoryList } = this.props;
+    const { dispatch, taId, signature, status, remark } = this.props;
     dispatch({
       type: 'signUp/doCleanData',
       payload: {
@@ -45,32 +45,7 @@ class RegistrationFailedToSignUp extends PureComponent {
         isShowDetail: true,
       },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQuerySalutationList' });
-      dispatch({ type: 'taCommon/fetchQueryOrganizationRoleList' });
-      dispatch({ type: 'taCommon/fetchQryMarketList' });
-      // dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      dispatch({ type: 'taCommon/fetchQueryCategoryList' }).then(flag => {
-        if (flag && isNvl(taId) && categoryList && categoryList.length > 0) {
-          const categoryInfo = categoryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCustomerGroupList',
-            payload: { categoryId: categoryInfo.dictId },
-          });
-        }
-      });
-      dispatch({ type: 'taCommon/fetchQueryCountryList' }).then(flag => {
-        if (flag && isNvl(taId) && countryList && countryList.length > 0) {
-          const countryInfo = countryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId },
-          });
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId, isBil: true },
-          });
-        }
-      });
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
       if (!isNvl(taId)) {
         dispatch({
           type: 'taMgr/fetchQueryTaInfoWithMask',

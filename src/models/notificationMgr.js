@@ -43,6 +43,12 @@ export default {
           });
           return result.nextQueryTime || 120;
         }
+        if (resultCode === 'USER-30004') {
+          yield put({
+            type: 'login/logout',
+          });
+          return null;
+        }
         message.warn(resultMsg, 10);
         return null;
       }

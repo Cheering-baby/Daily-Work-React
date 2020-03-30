@@ -1,11 +1,11 @@
-import React, {PureComponent} from 'react';
-import {Button, Card, Col, Form, Input, Row, Select, TreeSelect} from 'antd';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
-import {getAllChildrenTargetList, getAllTargetList} from '../utils/pubUtils';
+import React, { PureComponent } from 'react';
+import { Button, Card, Col, Form, Input, Row, Select, TreeSelect } from 'antd';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
+import { getAllChildrenTargetList, getAllTargetList } from '../utils/pubUtils';
 import styles from '../index.less';
 
-const {Option} = Select;
+const { Option } = Select;
 
 const colLayout = {
   lg: 6,
@@ -57,11 +57,11 @@ class NotificationSearchForm extends PureComponent {
     dispatch({
       type: 'notificationSearchForm/queryStatusList',
     });
-    dispatch({type: 'notificationSearchForm/queryAllCompanyConfig'});
+    dispatch({ type: 'notificationSearchForm/queryAllCompanyConfig' });
   }
 
   handleReset = () => {
-    const {form, onSearch} = this.props;
+    const { form, onSearch } = this.props;
     form.resetFields();
     form.validateFields((err, values) => {
       if (!err) {
@@ -82,7 +82,7 @@ class NotificationSearchForm extends PureComponent {
     e.preventDefault();
     const {
       form,
-      notificationSearchForm: {targetTreeData = []},
+      notificationSearchForm: { targetTreeData = [] },
       onSearch,
     } = this.props;
     form.validateFields((err, values) => {
@@ -107,13 +107,31 @@ class NotificationSearchForm extends PureComponent {
     });
   };
 
+  getStatusTitle = text => {
+    let statusTxt = null;
+    switch (String(text).toLowerCase()) {
+      case '01':
+        statusTxt = formatMessage({ id: 'NOTICE_STATUS_DRAFT' });
+        break;
+      case '02':
+        statusTxt = formatMessage({ id: 'NOTICE_STATUS_PUBLISHED' });
+        break;
+      case '03':
+        statusTxt = formatMessage({ id: 'NOTICE_STATUS_PENDING' });
+        break;
+      default:
+        break;
+    }
+    return statusTxt;
+  };
+
   render() {
     const {
       form,
-      notificationSearchForm: {notificationTypeList = [], statusList = [], targetTreeData = []},
+      notificationSearchForm: { notificationTypeList = [], statusList = [], targetTreeData = [] },
       isAdminRoleFlag = false,
     } = this.props;
-    const {getFieldDecorator} = form;
+    const { getFieldDecorator } = form;
     const viewId = 'notificationSearchView';
     const tProps = {
       allowClear: true,
@@ -124,7 +142,7 @@ class NotificationSearchForm extends PureComponent {
       treeCheckable: true,
       treeNodeFilterProp: 'title',
       showCheckedStrategy: TreeSelect.SHOW_PARENT,
-      searchPlaceholder: formatMessage({id: 'NOTICE_PLEASE_SELECT'}),
+      searchPlaceholder: formatMessage({ id: 'NOTICE_PLEASE_SELECT' }),
       getPopupContainer: () => document.getElementById(`${viewId}`),
       style: {
         width: '100%',
@@ -144,7 +162,7 @@ class NotificationSearchForm extends PureComponent {
                 })(
                   <Input
                     allowClear
-                    placeholder={formatMessage({id: 'TITLE'})}
+                    placeholder={formatMessage({ id: 'TITLE' })}
                     autoComplete="off"
                   />
                 )}
@@ -157,14 +175,14 @@ class NotificationSearchForm extends PureComponent {
                 })(
                   <Select
                     allowClear
-                    placeholder={formatMessage({id: 'READ_STATUS'})}
+                    placeholder={formatMessage({ id: 'READ_STATUS' })}
                     getPopupContainer={() => document.getElementById(`${viewId}`)}
                   >
                     <Option key={`readStatusList01}`} value="01">
-                      {formatMessage({id: 'READ_STATUS_READ'})}
+                      {formatMessage({ id: 'READ_STATUS_READ' })}
                     </Option>
                     <Option key={`readStatusList02}`} value="02">
-                      {formatMessage({id: 'READ_STATUS_UNREAD'})}
+                      {formatMessage({ id: 'READ_STATUS_UNREAD' })}
                     </Option>
                     {/* 01: read */}
                     {/* 02: unread */}
@@ -174,22 +192,11 @@ class NotificationSearchForm extends PureComponent {
             </Col>
             {isAdminRoleFlag && (
               <Col {...colLayout}>
-                <Form.Item {...formItemLayout}>
+                <Form.Item {...formItemLayout} style={{ height: '32px' }}>
                   {getFieldDecorator(`targetList`, {
                     rules: [],
                   })(
-                    <TreeSelect {...tProps} />
-                    // <Select
-                    //   allowClear
-                    //   placeholder={formatMessage({ id: 'TARGET_TYPE' })}
-                    //   getPopupContainer={() => document.getElementById(`${viewId}`)}
-                    // >
-                    //   {targetTypeList.map(item => (
-                    //     <Option key={`targetTypeList${item.id}`} value={item.dicValue}>
-                    //       {item.dicName}
-                    //     </Option>
-                    //   ))}
-                    // </Select>
+                    <TreeSelect {...tProps} placeholder={formatMessage({ id: 'TARGET_OBJECT' })} />
                   )}
                 </Form.Item>
               </Col>
@@ -202,7 +209,7 @@ class NotificationSearchForm extends PureComponent {
                   })(
                     <Select
                       allowClear
-                      placeholder={formatMessage({id: 'TYPE'})}
+                      placeholder={formatMessage({ id: 'TYPE' })}
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                     >
                       {notificationTypeList.map(item => (
@@ -223,12 +230,12 @@ class NotificationSearchForm extends PureComponent {
                   })(
                     <Select
                       allowClear
-                      placeholder={formatMessage({id: 'STATUS'})}
+                      placeholder={formatMessage({ id: 'STATUS' })}
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                     >
                       {statusList.map(item => (
                         <Option key={`statusList${item.id}`} value={item.dicValue}>
-                          {item.dicName}
+                          {this.getStatusTitle(item.dicValue)}
                         </Option>
                       ))}
                     </Select>
@@ -237,21 +244,21 @@ class NotificationSearchForm extends PureComponent {
               </Col>
             )}
             {isAdminRoleFlag ? (
-              <Col {...colAdminBtnLayout} style={{textAlign: 'right'}}>
-                <Button type="primary" htmlType="submit" style={{marginRight: 15}}>
-                  {formatMessage({id: 'SEARCH'})}
+              <Col {...colAdminBtnLayout} style={{ textAlign: 'right' }}>
+                <Button type="primary" htmlType="submit" style={{ marginRight: 15 }}>
+                  {formatMessage({ id: 'SEARCH' })}
                 </Button>
                 <Button htmlType="reset" onClick={this.handleReset}>
-                  {formatMessage({id: 'RESET'})}
+                  {formatMessage({ id: 'RESET' })}
                 </Button>
               </Col>
             ) : (
-              <Col {...colBtnLayout} style={{textAlign: 'right'}}>
-                <Button type="primary" htmlType="submit" style={{marginRight: 15}}>
-                  {formatMessage({id: 'SEARCH'})}
+              <Col {...colBtnLayout} style={{ textAlign: 'right' }}>
+                <Button type="primary" htmlType="submit" style={{ marginRight: 15 }}>
+                  {formatMessage({ id: 'SEARCH' })}
                 </Button>
                 <Button htmlType="reset" onClick={this.handleReset}>
-                  {formatMessage({id: 'RESET'})}
+                  {formatMessage({ id: 'RESET' })}
                 </Button>
               </Col>
             )}

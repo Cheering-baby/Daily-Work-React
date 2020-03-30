@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import moment from 'moment';
-import { List, Spin, Tabs } from 'antd';
+import { List, Spin, Tabs, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { hasAllPrivilege, SALES_SUPPORT_PRIVILEGE } from '@/utils/PrivilegeUtil';
@@ -25,7 +25,7 @@ class UserNotificationView extends PureComponent {
       routerTo,
     } = this.props;
     return (
-      <Tabs className={styles.userNotificationStyle} style={{ width: isMobile ? 'auto' : '460px' }}>
+      <Tabs className={styles.userNotificationStyle} style={{ width: isMobile ? 'auto' : '430px' }}>
         <TabPane
           tab={`${formatMessage({ id: 'NOTICE_SYSTEM' })} (${systemNotificationCount})`}
           key="1"
@@ -38,7 +38,7 @@ class UserNotificationView extends PureComponent {
               renderItem={item => (
                 <List.Item>
                   <List.Item.Meta
-                    title={item.title}
+                    title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                     description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
                   />
                 </List.Item>
@@ -63,7 +63,7 @@ class UserNotificationView extends PureComponent {
               renderItem={item => (
                 <List.Item>
                   <List.Item.Meta
-                    title={item.title}
+                    title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                     description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
                   />
                 </List.Item>
@@ -85,7 +85,7 @@ class UserNotificationView extends PureComponent {
               renderItem={item => (
                 <List.Item>
                   <List.Item.Meta
-                    title={item.title}
+                    title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                     description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
                   />
                 </List.Item>
@@ -108,7 +108,7 @@ class UserNotificationView extends PureComponent {
                 renderItem={item => (
                   <List.Item>
                     <List.Item.Meta
-                      title={item.title}
+                      title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                       description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
                     />
                   </List.Item>

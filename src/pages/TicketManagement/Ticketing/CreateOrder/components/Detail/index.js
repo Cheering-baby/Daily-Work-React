@@ -117,11 +117,6 @@ class Detail extends Component {
                 </Col>
               </Row>
             </div>
-            <div className={styles.formControl}>
-              <Button onClick={() => showToCart()} type="primary">
-                Add to Cart
-              </Button>
-            </div>
           </div>
         </Drawer>
       </div>

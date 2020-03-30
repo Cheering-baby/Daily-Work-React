@@ -20,10 +20,9 @@ import { connect } from 'dva';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
 import detailStyles from './index.less';
-import MyActivityDownload from './components/MyActivityDownload';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
-import UploadContractComp from '../TAManagement/MainTAManagement/components/UploadContractComp';
+import UploadContract from '@/pages/MyActivity/components/UploadContract';
 
 const { Option } = Select;
 
@@ -38,15 +37,16 @@ const formItemLayout = {
 
 const ColProps = {
   xs: 24,
+  sm: 12,
   md: 6,
+  xl: 6,
 };
 
 @Form.create()
-@connect(({ myActivity, loading, taMgr }) => ({
+@connect(({ myActivity, loading }) => ({
   myActivity,
-  loading: loading.effects['myActivity/fetchApprovalList'],
-  contractFileUploading: loading.effects['myActivity/fetchRegisterContractFile'],
-  taMgr,
+  loading: loading.effects['myActivity/queryActivityList'],
+  contractFileUploading: loading.effects['myActivity/registerContractFile'],
 }))
 class MyActivity extends React.PureComponent {
   constructor(props) {
@@ -54,28 +54,33 @@ class MyActivity extends React.PureComponent {
     this.columns = [
       {
         title: 'No.',
+        width: '8%',
         dataIndex: 'index',
         key: 'index',
         render: (text, record, index) => `${index + 1}`,
       },
       {
         title: formatMessage({ id: 'ACTIVITY_ID' }),
+        width: '15%',
         dataIndex: 'activityId',
         sorter: (a, b) => (a.activityId > b.activityId ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
       },
       {
         title: formatMessage({ id: 'ACTIVITY_TYPE' }),
+        width: '15%',
         dataIndex: 'activityTypeName',
         sorter: (a, b) => (a.activityTypeName > b.activityTypeName ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
       },
       {
         title: formatMessage({ id: 'REMARKS' }),
+        width: '18%',
         dataIndex: 'remarks',
       },
       {
         title: formatMessage({ id: 'CREATE_DATE' }),
+        width: '15%',
         dataIndex: 'createTime',
         sorter: (a, b) => (a.createTime > b.createTime ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -92,6 +97,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'STATUS' }),
+        width: '20%',
         dataIndex: 'status',
         sorter: (a, b) => (a.status > b.status ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -110,22 +116,9 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'OPERATION' }),
+        width: '15%',
         dataIndex: 'operation',
         render: (text, record) => {
-          // let iconType = '';
-          // let message = {};
-          // if (record.activityTplCode === 'TA-SIGN-UP') {
-          //   iconType = 'upload';
-          //   message = formatMessage({ id: 'COMMON_UPLOAD' });
-          // }
-          // // if (record.statusName === 'Pending Operation') {
-          // //   iconType = 'block';
-          // //   message = formatMessage({ id: 'COMMON_UPLOAD_MAPPING' });
-          // // }
-          // if (record.activityTplCode === 'TA-SIGN-UP') {
-          //   iconType = 'audit';
-          //   message = formatMessage({ id: 'COMMON_UPLOAD_APPROVAL' });
-          // }
           return (
             <div>
               <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
@@ -136,7 +129,8 @@ class MyActivity extends React.PureComponent {
                   }}
                 />
               </Tooltip>
-              {record.activityTplCode === 'TA-SIGN-UP' ? (
+              {record.status === '02' &&
+              record.pendingStep.stepCode === 'TA_SALES_SUPPORT_APPROVAL' ? (
                 <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
                   <Icon
                     type="upload"
@@ -146,8 +140,18 @@ class MyActivity extends React.PureComponent {
                   />
                 </Tooltip>
               ) : null}
-              {record.activityTplCode === 'TA-SIGN-UP' ? (
-                <Tooltip title={formatMessage({ id: 'COMMON_DOWNLOAD' })}>
+              {record.status === '00' ? (
+                <Tooltip title={formatMessage({ id: 'COMMON_REDIRECT_MAPPING' })}>
+                  <Icon
+                    type="block"
+                    onClick={() => {
+                      this.detail('block', record);
+                    }}
+                  />
+                </Tooltip>
+              ) : null}
+              {record.status === '02' ? (
+                <Tooltip title={formatMessage({ id: 'COMMON_OPERATION' })}>
                   <Icon
                     type="audit"
                     onClick={() => {
@@ -167,17 +171,17 @@ class MyActivity extends React.PureComponent {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'myActivity/fetchApprovalList',
+      type: 'myActivity/queryActivityList',
       payload: {},
     });
 
     dispatch({
-      type: 'myActivity/statusList',
+      type: 'myActivity/queryActivityDict',
       payload: {},
     });
 
     dispatch({
-      type: 'myActivity/templateList',
+      type: 'myActivity/queryTemplateList',
       payload: {},
     });
   }
@@ -202,7 +206,7 @@ class MyActivity extends React.PureComponent {
       if (!err) {
         let startDate;
         let endDate;
-        if (Array.isArray(values.createDate)) {
+        if (Array.isArray(values.createDate) && values.createDate.length > 0) {
           startDate = values.createDate[0].format('YYYY-MM-DD');
           endDate = values.createDate[1].format('YYYY-MM-DD');
         }
@@ -215,7 +219,7 @@ class MyActivity extends React.PureComponent {
               activityTplCode: values.activityTplCode,
               status: values.status,
               activityId: values.activityId,
-              businessId: values.businessId,
+              keyword: values.keyword,
             },
           },
         });
@@ -253,7 +257,7 @@ class MyActivity extends React.PureComponent {
   qryMainTAList = (currentPage, pageSize) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'myActivity/fetchApprovalList',
+      type: 'myActivity/queryActivityList',
       payload: {
         pagination: {
           currentPage,
@@ -283,7 +287,31 @@ class MyActivity extends React.PureComponent {
   };
 
   detail = (type = 'eye', record = {}) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'myActivity/save',
+      payload: {
+        selectTaId: record.businessId,
+        businessId: record.businessId,
+      },
+    });
     if (type === 'eye') {
+      dispatch({
+        type: 'activityDetail/save',
+        payload: {
+          isOperationApproval: false,
+        },
+      });
+      router.push({
+        pathname: `/MyActivity/${record.activityId}`,
+      });
+    } else if (type === 'audit') {
+      dispatch({
+        type: 'activityDetail/save',
+        payload: {
+          isOperationApproval: true,
+        },
+      });
       router.push({
         pathname: `/MyActivity/${record.activityId}`,
       });
@@ -302,27 +330,16 @@ class MyActivity extends React.PureComponent {
       this.handleModal('uploadVisible', true);
     } else if (type === 'block') {
       router.push({
-        pathname: '/TAManagement/Mapping',
+        pathname: `/TAManagement/Mapping/${record.businessId}`,
       });
-    } else if (type === 'audit') {
-      this.downloadProps = {
-        ...this.downloadProps,
-        title: formatMessage({
-          id: 'COMMON_DOWNLOAD',
-        }),
-        type: 'audit',
-        okText: formatMessage({ id: 'COMMON_OK' }),
-        record,
-        onCancel: () => {
-          this.handleModal('downloadVisible', false);
-        },
-      };
-      this.handleModal('downloadVisible', true);
     }
   };
 
   handleModalOk = () => {
-    const { dispatch, selectTaId, contractFileList, searchList } = this.props;
+    const {
+      dispatch,
+      myActivity: { contractFileList, selectTaId, pagination },
+    } = this.props;
     const newContractList = [];
     if (!contractFileList || contractFileList.length <= 0) {
       message.warn(formatMessage({ id: 'TA_UPLOAD_FILE_MSG' }), 10);
@@ -344,20 +361,22 @@ class MyActivity extends React.PureComponent {
       }
     });
     dispatch({
-      type: 'myActivity/fetchRegisterContractFile',
+      type: 'myActivity/registerContractFile',
       payload: {
         taId: selectTaId,
         contractList: newContractList || [],
       },
     }).then(flag => {
       if (flag) {
-        this.qryMainTAList(searchList.currentPage, searchList.pageSize);
+        this.qryMainTAList(pagination.currentPage, pagination.pageSize);
         dispatch({
           type: 'myActivity/save',
           payload: {
             contractFileList: [],
             selectTaId: null,
             modalVisible: false,
+            contractFileUploading: false,
+            uploadVisible: false,
           },
         });
       }
@@ -386,7 +405,7 @@ class MyActivity extends React.PureComponent {
   onHandleDelContactFile = (file, fileType) => {
     const { dispatch, contractFileList = [] } = this.props;
     dispatch({
-      type: 'taMgr/fetchDeleteTAFile',
+      type: 'myActivity/fetchDeleteTAFile',
       payload: {
         fileName: file.name,
         path: file.filePath,
@@ -431,7 +450,6 @@ class MyActivity extends React.PureComponent {
         uploadVisible,
         statusList,
         templateList,
-        downloadVisible,
         contractFileList = [],
         contractFileUploading = false,
       },
@@ -461,6 +479,11 @@ class MyActivity extends React.PureComponent {
       onHandleContractFileChange: this.onHandleContractFileChange,
       onHandleDelContactFile: this.onHandleDelContactFile,
     };
+    const tableOpts = {
+      size: 'small',
+      bordered: false,
+      scroll: { x: 750 },
+    };
     return (
       <Row type="flex" justify="space-around" id="myActivity">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
@@ -477,10 +500,10 @@ class MyActivity extends React.PureComponent {
         </Col>
         <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
-            <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
+            <Form onSubmit={this.handleSearch} className={detailStyles.formWrapperClass}>
               <Row gutter={24}>
                 <Col {...ColProps}>
-                  <Form.Item {...formItemLayout}>
+                  <Form.Item {...formItemLayout} style={{ width: '100%' }}>
                     {getFieldDecorator(`activityTplCode`, {
                       rules: [
                         {
@@ -508,7 +531,7 @@ class MyActivity extends React.PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...ColProps}>
-                  <Form.Item {...formItemLayout}>
+                  <Form.Item {...formItemLayout} style={{ width: '100%' }}>
                     {getFieldDecorator(`createDate`, {
                       rules: [
                         {
@@ -526,7 +549,7 @@ class MyActivity extends React.PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...ColProps}>
-                  <Form.Item {...formItemLayout}>
+                  <Form.Item {...formItemLayout} style={{ width: '100%' }}>
                     {getFieldDecorator(
                       'status',
                       {}
@@ -547,7 +570,7 @@ class MyActivity extends React.PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...ColProps}>
-                  <Form.Item {...formItemLayout}>
+                  <Form.Item {...formItemLayout} style={{ width: '100%' }}>
                     {getFieldDecorator(
                       'activityId',
                       {}
@@ -565,12 +588,12 @@ class MyActivity extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      'businessId',
+                      'keyword',
                       {}
                     )(
                       <Input
                         allowClear
-                        placeholder={formatMessage({ id: 'BUSINESS_ID' })}
+                        placeholder={formatMessage({ id: 'KEYWORD' })}
                         autoComplete="off"
                       />
                     )}
@@ -593,7 +616,7 @@ class MyActivity extends React.PureComponent {
           confirmLoading={contractFileUploading}
           onCancel={this.handleModalCancel}
           footer={[
-            <Button key="back" loading={contractFileUploading} onClick={this.handleModalCancel}>
+            <Button key="back" onClick={this.handleModalCancel}>
               {formatMessage({ id: 'COMMON_CANCEL' })}
             </Button>,
             <Button
@@ -606,12 +629,12 @@ class MyActivity extends React.PureComponent {
             </Button>,
           ]}
         >
-          <UploadContractComp {...myFileProps} />
+          <UploadContract {...myFileProps} />
         </Modal>
-        {downloadVisible && <MyActivityDownload {...this.downloadProps} />}
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
             <Table
+              {...tableOpts}
               rowKey={record => `activityList${record.activityId}`}
               bordered={false}
               size="small"

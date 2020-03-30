@@ -1,14 +1,14 @@
-import React, {PureComponent} from 'react';
-import {Col, Form, Input, Popover, Row, Table} from 'antd';
-import {connect} from 'dva';
-import {formatMessage} from 'umi/locale';
+import React, { PureComponent } from 'react';
+import { Col, Form, Input, Popover, Row, Table } from 'antd';
+import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
 import PaginationComp from './PaginationComp';
-import {showTableTitle} from '../utils/pubUtils';
+import { showTableTitle } from '../utils/pubUtils';
 import styles from '../index.less';
 import NotificationDetail from '@/pages/Notifications/components/NotificationDetail';
 
 @Form.create()
-@connect(({notification, loading}) => ({
+@connect(({ notification, loading }) => ({
   notification,
   queryLoading: loading.effects['notification/queryNotificationTemplateList'],
 }))
@@ -17,29 +17,29 @@ class NotificationTemplate extends PureComponent {
     super(props);
     this.column = [
       {
-        title: showTableTitle(formatMessage({id: 'NO'})),
+        title: showTableTitle(formatMessage({ id: 'NO' })),
         key: 'id',
         dataIndex: 'id',
         width: '10%',
       },
       {
-        title: showTableTitle(formatMessage({id: 'TITLE'})),
+        title: showTableTitle(formatMessage({ id: 'TITLE' })),
         dataIndex: 'title',
         key: 'title',
         width: '50%',
       },
       {
-        title: showTableTitle(formatMessage({id: 'CATEGORISED'})),
+        title: showTableTitle(formatMessage({ id: 'CATEGORISED' })),
         dataIndex: 'Categorised',
         key: 'View',
         width: '25%',
       },
       {
-        title: showTableTitle(formatMessage({id: 'OPERATION'})),
+        title: showTableTitle(formatMessage({ id: 'OPERATION' })),
         width: '15%',
         render: (text, record) => {
           const {
-            notification: {templateViewVisible = false, templateId = null},
+            notification: { templateViewVisible = false, templateId = null },
           } = this.props;
           return (
             <div>
@@ -48,11 +48,11 @@ class NotificationTemplate extends PureComponent {
                 placement="bottomRight"
                 trigger="click"
                 visible={templateViewVisible && String(templateId) === String(record.id)}
-                style={{width: '400px !important'}}
+                style={{ width: '400px !important' }}
                 onVisibleChange={visible => this.handleTemplateVisibleChange(visible, record.id)}
                 overlayClassName={styles.templatePopover}
               >
-                <a>{formatMessage({id: 'VIEW'})}</a>
+                <a>{formatMessage({ id: 'VIEW' })}</a>
               </Popover>
             </div>
           );
@@ -62,28 +62,28 @@ class NotificationTemplate extends PureComponent {
   }
 
   componentDidMount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'notification/queryNotificationTemplateList',
     });
   }
 
   getTemplateContent = notificationInfo => {
-    return <NotificationDetail notificationInfo={notificationInfo}/>;
+    return <NotificationDetail notificationInfo={notificationInfo} />;
   };
 
   showHtml = htmlString => {
-    const html = {__html: htmlString};
-    return <div dangerouslySetInnerHTML={html}/>;
+    const html = { __html: htmlString };
+    return <div dangerouslySetInnerHTML={html} />;
   };
 
   handleTemplateVisibleChange = (visible, templateId) => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     let newTemplateId;
     if (visible) {
       newTemplateId = templateId;
     }
-    console.log('templateId: ', templateId);
+    // console.log('templateId: ', templateId);
     dispatch({
       type: 'notification/save',
       payload: {
@@ -95,7 +95,7 @@ class NotificationTemplate extends PureComponent {
 
   onTableChange = (page, keyword) => {
     const {
-      notification: {pagination},
+      notification: { pagination },
     } = this.props;
     if (page.current !== pagination.currentPage || page.pageSize !== pagination.pageSize) {
       this.onSearch(page, keyword);
@@ -106,7 +106,7 @@ class NotificationTemplate extends PureComponent {
     const {
       dispatch,
       notification: {
-        filter: {type},
+        filter: { type },
         pagination,
       },
     } = this.props;
@@ -116,21 +116,21 @@ class NotificationTemplate extends PureComponent {
       type: 'notification/change',
       payload: {
         pagination,
-        filter: {keyword, type},
+        filter: { keyword, type },
       },
     });
   };
 
   render() {
     const {
-      notification: {templateList, pagination},
+      notification: { templateList, pagination },
       queryLoading,
     } = this.props;
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
         const {
           dispatch,
-          notification: {notificationInfo},
+          notification: { notificationInfo },
         } = this.props;
         if (selectedRows && selectedRows.length > 0) {
           notificationInfo.type = selectedRows[0].type;
@@ -158,10 +158,10 @@ class NotificationTemplate extends PureComponent {
       pageChange: (page, pageSize) => {
         const {
           notification: {
-            filter: {keyword},
+            filter: { keyword },
           },
         } = this.props;
-        this.onTableChange({current: page, pageSize}, keyword);
+        this.onTableChange({ current: page, pageSize }, keyword);
       },
     };
     const tableOpts = {
@@ -174,15 +174,15 @@ class NotificationTemplate extends PureComponent {
           <Col span={24} className={styles.searchTemplate}>
             <Input.Search
               allowClear
-              placeholder={formatMessage({id: 'BTN_SEARCH'})}
+              placeholder={formatMessage({ id: 'BTN_SEARCH' })}
               loading={queryLoading}
               onSearch={value => {
                 const {
                   notification: {
-                    pagination: {pageSize},
+                    pagination: { pageSize },
                   },
                 } = this.props;
-                this.onSearch({current: 1, pageSize}, value);
+                this.onSearch({ current: 1, pageSize }, value);
               }}
             />
           </Col>
@@ -193,9 +193,9 @@ class NotificationTemplate extends PureComponent {
           columns={this.column}
           rowKey={record => `templateList${record.id}`}
           dataSource={templateList || []}
-          scroll={{x: 660}}
+          scroll={{ x: 660 }}
           loading={queryLoading}
-          rowSelection={{type: 'radio', ...rowSelection}}
+          rowSelection={{ type: 'radio', ...rowSelection }}
           {...tableOpts}
         />
       </React.Fragment>

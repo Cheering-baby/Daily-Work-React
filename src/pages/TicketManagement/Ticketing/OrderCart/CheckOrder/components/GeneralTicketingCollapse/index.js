@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
-import {Icon, Collapse, Form, message} from 'antd';
+import { Icon, Collapse, Form, message } from 'antd';
 import { connect } from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
 import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/AttractionToCart';
-import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/utils/utils';
+import BundleToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/BundleToCart';
+import {
+  arrToString,
+  calculateAllProductPrice,
+  calculateTicketPrice,
+} from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
-@connect(({ global,ticketOrderCartMgr }) => ({
-  global,ticketOrderCartMgr,
+@connect(({ global, ticketOrderCartMgr }) => ({
+  global,
+  ticketOrderCartMgr,
 }))
 class GeneralTicketingCollapse extends Component {
   constructor(props) {
@@ -22,35 +28,112 @@ class GeneralTicketingCollapse extends Component {
     } = this.props;
     if (opType === 'delete' && offerIndex !== null) {
       const orderItem = generalTicketOrderData[orderIndex].orderOfferList[offerIndex];
-      dispatch({
-        type: 'ticketOrderCartMgr/removeShoppingCart',
-        payload: {
-          offerInstances: [{
-            offerNo: orderItem.offerInfo.offerNo,
-            offerInstanceId: orderItem.offerInstanceId,
-          }],
-          callbackFn: null,
-        },
-      }).then((resultCode)=>{
-        if (resultCode==='0') {
+      if (orderItem.orderType === 'offerBundle') {
+        const { orderInfo } = orderItem;
+        let handleResult = 0;
+        orderInfo.forEach(orderInfoItem => {
+          if (handleResult === 0) {
+            dispatch({
+              type: 'ticketOrderCartMgr/removeShoppingCart',
+              payload: {
+                offerInstances: [
+                  {
+                    offerNo: orderInfoItem.offerInfo.offerNo,
+                    offerInstanceId: orderInfoItem.offerInstanceId,
+                  },
+                ],
+                callbackFn: null,
+              },
+            }).then(resultCode => {
+              if (resultCode !== '0') {
+                handleResult = -1;
+              }
+            });
+          }
+        });
+        if (handleResult === 0) {
           message.success('Delete successfully!');
         }
-      });
+      } else {
+        dispatch({
+          type: 'ticketOrderCartMgr/removeShoppingCart',
+          payload: {
+            offerInstances: [
+              {
+                offerNo: orderItem.offerInfo.offerNo,
+                offerInstanceId: orderItem.offerInstanceId,
+              },
+            ],
+            callbackFn: null,
+          },
+        }).then(resultCode => {
+          if (resultCode === '0') {
+            message.success('Delete successfully!');
+          }
+        });
+      }
     } else if (opType === 'edit') {
       const editOrderOffer = generalTicketOrderData[orderIndex].orderOfferList[offerIndex];
-      const attractionProduct = [{ ...editOrderOffer.orderInfo[0].productInfo }];
-      const deliverInfomation = { ...editOrderOffer.deliveryInfo };
-      dispatch({
-        type: 'ticketOrderCartMgr/save',
-        payload: {
-          showToCartModalType: 0,
-          showToCartModal: true,
-          orderIndex: offerIndex,
-          editOrderOffer,
-          attractionProduct,
-          deliverInfomation,
-        },
-      });
+      if (editOrderOffer.orderType === 'offerBundle') {
+        const { bundleName, queryInfo, orderInfo } = editOrderOffer;
+        const offers = [];
+        orderInfo.forEach(orderInfoItem => {
+          let attractionProduct;
+          orderInfoItem.offerInfo.productGroup.forEach(item => {
+            const { productType } = item;
+            if (productType === 'Attraction') {
+              item.productGroup.forEach(item2 => {
+                if (item2.groupName === 'Attraction') {
+                  attractionProduct = item2.products;
+                }
+              });
+            }
+          });
+          offers.push(
+            Object.assign(
+              {},
+              {
+                ticketNumber: orderInfoItem.quantity,
+                attractionProduct,
+                detail: orderInfoItem.offerInfo,
+              }
+            )
+          );
+        });
+        const bundleOfferDetail = {
+          bundleName,
+          offers,
+          dateOfVisit: queryInfo.dateOfVisit,
+          numOfGuests: queryInfo.numOfGuests,
+        };
+        const deliverInfomation = { ...editOrderOffer.deliveryInfo };
+        dispatch({
+          type: 'ticketOrderCartMgr/save',
+          payload: {
+            showToCartModalType: 0,
+            orderIndex,
+            offerIndex,
+            showBundleToCart: true,
+            bundleOfferDetail,
+            deliverInfomation,
+          },
+        });
+      } else {
+        const attractionProduct = [{ ...editOrderOffer.orderInfo[0].productInfo }];
+        const deliverInfomation = { ...editOrderOffer.deliveryInfo };
+        dispatch({
+          type: 'ticketOrderCartMgr/save',
+          payload: {
+            showToCartModalType: 0,
+            showToCartModal: true,
+            orderIndex,
+            offerIndex,
+            editOrderOffer,
+            attractionProduct,
+            deliverInfomation,
+          },
+        });
+      }
     }
   };
 
@@ -88,6 +171,7 @@ class GeneralTicketingCollapse extends Component {
       type: 'ticketOrderCartMgr/save',
       payload: {
         showToCartModal: false,
+        showBundleToCart: false,
       },
     });
   };
@@ -156,6 +240,7 @@ class GeneralTicketingCollapse extends Component {
       dispatch,
       ticketOrderCartMgr: {
         orderIndex,
+        offerIndex,
         deliverInfomation = {},
         attractionProduct = [],
         editOrderOffer,
@@ -188,10 +273,88 @@ class GeneralTicketingCollapse extends Component {
       type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
       payload: {
         orderIndex,
+        offerIndex,
         orderData,
       },
     });
     this.onClose();
+  };
+
+  bundleOrder = () => {
+    const {
+      dispatch,
+      ticketOrderCartMgr: {
+        orderIndex,
+        offerIndex,
+        deliverInfomation = {},
+        bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
+      },
+    } = this.props;
+    const orderInfo = offers.map(item => {
+      const {
+        ticketNumber: quantity,
+        detail,
+        detail: { priceRuleId },
+        attractionProduct = [],
+      } = item;
+      return {
+        quantity,
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
+        offerInfo: {
+          ...detail,
+        },
+      };
+    });
+    const orderData = {
+      themeParkCode: offers[0].attractionProduct[0].attractionProduct.themePark,
+      themeParkName: offers[0].attractionProduct[0].attractionProduct.themeParkName,
+      orderType: 'offerBundle',
+      bundleName,
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderInfo,
+      deliveryInfo: deliverInfomation,
+    };
+    dispatch({
+      type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
+      payload: {
+        orderIndex,
+        offerIndex,
+        orderData,
+      },
+    });
+    this.onClose();
+  };
+
+  changeBundleOfferNumber = async (index, value, productPrice) => {
+    const {
+      dispatch,
+      ticketOrderCartMgr: {
+        bundleOfferDetail,
+        bundleOfferDetail: { offers = [] },
+      },
+    } = this.props;
+    const originalValue = offers[index].ticketNumber;
+    const offersCopy = JSON.parse(JSON.stringify(offers));
+    const testReg = /^[1-9]\d*$/;
+    const testZero = /^0$/;
+    if (value === '' || testZero.test(value) || testReg.test(value)) {
+      offersCopy[index].ticketNumber = value;
+      offersCopy[index].price = value * productPrice;
+      dispatch({
+        type: 'ticketOrderCartMgr/save',
+        payload: {
+          bundleOfferDetail: {
+            ...bundleOfferDetail,
+            offers: offersCopy,
+          },
+        },
+      });
+      return value;
+    }
+    return originalValue;
   };
 
   render() {
@@ -203,10 +366,12 @@ class GeneralTicketingCollapse extends Component {
         countrys,
         showToCartModalType,
         showToCartModal = false,
+        showBundleToCart = false,
         editOrderOffer = {},
         generalTicketOrderData = [],
         attractionProduct = [],
         deliverInfomation = {},
+        bundleOfferDetail = {},
       },
       form,
     } = this.props;
@@ -278,6 +443,18 @@ class GeneralTicketingCollapse extends Component {
             initialAcceptTermsAndConditions
           />
         )}
+        {showBundleToCart ? (
+          <BundleToCart
+            {...bundleOfferDetail}
+            onClose={this.onClose}
+            countrys={countrys}
+            order={this.bundleOrder}
+            formatInputValue={this.formatInputValue}
+            changeTicketNumber={this.changeBundleOfferNumber}
+            deliverInfomation={deliverInfomation}
+            changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
+          />
+        ) : null}
       </Collapse>
     );
   }

@@ -7,10 +7,10 @@ import OrderItemCollapse from './components/OrderItemCollapse';
 
 @Form.create()
 @connect(({ global, ticketBookingAndPayMgr }) => ({
-  global, ticketBookingAndPayMgr,
+  global,
+  ticketBookingAndPayMgr,
 }))
 class OnceAPirateCollapse extends Component {
-
   constructor(props) {
     super(props);
   }

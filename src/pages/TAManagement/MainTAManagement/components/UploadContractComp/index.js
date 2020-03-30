@@ -123,7 +123,7 @@ class UploadContractComp extends PureComponent {
       },
     };
     return (
-      <Card className={styles.uploadContractCard} spinning={contractFileUploading}>
+      <Card className={styles.uploadContractCard} loading={contractFileUploading}>
         <Col span={24}>
           <Upload.Dragger {...contractProps} fileList={this.normFile(contractFileList)}>
             <p className={styles.contactUploadDragIcon}>

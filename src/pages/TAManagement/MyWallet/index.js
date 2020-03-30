@@ -2,9 +2,8 @@ import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
-
+import MediaQuery from 'react-responsive';
 import {
-  Breadcrumb,
   Button,
   Card,
   Col,
@@ -17,6 +16,8 @@ import {
   Table,
   Tooltip,
 } from 'antd';
+import BreadcrumbComp from '../../../components/BreadcrumbComp';
+import SCREEN from '@/utils/screen';
 import Invoice from './components/invoice';
 import Topup from './components/topup';
 import ARApply from './components/ARApply';
@@ -148,13 +149,16 @@ class MyWallet extends React.PureComponent {
         title: formatMessage({ id: 'TRANSACTION_NO' }),
         dataIndex: 'transactionId',
         key: 'transactionId',
+        render: text => {
+          return <Tooltip title={text}>{text}</Tooltip>;
+        },
       },
       {
         title: formatMessage({ id: 'TRANSACTION_TYPE' }),
         dataIndex: 'tranType',
         key: 'tranType',
         render: text => {
-          return transactionTypesMap[text];
+          return <Tooltip title={transactionTypesMap[text]}>{transactionTypesMap[text]}</Tooltip>;
         },
       },
       {
@@ -162,39 +166,55 @@ class MyWallet extends React.PureComponent {
         key: 'time',
         render: (text, record) => {
           const timeText = record.sourceSystem ? record.sourceTransactionTime : record.createTime;
-          return timeText ? moment(timeText).format('DD-MMM-YYYY HH:mm:ss') : '';
+          return (
+            <Tooltip title={timeText ? moment(timeText).format('DD-MMM-YYYY HH:mm:ss') : ''}>
+              {timeText ? moment(timeText).format('DD-MMM-YYYY HH:mm:ss') : ''}
+            </Tooltip>
+          );
         },
       },
       {
         title: 'Amount',
         key: 'charge',
-        render: (text, record) =>
-          (record.flow === 0 ? '+' : '-') +
-          record.charge.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        render: (text, record) => {
+          const chargeText =
+            (record.flow === 0 ? '+' : '-') +
+            record.charge.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          return <Tooltip title={chargeText}>{chargeText}</Tooltip>;
+        },
       },
       {
         title: 'Invoice No',
         key: 'invoiceNo',
-        render: (text, record) =>
-          (record.sourceSystem ? record.sourceInvoiceNo : record.invoiceNo) || '-',
+        render: (text, record) => {
+          const invoiceText =
+            (record.sourceSystem ? record.sourceInvoiceNo : record.invoiceNo) || '-';
+          return <Tooltip title={invoiceText}>{invoiceText}</Tooltip>;
+        },
       },
       {
         title: 'Reference No',
         key: 'referenceNo',
         dataIndex: 'referenceNo',
-        render: text => text || '-',
+        render: text => {
+          return <Tooltip title={text || '-'}>{text || '-'}</Tooltip>;
+        },
       },
       {
         title: 'Galaxy Order No',
         key: 'galaxyOrderNo',
         dataIndex: 'galaxyOrderNo',
-        render: text => text || '-',
+        render: text => {
+          return <Tooltip title={text || '-'}>{text || '-'}</Tooltip>;
+        },
       },
       {
         title: 'TA Reference No',
         key: 'taReferenceNo',
         dataIndex: 'taReferenceNo',
-        render: text => text || '-',
+        render: text => {
+          return <Tooltip title={text || '-'}>{text || '-'}</Tooltip>;
+        },
       },
       {
         title: formatMessage({ id: 'STATUS' }),
@@ -202,10 +222,12 @@ class MyWallet extends React.PureComponent {
         key: 'status',
         render: text => {
           return (
-            <div>
-              <span className={statusList[text].class} />
-              {statusList[text].label}
-            </div>
+            <Tooltip title={statusList[text].label}>
+              <div>
+                <span className={statusList[text].class} />
+                {statusList[text].label}
+              </div>
+            </Tooltip>
           );
         },
       },
@@ -229,6 +251,16 @@ class MyWallet extends React.PureComponent {
         },
       },
     ];
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
+        url: '/TAManagement/My Wallet',
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'MENU_WALLET' }),
+        url: null,
+      },
+    ];
 
     const paginationSetting = {
       showSizeChanger: true,
@@ -243,10 +275,16 @@ class MyWallet extends React.PureComponent {
     };
     return (
       <Col lg={24} md={24}>
-        <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-          <Breadcrumb.Item className={styles.BreadcrumbStyle}>TA Management</Breadcrumb.Item>
-          <Breadcrumb.Item className={styles.Breadcrumbbold}>My Wallet</Breadcrumb.Item>
-        </Breadcrumb>
+        <MediaQuery
+          maxWidth={SCREEN.screenMdMax}
+          minWidth={SCREEN.screenSmMin}
+          minHeight={SCREEN.screenSmMin}
+        >
+          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+        </MediaQuery>
+        <MediaQuery minWidth={SCREEN.screenLgMin}>
+          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+        </MediaQuery>
         <Card>
           <Row gutter={24}>
             <Col lg={12} md={12}>
@@ -302,9 +340,9 @@ class MyWallet extends React.PureComponent {
           </Row>
         </Card>
         <Card>
-          <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
-            <Row gutter={24}>
-              <Col lg={6} xs={24}>
+          <Form onSubmit={this.handleSearch}>
+            <Row type="flex" justify="space-around" gutter={24}>
+              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
                 <Form.Item>
                   {getFieldDecorator(`transactionId`, {
                     rules: [
@@ -316,7 +354,7 @@ class MyWallet extends React.PureComponent {
                   })(<Input placeholder="PAMS Transaction No." allowClear />)}
                 </Form.Item>
               </Col>
-              <Col lg={6} xs={24}>
+              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
                 <Form.Item>
                   {getFieldDecorator(`transactionType`, {
                     rules: [{ required: false, message: '' }],
@@ -334,7 +372,7 @@ class MyWallet extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col lg={6} xs={24}>
+              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
                 <Form.Item>
                   {getFieldDecorator(`dateRange`, {
                     rules: [{ required: false, message: '' }],
@@ -347,7 +385,7 @@ class MyWallet extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col lg={6} xs={24} style={{ textAlign: 'right' }}>
+              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right' }}>
                 <Button
                   type="primary"
                   htmlType="submit"

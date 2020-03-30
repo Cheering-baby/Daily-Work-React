@@ -17,7 +17,10 @@ const getIcon = icon => {
   if (typeof icon === 'string' && icon.indexOf('http') === 0) {
     return <img src={icon} alt="icon" className={styles.icon} />;
   }
-  if (typeof icon === 'string') return <Icon type={icon} style={{ fontSize: '20px' }} />;
+  if (typeof icon === 'string' && String(icon) !== 'iconfont icon-list')
+    return <Icon type={icon} style={{ fontSize: '20px' }} />;
+  if (typeof icon === 'string' && String(icon) === 'iconfont icon-list')
+    return <span className={icon} />;
   return icon;
 };
 
@@ -136,7 +139,7 @@ export default class BaseMenu extends PureComponent {
     const name = item.locale ? formatMessage({ id: item.locale }) : item.name;
     const itemPath = this.conversionPath(item.path);
     let { iconUrl } = item;
-    if (!iconUrl) iconUrl = 'iconfont icon-asterisk';
+    if (!iconUrl) iconUrl = 'iconfont icon-list';
     const icon = getIcon(iconUrl);
     const { target } = item;
     // Is it a http link
@@ -205,11 +208,11 @@ export default class BaseMenu extends PureComponent {
         openKeys,
       };
     }
-    if (selectedKeys && selectedKeys.length > 0 && !(openKeys && openKeys.length > 0)) {
-      props = {
-        openKeys: selectedKeys,
-      };
-    }
+    // if (selectedKeys && selectedKeys.length > 0 && !(openKeys && openKeys.length > 0)) {
+    //   props = {
+    //     openKeys: selectedKeys,
+    //   };
+    // }
     return (
       <Menu
         key="Menu"

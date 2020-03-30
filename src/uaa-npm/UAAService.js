@@ -62,12 +62,12 @@ class UAAService extends CommonService {
   async postLogin() {
     let result = {};
 
-    const {success, errorMsg, data} = await this.request('/v1/postLogin', {
+    const { success, errorMsg, data } = await this.request('/v1/postLogin', {
       withCredentials: this.defaults.withCredentials,
     });
 
     if (success) {
-      const {accessToken, refreshToken} = data;
+      const { accessToken, refreshToken } = data;
       if (accessToken) {
         this.axiosConfig.AT = accessToken;
       }

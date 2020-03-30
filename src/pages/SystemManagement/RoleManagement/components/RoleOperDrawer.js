@@ -1,10 +1,11 @@
-import React, { Fragment } from 'react';
-import { Collapse, Button, Icon, Drawer, Form, Input, Tree, Select } from 'antd';
+import React from 'react';
+import { Button, Collapse, Drawer, Form, Icon, Input, Select, Spin, Tooltip, Tree } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
 import { connect } from 'dva';
 import styles from '../index.less';
+import constants from '../constants';
 
 const { Option } = Select;
 const { Search } = Input;
@@ -20,13 +21,12 @@ const customerPanelStyle = {
 
 const getParentKey = (key, tree) => {
   let parentKey;
-  for (let i = 0; i < tree.length; i++) {
+  for (let i = 0; i < tree.length; i += 1) {
     const node = tree[i];
-    if (node.subMenus) {
-      console.log(node, key);
-      if (node.subMenus.some(item => item.menuCode + item.appCode === key)) {
+    const { subMenus = [] } = node;
+    if (subMenus && subMenus.length > 0) {
+      if (subMenus.some(item => item.menuCode + item.appCode === key)) {
         parentKey = node.menuCode + node.appCode;
-        console.log(parentKey);
       } else if (getParentKey(key, node.subMenus)) {
         parentKey = getParentKey(key, node.subMenus);
       }
@@ -36,31 +36,110 @@ const getParentKey = (key, tree) => {
 };
 
 @Form.create()
-@connect(({ roleManagement, loading }) => ({
-  roleManagement,
-  addLoading: loading.effects['roleManagement/addUserRole'],
-  editLoading: loading.effects['roleManagement/modifyUserRole'],
+@connect(({ roleMgr, loading }) => ({
+  roleMgr,
+  addLoading: loading.effects['roleMgr/addUserRole'],
+  editLoading: loading.effects['roleMgr/modifyUserRole'],
 }))
 class Index extends React.PureComponent {
-  state = {
-    expandedKeys: ['0-0-0', '0-0-1'],
-    autoExpandParent: true,
-    checkedKeys: ['0-0-0'],
-    selectedKeys: [],
-  };
+  componentDidMount() {}
 
-  componentDidMount() {
-    // TODO get ROLES
-    // TODO get companies
-    //
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'roleMgr/saveData',
+      payload: {
+        expandedKeys: [],
+        autoExpandParent: true,
+        checkedKeys: [],
+        searchValue: '',
+      },
+    });
   }
 
   commit = e => {
     e.preventDefault();
-    const { dispatch, form } = this.props;
+    const {
+      form,
+      roleMgr: { operType = constants.ADD_USER_ROLE, checkedKeys = [], halfCheckedKeys = [] },
+    } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        // this.query(values);
+        values.appCode = constants.APP_CODE;
+        if (operType === constants.ADD_USER_ROLE) {
+          values.menuCodes = [...checkedKeys, ...halfCheckedKeys].map(item =>
+            item.substring(0, item.length - constants.ROOT_CODE.length)
+          );
+          this.addUserRole(values);
+        } else if (operType === constants.MODIFY_USER_ROLE) {
+          values.addMenuCodes = this.getAddMenuCodes();
+          values.removeMenuCodes = this.getRemoveMenuCodes();
+          this.modifyUserRole(values);
+        }
+      }
+    });
+  };
+
+  getRemoveMenuCodes = () => {
+    const {
+      roleMgr: { checkedKeys = [], halfCheckedKeys = [], checkedMenuCodes = [] },
+    } = this.props;
+    const allCheckedKeys = [...checkedKeys, ...halfCheckedKeys];
+    const removeCodes = [];
+    checkedMenuCodes.forEach(item => {
+      const key = item + constants.ROOT_CODE;
+      if (!allCheckedKeys.includes(key)) {
+        removeCodes.push(item);
+      }
+    });
+    return removeCodes;
+  };
+
+  getAddMenuCodes = () => {
+    const {
+      roleMgr: { checkedKeys = [], halfCheckedKeys = [], checkedMenuCodes = [] },
+    } = this.props;
+    const checkedMenuCode = [...checkedKeys, ...halfCheckedKeys];
+    const addCodes = [];
+    checkedMenuCode.forEach(item => {
+      const menuCode = item.substring(0, item.length - constants.ROOT_CODE.length);
+      if (!checkedMenuCodes.includes(menuCode)) {
+        addCodes.push(menuCode);
+      }
+    });
+    return addCodes;
+  };
+
+  modifyUserRole = values => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'roleMgr/modifyUserRole',
+      payload: {
+        ...values,
+      },
+    }).then(result => {
+      if (result) {
+        this.closeDetailDrawer();
+        dispatch({
+          type: 'roleMgr/queryUserRolesByCondition',
+        });
+      }
+    });
+  };
+
+  addUserRole = values => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'roleMgr/addUserRole',
+      payload: {
+        ...values,
+      },
+    }).then(result => {
+      if (result) {
+        this.closeDetailDrawer();
+        dispatch({
+          type: 'roleMgr/queryUserRolesByCondition',
+        });
       }
     });
   };
@@ -68,7 +147,7 @@ class Index extends React.PureComponent {
   closeDetailDrawer = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'roleManagement/saveData',
+      type: 'roleMgr/saveData',
       payload: {
         drawerShowFlag: false,
       },
@@ -76,27 +155,33 @@ class Index extends React.PureComponent {
   };
 
   onExpand = expandedKeys => {
-    console.log('onExpand', expandedKeys);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'roleMgr/saveData',
+      payload: {
+        expandedKeys,
+        autoExpandParent: false,
+      },
     });
   };
 
-  onCheck = checkedKeys => {
-    console.log('onCheck', checkedKeys);
-    this.setState({ checkedKeys });
-  };
-
-  onSelect = (selectedKeys, info) => {
-    console.log('onSelect', info);
-    this.setState({ selectedKeys });
+  onCheck = (checkedKeys, e) => {
+    const { dispatch } = this.props;
+    const { halfCheckedKeys = [] } = e;
+    dispatch({
+      type: 'roleMgr/saveData',
+      payload: {
+        checkedKeys,
+        halfCheckedKeys,
+      },
+    });
   };
 
   renderTreeNodes = data => {
-    const { searchValue = '' } = this.state;
+    const {
+      roleMgr: { searchValue = '' },
+    } = this.props;
+
     return data.map(item => {
       const index = item.menuName.indexOf(searchValue);
       const beforeStr = item.menuName.substr(0, index);
@@ -126,10 +211,10 @@ class Index extends React.PureComponent {
 
   onChange = e => {
     const {
-      roleManagement: { menuTree = [], menuList = [] },
+      dispatch,
+      roleMgr: { menuTree = [], menuList = [] },
     } = this.props;
     const { value } = e.target;
-    console.log(menuList);
     const expandedKeys = menuList
       .map(item => {
         if (item.title.indexOf(value) > -1) {
@@ -138,10 +223,13 @@ class Index extends React.PureComponent {
         return null;
       })
       .filter((item, i, self) => item && self.indexOf(item) === i);
-    this.setState({
-      expandedKeys,
-      searchValue: value,
-      autoExpandParent: true,
+    dispatch({
+      type: 'roleMgr/saveData',
+      payload: {
+        expandedKeys,
+        searchValue: value,
+        autoExpandParent: true,
+      },
     });
   };
 
@@ -153,100 +241,155 @@ class Index extends React.PureComponent {
     return <Icon type="plus-square" className={styles.panelIconClass} theme="filled" />;
   };
 
+  getRoleTypeOptions = () => {
+    return constants.ROLE_TYPES.map(item => {
+      return (
+        <Option key={item.key} value={item.key}>
+          {item.title}
+        </Option>
+      );
+    });
+  };
+
   render() {
-    const { getFieldDecorator } = this.props.form;
     const {
-      roleManagement: { drawerShowFlag = false, menuTree = [] },
+      form: { getFieldDecorator },
+      roleMgr: {
+        menuTree = [],
+        expandedKeys = [],
+        checkedKeys = [],
+        autoExpandParent = true,
+        menuList = [],
+        operType = constants.ADD_USER_ROLE,
+        userRoleDetail = {},
+      },
+      addRoleLoading = false,
+      detailLoading = false,
+      editLoading = false,
     } = this.props;
+
+    const { roleCode = '', roleName = '', roleType = '', includePerson } = userRoleDetail;
+
+    const roleTypeFormItem = (
+      <Form.Item label={formatMessage({ id: 'ROLE_TYPE' })}>
+        {getFieldDecorator(`roleType`, {
+          initialValue: operType === constants.ADD_USER_ROLE ? undefined : roleType,
+          rules: [
+            {
+              required: true,
+            },
+          ],
+        })(
+          <Select
+            allowClear
+            disabled={operType !== constants.ADD_USER_ROLE && includePerson > 0}
+            placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+          >
+            {this.getRoleTypeOptions()}
+          </Select>
+        )}
+      </Form.Item>
+    );
+
     return (
       <Drawer
-        title={formatMessage({ id: 'DETAIL' })}
+        title={
+          operType === constants.ADD_USER_ROLE
+            ? formatMessage({ id: 'NEW' })
+            : formatMessage({ id: 'EDIT' })
+        }
         className={styles.drawerClass}
         destroyOnClose
         width={480}
         closable
         onClose={this.closeDetailDrawer}
-        visible={drawerShowFlag}
+        visible
       >
-        <Form onSubmit={e => this.commit(e)} layout="vertical">
-          <Form.Item label={formatMessage({ id: 'ROLE_CODE' })}>
-            {getFieldDecorator(`roleCode`, {
-              initialValue: '',
-              rules: [
-                {
-                  required: true,
-                },
-              ],
-            })(<Input placeholder={formatMessage({ id: 'PLEASE_ENTER' })} allowClear />)}
-          </Form.Item>
-          <Form.Item label={formatMessage({ id: 'ROLE_NAME' })}>
-            {getFieldDecorator(`roleName`, {
-              initialValue: '',
-              rules: [
-                {
-                  required: true,
-                },
-              ],
-            })(<Input placeholder={formatMessage({ id: 'PLEASE_ENTER' })} allowClear />)}
-          </Form.Item>
-          <Form.Item label={formatMessage({ id: 'ROLE_TYPE' })}>
-            {getFieldDecorator(`roleType`, {
-              initialValue: null,
-              rules: [
-                {
-                  required: true,
-                },
-              ],
-            })(
-              <Select allowClear placeholder={formatMessage({ id: 'PLEASE_SELECT' })}>
-                <Option key="01" value="01">
-                  RWS_ROLE
-                </Option>
-                <Option key="02" value="02">
-                  TA_ROLE
-                </Option>
-                <Option key="03" value="03">
-                  SUB_TA_ROLE
-                </Option>
-              </Select>
+        <Spin spinning={detailLoading}>
+          <Form onSubmit={e => this.commit(e)} layout="vertical">
+            <Form.Item label={formatMessage({ id: 'ROLE_CODE' })}>
+              {getFieldDecorator(`roleCode`, {
+                initialValue: operType === constants.ADD_USER_ROLE ? '' : roleCode,
+                rules: [
+                  {
+                    required: true,
+                  },
+                ],
+              })(
+                <Input
+                  disabled={operType === constants.MODIFY_USER_ROLE}
+                  maxLength={50}
+                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                  allowClear
+                />
+              )}
+            </Form.Item>
+            <Form.Item label={formatMessage({ id: 'ROLE_NAME' })}>
+              {getFieldDecorator(`roleName`, {
+                initialValue: operType === constants.ADD_USER_ROLE ? '' : roleName,
+                rules: [
+                  {
+                    required: true,
+                  },
+                ],
+              })(
+                <Input
+                  maxLength={100}
+                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                  allowClear
+                />
+              )}
+            </Form.Item>
+            {operType !== constants.ADD_USER_ROLE && includePerson > 0 ? (
+              <Tooltip title={formatMessage({ id: 'ROLE_INCLUDE_ERROR' })} placement="bottom">
+                {roleTypeFormItem}
+              </Tooltip>
+            ) : (
+              roleTypeFormItem
             )}
-          </Form.Item>
-          <Form.Item label={formatMessage({ id: 'ROLE_MENU' })}>
-            <Collapse defaultActiveKey={['1']} expandIcon={this.expandIcon}>
-              <Panel header="This is panel header 1" style={customerPanelStyle} key="1">
-                <Search style={{ marginBottom: 8 }} placeholder="Search" onChange={this.onChange} />
-                <Tree
-                  checkable
-                  showLine
-                  showIcon={false}
-                  onExpand={this.onExpand}
-                  expandedKeys={this.state.expandedKeys}
-                  autoExpandParent={this.state.autoExpandParent}
-                  onCheck={this.onCheck}
-                  checkedKeys={this.state.checkedKeys}
-                  onSelect={this.onSelect}
-                  selectedKeys={this.state.selectedKeys}
-                  className={styles.treeClass}
+            <Form.Item label={formatMessage({ id: 'ROLE_MENU' })}>
+              <Collapse defaultActiveKey={['1']} expandIcon={this.expandIcon}>
+                <Panel
+                  header={`${checkedKeys.length}/${menuList.length}`}
+                  style={customerPanelStyle}
+                  key="1"
                 >
-                  {this.renderTreeNodes(menuTree)}
-                </Tree>
-              </Panel>
-            </Collapse>
-          </Form.Item>
-          <div className={styles.drawerBtnWrapper}>
-            <Button
-              style={{
-                marginRight: 8,
-              }}
-              onClick={this.closeDetailDrawer}
-            >
-              {formatMessage({ id: 'COMMON_CANCEL' })}
-            </Button>
-            <Button onClick={this.onClose} type="primary">
-              {formatMessage({ id: 'COMMON_OK' })}
-            </Button>
-          </div>
-        </Form>
+                  <Search
+                    style={{ marginBottom: 8 }}
+                    placeholder="Search"
+                    onChange={this.onChange}
+                  />
+                  <Tree
+                    checkable
+                    showLine
+                    showIcon={false}
+                    onExpand={this.onExpand}
+                    expandedKeys={expandedKeys}
+                    autoExpandParent={autoExpandParent}
+                    onCheck={this.onCheck}
+                    checkedKeys={checkedKeys}
+                    className={styles.treeClass}
+                  >
+                    {this.renderTreeNodes(menuTree)}
+                  </Tree>
+                </Panel>
+              </Collapse>
+            </Form.Item>
+            <div className={styles.drawerBtnWrapper}>
+              <Button
+                style={{
+                  marginRight: 8,
+                }}
+                onClick={this.closeDetailDrawer}
+              >
+                {formatMessage({ id: 'COMMON_CANCEL' })}
+              </Button>
+              <Button type="primary" htmlType="submit" loading={addRoleLoading || editLoading}>
+                {formatMessage({ id: 'COMMON_OK' })}
+              </Button>
+            </div>
+          </Form>
+        </Spin>
       </Drawer>
     );
   }

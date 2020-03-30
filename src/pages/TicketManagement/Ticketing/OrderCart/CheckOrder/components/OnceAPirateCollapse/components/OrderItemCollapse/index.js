@@ -58,7 +58,7 @@ class OrderItemCollapse extends Component {
   getMealsAmount = orderOffer => {
     let offerMealsAmount = 0;
     if (orderOffer.orderInfo.voucherType && orderOffer.orderInfo.voucherType === '1') {
-      orderOffer.orderInfo.groupSettingList.map(groupSetting=>{
+      orderOffer.orderInfo.groupSettingList.map(groupSetting => {
         offerMealsAmount += groupSetting.number;
       });
     } else {
@@ -71,6 +71,11 @@ class OrderItemCollapse extends Component {
     let offerSumPrice = 0;
     offerSumPrice = orderOffer.orderInfo.offerSumPrice;
     return `$${Number(offerSumPrice).toFixed(2)}`;
+  };
+
+  getOfferPricePax = orderOffer => {
+    const offerPricePax = orderOffer.orderInfo.pricePax;
+    return `$${Number(offerPricePax).toFixed(2)}`;
   };
 
   checkOrderEvent = e => {
@@ -121,11 +126,7 @@ class OrderItemCollapse extends Component {
   };
 
   render() {
-    const {
-      companyType,
-      orderIndex,
-      onceAPirateOrder,
-    } = this.props;
+    const { companyType, orderIndex, onceAPirateOrder } = this.props;
 
     return (
       <Collapse
@@ -154,20 +155,20 @@ class OrderItemCollapse extends Component {
                   onChange={this.checkOrderEvent}
                 />
                 <span className={styles.collapsePanelHeaderTitle}>{this.getTitleNameStr()}</span>
-                {
-                  onceAPirateOrder.queryInfo.accessibleSeat && (
-                    <Tooltip title={'Accessible Seat'} >
-                      <img className={styles.collapsePanelHeaderSeat} alt='accessible seat' src={AccessibleSeat} />
-                    </Tooltip>
-                  )
-                }
+                {onceAPirateOrder.queryInfo.accessibleSeat && (
+                  <Tooltip title="Accessible Seat">
+                    <img
+                      className={styles.collapsePanelHeaderSeat}
+                      alt="accessible seat"
+                      src={AccessibleSeat}
+                    />
+                  </Tooltip>
+                )}
               </Col>
               <Col span={3} className={styles.sumPriceCol}>
-                {
-                  companyType === '01' && (
-                    <span className={styles.sumPriceSpan}>{this.getOrderSumPrice()}</span>
-                  )
-                }
+                {companyType === '01' && (
+                  <span className={styles.sumPriceSpan}>{this.getOrderSumPrice()}</span>
+                )}
               </Col>
               <Col span={3}>
                 <Tooltip title="Delete">
@@ -194,14 +195,14 @@ class OrderItemCollapse extends Component {
               <div key={`order_${orderIndex}_${offerIndex}`}>
                 <Row gutter={24} className={styles.contentRow}>
                   <Col span={10} className={styles.titleCol}>
-                    {/*<Checkbox
+                    {/* <Checkbox
                       value={1}
                       checked={orderOffer.orderCheck}
                       onClick={this.allClickEvent}
                       onChange={e => {
                         this.checkOfferEvent(e, offerIndex, orderOffer);
                       }}
-                    />*/}
+                    /> */}
                     <span className={styles.titleSpan}>{orderOffer.offerInfo.offerName}</span>
                   </Col>
                   <Col span={4} className={styles.dataCol}>
@@ -215,25 +216,23 @@ class OrderItemCollapse extends Component {
                     </span>
                   </Col>
                   <Col span={3} className={styles.priceCol}>
-                    {
-                      companyType === '01' && (
-                        <span className={styles.priceSpan}>{this.getOfferSumPrice(orderOffer)}</span>
-                      )
-                    }
+                    {companyType === '01' && (
+                      <span className={styles.priceSpan}>
+                        {this.getOfferPricePax(orderOffer)}/pax
+                      </span>
+                    )}
                   </Col>
                 </Row>
               </div>
             ))}
-          {
-            companyType === '01' && (
-              <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
-                <Col span={11} className={styles.titleCol} />
-                <Col span={10} className={styles.totalPriceCol}>
-                  <span className={styles.totalPriceSpan}>TOTAL: {this.getOrderSumPrice()}</span>
-                </Col>
-              </Row>
-            )
-          }
+          {companyType === '01' && (
+            <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
+              <Col span={11} className={styles.titleCol} />
+              <Col span={10} className={styles.totalPriceCol}>
+                <span className={styles.totalPriceSpan}>TOTAL: {this.getOrderSumPrice()}</span>
+              </Col>
+            </Row>
+          )}
         </Collapse.Panel>
       </Collapse>
     );

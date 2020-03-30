@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {message} from 'antd';
+import { message } from 'antd';
 import * as service from '../services/myWallet';
 
 const InvoiceModel = {
@@ -10,13 +10,13 @@ const InvoiceModel = {
       address: 'NaN',
     },
     descriptions: [
-      {label: 'AR NO:', dataKey: 'AR_NO'},
-      {label: 'Tax Invoice:', dataKey: 'Tax_Invoice'},
-      {label: 'Date:', dataKey: 'Date'},
-      {label: 'GST Reg No:', dataKey: 'GST_Reg_No'},
-      {label: 'Co. Reg No:', dataKey: 'Co_Reg_No'},
-      {label: 'Payment Term:', dataKey: 'Payment_Term'},
-      {label: 'Page:', dataKey: 'Page'},
+      { label: 'AR NO:', dataKey: 'AR_NO' },
+      { label: 'Tax Invoice:', dataKey: 'Tax_Invoice' },
+      { label: 'Date:', dataKey: 'Date' },
+      { label: 'GST Reg No:', dataKey: 'GST_Reg_No' },
+      { label: 'Co. Reg No:', dataKey: 'Co_Reg_No' },
+      { label: 'Payment Term:', dataKey: 'Payment_Term' },
+      { label: 'Page:', dataKey: 'Page' },
     ],
     descriptionsData: {
       AR_NO: 'NaN',

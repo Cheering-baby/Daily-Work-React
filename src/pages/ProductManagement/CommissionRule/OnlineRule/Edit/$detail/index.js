@@ -1,61 +1,66 @@
 import React from 'react';
-import router from 'umi/router';
-import { Breadcrumb, Col, Form, Row } from 'antd';
-import { formatMessage } from 'umi/locale';
+import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
-import styles from './index.less';
-import ModifyAttendanceCommission from '../../components/ModifyAttendanceCommission';
-import ModifyTieredCommission from '../../components/ModifyTieredCommission';
+import { formatMessage } from 'umi/locale';
+import { Form, Card } from 'antd';
+import SCREEN from '@/utils/screen';
+import BreadcrumbComp from '@/components/BreadcrumbComp';
+import NewCommission from '../../components/NewCommission';
+import NewBinding from '../../components/NewBinding';
 
 @Form.create()
 @connect(({ commissionNew }) => ({
   commissionNew,
 }))
-class CommissionDetail extends React.PureComponent {
-  routerTo = () => {
-    router.push('/ProductManagement/CommissionRule/OnlineRule');
-  };
-
-  optionChange = e => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'commissionNew/save',
-      payload: {
-        value: e,
-      },
-    });
-  };
-
+class onlineEdit extends React.PureComponent {
   render() {
     const {
-      match: { params },
+      location: {
+        query: { type, tplId },
+      },
     } = this.props;
 
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
+        url: null,
+      },
+      {
+        breadcrumbName: formatMessage({ id: 'TIERED_ATTENDANCE_RULE' }),
+        url: '/ProductManagement/CommissionRule/OnlineRule',
+      },
+      {
+        breadcrumbName:
+          type && type === 'edit'
+            ? formatMessage({ id: 'COMMON_MODIFY' })
+            : formatMessage({ id: 'COMMON_NEW' }),
+        url: null,
+      },
+    ];
+
     return (
-      <Col lg={24} md={24} id="commissionNew">
-        {/* <MediaQuery> */}
-        <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-          <Breadcrumb.Item className="breadcrumb-style">System Management</Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumb-style" onClick={this.routerTo}>
-            Commission Rule Setup
-          </Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumbbold">Modify Commission</Breadcrumb.Item>
-        </Breadcrumb>
-        {/* </MediaQuery> */}
-        <Col lg={24} md={24}>
-          <div className={`${styles.searchDiv} has-shadow no-border`}>
-            <div className="title-header" style={{ padding: 16 }}>
-              <span>{formatMessage({ id: 'MODIFY_COMMISSION' })}</span>
-            </div>
-            <Row type="flex" justify="space-around">
-              {params.detail === 'Tiered' ? <ModifyTieredCommission /> : null}
-              {params.detail === 'Attendance' ? <ModifyAttendanceCommission /> : null}
-            </Row>
-          </div>
-        </Col>
-      </Col>
+      <div>
+        <MediaQuery
+          maxWidth={SCREEN.screenMdMax}
+          minWidth={SCREEN.screenSmMin}
+          minHeight={SCREEN.screenSmMin}
+        >
+          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+        </MediaQuery>
+        <MediaQuery minWidth={SCREEN.screenLgMin}>
+          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+        </MediaQuery>
+        <Card>
+          <NewCommission tplId={tplId} type={type} />
+          <NewBinding tplId={tplId} type={type} />
+        </Card>
+      </div>
     );
   }
 }
-export default CommissionDetail;
+
+export default onlineEdit;

@@ -1,9 +1,7 @@
 import React from 'react';
 import { Col, Form, Input, Row, Select, Button, Radio } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { connect } from 'dva';
-import classNames from 'classnames';
-import detailStyles from '../Edit/$detail/index.less';
+// import { connect } from 'dva';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -26,7 +24,7 @@ const COMMONRule = {
 };
 
 @Form.create()
-@connect(({}) => ({}))
+// @connect(({}) => ({}))
 class EditForAttendance extends React.PureComponent {
   selectChange = e => {
     const { dispatch } = this.props;
@@ -46,7 +44,7 @@ class EditForAttendance extends React.PureComponent {
 
     return (
       <Col lg={24} md={24} id="commissionNew">
-        <div className={classNames(detailStyles.formStyle, 'has-shadow no-border')}>
+        <div className="has-shadow no-border">
           <div style={{ paddingLeft: 16 }}>
             <span className="detail-title">
               {formatMessage({ id: 'BASIC_FAILED_INFORMATION_BTN' })}
@@ -94,7 +92,6 @@ class EditForAttendance extends React.PureComponent {
                 <FormItem
                   {...formItemLayout}
                   label={formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' })}
-                  className={detailStyles.radioStyle}
                 >
                   {getFieldDecorator('commissionScheme', {
                     rules: [COMMONRule],

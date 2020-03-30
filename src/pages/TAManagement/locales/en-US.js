@@ -2,6 +2,7 @@ export default {
   MENU_TA_MANAGEMENT: 'TA Management',
   MENU_TA_PROFILE: 'My Profile',
   MENU_TA_MAIN_MANAGEMENT: 'Main TA Management',
+  MENU_WALLET: 'My Wallet',
   MENU_GENERATE_INVITATION: 'Generate Invitation',
   MENU_EDIT: 'Edit',
   MENU_DETAIL: 'Detail',
@@ -59,6 +60,7 @@ export default {
   ADDITIONAL_END_DATE: 'End Date',
   ADDITIONAL_SALES_MANAGER: 'Sales Manager',
   ADDITIONAL_CATEGORY_AND_CUSTOMER_GROUP: 'Category And Customer Group',
+  ADDITIONAL_EDIT_SUBMITTED_SUCCESS: 'Additional submitted successfully!',
 
   CONTACT_INFORMATION: 'CONTACT INFORMATION',
   CONTACT_PERSON_SALUTATION: "Contact Person's Salutation",

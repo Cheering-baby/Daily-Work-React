@@ -16,8 +16,8 @@ class NotificationDetail extends PureComponent {
     this.column = [
       {
         title: showTableTitle(formatMessage({ id: 'FILE' })),
-        dataIndex: 'fileName',
-        key: 'fileName',
+        dataIndex: 'fileSourceName',
+        key: 'fileSourceName',
         render: text => {
           return !isNvl(text) ? text : '-';
         },
@@ -36,10 +36,10 @@ class NotificationDetail extends PureComponent {
                   handleDownFile(
                     downUrl,
                     {
-                      fileName: record.fileRourceName,
+                      fileName: record.fileName,
                       filePath: record.filePath,
                     },
-                    record.fileName,
+                    record.fileSourceName,
                     () => this.setState({ fileTableLoadingFlag: true }),
                     () => this.setState({ fileTableLoadingFlag: false })
                   );

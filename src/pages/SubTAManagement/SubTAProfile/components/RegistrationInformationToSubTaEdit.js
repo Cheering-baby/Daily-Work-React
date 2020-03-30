@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Button, Col, Drawer, message, Row, Spin } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
+import moment from 'moment';
 import AccountInformationToSubTaWithDrawer from '../../components/AccountInformationToSubTaWithDrawer';
 import styles from '../index.less';
 import { isNvl } from '@/utils/utils';
@@ -104,6 +105,9 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
         payload: {
           ...subTaInfo,
           ...subTaInfoState,
+          applicationDate: subTaInfo.applicationDate
+            ? moment(subTaInfo.applicationDate, 'YYYY-MM-DD').format('YYYY-MM-DD')
+            : null,
           subTaId: !isNvl(subTaId) ? subTaId : null,
         },
       }).then(flag => {

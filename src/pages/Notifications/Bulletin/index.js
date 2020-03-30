@@ -10,6 +10,7 @@ import NotificationMgr from '../components/NotificationMgr';
 import SCREEN from '@/utils/screen';
 import styles from '../index.less';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
+import { isNvl } from '@/utils/utils';
 
 const mapStateToProps = store => {
   const { loading, bulletin } = store;
@@ -22,22 +23,28 @@ const mapStateToProps = store => {
 @connect(mapStateToProps)
 class bulletin extends PureComponent {
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'bulletin/queryNotificationList',
-    });
+    this.onSearch({});
   }
 
   onSearch = param => {
     const { dispatch, filter } = this.props;
-    Object.keys(param).map(key => {
-      if (param[key] === undefined) param[key] = '';
-      return key;
-    });
+    if (param) {
+      Object.keys(param).map(key => {
+        if (isNvl(param[key])) param[key] = null;
+        return key;
+      });
+    }
+    const reqParams = { ...filter, ...param };
+    const isAdminRoleFlag = hasAllPrivilege(['NOTIFICATION_BULLETIN_MANAGE_PRIVILEGE']);
+    if (!isAdminRoleFlag) {
+      reqParams.queryType = '02';
+    } else {
+      reqParams.queryType = '01';
+    }
     dispatch({
       type: 'bulletin/change',
       payload: {
-        filter: { ...filter, ...param },
+        filter: { ...reqParams },
       },
     });
   };
@@ -88,17 +95,7 @@ class bulletin extends PureComponent {
         notificationInfo,
       },
     }).then(() => {
-      dispatch({
-        type: 'notification/fetchUpdateNotificationStatus',
-        payload: {
-          notificationId: notificationInfo.id,
-          status: '01',
-        },
-      }).then(flag => {
-        if (flag) {
-          router.push({ pathname: `/Notifications/Bulletin/Detail/${notificationInfo.id}` });
-        }
-      });
+      router.push({ pathname: `/Notifications/Bulletin/Detail/${notificationInfo.id}` });
     });
   };
 
@@ -111,9 +108,7 @@ class bulletin extends PureComponent {
       },
     }).then(flag => {
       if (flag) {
-        dispatch({
-          type: 'bulletin/queryNotificationList',
-        });
+        this.onSearch({});
       }
     });
   };
@@ -125,7 +120,7 @@ class bulletin extends PureComponent {
       notificationListLoading,
     } = this.props;
     const notificationSearchParam = {
-      isAdminRoleFlag: hasAllPrivilege(['NOTIFICATION_BULLETIN_LANDING_ADMIN_PRIVILEGE']),
+      isAdminRoleFlag: hasAllPrivilege(['NOTIFICATION_BULLETIN_MANAGE_PRIVILEGE']),
       onSearch: param => this.onSearch(param),
     };
     const notificationMgrParam = {
@@ -136,7 +131,7 @@ class bulletin extends PureComponent {
       },
       notificationList,
       notificationListLoading,
-      isAdminRoleFlag: hasAllPrivilege(['NOTIFICATION_BULLETIN_LANDING_ADMIN_PRIVILEGE']),
+      isAdminRoleFlag: hasAllPrivilege(['NOTIFICATION_BULLETIN_MANAGE_PRIVILEGE']),
       onTableChange: pagination => this.onTableChange(pagination),
       onTableAddChange: () => this.onTableAddChange(),
       onTableEditChange: notificationInfo => this.onTableEditChange(notificationInfo),

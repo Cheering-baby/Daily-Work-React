@@ -37,6 +37,9 @@ const mapStateToProps = store => {
     qryTaTableLoading,
     selectMoreTaId = null,
     taMoreVisible = false,
+    selectedRowKeys = [],
+    rowSelected,
+    rowAllSelected,
   } = store.mainTAManagement;
   const { contractFileList = [], contractFileUploading = false } = store.uploadContract;
   return {
@@ -56,6 +59,9 @@ const mapStateToProps = store => {
     countryList,
     categoryList,
     marketList,
+    selectedRowKeys,
+    rowSelected,
+    rowAllSelected,
   };
 };
 
@@ -77,6 +83,9 @@ class TableComp extends PureComponent {
         title: formatMessage({ id: 'TA_TABLE_AR_COMPANY_NAME' }),
         dataIndex: 'companyName',
         width: '200px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'TA_TABLE_AR_E_WALLET_ID' }),
@@ -93,7 +102,7 @@ class TableComp extends PureComponent {
         dataIndex: 'effectiveDate',
         width: '140px',
         render: text => {
-          return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
+          return !isNvl(text) ? moment(text).format('DD-MMM-YYYY') : '-';
         },
       },
       {
@@ -253,7 +262,7 @@ class TableComp extends PureComponent {
 
   goAdditionalInformation = (e, taId) => {
     e.preventDefault();
-    const { dispatch, countryList, categoryList } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'mainTAManagement/doCleanCommonData',
       payload: { taId: !isNvl(taId) ? taId : null },
@@ -265,33 +274,8 @@ class TableComp extends PureComponent {
           constraintVisible: true,
         },
       });
-      dispatch({ type: 'taCommon/fetchQuerySalutationList' });
-      dispatch({ type: 'taCommon/fetchQueryOrganizationRoleList' });
-      dispatch({ type: 'taCommon/fetchQryArAccountEndConfig' });
-      dispatch({ type: 'taCommon/fetchQryMarketList' });
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      dispatch({ type: 'taCommon/fetchQueryCategoryList' }).then(flag => {
-        if (flag && isNvl(taId) && categoryList && categoryList.length > 0) {
-          const categoryInfo = categoryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCustomerGroupList',
-            payload: { categoryId: categoryInfo.dictId },
-          });
-        }
-      });
-      dispatch({ type: 'taCommon/fetchQueryCountryList' }).then(flag => {
-        if (flag && isNvl(taId) && countryList && countryList.length > 0) {
-          const countryInfo = countryList[0];
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId },
-          });
-          dispatch({
-            type: 'taCommon/fetchQueryCityList',
-            payload: { countryId: countryInfo.dictId, isBil: true },
-          });
-        }
-      });
       if (!isNvl(taId)) {
         dispatch({
           type: 'taMgr/fetchQueryTaInfo',
@@ -493,6 +477,62 @@ class TableComp extends PureComponent {
     });
   };
 
+  addGrant = e => {
+    e.preventDefault();
+    const { rowAllSelected } = this.props;
+    router.push({
+      pathname: `/TAManagement/MainTAManagement/Grant`,
+      query: { rowAllSelected },
+    });
+  };
+
+  onSelectChange = selectedRowKeys => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/saveSelect',
+      payload: {
+        selectedRowKeys,
+      },
+    });
+  };
+
+  handleClickRow = record => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/changeSelectedKey',
+      payload: {
+        rowSelected: record.number,
+      },
+    });
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        rowAllSelected: record,
+      },
+    });
+  };
+
+  setRowClass = (record, index) => {
+    const { rowSelected } = this.props;
+    if (record.number === rowSelected) {
+      const sysParamTable = document.getElementsByClassName('ant-table-tbody')[0];
+      if (sysParamTable && sysParamTable.childNodes.length > 0) {
+        const row = sysParamTable.childNodes[index];
+
+        if (row) {
+          row.setAttribute('tabindex', '0');
+          row.focus();
+          row.removeAttribute('tabindex');
+        }
+      }
+    }
+    const className =
+      record.number === rowSelected
+        ? `ant-table-row-selected row-key-${record.number}`
+        : `row-key-${record.number}`;
+    return className;
+  };
+
   render() {
     const {
       searchList,
@@ -503,6 +543,7 @@ class TableComp extends PureComponent {
       contractFileUploading = false,
       contractHisModalVisible = false,
       hisActiveKey,
+      selectedRowKeys,
     } = this.props;
     const pageOpts = {
       total: searchList.total,
@@ -561,16 +602,34 @@ class TableComp extends PureComponent {
       onCancel: () => this.handleHisModalCancel(),
       footer: null,
     };
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+      type: null,
+    };
     return (
       <Col span={24}>
+        <Row gutter={24}>
+          <Col style={{ padding: '12px' }}>
+            <Button type="primary" onClick={e => this.addGrant(e)}>
+              {formatMessage({ id: 'COMMON_GRANT' })}
+            </Button>
+          </Col>
+        </Row>
         <Table
           size="small"
           className={`tabs-no-padding ${styles.searchTitle}`}
           columns={this.getColumns()}
-          rowKey={record => `mainTAList${record.taId}`}
+          rowKey={record => record.taId}
           dataSource={mainTAList}
           loading={qryTaTableLoading}
           scroll={{ x: 660 }}
+          // rowClassName={this.setRowClass}
+          // onRow={record => ({
+          //   onClick: () => {
+          //     this.handleClickRow(record);
+          //   },
+          // })}
           {...tableOpts}
         />
         <Modal
@@ -592,6 +651,7 @@ class TableComp extends PureComponent {
               {formatMessage({ id: 'COMMON_OK' })}
             </Button>,
           ]}
+          rowSelection={rowSelection}
         >
           <UploadContractComp {...myFileProps} />
         </Modal>

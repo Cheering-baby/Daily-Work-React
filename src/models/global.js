@@ -142,7 +142,15 @@ export default {
           appComponentMap.set(componentCode, item);
         });
         window.AppGlobal.appPrivilegeMap = appComponentMap;
-
+        yield put({
+          type: 'notificationMgr/fetchBellNotification',
+          payload: {
+            pageInfo: {
+              currentPage: 1,
+              pageSize: 5,
+            },
+          },
+        });
         yield put({
           type: 'updateState',
           payload: {

@@ -24,6 +24,17 @@
   }
 }
 
+.cardClass{
+  height: 100%;
+
+  :global {
+
+    .ant-card-body {
+      padding: 0 !important;
+    }
+  }
+}
+
 .commissionSchemeDivStyle {
   :global {
     .@{ant-prefix}-radio-group, .@{ant-prefix}-radio-group-outline .@{ant-prefix}-form-item-children {
@@ -47,3 +58,113 @@
   position: relative;
   top: 45px;
 }
+
+.cardTitle {
+  font-family: Calibri-Bold;
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.23px;
+  line-height: 26px;
+}
+
+.inputCol {
+  padding: 6px;
+}
+
+.searchTitle {
+  border:0;
+  border-bottom: 1px solid #EEE;
+
+  :global {
+    .ant-table-title {
+      padding: 10px 0 !important;
+    }
+
+    th div {
+      font-family: calibriBold;
+    }
+
+    .ant-table-column-title {
+      font-family: calibriBold;
+      font-size: 15px;
+      color: #565656;
+      letter-spacing: 0;
+      font-weight: bold;
+    }
+  }
+}
+
+.commissionTitle {
+  font-family: calibriBold;
+  font-size: 15px;
+  color: #565656;
+  letter-spacing: 0;
+  font-weight: bold;
+}
+
+.pageHeader{
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background: #fff;
+  margin-bottom: 0.875rem;
+  position: fixed;
+  width: 100%;
+  z-index: 300;
+  top:0;
+}
+
+.cardBoxShadow {
+  box-shadow: 2px 3px 4px #DADADA;
+}
+
+.inputCol {
+  padding: 6px;
+
+  :global {
+    .ant-form-explain {
+      padding-left: 140px;
+    }
+  }
+}
+
+.inputLabel {
+  width: 140px;
+  text-align: right;
+  display: inline-block;
+  padding-right: 8px;
+}
+
+.inputContent {
+  width: calc(100% - 170px);
+}
+
+.colorRed {
+  color: red;
+}
+
+.DetailTitle {
+  border-left: 3px solid #118AFA;
+  padding-left: 10px;
+  font-weight: normal;
+  margin: 0.5rem 0 0.5rem 0;
+  line-height: 1.75rem;
+  font-size: 15px;
+  color: #171B21;
+  letter-spacing: 0;
+}
+
+.commissionTitle {
+  font-family: Calibri-Bold;
+  font-size: 14px;
+  color: #171B21;
+  letter-spacing: 0.23px;
+  line-height: 26px;
+  //font-weight: 600;
+}
+
+.bindingTable {
+  margin-top: 100px;
+}
+
+
+

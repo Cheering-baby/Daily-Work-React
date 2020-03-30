@@ -1,12 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Col, Row, Steps, Collapse, Icon } from 'antd';
+import { Card, Col, Row, Steps } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import styles from './ApprovalHistory.less';
 
 const { Step } = Steps;
-const { Panel } = Collapse;
 
 @connect(({ activityDetail }) => ({
   activityDetail,
@@ -17,15 +16,9 @@ class ApprovalHistory extends PureComponent {
       activityDetail: { historyHandlers, pendingHandlers },
     } = this.props;
 
-    const approveHeader = (
-      <div className={styles.approveHeader}>
-        <div className="left">{formatMessage({ id: 'APPROVAL_HISTORY' })}</div>
-        <div className="right">{formatMessage({ id: 'COMMON_EXPAND' })}</div>
-      </div>
-    );
-
     const steps = [];
-    historyHandlers.map(historyHandler => {
+
+    historyHandlers.map((historyHandler, index) => {
       const stepsIcon = (
         <div
           className={
@@ -57,6 +50,7 @@ class ApprovalHistory extends PureComponent {
         stepsIcon,
         stepTitle,
         stepDesc,
+        key: index + 1,
       });
       return historyHandler;
     });
@@ -78,41 +72,45 @@ class ApprovalHistory extends PureComponent {
           <span>{pendingUsers.join(',')}</span>
         </div>
       );
-
       steps.push({
         stepsIcon,
         stepTitle,
         stepDesc: '',
+        key: 0,
       });
     }
 
     return (
-      <React.Fragment>
-        <Collapse
-          expandIconPosition="right"
-          bordered={false}
-          defaultActiveKey={['1']}
-          expandIcon={({ isActive }) => (
-            <Icon type="down" rotate={isActive ? 0 : 180} style={{ color: '#1890FF' }} />
-          )}
-        >
-          <Panel header={approveHeader} className={styles.DetailTitle} key="1">
-            <Row>
-              <Col span={14} offset={4}>
-                <Steps current={1} direction="vertical" size="small">
-                  {steps.map(step => (
-                    <Step
-                      title={step.stepTitle}
-                      description={step.stepDesc}
-                      icon={step.stepsIcon}
-                    />
-                  ))}
-                </Steps>
+      <Col span={24} className={styles.activityCard}>
+        <Card>
+          <Row type="flex" justify="space-around">
+            <Col span={24}>
+              <Col span={24}>
+                <span className={styles.approveHeader}>
+                  {' '}
+                  {formatMessage({ id: 'APPROVAL_RESULT' })}
+                </span>
               </Col>
-            </Row>
-          </Panel>
-        </Collapse>
-      </React.Fragment>
+              <Col className={styles.detailTitle}>
+                <Row>
+                  <Col span={14} offset={4}>
+                    <Steps current={1} direction="vertical" size="small">
+                      {steps.map(step => (
+                        <Step
+                          title={step.stepTitle}
+                          description={step.stepDesc}
+                          icon={step.stepsIcon}
+                          key={step.key}
+                        />
+                      ))}
+                    </Steps>
+                  </Col>
+                </Row>
+              </Col>
+            </Col>
+          </Row>
+        </Card>
+      </Col>
     );
   }
 }

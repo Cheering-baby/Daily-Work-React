@@ -4,48 +4,81 @@ import * as service from '../services/commissionRuleSetup';
 export default {
   namespace: 'commissionRuleSetup',
   state: {
-    filter: {
-      likeParam: {},
-    },
+    filter: {},
     pagination: {
       currentPage: 1,
       pageSize: 10,
     },
-    commissionRuleSetupList: [],
+    commissionList: [],
     detailVisible: false,
+    selectedRowKeys: [],
+    selectedOffer: [],
   },
   effects: {
     *fetchCommissionRuleSetupList(_, { call, put, select }) {
       const { filter, pagination } = yield select(state => state.commissionRuleSetup);
       const { likeParam } = filter;
-      let result;
+      let res;
       if (isEmpty(likeParam)) {
-        result = yield call(service.commissionRuleSetupList, pagination);
+        res = yield call(service.commissionRuleSetupList, pagination);
       } else {
-        result = yield call(service.commissionRuleSetupList, { ...likeParam, ...pagination });
+        res = yield call(service.commissionRuleSetupList, { ...likeParam, ...pagination });
       }
-
       const {
-        data: {
-          result: { commissionRuleSetupList },
-        },
-      } = result;
-
-      const { currentPage, pageSize, totalSize } = result;
-      if (commissionRuleSetupList && commissionRuleSetupList.length > 0) {
-        commissionRuleSetupList.map(v => {
-          Object.assign(v, { key: `commissionRuleSetupList${v.commissionName}` });
-          return v;
+        data: { resultCode, resultMsg, result },
+      } = res;
+      if (resultCode === '0' || resultCode === 0) {
+        const {
+          page: { currentPage, pageSize, totalSize },
+          commissionList,
+        } = result;
+        if (commissionList && commissionList.length > 0) {
+          commissionList.map(v => {
+            Object.assign(v, { key: `commissionList${v.tplId}` });
+            return v;
+          });
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            currentPage,
+            pageSize,
+            totalSize,
+            commissionList,
+            selectedRowKeys: [],
+            selectedOffer: [],
+          },
         });
-      }
+      } else throw resultMsg;
+    },
+    *search({ payload }, { put }) {
+      yield put({
+        type: 'clear',
+      });
       yield put({
         type: 'save',
-        payload: {
-          currentPage,
-          pageSize,
-          totalSize,
-          commissionRuleSetupList,
-        },
+        payload,
+      });
+      yield put({
+        type: 'fetchCommissionRuleSetupList',
+      });
+    },
+    *reset(_, { put }) {
+      yield put({
+        type: 'clear',
+      });
+      yield put({
+        type: 'fetchCommissionRuleSetupList',
+      });
+    },
+    *tableChanged({ payload }, { put }) {
+      yield put({
+        type: 'save',
+        payload,
+      });
+
+      yield put({
+        type: 'fetchCommissionRuleSetupList',
       });
     },
   },
@@ -63,6 +96,8 @@ export default {
         },
         commissionRuleSetupList: [],
         detailVisible: false,
+        selectedRowKeys: [],
+        selectedOffer: [],
       };
     },
     toggleModal(state, { payload }) {
@@ -70,6 +105,23 @@ export default {
       return {
         ...state,
         [key]: val,
+      };
+    },
+    saveSelectOffer(state, { payload }) {
+      const { commissionList } = state;
+      const { selectedRowKeys } = payload;
+      const selectedOffer = [];
+      for (let i = 0; i < commissionList.length; i += 1) {
+        for (let j = 0; j < commissionList.length; j += 1) {
+          if (commissionList[j] === commissionList[i].key) {
+            commissionList.push(commissionList[i]);
+          }
+        }
+      }
+      return {
+        ...state,
+        selectedRowKeys,
+        selectedOffer,
       };
     },
   },

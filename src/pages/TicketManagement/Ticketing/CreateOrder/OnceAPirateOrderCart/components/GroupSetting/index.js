@@ -5,22 +5,17 @@ import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import MealsItem from './components/MealsItem';
 
-@connect(({ ticketMgr,onceAPirateTicketMgr }) => ({
-  ticketMgr,onceAPirateTicketMgr
+@connect(({ ticketMgr, onceAPirateTicketMgr }) => ({
+  ticketMgr,
+  onceAPirateTicketMgr,
 }))
 class GroupSetting extends Component {
+  componentDidMount() {}
 
-  componentDidMount() {
-
-  }
-
-  addMenuScheme = (index,offerDetail) => {
-
+  addMenuScheme = (index, offerDetail) => {
     const {
       dispatch,
-      onceAPirateTicketMgr: {
-        onceAPirateOrderData = [],
-      }
+      onceAPirateTicketMgr: { onceAPirateOrderData = [] },
     } = this.props;
     offerDetail.orderInfo.groupSettingList.push({
       meals: null,
@@ -30,7 +25,7 @@ class GroupSetting extends Component {
     Object.assign(onceAPirateOrderData, {
       [index]: {
         ...offerDetail,
-      }
+      },
     });
     dispatch({
       type: 'onceAPirateTicketMgr/save',
@@ -38,20 +33,17 @@ class GroupSetting extends Component {
         onceAPirateOrderData,
       },
     });
-
   };
 
-  itemValueChangeEvent = (index,offerDetail) => {
+  itemValueChangeEvent = (index, offerDetail) => {
     const {
       dispatch,
-      onceAPirateTicketMgr: {
-        onceAPirateOrderData = [],
-      }
+      onceAPirateTicketMgr: { onceAPirateOrderData = [] },
     } = this.props;
     Object.assign(onceAPirateOrderData, {
       [index]: {
         ...offerDetail,
-      }
+      },
     });
     dispatch({
       type: 'onceAPirateTicketMgr/save',
@@ -61,43 +53,41 @@ class GroupSetting extends Component {
     });
   };
 
-  showAddMenuScheme = (offerDetail) => {
+  showAddMenuScheme = offerDetail => {
     let show = false;
-    if (offerDetail.offerInfo.voucherProductList.length!==1) {
-      if (offerDetail.offerInfo.voucherProductList.length !== offerDetail.orderInfo.groupSettingList.length) {
+    if (offerDetail.offerInfo.voucherProductList.length !== 1) {
+      if (
+        offerDetail.offerInfo.voucherProductList.length !==
+        offerDetail.orderInfo.groupSettingList.length
+      ) {
         show = true;
       }
     }
     if (offerDetail.offerInfo.offerProfile && offerDetail.offerInfo.offerProfile.productGroup) {
       const productGroupList = offerDetail.offerInfo.offerProfile.productGroup;
-      productGroupList.forEach(productGroup=>{
-        if (productGroup.productType === "Voucher") {
-          productGroup.productGroup.forEach(productGroupItem=>{
-            if (productGroupItem.choiceConstrain==="Single") {
+      productGroupList.forEach(productGroup => {
+        if (productGroup.productType === 'Voucher') {
+          productGroup.productGroup.forEach(productGroupItem => {
+            if (productGroupItem.choiceConstrain === 'Single') {
               show = false;
             }
-          })
+          });
         }
-      })
+      });
     }
     return show;
   };
 
   render() {
-
     const {
-      onceAPirateTicketMgr: {
-        queryInfo,
-        onceAPirateOrderData = [],
-        diningRemarkList
-      },
-      form
+      onceAPirateTicketMgr: { queryInfo, onceAPirateOrderData = [], diningRemarkList },
+      form,
     } = this.props;
 
     return (
       <div>
-        {
-          onceAPirateOrderData && onceAPirateOrderData.map((item,index)=>{
+        {onceAPirateOrderData &&
+          onceAPirateOrderData.map((item, index) => {
             return (
               <div key={index}>
                 <Row>
@@ -105,10 +95,10 @@ class GroupSetting extends Component {
                     {item.offerInfo.offerName}
                   </Col>
                 </Row>
-                {
-                  item.orderInfo.groupSettingList && item.orderInfo.groupSettingList.map((mealItem,mealItemIndex)=>(
+                {item.orderInfo.groupSettingList &&
+                  item.orderInfo.groupSettingList.map((mealItem, mealItemIndex) => (
                     <MealsItem
-                      key={index+'_'+mealItemIndex}
+                      key={`${index  }_${  mealItemIndex}`}
                       form={form}
                       queryInfo={queryInfo}
                       offerIndex={index}
@@ -116,36 +106,35 @@ class GroupSetting extends Component {
                       mealItemIndex={mealItemIndex}
                       diningRemarkList={diningRemarkList}
                       mealItem={mealItem}
-                      itemValueChangeEvent={(index,offerDetail)=>this.itemValueChangeEvent(index,offerDetail)}
+                      itemValueChangeEvent={(index, offerDetail) =>
+                        this.itemValueChangeEvent(index, offerDetail)
+                      }
                     />
-                  ))
-                }
-                {
-                  this.showAddMenuScheme(item) && (
-                    <Row >
-                      <Col span={8}>
-                        <Row>
-                          <Col span={8}> </Col>
-                          <Col span={16}>
-                            <Button
-                              type="link"
-                              size='large'
-                              className={styles.addSpanStyle}
-                              onClick={()=>{this.addMenuScheme(index,item)}}
-                            >
-                              {formatMessage({ id:'ADD_MENU_SCHEME' })}
-                            </Button>
-                          </Col>
-                        </Row>
-                      </Col>
-                    </Row>
-                  )
-                }
-
+                  ))}
+                {this.showAddMenuScheme(item) && (
+                  <Row>
+                    <Col span={8}>
+                      <Row>
+                        <Col span={8}> </Col>
+                        <Col span={16}>
+                          <Button
+                            type="link"
+                            size="large"
+                            className={styles.addSpanStyle}
+                            onClick={() => {
+                              this.addMenuScheme(index, item);
+                            }}
+                          >
+                            {formatMessage({ id: 'ADD_MENU_SCHEME' })}
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                )}
               </div>
-            )
-          })
-        }
+            );
+          })}
       </div>
     );
   }

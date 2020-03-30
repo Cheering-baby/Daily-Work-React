@@ -1,5 +1,8 @@
-import {queryOrder} from '../services/queryOrderService';
-import serialize from '../utils/utils';
+import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
+import { serialize } from '../utils/utils';
+import { accept, downloadETicket, queryOrder } from '../services/queryOrderService';
+import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
 export default {
   namespace: 'queryOrderMgr',
@@ -15,6 +18,8 @@ export default {
       orderType: null,
       createTimeFrom: null,
       createTimeTo: null,
+      agentId: null,
+      agentName: null,
       currentPage: 1,
       pageSize: 10,
     },
@@ -26,9 +31,9 @@ export default {
   },
 
   effects: {
-    * queryTransactions({payload}, {call, put, select}) {
-      const {searchConditions} = yield select(state => state.queryOrderMgr);
-      const params = {...searchConditions, ...payload};
+    *queryTransactions({ payload }, { call, put, select }) {
+      const { searchConditions } = yield select(state => state.queryOrderMgr);
+      const params = { ...searchConditions, ...payload };
       yield put({
         type: 'save',
         payload: {
@@ -39,10 +44,10 @@ export default {
       const response = yield call(queryOrder, paramList);
       if (!response) return false;
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        const {totalSize = 0, bookings = []} = result;
+        const { totalSize = 0, bookings = [] } = result;
         bookings.map((e, index) => {
           Object.assign(e, {
             key: index,
@@ -60,17 +65,69 @@ export default {
         });
       } else throw resultMsg;
     },
+    *downloadETicket({ payload }, { call }) {
+      const paramList = serialize(payload);
+      const response = yield call(downloadETicket, paramList);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        try {
+          new Promise(resolve => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', result, true);
+            xhr.responseType = 'blob';
+            xhr.onload = () => {
+              if (xhr.status === 200) {
+                resolve(xhr.response);
+              }
+            };
+            xhr.send();
+          }).then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.id = 'exportFile';
+            a.href = url;
+            a.download = url;
+            document.body.append(a);
+            a.click();
+            document.getElementById('exportFile').remove();
+            window.URL.revokeObjectURL(url);
+          });
+        } catch (e) {
+          return formatMessage({ id: 'FAILED_TO_DOWNLOAD' });
+        }
+      } else {
+        return resultMsg;
+      }
+      return resultCode;
+    },
+    *approve({ payload }, { call, put }) {
+      const { activityId } = payload;
+      const response = yield call(accept, { activityId });
+      if (!response) return false;
+      const { data: resultData, success, errorMsg } = response;
+      if (success) {
+        const { resultCode, resultMsg } = resultData;
+        if (resultCode !== ERROR_CODE_SUCCESS) {
+          throw resultMsg;
+        }
+        message.success(resultMsg);
+        yield put({ type: 'queryTransactions' });
+      } else throw errorMsg;
+    },
   },
 
   reducers: {
-    save(state, {payload}) {
+    save(state, { payload }) {
       return {
         ...state,
         ...payload,
       };
     },
-    saveSearchConditions(state, {payload}) {
-      const {searchConditions} = state;
+    saveSearchConditions(state, { payload }) {
+      const { searchConditions } = state;
       return {
         ...state,
         searchConditions: {
@@ -79,9 +136,9 @@ export default {
         },
       };
     },
-    saveSelectBookings(state, {payload}) {
-      const {transactionList} = state;
-      const {selectedRowKeys} = payload;
+    saveSelectBookings(state, { payload }) {
+      const { transactionList } = state;
+      const { selectedRowKeys } = payload;
       const selectedBookings = [];
       for (let i = 0; i < transactionList.length; i += 1) {
         for (let j = 0; j < selectedRowKeys.length; j += 1) {
@@ -96,9 +153,9 @@ export default {
         selectedBookings,
       };
     },
-    saveSubSelectBookings(state, {payload}) {
+    saveSubSelectBookings(state, { payload }) {
       const subSelectedBookings = [];
-      const {subSelectedRowKeys, productInstances} = payload;
+      const { subSelectedRowKeys, productInstances } = payload;
       for (let i = 0; i < productInstances.length; i += 1) {
         for (let j = 0; j < subSelectedRowKeys.length; j += 1) {
           if (subSelectedRowKeys[j] === productInstances[i].key) {
@@ -125,6 +182,8 @@ export default {
           orderType: null,
           createTimeFrom: null,
           createTimeTo: null,
+          agentId: null,
+          agentName: null,
           currentPage: 1,
           pageSize: 10,
         },

@@ -9,8 +9,11 @@ import { connect } from 'dva';
 import RoleSearchForm from './components/RoleSearchForm';
 import RoleSearchTable from './components/RoleSearchTable';
 import RoleOperDrawer from './components/RoleOperDrawer';
+import GrantPrivilegeModal from './components/GrantPrivilegeModal';
 
-@connect()
+@connect(({ roleMgr }) => ({
+  roleMgr,
+}))
 class RoleManagement extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -19,14 +22,17 @@ class RoleManagement extends React.PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'roleManagement/queryUserRolesByCondition',
+      type: 'roleMgr/queryUserRolesByCondition',
     });
     dispatch({
-      type: 'roleManagement/queryMenuTree',
+      type: 'roleMgr/queryMenuTree',
     });
   }
 
   render() {
+    const {
+      roleMgr: { drawerShowFlag = false, privilegeModalShowFlag = false },
+    } = this.props;
     return (
       <Col lg={24} md={24}>
         <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
@@ -39,7 +45,8 @@ class RoleManagement extends React.PureComponent {
         </Breadcrumb>
         <RoleSearchForm />
         <RoleSearchTable />
-        <RoleOperDrawer />
+        {drawerShowFlag ? <RoleOperDrawer /> : null}
+        {privilegeModalShowFlag ? <GrantPrivilegeModal /> : null}
       </Col>
     );
   }

@@ -74,7 +74,7 @@ class SearchComp extends Component {
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD').valueOf();
   };
 
   disabledEndDate = endValue => {
@@ -83,7 +83,7 @@ class SearchComp extends Component {
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD').valueOf();
   };
 
   resetSearch = () => {
@@ -134,7 +134,7 @@ class SearchComp extends Component {
       onChange: date =>
         this.onHandleChange(
           'invitationStartDate',
-          isNvl(date) ? date : date.format('YYYYMMDD'),
+          isNvl(date) ? date : date.format('YYYY-MM-DD'),
           'invitationStartDate'
         ),
     };
@@ -146,7 +146,7 @@ class SearchComp extends Component {
       onChange: date =>
         this.onHandleChange(
           'invitationEndDate',
-          isNvl(date) ? date : date.format('YYYYMMDD'),
+          isNvl(date) ? date : date.format('YYYY-MM-DD'),
           'invitationEndDate'
         ),
     };
@@ -168,14 +168,14 @@ class SearchComp extends Component {
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
             {getFieldDecorator('invitationStartDate', {
               initialValue: !isNvl(searchForm.invitationStartDate)
-                ? moment(searchForm.invitationStartDate, 'YYYY-MM-DD HH:mm:ss')
+                ? moment(searchForm.invitationStartDate, 'YYYY-MM-DD')
                 : null,
             })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
             {getFieldDecorator('invitationEndDate', {
               initialValue: !isNvl(searchForm.invitationEndDate)
-                ? moment(searchForm.invitationEndDate, 'YYYY-MM-DD HH:mm:ss')
+                ? moment(searchForm.invitationEndDate, 'YYYY-MM-DD')
                 : null,
             })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
           </Col>

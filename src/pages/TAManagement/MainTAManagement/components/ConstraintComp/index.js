@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Button, Card, Col, DatePicker, Drawer, Form, Input, Row, Select } from 'antd';
+import { Button, Card, Col, DatePicker, Drawer, Form, Input, message, Row, Select } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
@@ -126,6 +126,7 @@ class ConstraintComp extends PureComponent {
         },
       }).then(flag => {
         if (flag) {
+          message.success(formatMessage({ id: 'ADDITIONAL_EDIT_SUBMITTED_SUCCESS' }), 10);
           this.onClose();
         }
       });
@@ -138,7 +139,7 @@ class ConstraintComp extends PureComponent {
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD').valueOf();
   };
 
   disabledEndDate = endValue => {
@@ -147,7 +148,7 @@ class ConstraintComp extends PureComponent {
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD').valueOf();
   };
 
   render() {
@@ -222,7 +223,7 @@ class ConstraintComp extends PureComponent {
                   >
                     {getFieldDecorator('effectiveDate', {
                       initialValue: !isNvl(companyInfo.effectiveDate)
-                        ? moment(companyInfo.effectiveDate, 'YYYY-MM-DD HH:mm:ss')
+                        ? moment(companyInfo.effectiveDate, 'YYYY-MM-DD')
                         : null,
                       rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                     })(
@@ -232,7 +233,7 @@ class ConstraintComp extends PureComponent {
                         onChange={date =>
                           this.onHandleChange(
                             'effectiveDate',
-                            isNvl(date) ? date : date.format('YYYYMMDD'),
+                            isNvl(date) ? date : date.format('YYYY-MM-DD'),
                             'effectiveDate'
                           )
                         }
@@ -254,7 +255,7 @@ class ConstraintComp extends PureComponent {
                   >
                     {getFieldDecorator('endDate', {
                       initialValue: !isNvl(companyInfo.endDate)
-                        ? moment(companyInfo.endDate, 'YYYY-MM-DD HH:mm:ss')
+                        ? moment(companyInfo.endDate, 'YYYY-MM-DD')
                         : null,
                       rules: [],
                     })(
@@ -264,7 +265,7 @@ class ConstraintComp extends PureComponent {
                         onChange={date =>
                           this.onHandleChange(
                             'endDate',
-                            isNvl(date) ? date : date.format('YYYYMMDD'),
+                            isNvl(date) ? date : date.format('YYYY-MM-DD'),
                             'endDate'
                           )
                         }

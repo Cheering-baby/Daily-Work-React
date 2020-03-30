@@ -1,0 +1,51 @@
+@prefix-cls: ~'@{ant-prefix}';
+@import '../../../theme/screen';
+
+.searchDiv {
+  padding-bottom: 20px;
+  text-align: left;
+  :global {
+    .@{ant-prefix}-col.ant-col-xs-24:nth-child(2), .@{ant-prefix}-col.ant-col-xs-24:nth-child(3) {
+      padding-top: 15px
+    }
+
+  }
+}
+
+.titleHeader {
+  font-family: calibriBold;
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.23px;
+  line-height: 26px;
+}
+
+.radioStyle {
+  line-height: 2;
+}
+
+.cancelOk {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 10px 16px;
+  border-top: 1px solid #e9e9e9;
+  background: #fff;
+  text-align: right;
+  .ok {
+    margin-left: 10px;
+  }
+}
+
+.allowRestart {
+  padding-top:10px ;
+}
+
+.approvalHis {
+  :global {
+    .ant-card-bordered {
+      border: 0 !important;
+    }
+  }
+}

@@ -222,7 +222,7 @@ const DetailForTaFinanceContact = props => {
                   <div className={styles.detailLeftStyle}>
                     <span>
                       {!isNvl(mappingInfo.guaranteeExpiryDate)
-                        ? moment(mappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD HH:mm:ss').format(
+                        ? moment(mappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD').format(
                             'DD-MMM-YYYY'
                           )
                         : '-'}

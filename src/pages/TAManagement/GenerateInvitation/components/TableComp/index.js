@@ -50,7 +50,7 @@ class TableComp extends PureComponent {
         title: formatMessage({ id: 'GI_TABLE_INVITATION_DATE' }),
         dataIndex: 'invitationDate',
         render: text => {
-          return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
+          return !isNvl(text) ? moment(text, 'YYYY-MM-DD').format('DD-MMM-YYYY') : '-';
         },
       },
       {

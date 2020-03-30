@@ -413,15 +413,27 @@ i.trigger {
     .@{prefix-cls}-pagination {
       text-align: center;
     }
+    .@{prefix-cls}-list-item {
+      min-height: 50px;
+    }
+
+    .@{prefix-cls}-list-item-meta {
+      width: 100%;
+    }
+
+    .@{prefix-cls}-list-item-meta-content {
+      width: 100%;
+    }
+
     .@{prefix-cls}-list-item-meta-title {
       font-family: calibriBold;
       font-size: 14px;
       color: #3B414A;
       letter-spacing: 0.23px;
       line-height: 20px;
-    }
-    .@{prefix-cls}-list-item {
-      min-height: 50px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow-x: hidden;
     }
   }
 }
@@ -438,5 +450,14 @@ i.trigger {
     letter-spacing: 0.22px;
     text-align: center;
     cursor: pointer;
+  }
+}
+
+.userNotificationPopover {
+  :global {
+    .@{prefix-cls}-popover-inner-content {
+      width: 460px;
+      height: 360px;
+    }
   }
 }

@@ -31,9 +31,9 @@ const customerPanelStyle = {
   orgMgr,
   global,
   addOrgLoading: loading.effects['orgMgr/addUserOrg'],
-  addMemberLoading: loading.effects['roleManagement/orgBatchAddUser'],
-  modifyOrgLoading: loading.effects['roleManagement/modifyUserOrg'],
-  queryUsersLoading: loading.effects['roleManagement/queryUsersInCompany'],
+  addMemberLoading: loading.effects['orgMgr/orgBatchAddUser'],
+  modifyOrgLoading: loading.effects['orgMgr/modifyUserOrg'],
+  queryUsersLoading: loading.effects['orgMgr/queryUsersInCompany'],
 }))
 class Index extends React.PureComponent {
   constructor(props) {
@@ -72,8 +72,6 @@ class Index extends React.PureComponent {
       },
     ];
   }
-
-  componentDidMount() {}
 
   showTableTitle = value => <span className={styles.tableTitle}>{value}</span>;
 

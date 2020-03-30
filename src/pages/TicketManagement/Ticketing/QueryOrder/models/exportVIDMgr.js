@@ -1,5 +1,5 @@
-import serialize from '@/pages/TicketManagement/Ticketing/QueryOrder/utils/utils';
-import {queryBookingDetail} from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
+import { serialize } from '../utils/utils';
+import { queryBookingDetail } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
 export default {
   namespace: 'exportVIDMgr',
@@ -13,9 +13,15 @@ export default {
   },
 
   effects: {
-    * queryVIDList({payload}, {call, put, select}) {
-      const {searchList} = yield select(state => state.exportVIDMgr);
-      const params = {...searchList, ...payload};
+    *effectSave({ payload }, { put }) {
+      yield put({
+        type: 'save',
+        payload,
+      });
+    },
+    *queryVIDList({ payload }, { call, put, select }) {
+      const { searchList } = yield select(state => state.exportVIDMgr);
+      const params = { ...searchList, ...payload };
       yield put({
         type: 'save',
         payload: {
@@ -26,10 +32,10 @@ export default {
       const response = yield call(queryBookingDetail, paramList);
       if (!response) return false;
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        const {bookingDetail} = result;
+        const { bookingDetail } = result;
         yield put({
           type: 'saveVIDList',
           payload: {
@@ -41,18 +47,18 @@ export default {
   },
 
   reducers: {
-    save(state, {payload}) {
+    save(state, { payload }) {
       return {
         ...state,
         ...payload,
       };
     },
-    saveVIDList(state, {payload}) {
-      const {bookingDetail = {}} = payload;
+    saveVIDList(state, { payload }) {
+      const { bookingDetail = {} } = payload;
       const vidList = [];
-      const {offers = []} = bookingDetail;
+      const { offers = [] } = bookingDetail;
       for (let i = 0; i < offers.length; i += 1) {
-        const {attraction = []} = offers[i];
+        const { attraction = [] } = offers[i];
         if (attraction) {
           for (let j = 0; j < attraction.length; j += 1) {
             vidList.push({

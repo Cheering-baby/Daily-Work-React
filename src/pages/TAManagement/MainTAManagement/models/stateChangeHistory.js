@@ -4,7 +4,10 @@ import * as service from '../services/mainTAManagement';
 export default {
   namespace: 'stateChangeHistory',
   state: {
-    searchStateForm: {},
+    searchStateForm: {
+      updatedStartTime: null,
+      updatedEndTime: null,
+    },
     searchStateList: {
       total: 0,
       currentPage: 1,
@@ -60,7 +63,10 @@ export default {
       return {
         ...state,
         ...{
-          searchStateForm: {},
+          searchStateForm: {
+            updatedStartTime: null,
+            updatedEndTime: null,
+          },
           searchStateList: {
             total: 0,
             currentPage: 1,

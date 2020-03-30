@@ -90,11 +90,129 @@ const tieredCommissionRule = {
 };
 const tiered = 'POST /pams/api/tieredCommissionRule';
 
+const offerList = {
+  resultCode: 0,
+  resultMsg: 'success',
+  result: {
+    currentPage: 1,
+    pageSize: 5,
+    totalSize: 20,
+    queryOfferList: [
+      {
+        id: '1',
+        offerName: 'aa',
+        offerIdentifier: 'using Lorem Ipsum is that',
+        PLUList: {
+          PLUName: 'wsdfsdf',
+          PLUCode: '15',
+          PLUDescription: 'sjdfkasfl',
+          themePark: 'sadadas',
+        },
+      },
+      {
+        id: '2',
+        offerName: 'aa',
+        offerIdentifier: 'using Lorem Ipsum is that',
+        PLUList: {
+          PLUName: 'wsdfsdf',
+          PLUCode: '15',
+          PLUDescription: 'sjdfkasfl',
+          themePark: 'sadadas',
+        },
+      },
+      {
+        id: '3',
+        offerName: 'aa',
+        offerIdentifier: 'using Lorem Ipsum is that',
+        PLUList: {
+          PLUName: 'wsdfsdf',
+          PLUCode: '15',
+          PLUDescription: 'sjdfkasfl',
+          themePark: 'sadadas',
+        },
+      },
+      {
+        id: '4',
+        offerName: 'aa',
+        offerIdentifier: 'using Lorem Ipsum is that',
+        PLUList: {
+          PLUName: 'wsdfsdf',
+          PLUCode: '15',
+          PLUDescription: 'sjdfkasfl',
+          themePark: 'sadadas',
+        },
+      },
+    ],
+  },
+};
+const aa = 'POST /pams/api/offerList';
+
+const PLUList = {
+  resultCode: 0,
+  resultMsg: 'success',
+  list: {
+    currentPage: 1,
+    pageSize: 5,
+    totalSize: 20,
+    queryPLUList: [
+      {
+        PLUName: 'wsdfsdf',
+        PLUCode: '12',
+        PLUDescription: 'sjdfkasfl',
+        themePark: 'sadadas',
+        operation: '',
+        child: {
+          PLUName: 'wsdfsdf',
+          PLUCode: '14',
+          PLUDescription: 'sjdfkasfl',
+          themePark: 'sadadas',
+          operation: '',
+        },
+      },
+      {
+        PLUName: 'wsdfsdf',
+        PLUCode: '12we',
+        PLUDescription: 'sjdfkasfl',
+        themePark: 'sadadas',
+        operation: '',
+        child: {
+          PLUName: 'wsdfsdf',
+          PLUCode: '15',
+          PLUDescription: 'sjdfkasfl',
+          themePark: 'sadadas',
+          operation: '',
+        },
+      },
+      {
+        PLUName: 'wsdfsdf',
+        PLUCode: '123',
+        PLUDescription: 'sjdfkasfl',
+        themePark: 'sadadas',
+        operation: '',
+        child: {
+          PLUName: 'wsdfsdf',
+          PLUCode: '16',
+          PLUDescription: 'sjdfkasfl',
+          themePark: 'sadadas',
+          operation: '',
+        },
+      },
+    ],
+  },
+};
+const PLU = 'POST /pams/api/PLUList';
+
 module.exports = {
   [api](req, res) {
     res.json(commissionRuleSetupList);
   },
   [tiered](req, res) {
     res.json(tieredCommissionRule);
+  },
+  [aa](req, res) {
+    res.json(offerList);
+  },
+  [PLU](req, res) {
+    res.json(PLUList);
   },
 };

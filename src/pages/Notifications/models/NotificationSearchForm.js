@@ -1,6 +1,6 @@
-import {message} from 'antd';
-import {queryAllCompanyConfig, queryNotificationsType} from '../services/notification';
-import {isNvl} from '@/utils/utils';
+import { message } from 'antd';
+import { queryAllCompanyConfig, queryNotificationsType } from '../services/notification';
+import { isNvl } from '@/utils/utils';
 
 export default {
   namespace: 'notificationSearchForm',
@@ -15,10 +15,10 @@ export default {
   effects: {
     *queryNotificationTypeList(_, { call, put }) {
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = yield call(queryNotificationsType, 2);
       if (resultCode === '0' || resultCode === 0) {
-        const {dictionaryInfos} = result;
+        const { dictionaryInfos } = result;
         yield put({
           type: 'save',
           payload: {
@@ -29,10 +29,10 @@ export default {
     },
     *queryTargetTypeList(_, { call, put }) {
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = yield call(queryNotificationsType, 3);
       if (resultCode === '0' || resultCode === 0) {
-        const {dictionaryInfos} = result;
+        const { dictionaryInfos } = result;
         yield put({
           type: 'save',
           payload: {
@@ -41,12 +41,12 @@ export default {
         });
       } else message.warn(resultMsg, 10);
     },
-    * queryStatusList(_, {call, put}) {
+    *queryStatusList(_, { call, put }) {
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = yield call(queryNotificationsType, 4);
       if (resultCode === '0' || resultCode === 0) {
-        const {dictionaryInfos} = result;
+        const { dictionaryInfos } = result;
         yield put({
           type: 'save',
           payload: {
@@ -55,16 +55,16 @@ export default {
         });
       } else message.warn(resultMsg, 10);
     },
-    * queryAllCompanyConfig(_, {call, put}) {
+    *queryAllCompanyConfig(_, { call, put }) {
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = yield call(queryAllCompanyConfig);
       if (resultCode === '0' || resultCode === 0) {
         if (result && result.length > 0) {
           const marketTreeMap = new Map();
           const customerGroupTreeMap = new Map();
           result.forEach(n => {
-            const {params = {}} = n;
+            const { params = {} } = n;
             let marketTreeInfo = {
               title: !isNvl(params.marketName) ? `${params.marketName}` : `${params.market}`,
               value: `market${params.market}`,
@@ -132,7 +132,7 @@ export default {
         }
       } else message.warn(resultMsg, 10);
     },
-    * saveData({payload}, {put}) {
+    *saveData({ payload }, { put }) {
       yield put({
         type: 'save',
         payload: {

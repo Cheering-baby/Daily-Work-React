@@ -1,48 +1,59 @@
 import React from 'react';
-import { Breadcrumb, Col, Form } from 'antd';
-// import { formatMessage } from 'umi/locale';
+import { Col, Form } from 'antd';
+import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { router } from 'umi';
+import MediaQuery from 'react-responsive';
 import MappingDetail from '../../components/MappingDetail';
-import Index from '../../index';
+import BreadcrumbComp from '@/components/BreadcrumbComp';
+import SCREEN from '@/utils/screen';
 
 @Form.create()
-@connect(({ mappingDetails }) => ({
+@connect(({ mappingDetails, mapping }) => ({
   mappingDetails,
+  mapping,
 }))
 class MappingDetails extends React.PureComponent {
-  componentDidMount() {
+  render() {
     const {
-      dispatch,
-      match: { params },
+      match: {
+        params: { detail },
+      },
+      location: {
+        query: { companyName },
+      },
+      mapping: { type },
     } = this.props;
 
-    dispatch({
-      type: 'mappingDetails/statusDetail',
-      payload: {
-        id: params.mappingDetails,
+    const breadcrumbArr = [
+      {
+        breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
+        url: null,
       },
-    });
-  }
-
-  routerTo = () => {
-    router.push('/TAManagement/Mapping');
-  };
-
-  render() {
-    // const {
-    //   mappingDetails: { statusDetailList },
-    // } = this.props;
+      {
+        breadcrumbName: formatMessage({ id: 'MENU_TA_MAPPING' }),
+        url: '/TAManagement/Mapping',
+      },
+      {
+        breadcrumbName:
+          type === 'edit'
+            ? formatMessage({ id: 'COMMON_MODIFY' })
+            : formatMessage({ id: 'COMMON_NEW' }),
+        url: null,
+      },
+    ];
     return (
-      <Col lg={24} md={24} id="newMapping">
-        <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
-          <Breadcrumb.Item className="breadcrumb-style">TA Management</Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumb-style" onClick={this.routerTo}>
-            Mapping
-          </Breadcrumb.Item>
-          <Breadcrumb.Item className="breadcrumbbold">New</Breadcrumb.Item>
-        </Breadcrumb>
-        <MappingDetail />
+      <Col lg={24} md={24} id="mappingNew">
+        <MediaQuery
+          maxWidth={SCREEN.screenMdMax}
+          minWidth={SCREEN.screenSmMin}
+          minHeight={SCREEN.screenSmMin}
+        >
+          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+        </MediaQuery>
+        <MediaQuery minWidth={SCREEN.screenLgMin}>
+          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+        </MediaQuery>
+        <MappingDetail taId={detail} companyName={companyName} />
       </Col>
     );
   }

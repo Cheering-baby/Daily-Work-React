@@ -10,7 +10,8 @@ import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/At
 
 @Form.create()
 @connect(({ global, ticketBookingAndPayMgr }) => ({
-  global, ticketBookingAndPayMgr,
+  global,
+  ticketBookingAndPayMgr,
 }))
 class GeneralTicketingCollapse extends Component {
   constructor(props) {

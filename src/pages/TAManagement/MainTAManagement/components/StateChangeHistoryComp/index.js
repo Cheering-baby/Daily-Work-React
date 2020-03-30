@@ -49,8 +49,8 @@ class StateChangeHistoryComp extends PureComponent {
       payload: {
         taId: selectTaId,
         type: 'ta',
-        uploadedStartTime: searchStateForm.uploadedStartTime,
-        uploadedEndTime: searchStateForm.uploadedEndTime,
+        updatedStartTime: searchStateForm.updatedStartTime,
+        updatedEndTime: searchStateForm.updatedEndTime,
         pageInfo: {
           totalSize,
           currentPage,
@@ -76,8 +76,8 @@ class StateChangeHistoryComp extends PureComponent {
       type: 'stateChangeHistory/doSaveData',
       payload: {
         searchStateForm: {
-          uploadedStartTime: null,
-          uploadedEndTime: null,
+          updatedStartTime: null,
+          updatedEndTime: null,
         },
       },
     }).then(() => {
@@ -107,7 +107,7 @@ class StateChangeHistoryComp extends PureComponent {
       dataIndex: 'updatedTime',
       width: '20%',
       render: text => {
-        return !isNvl(text) ? moment(text, 'YYYY-MM-DD HH:mm:ss').format('DD-MMM-YYYY') : '-';
+        return !isNvl(text) ? moment(text, 'YYYY-MM-DD').format('DD-MMM-YYYY') : '-';
       },
     },
     {
@@ -161,20 +161,20 @@ class StateChangeHistoryComp extends PureComponent {
 
   disabledStartDate = startValue => {
     const { form } = this.props;
-    const endTime = form.getFieldValue('uploadedEndTime');
+    const endTime = form.getFieldValue('updatedEndTime');
     if (!startValue || !endTime) {
       return false;
     }
-    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
+    return startValue.valueOf() > moment(endTime, 'YYYY-MM-DD').valueOf();
   };
 
   disabledEndDate = endValue => {
     const { form } = this.props;
-    const startTime = form.getFieldValue('uploadedStartTime');
+    const startTime = form.getFieldValue('updatedStartTime');
     if (!endValue || !startTime) {
       return false;
     }
-    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
+    return endValue.valueOf() < moment(startTime, 'YYYY-MM-DD').valueOf();
   };
 
   render() {
@@ -194,7 +194,7 @@ class StateChangeHistoryComp extends PureComponent {
       onChange: date =>
         this.onHandleChange(
           'updatedStartTime',
-          isNvl(date) ? date : date.format('YYYYMMDD'),
+          isNvl(date) ? null : date.format('YYYY-MM-DD'),
           'updatedStartTime'
         ),
     };
@@ -206,7 +206,7 @@ class StateChangeHistoryComp extends PureComponent {
       onChange: date =>
         this.onHandleChange(
           'updatedEndTime',
-          isNvl(date) ? date : date.format('YYYYMMDD'),
+          isNvl(date) ? null : date.format('YYYY-MM-DD'),
           'updatedEndTime'
         ),
     };
@@ -227,16 +227,16 @@ class StateChangeHistoryComp extends PureComponent {
         <Spin spinning={qryStateHistoryLoading}>
           <Row type="flex" justify="space-around" className={styles.stateCardQryRow}>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.stateCompCol}>
-              {getFieldDecorator('uploadedStartTime', {
-                initialValue: !isNvl(searchStateForm.uploadedStartTime)
-                  ? moment(searchStateForm.uploadedStartTime, 'YYYY-MM-DD HH:mm:ss')
+              {getFieldDecorator('updatedStartTime', {
+                initialValue: !isNvl(searchStateForm.updatedStartTime)
+                  ? moment(searchStateForm.updatedStartTime, 'YYYY-MM-DD')
                   : null,
               })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.stateCompCol}>
-              {getFieldDecorator('uploadedEndTime', {
-                initialValue: !isNvl(searchStateForm.uploadedEndTime)
-                  ? moment(searchStateForm.uploadedEndTime, 'YYYY-MM-DD HH:mm:ss')
+              {getFieldDecorator('updatedEndTime', {
+                initialValue: !isNvl(searchStateForm.updatedEndTime)
+                  ? moment(searchStateForm.updatedEndTime, 'YYYY-MM-DD')
                   : null,
               })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
             </Col>

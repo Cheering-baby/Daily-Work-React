@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Icon, Collapse, Form, message} from 'antd';
+import { Icon, Collapse, Form, message } from 'antd';
 import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../../index.less';
@@ -7,10 +7,10 @@ import OrderItemCollapse from './components/OrderItemCollapse';
 
 @Form.create()
 @connect(({ global, ticketOrderCartMgr }) => ({
-  global, ticketOrderCartMgr,
+  global,
+  ticketOrderCartMgr,
 }))
 class OnceAPirateCollapse extends Component {
-
   constructor(props) {
     super(props);
   }
@@ -23,12 +23,16 @@ class OnceAPirateCollapse extends Component {
     if (opType === 'delete' && orderIndex !== null) {
       const orderItem = onceAPirateOrderData[orderIndex];
       const removeOfferInstanceList = [];
-      for (let orderOfferIndex=0;orderOfferIndex<orderItem.orderOfferList.length;orderOfferIndex++) {
+      for (
+        let orderOfferIndex = 0;
+        orderOfferIndex < orderItem.orderOfferList.length;
+        orderOfferIndex++
+      ) {
         const offerDetail = orderItem.orderOfferList[orderOfferIndex];
         removeOfferInstanceList.push({
           offerNo: offerDetail.offerInfo.offerNo,
           offerInstanceId: offerDetail.offerInstanceId,
-        })
+        });
       }
       dispatch({
         type: 'ticketOrderCartMgr/removeShoppingCart',
@@ -36,8 +40,8 @@ class OnceAPirateCollapse extends Component {
           offerInstances: removeOfferInstanceList,
           callbackFn: null,
         },
-      }).then((resultCode)=>{
-        if (resultCode==='0') {
+      }).then(resultCode => {
+        if (resultCode === '0') {
           message.success('Delete successfully!');
         }
       });

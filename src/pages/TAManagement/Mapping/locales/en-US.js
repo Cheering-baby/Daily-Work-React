@@ -1,5 +1,5 @@
-import {Breadcrumb} from "antd/lib/breadcrumb";
-import React from "react";
+import { Breadcrumb } from 'antd/lib/breadcrumb';
+import React from 'react';
 
 export default {
   MAPPING_MAIN_TA_PROFILE: 'Main TA Profile',
@@ -22,5 +22,7 @@ export default {
   MAPPING_SALES_MANAGER: 'Sales Manager',
   MAPPING_PRODUCT: 'Product',
   MAPPING_FOR_COMPANY_NAME: 'MAPPING FOR COMPANGY NAME',
-  MENU_TA_MYACTIVITY: 'My Activity'
+  MENU_TA_MYACTIVITY: 'My Activity',
+  BY_ACCOUNTING_AR: 'BY ACCOUNTING AR',
+  BY_SALES_SUPPORT: 'BY SALES SUPPORT',
 };
