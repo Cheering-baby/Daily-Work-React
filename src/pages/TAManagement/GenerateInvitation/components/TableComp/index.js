@@ -84,6 +84,7 @@ class TableComp extends PureComponent {
     dispatch({
       type: 'generateInvitation/save',
       payload: {
+        emailList: [],
         invitationVisible: true,
       },
     });

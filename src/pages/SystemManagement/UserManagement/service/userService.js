@@ -1,6 +1,5 @@
 import UAAService from '@/uaa-npm';
 
-const rwsUrl = 'http://10.25.159.206:18091/pams';
 export async function queryUsersByCondition(params) {
   return UAAService.request(`/b2b/user/v1/user/queryUsersByCondition`, {
     params,
@@ -59,4 +58,11 @@ export async function queryDictionary(params) {
       method: 'GET',
     }
   );
+}
+
+export async function sendEmail(params) {
+  return UAAService.request(`/b2b/user/v1/user/sendEmail`, {
+    body: params,
+    method: 'POST',
+  });
 }

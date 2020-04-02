@@ -121,6 +121,14 @@ class ToCart extends Component {
     });
   };
 
+  changeDeliveryInformation = (type, value) => {
+    const { form, changeDeliveryInformation } = this.props;
+    const data = {};
+    data[type] = value;
+    form.setFieldsValue(data);
+    changeDeliveryInformation(type, value);
+  };
+
   render() {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
     const { showTermsAndCondition, checkTermsAndCondition } = this.state;
@@ -140,16 +148,28 @@ class ToCart extends Component {
         customerContactNo,
         customerEmailAddress,
       },
-      changeDeliveryInformation,
       global: {
         userCompanyInfo: { companyType },
       },
     } = this.props;
+    let nameAndEmailRequired = false;
+    const arr = ['USS', 'SEA'];
     const termsAndConditionItems = [];
     offers.forEach(item => {
       const {
-        detail: { offerContentList = [] },
+        attractionProduct = [],
+        detail: { offerContentList = [], offerTagList = [] },
       } = item;
+      attractionProduct.forEach(item2 => {
+        if (arr.indexOf(item2.attractionProduct.themePark) !== -1) {
+          nameAndEmailRequired = true;
+        }
+      });
+      offerTagList.forEach(item2 => {
+        if (item2.tagName === 'VIP Tour') {
+          nameAndEmailRequired = true;
+        }
+      });
       offerContentList.forEach(item2 => {
         const { contentLanguage, contentType, contentValue } = item2;
         if (contentLanguage === 'en-us') {
@@ -181,7 +201,7 @@ class ToCart extends Component {
         >
           <div className={styles.termsAndConditionTitle}>Terms and Condition</div>
           {termsAndConditionItems.map(item => (
-            <div className={styles.termsAndConditionText}>{item}</div>
+            <div className={styles.termsAndConditionText} key={Math.random()}>{item}</div>
           ))}
         </Drawer>
         <Drawer
@@ -192,9 +212,9 @@ class ToCart extends Component {
           maskClosable={false}
           width={bodyWidth < 480 ? bodyWidth : 480}
           bodyStyle={{
+            position: 'relative',
             height: 'calc(100% - 55px)',
-            padding: '20px 20px 53px 20px',
-            overflow: 'auto',
+            padding: 0,
           }}
           className={styles.container}
           onClose={() => onClose()}
@@ -205,7 +225,7 @@ class ToCart extends Component {
                 <Col style={{ height: '35px' }} className={styles.title}>
                   TICKET INFORMATION
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
+                <Col span={24} style={{ marginBottom: '10px' }}>
                   <Col span={9} style={{ height: '30px' }}>
                     <span className={styles.detailLabel}>Ticket Type</span>
                   </Col>
@@ -213,7 +233,7 @@ class ToCart extends Component {
                     <span className={styles.detailText}>{ticketType || '-'}</span>
                   </Col>
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
+                <Col span={24} style={{ marginBottom: '10px' }}>
                   <Col span={9} style={{ height: '30px' }}>
                     <span className={styles.detailLabel}>Description</span>
                   </Col>
@@ -221,7 +241,7 @@ class ToCart extends Component {
                     <span className={styles.detailText}>{description || '-'}</span>
                   </Col>
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
+                <Col span={24} style={{ marginBottom: '10px' }}>
                   <Col span={9} style={{ height: '30px' }}>
                     <span className={styles.detailLabel}>Date of Visit</span>
                   </Col>
@@ -231,7 +251,7 @@ class ToCart extends Component {
                     </span>
                   </Col>
                 </Col>
-                <Col style={{ margin: '5px 0' }} className={styles.title}>
+                <Col span={24} style={{ marginTop: '15px' }} className={styles.title}>
                   BOOKING INFORMATION
                 </Col>
                 <Form className={styles.product}>
@@ -296,9 +316,9 @@ class ToCart extends Component {
                 </Form>
               </Row>
             </div>
-            <div style={{ height: '25px', marginTop: '10px' }} className={styles.title}>
+            <Col span={24} style={{ height: '25px', marginTop: '24px' }} className={styles.title}>
               DELIVERY INFORMATION
-            </div>
+            </Col>
             <Form>
               <Col span={24} className={styles.deliverCol}>
                 <FormItem className={styles.label} label="Country of Residence" colon={false}>
@@ -318,7 +338,7 @@ class ToCart extends Component {
                         allowClear
                         placeholder="Please Select"
                         style={{ width: '100%' }}
-                        onChange={this.changeCountry}
+                        onChange={value => this.changeDeliveryInformation('country', value)}
                         filterOption={(input, option) =>
                           option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         }
@@ -326,7 +346,7 @@ class ToCart extends Component {
                         {countrys.map((item, index) => {
                           const { lookupName } = item;
                           return (
-                            <Option key={`country_${  index}`} value={lookupName}>
+                            <Option key={`country_${index}`} value={lookupName}>
                               {lookupName}
                             </Option>
                           );
@@ -338,69 +358,134 @@ class ToCart extends Component {
               </Col>
               <Col span={24} className={styles.deliverCol}>
                 <FormItem className={styles.label} label="TA Reference No." colon={false}>
-                  <Input
-                    allowClear
-                    placeholder="Please Enter"
-                    style={{ width: '100%' }}
-                    value={taNo}
-                    onChange={e => {
-                      changeDeliveryInformation('taNo', e.target.value);
-                    }}
-                  />
+                  {getFieldDecorator('taNo', {
+                    initialValue: taNo,
+                    validateTrigger: '',
+                    rules: [
+                      {
+                        required: false,
+                        message: 'Required',
+                      },
+                    ],
+                  })(
+                    <div>
+                      <Input
+                        allowClear
+                        placeholder="Please Enter"
+                        style={{ width: '100%' }}
+                        value={taNo}
+                        onChange={e => {
+                          this.changeDeliveryInformation('taNo', e.target.value);
+                        }}
+                      />
+                    </div>
+                  )}
                 </FormItem>
               </Col>
               <Col span={24} className={styles.deliverCol}>
                 <Col span={12} className={styles.firstName}>
                   <FormItem className={styles.label} label="Guest First Name" colon={false}>
-                    <Input
-                      allowClear
-                      placeholder="Please Enter"
-                      style={{ width: '100%' }}
-                      value={guestFirstName}
-                      onChange={e => {
-                        changeDeliveryInformation('guestFirstName', e.target.value);
-                      }}
-                    />
+                    {getFieldDecorator('guestFirstName', {
+                      initialValue: guestFirstName,
+                      validateTrigger: '',
+                      rules: [
+                        {
+                          required: nameAndEmailRequired,
+                          message: 'Required',
+                        },
+                      ],
+                    })(
+                      <div>
+                        <Input
+                          allowClear
+                          placeholder="Please Enter"
+                          style={{ width: '100%' }}
+                          value={guestFirstName}
+                          onChange={e => {
+                            this.changeDeliveryInformation('guestFirstName', e.target.value);
+                          }}
+                        />
+                      </div>
+                    )}
                   </FormItem>
                 </Col>
                 <Col span={12} className={styles.lastName}>
                   <FormItem className={styles.label} label="Guest Last Name" colon={false}>
-                    <Input
-                      allowClear
-                      placeholder="Please Enter"
-                      style={{ width: '100%' }}
-                      value={guestLastName}
-                      onChange={e => {
-                        changeDeliveryInformation('guestLastName', e.target.value);
-                      }}
-                    />
+                    {getFieldDecorator('guestLastName', {
+                      initialValue: guestLastName,
+                      validateTrigger: '',
+                      rules: [
+                        {
+                          required: nameAndEmailRequired,
+                          message: 'Required',
+                        },
+                      ],
+                    })(
+                      <div>
+                        <Input
+                          allowClear
+                          placeholder="Please Enter"
+                          style={{ width: '100%' }}
+                          value={guestLastName}
+                          onChange={e => {
+                            this.changeDeliveryInformation('guestLastName', e.target.value);
+                          }}
+                        />
+                      </div>
+                    )}
                   </FormItem>
                 </Col>
               </Col>
               <Col span={24} className={styles.deliverCol}>
                 <FormItem className={styles.label} label="Customer Contact No." colon={false}>
-                  <Input
-                    allowClear
-                    placeholder="Please Enter"
-                    style={{ width: '100%' }}
-                    value={customerContactNo}
-                    onChange={e => {
-                      changeDeliveryInformation('customerContactNo', e.target.value);
-                    }}
-                  />
+                  {getFieldDecorator('customerContactNo', {
+                    initialValue: customerContactNo,
+                    validateTrigger: '',
+                    rules: [
+                      {
+                        required: nameAndEmailRequired,
+                        message: 'Required',
+                      },
+                    ],
+                  })(
+                    <div>
+                      <Input
+                        allowClear
+                        placeholder="Please Enter"
+                        style={{ width: '100%' }}
+                        value={customerContactNo}
+                        onChange={e => {
+                          this.changeDeliveryInformation('customerContactNo', e.target.value);
+                        }}
+                      />
+                    </div>
+                  )}
                 </FormItem>
               </Col>
               <Col span={24} className={styles.deliverCol} style={{ marginBottom: '5px' }}>
                 <FormItem className={styles.label} label="Customer Email Address" colon={false}>
-                  <Input
-                    allowClear
-                    placeholder="Please Enter"
-                    style={{ width: '100%' }}
-                    value={customerEmailAddress}
-                    onChange={e => {
-                      changeDeliveryInformation('customerEmailAddress', e.target.value);
-                    }}
-                  />
+                  {getFieldDecorator('customerEmailAddress', {
+                    initialValue: customerEmailAddress,
+                    validateTrigger: '',
+                    rules: [
+                      {
+                        required: nameAndEmailRequired,
+                        message: 'Required',
+                      },
+                    ],
+                  })(
+                    <div>
+                      <Input
+                        allowClear
+                        placeholder="Please Enter"
+                        style={{ width: '100%' }}
+                        value={customerEmailAddress}
+                        onChange={e => {
+                          this.changeDeliveryInformation('customerEmailAddress', e.target.value);
+                        }}
+                      />
+                    </div>
+                  )}
                 </FormItem>
               </Col>
             </Form>
@@ -413,14 +498,14 @@ class ToCart extends Component {
                 Terms and Conditions &gt;
               </span>
             </div>
-            <div className={styles.formControl}>
-              <Button onClick={() => onClose()} style={{ marginRight: 8, width: 60 }}>
-                Cancel
-              </Button>
-              <Button onClick={this.order} type="primary" style={{ width: 60 }}>
-                Order
-              </Button>
-            </div>
+          </div>
+          <div className={styles.formControl}>
+            <Button onClick={() => onClose()} style={{ marginRight: 8, width: 60 }}>
+              Cancel
+            </Button>
+            <Button onClick={this.order} type="primary" style={{ width: 60 }}>
+              Order
+            </Button>
           </div>
         </Drawer>
       </div>

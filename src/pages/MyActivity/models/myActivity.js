@@ -24,7 +24,7 @@ export default {
     contractFileList: [],
     selectTaId: null,
     contractFileUploading: false,
-    isOperationApproval: undefined,
+    companyDetailInfo: null,
   },
   effects: {
     *queryActivityList(_, { call, put, select }) {
@@ -162,6 +162,28 @@ export default {
       message.warn(resultMsg, 10);
       return false;
     },
+
+    *fetchCompanyDetail({ payload }, { call, put }) {
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(service.queryCompanyInfo, { taId: payload.companyId });
+      if (resultCode === '0') {
+        yield put({
+          type: 'save',
+          payload: {
+            companyDetailInfo: result,
+          },
+        });
+      } else {
+        message.warn(resultMsg, 10);
+        yield put({
+          type: 'save',
+          payload: {
+            companyDetailInfo: {},
+          },
+        });
+      }
+    },
   },
 
   reducers: {
@@ -188,6 +210,7 @@ export default {
         selectTaId: null,
         contractFileUploading: false,
         isOperationApproval: undefined,
+        companyDetailInfo: null,
       };
     },
     toggleModal(state, { payload }) {

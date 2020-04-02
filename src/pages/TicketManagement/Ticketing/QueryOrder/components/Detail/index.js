@@ -92,6 +92,7 @@ class Detail extends React.Component {
         const country = detailList[i].delivery ? detailList[i].delivery.country : '-';
         const referenceNo = detailList[i].delivery ? detailList[i].delivery.referenceNo : '-';
         const contactNo = detailList[i].delivery ? detailList[i].delivery.contactNo : '-';
+        const email = detailList[i].delivery ? detailList[i].delivery.email : '-';
         child.push(
           <div key={`offer_${i}`}>
             <Form className={styles.formStyle}>
@@ -119,11 +120,12 @@ class Detail extends React.Component {
               </span>
             </div>
             <Form className={styles.formStyle}>
-              {this.showDelivery(formatMessage({ id: 'COUNTRY_OF_RESIDENCE_ORIGIN' }), country)}
+              {this.showDelivery(formatMessage({ id: 'COUNTRY_OF_RESIDENCE' }), country)}
               {this.showDelivery(formatMessage({ id: 'TA_REFERENCE_NO' }), referenceNo)}
               {this.showDelivery(formatMessage({ id: 'GUEST_FIRST_NAME' }), firstName)}
               {this.showDelivery(formatMessage({ id: 'GUEST_LAST_NAME' }), lastName)}
               {this.showDelivery(formatMessage({ id: 'CUSTOMER_CONTACT_NO' }), contactNo)}
+              {this.showDelivery(formatMessage({ id: 'CUSTOMER_EMAIL_ADDRESS' }), email)}
             </Form>
             <Table
               size="small"

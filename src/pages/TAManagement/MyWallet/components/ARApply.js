@@ -1,13 +1,16 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { Button, Icon, message, Modal, Upload } from 'antd';
-
+import { connect } from 'dva';
 import styles from './arApply.less';
 import { handleDownFile } from '@/utils/utils';
 
 const actionUrl = `/pams/common/upload`;
 const downUrl = `/pams/common/downloadFile`;
-
+@connect(({ apply, loading }) => ({
+  apply,
+  loading: loading.effects['apply/feathArActitivy'],
+}))
 class ARApply extends React.PureComponent {
   constructor(props) {
     super(props);

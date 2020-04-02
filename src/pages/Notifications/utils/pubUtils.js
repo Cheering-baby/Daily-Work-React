@@ -24,13 +24,14 @@ export function getAllChildrenTargetList(childrenTargetTreeData, newTargetList) 
       getAllChildrenTargetList(item.children, newTargetList);
     } else {
       const targetObj = `${item.key}`.replace('customerGroup', '').replace('market', '');
+      const targetObjName = item.title;
       const noHasTarget =
         newTargetList.findIndex(n => String(n.targetObj) === String(targetObj)) <= -1;
       if (`${item.key}`.startsWith('customerGroup') && noHasTarget) {
-        newTargetList.push({ targetType: '01', targetObj });
+        newTargetList.push({ targetType: '01', targetObj, targetObjName });
       }
       if (`${item.key}`.startsWith('market') && noHasTarget) {
-        newTargetList.push({ targetType: '01', targetObj });
+        newTargetList.push({ targetType: '01', targetObj, targetObjName });
       }
     }
   });

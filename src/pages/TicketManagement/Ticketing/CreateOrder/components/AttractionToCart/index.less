@@ -4,6 +4,12 @@
   font-weight: 600;
 }
 
+.bodyContainer {
+  height: calc(100% - 55px);
+  padding:20px 20px 0 20px;
+  overflow: auto;
+}
+
 .detailLabel {
   font-size: 15px;
   color: #858585;
@@ -16,6 +22,7 @@
 }
 
 .formControl {
+  z-index: 3;
   position: absolute;
   right: 0;
   bottom: 0;
@@ -67,6 +74,12 @@
       padding-top: 6px;
     }
   }
+}
+
+.productDes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .deliverCol {

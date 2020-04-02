@@ -108,7 +108,10 @@ export default {
             pageSize: searchList.pageSize || '10',
           },
         });
-      } else message.warn(resultMsg, 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
     },
     *fetchGenerateContent({ payload }, { call, put }) {
       const reqParam = {

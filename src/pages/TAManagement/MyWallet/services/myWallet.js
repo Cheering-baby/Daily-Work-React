@@ -61,3 +61,10 @@ export async function queryActivityList(data) {
     method: 'GET',
   });
 }
+
+export async function invoiceDownload(params) {
+  return UAAService.request(`${urlPathPrefix}/download/accountInvoice`, {
+    method: 'GET',
+    params,
+  });
+}

@@ -44,7 +44,7 @@ class CheckOrder extends Component {
     const clientHeight =
       document.getElementsByClassName('main-layout-content ant-layout-content')[0].clientHeight -
       50 -
-      70 -
+      80 -
       97;
     this.state = {
       clientHeight,
@@ -152,7 +152,7 @@ class CheckOrder extends Component {
 
   checkOutEvent = () => {
     const { dispatch, form } = this.props;
-    form.validateFields((err, values) => {
+    form.validateFields((err) => {
       if (!err) {
         dispatch({
           type: 'ticketOrderCartMgr/orderCheckOut',
@@ -341,7 +341,7 @@ class CheckOrder extends Component {
                 </Col>
               </Row>
               <Row>
-                <Col offer={2} span={10}>
+                <Col offer={2} xs={24} md={12} lg={10}>
                   <FormItem {...formItemLayout} label={formatMessage({ id: 'DELIVERY_MODE' })}>
                     {getFieldDecorator('deliveryMode', {
                       initialValue: deliveryMode,
@@ -366,7 +366,7 @@ class CheckOrder extends Component {
                     )}
                   </FormItem>
                 </Col>
-                <Col offer={2} span={10}>
+                <Col offer={2} xs={24} md={12} lg={10}>
                   {deliveryMode && deliveryMode === 'BOCA' && (
                     <FormItem {...formItemLayout} label={formatMessage({ id: 'COLLECTION_DATE' })}>
                       {getFieldDecorator('collectionDate', {
@@ -421,34 +421,38 @@ class CheckOrder extends Component {
             </div>
           )}
         </Card>
-        <Card className={styles.cardStyles} style={{ marginTop: '0' }}>
-          <div className={styles.checkOut}>
-            <Checkbox
-              value="SelectAll"
-              style={{ position: 'absolute', left: 34 }}
-              onChange={this.clickSelectAll}
-              checked={selectAllOrder}
-              indeterminate={selectAllIndeterminate}
-            >
-              Select All
-            </Checkbox>
-            <div className={styles.checkOutPayDiv}>
-              {companyType === '01' && (
-                <div className={styles.payFont}>
-                  Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
-                </div>
-              )}
-            </div>
-            <Button
-              disabled={this.payTotal() <= 0}
-              className={styles.checkOutButton}
-              htmlType="button"
-              size="large"
-              onClick={this.checkOutEvent}
-            >
-              Check Out
-            </Button>
-          </div>
+        <Card className={styles.cardStyles} style={{ marginTop: '0',marginBottom:'20px' }}>
+          <Row className={styles.checkOut}>
+            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
+              <Checkbox
+                value="SelectAll"
+                style={{ position: 'absolute', left: 34 }}
+                onChange={this.clickSelectAll}
+                checked={selectAllOrder}
+                indeterminate={selectAllIndeterminate}
+              >
+                Select All
+              </Checkbox>
+            </Col>
+            <Col xs={24} md={16} lg={20} className={styles.checkOutBtn}>
+              <div className={styles.checkOutPayDiv}>
+                {companyType === '01' && (
+                  <div className={styles.payFont}>
+                    Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
+                  </div>
+                )}
+              </div>
+              <Button
+                disabled={this.payTotal() <= 0}
+                className={styles.checkOutButton}
+                htmlType="button"
+                size="large"
+                onClick={this.checkOutEvent}
+              >
+                Check Out
+              </Button>
+            </Col>
+          </Row>
         </Card>
       </Spin>
     );

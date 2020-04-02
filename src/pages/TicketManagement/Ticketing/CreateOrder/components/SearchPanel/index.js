@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import { Form, Checkbox, Button, DatePicker, Card, InputNumber, Select, Spin } from 'antd';
+import { Button, Card, Checkbox, DatePicker, Form, InputNumber, Select, Spin } from 'antd';
 import moment from 'moment';
 import { arrToString } from '../../../../utils/utils';
 import styles from './index.less';
@@ -36,14 +36,6 @@ class SearchPanel extends Component {
         columnName: 'NOTIONALITY',
       },
     });
-  }
-
-  componentWillUnmount() {
-    /* const { dispatch } = this.props;
-    dispatch({
-      type: 'callCenterBookingAttraction/resetState',
-      payload: {},
-    }); */
   }
 
   changeDateOfVisit = value => {
@@ -140,7 +132,7 @@ class SearchPanel extends Component {
           {
             group: 3,
             value: 'OAP',
-            label: 'ONCE A PIRATE',
+            label: 'Once A Pirate',
             disabled: false,
           },
         ],
@@ -240,7 +232,7 @@ class SearchPanel extends Component {
         },
       },
     }).then(() => {
-      console.log('queryOAPOfferList done: ');
+      // console.log('queryOAPOfferList done: ');
     });
   };
 
@@ -321,7 +313,7 @@ class SearchPanel extends Component {
         themeParkTipType,
         activeGroupSelectData: {
           ...activeGroupSelectData,
-          accessibleSeat: checkedValue,
+          themeParkCode: checkedValue,
         },
       },
     });
@@ -431,7 +423,7 @@ class SearchPanel extends Component {
           style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
           bodyStyle={{ padding: 0 }}
         >
-          <div style={{ padding: 15 }}>
+          <div style={{ padding: 15, minHeight: clientHeight }}>
             <div className={styles.titleFontBlackWeight}>Custom filter</div>
             <Form>
               <FormItem {...formItemLayout} label={formatMessage({ id: 'Ticketing' })}>
@@ -509,6 +501,7 @@ class SearchPanel extends Component {
                     >
                       {sessionTimeList &&
                         sessionTimeList.map((item, index) => (
+                          // eslint-disable-next-line react/no-array-index-key
                           <Select.Option key={`${item.value}_${index}`} value={item.value}>
                             {item.label}
                           </Select.Option>

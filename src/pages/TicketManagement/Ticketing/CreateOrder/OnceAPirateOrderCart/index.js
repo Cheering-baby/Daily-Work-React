@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
-import { message, Form, Button, Spin, Row, Col, Radio } from 'antd';
-import { formatMessage } from 'umi/locale';
+import React, {Component} from 'react';
+import {connect} from 'dva';
+import {Button, Col, Form, message, Radio, Row, Spin} from 'antd';
+import {formatMessage} from 'umi/locale';
 
 import moment from 'moment';
 import router from 'umi/router';
@@ -97,7 +97,7 @@ class OnceAPirateOrderCart extends Component {
               }
             }
           } else {
-            console.log('INDIVIDUAL_SETTING');
+            // console.log('INDIVIDUAL_SETTING');
           }
         }
         dispatch({
@@ -202,7 +202,7 @@ class OnceAPirateOrderCart extends Component {
               <Row>
                 <Col {...gridOpts} className={styles.basicInfoContent}>
                   <Col span={8}>{formatMessage({ id: 'Ticketing' })}</Col>
-                  <Col span={16}>ONCE A PIRATE</Col>
+                  <Col span={16}>Once A Pirate</Col>
                 </Col>
                 <Col {...gridOpts} className={styles.basicInfoContent}>
                   <Col span={8}>{formatMessage({ id: 'DATE_OF_VISIT' })}</Col>

@@ -1,39 +1,14 @@
 import React, { Component } from 'react';
-import { connect } from 'dva';
-import { Drawer, Row, Col, Button } from 'antd';
+import { Drawer, Row, Col } from 'antd';
 import styles from './index.less';
 
-@connect(({ callCenterBookingAttraction }) => ({
-  callCenterBookingAttraction,
-}))
+// eslint-disable-next-line react/prefer-stateless-function
 class Detail extends Component {
-  onClose = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'callCenterBookingAttraction/save',
-      payload: {
-        showDetailModal: false,
-      },
-    });
-  };
-
-  toCart = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'callCenterBookingAttraction/save',
-      payload: {
-        showDetailModal: false,
-        showToCart: true,
-      },
-    });
-  };
-
   render() {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
     const {
       onClose,
       detail: { offerContentList = [] },
-      showToCart,
     } = this.props;
     let offerName;
     let longDescription;

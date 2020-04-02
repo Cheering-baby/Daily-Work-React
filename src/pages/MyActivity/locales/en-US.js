@@ -27,5 +27,5 @@ export default {
   BILLING_TEL: 'Billing Tel',
 
   COMMON_OPERATION: 'Operation',
-  COMMON_REDIRECT_MAPPING: 'Redirect Mapping',
+  COMMON_REDIRECT_MAPPING: 'Mapping',
 };

@@ -12,7 +12,7 @@ export default {
   DELETE_SUCCESS: 'Delete Success',
   DELETE_FILE_SUCCESS: 'Delete File Success',
 
-  NOTICE_STATUS_PENDING: 'PENDING',
+  NOTICE_STATUS_PENDING: 'Pending',
   NOTICE_STATUS_DRAFT: 'Draft',
   NOTICE_STATUS_PUBLISHED: 'Published',
 
@@ -61,4 +61,6 @@ export default {
   LEAVE_NOTICE_TITLE: 'Are you sure you want to leave?',
   LEAVE_NOTICE_CONTENT: 'Your operation is not completed. If you leave, you will lose information',
   NOTICE_SCHEDULE_DATE_NULL: 'Please select Schedule Release Time.',
+  NOTICE_SCHEDULE_DATE_INVALID: 'Please select a feature Schedule Release Time.',
+  NOTICE_PUBLISH_CONTENT_NULL: 'Please enter Publish Content.',
 };

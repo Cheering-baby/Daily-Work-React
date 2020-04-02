@@ -132,6 +132,10 @@ class NotificationEdit extends React.PureComponent {
       notification: { notificationInfo },
     } = this.props;
     form.validateFields(err => {
+      if (isNvl(notificationInfo.content)) {
+        message.warn(formatMessage({ id: 'NOTICE_PUBLISH_CONTENT_NULL' }), 10);
+        return;
+      }
       if (!err) {
         let dispatchType;
         if (type === 'NEW') {
@@ -142,8 +146,19 @@ class NotificationEdit extends React.PureComponent {
           dispatchType = 'notification/fetchModifyNotification';
           notificationInfo.notificationId = notificationInfo.id;
         }
+        if (isNvl(notificationInfo.content)) {
+          message.warn(formatMessage({ id: 'NOTICE_PUBLISH_CONTENT_NULL' }), 10);
+          return;
+        }
         if (isNvl(notificationInfo.scheduleDate) && String(notificationInfo.status) === '03') {
           message.warn(formatMessage({ id: 'NOTICE_SCHEDULE_DATE_NULL' }), 10);
+          return;
+        }
+        if (
+          String(notificationInfo.status) === '03' &&
+          moment(notificationInfo.scheduleDate, 'YYYY-MM-DD HH:mm:ss') <= moment()
+        ) {
+          message.warn(formatMessage({ id: 'NOTICE_SCHEDULE_DATE_INVALID' }), 10);
           return;
         }
         dispatch({
@@ -485,6 +500,7 @@ class NotificationEdit extends React.PureComponent {
       notification: { notificationInfo, visibleFlag },
       notificationSearchForm: { notificationTypeList, statusList, targetTreeData },
     } = this.props;
+
     const { noticeFileLoadingFlag } = this.state;
     const { getFieldDecorator } = form;
     const templateModalHtml = <NotificationTemplate />;
@@ -646,24 +662,29 @@ class NotificationEdit extends React.PureComponent {
                 </Radio.Group>
               )}
             </Form.Item>
-            <Form.Item {...formItemHalfLayout} label={formatMessage({ id: 'PUBLISH_CONTENT' })}>
-              {getFieldDecorator(`content`, {
-                initialValue: notificationInfo.content || null,
-                rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
-              })(
-                <div>
-                  <ReactQuill
-                    placeholder={formatMessage({ id: 'NOTICE_PLEASE_ENTER' })}
-                    id="noticeViewEditQuill"
-                    bounds="#noticeViewEditQuill"
-                    className={styles.reactQuillStyle}
-                    value={notificationInfo.content || null}
-                    theme="snow"
-                    onChange={value => this.onHandleChange('content', value, 'content')}
-                    modules={this.modules}
-                  />
-                </div>
-              )}
+            <Form.Item
+              {...formItemHalfLayout}
+              label={formatMessage({ id: 'PUBLISH_CONTENT' })}
+              className={styles.notificationEditCardQuill}
+            >
+              <div>
+                <ReactQuill
+                  placeholder={formatMessage({ id: 'NOTICE_PLEASE_ENTER' })}
+                  id="noticeViewEditQuill"
+                  bounds="#noticeViewEditQuill"
+                  className={styles.reactQuillStyle}
+                  value={notificationInfo.content || null}
+                  ref={el => {
+                    this.reactQuillRef = el;
+                  }}
+                  theme="snow"
+                  // onChange={value => this.onHandleChange('content', value, 'content')}
+                  onBlur={(previousRange, source, editor) => {
+                    this.onHandleChange('content', editor.getHTML(), 'content');
+                  }}
+                  modules={this.modules}
+                />
+              </div>
             </Form.Item>
             <Form.Item
               {...formItemHalfLayout}

@@ -1,10 +1,9 @@
 import UAAService from '@/uaa-npm';
 
-const dev = 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams';
 const mock =
-  'http://easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e1c1fb0f5006f0021bfc342/PAMS';
+  'http://easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e854bf1f8436f0020822df9/PAMS';
 
-const localPath = process.env.NODE_ENV === 'development' ? dev : '';
+const localPath = process.env.NODE_ENV === 'development' ? mock : '';
 
 export async function queryCountry(params) {
   return UAAService.request(`${localPath}/b2c/customer/v1/domain/query`, {

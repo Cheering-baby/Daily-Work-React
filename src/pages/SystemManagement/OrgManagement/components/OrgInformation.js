@@ -1,12 +1,12 @@
 import React from 'react';
-import { Button, Card, Icon, Modal, Table, Tooltip } from 'antd';
-import { formatMessage } from 'umi/locale';
-import { connect } from 'dva';
+import {Button, Card, Icon, Modal, Table, Tooltip} from 'antd';
+import {formatMessage} from 'umi/locale';
+import {connect} from 'dva';
 import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '../../../../utils/PrivilegeUtil';
 
-@connect(({ orgMgr, global, loading }) => ({
+@connect(({orgMgr, global, loading}) => ({
   orgMgr,
   global,
   loadUserInOrg: loading.effects['orgMgr/queryUsersInOrg'],
@@ -356,8 +356,11 @@ class OrgInformation extends React.Component {
 
   getAddOrgBtnDisable = () => {
     const {
-      orgMgr: { selectedOrg = {}, orgList = [] },
+      orgMgr: {selectedOrg = {}, orgList = []},
+      global: {currentUser = {}},
     } = this.props;
+
+    const {userType = ''} = currentUser;
 
     // 如果不是同一家公司 禁止操作 其他公司的组织结构
     if (orgList.length > 0 && Object.keys(selectedOrg).length > 0) {
@@ -369,17 +372,23 @@ class OrgInformation extends React.Component {
     return (
       Object.keys(selectedOrg).length === 0 ||
       !(
-        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ||
-        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) ||
-        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])
+        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) &&
+          userType === constants.RWS_USER_TYPE) ||
+        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) &&
+          userType === constants.TA_USER_TYPE) ||
+        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) &&
+          userType === constants.SUB_TA_USER_TYPE)
       )
     );
   };
 
   getAddMemberBtnDisable = () => {
     const {
-      orgMgr: { selectedOrg = {}, orgList = [] },
+      orgMgr: {selectedOrg = {}, orgList = []},
+      global: {currentUser = {}},
     } = this.props;
+
+    const {userType = ''} = currentUser;
 
     // 如果不是同一家公司 禁止操作 其他公司的组织结构
     if (orgList.length > 0 && Object.keys(selectedOrg).length > 0) {
@@ -391,8 +400,10 @@ class OrgInformation extends React.Component {
     return (
       Object.keys(selectedOrg).length === 0 ||
       !(
-        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) ||
-        PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])
+        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) &&
+          userType === constants.TA_USER_TYPE) ||
+        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) &&
+          userType === constants.SUB_TA_USER_TYPE)
       )
     );
   };

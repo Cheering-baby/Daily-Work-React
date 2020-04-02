@@ -7,7 +7,7 @@ import styles from './index.less';
 
 class CompanyInformationToFrom extends PureComponent {
   getTravelAgentNoLabel = country => {
-    if (String(country).toUpperCase() === 'SGP') {
+    if (String(country).toUpperCase() === '65') {
       return formatMessage({ id: 'STB_TRAVEL_AGENT_LICENSE_NUMBER' });
     }
     return formatMessage({ id: 'TRAVEL_AGENT_REGISTRATION_NUMBER' });
@@ -15,7 +15,7 @@ class CompanyInformationToFrom extends PureComponent {
 
   getTravelAgentNoRules = country => {
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });
-    if (String(country).toUpperCase() === 'SGP') {
+    if (String(country).toUpperCase() === '65') {
       return [
         { required: true, message: formatMessage({ id: 'REQUIRED' }) },
         { max: 200, message: numFormat },
@@ -29,6 +29,15 @@ class CompanyInformationToFrom extends PureComponent {
       return [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }];
     }
     return [];
+  };
+
+  compareToRegistrationNo = (rule, value, callback) => {
+    const { onCheckRegistrationNo } = this.props;
+    onCheckRegistrationNo(value).then(data => {
+      if (!isNvl(value) && data) {
+        callback(formatMessage({ id: 'UEN_BUSINESS_REGISTRATION_NUMBER_ERROR' }));
+      } else callback();
+    });
   };
 
   render() {
@@ -101,6 +110,7 @@ class CompanyInformationToFrom extends PureComponent {
                 rules: [
                   { required: true, message: formatMessage({ id: 'REQUIRED' }) },
                   { max: 200, message: numFormat },
+                  { validator: this.compareToRegistrationNo },
                 ],
               })(
                 <Input
@@ -182,7 +192,12 @@ class CompanyInformationToFrom extends PureComponent {
                 <Form.Item colon={false} className={styles.cityItem}>
                   {getFieldDecorator('city', {
                     initialValue: !isNvl(companyInfo.city) ? companyInfo.city : [],
-                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                    rules: [
+                      {
+                        required: cityList && cityList.length > 0,
+                        message: formatMessage({ id: 'REQUIRED' }),
+                      },
+                    ],
                   })(
                     <Select
                       showSearch

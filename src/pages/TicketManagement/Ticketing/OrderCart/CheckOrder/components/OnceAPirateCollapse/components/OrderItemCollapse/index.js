@@ -7,10 +7,6 @@ import AccessibleSeat from './assets/accessible_seat.png';
 const { confirm } = Modal;
 
 class OrderItemCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   allClickEvent = e => {
     e.stopPropagation();
   };

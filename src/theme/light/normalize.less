@@ -87,18 +87,24 @@ ol {
   text-align: right;
 }
 .main-layout-content {
-  margin: 24px;
+  margin: 1rem;
 }
 
 @media screen and (max-width: @nor-screenXsMax) {
   .main-layout-content {
-    margin: 50px 0;
+    margin: 3.5rem 0;
   }
 }
 
-@media screen and (max-width: @nor-screenMdMax) and (min-width: @nor-screenXsMax) {
+@media screen and (max-width: @nor-screenMdMax) and (min-width: @nor-screenXsMax) and (max-height: @nor-screenXsMax) {
   .main-layout-content {
-    margin: 50px 0;
+    margin: 3.5rem 0;
+  }
+}
+
+@media screen and (max-width: @nor-screenMdMax) and (min-width: @nor-screenXsMax) and (min-height: @nor-screenXsMax) {
+  .main-layout-content {
+    margin: 1rem;
   }
 }
 .card-inner-padding {

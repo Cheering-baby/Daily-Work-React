@@ -1,3 +1,6 @@
+@prefix-cls: ~'@{ant-prefix}';
+@import "../../../theme/screen.less";
+
 .searchDiv {
   padding: 14px;
   color: red;
@@ -97,9 +100,21 @@
   height: 100%;
 
   :global {
-
     .ant-card-body {
       padding: 0 !important;
+    }
+  }
+}
+
+@media screen and (max-width: @screenSmMin) {
+  .cardClass {
+    height: 100%;
+    margin-top: 20px;
+
+    :global {
+      .ant-card-body {
+        padding: 0 !important;
+      }
     }
   }
 }
@@ -118,6 +133,43 @@
   :global {
     .ant-form-item-control-wrapper {
       width: 100% !important;
+    }
+  }
+}
+
+.popClassName {
+  :global {
+    .@{prefix-cls}-popover-inner-content {
+      padding: 8px 12px;
+      color: #858585;
+    }
+
+    .@{prefix-cls}-popover-inner {
+      border-radius: 4px;
+    }
+  }
+}
+
+.contentMenuRow {
+  width: 100px;
+
+  .contentMenuCol {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #171B21;
+    letter-spacing: 0.24px;
+    line-height: 22px;
+
+    > i {
+      margin-right: 1rem;
+      font-size: 14px;
+      color: #858585;
+    }
+
+    &:hover {
+      background-color: #e7f8ff;
     }
   }
 }

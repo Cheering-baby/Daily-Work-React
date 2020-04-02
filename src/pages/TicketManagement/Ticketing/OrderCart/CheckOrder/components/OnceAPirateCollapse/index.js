@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { Icon, Collapse, Form, message } from 'antd';
-import { connect } from 'dva';
+import React, {Component} from 'react';
+import {Collapse, Form, Icon, message} from 'antd';
+import {connect} from 'dva';
 import router from 'umi/router';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
@@ -11,10 +11,6 @@ import OrderItemCollapse from './components/OrderItemCollapse';
   ticketOrderCartMgr,
 }))
 class OnceAPirateCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   operateButtonEvent = (opType, orderIndex, onceAPirateOrder) => {
     const {
       dispatch,
@@ -26,7 +22,7 @@ class OnceAPirateCollapse extends Component {
       for (
         let orderOfferIndex = 0;
         orderOfferIndex < orderItem.orderOfferList.length;
-        orderOfferIndex++
+        orderOfferIndex += 1
       ) {
         const offerDetail = orderItem.orderOfferList[orderOfferIndex];
         removeOfferInstanceList.push({
@@ -87,7 +83,6 @@ class OnceAPirateCollapse extends Component {
       },
       ticketOrderCartMgr: { onceAPirateOrderData = [] },
       form,
-      form: { getFieldDecorator },
     } = this.props;
 
     return (
@@ -105,21 +100,21 @@ class OnceAPirateCollapse extends Component {
         <Collapse.Panel
           className={styles.collapsePanelStyles}
           key="OnceAPirateCollapsePanel"
-          header={<span className={styles.collapsePanelHeaderStyles}>ONCE A PIRATE</span>}
+          header={<span className={styles.collapsePanelHeaderStyles}>Once A Pirate</span>}
         >
           {onceAPirateOrderData.map((onceAPirateOrder, orderIndex) => {
             return (
               <OrderItemCollapse
-                key={`OrderItemCollapse_${orderIndex}`}
+                key={`OrderItemCollapse_${Math.random()}`}
                 form={form}
                 companyType={companyType}
                 orderIndex={orderIndex}
                 onceAPirateOrder={onceAPirateOrder}
-                changeOrderCheck={(orderIndex, onceAPirateOrder) => {
-                  this.changeOrderCheck(orderIndex, onceAPirateOrder);
+                changeOrderCheck={(orderIndexParam, onceAPirateOrderParam) => {
+                  this.changeOrderCheck(orderIndexParam, onceAPirateOrderParam);
                 }}
-                operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
-                  this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
+                operateButtonEvent={(opType, orderIndexParam, onceAPirateOrderParam) => {
+                  this.operateButtonEvent(opType, orderIndexParam, onceAPirateOrderParam);
                 }}
               />
             );

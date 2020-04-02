@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Row, Col, Select, Button, message } from 'antd';
+import { Button, Col, Form, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from '../../index.less';
@@ -25,7 +25,7 @@ class CustomerMeal extends Component {
     const { offerIndex, offerDetail, itemValueChangeEvent } = this.props;
 
     offerDetail.orderInfo.individualSettingList = offerDetail.orderInfo.individualSettingList.map(
-      (item, index) => {
+      () => {
         return Object.assign({}, { ...offerDetail.orderInfo.individualSettingList[0] });
       }
     );
@@ -45,7 +45,7 @@ class CustomerMeal extends Component {
     voucherProductList.forEach(voucherProduct => {
       if (voucherProduct.productNo === customerItem.meals) {
         if (voucherProduct.productContentList && voucherProduct.productContentList.length > 0) {
-          voucherProduct.productContentList.map(productContent => {
+          voucherProduct.productContentList.forEach(productContent => {
             if (
               productContent.contentType === 'productDescription' &&
               productContent.contentLanguage === 'en-us'
@@ -78,6 +78,7 @@ class CustomerMeal extends Component {
             if (productPrice.priceDate === dateOfVisit) {
               maxAvailable =
                 productPrice.productInventory === -1 ? 2147483647 : productPrice.productInventory;
+              // eslint-disable-next-line radix
               maxAvailable = parseInt(maxAvailable / needChoiceCount);
               if (maxAvailable > 0) {
                 newVoucherList.push(Object.assign({}, { ...voucherProduct }));
@@ -104,7 +105,7 @@ class CustomerMeal extends Component {
     if (customerItem.meals && customerItem.meals === selectValue.productNo) {
       mealsDisabled = false;
     } else {
-      offerDetail.orderInfo.individualSettingList.map(item => {
+      offerDetail.orderInfo.individualSettingList.forEach(item => {
         if (item.meals && item.meals === selectValue.productNo) {
           chooseAmount += 1;
         }
@@ -121,6 +122,7 @@ class CustomerMeal extends Component {
                     productPrice.productInventory === -1
                       ? 2147483647
                       : productPrice.productInventory;
+                  // eslint-disable-next-line radix
                   maxAvailable = parseInt(maxAvailable / needChoiceCount);
                   if (maxAvailable <= chooseAmount) {
                     mealsDisabled = true;
@@ -137,7 +139,7 @@ class CustomerMeal extends Component {
   };
 
   render() {
-    const { form, offerDetail, customerItemIndex, customerItem, diningRemarkList } = this.props;
+    const { form, offerDetail, customerItemIndex, customerItem } = this.props;
 
     const voucherProductList = this.getAvailableVoucherList();
     const { getFieldDecorator } = form;
@@ -181,16 +183,16 @@ class CustomerMeal extends Component {
                 }
               )(
                 <Select
-                  key={`customerMeal_${  customerItemIndex}`}
+                  key={`customerMeal_${customerItemIndex}`}
                   showSearch
                   allowClear
                   placeholder="Please Select"
                   onChange={this.mealsChangeEvent}
                 >
                   {voucherProductList &&
-                    voucherProductList.map((item, index) => (
+                    voucherProductList.map(item => (
                       <Select.Option
-                        key={`customer_${offerDetail.offerInfo.offerNo}_${customerItemIndex}_meals_${index}`}
+                        key={`customer_${offerDetail.offerInfo.offerNo}_meals_${Math.random()}`}
                         value={item.productNo}
                         disabled={this.mealsDisabled(item)}
                       >

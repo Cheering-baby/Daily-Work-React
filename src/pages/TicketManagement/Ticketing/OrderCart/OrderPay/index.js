@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import MediaQuery from 'react-responsive';
-import { Card, Form, Button, Col, Row, Spin, Modal, Icon, message } from 'antd';
-import { connect } from 'dva';
-import { formatMessage } from 'umi/locale';
+import {Button, Card, Col, Form, Icon, message, Modal, Row, Spin} from 'antd';
+import {connect} from 'dva';
+import {formatMessage} from 'umi/locale';
 import moment from 'moment';
 import router from 'umi/router';
 import SCREEN from '@/utils/screen';
@@ -64,7 +64,7 @@ class OrderPay extends Component {
       return;
     }
 
-    const payMode = payModeList.find(payMode => payMode.check);
+    const payMode = payModeList.find(payModeItem => payModeItem.check);
     if (payMode.label === 'eWallet') {
       if (accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         dispatch({
@@ -113,7 +113,7 @@ class OrderPay extends Component {
     }
 
     let active = false;
-    const payMode = payModeList.find(payMode => payMode.check);
+    const payMode = payModeList.find(payModeItem => payModeItem.check);
     if (payMode.label === 'eWallet') {
       if (accountInfo.eWallet && accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         active = true;
@@ -186,19 +186,27 @@ class OrderPay extends Component {
       payload: {},
     }).then(result => {
       if (result) {
-        const urlArray = result.split('?');
-        const pointIndex = urlArray[0].lastIndexOf('.');
-        const fileType = urlArray[0].substring(pointIndex + 1);
-        this.getBlob(result).then(blob => {
-          const blobUrl = window.URL.createObjectURL(blob);
-          const aElement = document.createElement('a');
-          document.body.appendChild(aElement);
-          aElement.style.display = 'none';
-          aElement.href = blobUrl;
-          aElement.download = `${deliveryMode  }_${  new Date().getTime()  }.${  fileType}`;
-          aElement.click();
-          document.body.removeChild(aElement);
-        });
+        if (deliveryMode === 'VID') {
+          const openWindow = window.open(result);
+          if (!openWindow) {
+            message.error('Open window error!');
+          }
+        } else {
+          const urlArray = result.split('?');
+          const pointIndex = urlArray[0].lastIndexOf('.');
+          const fileType = urlArray[0].substring(pointIndex + 1);
+          this.getBlob(result).then(blob => {
+            const blobUrl = window.URL.createObjectURL(blob);
+            const aElement = document.createElement('a');
+            document.body.appendChild(aElement);
+            aElement.style.display = 'none';
+            aElement.href = blobUrl;
+            aElement.download = `${deliveryMode}_${new Date().getTime()}.${fileType}`;
+            aElement.click();
+            document.body.removeChild(aElement);
+          });
+        }
+
       }
     });
   };
@@ -220,9 +228,11 @@ class OrderPay extends Component {
     } = this.props;
     if (deliveryMode === 'BOCA') {
       return 'Download Collection Letter';
-    } if (deliveryMode === 'VID') {
+    }
+    if (deliveryMode === 'VID') {
       return 'Export VID';
-    } if (deliveryMode === 'e-Ticket') {
+    }
+    if (deliveryMode === 'e-Ticket') {
       return 'Download e-Ticket';
     }
   };

@@ -121,6 +121,9 @@ class Restmodal extends Component {
       ...securityRule,
       userPwdMaxLength: this.rules.userPwdMaxLength,
     };
+    if (value && value === form.getFieldValue('OLD_PWD')) {
+      callback(formatMessage({ id: 'PWD_NEW_PWD_SAME_ERROR' }));
+    }
     const msg = isMatchPwdRule(value, newRules);
     if (value && msg === true) {
       if (confirmDirty) form.validateFields(['NEW_PWD_CONFIR'], { force: true });
@@ -166,7 +169,6 @@ class Restmodal extends Component {
     } = this.props;
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        // dispatch
         dispatch({
           type: 'login/changeUserPwd',
           payload: {
@@ -322,6 +324,7 @@ class Restmodal extends Component {
                   ],
                 })(<Input type="password" onBlur={this.handleConfirmBlur} />)}
               </FormItem>
+              g
             </Col>
           </div>
         </Row>

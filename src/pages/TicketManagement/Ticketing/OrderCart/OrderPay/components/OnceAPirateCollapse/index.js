@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
-import { Icon, Collapse, Form } from 'antd';
-import { connect } from 'dva';
-import router from 'umi/router';
+import React, {Component} from 'react';
+import {Collapse, Form, Icon} from 'antd';
+import {connect} from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
 
@@ -11,12 +10,9 @@ import OrderItemCollapse from './components/OrderItemCollapse';
   ticketBookingAndPayMgr,
 }))
 class OnceAPirateCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   operateButtonEvent = (opType, orderIndex, onceAPirateOrder) => {
     if (opType === 'detail' && orderIndex !== null) {
+      console.log(onceAPirateOrder);
     }
   };
 
@@ -44,17 +40,17 @@ class OnceAPirateCollapse extends Component {
         <Collapse.Panel
           className={styles.collapsePanelStyles}
           key="OnceAPirateCollapsePanel"
-          header={<span className={styles.collapsePanelHeaderStyles}>ONCE A PIRATE</span>}
+          header={<span className={styles.collapsePanelHeaderStyles}>Once A Pirate</span>}
         >
           {onceAPirateOrderData.map((onceAPirateOrder, orderIndex) => {
             return (
               <OrderItemCollapse
-                key={`OrderItemCollapse_${orderIndex}`}
+                key={`OrderItemCollapse_${Math.random()}`}
                 form={form}
                 orderIndex={orderIndex}
                 onceAPirateOrder={onceAPirateOrder}
-                operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
-                  this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
+                operateButtonEvent={(opType, orderIndexParam, onceAPirateOrderParam) => {
+                  this.operateButtonEvent(opType, orderIndexParam, onceAPirateOrderParam);
                 }}
                 companyType={companyType}
               />

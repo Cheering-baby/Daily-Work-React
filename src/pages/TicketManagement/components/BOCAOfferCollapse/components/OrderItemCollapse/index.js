@@ -1,12 +1,8 @@
-import React, { Component } from 'react';
-import { Icon, Row, Col, Checkbox, Collapse, Tooltip, Modal } from 'antd';
-import moment from 'moment';
+import React from 'react';
+import { Icon, Row, Col, Collapse } from 'antd';
 import styles from './index.less';
 
-class OrderItemCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
+class OrderItemCollapse extends React.PureComponent {
 
   render() {
     const { companyType = '01', quantity = 0, pricePax = 0 } = this.props;

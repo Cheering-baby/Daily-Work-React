@@ -32,6 +32,7 @@ class Attraction extends Component {
   showToCart = record => {
     const { dispatch } = this.props;
     const { bundleName, offers = [], attractionProduct = [], detail } = record;
+    const { numOfGuests } = detail;
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const detailCopy = JSON.parse(JSON.stringify(detail));
     let bundleOfferDetail = {};
@@ -43,12 +44,14 @@ class Attraction extends Component {
         numOfGuests: offers[0].detail.numOfGuests,
       };
     }
-
     dispatch({
       type: 'ticketMgr/save',
       payload: {
         attractionProduct: attractionProductCopy,
-        detail: detailCopy,
+        detail: {
+          ...detailCopy,
+          offerQuantity: numOfGuests,
+        },
         showToCartModal: isNullOrUndefined(bundleName),
         showBundleToCart: !isNullOrUndefined(bundleName),
         bundleOfferDetail,
@@ -166,6 +169,21 @@ class Attraction extends Component {
     return originalValue;
   };
 
+  changeFixedOfferNumbers = value => {
+    const {
+      dispatch,
+      ticketMgr: { detail },
+    } = this.props;
+    const detailCopy = JSON.parse(JSON.stringify(detail));
+    detailCopy.offerQuantity = value;
+    dispatch({
+      type: 'ticketMgr/save',
+      payload: {
+        detail: detailCopy,
+      },
+    });
+  };
+
   changeBundleOfferNumber = async (index, value, productPrice) => {
     const {
       dispatch,
@@ -210,6 +228,54 @@ class Attraction extends Component {
     });
   };
 
+  orderFixedOffer = () => {
+    const {
+      dispatch,
+      ticketMgr: {
+        deliverInfomation = {},
+        attractionProduct = [],
+        detail,
+        detail: { dateOfVisit, numOfGuests, priceRuleId, offerQuantity },
+      },
+    } = this.props;
+    const orderInfo = [];
+    const { themeParkName, themePark: themeParkCode } = attractionProduct[0].attractionProduct;
+    attractionProduct.forEach(item => {
+      orderInfo.push({
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: offerQuantity,
+        pricePax: calculateProductPrice(item, priceRuleId),
+        productInfo: item,
+      });
+    });
+    const orderData = {
+      themeParkCode,
+      themeParkName,
+      orderType: 'offerFixed',
+      orderSummary: {
+        quantity: offerQuantity,
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
+        totalprice: offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId),
+        selectPriceRuleId: priceRuleId,
+      },
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderInfo,
+      offerInfo: { ...detail, selectRuleId: priceRuleId },
+      deliveryInfo: deliverInfomation,
+    };
+    dispatch({
+      type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
+      payload: {
+        orderIndex: null,
+        orderData,
+      },
+    });
+    this.onClose();
+  };
+
   order = () => {
     const {
       dispatch,
@@ -217,9 +283,23 @@ class Attraction extends Component {
         deliverInfomation = {},
         attractionProduct = [],
         detail,
-        detail: { dateOfVisit, numOfGuests, priceRuleId },
+        detail: { dateOfVisit, numOfGuests, priceRuleId, productGroup = [] },
       },
     } = this.props;
+    let offerConstrain;
+    productGroup.forEach(item => {
+      if (item.productType === 'Attraction') {
+        item.productGroup.forEach(item2 => {
+          if (item2.groupName === 'Attraction') {
+            offerConstrain = item2.choiceConstrain;
+          }
+        });
+      }
+    });
+    if (offerConstrain === 'Fixed') {
+      this.orderFixedOffer();
+      return true;
+    }
     if (attractionProduct.length === 1) {
       const { ticketNumber, price } = attractionProduct[0];
       const themeParkCode = attractionProduct[0].attractionProduct.themePark;
@@ -258,7 +338,7 @@ class Attraction extends Component {
         orderInfo.push({
           ageGroup: item.attractionProduct.ageGroup,
           quantity: ticketNumber,
-          pricePax: price,
+          pricePax: price / ticketNumber,
           productInfo: item,
         });
       });
@@ -433,6 +513,8 @@ class Attraction extends Component {
             order={this.order}
             deliverInfomation={deliverInfomation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
+            changeFixedOfferNumbers={this.changeFixedOfferNumbers}
+            modify={false}
           />
         ) : null}
         {showBundleToCart ? (
@@ -445,6 +527,7 @@ class Attraction extends Component {
             changeTicketNumber={this.changeBundleOfferNumber}
             deliverInfomation={deliverInfomation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
+            modify={false}
           />
         ) : null}
         <Tabs>

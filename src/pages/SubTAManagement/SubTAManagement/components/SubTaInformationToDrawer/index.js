@@ -72,9 +72,10 @@ class SubTaInformationToDrawer extends PureComponent {
         return;
       }
       dispatch({
-        type: 'subTaMgr/fetchSubTARegistration',
+        type: 'subTaMgr/fetchModifySubTaInfo',
         payload: {
           ...subTaInfo,
+          taId: null,
           applicationDate: subTaInfo.applicationDate
             ? moment(subTaInfo.applicationDate, 'YYYY-MM-DD').format('YYYY-MM-DD')
             : null,

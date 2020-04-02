@@ -7,14 +7,20 @@ import { getProductType } from '../../utils/pubUtils';
 class QuestionsToFrom extends PureComponent {
   getRwsRoomVolumeRules = (productInfoOne, isRwsNewRoom, productTypeRoom) => {
     if (String(productInfoOne.productType) === productTypeRoom && isRwsNewRoom === 'Y') {
-      return [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }];
+      return [
+        { required: true, message: formatMessage({ id: 'REQUIRED' }) },
+        { type: 'number', min: 0, max: 10000000, message: formatMessage({ id: 'ONLY_NUMBER' }) },
+      ];
     }
     return [];
   };
 
   getOtherRoomVolumeRules = (productInfoOne, isRwsNewRoom, productTypeRoom) => {
     if (String(productInfoOne.productType) === productTypeRoom && isRwsNewRoom === 'N') {
-      return [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }];
+      return [
+        { required: true, message: formatMessage({ id: 'REQUIRED' }) },
+        { type: 'number', min: 0, max: 10000000, message: formatMessage({ id: 'ONLY_NUMBER' }) },
+      ];
     }
     return [];
   };

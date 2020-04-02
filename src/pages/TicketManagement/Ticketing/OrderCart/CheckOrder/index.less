@@ -1,3 +1,5 @@
+@import '../../../../../theme/screen.less';
+
 .titleFont {
   font-family: calibriBold;
   font-size: 15px;
@@ -173,14 +175,26 @@
 }
 
 .checkOut {
-  display: flex;
-  align-items: center;
-  height: 70px;
+
+  min-height: 70px;
+
+  .checkOutCheckBox {
+    min-height: 70px;
+    line-height: 70px;
+  }
+
+  .checkOutBtn {
+    min-height: 70px;
+    line-height: 70px;
+    text-align: right;
+  }
 
   .checkOutPayDiv {
+
     display: inline-block;
-    position: absolute;
-    right: 140px;
+    margin-right: 20px;
+    min-height: 70px;
+    line-height: 70px;
 
     .selectAllFont {
       font-family: calibri;
@@ -191,12 +205,13 @@
     }
 
     .payFont {
+      min-height: 70px;
+      line-height: 70px;
       font-family: calibri;
       font-size: 15px;
       color: #171B21;
       letter-spacing: 0.24px;
       text-align: right;
-      line-height: 22px;
     }
     .priceFont {
       font-family: calibriBold;
@@ -217,7 +232,6 @@
     letter-spacing: 0.29px;
     line-height: 10px;
     border: 0;
-    position: absolute;
-    right: 15px;
+    margin-right: 20px;
   }
 }

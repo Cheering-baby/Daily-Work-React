@@ -1,14 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { message , Form, Table, Tooltip, Icon, InputNumber } from 'antd';
-
-import moment from 'moment';
+import { message, Form, Table, Tooltip, Icon, InputNumber } from 'antd';
 import styles from './index.less';
 import OfferDetail from './components/OfferDetail';
-import {
-  getAttractionProductList,
-  getPluProductByRuleId,
-} from '@/pages/TicketManagement/utils/ticketOfferInfoUtil';
 
 @Form.create()
 @connect(({ global, ticketMgr, loading, onceAPirateTicketMgr }) => ({
@@ -69,7 +63,6 @@ class OfferListPanel extends Component {
 
   getOfferMaxAvailable = offerInfo => {
     const { offerMaxQuantity } = offerInfo;
-
     return offerMaxQuantity;
   };
 
@@ -151,11 +144,14 @@ class OfferListPanel extends Component {
           }
         });
       }
+      let result = false;
       if (showCategory === '1' && isRegular) {
-        return offerData;
-      } if (showCategory === '2' && isVip) {
-        return offerData;
+        result = true;
       }
+      if (showCategory === '2' && isVip) {
+        result = true;
+      }
+      return result;
     });
 
     return (

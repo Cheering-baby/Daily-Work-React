@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
-import { Icon, Row, Col, Checkbox, Collapse, Tooltip, Modal } from 'antd';
+import { Checkbox, Col, Collapse, Icon, Modal, Row, Tooltip } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
 const { confirm } = Modal;
 
 class OrderItemCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   allClickEvent = e => {
     e.stopPropagation();
   };
@@ -38,11 +34,6 @@ class OrderItemCollapse extends Component {
       return orderOffer.offerInfo.offerBasicInfo.offerName;
     }
     return '-';
-  };
-
-  getOrderSumPrice = orderOffer => {
-    const orderSumPrice = 0;
-    return `$${orderSumPrice}`;
   };
 
   getOfferSumPrice = orderOffer => {
@@ -182,6 +173,7 @@ class OrderItemCollapse extends Component {
         }
       >
         {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
             <Col span={10} className={styles.titleCol}>
               {/* <Checkbox
@@ -305,6 +297,7 @@ class OrderItemCollapse extends Component {
         }
       >
         {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
             <Col span={10} className={styles.titleCol}>
               <span className={styles.titleSpan}>{this.getTitleNameByOrderInfo(orderInfo)}</span>
@@ -358,9 +351,8 @@ class OrderItemCollapse extends Component {
         {orderOfferList.map((orderOffer, offerIndex) => {
           if (orderOffer.orderType && orderOffer.orderType === 'offerBundle') {
             return this.getOfferBundleRender(orderOffer, offerIndex);
-          } 
-            return this.getOfferRender(orderOffer, offerIndex);
-          
+          }
+          return this.getOfferRender(orderOffer, offerIndex);
         })}
       </Collapse>
     );

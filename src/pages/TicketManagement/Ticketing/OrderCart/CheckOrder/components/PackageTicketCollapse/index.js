@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Collapse, Form, message } from 'antd';
+import { Collapse, Form, Icon, message } from 'antd';
 import { connect } from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
@@ -12,10 +12,6 @@ import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/util
   ticketOrderCartMgr,
 }))
 class PackageTicketingCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   operateButtonEvent = (opType, orderIndex, offerIndex) => {
     const {
       dispatch,
@@ -248,16 +244,16 @@ class PackageTicketingCollapse extends Component {
         >
           {packageOrderData.map((orderData, orderIndex) => (
             <OrderItemCollapse
-              key={`PackageOrderItemCollapse_${orderIndex}`}
+              key={`PackageOrderItemCollapse_${Math.random()}`}
               form={form}
               companyType={companyType}
               orderIndex={orderIndex}
               orderData={orderData}
-              changeOrderCheck={(orderIndex, onceAPirateOrder) => {
-                this.changeOrderCheck(orderIndex, onceAPirateOrder);
+              changeOrderCheck={(orderIndexParam, onceAPirateOrder) => {
+                this.changeOrderCheck(orderIndexParam, onceAPirateOrder);
               }}
-              operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
-                this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
+              operateButtonEvent={(opType, orderIndexParam, onceAPirateOrder) => {
+                this.operateButtonEvent(opType, orderIndexParam, onceAPirateOrder);
               }}
             />
           ))}

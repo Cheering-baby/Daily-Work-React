@@ -58,4 +58,8 @@ export default {
   SEND_EMAIL: 'Send Email',
   DETAIL: 'Detail',
   MAPPING: 'MAPPING',
+  COMMON_EMAIL: 'Send E-mail',
+  SEND_SUCCESS: 'Send E-mail Success',
+  SEND_EMAIL_CONTENT:
+    'Do you want to send emails to inform ${userCode} that the registration is successful and account message?',
 };

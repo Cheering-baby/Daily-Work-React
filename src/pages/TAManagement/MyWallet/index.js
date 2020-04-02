@@ -292,7 +292,7 @@ class MyWallet extends React.PureComponent {
                 <div style={{ height: '100%' }} className={styles.flexCenter}>
                   <div className={styles.lighthouse} />
                   <div className={styles.account}>
-                    <div className={styles.label}>eWallet:</div>
+                    <div className={styles.label}>{formatMessage({ id: 'EW' })}:</div>
                     {eWallet && (
                       <div className={`${styles.labelValue} ${styles.colorBlack}`}>
                         <span className={styles.symbolPart}>$</span>
@@ -312,7 +312,7 @@ class MyWallet extends React.PureComponent {
                 <div style={{ height: '100%' }} className={styles.flexCenter}>
                   <div className={styles.lighthouseOrange} />
                   <div className={styles.account}>
-                    <div className={styles.label}>AR:</div>
+                    <div className={styles.label}>{formatMessage({ id: 'AR' })}:</div>
                     {ar && (
                       <div className={`${styles.labelValue} ${styles.colorOrange}`}>
                         <span className={styles.symbolPart}>$</span>
@@ -321,19 +321,19 @@ class MyWallet extends React.PureComponent {
                       </div>
                     )}
                     {!ar &&
-                      (arActivity ? (
+                      (arActivity === '' ? (
                         <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                          Pending Operation
+                          {formatMessage({ id: 'PENDING_OPREATION' })}
                         </div>
                       ) : (
                         <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                          No Account-Ar
+                          {formatMessage({ id: 'AR_APPLY_STATUS' })}
                         </div>
                       ))}
                   </div>
                 </div>
                 {!ar && (
-                  <div style={{ paddingRight: '24px' }}>{arActivity ? <More /> : <ARApply />}</div>
+                  <div style={{ paddingRight: '24px' }}>{arActivity === '' ? <More /> : <ARApply />}</div>
                 )}
               </div>
             </Col>

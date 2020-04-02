@@ -21,7 +21,7 @@ const mapStateToProps = store => {
     cityLoadingFlag,
     customerGroupLoadingFlag,
   } = store.taCommon;
-  const { customerInfo, taId } = store.taMgr;
+  const { customerInfo, taId, isCompanyExist } = store.taMgr;
   const { isRwsRoom, isRwsAttraction, viewId } = store.signUp;
   return {
     organizationRoleList,
@@ -37,6 +37,7 @@ const mapStateToProps = store => {
     isRwsRoom,
     isRwsAttraction,
     viewId,
+    isCompanyExist,
   };
 };
 @connect(mapStateToProps)
@@ -95,12 +96,6 @@ class CustomerInformationToSignUp extends PureComponent {
         Object.assign(newCompanyInfo, sourceOne);
       }
     }
-    if (String(key) === 'registrationNo') {
-      dispatch({
-        type: 'taMgr/fetchCheckCompanyExist',
-        payload: { registrationNo: keyValue },
-      });
-    }
     if (String(key) === 'isGstRegIndicator') {
       form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
       form.setFieldsValue({ gstEffectiveDate: newCompanyInfo.gstEffectiveDate });
@@ -117,6 +112,14 @@ class CustomerInformationToSignUp extends PureComponent {
           companyInfo: newCompanyInfo,
         },
       },
+    });
+  };
+
+  onCheckRegistrationNo = keyValue => {
+    const { dispatch, taId } = this.props;
+    return dispatch({
+      type: 'taMgr/fetchCheckCompanyExist',
+      payload: { registrationNo: keyValue, taId },
     });
   };
 
@@ -367,6 +370,7 @@ class CustomerInformationToSignUp extends PureComponent {
       cityLoadingFlag,
       customerGroupLoadingFlag,
       onHandleChange: this.onHandleCompanyChange,
+      onCheckRegistrationNo: this.onCheckRegistrationNo,
     };
     const myQuestionsProps = {
       form,

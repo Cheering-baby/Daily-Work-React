@@ -84,10 +84,14 @@ class SearchCondition extends Component {
       });
     }
     if (flag === 'orderType') {
+      let orderType = null;
+      if (value.length > 0) {
+        orderType = value.join(',');
+      }
       dispatch({
         type: 'queryOrderMgr/saveSearchConditions',
         payload: {
-          orderType: value !== undefined ? value : null,
+          orderType,
         },
       });
     }
@@ -272,10 +276,11 @@ class SearchCondition extends Component {
             <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
               <Select
                 allowClear
+                mode="multiple"
                 placeholder={formatMessage({ id: 'ORDER_TYPE' })}
                 className={styles.inputStyle}
                 onChange={value => this.selectChange(value, 'orderType')}
-                value={orderType === null ? undefined : orderType}
+                value={orderType === null ? [] : orderType.split(',')}
               >
                 <Option value="Booking">Booking</Option>
                 <Option value="Revalidation">Revalidation</Option>

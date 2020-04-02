@@ -65,10 +65,10 @@ class CreateOrder extends PureComponent {
         });
       }
     } else {
-      dispatch({
-        type: 'ticketMgr/resetData',
-        payload: {},
-      });
+      // dispatch({
+      //   type: 'ticketMgr/resetData',
+      //   payload: {},
+      // });
     }
   }
 

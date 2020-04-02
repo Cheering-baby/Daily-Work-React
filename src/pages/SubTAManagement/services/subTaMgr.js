@@ -10,6 +10,15 @@ export async function registrationSubTaInfo(params) {
   });
 }
 
+export async function modifySubTaInfo(params) {
+  return UAAService.request(`/b2b/agent/v1/subprofile/modifySubTaInfo`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
 export async function querySubTaInfo(params) {
   return UAAService.request(`/b2b/agent/v1/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
     method: 'GET',

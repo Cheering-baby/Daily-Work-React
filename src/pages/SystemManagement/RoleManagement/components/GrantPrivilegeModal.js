@@ -1,19 +1,23 @@
-import React from 'react';
-import { Button, Form, Modal, Spin, Transfer } from 'antd';
-// import MediaQuery from 'react-responsive';
-import { formatMessage } from 'umi/locale';
-// import { SCREEN } from '../../../../utils/screen';
-import { connect } from 'dva';
+import React, {Fragment} from 'react';
+import {Button, Form, Modal, Spin, Transfer} from 'antd';
+import {formatMessage} from 'umi/locale';
+import {connect} from 'dva';
+import MediaQuery from 'react-responsive';
 import constants from '../constants';
+import MobileModal from '@/components/MobileModal';
+
+import SCREEN from '@/utils/screen';
+import styles from '../index.less';
 
 @Form.create()
-@connect(({ roleMgr, loading }) => ({
+@connect(({roleMgr, loading}) => ({
   roleMgr,
   detailLoading: loading.effects['roleMgr/queryUserRoleDetail'],
   privilegesLoading: loading.effects['roleMgr/queryAllPrivileges'],
 }))
 class Index extends React.PureComponent {
-  componentDidMount() {}
+  componentDidMount() {
+  }
 
   handleOk = () => {
     const {
@@ -88,44 +92,58 @@ class Index extends React.PureComponent {
 
   render() {
     const {
-      roleMgr: { allPrivileges = [], selectedPrivileges = [] },
+      roleMgr: {allPrivileges = [], selectedPrivileges = []},
       detailLoading = false,
       privilegesLoading = false,
       operLoading = false,
     } = this.props;
+
+    const modalOpts = {
+      wrapClassName: styles.modalClass,
+      title: formatMessage({id: 'GRANT_PRIVILEGES'}),
+      visible: true,
+      onOk: this.handleOk,
+      onCancel: this.handleCancel,
+      width: 900,
+      footer: [
+        <Button key="submit" type="primary" loading={operLoading} onClick={this.handleOk}>
+          {formatMessage({id: 'BTN_OK'})}
+        </Button>,
+        <Button key="back" onClick={this.handleCancel}>
+          {formatMessage({id: 'BTN_CANCEL'})}
+        </Button>,
+      ],
+    };
+
+    const modalBody = (
+      <Spin spinning={detailLoading || privilegesLoading}>
+        <Transfer
+          className={styles.transferClass}
+          locale={{
+            searchPlaceholder: formatMessage({id: 'component.globalHeader.search'}),
+          }}
+          dataSource={allPrivileges}
+          showSearch
+          listStyle={{
+            width: 400,
+            height: 400,
+          }}
+          targetKeys={selectedPrivileges}
+          onChange={this.handleChange}
+          render={item => item.componentName}
+        />
+      </Spin>
+    );
+
     return (
-      <Modal
-        title={formatMessage({ id: 'GRANT_PRIVILEGES' })}
-        visible
-        onOk={this.handleOk}
-        onCancel={this.handleCancel}
-        width={900}
-        footer={[
-          <Button key="submit" type="primary" loading={operLoading} onClick={this.handleOk}>
-            {formatMessage({ id: 'BTN_OK' })}
-          </Button>,
-          <Button key="back" onClick={this.handleCancel}>
-            {formatMessage({ id: 'BTN_CANCEL' })}
-          </Button>,
-        ]}
-      >
-        <Spin spinning={detailLoading || privilegesLoading}>
-          <Transfer
-            locale={{
-              searchPlaceholder: formatMessage({ id: 'component.globalHeader.search' }),
-            }}
-            dataSource={allPrivileges}
-            showSearch
-            listStyle={{
-              width: 400,
-              height: 400,
-            }}
-            targetKeys={selectedPrivileges}
-            onChange={this.handleChange}
-            render={item => item.componentName}
-          />
-        </Spin>
-      </Modal>
+      <Fragment>
+        <MediaQuery maxWidth={SCREEN.screenXsMax}>
+          <MobileModal modalOpts={modalOpts}>{modalBody}</MobileModal>
+        </MediaQuery>
+        <MediaQuery minWidth={SCREEN.screenSmMin}>
+          <Modal {...modalOpts}>{modalBody}</Modal>
+        </MediaQuery>
+      </Fragment>
     );
   }
 }

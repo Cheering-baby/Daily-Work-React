@@ -225,6 +225,17 @@ export default {
             },
           });
         }
+        const urlArr = window.location.href.split('#');
+        if (!redirect && urlArr && urlArr.length > 0) {
+          if (!data.some(v => includes(urlArr[0], v.url))) {
+            yield put({
+              type: 'fetchDefaultMenu',
+              payload: {
+                from,
+              },
+            });
+          }
+        }
       }
     },
     *fetchDefaultMenu({ payload = {} }, { put, select }) {

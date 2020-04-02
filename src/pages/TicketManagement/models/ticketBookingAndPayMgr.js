@@ -62,7 +62,7 @@ export default {
   },
 
   effects: {
-    *initPage({ payload }, { call, put }) {
+    *initPage(_, { put }) {
       yield put({
         type: 'save',
         payload: {
@@ -81,7 +81,7 @@ export default {
       });
     },
 
-    *fetchAccountTopUp({ payload }, { call, put, select }) {
+    *fetchAccountTopUp({ payload }, { call, put }) {
       yield put({
         type: 'save',
         payload: {
@@ -100,9 +100,8 @@ export default {
       });
       if (resultCode === '0') {
         return result;
-      } 
-        message.error(resultMsg);
-      
+      }
+      message.error(resultMsg);
     },
 
     *fetchTicketDownload(_, { call, put, select }) {
@@ -127,9 +126,8 @@ export default {
       });
       if (resultCode === '0') {
         return result;
-      } 
-        message.error(resultMsg);
-      
+      }
+      message.error(resultMsg);
     },
 
     *fetchAccountDetail(_, { call, put, select }) {
@@ -189,7 +187,7 @@ export default {
       } = yield select(state => state.global);
       const params = { taId: companyId };
       const queryTaInfoResponse = yield call(queryTaInfo, params);
-      console.log(queryTaInfoResponse);
+      // console.log(queryTaInfoResponse);
       if (!queryTaInfoResponse || !queryTaInfoResponse.data) {
         message.error('Query ta info service error!');
         return;
@@ -235,16 +233,25 @@ export default {
       const {
         data: { resultCode, resultMsg, result },
       } = yield call(sendTransactionPaymentOrder, params);
+
       yield put({
-        type: 'queryBookingStatus',
-        payload: {},
+        type: 'save',
+        payload: {
+          payPageLoading: false,
+        },
       });
+
       if (resultCode === '0') {
-        return result;
+        yield put({
+          type: 'queryBookingStatus',
+          payload: {},
+        });
         message.success('Confirm successfully!');
-      } 
-        message.error(resultMsg);
-      
+        return result;
+      }
+
+      message.error(resultMsg);
+
     },
 
     *confirmEvent(_, { call, put, select }) {
@@ -255,17 +262,17 @@ export default {
         },
       });
       const {
-        userCompanyInfo: { companyId = '', companyType },
+        userCompanyInfo: { companyType },
       } = yield select(state => state.global);
       const { bookingNo, payModeList } = yield select(state => state.ticketBookingAndPayMgr);
 
-      const payMode = payModeList.filter(payMode => payMode.check);
+      const payMode = payModeList.filter(payModeObj => payModeObj.check);
       const params = {
         orderNo: bookingNo,
         paymentMode: payMode[0].key,
       };
       const {
-        data: { resultCode, resultMsg, result = {} },
+        data: { resultCode, resultMsg },
       } = yield call(paymentOrder, params);
       yield put({
         type: 'save',
@@ -287,7 +294,7 @@ export default {
       }
     },
 
-    *queryBookingStatus({ payload }, { call, put, select }) {
+    *queryBookingStatus(_, { call, put, select }) {
       yield put({
         type: 'save',
         payload: {
@@ -329,14 +336,14 @@ export default {
       }
     },
 
-    *queryTaDetailInfo({ payload }, { call, put }) {
+    *queryTaDetailInfo(_, { call, put }) {
       const response = yield call(queryInfoWithNoId);
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        console.log(result);
+        // console.log(result);
         yield put({
           type: 'save',
           payload: {
@@ -368,7 +375,7 @@ export default {
         },
       });
       if (resultCode === '0') {
-        console.log(result);
+        // console.log(result);
         yield put({
           type: 'save',
           payload: {
@@ -380,7 +387,7 @@ export default {
       }
     },
 
-    *orderCheckOut({ payload }, { call, put }) {
+    *orderCheckOut({ payload }, { put }) {
       const {
         generalTicketOrderData = [],
         packageOrderData = [],
@@ -423,12 +430,12 @@ export default {
           const { queryInfo, offerInfo, orderInfo, deliveryInfo } = orderOffer;
           let totalPrice = 0;
           const attractionProducts = [];
-          orderInfo.forEach(orderInfo => {
-            totalPrice += orderInfo.pricePax * orderInfo.quantity;
-            const { productInfo } = orderInfo;
+          orderInfo.forEach(orderInfoItem => {
+            totalPrice += orderInfoItem.pricePax * orderInfoItem.quantity;
+            const { productInfo } = orderInfoItem;
             const attractionProduct = {
               productNo: productInfo.productNo,
-              numOfAttraction: orderInfo.quantity,
+              numOfAttraction: orderInfoItem.quantity,
               visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
             };
             attractionProducts.push(attractionProduct);
@@ -476,12 +483,12 @@ export default {
               accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
             };
             attractionProducts.push(attractionProduct);
-            offerInfo.voucherProductList.map(voucherProduct => {
+            offerInfo.voucherProductList.forEach(voucherProduct => {
               if (voucherProduct.productNo === mealsProduct.meals) {
                 voucherProduct.priceRule.forEach(rule => {
                   if (rule.priceRuleName === 'DefaultPrice' && rule.productPrice) {
                     rule.productPrice.forEach(productPrice => {
-                      if (productPrice.priceDate === requestParam.validTimeFrom) {
+                      if (productPrice.priceDate === moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')) {
                         const { discountUnitPrice } = productPrice;
                         totalPrice += voucherProduct.needChoiceCount * discountUnitPrice;
                       }
@@ -533,7 +540,7 @@ export default {
       });
 
       bookingParam.totalPrice = parseFloat(bookingParam.totalPrice);
-      console.log(bookingParam);
+      // console.log(bookingParam);
 
       yield put({
         type: 'save',

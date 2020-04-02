@@ -1,11 +1,10 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
-import { Button, Form, Input, Modal, Radio, Select, Tooltip } from 'antd';
+import { Button, Form, Input, Modal, Radio } from 'antd';
 import { connect } from 'dva';
 import styles from './index.less';
 
 const FormItem = Form.Item;
-const { Option } = Select;
 
 @Form.create()
 @connect(({ updateOrderMgr }) => ({
@@ -33,7 +32,16 @@ class Update extends React.Component {
   handleCancel = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'updateOrderMgr/resetData',
+      type: 'updateOrderMgr/effectSave',
+      payload: {
+        updateVisible: false,
+      },
+    }).then(() => {
+      setTimeout(() => {
+        dispatch({
+          type: 'updateOrderMgr/resetData',
+        });
+      }, 500);
     });
   };
 
@@ -101,24 +109,13 @@ class Update extends React.Component {
                 initialValue: rejectReason,
               })(
                 <div className={styles.modelInputStyle}>
-                  <Select
+                  <Input
                     allowClear
-                    placeholder="Please Select"
                     className={styles.selectStyle}
-                    value={rejectReason === null ? undefined : rejectReason}
-                    onChange={this.rejectReasonChange}
-                  >
-                    <Option value="First Reject Reason">
-                      <Tooltip placement="topLeft" title="First Reject Reason">
-                        First Reject Reason
-                      </Tooltip>
-                    </Option>
-                    <Option value="Second Reject Reason">
-                      <Tooltip placement="topLeft" title="Second Reject Reason">
-                        Second Reject Reason
-                      </Tooltip>
-                    </Option>
-                  </Select>
+                    placeholder="Please Enter"
+                    value={rejectReason}
+                    onChange={e => this.rejectReasonChange(e.target.value)}
+                  />
                 </div>
               )}
             </FormItem>
@@ -137,7 +134,7 @@ class Update extends React.Component {
         galaxyOrderNo: value,
       },
     });
-    form.setFieldsValue({ 'galaxyOrderNo': value });
+    form.setFieldsValue({ galaxyOrderNo: value });
   };
 
   onSelectChange = value => {

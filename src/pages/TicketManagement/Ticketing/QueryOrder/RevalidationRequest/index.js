@@ -3,7 +3,7 @@ import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
-import { Button, Col, DatePicker, Form, Input, message, Row, Select, Table, Upload } from 'antd';
+import { Button, Col, DatePicker, Form, Input, message, Modal, Row, Select, Table, Upload } from 'antd';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import styles from './index.less';
@@ -165,36 +165,67 @@ class RevalidationRequest extends Component {
   };
 
   revalidationTicket = (deliveryMode, collectionDate, selectedVidList, bookingNo) => {
-    const { dispatch, form } = this.props;
+    const { form } = this.props;
     if (selectedVidList.length < 1) {
       message.warning('Select at least one VID.');
     } else {
       form.validateFields(err => {
         if (!err) {
-          const visualIds = [];
-          for (let i = 0; i < selectedVidList.length; i += 1) {
-            visualIds.push(selectedVidList[i].vidCode);
-          }
-          dispatch({
-            type: 'revalidationRequestMgr/revalidationTicket',
-            payload: {
-              bookingNo,
-              visualIds,
-              deliveryInfo: {
-                deliveryMode,
-                collectionDate,
-              },
-            },
-          }).then(resultCode => {
-            if (resultCode === '0') {
-              message.success('Submit successfully.');
-            } else {
-              message.warning(resultCode);
-            }
+          Modal.warning({
+            title: 'There’s $2 modification service fee. Revalidation only allowed once per order. Proceed or Not?',
+            centered: true,
+            content: (
+              <div style={{marginBottom: 20}}>
+                <div className={styles.operateButtonDivStyle}>
+                  <Button
+                    onClick={() => {
+                      Modal.destroyAll();
+                    }}
+                    style={{marginRight: 8, width: 40}}
+                  >
+                    No
+                  </Button>
+                  <Button
+                    onClick={() => this.wantRevalidate(deliveryMode, collectionDate, selectedVidList, bookingNo)}
+                    type="primary"
+                    style={{width: 40}}
+                  >
+                    Yes
+                  </Button>
+                </div>
+              </div>
+            ),
+            okButtonProps: {style: {display: 'none'}},
+            cancelButtonProps: {style: {display: 'none'}},
           });
         }
       });
     }
+  };
+
+  wantRevalidate = (deliveryMode, collectionDate, selectedVidList, bookingNo) => {
+    const { dispatch } = this.props;
+    const visualIds = [];
+    for (let i = 0; i < selectedVidList.length; i += 1) {
+      visualIds.push(selectedVidList[i].vidCode);
+    }
+    dispatch({
+      type: 'revalidationRequestMgr/revalidationTicket',
+      payload: {
+        bookingNo,
+        visualIds,
+        deliveryInfo: {
+          deliveryMode,
+          collectionDate,
+        },
+      },
+    }).then(resultCode => {
+      if (resultCode === '0') {
+        message.success('Submit successfully.');
+      } else {
+        message.warning(resultCode);
+      }
+    });
   };
 
   getUploadProps = (file, nowPageSize) => {

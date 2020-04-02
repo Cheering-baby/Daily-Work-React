@@ -38,7 +38,9 @@ class Detail extends Component {
     const offerIncludesItems = [];
     const termsAndConditionsItems = [];
     offers.forEach(item => {
-      const { offerContentList = [] } = item;
+      const {
+        detail: { offerContentList = [] },
+      } = item;
       offerContentList.forEach(item2 => {
         const { contentLanguage, contentType, contentValue } = item2;
         if (contentLanguage === 'en-us') {

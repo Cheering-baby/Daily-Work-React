@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col } from 'antd';
+import { Col, Row } from 'antd';
 import styles from './index.less';
 import CustomerMeal from './components/CustomerMeal';
 
@@ -9,9 +9,7 @@ import CustomerMeal from './components/CustomerMeal';
   onceAPirateTicketMgr,
 }))
 class IndividualSetting extends Component {
-  componentDidMount() {}
-
-  itemValueChangeEvent = (index, offerDetail, opType) => {
+  itemValueChangeEvent = (index, offerDetail) => {
     const {
       dispatch,
       onceAPirateTicketMgr: { onceAPirateOrderData = [] },
@@ -27,19 +25,6 @@ class IndividualSetting extends Component {
         onceAPirateOrderData,
       },
     });
-    if (opType && opType === 'updateAll') {
-      /* const diningRemarkList = offerDetail.orderInfo.individualSettingList[0].remarks.map(remark=>{
-        return Object.assign({},{
-          label: remark
-        })
-      });
-      dispatch({
-        type: 'onceAPirateTicketMgr/save',
-        payload: {
-          diningRemarkList,
-        },
-      }); */
-    }
   };
 
   render() {
@@ -52,6 +37,7 @@ class IndividualSetting extends Component {
       <div>
         {onceAPirateOrderData &&
           onceAPirateOrderData.map((item, index) => (
+            // eslint-disable-next-line react/no-array-index-key
             <div key={index}>
               <Row>
                 <Col span={24} className={styles.titleBlack}>
@@ -61,7 +47,7 @@ class IndividualSetting extends Component {
               {item.orderInfo.individualSettingList &&
                 item.orderInfo.individualSettingList.map((customerItem, customerItemIndex) => (
                   <CustomerMeal
-                    key={`${index  }_individualSetting_${  customerItemIndex}`}
+                    key={`individualSetting_${Math.random()}`}
                     form={form}
                     queryInfo={queryInfo}
                     offerIndex={index}
@@ -69,8 +55,8 @@ class IndividualSetting extends Component {
                     customerItemIndex={customerItemIndex}
                     diningRemarkList={diningRemarkList}
                     customerItem={customerItem}
-                    itemValueChangeEvent={(index, offerDetail, opType) =>
-                      this.itemValueChangeEvent(index, offerDetail, opType)
+                    itemValueChangeEvent={(offerIndex, offerDetail, opType) =>
+                      this.itemValueChangeEvent(offerIndex, offerDetail, opType)
                     }
                   />
                 ))}

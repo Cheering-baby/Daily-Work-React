@@ -42,10 +42,7 @@ class OnceAPirate extends Component {
         onceAPirateOrderData.push(onceAPirateOffer);
         if (onceAPirateOffer.orderQuantity < onceAPirateOffer.offerMinQuantity) {
           message.warn(
-            `${onceAPirateOffer.offerName 
-              } minimum quantity less than ${ 
-              onceAPirateOffer.offerMinQuantity 
-              }.`
+            `${onceAPirateOffer.offerName} minimum quantity less than ${onceAPirateOffer.offerMinQuantity}.`
           );
           return;
         }

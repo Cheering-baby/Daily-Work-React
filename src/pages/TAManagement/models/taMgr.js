@@ -354,13 +354,21 @@ export default {
       return false;
     },
     *fetchCheckCompanyExist({ payload }, { call, put }) {
+      if (isNvl(payload.registrationNo)) {
+        yield put({ type: 'save', payload: { isCompanyExist: false } });
+        return false;
+      }
       const {
         data: { resultCode, resultMsg, result },
       } = yield call(checkCompanyExist, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
         const isCompanyExist = !isNvl(result) && !isNvl(result.companyName);
         yield put({ type: 'save', payload: { isCompanyExist } });
-      } else message.warn(resultMsg, 10);
+        return isCompanyExist;
+      }
+      message.warn(resultMsg, 10);
+      yield put({ type: 'save', payload: { isCompanyExist: false } });
+      return false;
     },
   },
   reducers: {

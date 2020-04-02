@@ -70,6 +70,7 @@ const InvoiceModel = {
               Page: '1 of 1',
             },
             details: {
+              id: flow.accountBookFlowId,
               Date: moment(flow.createTime)
                 .format('DD/MM/YYYY')
                 .toString(),
@@ -85,6 +86,21 @@ const InvoiceModel = {
           },
         });
       } else message.warn(resultMsg, 10);
+    },
+    *fetchDownloadInvoice({ payload }, { call, put }) {
+      yield put({ type: 'clear' });
+      const params = { accountBookFlowId: payload.accountBookFlowId };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(service.invoiceDownload, params);
+      yield put({
+        type: 'save',
+      });
+      if (resultCode !== '0') {
+        message.warn(resultMsg, 10);
+      } else {
+        return result;
+      }
     },
   },
   reducers: {

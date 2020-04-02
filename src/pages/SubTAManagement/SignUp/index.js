@@ -51,7 +51,7 @@ class SignUp extends PureComponent {
       dispatch({ type: 'global/getLocale' }).then(() =>
         dispatch({ type: 'global/getSupportLanguage' })
       );
-      dispatch({ type: 'subTaMgr/fetchQueryCountryList' });
+      dispatch({ type: 'subTaMgr/fetchQueryAgentOpt' });
     });
   };
 
@@ -82,7 +82,7 @@ class SignUp extends PureComponent {
         isShowDetail: true,
       },
     }).then(() => {
-      dispatch({ type: 'subTaMgr/fetchQueryCountryList' });
+      dispatch({ type: 'subTaMgr/fetchQueryAgentOpt' });
       dispatch({ type: 'subTaMgr/fetchQrySubTaInfoWithNoId' });
     });
   };
@@ -102,7 +102,13 @@ class SignUp extends PureComponent {
   };
 
   onHandleSubmit = () => {
-    const { dispatch, subTaInfo } = this.props;
+    const {
+      dispatch,
+      location: {
+        query: { taId, companyName, signature },
+      },
+      subTaInfo,
+    } = this.props;
     const { form } = this.accountRef.props;
     form.validateFieldsAndScroll(error => {
       if (error) {
@@ -112,6 +118,9 @@ class SignUp extends PureComponent {
         type: 'subTaMgr/fetchSubTARegistration',
         payload: {
           ...subTaInfo,
+          taId: !isNvl(taId) ? taId : subTaInfo.taId,
+          mainCompanyName: !isNvl(companyName) ? companyName : subTaInfo.mainCompanyName,
+          signature,
         },
       }).then(flag => {
         if (flag)
@@ -155,17 +164,17 @@ class SignUp extends PureComponent {
   getStatusMsg = statusName => {
     let statusStr = 'default';
     let statusTxt = '';
-    switch (String(statusName).toLowerCase()) {
-      case 'processing':
-        statusStr = 'processing';
+    switch (String(statusName).toUpperCase()) {
+      case 'PENDING OPERATION':
+        statusStr = 'warning';
         statusTxt = formatMessage({ id: 'SUB_TA_STATUS_PENDING' });
         break;
-      case 'reject':
+      case 'REJECT':
         statusStr = 'error';
         statusTxt = formatMessage({ id: 'SUB_TA_STATUS_REJECT' });
         break;
-      case 'success':
-        statusStr = 'success';
+      case 'COMPLETED':
+        statusStr = 'processing';
         statusTxt = formatMessage({ id: 'SUB_TA_STATUS_COMPLETE' });
         break;
       default:

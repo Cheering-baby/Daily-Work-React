@@ -5,7 +5,6 @@ import moment from 'moment';
 import styles from '../../index.less';
 
 class MealsItem extends Component {
-  componentDidMount() {}
 
   mealsChangeEvent = value => {
     const { offerIndex, offerDetail, mealItemIndex, itemValueChangeEvent } = this.props;
@@ -22,7 +21,7 @@ class MealsItem extends Component {
     if (mealItem.meals && mealItem.meals === selectValue.productNo) {
       result = false;
     } else {
-      offerDetail.orderInfo.groupSettingList.map(item => {
+      offerDetail.orderInfo.groupSettingList.forEach(item => {
         if (item.meals && item.meals === selectValue.productNo) {
           result = true;
         }
@@ -65,7 +64,7 @@ class MealsItem extends Component {
     voucherProductList.forEach(voucherProduct => {
       if (voucherProduct.productNo === mealItem.meals) {
         if (voucherProduct.productContentList && voucherProduct.productContentList.length > 0) {
-          voucherProduct.productContentList.map(productContent => {
+          voucherProduct.productContentList.forEach(productContent => {
             if (
               productContent.contentType === 'productDescription' &&
               productContent.contentLanguage === 'en-us'
@@ -106,6 +105,7 @@ class MealsItem extends Component {
       }
     });
 
+    // eslint-disable-next-line radix
     maxAvailable = parseInt(maxAvailable / needChoiceCount);
 
     return maxAvailable;
@@ -129,6 +129,7 @@ class MealsItem extends Component {
             if (productPrice.priceDate === dateOfVisit) {
               maxAvailable =
                 productPrice.productInventory === -1 ? 2147483647 : productPrice.productInventory;
+              // eslint-disable-next-line radix
               maxAvailable = parseInt(maxAvailable / needChoiceCount);
               if (maxAvailable > 0) {
                 newVoucherList.push(Object.assign({}, { ...voucherProduct }));
@@ -143,7 +144,7 @@ class MealsItem extends Component {
   };
 
   render() {
-    const { form, offerDetail, mealItemIndex, mealItem, diningRemarkList } = this.props;
+    const { form, offerDetail, mealItemIndex, mealItem } = this.props;
 
     const { getFieldDecorator } = form;
 
@@ -205,9 +206,9 @@ class MealsItem extends Component {
                   onChange={this.mealsChangeEvent}
                 >
                   {voucherProductList &&
-                    voucherProductList.map((item, index) => (
+                    voucherProductList.map((item) => (
                       <Select.Option
-                        key={`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_meals_${index}`}
+                        key={`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_meals`}
                         disabled={this.mealsDisabled(item)}
                         value={item.productNo}
                       >

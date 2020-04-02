@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Collapse, Form, message } from 'antd';
+import { Collapse, Form, Icon, message } from 'antd';
 import { connect } from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
@@ -17,10 +17,6 @@ import {
   ticketOrderCartMgr,
 }))
 class GeneralTicketingCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   operateButtonEvent = (opType, orderIndex, offerIndex) => {
     const {
       dispatch,
@@ -404,28 +400,31 @@ class GeneralTicketingCollapse extends Component {
           />
         )}
       >
-        {generalTicketOrderData.map((orderData, orderIndex) => (
-          <Collapse.Panel
-            className={styles.collapsePanelStyles}
-            key={`${orderData.themeParkCode}_${orderIndex}`}
-            header={
-              <span className={styles.collapsePanelHeaderStyles}>{orderData.themeParkName}</span>
-            }
-          >
-            <OrderItemCollapse
-              form={form}
-              companyType={companyType}
-              orderIndex={orderIndex}
-              orderData={orderData}
-              changeOrderCheck={(orderIndex, onceAPirateOrder) => {
-                this.changeOrderCheck(orderIndex, onceAPirateOrder);
-              }}
-              operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
-                this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
-              }}
-            />
-          </Collapse.Panel>
-        ))}
+        {generalTicketOrderData.map((orderData, orderIndex) => {
+          const keyV = `${orderData.themeParkCode}_${orderIndex}`;
+          return (
+            <Collapse.Panel
+              className={styles.collapsePanelStyles}
+              key={keyV}
+              header={
+                <span className={styles.collapsePanelHeaderStyles}>{orderData.themeParkName}</span>
+              }
+            >
+              <OrderItemCollapse
+                form={form}
+                companyType={companyType}
+                orderIndex={orderIndex}
+                orderData={orderData}
+                changeOrderCheck={(orderIndexParam, onceAPirateOrder) => {
+                  this.changeOrderCheck(orderIndexParam, onceAPirateOrder);
+                }}
+                operateButtonEvent={(opType, orderIndexParam, onceAPirateOrder) => {
+                  this.operateButtonEvent(opType, orderIndexParam, onceAPirateOrder);
+                }}
+              />
+            </Collapse.Panel>
+          );
+        })}
         {showToCartModal && showToCartModalType === 0 && (
           <ToCart
             ticketType={ticketType}

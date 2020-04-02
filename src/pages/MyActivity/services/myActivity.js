@@ -106,3 +106,10 @@ export async function deleteFile(params) {
     },
   });
 }
+
+export async function queryCompanyInfo(params) {
+  return UAAService.request(`/b2b/agent/v1/profile/queryCompanyInfo`, {
+    params,
+    method: 'GET',
+  });
+}

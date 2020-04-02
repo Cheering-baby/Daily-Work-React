@@ -27,6 +27,7 @@ export default {
   TA_TABLE_HISTORY: 'History',
   TA_TABLE_ENABLE: 'Enable',
   TA_TABLE_PROHIBIT: 'Prohibit',
+  TA_TABLE_GRANT: 'grant',
 
   TA_TABLE_Q_START_TIME: 'Start Time',
   TA_TABLE_Q_END_TIME: 'End Time',

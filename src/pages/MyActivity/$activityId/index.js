@@ -20,10 +20,21 @@ class ActivityDetail extends React.PureComponent {
     const {
       dispatch,
       match: { params },
+      location: {
+        query: { operation },
+      },
     } = this.props;
     dispatch({
       type: 'activityDetail/doCleanAllData',
     });
+    if (operation && operation === 'Approval') {
+      dispatch({
+        type: 'activityDetail/save',
+        payload: {
+          isOperationApproval: true,
+        },
+      });
+    }
     dispatch({
       type: 'activityDetail/queryActivityDetail',
       payload: {

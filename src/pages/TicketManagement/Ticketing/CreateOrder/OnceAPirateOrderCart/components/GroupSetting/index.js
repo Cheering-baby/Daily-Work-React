@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Button } from 'antd';
+import { Button, Col, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import MealsItem from './components/MealsItem';
@@ -89,6 +89,7 @@ class GroupSetting extends Component {
         {onceAPirateOrderData &&
           onceAPirateOrderData.map((item, index) => {
             return (
+              // eslint-disable-next-line react/no-array-index-key
               <div key={index}>
                 <Row>
                   <Col span={24} className={styles.titleBlack}>
@@ -98,7 +99,7 @@ class GroupSetting extends Component {
                 {item.orderInfo.groupSettingList &&
                   item.orderInfo.groupSettingList.map((mealItem, mealItemIndex) => (
                     <MealsItem
-                      key={`${index  }_${  mealItemIndex}`}
+                      key={`groupSettingList_${Math.random()}`}
                       form={form}
                       queryInfo={queryInfo}
                       offerIndex={index}
@@ -106,8 +107,8 @@ class GroupSetting extends Component {
                       mealItemIndex={mealItemIndex}
                       diningRemarkList={diningRemarkList}
                       mealItem={mealItem}
-                      itemValueChangeEvent={(index, offerDetail) =>
-                        this.itemValueChangeEvent(index, offerDetail)
+                      itemValueChangeEvent={(orderIndex, offerDetail) =>
+                        this.itemValueChangeEvent(orderIndex, offerDetail)
                       }
                     />
                   ))}

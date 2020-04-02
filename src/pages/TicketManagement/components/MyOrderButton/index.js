@@ -1,13 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {Button, Icon} from "antd";
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 
-class MyOrderButton extends Component {
-
-  componentDidMount() {
-
-  }
+class MyOrderButton extends React.PureComponent {
 
   render() {
 
@@ -40,7 +36,6 @@ MyOrderButton.defaultProps = {
   tipVisible: false,
   tipString: '',
   orderAmount: 0,
-  onClickOrder: () => {},
 };
 
 export default MyOrderButton;

@@ -346,13 +346,13 @@ export default {
                 productInventoryByDateOfVisit = 0;
                 isEmpty = true;
               } else if (productInventoryByDateOfVisit === 0) {
-                  productInventoryByDateOfVisit = pluProduct.productInventory;
-                } else if (
-                  productInventoryByDateOfVisit !== 0 &&
-                  productInventoryByDateOfVisit > pluProduct.productInventory
-                ) {
-                  productInventoryByDateOfVisit = pluProduct.productInventory;
-                }
+                productInventoryByDateOfVisit = pluProduct.productInventory;
+              } else if (
+                productInventoryByDateOfVisit !== 0 &&
+                productInventoryByDateOfVisit > pluProduct.productInventory
+              ) {
+                productInventoryByDateOfVisit = pluProduct.productInventory;
+              }
             });
           }
         });

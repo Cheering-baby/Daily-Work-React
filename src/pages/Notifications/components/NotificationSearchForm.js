@@ -15,9 +15,9 @@ const colLayout = {
 };
 
 const colAdminBtnLayout = {
-  lg: 18,
+  lg: 24,
   md: 16,
-  sm: 12,
+  sm: 24,
   xs: 24,
 };
 
@@ -128,7 +128,7 @@ class NotificationSearchForm extends PureComponent {
   render() {
     const {
       form,
-      notificationSearchForm: { notificationTypeList = [], statusList = [], targetTreeData = [] },
+      notificationSearchForm: { statusList = [], targetTreeData = [] },
       isAdminRoleFlag = false,
     } = this.props;
     const { getFieldDecorator } = form;
@@ -197,27 +197,6 @@ class NotificationSearchForm extends PureComponent {
                     rules: [],
                   })(
                     <TreeSelect {...tProps} placeholder={formatMessage({ id: 'TARGET_OBJECT' })} />
-                  )}
-                </Form.Item>
-              </Col>
-            )}
-            {isAdminRoleFlag && (
-              <Col {...colLayout}>
-                <Form.Item {...formItemLayout}>
-                  {getFieldDecorator(`type`, {
-                    rules: [],
-                  })(
-                    <Select
-                      allowClear
-                      placeholder={formatMessage({ id: 'TYPE' })}
-                      getPopupContainer={() => document.getElementById(`${viewId}`)}
-                    >
-                      {notificationTypeList.map(item => (
-                        <Option key={`notificationTypeList${item.id}`} value={item.dicValue}>
-                          {item.dicName}
-                        </Option>
-                      ))}
-                    </Select>
                   )}
                 </Form.Item>
               </Col>

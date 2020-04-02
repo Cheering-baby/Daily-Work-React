@@ -27,7 +27,7 @@ const mapStateToProps = store => {
     cityLoadingFlag,
     customerGroupLoadingFlag,
   } = store.taCommon;
-  const { customerInfo, taId } = store.taMgr;
+  const { customerInfo, taId, isCompanyExist } = store.taMgr;
   const { isRwsRoom, isRwsAttraction, viewId } = store.mainTAManagement;
   return {
     organizationRoleList,
@@ -40,6 +40,7 @@ const mapStateToProps = store => {
     customerGroupLoadingFlag,
     customerInfo,
     taId,
+    isCompanyExist,
     isRwsRoom,
     isRwsAttraction,
     viewId,
@@ -103,10 +104,19 @@ class CustomerInformationToEdit extends PureComponent {
       }
     }
     if (String(key) === 'registrationNo') {
-      dispatch({
-        type: 'taMgr/fetchCheckCompanyExist',
-        payload: { registrationNo: keyValue, taId },
-      });
+      if (keyValue) {
+        dispatch({
+          type: 'taMgr/fetchCheckCompanyExist',
+          payload: { registrationNo: keyValue, taId },
+        });
+      } else {
+        dispatch({
+          type: 'taMgr/save',
+          payload: {
+            isCompanyExist: false,
+          },
+        });
+      }
     }
     if (String(key) === 'isGstRegIndicator') {
       form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
@@ -327,6 +337,14 @@ class CustomerInformationToEdit extends PureComponent {
     });
   };
 
+  onCheckRegistrationNo = keyValue => {
+    const { dispatch } = this.props;
+    return dispatch({
+      type: 'taMgr/fetchCheckCompanyExist',
+      payload: { registrationNo: keyValue },
+    });
+  };
+
   render() {
     const {
       form,
@@ -356,7 +374,7 @@ class CustomerInformationToEdit extends PureComponent {
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
       applyArAccount: companyInfo.applyArAccount,
-      onHandleToArCheckBox: this.onHandleCompanyChange,
+      onHandleToArCheckBox: this.onHandleCompanyEditChange,
     };
     const myContactProps = {
       form,
@@ -386,6 +404,7 @@ class CustomerInformationToEdit extends PureComponent {
       cityLoadingFlag,
       customerGroupLoadingFlag,
       onHandleChange: this.onHandleCompanyEditChange,
+      onCheckRegistrationNo: this.onCheckRegistrationNo,
     };
     const myQuestionsProps = {
       form,

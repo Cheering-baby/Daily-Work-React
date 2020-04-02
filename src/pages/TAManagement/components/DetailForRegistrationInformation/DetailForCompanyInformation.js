@@ -20,8 +20,8 @@ const DetailForCompanyInformation = props => {
     organizationRoleList = [],
     categoryList = [],
     customerGroupList = [],
-    isMainTaRoleFlag = false,
-    isSaleSupportRoleFlag = false,
+    isMainTaRoleFlag,
+    isSaleSupportRoleFlag,
   } = props;
   return (
     <React.Fragment>

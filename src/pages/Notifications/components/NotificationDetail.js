@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
-import { Card, Col, Icon, Row, Table, Tooltip } from 'antd';
+import { Badge, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
+import moment from 'moment';
 import { getUrl, handleDownFile, isNvl } from '@/utils/utils';
 import { showTableTitle } from '../utils/pubUtils';
 import styles from '../index.less';
@@ -57,6 +58,48 @@ class NotificationDetail extends PureComponent {
     return <div dangerouslySetInnerHTML={html} />;
   };
 
+  getReceiverArray = targetList => {
+    let text = '';
+    if (targetList && targetList.length > 0) {
+      targetList.map((target, index) => {
+        if (index === 0) {
+          text += !isNvl(target.targetObjName) ? `${target.targetObjName}` : '';
+        } else {
+          text += !isNvl(target.targetObjName) ? `,${target.targetObjName}` : '';
+        }
+        return target;
+      });
+    }
+    return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+  };
+
+  getStatus = status => {
+    let statusStr;
+    let statusTxt;
+    // 01: Draft
+    // 02: Pending (Schedule Release)
+    // 03: Published
+    switch (String(status).toLowerCase()) {
+      case '01':
+        statusStr = 'default';
+        statusTxt = formatMessage({ id: 'NOTICE_STATUS_DRAFT' });
+        break;
+      case '02':
+        statusStr = 'success';
+        statusTxt = formatMessage({ id: 'NOTICE_STATUS_PUBLISHED' });
+        break;
+      case '03':
+        statusStr = 'warning';
+        statusTxt = formatMessage({ id: 'NOTICE_STATUS_PENDING' });
+        break;
+      default:
+        statusStr = 'default';
+        statusTxt = formatMessage({ id: 'NOTICE_STATUS_DRAFT' });
+        break;
+    }
+    return <Badge status={statusStr} text={statusTxt || null} />;
+  };
+
   render() {
     const { notificationInfo } = this.props;
     const { fileTableLoadingFlag } = this.state;
@@ -68,12 +111,23 @@ class NotificationDetail extends PureComponent {
     return (
       <Card
         title={notificationInfo.title || ''}
+        extra={
+          notificationInfo.subType === '01' ? (
+            <span>{this.getStatus(notificationInfo.status)}</span>
+          ) : null
+        }
         className={`as-shadow no-border ${styles.detailCardClass}`}
       >
         <Row type="flex" justify="space-around">
           <Col span={24} className={styles.detailCardContentTop}>
-            <span>{!isNvl(notificationInfo.createTime) ? notificationInfo.createTime : '-'}</span>
-            <span>{notificationInfo.title}</span>
+            <span>
+              {!isNvl(notificationInfo.scheduleDate)
+                ? moment(notificationInfo.scheduleDate).format('DD-MMM-YYYY HH:mm:ss')
+                : '-'}
+            </span>
+            {notificationInfo.subType === '01' ? (
+              <span>{this.getReceiverArray(notificationInfo.targetList)}</span>
+            ) : null}
             <span>{notificationInfo.createBy}</span>
           </Col>
           <Col span={24}>

@@ -23,6 +23,7 @@ import detailStyles from './index.less';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import UploadContract from '@/pages/MyActivity/components/UploadContract';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 const { Option } = Select;
 
@@ -57,7 +58,7 @@ class MyActivity extends React.PureComponent {
         width: '8%',
         dataIndex: 'index',
         key: 'index',
-        render: (text, record, index) => `${index + 1}`,
+        render: (text, record, index) => (index < 9 ? `0${index + 1}` : `${index + 1}`),
       },
       {
         title: formatMessage({ id: 'ACTIVITY_ID' }),
@@ -140,15 +141,18 @@ class MyActivity extends React.PureComponent {
                   />
                 </Tooltip>
               ) : null}
-              {record.status === '00' ? (
-                <Tooltip title={formatMessage({ id: 'COMMON_REDIRECT_MAPPING' })}>
-                  <Icon
-                    type="block"
-                    onClick={() => {
+              {record.activityTplCode === 'TA-SIGN-UP' &&
+              record.status === '00' &&
+              (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ||
+                PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.AR_ACCOUNT_PRIVILEGE])) ? (
+                  <Tooltip title={formatMessage({ id: 'COMMON_REDIRECT_MAPPING' })}>
+                    <Icon
+                      type="block"
+                      onClick={() => {
                       this.detail('block', record);
                     }}
-                  />
-                </Tooltip>
+                    />
+                  </Tooltip>
               ) : null}
               {record.status === '02' ? (
                 <Tooltip title={formatMessage({ id: 'COMMON_OPERATION' })}>
@@ -329,8 +333,19 @@ class MyActivity extends React.PureComponent {
       };
       this.handleModal('uploadVisible', true);
     } else if (type === 'block') {
-      router.push({
-        pathname: `/TAManagement/Mapping/${record.businessId}`,
+      dispatch({
+        type: 'myActivity/fetchCompanyDetail',
+        payload: {
+          companyId: record.businessId,
+        },
+      }).then(() => {
+        const {
+          myActivity: { companyDetailInfo },
+        } = this.props;
+        router.push({
+          pathname: `/TAManagement/Mapping/Edit/${record.businessId}`,
+          query: { companyName: companyDetailInfo.companyName },
+        });
       });
     }
   };

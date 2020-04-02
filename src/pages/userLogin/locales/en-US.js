@@ -26,6 +26,7 @@ export default {
   PWD_OLD_PWD_REQUIRED: 'Please input your old password.',
   PWD_NEW_PWD_REQUIRED: 'Please input your new password.',
   PWD_CONFIRM_PWD_REQUIRED: 'Please input your confirm password.',
+  PWD_NEW_PWD_SAME_ERROR: 'The new password can not be same as the old password',
 
   PWD_CONDITIONS: 'The password must satisfy the following conditions',
   PWD_CONDITIONS_ONE: '1. At least 8 characters',
@@ -39,6 +40,7 @@ export default {
   PWD_SECURITY_LEVEL_HIGH: 'High',
   PWD_SECURITY_LEVEL_HIGHER: 'Higher',
   PWD_CONFIRM_PWD_ERROR: 'Two passwords that you enter is inconsistent',
+
   PWD_COMPOTION_1:
     'The new password must include one of letters, numbers, uppercase letters and special characters.',
   PWD_COMPOTION_2:

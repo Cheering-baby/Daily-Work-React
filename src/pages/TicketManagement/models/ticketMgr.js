@@ -1,8 +1,8 @@
-import { message } from 'antd';
+import {message} from 'antd';
 import moment from 'moment';
-import { queryOfferList, queryOfferDetail, queryCountry } from '../services/ticketCommon';
+import {queryCountry, queryOfferDetail, queryOfferList} from '../services/ticketCommon';
 
-import { getSessionTimeList } from '../utils/ticketOfferInfoUtil';
+import {getSessionTimeList} from '../utils/ticketOfferInfoUtil';
 
 const takeLatest = { type: 'takeLatest' };
 export default {
@@ -19,55 +19,55 @@ export default {
       {
         group: 1,
         value: 'USS',
-        label: 'UNIVERSAL STUDIOS SINGAPORE',
+        label: 'Universal Studios Singapore',
         disabled: false,
       },
       {
         group: 1,
         value: 'ACW',
-        label: 'ADVENTURE COVE WATER PARK',
+        label: 'Adventure Cove water Park',
         disabled: false,
       },
       {
         group: 1,
         value: 'SEA',
-        label: 'S.E.A AQUARIUM',
+        label: 'S.E.A Aquarium',
         disabled: false,
       },
       {
         group: 1,
         value: 'MEM',
-        label: 'MARITIME EXPERIENTIAL MUSEUM',
+        label: 'Maritime Experiential Museum',
         disabled: false,
       },
       {
         group: 1,
         value: 'Voucher',
-        label: 'VOUCHER',
+        label: 'Voucher',
         disabled: false,
       },
       {
         group: 1,
         value: 'RE',
-        label: 'RESORT EVENTS',
+        label: 'Resort Events',
         disabled: false,
       },
       {
         group: 1,
         value: 'HHN',
-        label: 'HALLOWEEN HORROR NIGHTS',
+        label: 'Halloween Horror Nights',
         disabled: false,
       },
       {
         group: 2,
         value: 'DOL',
-        label: 'DOLPHIN ISLAND',
+        label: 'Dolphin Island',
         disabled: false,
       },
       {
         group: 3,
         value: 'OAP',
-        label: 'ONCE A PIRATE',
+        label: 'Once A Pirate',
         disabled: false,
       },
     ],
@@ -105,7 +105,7 @@ export default {
         payload: { tipVisible },
       });
     },
-    *resetEditOnceAPirateOrder({ payload }, { put, select, take }) {
+    *resetEditOnceAPirateOrder(_, { put, select }) {
       const { themeParkList } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
@@ -127,7 +127,7 @@ export default {
         },
       });
     },
-    *initEditOnceAPirateOrder({ payload }, { put, select, take }) {
+    *initEditOnceAPirateOrder(_, { put, select, take }) {
       const { onceAPirateOrder, themeParkList } = yield select(state => state.ticketMgr);
       const newThemeParkList = themeParkList.map(themePark => {
         const newData = Object.assign(
@@ -176,7 +176,7 @@ export default {
         },
       });
     },
-    *querySessionTime({ payload }, { call, put, select }) {
+    *querySessionTime(_, { call, put, select }) {
       const { dateOfVisit, themeParkChooseList = [] } = yield select(state => state.ticketMgr);
       let sessionTimeList = [];
 
@@ -205,19 +205,19 @@ export default {
           const responseDetail = yield call(queryOfferDetail, queryOfferDetailReqParam);
           if (responseDetail && responseDetail.success) {
             const {
-              data: { resultCode, resultMsg },
+              data: {resultCode: queryOfferDetailResultCode, resultMsg: queryOfferDetailResultMsg},
             } = responseDetail;
-            if (resultCode !== '0') {
-              message.error(resultMsg);
-              continue;
+            if (queryOfferDetailResultCode !== '0') {
+              message.error(queryOfferDetailResultMsg);
+            } else {
+              const {
+                data: {
+                  result: { offerProfile },
+                },
+              } = responseDetail;
+              offerList[i].offerProfile = offerProfile;
+              sessionTimeList = getSessionTimeList(offerProfile, requestParam.validTimeFrom);
             }
-            const {
-              data: {
-                result: { offerProfile },
-              },
-            } = responseDetail;
-            offerList[i].offerProfile = offerProfile;
-            sessionTimeList = getSessionTimeList(offerProfile, requestParam.validTimeFrom);
           } else {
             message.error(responseDetail.errorMsg);
           }
@@ -237,7 +237,6 @@ export default {
 
     *queryOAPOfferList({ payload }, { call, put, select }) {
       const {
-        selectOfferData,
         orderIndex,
         onceAPirateOrder,
         dateOfVisit,
@@ -286,18 +285,18 @@ export default {
           const responseDetail = yield call(queryOfferDetail, queryOfferDetailReqParam);
           if (responseDetail && responseDetail.success) {
             const {
-              data: { resultCode, resultMsg },
+              data: {resultCode: queryOfferDetailResultCode, resultMsg: queryOfferDetailResultMsg},
             } = responseDetail;
-            if (resultCode !== '0') {
-              message.error(resultMsg);
-              continue;
+            if (queryOfferDetailResultCode !== '0') {
+              message.error(queryOfferDetailResultMsg);
+            } else {
+              const {
+                data: {
+                  result: { offerProfile },
+                },
+              } = responseDetail;
+              offerList[i].offerProfile = offerProfile;
             }
-            const {
-              data: {
-                result: { offerProfile },
-              },
-            } = responseDetail;
-            offerList[i].offerProfile = offerProfile;
           } else {
             message.error(responseDetail.errorMsg);
           }
@@ -376,18 +375,19 @@ export default {
               data: { result: resultDetail },
             } = responseDetail;
             const {
-              data: { resultCode, resultMsg },
+              data: {resultCode: queryOfferDetailResultCode, resultMsg: queryOfferDetailResultMsg},
             } = responseDetail;
-            if (resultCode !== '0') {
-              message.error(resultMsg);
+            if (queryOfferDetailResultCode !== '0') {
+              message.error(queryOfferDetailResultMsg);
+              // eslint-disable-next-line no-continue
               continue;
             }
             let attractionProduct;
             let noMatchPriceRule = false;
             let priceRuleId;
-            const {
-              offerProfile: { inventories = [] },
-            } = resultDetail;
+            // const {
+            // offerProfile: { inventories = [] },
+            // } = resultDetail;
             // eslint-disable-next-line no-loop-func
             resultDetail.offerProfile.productGroup.forEach(item => {
               const { productType } = item;
@@ -413,10 +413,7 @@ export default {
                             productPrice[0].productInventory === -1
                               ? 100000000 / needChoiceCount
                               : productPrice[0].productInventory / needChoiceCount;
-                          const maxProductInventory2 =
-                            inventories[0].available === -1
-                              ? 100000000 / needChoiceCount
-                              : inventories[0].available / needChoiceCount;
+                          // const maxProductInventory2 = inventories[0].available === -1 ? 100000000 / needChoiceCount : inventories[0].available / needChoiceCount;
                           allProductInventory += maxProductInventory1;
                         }
                       });
@@ -540,6 +537,7 @@ export default {
           } = responseDetail;
           if (resultCode !== '0') {
             message.error(resultMsg);
+            // eslint-disable-next-line no-continue
             continue;
           }
           // eslint-disable-next-line no-loop-func
@@ -615,7 +613,7 @@ export default {
       takeLatest,
     ],
 
-    *queryCountry({ payload }, { call, put }) {
+    *queryCountry(_, { call, put }) {
       const param = { tableName: 'CUST_PROFILE', columnName: 'NOTIONALITY' };
       const response = yield call(queryCountry, param);
       if (!response) return false;
@@ -658,60 +656,59 @@ export default {
         activeGroup: 0,
         showToCart: false,
         tipVisible: true,
-        showBundleDetailModal: false,
         themeParkList: [
           {
             group: 1,
             value: 'USS',
-            label: 'UNIVERSAL STUDIOS SINGAPORE',
+            label: 'Universal Studios Singapore',
             disabled: false,
           },
           {
             group: 1,
             value: 'ACW',
-            label: 'ADVENTURE COVE WATER PARK',
+            label: 'Adventure Cove water Park',
             disabled: false,
           },
           {
             group: 1,
             value: 'SEA',
-            label: 'S.E.A AQUARIUM',
+            label: 'S.E.A Aquarium',
             disabled: false,
           },
           {
             group: 1,
             value: 'MEM',
-            label: 'MARITIME EXPERIENTIAL MUSEUM',
+            label: 'Maritime Experiential Museum',
             disabled: false,
           },
           {
             group: 1,
             value: 'Voucher',
-            label: 'VOUCHER',
+            label: 'Voucher',
             disabled: false,
           },
           {
             group: 1,
             value: 'RE',
-            label: 'RESORT EVENTS',
+            label: 'Resort Events',
             disabled: false,
           },
           {
             group: 1,
             value: 'HHN',
-            label: 'HALLOWEEN HORROR NIGHTS',
+            label: 'Halloween Horror Nights',
             disabled: false,
           },
           {
             group: 2,
             value: 'DOL',
-            label: 'DOLPHIN ISLAND',
+            label: 'Dolphin Island',
             disabled: false,
           },
           {
             group: 3,
             value: 'OAP',
-            label: 'ONCE A PIRATE',
+            label: 'Once A Pirate',
             disabled: false,
           },
         ],
@@ -725,6 +722,7 @@ export default {
           numOfGuests: undefined,
           accessibleSeat: undefined,
         },
+        numOfGuests: undefined,
         selectOfferData: [],
         orderIndex: null,
         onceAPirateOrder: null,

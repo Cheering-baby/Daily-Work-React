@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { queryAgentOpt, queryDictionary, querySalesPerson } from '../services/taCommon';
+import { queryAgentOpt, querySalesPerson } from '../services/taCommon';
 
 export default {
   namespace: 'taCommon',
@@ -26,7 +26,7 @@ export default {
     salesPersonLoadingFlag: false,
   },
   effects: {
-    *fetchQueryCityList({ payload }, { call, put, select }) {
+    *fetchQueryCityList({ payload }, { put, select }) {
       if (payload.isBil) {
         yield put({ type: 'save', payload: { bilCityLoadingFlag: true } });
       } else {
@@ -45,6 +45,15 @@ export default {
                   String(n.dictType) === '1002'
               ) || {}
             ).dictionaryList || [];
+          bilCityList.sort((a, b) => {
+            if (a.dictName > b.dictName) {
+              return 1;
+            }
+            if (b.dictName > a.dictName) {
+              return -1;
+            }
+            return 0;
+          });
         } else {
           cityList =
             (
@@ -54,24 +63,16 @@ export default {
                   String(n.dictType) === '1002'
               ) || {}
             ).dictionaryList || [];
+          cityList.sort((a, b) => {
+            if (a.dictName > b.dictName) {
+              return 1;
+            }
+            if (b.dictName > a.dictName) {
+              return -1;
+            }
+            return 0;
+          });
         }
-      } else {
-        const reqParam = {
-          dictType: '1002',
-        };
-        if (payload.countryId) {
-          reqParam.dictSubType = payload.countryId;
-        }
-        const {
-          data: { resultCode, resultMsg, result },
-        } = yield call(queryDictionary, { ...reqParam });
-        if (resultCode === '0' || resultCode === 0) {
-          if (payload.isBil) {
-            bilCityList = result || [];
-          } else {
-            cityList = result || [];
-          }
-        } else message.warn(resultMsg, 10);
       }
       if (payload.isBil) {
         yield put({
@@ -91,7 +92,7 @@ export default {
         });
       }
     },
-    *fetchQueryCustomerGroupList({ payload }, { call, put, select }) {
+    *fetchQueryCustomerGroupList({ payload }, { put, select }) {
       yield put({ type: 'save', payload: { customerGroupLoadingFlag: true } });
       let customerGroupList = [];
       const { allDictList } = yield select(state => state.taCommon);
@@ -104,19 +105,6 @@ export default {
                 String(n.dictType) === '1004'
             ) || {}
           ).dictionaryList || [];
-      } else {
-        const reqParam = {
-          dictType: '1004',
-        };
-        if (payload.categoryId) {
-          reqParam.dictSubType = payload.categoryId;
-        }
-        const {
-          data: { resultCode, resultMsg, result },
-        } = yield call(queryDictionary, { ...reqParam });
-        if (resultCode === '0' || resultCode === 0) {
-          customerGroupList = result || [];
-        } else message.warn(resultMsg, 10);
       }
       yield put({
         type: 'save',
@@ -158,6 +146,15 @@ export default {
               result.find(n => String(n.subDictType) === '1002' && String(n.dictType) === '10') ||
               {}
             ).dictionaryList || [];
+          countryList.sort((a, b) => {
+            if (a.dictName > b.dictName) {
+              return 1;
+            }
+            if (b.dictName > a.dictName) {
+              return -1;
+            }
+            return 0;
+          });
           let cityList = [];
           let bilCityList = [];
           if (countryList && countryList.length > 0) {
@@ -170,6 +167,15 @@ export default {
                     String(n.dictType) === '1002'
                 ) || {}
               ).dictionaryList || [];
+            cityList.sort((a, b) => {
+              if (a.dictName > b.dictName) {
+                return 1;
+              }
+              if (b.dictName > a.dictName) {
+                return -1;
+              }
+              return 0;
+            });
             bilCityList =
               (
                 result.find(
@@ -178,6 +184,15 @@ export default {
                     String(n.dictType) === '1002'
                 ) || {}
               ).dictionaryList || [];
+            bilCityList.sort((a, b) => {
+              if (a.dictName > b.dictName) {
+                return 1;
+              }
+              if (b.dictName > a.dictName) {
+                return -1;
+              }
+              return 0;
+            });
           }
           const organizationRoleList =
             (

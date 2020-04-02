@@ -1,23 +1,14 @@
 import React, { Component } from 'react';
-import { Icon, Row, Col, Collapse } from 'antd';
+import { Col, Collapse, Icon, Row } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
 class OrderItemCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   getTitleNameStr = orderOffer => {
     if (orderOffer && orderOffer.offerInfo && orderOffer.offerInfo.offerBasicInfo) {
       return orderOffer.offerInfo.offerBasicInfo.offerName;
     }
     return '-';
-  };
-
-  getOrderSumPrice = orderOffer => {
-    const orderSumPrice = 0;
-    return `$${Number(orderSumPrice).toFixed(2)}`;
   };
 
   getOfferSumPrice = orderOffer => {
@@ -36,7 +27,7 @@ class OrderItemCollapse extends Component {
       orderData: { orderOfferList = [] },
     } = this.props;
     const activeKeyList = orderOfferList.map((orderOffer, offerIndex) => {
-      return `package_${  orderIndex  }_${  offerIndex}`;
+      return `package_${orderIndex}_${offerIndex}`;
     });
     return activeKeyList;
   };
@@ -50,10 +41,8 @@ class OrderItemCollapse extends Component {
   };
 
   render() {
-    const { orderIndex, orderData, companyType } = this.props;
-
+    const { orderData, companyType } = this.props;
     const { orderOfferList = [] } = orderData;
-
     const activeKeyList = this.getActiveKeyList();
 
     return (
@@ -69,9 +58,9 @@ class OrderItemCollapse extends Component {
           />
         )}
       >
-        {orderOfferList.map((orderOffer, offerIndex) => (
+        {orderOfferList.map(orderOffer => (
           <Collapse.Panel
-            key={`package_${  orderIndex  }_${  offerIndex}`}
+            key={`package_${Math.random()}`}
             className={styles.collapsePanelStyles}
             header={
               <Row gutter={24} className={styles.collapsePanelHeaderRow}>
@@ -95,7 +84,8 @@ class OrderItemCollapse extends Component {
             }
           >
             {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
-              <Row key={`package_orderInfo_${  infoIndex}`} gutter={24} className={styles.contentRow}>
+              // eslint-disable-next-line react/no-array-index-key
+              <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
                 <Col span={10} className={styles.titleCol}>
                   <span className={styles.titleSpan}>{orderInfo.productInfo.productName}</span>
                 </Col>

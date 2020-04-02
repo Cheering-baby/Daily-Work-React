@@ -29,7 +29,7 @@ export default {
         if (refundSelected === 'Complete') {
           response = yield call(accept, { activityId });
         } else if (refundSelected === 'Reject') {
-          response = yield call(reject, { activityId, reason: rejectReason });
+          response = yield call(reject, { activityId, reason: rejectReason.trim() });
         }
       } else if (updateType === 'Revalidation') {
         response = yield call(accept, { activityId, remarks: galaxyOrderNo });

@@ -48,9 +48,9 @@ class NotificationMgr extends PureComponent {
             if (targetList && targetList.length > 0) {
               targetList.map((target, index) => {
                 if (index === 0) {
-                  text += target.targetObj;
+                  text += !isNvl(target.targetObjName) ? `${target.targetObjName}` : '';
                 } else {
-                  text += `,${target.targetObj}`;
+                  text += !isNvl(target.targetObjName) ? `,${target.targetObjName}` : '';
                 }
                 return target;
               });
@@ -103,8 +103,8 @@ class NotificationMgr extends PureComponent {
           key: 'status',
           width: '15%',
           render: text => {
-            let statusStr = 'default';
-            let statusTxt = '';
+            let statusStr;
+            let statusTxt;
             // 01: Draft
             // 02: Pending (Schedule Release)
             // 03: Published
@@ -145,7 +145,7 @@ class NotificationMgr extends PureComponent {
               </Tooltip>
               {record.subType === '01' &&
               (record.status === '01' ||
-                (record.status === '02' &&
+                (record.status === '03' &&
                   moment(record.scheduleDate, 'YYYY-MM-DD HH:mm:ss') >= moment())) ? (
                     <Tooltip title="edit">
                       <Icon
@@ -159,7 +159,7 @@ class NotificationMgr extends PureComponent {
               ) : null}
               {record.subType === '01' &&
               (record.status === '01' ||
-                (record.status === '02' &&
+                (record.status === '03' &&
                   moment(record.scheduleDate, 'YYYY-MM-DD HH:mm:ss') >= moment())) ? (
                     <Tooltip title="delete">
                       <Icon
@@ -198,7 +198,7 @@ class NotificationMgr extends PureComponent {
         key: 'scheduleDate',
         width: '15%',
         render: text => {
-          return !isNvl(text) ? moment(text, 'YYYY-MM-DD').format('YYYY-MMM-DD') : '-';
+          return !isNvl(text) ? moment(text).format('DD-MMM-YYYY HH:mm:ss') : '-';
         },
       },
       {
@@ -218,8 +218,8 @@ class NotificationMgr extends PureComponent {
                       <div className={styles.fileListItemInfo}>
                         <span>
                           <Icon type="paper-clip" className={styles.fileListItemInfoPaperClip} />
-                          <Tooltip title={item.fileName}>
-                            <div className={styles.fileListItemName}>{item.fileName}</div>
+                          <Tooltip title={item.fileSourceName}>
+                            <div className={styles.fileListItemName}>{item.fileSourceName}</div>
                           </Tooltip>
                         </span>
                       </div>
@@ -290,7 +290,6 @@ class NotificationMgr extends PureComponent {
       notificationListLoading,
       isAdminRoleFlag = false,
     } = this.props;
-
     const pageOpts = {
       total: pagination.totalSize,
       current: pagination.currentPage,

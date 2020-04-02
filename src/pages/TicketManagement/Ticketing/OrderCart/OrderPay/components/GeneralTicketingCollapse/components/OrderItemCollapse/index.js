@@ -4,9 +4,6 @@ import moment from 'moment';
 import styles from './index.less';
 
 class OrderItemCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
 
   getTitleNameStr = orderOffer => {
     if (orderOffer && orderOffer.offerInfo && orderOffer.offerInfo.offerBasicInfo) {
@@ -27,11 +24,6 @@ class OrderItemCollapse extends Component {
       return orderInfo.offerInfo.offerBasicInfo.offerName;
     }
     return '-';
-  };
-
-  getOrderSumPrice = orderOffer => {
-    const orderSumPrice = 0;
-    return `$${Number(orderSumPrice).toFixed(2)}`;
   };
 
   getOfferSumPrice = orderOffer => {
@@ -102,6 +94,7 @@ class OrderItemCollapse extends Component {
         }
       >
         {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
             <Col span={10} className={styles.titleCol}>
               <span className={styles.titleSpan}>{orderInfo.productInfo.productName}</span>
@@ -165,6 +158,7 @@ class OrderItemCollapse extends Component {
         }
       >
         {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
             <Col span={10} className={styles.titleCol}>
               <span className={styles.titleSpan}>{this.getTitleNameByOrderInfo(orderInfo)}</span>
@@ -216,9 +210,8 @@ class OrderItemCollapse extends Component {
         {orderOfferList.map((orderOffer, offerIndex) => {
           if (orderOffer.orderType && orderOffer.orderType === 'offerBundle') {
             return this.getOfferBundleRender(orderOffer, offerIndex);
-          } 
-            return this.getOfferRender(orderOffer, offerIndex);
-          
+          }
+          return this.getOfferRender(orderOffer, offerIndex);
         })}
       </Collapse>
     );

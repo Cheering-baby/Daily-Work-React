@@ -102,7 +102,7 @@ class SearchPanel extends Component {
   };
 
   changeYear = value => {
-    console.log(value);
+    // console.log(value);
     const {
       form,
       dispatch,

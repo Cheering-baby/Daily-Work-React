@@ -91,7 +91,7 @@ class Arapply extends React.PureComponent {
         </Button>
         <Modal {...modelProps}>
           <Form {...formItemLayout}>
-            <Form.Item {...formItemLayout} label="Ewallet Balanc">
+            <Form.Item {...formItemLayout} label="Ewallet Balance">
               <span className={`${styles.labelValue} ${styles.colorOrange}`}>
                 ${eWallet.balance}
               </span>

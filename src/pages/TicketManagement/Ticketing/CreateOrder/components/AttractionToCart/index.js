@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
-import { calculateProductPrice } from '../../../../utils/utils';
+import { calculateProductPrice, calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -70,7 +70,7 @@ class ToCart extends Component {
       form,
       order,
       attractionProduct = [],
-      detail: { numOfGuests },
+      detail: { numOfGuests, productGroup = [] },
       deliverInfomation: {
         country,
         customerEmailAddress,
@@ -86,6 +86,16 @@ class ToCart extends Component {
       guestLastName,
       guestFirstName,
     };
+    let offerConstrain;
+    productGroup.forEach(item => {
+      if (item.productType === 'Attraction') {
+        item.productGroup.forEach(item2 => {
+          if (item2.groupName === 'Attraction') {
+            offerConstrain = item2.choiceConstrain;
+          }
+        });
+      }
+    });
     attractionProduct.forEach((item, index) => {
       const { ticketNumber } = item;
       const ticketNumberLabel = `attractionProduct${index}`;
@@ -99,7 +109,7 @@ class ToCart extends Component {
           const { ticketNumber } = item;
           allTicketNumbers += ticketNumber;
         });
-        if (allTicketNumbers !== numOfGuests) {
+        if (allTicketNumbers !== numOfGuests && offerConstrain !== 'Fixed') {
           message.warning(`Total quantity must be ${numOfGuests}.`);
           return false;
         }
@@ -112,11 +122,12 @@ class ToCart extends Component {
     });
   };
 
-  calculateMaxTickets = (index, productInventory) => {
+  calculateMaxTickets = (index, productInventory, offerConstrain) => {
     const {
       attractionProduct = [],
-      detail: { productGroup = [], inventories = [] },
+      detail: { productGroup = [], inventories = [], numOfGuests },
     } = this.props;
+    if (offerConstrain === 'Single') return numOfGuests;
     let allOtherTickets = 0;
     let max = 0;
     const { available } = inventories[0];
@@ -149,14 +160,6 @@ class ToCart extends Component {
     return max - allOtherTickets;
   };
 
-  changeCountry = value => {
-    const { form, changeDeliveryInformation } = this.props;
-    form.setFieldsValue({
-      country: value,
-    });
-    changeDeliveryInformation('country', value);
-  };
-
   toShowTermsAndCondtion = value => {
     this.setState({
       showTermsAndCondition: value,
@@ -169,13 +172,48 @@ class ToCart extends Component {
     });
   };
 
+  changeDeliveryInformation = (type, value) => {
+    const { form, changeDeliveryInformation } = this.props;
+    const data = {};
+    data[type] = value;
+    form.setFieldsValue(data);
+    changeDeliveryInformation(type, value);
+  };
+
+  changeFixedOfferNumbers = value => {
+    const { changeFixedOfferNumbers } = this.props;
+    changeFixedOfferNumbers(value);
+  };
+
+  disabledProduct = (index, offerConstrain) => {
+    if (offerConstrain !== 'Single') return false;
+    const { attractionProduct } = this.props;
+    let hasTicketNumbers = false;
+    attractionProduct.forEach(item => {
+      const { ticketNumber } = item;
+      if (!isNullOrUndefined(ticketNumber)) {
+        hasTicketNumbers = true;
+      }
+    });
+    return isNullOrUndefined(attractionProduct[index].ticketNumber) && hasTicketNumbers;
+  };
+
   render() {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
     const { showTermsAndCondition, checkTermsAndCondition } = this.state;
     const {
+      modify,
       form: { getFieldDecorator },
       attractionProduct = [],
-      detail: { dateOfVisit, offerContentList = [], offerTagList = [] },
+      detail: {
+        numOfGuests,
+        priceRuleId,
+        dateOfVisit,
+        offerContentList = [],
+        offerTagList = [],
+        productGroup = [],
+        offerQuantity,
+      },
       onClose,
       countrys = [],
       ticketType,
@@ -189,12 +227,22 @@ class ToCart extends Component {
         customerContactNo,
         customerEmailAddress,
       },
-      changeDeliveryInformation,
       global: {
         userCompanyInfo: { companyType },
       },
     } = this.props;
     let termsAndCondition;
+    let offerConstrain;
+    const ageGroups = [];
+    productGroup.forEach(item => {
+      if (item.productType === 'Attraction') {
+        item.productGroup.forEach(item2 => {
+          if (item2.groupName === 'Attraction') {
+            offerConstrain = item2.choiceConstrain;
+          }
+        });
+      }
+    });
     offerContentList.forEach(item => {
       const { contentType, contentLanguage, contentValue } = item;
       if (contentLanguage === 'en-us' && contentType === 'termsAndConditions') {
@@ -206,6 +254,11 @@ class ToCart extends Component {
     attractionProduct.forEach(item => {
       if (arr.indexOf(item.attractionProduct.themePark) !== -1) {
         nameAndEmailRequired = true;
+      }
+      if (item.attractionProduct.ageGroup) {
+        ageGroups.push(`${item.attractionProduct.ageGroup}`);
+      } else {
+        ageGroups.push(`-`);
       }
     });
     offerTagList.forEach(item => {
@@ -222,6 +275,7 @@ class ToCart extends Component {
           destroyOnClose
           maskClosable={false}
           width={bodyWidth < 480 ? bodyWidth : 480}
+          drawerStyle={{ position: 'relative' }}
           bodyStyle={{
             padding: '20px',
             overflow: 'auto',
@@ -239,12 +293,12 @@ class ToCart extends Component {
           destroyOnClose
           maskClosable={false}
           width={bodyWidth < 480 ? bodyWidth : 480}
-          bodyStyle={{
-            height: 'calc(100% - 55px)',
-            padding: '20px 20px 53px 20px',
-            overflow: 'auto',
-          }}
           className={styles.container}
+          bodyStyle={{
+            position: 'relative',
+            height: 'calc(100% - 55px)',
+            padding: 0,
+          }}
           onClose={() => onClose()}
         >
           <div className={styles.bodyContainer}>
@@ -253,7 +307,7 @@ class ToCart extends Component {
                 <Col style={{ height: '35px' }} className={styles.title}>
                   TICKET INFORMATION
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
+                <Col span={24} style={{ marginBottom: '10px' }}>
                   <Col span={9} style={{ height: '30px' }}>
                     <span className={styles.detailLabel}>Ticket Type</span>
                   </Col>
@@ -261,7 +315,7 @@ class ToCart extends Component {
                     <span className={styles.detailText}>{ticketType || '-'}</span>
                   </Col>
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
+                <Col span={24} style={{ marginBottom: '10px' }}>
                   <Col span={9} style={{ height: '30px' }}>
                     <span className={styles.detailLabel}>Description</span>
                   </Col>
@@ -269,7 +323,7 @@ class ToCart extends Component {
                     <span className={styles.detailText}>{description || '-'}</span>
                   </Col>
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
+                <Col span={24} style={{ marginBottom: '10px' }}>
                   <Col span={9} style={{ height: '30px' }}>
                     <span className={styles.detailLabel}>Date of Visit</span>
                   </Col>
@@ -280,7 +334,7 @@ class ToCart extends Component {
                   </Col>
                 </Col>
                 {eventSession ? (
-                  <Col span={24} style={{ marginBottom: '5px' }}>
+                  <Col span={24} style={{ marginBottom: '10px' }}>
                     <Col span={9} style={{ height: '30px' }}>
                       <span className={styles.detailLabel}>Event Session</span>
                     </Col>
@@ -289,76 +343,129 @@ class ToCart extends Component {
                     </Col>
                   </Col>
                 ) : null}
-                <Col style={{ margin: '5px 0' }} className={styles.title}>
+                <Col span={24} style={{ marginTop: '15px' }} className={styles.title}>
                   BOOKING INFORMATION
                 </Col>
-                <Form className={styles.product}>
-                  {attractionProduct.map((item, index) => {
-                    const { priceRule = [], productName, ticketNumber } = item;
-                    const { priceRuleId, productPrice = [] } = priceRule[1];
-                    const { productInventory } = productPrice[0];
-                    const ticketNumberLabel = `attractionProduct${index}`;
-                    const inventory = productInventory !== -1 ? productInventory : 100000000;
-                    const maxProductInventory = this.calculateMaxTickets(index, inventory);
-                    const priceShow = calculateProductPrice(item, priceRuleId);
-                    return (
-                      <Col span={24} className={styles.ageItem} key={productName}>
-                        <Col span={18} className={styles.age}>
-                          <span style={{ color: '#565656' }}>
-                            {item.attractionProduct.ageGroup}
-                          </span>
+                {offerConstrain === 'Fixed' ? (
+                  <Col span={24} style={{ marginTop: '10px' }}>
+                    <div>
+                      <div className={styles.productDes}>
+                        <div>{ageGroups.join('; ')}</div>
+                        <div>
+                          <Form layout="inline">
+                            <FormItem className={styles.label}>
+                              {getFieldDecorator('offerNumbers', {
+                                initialValue: offerQuantity,
+                                rules: [
+                                  {
+                                    required: true,
+                                    message: 'Required',
+                                  },
+                                ],
+                              })(
+                                <div>
+                                  <InputNumber
+                                    value={offerQuantity}
+                                    disabled={!modify}
+                                    onChange={value => this.changeFixedOfferNumbers(value)}
+                                  />
+                                </div>
+                              )}
+                            </FormItem>
+                          </Form>
+                        </div>
+                        <div>$ {calculateAllProductPrice(attractionProduct, priceRuleId)}</div>
+                      </div>
+                      {companyType === '02' ? null : (
+                        <Col span={24} className={styles.totalMoney}>
+                          <Col span={18} style={{ textAlign: 'right', paddingRight: '10px' }}>
+                            Total:
+                          </Col>
+                          <Col span={6} style={{ textAlign: 'right' }}>
+                            ${' '}
+                            {(
+                              offerQuantity *
+                              calculateAllProductPrice(attractionProduct, priceRuleId)
+                            ).toFixed(2)}
+                          </Col>
                         </Col>
-                        <Col span={6}>
-                          <FormItem className={styles.label}>
-                            {getFieldDecorator(ticketNumberLabel, {
-                              initialValue: ticketNumber,
-                              rules: [
-                                {
-                                  required: true,
-                                  message: 'Required',
-                                },
-                              ],
-                            })(
-                              <div>
-                                <InputNumber
-                                  max={maxProductInventory}
-                                  min={0}
-                                  value={ticketNumber}
-                                  onChange={value =>
-                                    this.changeTicketNumber(
-                                      index,
-                                      value,
-                                      priceShow,
-                                      maxProductInventory
-                                    )
-                                  }
-                                  parser={value =>
-                                    this.formatInputValue(index, value, maxProductInventory)
-                                  }
-                                />
-                              </div>
-                            )}
-                          </FormItem>
+                      )}
+                    </div>
+                  </Col>
+                ) : (
+                  <Form className={styles.product}>
+                    {attractionProduct.map((item, index) => {
+                      const { priceRule = [], productName, ticketNumber } = item;
+                      const { productPrice = [] } = priceRule[1];
+                      const { productInventory } = productPrice[0];
+                      const ticketNumberLabel = `attractionProduct${index}`;
+                      const inventory = productInventory !== -1 ? productInventory : 100000000;
+                      const maxProductInventory = this.calculateMaxTickets(
+                        index,
+                        inventory,
+                        offerConstrain
+                      );
+                      const priceShow = calculateProductPrice(item, priceRuleId);
+                      return (
+                        <Col span={24} className={styles.ageItem} key={productName}>
+                          <Col span={18} className={styles.age}>
+                            <span style={{ color: '#565656' }}>
+                              {item.attractionProduct.ageGroup}
+                            </span>
+                          </Col>
+                          <Col span={6}>
+                            <FormItem className={styles.label}>
+                              {getFieldDecorator(ticketNumberLabel, {
+                                initialValue: ticketNumber,
+                                rules: [
+                                  {
+                                    required: true,
+                                    message: 'Required',
+                                  },
+                                ],
+                              })(
+                                <div>
+                                  <InputNumber
+                                    max={maxProductInventory}
+                                    min={offerConstrain === 'Single' ? numOfGuests : 0}
+                                    disabled={this.disabledProduct(index, offerConstrain)}
+                                    value={ticketNumber}
+                                    onChange={value =>
+                                      this.changeTicketNumber(
+                                        index,
+                                        value,
+                                        priceShow,
+                                        maxProductInventory
+                                      )
+                                    }
+                                    parser={value =>
+                                      this.formatInputValue(index, value, maxProductInventory)
+                                    }
+                                  />
+                                </div>
+                              )}
+                            </FormItem>
+                          </Col>
+                        </Col>
+                      );
+                    })}
+                    {companyType === '02' ? null : (
+                      <Col span={24} className={styles.totalMoney}>
+                        <Col span={18} style={{ textAlign: 'right', paddingRight: '10px' }}>
+                          Total:
+                        </Col>
+                        <Col span={6} style={{ textAlign: 'right' }}>
+                          {this.calculateTotalPrice()}
                         </Col>
                       </Col>
-                    );
-                  })}
-                  {companyType === '02' ? null : (
-                    <Col span={24} className={styles.totalMoney}>
-                      <Col span={18} style={{ textAlign: 'right', paddingRight: '10px' }}>
-                        Total:
-                      </Col>
-                      <Col span={6} style={{ textAlign: 'right' }}>
-                        {this.calculateTotalPrice()}
-                      </Col>
-                    </Col>
-                  )}
-                </Form>
+                    )}
+                  </Form>
+                )}
               </Row>
             </div>
-            <div style={{ height: '25px', marginTop: '10px' }} className={styles.title}>
+            <Col span={24} style={{ height: '25px', marginTop: '24px' }} className={styles.title}>
               DELIVERY INFORMATION
-            </div>
+            </Col>
             <Form>
               <Col span={24} className={styles.deliverCol}>
                 <FormItem className={styles.label} label="Country of Residence" colon={false}>
@@ -379,15 +486,15 @@ class ToCart extends Component {
                         allowClear
                         placeholder="Please Select"
                         style={{ width: '100%' }}
-                        onChange={this.changeCountry}
+                        onChange={value => this.changeDeliveryInformation('country', value)}
                         filterOption={(input, option) =>
                           option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         }
                       >
-                        {countrys.map((item, index) => {
+                        {countrys.map(item => {
                           const { lookupName } = item;
                           return (
-                            <Option key={`country_${  index}`} value={lookupName}>
+                            <Option key={lookupName} value={lookupName}>
                               {lookupName}
                             </Option>
                           );
@@ -399,15 +506,28 @@ class ToCart extends Component {
               </Col>
               <Col span={24} className={styles.deliverCol}>
                 <FormItem className={styles.label} label="TA Reference No." colon={false}>
-                  <Input
-                    allowClear
-                    placeholder="Please Enter"
-                    style={{ width: '100%' }}
-                    value={taNo}
-                    onChange={e => {
-                      changeDeliveryInformation('taNo', e.target.value);
-                    }}
-                  />
+                  {getFieldDecorator('taNo', {
+                    initialValue: taNo,
+                    validateTrigger: '',
+                    rules: [
+                      {
+                        required: false,
+                        message: 'Required',
+                      },
+                    ],
+                  })(
+                    <div>
+                      <Input
+                        allowClear
+                        placeholder="Please Enter"
+                        style={{ width: '100%' }}
+                        value={taNo}
+                        onChange={e => {
+                          this.changeDeliveryInformation('taNo', e.target.value);
+                        }}
+                      />
+                    </div>
+                  )}
                 </FormItem>
               </Col>
               <Col span={24} className={styles.deliverCol}>
@@ -430,7 +550,7 @@ class ToCart extends Component {
                           style={{ width: '100%' }}
                           value={guestFirstName}
                           onChange={e => {
-                            changeDeliveryInformation('guestFirstName', e.target.value);
+                            this.changeDeliveryInformation('guestFirstName', e.target.value);
                           }}
                         />
                       </div>
@@ -456,7 +576,7 @@ class ToCart extends Component {
                           style={{ width: '100%' }}
                           value={guestLastName}
                           onChange={e => {
-                            changeDeliveryInformation('guestLastName', e.target.value);
+                            this.changeDeliveryInformation('guestLastName', e.target.value);
                           }}
                         />
                       </div>
@@ -483,7 +603,7 @@ class ToCart extends Component {
                         style={{ width: '100%' }}
                         value={customerContactNo}
                         onChange={e => {
-                          changeDeliveryInformation('customerContactNo', e.target.value);
+                          this.changeDeliveryInformation('customerContactNo', e.target.value);
                         }}
                       />
                     </div>
@@ -509,7 +629,7 @@ class ToCart extends Component {
                         style={{ width: '100%' }}
                         value={customerEmailAddress}
                         onChange={e => {
-                          changeDeliveryInformation('customerEmailAddress', e.target.value);
+                          this.changeDeliveryInformation('customerEmailAddress', e.target.value);
                         }}
                       />
                     </div>
@@ -526,14 +646,14 @@ class ToCart extends Component {
                 Terms and Conditions &gt;
               </span>
             </div>
-            <div className={styles.formControl}>
-              <Button onClick={() => onClose()} style={{ marginRight: 8, width: 60 }}>
-                Cancel
-              </Button>
-              <Button onClick={this.order} type="primary" style={{ width: 60 }}>
-                Order
-              </Button>
-            </div>
+          </div>
+          <div className={styles.formControl}>
+            <Button onClick={() => onClose()} style={{ marginRight: 8, width: 60 }}>
+              Cancel
+            </Button>
+            <Button onClick={this.order} type="primary" style={{ width: 60 }}>
+              Order
+            </Button>
           </div>
         </Drawer>
       </div>

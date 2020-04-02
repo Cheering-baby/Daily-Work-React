@@ -53,7 +53,7 @@ const mapStateToProps = store => {
 @connect(mapStateToProps)
 class Edit extends PureComponent {
   componentDidMount() {
-    const { dispatch, taId = '111111' } = this.props;
+    const { dispatch, taId } = this.props;
     dispatch({
       type: 'myProfile/doCleanData',
       payload: { taId: !isNvl(taId) ? taId : null },

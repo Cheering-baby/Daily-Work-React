@@ -5,14 +5,15 @@ import { connect } from 'dva';
 import styles from './index.less';
 
 @Form.create()
-@connect(({ ticketBookingAndPayMgr }) => ({
-  ticketBookingAndPayMgr,
+@connect(({ queryOrderPaymentMgr }) => ({
+  queryOrderPaymentMgr,
 }))
 class PaymentModel extends Component {
+
   changePayModel = payModelInfo => {
     const {
       dispatch,
-      ticketBookingAndPayMgr: { payModeList },
+      queryOrderPaymentMgr: { payModeList },
     } = this.props;
     const newList = payModeList.map((info) => {
       let check = false;
@@ -28,7 +29,7 @@ class PaymentModel extends Component {
       );
     });
     dispatch({
-      type: 'ticketBookingAndPayMgr/save',
+      type: 'queryOrderPaymentMgr/save',
       payload: {
         payModeList: newList,
       },
@@ -37,7 +38,7 @@ class PaymentModel extends Component {
 
   checkAccountInfo = () => {
     const {
-      ticketBookingAndPayMgr: { payModeList, accountInfo, bookDetail },
+      queryOrderPaymentMgr: { payModeList, accountInfo, bookDetail },
     } = this.props;
 
     const checkAccountInfo = {
@@ -77,7 +78,7 @@ class PaymentModel extends Component {
   refreshAccount = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'ticketBookingAndPayMgr/fetchAccountDetail',
+      type: 'queryOrderPaymentMgr/fetchAccountDetail',
       payload: {},
     });
   };
@@ -87,7 +88,7 @@ class PaymentModel extends Component {
     form.validateFields((err, values) => {
       if (!err) {
         dispatch({
-          type: 'ticketBookingAndPayMgr/fetchAccountTopUp',
+          type: 'queryOrderPaymentMgr/fetchAccountTopUp',
           payload: {
             topupAmount: values.topupAmount,
           },
@@ -103,7 +104,7 @@ class PaymentModel extends Component {
   render() {
     const {
       form: { getFieldDecorator },
-      ticketBookingAndPayMgr: { payModeList, accountInfo },
+      queryOrderPaymentMgr: { payModeList, accountInfo },
     } = this.props;
 
     let payModeListNew = [...payModeList];

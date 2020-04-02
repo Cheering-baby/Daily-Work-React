@@ -1,9 +1,9 @@
-import React, { Fragment } from 'react';
-import { Button, Col, Form, Input, InputNumber, message, Row, Select } from 'antd';
+import React, {Fragment} from 'react';
+import {Button, Col, Form, Input, InputNumber, message, Row, Select} from 'antd';
 // import MediaQuery from 'react-responsive';
-import { formatMessage } from 'umi/locale';
+import {formatMessage} from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
-import { connect } from 'dva';
+import {connect} from 'dva';
 import TextArea from 'antd/es/input/TextArea';
 import router from 'umi/router';
 import moment from 'moment';
@@ -32,10 +32,12 @@ const formItemLayoutFull = {
 
 const formItemLayoutFull1 = {
   labelCol: {
-    span: 5,
+    sm: 10,
+    md: 5,
   },
   wrapperCol: {
-    span: 7,
+    sm: 14,
+    md: 7,
   },
 };
 
@@ -506,26 +508,28 @@ class Index extends React.PureComponent {
                       disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
                       allowClear
                       maxLength={1000}
-                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      placeholder={formatMessage({id: 'PLEASE_ENTER'})}
                       autoComplete="off"
                     />
                   )}
                 </Form.Item>
               </Col>
-              <Col span={24}>
-                <Form.Item {...formItemLayoutFull} label={formatMessage({ id: 'REMARKS' })}>
-                  {getFieldDecorator(`remarks`, {
-                    initialValue: remarks,
-                  })(
-                    <TextArea
-                      disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
-                      maxLength={2000}
-                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      autoSize={{ minRows: 3, maxRows: 5 }}
-                    />
-                  )}
-                </Form.Item>
-              </Col>
+              {userType === constants.RWS_USER_TYPE ? (
+                <Col span={24}>
+                  <Form.Item {...formItemLayoutFull} label={formatMessage({id: 'REMARKS'})}>
+                    {getFieldDecorator(`remarks`, {
+                      initialValue: remarks,
+                    })(
+                      <TextArea
+                        disabled={type === 'DETAIL'}
+                        maxLength={2000}
+                        placeholder={formatMessage({id: 'PLEASE_ENTER'})}
+                        autoSize={{minRows: 3, maxRows: 5}}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+              ) : null}
             </Row>
             {userType === constants.RWS_USER_TYPE ||
             loginUserType === constants.SUB_TA_USER_TYPE ? null : (
@@ -539,19 +543,24 @@ class Index extends React.PureComponent {
                   <Col span={24}>
                     <Form.Item
                       {...formItemLayoutFull1}
-                      label={formatMessage({ id: 'SETTLEMENT_CYCLE' })}
+                      label={formatMessage({id: 'SETTLEMENT_CYCLE'})}
                     >
-                      <span className={styles.spanClass}>{formatMessage({ id: 'THE' })}</span>
-                      {getFieldDecorator(`settlementValue`, {
-                        initialValue: settlementValue,
-                      })(
-                        <InputNumber style={{ marginLeft: '10px', marginRight: '10px' }} disabled />
-                      )}
-                      <span className={styles.spanClass}>
-                        {settlementCycle === '01'
-                          ? formatMessage({ id: 'TH_DATA_OF_THE_QUARTER' })
-                          : formatMessage({ id: 'TH_DATA_OF_THE_MONTH' })}
-                      </span>
+                      <div>
+                        <span className={styles.spanClass}>{formatMessage({id: 'THE'})}</span>
+                        {getFieldDecorator(`settlementValue`, {
+                          initialValue: settlementValue,
+                        })(
+                          <InputNumber
+                            style={{marginLeft: '10px', marginRight: '10px'}}
+                            disabled
+                          />
+                        )}
+                        <span className={styles.spanClass}>
+                          {settlementCycle === '01'
+                            ? formatMessage({id: 'TH_DATA_OF_THE_QUARTER'})
+                            : formatMessage({id: 'TH_DATA_OF_THE_MONTH'})}
+                        </span>
+                      </div>
                     </Form.Item>
                   </Col>
                   <Col span={24}>

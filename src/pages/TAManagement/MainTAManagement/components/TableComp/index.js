@@ -14,8 +14,6 @@ import StateChangeHistoryComp from '../StateChangeHistoryComp';
 import SCREEN from '@/utils/screen';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
-import circleURL from '../../../../../assets/pams/circle.svg';
-import prohibit from '../../../../../assets/pams/prohibit.svg';
 import {
   AR_ACCOUNT_PRIVILEGE,
   hasAllPrivilege,
@@ -185,7 +183,6 @@ class TableComp extends PureComponent {
               className={styles.contentCol}
               onClick={e => this.goEditInformation(e, record.taId)}
             >
-              <Icon type="edit" />
               {formatMessage({ id: 'COMMON_EDIT' })}
             </div>
           </Col>
@@ -195,7 +192,6 @@ class TableComp extends PureComponent {
             className={styles.contentCol}
             onClick={() => this.onShowContractFileModal(record.taId)}
           >
-            <Icon type="upload" />
             {formatMessage({ id: 'TA_TABLE_UPLOAD' })}
           </div>
         </Col>
@@ -204,7 +200,6 @@ class TableComp extends PureComponent {
             className={styles.contentCol}
             onClick={() => this.onShowContractFileHisModal(record.taId)}
           >
-            <Icon type="file-text" />
             {formatMessage({ id: 'TA_TABLE_HISTORY' })}
           </div>
         </Col>
@@ -214,7 +209,6 @@ class TableComp extends PureComponent {
               className={styles.contentCol}
               onClick={() => this.modifyStatus(record.taId, 'inactive')}
             >
-              <img src={prohibit} alt="" className={styles.inactiveImg} />
               {formatMessage({ id: 'TA_TABLE_PROHIBIT' })}
             </div>
           )}
@@ -223,10 +217,14 @@ class TableComp extends PureComponent {
               className={styles.contentCol}
               onClick={() => this.modifyStatus(record.taId, 'active')}
             >
-              <img src={circleURL} alt="" className={styles.inactiveImg} />
               {formatMessage({ id: 'TA_TABLE_ENABLE' })}
             </div>
           )}
+        </Col>
+        <Col span={24}>
+          <div className={styles.contentCol} onClick={e => this.addGrant(e, record)}>
+            {formatMessage({ id: 'TA_TABLE_GRANT' })}
+          </div>
         </Col>
       </Row>
     );
@@ -477,26 +475,8 @@ class TableComp extends PureComponent {
     });
   };
 
-  addGrant = e => {
+  addGrant = (e, record) => {
     e.preventDefault();
-    const { rowAllSelected } = this.props;
-    router.push({
-      pathname: `/TAManagement/MainTAManagement/Grant`,
-      query: { rowAllSelected },
-    });
-  };
-
-  onSelectChange = selectedRowKeys => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'mainTAManagement/saveSelect',
-      payload: {
-        selectedRowKeys,
-      },
-    });
-  };
-
-  handleClickRow = record => {
     const { dispatch } = this.props;
     dispatch({
       type: 'mainTAManagement/changeSelectedKey',
@@ -510,27 +490,20 @@ class TableComp extends PureComponent {
         rowAllSelected: record,
       },
     });
+    router.push({
+      pathname: `/TAManagement/MainTAManagement/Grant`,
+      query: { rowAllSelected: record.number },
+    });
   };
 
-  setRowClass = (record, index) => {
-    const { rowSelected } = this.props;
-    if (record.number === rowSelected) {
-      const sysParamTable = document.getElementsByClassName('ant-table-tbody')[0];
-      if (sysParamTable && sysParamTable.childNodes.length > 0) {
-        const row = sysParamTable.childNodes[index];
-
-        if (row) {
-          row.setAttribute('tabindex', '0');
-          row.focus();
-          row.removeAttribute('tabindex');
-        }
-      }
-    }
-    const className =
-      record.number === rowSelected
-        ? `ant-table-row-selected row-key-${record.number}`
-        : `row-key-${record.number}`;
-    return className;
+  onSelectChange = selectedRowKeys => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/saveSelect',
+      payload: {
+        selectedRowKeys,
+      },
+    });
   };
 
   render() {
@@ -609,13 +582,6 @@ class TableComp extends PureComponent {
     };
     return (
       <Col span={24}>
-        <Row gutter={24}>
-          <Col style={{ padding: '12px' }}>
-            <Button type="primary" onClick={e => this.addGrant(e)}>
-              {formatMessage({ id: 'COMMON_GRANT' })}
-            </Button>
-          </Col>
-        </Row>
         <Table
           size="small"
           className={`tabs-no-padding ${styles.searchTitle}`}
@@ -624,12 +590,6 @@ class TableComp extends PureComponent {
           dataSource={mainTAList}
           loading={qryTaTableLoading}
           scroll={{ x: 660 }}
-          // rowClassName={this.setRowClass}
-          // onRow={record => ({
-          //   onClick: () => {
-          //     this.handleClickRow(record);
-          //   },
-          // })}
           {...tableOpts}
         />
         <Modal

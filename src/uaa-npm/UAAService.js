@@ -122,7 +122,7 @@ class UAAService extends CommonService {
       pageCode,
       pageUrl,
     };
-    const { success, errorMsg, data } = await this.request(
+    const { success, errorMsg, data } = await this.requestByRT(
       `/v1/current/page/privileges?${stringify(param)}`,
       {}
     );

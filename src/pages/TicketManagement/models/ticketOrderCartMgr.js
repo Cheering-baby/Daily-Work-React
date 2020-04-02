@@ -1,35 +1,35 @@
-import { message } from 'antd';
+import {message} from 'antd';
 import router from 'umi/router';
 import moment from 'moment';
-import { queryCountry } from '@/pages/TicketManagement/services/ticketCommon';
+import {queryCountry} from '@/pages/TicketManagement/services/ticketCommon';
 import {
+  addToShoppingCart,
+  calculateOrderOfferPrice,
+  createShoppingCart,
   queryPluAttribute,
   queryPluListByCondition,
-  createShoppingCart,
   queryShoppingCart,
-  addToShoppingCart,
   removeShoppingCart,
-  calculateOrderOfferPrice,
 } from '@/pages/TicketManagement/services/orderCart';
-import { createBooking, queryBookingStatus } from '@/pages/TicketManagement/services/bookingAndPay';
+import {createBooking, queryBookingStatus} from '@/pages/TicketManagement/services/bookingAndPay';
 import {
-  transOrderToOfferInfos,
-  transGetOrderList,
   createOrderItemId,
-  demolitionOrder,
-  getOapOrderProductList,
-  getCheckPackageOrderData,
-  getCheckOapOrderData,
-  getCheckTicketAmount,
-  transBookingCommonOffers,
-  transOapCommonOffers,
-  transPackageCommonOffers,
   demolitionBundleOrder,
+  demolitionOrder,
+  getCheckOapOrderData,
+  getCheckPackageOrderData,
+  getCheckTicketAmount,
+  getOapOrderProductList,
+  transBookingCommonOffers,
   transBookingToPayTotalPrice,
+  transGetOrderList,
+  transOapCommonOffers,
+  transOrderToOfferInfos,
+  transPackageCommonOffers,
 } from '@/pages/TicketManagement/utils/orderCartUtil';
-import { getAttractionProductList, getVoucherProductList } from '../utils/ticketOfferInfoUtil';
-import { queryTaInfo, querySubTaInfo } from '@/pages/TicketManagement/services/taMgrService';
-import { isNvl } from '@/utils/utils';
+import {getAttractionProductList, getVoucherProductList} from '../utils/ticketOfferInfoUtil';
+import {querySubTaInfo, queryTaInfo} from '@/pages/TicketManagement/services/taMgrService';
+import {isNvl} from '@/utils/utils';
 
 export default {
   namespace: 'ticketOrderCartMgr',
@@ -37,7 +37,7 @@ export default {
   state: {
     deliveryMode: undefined,
     collectionDate: null,
-    bocaFeePax: 2.0,
+    bocaFeePax: 0.0,
     offerOrderData: [],
     selectAllOrder: true,
     selectAllIndeterminate: false,
@@ -149,7 +149,7 @@ export default {
       }
     },
 
-    *createShoppingCart({ payload }, { call, put, select }) {
+    *createShoppingCart(_, { call, put, select }) {
       yield put({
         type: 'save',
         payload: {
@@ -184,7 +184,7 @@ export default {
       });
     },
 
-    *queryShoppingCart({ payload }, { call, put, select }) {
+    *queryShoppingCart(_, { call, put, select }) {
       yield put({
         type: 'save',
         payload: {
@@ -306,7 +306,7 @@ export default {
         return;
       }
       let queryPluKey = 0;
-      result.items.map(item => {
+      result.items.forEach(item => {
         if (item.item === 'DeliveryPLU') {
           queryPluKey = item.itemValue;
         }
@@ -328,6 +328,13 @@ export default {
       });
       const params = {
         queryPluKey: payload.queryPluKey,
+        activeStatus: "0",
+        pageSize: 10,
+        currentPage: 1,
+        totalSize: 1,
+        programId: "id",
+        salesProgramIdType: "id",
+        selectCondition: {pluCode: payload.queryPluKey, activeStatus: "0"}
       };
       const {
         data: { resultCode, resultMsg, result },
@@ -349,7 +356,7 @@ export default {
       });
     },
 
-    *orderCheckOut({ payload }, { put, select }) {
+    *orderCheckOut(_, { put, select }) {
       yield put({
         type: 'save',
         payload: {
@@ -413,20 +420,27 @@ export default {
       if (companyType === '02') {
         if (subTaDetailInfo) {
           patronInfo = {
+            firstName: subTaDetailInfo.fullName,
+            lastName: subTaDetailInfo.fullName,
+            phoneNo: null,
             email: subTaDetailInfo.email,
             country: subTaDetailInfo.country,
           };
         }
-      } else if (taDetailInfo && taDetailInfo.customerInfo && taDetailInfo.customerInfo.contactInfo) {
-          const {contactInfo} = taDetailInfo.customerInfo;
-          patronInfo = {
-            firstName: contactInfo.firstName,
-            lastName: contactInfo.lastName,
-            phoneNo: contactInfo.phone,
-            email: contactInfo.email,
-            country: contactInfo.country,
-          };
-        }
+      } else if (
+        taDetailInfo &&
+        taDetailInfo.customerInfo &&
+        taDetailInfo.customerInfo.contactInfo
+      ) {
+        const { contactInfo } = taDetailInfo.customerInfo;
+        patronInfo = {
+          firstName: contactInfo.firstName,
+          lastName: contactInfo.lastName,
+          phoneNo: contactInfo.phone,
+          email: contactInfo.email,
+          country: contactInfo.country,
+        };
+      }
 
       const bookingParam = {
         customerId: '',
@@ -452,7 +466,8 @@ export default {
       const oapCommonOffers = transOapCommonOffers(
         onceAPirateOrderData,
         collectionDate,
-        deliveryMode
+        deliveryMode,
+        patronInfo,
       );
       bookingParam.commonOffers = [
         ...packageCommonOffers,
@@ -475,7 +490,7 @@ export default {
           null
         );
       }
-      console.log(bookingParam);
+      // console.log(bookingParam);
 
       const { data } = yield call(createBooking, bookingParam);
       if (data) {
@@ -592,7 +607,7 @@ export default {
       }
     },
 
-    *queryCountry({ payload }, { call, put }) {
+    *queryCountry(_, { call, put }) {
       const param = { tableName: 'CUST_PROFILE', columnName: 'NOTIONALITY' };
       const response = yield call(queryCountry, param);
       if (!response) return false;
@@ -612,7 +627,7 @@ export default {
 
     *settingPackAgeTicketOrderData({ payload }, { put }) {
       const { orderData } = payload;
-      console.log(orderData);
+      // console.log(orderData);
       if (orderData.orderType === 'offerBundle') {
         yield put({
           type: 'settingBundleTicketOrderData',
@@ -627,7 +642,7 @@ export default {
     },
 
     *settingBundleTicketOrderData({ payload }, { put, take }) {
-      const { orderIndex, offerIndex, orderData } = payload;
+      const { orderIndex, orderData } = payload;
       const { themeParkCode, themeParkName } = orderData;
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
@@ -699,7 +714,10 @@ export default {
         }
       }
 
-      message.success('Order successfully!');
+      if (batchPullResult === 'done') {
+        message.success('Order successfully!');
+      }
+
     },
 
     *settingGeneralTicketOrderData({ payload }, { put, take }) {
@@ -781,7 +799,7 @@ export default {
         for (
           let orderOfferIndex = 0;
           orderOfferIndex < deleteOrderItem.orderOfferList.length;
-          orderOfferIndex++
+          orderOfferIndex += 1
         ) {
           const offerDetail = deleteOrderItem.orderOfferList[orderOfferIndex];
           removeOfferInstanceList.push({
@@ -834,7 +852,7 @@ export default {
       for (
         let orderOfferIndex = 0;
         orderOfferIndex < addOrderItem.orderOfferList.length;
-        orderOfferIndex++
+        orderOfferIndex += 1
       ) {
         const offerDetail = addOrderItem.orderOfferList[orderOfferIndex];
         offerDetail.orderInfo = Object.assign(
@@ -855,7 +873,7 @@ export default {
             orderType: 'offerPackage',
             offerNo: offerDetail.offerInfo.offerNo,
             themeParkCode: 'OAP',
-            themeParkName: 'ONCE A PIRATE',
+            themeParkName: 'Once A Pirate',
             orderData: demolitionOrder(orderItemId, addOrderItem, offerDetail),
             callbackFn,
           },
@@ -879,7 +897,7 @@ export default {
         ...payload,
       };
     },
-    countTicketOrderAmount(state, _) {
+    countTicketOrderAmount(state) {
       const {
         generalTicketOrderData = [],
         packageOrderData = [],

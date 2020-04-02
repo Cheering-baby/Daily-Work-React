@@ -101,7 +101,7 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
         return;
       }
       dispatch({
-        type: 'subTaMgr/fetchSubTARegistration',
+        type: 'subTaMgr/fetchModifySubTaInfo',
         payload: {
           ...subTaInfo,
           ...subTaInfoState,
@@ -109,6 +109,7 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
             ? moment(subTaInfo.applicationDate, 'YYYY-MM-DD').format('YYYY-MM-DD')
             : null,
           subTaId: !isNvl(subTaId) ? subTaId : null,
+          taId: null,
         },
       }).then(flag => {
         if (flag) {

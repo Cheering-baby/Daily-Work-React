@@ -42,28 +42,20 @@ class RegistrationInformationToSignUp extends PureComponent {
     let statusStr = 'default';
     let statusTxt = '';
     switch (status) {
-      case '05':
+      case '02':
         statusStr = 'error';
         statusTxt = formatMessage({ id: 'STATUS_REJECT' });
         break;
-      case '04':
+      case '00':
         statusStr = 'processing';
         statusTxt = formatMessage({ id: 'STATUS_COMPLETED' });
-        break;
-      case '03':
-        statusStr = 'warning';
-        statusTxt = formatMessage({ id: 'STATUS_PENDING' });
-        break;
-      case '02':
-        statusStr = 'warning';
-        statusTxt = formatMessage({ id: 'STATUS_PENDING' });
         break;
       case '01':
         statusStr = 'warning';
         statusTxt = formatMessage({ id: 'STATUS_PENDING' });
         break;
       default:
-        statusStr = 'default';
+        statusStr = 'warning';
         statusTxt = formatMessage({ id: 'STATUS_PENDING' });
         break;
     }

@@ -26,7 +26,7 @@ export function transOrderToOfferInfos(
   return offerInfos;
 }
 
-export function createOrderItemId(orderData) {
+export function createOrderItemId() {
   const orderItemId = new Date().getTime();
   const s = [];
   const hexDigits = '0123456789abcdef';
@@ -189,36 +189,36 @@ export function transGetOrderList(offerInstanceList) {
         ...JSON.parse(offerInstance.offerInstanceAttribute.orderInfo),
       });
     } else if (offerInstance.offerInstanceAttribute.orderType === 'offerBundle') {
-        mergeBundleOrder(offerInstance.offerInstanceId, resultData.generalTicketOrderData, {
-          ...JSON.parse(offerInstance.offerInstanceAttribute.orderInfo),
-        });
-      } else {
-        let isNewOrder = true;
-        resultData.generalTicketOrderData.forEach(orderDataItem => {
-          if (offerInstance.offerInstanceAttribute.themeParkCode === orderDataItem.themeParkCode) {
-            orderDataItem.orderOfferList.push({
+      mergeBundleOrder(offerInstance.offerInstanceId, resultData.generalTicketOrderData, {
+        ...JSON.parse(offerInstance.offerInstanceAttribute.orderInfo),
+      });
+    } else {
+      let isNewOrder = true;
+      resultData.generalTicketOrderData.forEach(orderDataItem => {
+        if (offerInstance.offerInstanceAttribute.themeParkCode === orderDataItem.themeParkCode) {
+          orderDataItem.orderOfferList.push({
+            offerInstanceId: offerInstance.offerInstanceId,
+            ...JSON.parse(offerInstance.offerInstanceAttribute.orderInfo),
+          });
+          isNewOrder = false;
+        }
+      });
+      if (isNewOrder) {
+        resultData.generalTicketOrderData.push({
+          themeParkCode: offerInstance.offerInstanceAttribute.themeParkCode,
+          themeParkName: offerInstance.offerInstanceAttribute.themeParkName,
+          orderOfferList: [
+            {
               offerInstanceId: offerInstance.offerInstanceId,
               ...JSON.parse(offerInstance.offerInstanceAttribute.orderInfo),
-            });
-            isNewOrder = false;
-          }
+            },
+          ],
         });
-        if (isNewOrder) {
-          resultData.generalTicketOrderData.push({
-            themeParkCode: offerInstance.offerInstanceAttribute.themeParkCode,
-            themeParkName: offerInstance.offerInstanceAttribute.themeParkName,
-            orderOfferList: [
-              {
-                offerInstanceId: offerInstance.offerInstanceId,
-                ...JSON.parse(offerInstance.offerInstanceAttribute.orderInfo),
-              },
-            ],
-          });
-        }
       }
+    }
   });
 
-  console.log(resultData);
+  // console.log(resultData);
   return resultData;
 }
 
@@ -304,7 +304,7 @@ export function getCheckPackageOrderData(packageOrderData) {
 
 export function getCheckOapOrderData(onceAPirateOrderData) {
   const orderList = [];
-  onceAPirateOrderData.forEach((orderData, orderIndex) => {
+  onceAPirateOrderData.forEach((orderData) => {
     const newOrderOfferList = [];
     orderData.orderOfferList.forEach(orderOffer => {
       if (orderOffer.orderCheck) {
@@ -377,22 +377,34 @@ export function getCheckTicketAmount(
 }
 
 export function transPackageCommonOffers(ticketOrderData, collectionDate, deliveryMode) {
+
   const commonOffers = [];
 
   ticketOrderData.forEach(orderData => {
     orderData.orderOfferList.forEach(orderOffer => {
       const { offerInstanceId, queryInfo, offerInfo, orderInfo, deliveryInfo } = orderOffer;
+      const deliveryInfoData = {
+        referenceNo: deliveryInfo.taNo,
+        contactNo: deliveryInfo.customerContactNo,
+        lastName: deliveryInfo.guestLastName,
+        firstName: deliveryInfo.guestFirstName,
+        country: deliveryInfo.country,
+        email: deliveryInfo.customerEmail,
+        collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
+        deliveryMode,
+      };
       let totalPrice = 0;
       const attractionProducts = [];
-      orderInfo.forEach(orderInfo => {
-        const { productInfo, pricePax, quantity } = orderInfo;
+      orderInfo.forEach(orderInfoItem => {
+        const { productInfo, pricePax, quantity } = orderInfoItem;
         totalPrice += pricePax * quantity;
         const needChoiceCount = productInfo.needChoiceCount || 1;
         const attractionProduct = {
           productNo: productInfo.productNo,
+          patronInfo: deliveryInfo,
           numOfAttraction: 1 * needChoiceCount,
           visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
-          noOfPax: orderInfo.quantity,
+          noOfPax: orderInfoItem.quantity,
         };
         attractionProducts.push(attractionProduct);
       });
@@ -404,16 +416,7 @@ export function transPackageCommonOffers(ticketOrderData, collectionDate, delive
         attractionProducts,
         totalPrice,
         patronInfo: null,
-        deliveryInfo: {
-          referenceNo: deliveryInfo.taNo,
-          contactNo: deliveryInfo.customerContactNo,
-          lastName: deliveryInfo.guestLastName,
-          firstName: deliveryInfo.guestFirstName,
-          country: deliveryInfo.country,
-          email: deliveryInfo.customerEmail,
-          collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
-          deliveryMode,
-        },
+        deliveryInfo: deliveryInfoData,
       };
       commonOffers.push(submitCommonOffer);
     });
@@ -422,13 +425,27 @@ export function transPackageCommonOffers(ticketOrderData, collectionDate, delive
   return commonOffers;
 }
 
-export function putAttractionProductsByOffer(attractionProducts, orderInfoList, queryInfo) {
+export function checkIfGroupTicketByProduct(productInfo) {
+  let result = false;
+  if (productInfo && productInfo.attractionProduct && productInfo.attractionProduct.isGroupTicket) {
+    if (
+      productInfo.attractionProduct.isGroupTicket === 'Yes' ||
+      productInfo.attractionProduct.isGroupTicket === 'true'
+    ) {
+      result = true;
+    }
+  }
+  return result;
+}
+
+export function putAttractionProductsByOffer(attractionProducts, orderInfoList, queryInfo, deliveryInfoData) {
   orderInfoList.forEach(orderInfo => {
     const { productInfo } = orderInfo;
     const ifGroup = checkIfGroupTicketByProduct(productInfo);
     if (!ifGroup) {
       const attractionProduct = {
         productNo: productInfo.productNo,
+        patronInfo: deliveryInfoData,
         numOfAttraction: orderInfo.quantity,
         visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
         noOfPax: null,
@@ -437,6 +454,7 @@ export function putAttractionProductsByOffer(attractionProducts, orderInfoList, 
     } else {
       const attractionProduct = {
         productNo: productInfo.productNo,
+        patronInfo: deliveryInfoData,
         numOfAttraction: 1,
         visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
         noOfPax: orderInfo.quantity,
@@ -446,7 +464,7 @@ export function putAttractionProductsByOffer(attractionProducts, orderInfoList, 
   });
 }
 
-export function putAttractionProductsByOfferBundle(attractionProducts, queryInfo, orderInfoItem) {
+export function putAttractionProductsByOfferBundle(attractionProducts, queryInfo, orderInfoItem,deliveryInfoData) {
   const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
   const { offerInfo, quantity } = orderInfoItem;
   const attractionProductList = getAttractionProductList(offerInfo, validTimeFrom);
@@ -456,6 +474,7 @@ export function putAttractionProductsByOfferBundle(attractionProducts, queryInfo
     if (!ifGroup) {
       const attractionProduct = {
         productNo: productInfo.productNo,
+        patronInfo: deliveryInfoData,
         numOfAttraction: quantity * needChoiceCount,
         visitDate: validTimeFrom,
         noOfPax: null,
@@ -464,6 +483,7 @@ export function putAttractionProductsByOfferBundle(attractionProducts, queryInfo
     } else {
       const attractionProduct = {
         productNo: productInfo.productNo,
+        patronInfo: deliveryInfoData,
         numOfAttraction: 1 * needChoiceCount,
         visitDate: validTimeFrom,
         noOfPax: quantity,
@@ -481,14 +501,23 @@ export function putCommonOffersByOfferBundle(
 ) {
   const { orderInfo, queryInfo, deliveryInfo = {} } = orderOffer;
 
+  const deliveryInfoData= {
+    referenceNo: deliveryInfo.taNo,
+    contactNo: deliveryInfo.customerContactNo,
+    lastName: deliveryInfo.guestLastName,
+    firstName: deliveryInfo.guestFirstName,
+    country: deliveryInfo.country,
+    email: deliveryInfo.customerEmailAddress,
+    collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
+    deliveryMode,
+  };
+
   orderInfo.forEach(orderInfoItem => {
     const { offerInstanceId, offerInfo, pricePax, quantity } = orderInfoItem;
-
     if (quantity > 0) {
       const totalPrice = pricePax * quantity;
       const attractionProducts = [];
-      putAttractionProductsByOfferBundle(attractionProducts, queryInfo, orderInfoItem);
-
+      putAttractionProductsByOfferBundle(attractionProducts, queryInfo, orderInfoItem,deliveryInfoData);
       const submitCommonOffer = {
         offerNo: offerInfo.offerNo,
         cartOfferId: offerInstanceId,
@@ -497,16 +526,7 @@ export function putCommonOffersByOfferBundle(
         attractionProducts,
         totalPrice,
         patronInfo: null,
-        deliveryInfo: {
-          referenceNo: deliveryInfo.taNo,
-          contactNo: deliveryInfo.customerContactNo,
-          lastName: deliveryInfo.guestLastName,
-          firstName: deliveryInfo.guestFirstName,
-          country: deliveryInfo.country,
-          email: deliveryInfo.customerEmailAddress,
-          collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
-          deliveryMode,
-        },
+        deliveryInfo: deliveryInfoData,
       };
       commonOffers.push(submitCommonOffer);
     }
@@ -516,14 +536,25 @@ export function putCommonOffersByOfferBundle(
 export function putCommonOffersByOffer(commonOffers, orderOffer, collectionDate, deliveryMode) {
   const { offerInstanceId, queryInfo, offerInfo, orderInfo, deliveryInfo } = orderOffer;
 
+  const deliveryInfoData = {
+    referenceNo: deliveryInfo.taNo,
+    contactNo: deliveryInfo.customerContactNo,
+    lastName: deliveryInfo.guestLastName,
+    firstName: deliveryInfo.guestFirstName,
+    country: deliveryInfo.country,
+    email: deliveryInfo.customerEmailAddress,
+    collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
+    deliveryMode,
+  };
+
   let totalPrice = 0;
-  orderInfo.forEach(orderInfo => {
-    const { pricePax, quantity } = orderInfo;
+  orderInfo.forEach(orderInfoItem => {
+    const { pricePax, quantity } = orderInfoItem;
     totalPrice += pricePax * quantity;
   });
 
   const attractionProducts = [];
-  putAttractionProductsByOffer(attractionProducts, orderInfo, queryInfo);
+  putAttractionProductsByOffer(attractionProducts, orderInfo, queryInfo,deliveryInfoData);
 
   const submitCommonOffer = {
     offerNo: offerInfo.offerNo,
@@ -533,16 +564,7 @@ export function putCommonOffersByOffer(commonOffers, orderOffer, collectionDate,
     attractionProducts,
     totalPrice,
     patronInfo: null,
-    deliveryInfo: {
-      referenceNo: deliveryInfo.taNo,
-      contactNo: deliveryInfo.customerContactNo,
-      lastName: deliveryInfo.guestLastName,
-      firstName: deliveryInfo.guestFirstName,
-      country: deliveryInfo.country,
-      email: deliveryInfo.customerEmailAddress,
-      collectionDate: collectionDate ? moment(collectionDate, 'x').format('YYYY-MM-DD') : null,
-      deliveryMode,
-    },
+    deliveryInfo: deliveryInfoData,
   };
   commonOffers.push(submitCommonOffer);
 }
@@ -565,7 +587,7 @@ export function transBookingCommonOffers(ticketOrderData, collectionDate, delive
   return commonOffers;
 }
 
-export function transOapCommonOffers(onceAPirateOrderData, collectionDate, deliveryMode) {
+export function transOapCommonOffers(onceAPirateOrderData, collectionDate, deliveryMode,patronInfo) {
   const commonOffers = [];
 
   onceAPirateOrderData.forEach(orderData => {
@@ -582,6 +604,7 @@ export function transOapCommonOffers(onceAPirateOrderData, collectionDate, deliv
       attractionProductList.forEach(product => {
         const attractionProduct = {
           productNo: product.productNo,
+          patronInfo,
           numOfAttraction: 1,
           visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
           accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
@@ -619,6 +642,7 @@ export function transOapCommonOffers(onceAPirateOrderData, collectionDate, deliv
         mealsProductList.forEach(mealsProduct => {
           const attractionProduct = {
             productNo: mealsProduct.meals,
+            patronInfo,
             numOfAttraction: 1,
             visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
             comment: mealsProduct.remarks.join(','),
@@ -655,6 +679,7 @@ export function transOapCommonOffers(onceAPirateOrderData, collectionDate, deliv
         mealsProductList.forEach(mealsProduct => {
           const attractionProduct = {
             productNo: mealsProduct.meals,
+            patronInfo,
             numOfAttraction: mealsProduct.number,
             visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
             comment: mealsProduct.remarks.join(','),
@@ -692,6 +717,33 @@ export function transOapCommonOffers(onceAPirateOrderData, collectionDate, deliv
   return commonOffers;
 }
 
+export function transBookingOffersTotalPrice(
+  packageOrderData,
+  generalTicketOrderData,
+  onceAPirateOrderData
+) {
+  let totalPrice = 0;
+
+  const ticketOrderData = [...packageOrderData, ...generalTicketOrderData];
+  ticketOrderData.forEach(orderData => {
+    orderData.orderOfferList.forEach(orderOffer => {
+      const { orderInfo } = orderOffer;
+      orderInfo.forEach(orderInfoItem => {
+        totalPrice += orderInfoItem.pricePax * orderInfoItem.quantity;
+      });
+    });
+  });
+
+  onceAPirateOrderData.forEach(orderData => {
+    orderData.orderOfferList.forEach(orderOffer => {
+      const { orderInfo } = orderOffer;
+      totalPrice += orderInfo.offerSumPrice;
+    });
+  });
+
+  return totalPrice;
+}
+
 export function transBookingToPayTotalPrice(
   packageOrderData,
   generalTicketOrderData,
@@ -714,59 +766,5 @@ export function transBookingToPayTotalPrice(
   return Number(totalPrice).toFixed(2);
 }
 
-export function transBookingOffersTotalPrice(
-  packageOrderData,
-  generalTicketOrderData,
-  onceAPirateOrderData
-) {
-  let totalPrice = 0;
 
-  const ticketOrderData = [...packageOrderData, ...generalTicketOrderData];
-  ticketOrderData.forEach(orderData => {
-    orderData.orderOfferList.forEach(orderOffer => {
-      const { orderInfo } = orderOffer;
-      orderInfo.forEach(orderInfo => {
-        totalPrice += orderInfo.pricePax * orderInfo.quantity;
-      });
-    });
-  });
 
-  onceAPirateOrderData.forEach(orderData => {
-    orderData.orderOfferList.forEach(orderOffer => {
-      const { orderInfo } = orderOffer;
-      totalPrice += orderInfo.offerSumPrice;
-    });
-  });
-
-  return totalPrice;
-}
-
-export function getOfferTagByOfferInfo(offerInfo) {
-  return offerInfo.offerTagList || offerInfo.offerProfile.offerTagList;
-}
-
-export function checkIfTaByOfferInfo(offerInfo, tageName) {
-  let result = false;
-  const offerTagList = getOfferTagByOfferInfo(offerInfo);
-  if (offerTagList && offerTagList.length > 0) {
-    offerTagList.forEach(offerTag => {
-      if (offerTag.tagName === tageName) {
-        result = true;
-      }
-    });
-  }
-  return result;
-}
-
-export function checkIfGroupTicketByProduct(productInfo) {
-  let result = false;
-  if (productInfo && productInfo.attractionProduct && productInfo.attractionProduct.isGroupTicket) {
-    if (
-      productInfo.attractionProduct.isGroupTicket === 'Yes' ||
-      productInfo.attractionProduct.isGroupTicket === 'true'
-    ) {
-      result = true;
-    }
-  }
-  return result;
-}

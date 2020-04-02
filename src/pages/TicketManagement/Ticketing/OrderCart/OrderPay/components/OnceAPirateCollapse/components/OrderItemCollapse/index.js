@@ -5,9 +5,6 @@ import styles from './index.less';
 import AccessibleSeat from './assets/accessible_seat.png';
 
 class OrderItemCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
 
   getTitleNameStr = () => {
     const { onceAPirateOrder } = this.props;
@@ -33,19 +30,13 @@ class OrderItemCollapse extends Component {
   getMealsAmount = orderOffer => {
     let offerMealsAmount = 0;
     if (orderOffer.orderInfo.voucherType && orderOffer.orderInfo.voucherType === '1') {
-      orderOffer.orderInfo.groupSettingList.map(groupSetting => {
+      orderOffer.orderInfo.groupSettingList.forEach(groupSetting => {
         offerMealsAmount += groupSetting.number;
       });
     } else {
       offerMealsAmount = orderOffer.orderInfo.individualSettingList.length;
     }
     return offerMealsAmount;
-  };
-
-  getOfferSumPrice = orderOffer => {
-    let offerSumPrice = 0;
-    offerSumPrice = orderOffer.orderInfo.offerSumPrice;
-    return `$${Number(offerSumPrice$).toFixed(2)}`;
   };
 
   getOfferPricePax = orderOffer => {
@@ -98,6 +89,7 @@ class OrderItemCollapse extends Component {
           {onceAPirateOrder &&
             onceAPirateOrder.orderOfferList &&
             onceAPirateOrder.orderOfferList.map((orderOffer, offerIndex) => (
+              // eslint-disable-next-line react/no-array-index-key
               <div key={`order_${orderIndex}_${offerIndex}`}>
                 <Row gutter={24} className={styles.contentRow}>
                   <Col span={10} className={styles.titleCol}>

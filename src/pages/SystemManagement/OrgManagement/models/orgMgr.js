@@ -1,5 +1,5 @@
-import { message } from 'antd';
-import { formatMessage } from 'umi/locale';
+import {message} from 'antd';
+import {formatMessage} from 'umi/locale';
 import {
   addSubTARelation,
   addUserOrg,
@@ -33,15 +33,6 @@ const generateList = (data = [], result = []) => {
       generateList(node.subOrgs, result);
     }
   }
-};
-
-const getSelectedOrg = (userOrg = {}, orgList = []) => {
-  for (const item of orgList) {
-    if (userOrg.code === item.code) {
-      return { ...item };
-    }
-  }
-  return {};
 };
 
 const getCanAddUsers = (operType = 'ADD_USER_ORG', companyUsers = [], orgUsers = []) => {
@@ -85,13 +76,12 @@ export default {
       } = yield call(queryUserOrgTree, { ...payload });
       if (resultCode === '0') {
         const orgList = [];
-        const { code = '' } = resultData;
+        const {code = ''} = resultData;
         const expandedKeys = [code];
         generateList([resultData], orgList);
-        let { selectedOrg = {} } = yield select(state => state.orgMgr);
-        if (Object.keys(selectedOrg).length !== 0) {
-          selectedOrg = getSelectedOrg(selectedOrg, orgList);
-          const { operType = '' } = payload;
+        const {selectedOrg = {}} = yield select(state => state.orgMgr);
+        if (Object.keys(selectedOrg).length > 0) {
+          const {operType = ''} = payload;
           if (operType === 'ADD_USER_ORG') {
             expandedKeys.push(selectedOrg.code);
           }

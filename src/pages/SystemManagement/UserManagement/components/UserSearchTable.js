@@ -1,13 +1,15 @@
-import React from 'react';
-import { Badge, Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
+import React, {Fragment} from 'react';
+import {Badge, Button, Card, Col, Icon, Modal, Popover, Row, Table, Tooltip} from 'antd';
 // import MediaQuery from 'react-responsive';
-import { formatMessage } from 'umi/locale';
+import {formatMessage} from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen'*;
-import { connect } from 'dva';
+import {connect} from 'dva';
 import router from 'umi/router';
 import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '../../../../utils/PrivilegeUtil';
+
+const {confirm} = Modal;
 
 const colProps = {
   xs: 24,
@@ -16,7 +18,7 @@ const colProps = {
   xl: 6,
 };
 
-@connect(({ userMgr, loading }) => ({
+@connect(({userMgr, loading}) => ({
   userMgr,
   loading: loading.effects['userMgr/queryUsersByCondition'],
 }))
@@ -110,68 +112,146 @@ class Index extends React.PureComponent {
         },
       },
       {
-        title: this.showTableTitle(formatMessage({ id: 'ROLE' })),
+        title: this.showTableTitle(formatMessage({id: 'ROLE'})),
         width: '20%',
         render: (text, record) => {
-          const { userRoles } = record;
+          const {userRoles} = record;
           return this.getUserRoles(userRoles);
         },
       },
       {
-        title: this.showTableTitle(formatMessage({ id: 'OPERATION' })),
+        title: this.showTableTitle(formatMessage({id: 'OPERATION'})),
         width: '10%',
-        render: (text, record) => {
-          return (
-            <div>
-              <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
-                <Icon
-                  type="eye"
-                  onClick={() => {
-                    this.detail(record);
-                  }}
-                />
-              </Tooltip>
-              <Tooltip title={formatMessage({ id: 'app.settings.security.modify' })}>
-                <Icon
-                  type="edit"
-                  onClick={() => {
-                    this.edit(record);
-                  }}
-                />
-              </Tooltip>
-              <Tooltip
-                title={formatMessage({
-                  id: record.status !== '99' ? 'COMMON_DISABLE' : 'COMMON_ENABLE',
-                })}
-              >
-                <span
-                  style={{ fontSize: '14px' }}
-                  onClick={() => {
-                    this.oprUserStatus(record);
-                  }}
-                  className={
-                    record.status !== '99' ? 'iconfont icon-ban' : 'iconfont icon-circle-o'
-                  }
-                />
-              </Tooltip>
-            </div>
-          );
-        },
+        render: (text, record) => this.getOperations(record),
       },
     ];
   }
 
   componentDidMount() {
-    const { dispatch } = this.props;
+    const {dispatch} = this.props;
     dispatch({
       type: 'userMgr/queryUsersByCondition',
       payload: {},
     });
   }
 
-  // sendEmail = record => {
-  //
-  // };
+  getOperations = record => {
+    const {status = ''} = record;
+    if (status === '01') {
+      return (
+        <Fragment>
+          <Tooltip title={formatMessage({id: 'COMMON_DETAIL'})}>
+            <Icon
+              type="eye"
+              onClick={() => {
+                this.detail(record);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title={formatMessage({id: 'COMMON_EMAIL'})}>
+            <Icon
+              type="mail"
+              onClick={() => {
+                this.sendEmail(record);
+              }}
+            />
+          </Tooltip>
+          <Popover
+            placement="bottomRight"
+            content={this.getMoreContent(record)}
+            overlayClassName={styles.popClassName}
+          >
+            <Icon type="more"/>
+          </Popover>
+        </Fragment>
+      );
+    }
+
+    return (
+      <Fragment>
+        <Tooltip title={formatMessage({id: 'COMMON_DETAIL'})}>
+          <Icon
+            type="eye"
+            onClick={() => {
+              this.detail(record);
+            }}
+          />
+        </Tooltip>
+        <Tooltip title={formatMessage({id: 'app.settings.security.modify'})}>
+          <Icon
+            type="edit"
+            onClick={() => {
+              this.edit(record);
+            }}
+          />
+        </Tooltip>
+        <Tooltip
+          title={formatMessage({
+            id: record.status !== '99' ? 'COMMON_DISABLE' : 'COMMON_ENABLE',
+          })}
+        >
+          <span
+            style={{fontSize: '14px'}}
+            onClick={() => {
+              this.oprUserStatus(record);
+            }}
+            className={record.status !== '99' ? 'iconfont icon-ban' : 'iconfont icon-circle-o'}
+          />
+        </Tooltip>
+      </Fragment>
+    );
+  };
+
+  getMoreContent = record => {
+    return (
+      <Row type="flex" justify="space-around" className={styles.contentMenuRow}>
+        <Col span={24}>
+          <div className={styles.contentMenuCol} onClick={() => this.oprUserStatus(record)}>
+            <Tooltip
+              title={formatMessage({
+                id: record.status !== '99' ? 'COMMON_DISABLE' : 'COMMON_ENABLE',
+              })}
+            >
+              <span
+                style={{fontSize: '14px', paddingRight: '15px'}}
+                className={record.status !== '99' ? 'iconfont icon-ban' : 'iconfont icon-circle-o'}
+              />
+              {formatMessage({
+                id: record.status !== '99' ? 'COMMON_DISABLE' : 'COMMON_ENABLE',
+              })}
+            </Tooltip>
+          </div>
+        </Col>
+        <Col span={24}>
+          <div className={styles.contentMenuCol} onClick={() => this.edit(record)}>
+            <Tooltip title={formatMessage({id: 'app.settings.security.modify'})}>
+              <Icon style={{fontSize: '14px', paddingRight: '15px'}} type="edit"/>
+              {formatMessage({id: 'COMMON_EDIT'})}
+            </Tooltip>
+          </div>
+        </Col>
+      </Row>
+    );
+  };
+
+  sendEmail = record => {
+    const {dispatch} = this.props;
+    const {userCode = ''} = record;
+    confirm({
+      title: formatMessage({id: 'COMMON_EMAIL'}),
+      content: formatMessage({id: 'SEND_EMAIL_CONTENT'}).replace('${userCode}', userCode),
+      okText: formatMessage({id: 'COMMON_YES'}),
+      cancelText: formatMessage({id: 'COMMON_NO'}),
+      onOk() {
+        dispatch({
+          type: 'userMgr/sendEmail',
+          payload: {
+            userCode,
+          },
+        });
+      },
+    });
+  };
 
   oprUserStatus = userInfo => {
     const { dispatch } = this.props;
@@ -312,7 +392,7 @@ class Index extends React.PureComponent {
     const tableOpts = {
       size: 'small',
       bordered: false,
-      scroll: { x: 750 },
+      scroll: {x: 960},
     };
     const pagination = {
       current: currentPage,

@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Icon, Collapse, Form } from 'antd';
+import { Collapse, Form, Icon } from 'antd';
 import { connect } from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
-import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/AttractionToCart';
-import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
 @connect(({ global, ticketBookingAndPayMgr }) => ({
@@ -12,13 +10,9 @@ import { arrToString, calculateTicketPrice } from '@/pages/TicketManagement/util
   ticketBookingAndPayMgr,
 }))
 class PackageTicketingCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   operateButtonEvent = (opType, orderIndex, offerIndex) => {
     if (opType === 'detail' && offerIndex !== null) {
-      console.log('detail');
+      // console.log('detail');
     }
   };
 
@@ -50,12 +44,12 @@ class PackageTicketingCollapse extends Component {
         >
           {packageOrderData.map((orderData, orderIndex) => (
             <OrderItemCollapse
-              key={`PackageOrderItemCollapse_${orderIndex}`}
+              key={`PackageOrderItemCollapse_${Math.random()}`}
               form={form}
               orderIndex={orderIndex}
               orderData={orderData}
-              operateButtonEvent={(opType, orderIndex, onceAPirateOrder) => {
-                this.operateButtonEvent(opType, orderIndex, onceAPirateOrder);
+              operateButtonEvent={(opType, orderIndexParam, onceAPirateOrder) => {
+                this.operateButtonEvent(opType, orderIndexParam, onceAPirateOrder);
               }}
               companyType={companyType}
             />

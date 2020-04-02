@@ -14,6 +14,7 @@ import SendETicket from './components/SendETicket';
 import Update from './components/Update';
 import ExportVID from './components/ExPortVID';
 import Detail from './components/Detail';
+import PaymentModal from './components/PaymentModal';
 import PaginationComp from './components/PaginationComp';
 
 @connect(({ queryOrderMgr, loading, global }) => ({
@@ -113,6 +114,11 @@ class QueryOrder extends Component {
       dataIndex: 'status',
       key: 'status',
       width: '100px',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: (
@@ -543,6 +549,44 @@ class QueryOrder extends Component {
     return true;
   };
 
+  paymentButtonDisable = (selectedBookings) => {
+
+    const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
+    } = this.props;
+
+    let paymentButtonDisable = true;
+    if (companyType && companyType==='01' && selectedBookings.length === 1) {
+      const { transType, status } = selectedBookings[0];
+      if (transType === 'booking' && status === 'WaitingForPaying') {
+        return false;
+      }
+    }
+    return paymentButtonDisable;
+
+  };
+
+  showPaymentModal = (selectedBookings) => {
+
+    if (selectedBookings.length === 1) {
+      const selectedBooking = selectedBookings[0];
+      // console.log(selectedBooking);
+      const { dispatch } = this.props;
+      dispatch({
+        type: 'queryOrderPaymentMgr/save',
+        payload: {
+          paymentModalVisible: true,
+          selectedBooking,
+          bookDetail: selectedBooking,
+          bookingNo: selectedBooking.bookingNo
+        },
+      });
+    }
+
+  };
+
   render() {
     const {
       pageLoading,
@@ -591,6 +635,7 @@ class QueryOrder extends Component {
         <SendETicket />
         <Update />
         <Detail />
+        <PaymentModal />
         <div>
           <MediaQuery minWidth={SCREEN.screenSm}>
             <BreadcrumbComp title={title} />
@@ -616,13 +661,15 @@ class QueryOrder extends Component {
                     >
                       {formatMessage({ id: 'REFUND' })}
                     </Button>
+                    {userType === '02' &&
                     <Button
                       disabled={this.ifCanApprove(selectedBookings, userType)}
                       className={styles.buttonStyle}
                       onClick={() => this.approveOrder(selectedBookings)}
                     >
-                      {formatMessage({ id: 'APPROVE' })}
+                      {formatMessage({id: 'APPROVE'})}
                     </Button>
+                    }
                     <Button
                       disabled={this.ifCanExportVID(selectedBookings)}
                       className={styles.buttonStyle}
@@ -657,6 +704,13 @@ class QueryOrder extends Component {
                       onClick={() => this.openDetailDrawer(selectedBookings)}
                     >
                       {formatMessage({ id: 'ORDER_DETAIL' })}
+                    </Button>
+                    <Button
+                      disabled={this.paymentButtonDisable(selectedBookings, userType)}
+                      className={styles.buttonStyle}
+                      onClick={() => this.showPaymentModal(selectedBookings)}
+                    >
+                      {formatMessage({ id: 'PAYMENT' })}
                     </Button>
                   </Col>
                   <Col span={24}>

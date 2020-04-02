@@ -31,11 +31,18 @@ const mapStateToProps = store => {
 @Form.create()
 @connect(mapStateToProps)
 class InvitationComp extends PureComponent {
+  componentDidMount() {
+    const { form } = this.props;
+    form.resetFields();
+  }
+
   onClose = () => {
-    const { dispatch, taId, searchList, searchForm } = this.props;
+    const { dispatch, form, taId, searchList, searchForm } = this.props;
+    form.resetFields();
     dispatch({
       type: 'generateInvitation/save',
       payload: {
+        emailList: [],
         invitationVisible: false,
       },
     });
@@ -62,6 +69,19 @@ class InvitationComp extends PureComponent {
       emailList.map(item => emailValList.push(`${item.email}`));
     }
     return emailValList;
+  };
+
+  compareToEmailList = (rule, value, callback) => {
+    if (!isNvl(value) && value.length > 0) {
+      let checkEmail = false;
+      value.forEach(n => {
+        const _emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        checkEmail = !_emailRegex.test(n);
+      });
+      if (checkEmail) {
+        callback(formatMessage({ id: 'INPUT_EMAIL' }));
+      } else callback();
+    } else callback();
   };
 
   sendToChange = value => {
@@ -92,7 +112,9 @@ class InvitationComp extends PureComponent {
         message.warn(formatMessage({ id: 'SEND_EMAIL_IS_NULL' }), 10);
         return;
       }
-      dispatch({ type: 'generateInvitation/fetchSendInvitation' });
+      dispatch({ type: 'generateInvitation/fetchSendInvitation' }).then(flag => {
+        if (flag) form.resetFields();
+      });
     });
   };
 
@@ -124,7 +146,10 @@ class InvitationComp extends PureComponent {
                 >
                   {getFieldDecorator('emailList', {
                     initialValue: this.getEmailVal(emailList) || [],
-                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'REQUIRED' }) },
+                      { validator: this.compareToEmailList },
+                    ],
                   })(
                     <Select
                       mode="tags"

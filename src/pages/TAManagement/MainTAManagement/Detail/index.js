@@ -65,7 +65,7 @@ class DetailToTA extends PureComponent {
     const {
       dispatch,
       location: {
-        query: { taId = '111111' },
+        query: { taId },
       },
     } = this.props;
     dispatch({

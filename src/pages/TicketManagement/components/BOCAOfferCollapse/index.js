@@ -1,12 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Icon, Collapse } from 'antd';
 import styles from './index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
 
-class BOCAOfferCollapse extends Component {
-  constructor(props) {
-    super(props);
-  }
+class BOCAOfferCollapse extends React.PureComponent {
 
   render() {
     const { companyType = '01', quantity = 0, pricePax = 0 } = this.props;

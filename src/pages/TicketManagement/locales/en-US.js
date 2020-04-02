@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default {
   FUNCTION_NAME: 'Ticket Management',
@@ -56,14 +55,16 @@ export default {
   SEND_ETICKET: 'Send e-Ticket',
   UPDATE: 'Update',
   ORDER_DETAIL: 'Order Detail',
+  PAYMENT: 'Payment',
   DETAIL: 'DETAIL',
   OFFER_NAME_TITLE: 'OFFER NAME',
   DELIVERY_INFORMATION: 'DELIVERY INFORMATION',
-  COUNTRY_OF_RESIDENCE_ORIGIN: 'Country of Residence/Origin',
+  COUNTRY_OF_RESIDENCE: 'Country of Residence',
   TA_REFERENCE_NO: 'TA Reference No.',
   GUEST_FIRST_NAME: 'Guest First Name',
   GUEST_LAST_NAME: 'Guest Last Name',
   CUSTOMER_CONTACT_NO: 'Customer Contact No.',
+  CUSTOMER_EMAIL_ADDRESS: 'Customer Email Address',
   NO: 'No.',
   VID_CODE: 'VID Code',
   OFFER_NAME: 'Offer Name',
