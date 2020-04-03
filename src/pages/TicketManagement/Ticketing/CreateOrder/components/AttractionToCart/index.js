@@ -13,15 +13,16 @@ import {
   message,
 } from 'antd';
 import moment from 'moment';
-import { isNullOrUndefined, isNull } from 'util';
+import { isNullOrUndefined } from 'util';
 import { calculateProductPrice, calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 @Form.create()
-@connect(({ global }) => ({
+@connect(({ global, loading }) => ({
   global,
+  checkLoading: loading.effects['ticketMgr/checkInventory'],
 }))
 class ToCart extends Component {
   constructor(props) {
@@ -142,6 +143,8 @@ class ToCart extends Component {
         }).then(res => {
           if (res) {
             order();
+          } else {
+            message.warning('Out of stock.');
           }
         });
       }
@@ -186,7 +189,7 @@ class ToCart extends Component {
     return max - allOtherTickets;
   };
 
-  toShowTermsAndCondtion = value => {
+  toShowTermsAndCondition = value => {
     this.setState({
       showTermsAndCondition: value,
     });
@@ -307,7 +310,7 @@ class ToCart extends Component {
             overflow: 'auto',
           }}
           className={styles.container}
-          onClose={() => this.toShowTermsAndCondtion(false)}
+          onClose={() => this.toShowTermsAndCondition(false)}
         >
           <div className={styles.termsAndConditionTitle}>Terms and Condition</div>
           <div className={styles.termsAndConditionText}>{termsAndCondition}</div>
@@ -672,7 +675,7 @@ class ToCart extends Component {
                 checked={checkTermsAndCondition}
                 onChange={this.changeCheckTermsAndCondtion}
               />
-              <span className={styles.TC} onClick={() => this.toShowTermsAndCondtion(true)}>
+              <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
                 Terms and Conditions &gt;
               </span>
             </div>
