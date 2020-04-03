@@ -13,7 +13,7 @@ import {
   message,
 } from 'antd';
 import moment from 'moment';
-import { isNullOrUndefined } from 'util';
+import { isNullOrUndefined, isNull } from 'util';
 import { calculateProductPrice, calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 
@@ -67,11 +67,18 @@ class ToCart extends Component {
   order = () => {
     const { checkTermsAndCondition } = this.state;
     const {
+      dispatch,
       form,
       order,
       attractionProduct = [],
-      detail: { numOfGuests, productGroup = [] },
-      deliverInfomation: {
+      detail: {
+        offerQuantity,
+        dateOfVisit,
+        numOfGuests,
+        productGroup = [],
+        offerBasicInfo: { offerNo },
+      },
+      deliverInformation: {
         country,
         customerEmailAddress,
         customerContactNo,
@@ -87,6 +94,7 @@ class ToCart extends Component {
       guestFirstName,
     };
     let offerConstrain;
+    const orderProducts = [];
     productGroup.forEach(item => {
       if (item.productType === 'Attraction') {
         item.productGroup.forEach(item2 => {
@@ -97,9 +105,15 @@ class ToCart extends Component {
       }
     });
     attractionProduct.forEach((item, index) => {
-      const { ticketNumber } = item;
+      const { ticketNumber, productNo } = item;
       const ticketNumberLabel = `attractionProduct${index}`;
       data[ticketNumberLabel] = ticketNumber;
+      if (!isNullOrUndefined(ticketNumber)) {
+        orderProducts.push({
+          ticketNumber,
+          productNo,
+        });
+      }
     });
     form.setFieldsValue(data);
     form.validateFields(err => {
@@ -117,7 +131,19 @@ class ToCart extends Component {
           message.warning('Please accept the terms and condition before adding to cart.');
           return false;
         }
-        order();
+        dispatch({
+          type: 'ticketMgr/checkInventory',
+          payload: {
+            offerNo,
+            dateOfVisit,
+            offerQuantity,
+            orderProducts,
+          },
+        }).then(res => {
+          if (res) {
+            order();
+          }
+        });
       }
     });
   };
@@ -219,7 +245,7 @@ class ToCart extends Component {
       ticketType,
       description,
       eventSession,
-      deliverInfomation: {
+      deliverInformation: {
         country,
         taNo,
         guestFirstName,

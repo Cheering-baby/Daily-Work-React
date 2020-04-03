@@ -93,3 +93,52 @@ export function calculateAllProductPrice(products = [], selectRuleId) {
   });
   return price.toFixed(2);
 }
+
+export function checkInventory(detail, offerQuantity, orderProducts = []) {
+  const { productGroup, inventories } = detail;
+  const { available } = inventories[0];
+  const availableNew = available === -1 ? 100000000 : available;
+  let enough = true;
+  let offerConstrain;
+  productGroup.forEach(item => {
+    if (item.productType === 'Attraction') {
+      item.productGroup.forEach(item2 => {
+        if (item2.groupName === 'Attraction') {
+          offerConstrain = item2.choiceConstrain;
+          if (offerConstrain === 'Fixed') {
+            if (offerQuantity > availableNew) {
+              enough = false;
+            }
+            item2.products.forEach(item3 => {
+              const { priceRule, needChoiceCount } = item3;
+              const { productPrice } = priceRule[0];
+              const { productInventory } = productPrice[0];
+              const productInventoryNew = productInventory === -1 ? 100000000 : productInventory;
+              if (offerQuantity * needChoiceCount > productInventoryNew) {
+                enough = false;
+              }
+            });
+          } else {
+            orderProducts.forEach(orderProductItem => {
+              const { ticketNumber, productNo } = orderProductItem;
+              item2.products.forEach(item3 => {
+                if (item3.productNo === productNo) {
+                  const { priceRule, needChoiceCount } = item3;
+                  const { productPrice } = priceRule[0];
+                  const { productInventory } = productPrice[0];
+                  const productInventoryNew =
+                    productInventory === -1 ? 100000000 : productInventory;
+                  if (ticketNumber * needChoiceCount > productInventoryNew) {
+                    enough = false;
+                  }
+                }
+              });
+            });
+          }
+        }
+      });
+    }
+  });
+
+  return enough;
+}

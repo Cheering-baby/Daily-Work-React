@@ -148,7 +148,7 @@ class DolphinIslandOffer extends Component {
       payload: {
         showDetailModal: false,
         showToCartModal: false,
-        deliverInfomation: {},
+        deliverInformation: {},
       },
     });
   };
@@ -156,14 +156,14 @@ class DolphinIslandOffer extends Component {
   changeDeliveryInformation = (type, value) => {
     const {
       dispatch,
-      ticketMgr: { deliverInfomation = {} },
+      ticketMgr: { deliverInformation = {} },
     } = this.props;
-    const deliverInfomationCopy = JSON.parse(JSON.stringify(deliverInfomation));
-    deliverInfomationCopy[type] = value;
+    const deliverInformationCopy = JSON.parse(JSON.stringify(deliverInformation));
+    deliverInformationCopy[type] = value;
     dispatch({
       type: 'ticketMgr/save',
       payload: {
-        deliverInfomation: deliverInfomationCopy,
+        deliverInformation: deliverInformationCopy,
       },
     });
   };
@@ -172,7 +172,7 @@ class DolphinIslandOffer extends Component {
     const {
       dispatch,
       ticketMgr: {
-        deliverInfomation = {},
+        deliverInformation = {},
         attractionProduct = [],
         detail,
         detail: { dateOfVisit, numOfGuests },
@@ -198,7 +198,7 @@ class DolphinIslandOffer extends Component {
         },
         orderInfo,
         offerInfo: { ...detail },
-        deliveryInfo: deliverInfomation,
+        deliveryInfo: deliverInformation,
       };
       dispatch({
         type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
@@ -225,7 +225,7 @@ class DolphinIslandOffer extends Component {
         },
         orderInfo,
         offerInfo: { ...detail },
-        deliveryInfo: deliverInfomation,
+        deliveryInfo: deliverInformation,
       };
       dispatch({
         type: 'ticketOrderCartMgr/settingPackageTicketOrderData',
@@ -250,7 +250,7 @@ class DolphinIslandOffer extends Component {
         dolphinIslandOfferList = [],
         countrys = [],
         eventSession,
-        deliverInfomation = {},
+        deliverInformation = {},
       },
       global: {
         userCompanyInfo: { companyType },
@@ -437,7 +437,7 @@ class DolphinIslandOffer extends Component {
             ticketType={ticketType}
             description={description}
             eventSession={eventSession}
-            deliverInfomation={deliverInfomation}
+            deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
           />
         ) : null}

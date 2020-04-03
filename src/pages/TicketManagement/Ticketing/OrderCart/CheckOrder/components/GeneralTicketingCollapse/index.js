@@ -102,7 +102,7 @@ class GeneralTicketingCollapse extends Component {
           dateOfVisit: queryInfo.dateOfVisit,
           numOfGuests: queryInfo.numOfGuests,
         };
-        const deliverInfomation = { ...editOrderOffer.deliveryInfo };
+        const deliverInformation = { ...editOrderOffer.deliveryInfo };
         dispatch({
           type: 'ticketOrderCartMgr/save',
           payload: {
@@ -111,12 +111,12 @@ class GeneralTicketingCollapse extends Component {
             offerIndex,
             showBundleToCart: true,
             bundleOfferDetail,
-            deliverInfomation,
+            deliverInformation,
           },
         });
       } else {
         const attractionProduct = [{ ...editOrderOffer.orderInfo[0].productInfo }];
-        const deliverInfomation = { ...editOrderOffer.deliveryInfo };
+        const deliverInformation = { ...editOrderOffer.deliveryInfo };
         dispatch({
           type: 'ticketOrderCartMgr/save',
           payload: {
@@ -126,7 +126,7 @@ class GeneralTicketingCollapse extends Component {
             offerIndex,
             editOrderOffer,
             attractionProduct,
-            deliverInfomation,
+            deliverInformation,
           },
         });
       }
@@ -219,14 +219,14 @@ class GeneralTicketingCollapse extends Component {
   changeDeliveryInformation = (type, value) => {
     const {
       dispatch,
-      ticketOrderCartMgr: { deliverInfomation = {} },
+      ticketOrderCartMgr: { deliverInformation = {} },
     } = this.props;
-    const deliverInfomationCopy = JSON.parse(JSON.stringify(deliverInfomation));
-    deliverInfomationCopy[type] = value;
+    const deliverInformationCopy = JSON.parse(JSON.stringify(deliverInformation));
+    deliverInformationCopy[type] = value;
     dispatch({
       type: 'ticketOrderCartMgr/save',
       payload: {
-        deliverInfomation: deliverInfomationCopy,
+        deliverInformation: deliverInformationCopy,
       },
     });
   };
@@ -237,7 +237,7 @@ class GeneralTicketingCollapse extends Component {
       ticketOrderCartMgr: {
         orderIndex,
         offerIndex,
-        deliverInfomation = {},
+        deliverInformation = {},
         attractionProduct = [],
         editOrderOffer,
       },
@@ -263,7 +263,7 @@ class GeneralTicketingCollapse extends Component {
       },
       orderInfo,
       offerInfo: { ...detail },
-      deliveryInfo: deliverInfomation,
+      deliveryInfo: deliverInformation,
     };
     dispatch({
       type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
@@ -282,7 +282,7 @@ class GeneralTicketingCollapse extends Component {
       ticketOrderCartMgr: {
         orderIndex,
         offerIndex,
-        deliverInfomation = {},
+        deliverInformation = {},
         bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
       },
     } = this.props;
@@ -311,7 +311,7 @@ class GeneralTicketingCollapse extends Component {
         numOfGuests,
       },
       orderInfo,
-      deliveryInfo: deliverInfomation,
+      deliveryInfo: deliverInformation,
     };
     dispatch({
       type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
@@ -366,7 +366,7 @@ class GeneralTicketingCollapse extends Component {
         editOrderOffer = {},
         generalTicketOrderData = [],
         attractionProduct = [],
-        deliverInfomation = {},
+        deliverInformation = {},
         bundleOfferDetail = {},
       },
       form,
@@ -437,7 +437,7 @@ class GeneralTicketingCollapse extends Component {
             priceRuleIndex={0}
             countrys={countrys}
             order={this.order}
-            deliverInfomation={deliverInfomation}
+            deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
             initialAcceptTermsAndConditions
           />
@@ -450,7 +450,7 @@ class GeneralTicketingCollapse extends Component {
             order={this.bundleOrder}
             formatInputValue={this.formatInputValue}
             changeTicketNumber={this.changeBundleOfferNumber}
-            deliverInfomation={deliverInfomation}
+            deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
           />
         ) : null}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Row, Col, Button } from 'antd';
+import { Drawer, Row, Col } from 'antd';
 import styles from './index.less';
 
 @connect(({ callCenterBookingAttraction }) => ({

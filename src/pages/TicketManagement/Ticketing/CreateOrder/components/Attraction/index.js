@@ -120,7 +120,7 @@ class Attraction extends Component {
         showToCartModal: false,
         showBundleToCart: false,
         showBundleDetailModal: false,
-        deliverInfomation: {},
+        deliverInformation: {},
       },
     });
   };
@@ -216,14 +216,14 @@ class Attraction extends Component {
   changeDeliveryInformation = (type, value) => {
     const {
       dispatch,
-      ticketMgr: { deliverInfomation = {} },
+      ticketMgr: { deliverInformation = {} },
     } = this.props;
-    const deliverInfomationCopy = JSON.parse(JSON.stringify(deliverInfomation));
-    deliverInfomationCopy[type] = value;
+    const deliverInformationCopy = JSON.parse(JSON.stringify(deliverInformation));
+    deliverInformationCopy[type] = value;
     dispatch({
       type: 'ticketMgr/save',
       payload: {
-        deliverInfomation: deliverInfomationCopy,
+        deliverInformation: deliverInformationCopy,
       },
     });
   };
@@ -232,7 +232,7 @@ class Attraction extends Component {
     const {
       dispatch,
       ticketMgr: {
-        deliverInfomation = {},
+        deliverInformation = {},
         attractionProduct = [],
         detail,
         detail: { dateOfVisit, numOfGuests, priceRuleId, offerQuantity },
@@ -264,7 +264,7 @@ class Attraction extends Component {
       },
       orderInfo,
       offerInfo: { ...detail, selectRuleId: priceRuleId },
-      deliveryInfo: deliverInfomation,
+      deliveryInfo: deliverInformation,
     };
     dispatch({
       type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
@@ -280,7 +280,7 @@ class Attraction extends Component {
     const {
       dispatch,
       ticketMgr: {
-        deliverInfomation = {},
+        deliverInformation = {},
         attractionProduct = [],
         detail,
         detail: { dateOfVisit, numOfGuests, priceRuleId, productGroup = [] },
@@ -321,7 +321,7 @@ class Attraction extends Component {
         },
         orderInfo,
         offerInfo: { ...detail, selectRuleId: priceRuleId },
-        deliveryInfo: deliverInfomation,
+        deliveryInfo: deliverInformation,
       };
       dispatch({
         type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
@@ -352,7 +352,7 @@ class Attraction extends Component {
         },
         orderInfo,
         offerInfo: { ...detail, selectRuleId: priceRuleId },
-        deliveryInfo: deliverInfomation,
+        deliveryInfo: deliverInformation,
       };
       dispatch({
         type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
@@ -369,7 +369,7 @@ class Attraction extends Component {
     const {
       dispatch,
       ticketMgr: {
-        deliverInfomation = {},
+        deliverInformation = {},
         bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
       },
     } = this.props;
@@ -398,7 +398,7 @@ class Attraction extends Component {
         numOfGuests,
       },
       orderInfo,
-      deliveryInfo: deliverInfomation,
+      deliveryInfo: deliverInformation,
     };
     dispatch({
       type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
@@ -419,7 +419,7 @@ class Attraction extends Component {
         detail,
         showToCartModal,
         countrys,
-        deliverInfomation = {},
+        deliverInformation = {},
         showBundleToCart,
         bundleOfferDetail = {},
         showBundleDetailModal,
@@ -511,7 +511,7 @@ class Attraction extends Component {
             priceRuleIndex={0}
             countrys={countrys}
             order={this.order}
-            deliverInfomation={deliverInfomation}
+            deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
             changeFixedOfferNumbers={this.changeFixedOfferNumbers}
             modify={false}
@@ -525,7 +525,7 @@ class Attraction extends Component {
             order={this.bundleOrder}
             formatInputValue={this.formatInputValue}
             changeTicketNumber={this.changeBundleOfferNumber}
-            deliverInfomation={deliverInfomation}
+            deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
             modify={false}
           />

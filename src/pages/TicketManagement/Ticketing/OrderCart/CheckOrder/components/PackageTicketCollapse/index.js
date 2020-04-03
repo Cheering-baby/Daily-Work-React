@@ -49,7 +49,7 @@ class PackageTicketingCollapse extends Component {
       const attractionProduct = editOrderOffer.orderInfo.map(orderInfo => {
         return Object.assign({}, orderInfo.productInfo);
       });
-      const deliverInfomation = { ...editOrderOffer.deliveryInfo };
+      const deliverInformation = { ...editOrderOffer.deliveryInfo };
       dispatch({
         type: 'ticketOrderCartMgr/save',
         payload: {
@@ -58,7 +58,7 @@ class PackageTicketingCollapse extends Component {
           orderIndex: offerIndex,
           editOrderOffer,
           attractionProduct,
-          deliverInfomation,
+          deliverInformation,
         },
       });
     }
@@ -139,14 +139,14 @@ class PackageTicketingCollapse extends Component {
   changeDeliveryInformation = (type, value) => {
     const {
       dispatch,
-      ticketOrderCartMgr: { deliverInfomation = {} },
+      ticketOrderCartMgr: { deliverInformation = {} },
     } = this.props;
-    const deliverInfomationCopy = JSON.parse(JSON.stringify(deliverInfomation));
-    deliverInfomationCopy[type] = value;
+    const deliverInformationCopy = JSON.parse(JSON.stringify(deliverInformation));
+    deliverInformationCopy[type] = value;
     dispatch({
       type: 'ticketOrderCartMgr/save',
       payload: {
-        deliverInfomation: deliverInfomationCopy,
+        deliverInformation: deliverInformationCopy,
       },
     });
   };
@@ -156,7 +156,7 @@ class PackageTicketingCollapse extends Component {
       dispatch,
       ticketOrderCartMgr: {
         orderIndex,
-        deliverInfomation = {},
+        deliverInformation = {},
         attractionProduct = [],
         editOrderOffer,
       },
@@ -182,7 +182,7 @@ class PackageTicketingCollapse extends Component {
       },
       orderInfo,
       offerInfo: { ...detail },
-      deliveryInfo: deliverInfomation,
+      deliveryInfo: deliverInformation,
     };
     dispatch({
       type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
@@ -206,7 +206,7 @@ class PackageTicketingCollapse extends Component {
         editOrderOffer = {},
         packageOrderData = [],
         attractionProduct = [],
-        deliverInfomation = {},
+        deliverInformation = {},
       },
       form,
     } = this.props;
@@ -270,7 +270,7 @@ class PackageTicketingCollapse extends Component {
             priceRuleIndex={0}
             countrys={countrys}
             order={this.order}
-            deliverInfomation={deliverInfomation}
+            deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
           />
         )}

@@ -1,8 +1,9 @@
-import {message} from 'antd';
+import { message } from 'antd';
 import moment from 'moment';
-import {queryCountry, queryOfferDetail, queryOfferList} from '../services/ticketCommon';
-
-import {getSessionTimeList} from '../utils/ticketOfferInfoUtil';
+import { isNullOrUndefined } from 'util';
+import { queryCountry, queryOfferDetail, queryOfferList } from '../services/ticketCommon';
+import { getSessionTimeList } from '../utils/ticketOfferInfoUtil';
+import { checkInventory } from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
 export default {
@@ -205,7 +206,10 @@ export default {
           const responseDetail = yield call(queryOfferDetail, queryOfferDetailReqParam);
           if (responseDetail && responseDetail.success) {
             const {
-              data: {resultCode: queryOfferDetailResultCode, resultMsg: queryOfferDetailResultMsg},
+              data: {
+                resultCode: queryOfferDetailResultCode,
+                resultMsg: queryOfferDetailResultMsg,
+              },
             } = responseDetail;
             if (queryOfferDetailResultCode !== '0') {
               message.error(queryOfferDetailResultMsg);
@@ -236,12 +240,9 @@ export default {
     },
 
     *queryOAPOfferList({ payload }, { call, put, select }) {
-      const {
-        orderIndex,
-        onceAPirateOrder,
-        dateOfVisit,
-        themeParkChooseList = [],
-      } = yield select(state => state.ticketMgr);
+      const { orderIndex, onceAPirateOrder, dateOfVisit, themeParkChooseList = [] } = yield select(
+        state => state.ticketMgr
+      );
 
       yield put({
         type: 'save',
@@ -285,7 +286,10 @@ export default {
           const responseDetail = yield call(queryOfferDetail, queryOfferDetailReqParam);
           if (responseDetail && responseDetail.success) {
             const {
-              data: {resultCode: queryOfferDetailResultCode, resultMsg: queryOfferDetailResultMsg},
+              data: {
+                resultCode: queryOfferDetailResultCode,
+                resultMsg: queryOfferDetailResultMsg,
+              },
             } = responseDetail;
             if (queryOfferDetailResultCode !== '0') {
               message.error(queryOfferDetailResultMsg);
@@ -375,7 +379,10 @@ export default {
               data: { result: resultDetail },
             } = responseDetail;
             const {
-              data: {resultCode: queryOfferDetailResultCode, resultMsg: queryOfferDetailResultMsg},
+              data: {
+                resultCode: queryOfferDetailResultCode,
+                resultMsg: queryOfferDetailResultMsg,
+              },
             } = responseDetail;
             if (queryOfferDetailResultCode !== '0') {
               message.error(queryOfferDetailResultMsg);
@@ -453,12 +460,15 @@ export default {
                 const {
                   detail: { offerTagList = [], offerNo, offerBundle = [] },
                 } = item3;
+                const offerBundleFilter = offerBundle.filter(
+                  offerBundleItem => !isNullOrUndefined(offerBundleItem.bundleName)
+                );
                 offerTagList.forEach(item4 => {
                   const { tagName } = item4;
                   if (tag === tagName) {
                     item3.id = offerNo;
-                    if (offerBundle.length > 0) {
-                      const { bundleName, bundleLabel } = offerBundle[0];
+                    if (offerBundleFilter.length > 0) {
+                      const { bundleName, bundleLabel } = offerBundleFilter[0];
                       if (
                         themeParkList[index].categories[index2].bundleNames.indexOf(bundleName) ===
                         -1
@@ -633,6 +643,24 @@ export default {
       }
     },
 
+    *checkInventory({ payload }, { call }) {
+      const { dateOfVisit, offerNo, offerQuantity, orderProducts = [] } = payload;
+      const response = yield call(queryOfferDetail, {
+        offerNo,
+        validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
+      });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        const { offerProfile } = result;
+        return checkInventory(offerProfile, offerQuantity, orderProducts);
+      }
+      message.error(resultMsg);
+      return false;
+    },
+
     *effectSave({ payload }, { put }) {
       yield put({
         type: 'save',
@@ -656,6 +684,7 @@ export default {
         activeGroup: 0,
         showToCart: false,
         tipVisible: true,
+        deliverInformation: {},
         themeParkList: [
           {
             group: 1,

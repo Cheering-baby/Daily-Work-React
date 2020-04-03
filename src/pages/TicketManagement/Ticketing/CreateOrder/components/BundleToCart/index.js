@@ -71,7 +71,7 @@ class ToCart extends Component {
       order,
       offers = [],
       numOfGuests,
-      deliverInfomation: { country },
+      deliverInformation: { country },
     } = this.props;
     const data = {};
     data.country = country;
@@ -140,7 +140,7 @@ class ToCart extends Component {
       ticketType,
       description,
       offers,
-      deliverInfomation: {
+      deliverInformation: {
         country,
         taNo,
         guestFirstName,

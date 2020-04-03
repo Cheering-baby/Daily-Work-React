@@ -49,7 +49,7 @@ export default {
     showToCartModal: false,
     editOrderOffer: null,
     attractionProduct: [],
-    deliverInfomation: {},
+    deliverInformation: {},
     countrys: [],
     checkOutLoading: false,
     cartId: null,
