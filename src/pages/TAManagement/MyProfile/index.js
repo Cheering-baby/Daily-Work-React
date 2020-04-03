@@ -69,22 +69,23 @@ class MyProfile extends PureComponent {
       type: 'myProfile/doCleanData',
       payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      if (!isNvl(taInfo.companyId)) {
-        dispatch({
-          type: 'taMgr/fetchQueryTaInfo',
-          payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
-        });
-        dispatch({
-          type: 'taMgr/fetchQueryTaMappingInfo',
-          payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
-        });
-        dispatch({
-          type: 'taMgr/fetchQueryTaAccountInfo',
-          payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
-        });
-      }
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
+        if (!isNvl(taInfo.companyId)) {
+          dispatch({
+            type: 'taMgr/fetchQueryTaInfo',
+            payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
+          });
+          dispatch({
+            type: 'taMgr/fetchQueryTaMappingInfo',
+            payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
+          });
+          dispatch({
+            type: 'taMgr/fetchQueryTaAccountInfo',
+            payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
+          });
+        }
+      });
     });
   }
 

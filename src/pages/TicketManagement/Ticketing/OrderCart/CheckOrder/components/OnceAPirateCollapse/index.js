@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
-import {Collapse, Form, Icon, message} from 'antd';
-import {connect} from 'dva';
+import React, { Component } from 'react';
+import { Collapse, Form, Icon, message } from 'antd';
+import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';

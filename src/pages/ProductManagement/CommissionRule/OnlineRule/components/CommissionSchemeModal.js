@@ -5,13 +5,13 @@ import { formatMessage } from 'umi/locale';
 import styles from '../New/index.less';
 
 const drawWidth = 438;
-@connect(({ commissionNew }) => ({
+@connect(({ commissionNew, detail }) => ({
   commissionNew,
+  detail,
 }))
 class AddCommissionSchema extends React.PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
-
     dispatch({
       type: 'commissionNew/fetchOfferList',
       payload: {},
@@ -19,15 +19,11 @@ class AddCommissionSchema extends React.PureComponent {
   }
 
   cancel = () => {
-    const {
-      dispatch,
-      commissionNew: { commissionSchema },
-    } = this.props;
+    const { dispatch, onCancel } = this.props;
+    onCancel();
     dispatch({
       type: 'commissionNew/save',
       payload: {
-        commissionSchema,
-        checked: false,
         addCommissionSchema: false,
       },
     });
@@ -42,8 +38,8 @@ class AddCommissionSchema extends React.PureComponent {
       type: 'commissionNew/save',
       payload: {
         commissionSchema,
-        checked: true,
         addCommissionSchema: false,
+        tieredList: [],
       },
     });
   };

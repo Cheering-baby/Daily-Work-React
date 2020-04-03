@@ -42,12 +42,13 @@ export default {
       });
       const paramList = serialize({
         ...params,
-        lastName: params.lastName !== null ? params.lastName.trim():null,
-        firstName: params.firstName !== null ? params.firstName.trim():null,
-        confirmationNumber: params.confirmationNumber !== null ? params.confirmationNumber.trim():null,
-        bookingId: params.bookingId !== null ? params.bookingId.trim():null,
-        taReferenceNo: params.taReferenceNo !== null ? params.taReferenceNo.trim():null,
-        orderType: params.orderType !== null ? params.orderType.toString():null,
+        lastName: params.lastName !== null ? params.lastName.trim() : null,
+        firstName: params.firstName !== null ? params.firstName.trim() : null,
+        confirmationNumber:
+          params.confirmationNumber !== null ? params.confirmationNumber.trim() : null,
+        bookingId: params.bookingId !== null ? params.bookingId.trim() : null,
+        taReferenceNo: params.taReferenceNo !== null ? params.taReferenceNo.trim() : null,
+        orderType: params.orderType !== null ? params.orderType.toString() : null,
       });
       const response = yield call(queryOrder, paramList);
       if (!response) return false;

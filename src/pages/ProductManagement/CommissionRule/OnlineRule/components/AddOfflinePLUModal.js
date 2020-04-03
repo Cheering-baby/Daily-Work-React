@@ -1,12 +1,13 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Table, Row, Col, Button, Select, Input, Form } from 'antd';
+import { Modal, Table, Row, Col, Button, Select, Input, Form, message } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { isEqual } from 'lodash';
+import { isEqual, cloneDeep } from 'lodash';
 import styles from './AddOnlinePLUModal.less';
 
 const drawWidth = 700;
 const { Option } = Select;
+let checkedList = [];
 @Form.create()
 @connect(({ commissionNew }) => ({
   commissionNew,
@@ -86,6 +87,12 @@ class AddOfflinePLUModal extends React.PureComponent {
   };
 
   onSelectChange = selectedRowKeys => {
+    const {
+      commissionNew: { PLUList },
+    } = this.props;
+    checkedList = cloneDeep(PLUList).filter(item => {
+      return selectedRowKeys.includes(item.commoditySpecId);
+    });
     const { dispatch } = this.props;
     dispatch({
       type: 'commissionNew/saveSelectPLU',
@@ -112,6 +119,33 @@ class AddOfflinePLUModal extends React.PureComponent {
     }
   };
 
+  handleOk = (selectedRowKeys, PLUList) => {
+    const { dispatch } = this.props;
+    if (selectedRowKeys.length > 0) {
+      PLUList = PLUList.concat(checkedList);
+      dispatch({
+        type: 'commissionNew/save',
+        payload: {
+          PLUList,
+          checkedList,
+        },
+      });
+      this.handleCancel();
+    } else {
+      message.warning('Select at least one PLU.');
+    }
+  };
+
+  handleCancel = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'commissionNew/save',
+      payload: {
+        addPLUModal: false,
+      },
+    });
+  };
+
   showTotal(total) {
     return <div>Total {total} items</div>;
   }
@@ -119,11 +153,24 @@ class AddOfflinePLUModal extends React.PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      commissionNew: { addPLUModal, selectedRowKeys, PLUList, currentPage, pageSize, totalSize },
+      commissionNew: {
+        addPLUModal,
+        selectedRowKeys,
+        PLUList,
+        currentPage,
+        pageSize,
+        totalSize,
+        checkedList,
+      },
     } = this.props;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
+      getCheckboxProps: record => {
+        return {
+          disabled: !!checkedList.find(item => item.key === record.key),
+        };
+      },
     };
     const pagination = {
       current: currentPage,
@@ -141,13 +188,17 @@ class AddOfflinePLUModal extends React.PureComponent {
           visible={addPLUModal}
           width={drawWidth}
           title={<span className={styles.title}>{formatMessage({ id: 'ADD_OFFLINE_PLU' })}</span>}
-          onCancel={this.cancel}
+          onCancel={this.handleCancel}
           footer={
             <div>
-              <Button style={{ width: 60 }} onClick={this.OK} type="primary">
+              <Button
+                style={{ width: 60 }}
+                onClick={() => this.handleOk(selectedRowKeys, PLUList)}
+                type="primary"
+              >
                 OK
               </Button>
-              <Button onClick={this.cancel} style={{ width: 60 }} onClick={this.cancel}>
+              <Button onClick={this.handleCancel} style={{ width: 60 }}>
                 Cancel
               </Button>
             </div>
@@ -170,7 +221,6 @@ class AddOfflinePLUModal extends React.PureComponent {
                       placeholder={formatMessage({ id: 'PLU_CODE_AND_DESCRIPTION' })}
                       allowClear
                       onChange={this.changeOfferIdenOrName}
-                      // value={offerIdenOrName}
                       autoComplete="off"
                     />
                   )}
@@ -192,19 +242,17 @@ class AddOfflinePLUModal extends React.PureComponent {
                     style={{ width: '100%' }}
                     // onChange={this.changeFilterStatus}
                   >
-                    <Option value="NEW">NEW</Option>
-                    <Option value="PUBLISH">PUBLISH</Option>
-                    <Option value="UNPUBLISH">UNPUBLISH</Option>
+                    <Option value="Active" key="Active">
+                      ACTIVE
+                    </Option>
+                    <Option value="Inactive" key="Inactive">
+                      INACTIVE
+                    </Option>
                   </Select>
                 )}
               </Col>
               <Col xs={12} sm={12} md={6} className={styles.searchReset}>
-                <Button
-                  style={{ marginRight: 8 }}
-                  htmlType="button"
-                  type="primary"
-                  htmlType="submit"
-                >
+                <Button style={{ marginRight: 8 }} type="primary" htmlType="submit">
                   Search
                 </Button>
                 <Button onClick={this.handleReset}>Reset</Button>

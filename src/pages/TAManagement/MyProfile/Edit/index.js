@@ -58,22 +58,23 @@ class Edit extends PureComponent {
       type: 'myProfile/doCleanData',
       payload: { taId: !isNvl(taId) ? taId : null },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      if (!isNvl(taId)) {
-        dispatch({
-          type: 'taMgr/fetchQueryTaInfo',
-          payload: { taId },
-        });
-        dispatch({
-          type: 'taMgr/fetchQueryTaMappingInfo',
-          payload: { taId },
-        });
-        dispatch({
-          type: 'taMgr/fetchQueryTaAccountInfo',
-          payload: { taId },
-        });
-      }
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
+        if (!isNvl(taId)) {
+          dispatch({
+            type: 'taMgr/fetchQueryTaInfo',
+            payload: { taId },
+          });
+          dispatch({
+            type: 'taMgr/fetchQueryTaMappingInfo',
+            payload: { taId },
+          });
+          dispatch({
+            type: 'taMgr/fetchQueryTaAccountInfo',
+            payload: { taId },
+          });
+        }
+      });
     });
   }
 

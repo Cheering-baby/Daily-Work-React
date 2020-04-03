@@ -1,6 +1,18 @@
 import React from 'react';
 import router from 'umi/router';
-import { Col, Form, Radio, Row, Button, Table, Divider, InputNumber } from 'antd';
+import {
+  Col,
+  Form,
+  Radio,
+  Row,
+  Button,
+  Table,
+  Divider,
+  InputNumber,
+  message,
+  Tooltip,
+  Icon,
+} from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import classNames from 'classnames';
@@ -10,6 +22,7 @@ import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import styles from '../../OnlineRule/New/index.less';
 import AddOfflinePLUModal from '../components/AddOfflinePLUModal';
+import { commonConfirm } from '@/components/CommonModal';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -33,22 +46,53 @@ const COMMONRule = {
 class OfflineNew extends React.PureComponent {
   columns = [
     {
-      title: formatMessage({ id: 'NO' }),
-      dataIndex: 'seqOrder',
-    },
-    {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'pluCode',
+      dataIndex: 'commodityCode',
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
-      dataIndex: 'pluDescription',
+      dataIndex: 'commodityDescription',
     },
     {
       title: formatMessage({ id: 'THEME_PARK' }),
-      dataIndex: 'pluPark',
+      dataIndex: 'themeParkCode',
+    },
+    {
+      title: formatMessage({ id: 'OPERATION' }),
+      dataIndex: 'operation',
+      render: (text, record) => {
+        return record && record.key && record.key !== 'addOption' ? (
+          <div>
+            <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
+              <Icon
+                type="delete"
+                onClick={() => {
+                  this.delete(record);
+                }}
+              />
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
   ];
+
+  delete = record => {
+    const {
+      offlineNew: { checkedList },
+      dispatch,
+    } = this.props;
+    const filterCheckedList = checkedList.filter(item => {
+      const { commoditySpecId } = item;
+      return commoditySpecId !== record.commoditySpecId;
+    });
+    dispatch({
+      type: 'offlineNew/save',
+      payload: {
+        checkedList: filterCheckedList,
+      },
+    });
+  };
 
   add = () => {
     const { dispatch } = this.props;
@@ -61,14 +105,46 @@ class OfflineNew extends React.PureComponent {
     });
   };
 
-  selectChange = e => {
-    const { dispatch } = this.props;
+  onClose = () => {
+    router.push({
+      pathname: '/ProductManagement/CommissionRule/OfflineRule',
+    });
+  };
 
-    dispatch({
-      type: 'offlineNew/save',
-      payload: {
-        value: e,
-      },
+  handleSubmit = e => {
+    const {
+      form,
+      dispatch,
+      offlineNew: { checkedList },
+    } = this.props;
+    e.preventDefault();
+    const resCb = response => {
+      this.onClose();
+      if (response === 'SUCCESS') {
+        message.success('Newed successfully.');
+      } else if (response === 'ERROR') {
+        message.error('Failed to new.');
+      }
+    };
+    form.validateFields((errors, values) => {
+      if (errors) {
+        return;
+      }
+      values.commissionValue =
+        values.commissionScheme === 'Amount' ? values.Amount : values.Percentage;
+      commonConfirm({
+        content: `Confirm to New ?`,
+        onOk: async () => {
+          const res = await dispatch({
+            type: 'offlineNew/add',
+            payload: {
+              params: values,
+              commodityList: checkedList,
+            },
+          });
+          resCb(res);
+        },
+      });
     });
   };
 
@@ -105,11 +181,11 @@ class OfflineNew extends React.PureComponent {
     ];
     const {
       form: { getFieldDecorator },
-      offlineNew: { addPLUModal },
+      offlineNew: { addPLUModal, checkedList },
     } = this.props;
 
     return (
-      <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
+      <Form className="ant-advanced-search-form" onSubmit={this.handleSubmit}>
         <Row type="flex" justify="space-around" id="mainTaView">
           <Col span={24} className={detailStyles.pageHeaderTitle}>
             <MediaQuery
@@ -131,29 +207,42 @@ class OfflineNew extends React.PureComponent {
               <Row>
                 <Col span={24}>
                   <FormItem {...formItemLayout} label={formatMessage({ id: 'COMMISSION_SCHEMA' })}>
-                    {getFieldDecorator('commissionName', {
+                    {getFieldDecorator('commissionScheme', {
                       rules: [COMMONRule],
                     })(
                       <Radio.Group>
-                        <Radio value="Y">
+                        <Radio value="Amount">
                           {formatMessage({ id: 'COMMISSION_AMOUNT' })}
-                          {getFieldDecorator('amount', {
-                            rules: [COMMONRule],
+                          {getFieldDecorator('Amount', {
+                            // rules: [COMMONRule],
                           })(
                             <InputNumber
                               style={{ marginLeft: '10px' }}
                               formatter={value =>
                                 `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                               }
-                              parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                              parser={value => {
+                                value = value.replace(/[^\d]/g, '');
+                                return value;
+                              }}
                             />
                           )}
                         </Radio>
-                        <Radio value="N" style={{ marginLeft: '60px' }}>
+                        <Radio value="Percentage" style={{ marginLeft: '60px' }}>
                           {formatMessage({ id: 'COMMISSION_PERCENTAGE' })}
-                          {getFieldDecorator('percent', {
-                            rules: [COMMONRule],
-                          })(<InputNumber style={{ marginLeft: '10px' }} min={1} max={10} />)}
+                          {getFieldDecorator('Percentage', {
+                            // rules: [COMMONRule],
+                          })(
+                            <InputNumber
+                              style={{ marginLeft: '10px' }}
+                              formatter={value => `${value}%`}
+                              parser={value => {
+                                value = value.replace(/[^\d]/g, '');
+                                value = +value > 100 ? 100 : value.substr(0, 2);
+                                return String(value);
+                              }}
+                            />
+                          )}
                         </Radio>
                       </Radio.Group>
                     )}
@@ -168,22 +257,23 @@ class OfflineNew extends React.PureComponent {
                   <Table
                     size="small"
                     columns={this.columns}
+                    rowKey={record => record.commoditySpecId}
                     className={`tabs-no-padding ${styles.searchTitle}`}
                     pagination={false}
                     dataSource={[
                       {
                         key: 'addOption',
-                        seqOrder: <a onClick={() => this.add()}>+ Add</a>,
-                        roomTypeCode: ' ',
-                        roomTypeName: ' ',
-                        operation: '',
+                        commodityCode: <a onClick={() => this.add()}>+ Add</a>,
+                        commodityDescription: ' ',
+                        themeParkCode: '',
                       },
+                      ...checkedList,
                     ]}
                   />
                 </Col>
               </Row>
               {addPLUModal ? <AddOfflinePLUModal /> : null}
-              <Divider style={{ margin: 0 }} />
+              <Divider style={{ marginTop: 100 }} />
               <Row>
                 <Col style={{ textAlign: 'right', padding: '10px 15px' }}>
                   <Button onClick={this.cancel}>{formatMessage({ id: 'COMMON_CANCEL' })}</Button>

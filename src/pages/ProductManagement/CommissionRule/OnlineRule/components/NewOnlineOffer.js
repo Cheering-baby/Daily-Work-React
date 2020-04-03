@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Col, Form, Row, Table } from 'antd';
+import { Col, Form, Icon, Row, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../New/index.less';
@@ -22,6 +22,20 @@ class NewOnlineOffer extends React.PureComponent {
     {
       title: formatMessage({ id: 'OPERATION' }),
       dataIndex: 'operation',
+      render: text => {
+        return text ? (
+          <div>
+            <Tooltip title="Delete" placement="topLeft">
+              <Icon
+                type="delete"
+                onClick={() => {
+                  this.delete();
+                }}
+              />
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
   ];
 
@@ -45,7 +59,7 @@ class NewOnlineOffer extends React.PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.commit}>
-          <div style={{ padding: '15px' }}>
+          <div style={{ padding: '15px 0' }}>
             <Row>
               <Col className={styles.commissionTitle}>{formatMessage({ id: 'BINDING' })}</Col>
             </Row>

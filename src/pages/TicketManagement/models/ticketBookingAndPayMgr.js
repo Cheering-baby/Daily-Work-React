@@ -1,20 +1,20 @@
-import { message } from 'antd';
+import {message} from 'antd';
 import router from 'umi/router';
 import moment from 'moment';
-import { cloneDeep } from 'lodash';
+import {cloneDeep} from 'lodash';
 import {
-  createBooking,
-  queryBookingStatus,
-  paymentOrder,
-  ticketDownload,
   accountTopUp,
+  createBooking,
+  paymentOrder,
+  queryBookingStatus,
   sendTransactionPaymentOrder,
+  ticketDownload,
 } from '@/pages/TicketManagement/services/bookingAndPay';
 
 import {
+  queryAccount,
   queryAccountInfo,
   queryInfoWithNoId,
-  queryAccount,
   queryTaInfo,
 } from '@/pages/TicketManagement/services/taMgrService';
 
@@ -251,7 +251,6 @@ export default {
       }
 
       message.error(resultMsg);
-
     },
 
     *confirmEvent(_, { call, put, select }) {
@@ -488,7 +487,10 @@ export default {
                 voucherProduct.priceRule.forEach(rule => {
                   if (rule.priceRuleName === 'DefaultPrice' && rule.productPrice) {
                     rule.productPrice.forEach(productPrice => {
-                      if (productPrice.priceDate === moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')) {
+                      if (
+                        productPrice.priceDate ===
+                        moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
+                      ) {
                         const { discountUnitPrice } = productPrice;
                         totalPrice += voucherProduct.needChoiceCount * discountUnitPrice;
                       }
@@ -627,7 +629,43 @@ export default {
     },
     resetData() {
       return {
-        offerOrderData: [],
+        payPageLoading: false,
+        deliveryMode: undefined,
+        payModeList: [
+          {
+            value: 1,
+            label: 'eWallet',
+            key: 'E_WALLET',
+            check: true,
+          },
+          {
+            value: 2,
+            label: 'Credit Card',
+            key: 'CREDIT_CARD',
+            check: false,
+          },
+          {
+            value: 3,
+            label: 'AR',
+            key: 'AR_CREDIT',
+            check: false,
+          },
+        ],
+        collectionDate: null,
+        ticketAmount: 0,
+        bocaFeePax: 2.0,
+        bookingOrderData: [],
+        packageOrderData: [],
+        generalTicketOrderData: [],
+        onceAPirateOrderData: [],
+        payModelShow: false,
+        bookingNo: null,
+        taDetailInfo: null,
+        accountInfo: null,
+        bookDetail: {
+          totalPrice: 20000.0,
+        },
+        downloadFileLoading: false,
       };
     },
   },

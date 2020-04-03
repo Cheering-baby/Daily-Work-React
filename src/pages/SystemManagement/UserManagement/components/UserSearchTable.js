@@ -1,15 +1,15 @@
-import React, {Fragment} from 'react';
-import {Badge, Button, Card, Col, Icon, Modal, Popover, Row, Table, Tooltip} from 'antd';
+import React, { Fragment } from 'react';
+import { Badge, Button, Card, Col, Icon, Modal, Popover, Row, Table, Tooltip } from 'antd';
 // import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen'*;
-import {connect} from 'dva';
+import { connect } from 'dva';
 import router from 'umi/router';
 import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '../../../../utils/PrivilegeUtil';
 
-const {confirm} = Modal;
+const { confirm } = Modal;
 
 const colProps = {
   xs: 24,
@@ -18,7 +18,7 @@ const colProps = {
   xl: 6,
 };
 
-@connect(({userMgr, loading}) => ({
+@connect(({ userMgr, loading }) => ({
   userMgr,
   loading: loading.effects['userMgr/queryUsersByCondition'],
 }))
@@ -112,15 +112,15 @@ class Index extends React.PureComponent {
         },
       },
       {
-        title: this.showTableTitle(formatMessage({id: 'ROLE'})),
+        title: this.showTableTitle(formatMessage({ id: 'ROLE' })),
         width: '20%',
         render: (text, record) => {
-          const {userRoles} = record;
+          const { userRoles } = record;
           return this.getUserRoles(userRoles);
         },
       },
       {
-        title: this.showTableTitle(formatMessage({id: 'OPERATION'})),
+        title: this.showTableTitle(formatMessage({ id: 'OPERATION' })),
         width: '10%',
         render: (text, record) => this.getOperations(record),
       },
@@ -128,7 +128,7 @@ class Index extends React.PureComponent {
   }
 
   componentDidMount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'userMgr/queryUsersByCondition',
       payload: {},
@@ -136,11 +136,11 @@ class Index extends React.PureComponent {
   }
 
   getOperations = record => {
-    const {status = ''} = record;
+    const { status = '' } = record;
     if (status === '01') {
       return (
         <Fragment>
-          <Tooltip title={formatMessage({id: 'COMMON_DETAIL'})}>
+          <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
             <Icon
               type="eye"
               onClick={() => {
@@ -148,7 +148,7 @@ class Index extends React.PureComponent {
               }}
             />
           </Tooltip>
-          <Tooltip title={formatMessage({id: 'COMMON_EMAIL'})}>
+          <Tooltip title={formatMessage({ id: 'COMMON_EMAIL' })}>
             <Icon
               type="mail"
               onClick={() => {
@@ -161,7 +161,7 @@ class Index extends React.PureComponent {
             content={this.getMoreContent(record)}
             overlayClassName={styles.popClassName}
           >
-            <Icon type="more"/>
+            <Icon type="more" />
           </Popover>
         </Fragment>
       );
@@ -169,7 +169,7 @@ class Index extends React.PureComponent {
 
     return (
       <Fragment>
-        <Tooltip title={formatMessage({id: 'COMMON_DETAIL'})}>
+        <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
           <Icon
             type="eye"
             onClick={() => {
@@ -177,7 +177,7 @@ class Index extends React.PureComponent {
             }}
           />
         </Tooltip>
-        <Tooltip title={formatMessage({id: 'app.settings.security.modify'})}>
+        <Tooltip title={formatMessage({ id: 'app.settings.security.modify' })}>
           <Icon
             type="edit"
             onClick={() => {
@@ -191,7 +191,7 @@ class Index extends React.PureComponent {
           })}
         >
           <span
-            style={{fontSize: '14px'}}
+            style={{ fontSize: '14px' }}
             onClick={() => {
               this.oprUserStatus(record);
             }}
@@ -213,7 +213,7 @@ class Index extends React.PureComponent {
               })}
             >
               <span
-                style={{fontSize: '14px', paddingRight: '15px'}}
+                style={{ fontSize: '14px', paddingRight: '15px' }}
                 className={record.status !== '99' ? 'iconfont icon-ban' : 'iconfont icon-circle-o'}
               />
               {formatMessage({
@@ -224,9 +224,9 @@ class Index extends React.PureComponent {
         </Col>
         <Col span={24}>
           <div className={styles.contentMenuCol} onClick={() => this.edit(record)}>
-            <Tooltip title={formatMessage({id: 'app.settings.security.modify'})}>
-              <Icon style={{fontSize: '14px', paddingRight: '15px'}} type="edit"/>
-              {formatMessage({id: 'COMMON_EDIT'})}
+            <Tooltip title={formatMessage({ id: 'app.settings.security.modify' })}>
+              <Icon style={{ fontSize: '14px', paddingRight: '15px' }} type="edit" />
+              {formatMessage({ id: 'COMMON_EDIT' })}
             </Tooltip>
           </div>
         </Col>
@@ -235,13 +235,13 @@ class Index extends React.PureComponent {
   };
 
   sendEmail = record => {
-    const {dispatch} = this.props;
-    const {userCode = ''} = record;
+    const { dispatch } = this.props;
+    const { userCode = '' } = record;
     confirm({
-      title: formatMessage({id: 'COMMON_EMAIL'}),
-      content: formatMessage({id: 'SEND_EMAIL_CONTENT'}).replace('${userCode}', userCode),
-      okText: formatMessage({id: 'COMMON_YES'}),
-      cancelText: formatMessage({id: 'COMMON_NO'}),
+      title: formatMessage({ id: 'COMMON_EMAIL' }),
+      content: formatMessage({ id: 'SEND_EMAIL_CONTENT' }).replace('${userCode}', userCode),
+      okText: formatMessage({ id: 'COMMON_YES' }),
+      cancelText: formatMessage({ id: 'COMMON_NO' }),
       onOk() {
         dispatch({
           type: 'userMgr/sendEmail',
@@ -392,7 +392,7 @@ class Index extends React.PureComponent {
     const tableOpts = {
       size: 'small',
       bordered: false,
-      scroll: {x: 960},
+      scroll: { x: 960 },
     };
     const pagination = {
       current: currentPage,

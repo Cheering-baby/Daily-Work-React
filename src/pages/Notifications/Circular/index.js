@@ -39,7 +39,7 @@ class Circular extends PureComponent {
     if (!isAdminRoleFlag) {
       reqParams.queryType = '02';
     } else {
-      reqParams.queryType = '01';
+      reqParams.queryType = null;
     }
     dispatch({
       type: 'circular/change',

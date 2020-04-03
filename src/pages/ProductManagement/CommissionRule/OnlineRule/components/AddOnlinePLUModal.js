@@ -1,11 +1,13 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Table, Row, Col, Button, Select, Input, Form } from 'antd';
+import { Modal, Table, Row, Col, Button, Select, Input, Form, message } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { cloneDeep } from 'lodash';
 import styles from './AddOnlinePLUModal.less';
 
 const drawWidth = 700;
 const { Option } = Select;
+let checkedList = [];
 @Form.create()
 @connect(({ commissionNew, loading }) => ({
   commissionNew,
@@ -30,7 +32,7 @@ class AddOnlinePLUModal extends React.PureComponent {
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
-      dataIndex: 'commodityIdentifier',
+      dataIndex: 'commodityDescription',
     },
   ];
 
@@ -93,6 +95,12 @@ class AddOnlinePLUModal extends React.PureComponent {
   };
 
   onSelectChange = selectedRowKeys => {
+    const {
+      commissionNew: { offerList },
+    } = this.props;
+    checkedList = cloneDeep(offerList).filter(item => {
+      return selectedRowKeys.includes(item.commoditySpecId);
+    });
     const { dispatch } = this.props;
     dispatch({
       type: 'commissionNew/saveSelectOffer',
@@ -106,9 +114,9 @@ class AddOnlinePLUModal extends React.PureComponent {
     const { expandedRowKeys = [], dispatch } = this.props;
     const expandedRowKeySet = new Set(expandedRowKeys);
     if (expanded) {
-      expandedRowKeySet.add(record.PLUCode);
+      expandedRowKeySet.add(record.commoditySpecId);
     } else {
-      expandedRowKeySet.delete(record.PLUCode);
+      expandedRowKeySet.delete(record.commoditySpecId);
     }
     dispatch({
       type: 'commissionNew/saveData',
@@ -118,8 +126,25 @@ class AddOnlinePLUModal extends React.PureComponent {
     });
   };
 
+  onSelectChange2 = selectedRowKeys2 => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'commissionNew/saveSelectOffer2',
+      payload: {
+        selectedRowKeys2,
+      },
+    });
+  };
+
   expandedRowRender = record => {
+    const {
+      commissionNew: { selectedRowKeys2 },
+    } = this.props;
     const { subCommodityList } = record;
+    const rowSelection2 = {
+      selectedRowKeys2,
+      onChange: this.onSelectChange2,
+    };
     return (
       <div>
         <Table
@@ -128,6 +153,7 @@ class AddOnlinePLUModal extends React.PureComponent {
           dataSource={subCommodityList}
           pagination={false}
           bordered={false}
+          rowSelection={rowSelection2}
         />
       </div>
     );
@@ -148,6 +174,23 @@ class AddOnlinePLUModal extends React.PureComponent {
         type: 'commissionNew/fetchOfferList',
       });
     });
+  };
+
+  handelOK = (selectedRowKeys, offerList) => {
+    const { dispatch } = this.props;
+    if (selectedRowKeys.length > 0) {
+      offerList = offerList.concat(checkedList);
+      dispatch({
+        type: 'commissionNew/save',
+        payload: {
+          offerList,
+          checkedList,
+        },
+      });
+      this.cancel();
+    } else {
+      message.warning('Select at least one PLU.');
+    }
   };
 
   showTotal(total) {
@@ -190,7 +233,11 @@ class AddOnlinePLUModal extends React.PureComponent {
           onCancel={this.cancel}
           footer={
             <div>
-              <Button style={{ width: 60 }} onClick={this.OK} type="primary">
+              <Button
+                style={{ width: 60 }}
+                onClick={() => this.handelOK(selectedRowKeys, offerList)}
+                type="primary"
+              >
                 OK
               </Button>
               <Button onClick={this.cancel} style={{ width: 60 }}>
@@ -219,33 +266,17 @@ class AddOnlinePLUModal extends React.PureComponent {
                 </Form.Item>
               </Col>
               <Col className={styles.inputColStyle} xs={12} sm={12} md={9}>
-                <Select
-                  showSearch
-                  placeholder="Status"
-                  // className={styles.inputStyle}
-                  allowClear
-                  style={{ width: '100%' }}
-                  // onChange={this.changeFilterStatus}
-                  // value={filterStatus}
-                >
-                  <Option value="NEW" key="NEW">
-                    NEW
+                <Select showSearch placeholder="Status" allowClear style={{ width: '100%' }}>
+                  <Option value="Active" key="Active">
+                    ACTIVE
                   </Option>
-                  <Option value="PUBLISH" key="PUBLISH">
-                    PUBLISH
-                  </Option>
-                  <Option value="UNPUBLISH" key="UNPUBLISH">
-                    UNPUBLISH
+                  <Option value="Inactive" key="Inactive">
+                    INACTIVE
                   </Option>
                 </Select>
               </Col>
               <Col xs={12} sm={12} md={6} className={styles.searchReset}>
-                <Button
-                  style={{ marginRight: 8 }}
-                  // htmlType="button"
-                  type="primary"
-                  htmlType="submit"
-                >
+                <Button style={{ marginRight: 8 }} type="primary" htmlType="submit">
                   Search
                 </Button>
                 <Button onClick={this.reset}>Reset</Button>
@@ -266,6 +297,7 @@ class AddOnlinePLUModal extends React.PureComponent {
             onExpand={(expanded, record) => {
               this.onExpandEvent(expanded, record);
             }}
+            rowKey={record => record.commoditySpecId}
             rowSelection={rowSelection}
           />
         </Modal>

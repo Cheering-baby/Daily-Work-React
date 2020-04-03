@@ -142,10 +142,14 @@ class SubTaInformationToDrawer extends PureComponent {
       subTaInfoLoadingFlag,
       hasSubTaWithEmail,
     } = this.props;
+    let showTitle = formatMessage({ id: 'COMMON_EDIT' });
+    if (isDetail) {
+      showTitle = formatMessage({ id: 'COMMON_DETAIL' });
+    }
     return (
       <Drawer
         id="subTaDrawerView"
-        title={formatMessage({ id: 'COMMON_EDIT' })}
+        title={showTitle}
         className={styles.subTaDrawer}
         onClose={this.onClose}
         visible={operationVisible}

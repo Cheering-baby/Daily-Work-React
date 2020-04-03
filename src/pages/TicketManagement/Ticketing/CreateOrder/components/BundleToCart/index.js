@@ -67,6 +67,7 @@ class ToCart extends Component {
   order = () => {
     const { checkTermsAndCondition } = this.state;
     const {
+      dispatch,
       form,
       order,
       offers = [],
@@ -81,7 +82,7 @@ class ToCart extends Component {
       data[ticketNumberLabel] = ticketNumber;
     });
     form.setFieldsValue(data);
-    form.validateFields(err => {
+    form.validateFields(async err => {
       if (!err) {
         let allTicketNumbers = 0;
         offers.forEach(item => {
@@ -96,7 +97,50 @@ class ToCart extends Component {
           message.warning('Please accept the terms and condition before adding to cart.');
           return false;
         }
-        order();
+        offers.forEach((item, index) => {
+          const { ticketNumber } = item;
+          const ticketNumberLabel = `offer${index}`;
+          data[ticketNumberLabel] = ticketNumber;
+        });
+        let hasInventory = true;
+        for (let i = 0; i < offers.length; i += 1) {
+          const {
+            ticketNumber,
+            attractionProduct = [],
+            detail: {
+              dateOfVisit,
+              offerBasicInfo: { offerNo },
+            },
+          } = offers[i];
+          // eslint-disable-next-line no-loop-func
+          const orderProducts = attractionProduct.map(orderProductItem => {
+            const { productNo } = orderProductItem;
+            return {
+              ticketNumber,
+              productNo,
+            };
+          });
+          // eslint-disable-next-line no-await-in-loop
+          await dispatch({
+            type: 'ticketMgr/checkInventory',
+            payload: {
+              offerNo,
+              dateOfVisit,
+              offerQuantity: ticketNumber,
+              orderProducts,
+            },
+            // eslint-disable-next-line no-loop-func
+          }).then(res => {
+            if (hasInventory) {
+              hasInventory = res;
+            }
+          });
+        }
+        if (hasInventory) {
+          order();
+        } else {
+          message.warning('Out of stock.');
+        }
       }
     });
   };
@@ -109,13 +153,13 @@ class ToCart extends Component {
     changeDeliveryInformation('country', value);
   };
 
-  toShowTermsAndCondtion = value => {
+  toShowTermsAndCondition = value => {
     this.setState({
       showTermsAndCondition: value,
     });
   };
 
-  changeCheckTermsAndCondtion = e => {
+  changeCheckTermsAndCondition = e => {
     this.setState({
       checkTermsAndCondition: e.target.checked,
     });
@@ -197,7 +241,7 @@ class ToCart extends Component {
             overflow: 'auto',
           }}
           className={styles.container}
-          onClose={() => this.toShowTermsAndCondtion(false)}
+          onClose={() => this.toShowTermsAndCondition(false)}
         >
           <div className={styles.termsAndConditionTitle}>Terms and Condition</div>
           {termsAndConditionItems.map(item => (
@@ -498,9 +542,9 @@ class ToCart extends Component {
             <div className={styles.itemTC}>
               <Checkbox
                 checked={checkTermsAndCondition}
-                onChange={this.changeCheckTermsAndCondtion}
+                onChange={this.changeCheckTermsAndCondition}
               />
-              <span className={styles.TC} onClick={() => this.toShowTermsAndCondtion(true)}>
+              <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
                 Terms and Conditions &gt;
               </span>
             </div>

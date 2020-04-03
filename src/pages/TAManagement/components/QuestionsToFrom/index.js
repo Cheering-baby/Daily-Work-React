@@ -183,7 +183,9 @@ class QuestionsToFrom extends PureComponent {
                   </Form.Item>
                   <Form.Item colon={false}>
                     {getFieldDecorator('rwsRoomVolume', {
-                      initialValue: productInfoOne.rwsVolume || null,
+                      initialValue: productInfoOne.rwsVolume
+                        ? Number(productInfoOne.rwsVolume)
+                        : null,
                       rules:
                         this.getRwsRoomVolumeRules(productInfoOne, isRwsNewRoom, productTypeRoom) ||
                         [],
@@ -234,7 +236,9 @@ class QuestionsToFrom extends PureComponent {
                   </Form.Item>
                   <Form.Item colon={false}>
                     {getFieldDecorator('otherRoomVolume', {
-                      initialValue: productInfoOne.otherVolume || null,
+                      initialValue: productInfoOne.otherVolume
+                        ? Number(productInfoOne.otherVolume)
+                        : null,
                       rules:
                         this.getOtherRoomVolumeRules(
                           productInfoOne,
@@ -316,7 +320,9 @@ class QuestionsToFrom extends PureComponent {
                   </Form.Item>
                   <Form.Item colon={false}>
                     {getFieldDecorator('rwsAttractionsVolume', {
-                      initialValue: productInfoTwo.rwsVolume || null,
+                      initialValue: productInfoTwo.rwsVolume
+                        ? Number(productInfoTwo.rwsVolume)
+                        : null,
                       rules:
                         this.getRwsAttractionsVolumeRules(
                           productInfoTwo,
@@ -375,7 +381,9 @@ class QuestionsToFrom extends PureComponent {
                   </Form.Item>
                   <Form.Item colon={false}>
                     {getFieldDecorator('otherAttractionsVolume', {
-                      initialValue: productInfoTwo.otherVolume || null,
+                      initialValue: productInfoTwo.otherVolume
+                        ? Number(productInfoTwo.otherVolume)
+                        : null,
                       rules:
                         this.getOtherAttractionsVolumeRules(
                           productInfoTwo,

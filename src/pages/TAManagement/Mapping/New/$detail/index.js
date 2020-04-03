@@ -37,7 +37,7 @@ class MappingDetails extends React.PureComponent {
         breadcrumbName:
           type === 'edit'
             ? formatMessage({ id: 'COMMON_MODIFY' })
-            : formatMessage({ id: 'COMMON_NEW' }),
+            : formatMessage({ id: 'MENU_TA_MAPPING' }),
         url: null,
       },
     ];

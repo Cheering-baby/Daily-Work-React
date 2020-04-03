@@ -40,6 +40,9 @@ export default {
     tieredList: [],
     bingdingOffer: [],
     bingdingPLU: [],
+    addInput1Min: '',
+    addInput1Max: '',
+    addInput2: '',
   },
   effects: {
     *queryDetail({ payload }, { call, put }) {
@@ -54,6 +57,7 @@ export default {
         effectiveDate,
         expiryDate,
         caluculateCycle,
+        commissionScheme,
         tieredList,
       } = result;
       if (resultCode === 0 || resultCode === '0') {
@@ -72,6 +76,7 @@ export default {
               effectiveDate,
               expiryDate,
               caluculateCycle,
+              commissionScheme,
             },
             tieredList,
           },
@@ -120,9 +125,11 @@ export default {
         tplId,
         commodityType,
       };
+      const res = yield call(service.queryCommissionBindingList, requestData);
       const {
         data: { resultCode, resultMsg, result },
-      } = yield call(service.queryCommissionBindingList, requestData);
+      } = res;
+      if (!result) return;
 
       const {
         commodityList,
@@ -178,6 +185,9 @@ export default {
         tieredList: [],
         bingdingOffer: [],
         bingdingPLU: [],
+        addInput1Min: '',
+        addInput1Max: '',
+        addInput2: '',
       };
     },
     saveSelectOffer(state, { payload }) {
@@ -218,7 +228,7 @@ export default {
   subscriptions: {
     setup({ dispatch, history }) {
       history.listen(location => {
-        if (location.pathname !== '/ProductManagement/CommissionRuleSetup') {
+        if (location.pathname !== '/ProductManagement/CommissionRule/OnlineRule') {
           dispatch({ type: 'clear' });
         }
       });

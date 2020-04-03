@@ -272,22 +272,23 @@ class TableComp extends PureComponent {
           constraintVisible: true,
         },
       });
-      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
-      if (!isNvl(taId)) {
-        dispatch({
-          type: 'taMgr/fetchQueryTaInfo',
-          payload: { taId },
-        });
-        dispatch({
-          type: 'taMgr/fetchQueryTaMappingInfo',
-          payload: { taId },
-        });
-        dispatch({
-          type: 'taMgr/fetchQueryTaAccountInfo',
-          payload: { taId },
-        });
-      }
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
+        if (!isNvl(taId)) {
+          dispatch({
+            type: 'taMgr/fetchQueryTaInfo',
+            payload: { taId },
+          });
+          dispatch({
+            type: 'taMgr/fetchQueryTaMappingInfo',
+            payload: { taId },
+          });
+          dispatch({
+            type: 'taMgr/fetchQueryTaAccountInfo',
+            payload: { taId },
+          });
+        }
+      });
     });
   };
 

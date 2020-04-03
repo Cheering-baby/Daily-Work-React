@@ -1,6 +1,5 @@
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { isEmpty } from 'lodash';
 import * as service from '../services/mapping';
 
 export default {
@@ -10,6 +9,7 @@ export default {
     type: '',
     queryMappingInfo: {},
     userProfiles: [],
+    time: [],
   },
   effects: {
     *queryMappingDetail({ payload }, { call, put }) {
@@ -31,14 +31,14 @@ export default {
         ...params,
         taId,
       };
-      const { success, errorMsg } = yield call(service.endInvitation, reqParams);
-      if (success) {
+      const { resultCode, resultMsg } = yield call(service.endInvitation, reqParams);
+      if (resultCode === '0' || resultCode === 0) {
         message.success(formatMessage({ id: 'COMMON_EDITED_SUCCESSFULLY' }));
         // fresh list data
         yield put({
           type: 'mapping/fetchMappingList',
         });
-      } else throw errorMsg;
+      } else message.warn(resultMsg, 10);
     },
     *addMappingList({ payload }, { call, put }) {
       const { params, taId } = payload;
@@ -46,15 +46,15 @@ export default {
         ...params,
         taId,
       };
-      const { success, errorMsg } = yield call(service.endInvitation, reqParams);
-      if (success) {
+      const { resultCode, resultMsg } = yield call(service.endInvitation, reqParams);
+      if (resultCode === '0' || resultCode === 0) {
         message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
 
         // fresh list data
         yield put({
           type: 'mapping/fetchMappingList',
         });
-      } else throw errorMsg;
+      } else message.warn(resultMsg, 10);
     },
     *querySalePerson(_, { call, put }) {
       const res = yield call(service.querySalePerson);
@@ -67,6 +67,18 @@ export default {
             userProfiles,
           },
         });
+      } else message.warn(resultMsg, 10);
+    },
+    *fetchqueryDictionary(_, { call, put }) {
+      const params = {
+        dictType: '10',
+        dictSubType: '1005',
+      };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.queryDictionary, { ...params });
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({ type: 'save', payload: { time: result || [] } });
       } else message.warn(resultMsg, 10);
     },
   },
@@ -84,7 +96,17 @@ export default {
         statusDetailList: [],
         type: '',
         queryMappingInfo: {},
+        time: [],
       };
+    },
+  },
+  subscriptions: {
+    setup({ dispatch, history }) {
+      history.listen(location => {
+        if (location.pathname !== '/TAManagement/Mapping') {
+          dispatch({ type: 'clear' });
+        }
+      });
     },
   },
 };

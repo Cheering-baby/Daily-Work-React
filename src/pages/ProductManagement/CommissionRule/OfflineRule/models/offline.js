@@ -1,4 +1,6 @@
 import { isEmpty } from 'lodash';
+import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import * as service from '../services/offline';
 
 export default {
@@ -16,71 +18,78 @@ export default {
     type: '',
     drawerVisible: false,
     themeParkList: [],
+    commissionList: [],
   },
   effects: {
     *fetchOfflineList(_, { call, put, select }) {
       const { filter, pagination } = yield select(state => state.offline);
       const { likeParam } = filter;
-      let result;
+      let res;
       if (isEmpty(likeParam)) {
-        result = yield call(service.queryCommodityCommissionTplList, pagination);
+        res = yield call(service.queryCommodityCommissionTplList, pagination);
       } else {
-        result = yield call(service.queryCommodityCommissionTplList, {
+        res = yield call(service.like, {
           ...likeParam,
           ...pagination,
         });
       }
 
       const {
-        data: {
-          result: { List },
-        },
+        data: { resultCode, resultMsg, result },
+      } = res;
+      const {
+        page: { currentPage, pageSize, totalSize },
+        commodityList,
       } = result;
-
-      const { currentPage, pageSize, totalSize } = result;
-      if (List && List.length > 0) {
-        List.map(v => {
-          Object.assign(v, { key: `offlineList${v.id}` });
-          return v;
+      if (resultCode === '0' || resultCode === 0) {
+        if (commodityList && commodityList.length > 0) {
+          commodityList.map(v => {
+            Object.assign(v, { key: `offlineList${v.commoditySpecId}` });
+            return v;
+          });
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            currentPage,
+            pageSize,
+            totalSize,
+            offlineList: commodityList,
+          },
         });
-      }
-      yield put({
-        type: 'save',
-        payload: {
-          currentPage,
-          pageSize,
-          totalSize,
-          offlineList: List,
-        },
-      });
+      } else throw resultMsg;
     },
-    *queryPluAttribute({ payload }, { call }) {
-      const params = {
-        attributeItem: payload.attributeItem,
+    *edit({ payload }, { call, put }) {
+      const { params, taId } = payload;
+      const reqParams = {
+        ...params,
+        taId,
       };
-      const res = yield call(service.queryPluAttribute, params);
-      // yield put({ type: 'save', payload: {checkOutLoading: false}, });
-      // if (resultCode !== '0' && resultCode !== 0) {
-      //   message.warn(resultMsg);
-      //   return;
-      // }
-      // if (!result.items || result.items.length===0) {
-      //   // eslint-disable-next-line no-throw-literal
-      //   message.warn(`${payload.attributeItem} config is null`);
-      //   return;
-      // }
-      // let queryPluKey = 0;
-      // result.items.map(item=>{
-      //   if (item.item === 'DeliveryPLU') {
-      //     queryPluKey = item.itemValue;
-      //   }
-      // });
-      // yield put({
-      //   type: 'queryPluListByCondition',
-      //   payload: {
-      //     queryPluKey,
-      //   },
-      // });
+      const { success, errorMsg } = yield call(service.edit, reqParams);
+      if (success) {
+        message.success(formatMessage({ id: 'COMMON_EDITED_SUCCESSFULLY' }));
+        // fresh list data
+        yield put({
+          type: 'fetchOfflineList',
+        });
+      } else throw errorMsg;
+    },
+    *detail({ payload }, { call, put }) {
+      const { commoditySpecType, commoditySpecId } = payload;
+      const requestData = {
+        commoditySpecType,
+        commoditySpecId,
+      };
+      const res = yield call(service.detail, requestData);
+      const { resultCode, resultMsg, result } = res.data;
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({
+          type: 'save',
+          payload: {
+            commissionList: result.commissionList,
+          },
+        });
+      } else message.warn(resultMsg, 10);
     },
     *search({ payload }, { put }) {
       yield put({

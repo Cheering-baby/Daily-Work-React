@@ -5,7 +5,6 @@ import styles from './index.less';
 import AccessibleSeat from './assets/accessible_seat.png';
 
 class OrderItemCollapse extends Component {
-
   getTitleNameStr = () => {
     const { onceAPirateOrder } = this.props;
     if (onceAPirateOrder && onceAPirateOrder.queryInfo.dateOfVisit) {

@@ -96,6 +96,7 @@ export function calculateAllProductPrice(products = [], selectRuleId) {
 
 export function checkInventory(detail, offerQuantity, orderProducts = []) {
   const { productGroup, inventories } = detail;
+
   const { available } = inventories[0];
   const availableNew = available === -1 ? 100000000 : available;
   let enough = true;
@@ -105,6 +106,7 @@ export function checkInventory(detail, offerQuantity, orderProducts = []) {
       item.productGroup.forEach(item2 => {
         if (item2.groupName === 'Attraction') {
           offerConstrain = item2.choiceConstrain;
+
           if (offerConstrain === 'Fixed') {
             if (offerQuantity > availableNew) {
               enough = false;

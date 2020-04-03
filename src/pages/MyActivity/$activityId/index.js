@@ -8,6 +8,7 @@ import SubTASignUpDetail from '@/pages/MyActivity/components/SubTASignUpDetail';
 import { isNvl } from '@/utils/utils';
 import ApprovalHistory from '@/pages/MyActivity/components/ApprovalHistory';
 import OperationApprovalDrawer from '@/pages/MyActivity/components/OperationApprovalDrawer';
+import ARApplyDetails from '@/pages/TAManagement/MyWallet/components/ARApplyDetails';
 
 @withRouter
 @Form.create()
@@ -86,6 +87,7 @@ class ActivityDetail extends React.PureComponent {
   };
 
   render() {
+    const { activityDetail = {} } = this.props;
     const {
       activityDetail: {
         activityInfo: { activityTplCode, historyHandlers, pendingHandlers },
@@ -115,6 +117,10 @@ class ActivityDetail extends React.PureComponent {
           {activityTplCode && activityTplCode === 'TA-SIGN-UP' ? <TASignUpDetail /> : null}
 
           {activityTplCode && activityTplCode === 'SUB-TA-SIGN-UP' ? <SubTASignUpDetail /> : null}
+
+          {activityTplCode && activityTplCode === 'ACCOUNT_AR_APPLY' ? (
+            <ARApplyDetails activityDetail={activityDetail} />
+          ) : null}
         </Col>
 
         {isOperationApproval && <OperationApprovalDrawer activityTplCode={activityTplCode} />}

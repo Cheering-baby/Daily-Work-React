@@ -1,4 +1,6 @@
 import { isEmpty } from 'lodash';
+import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import * as service from '../services/commissionRuleSetup';
 
 const commodity = commodityList => {
@@ -14,6 +16,7 @@ const commodity = commodityList => {
         commodityDescription: node.commodityDescription,
         themeParkCode: node.themeParkCode,
         commodityCode: node.commodityCode,
+        commoditySpecId: node.commoditySpecId,
       });
     }
     list.push({
@@ -22,6 +25,7 @@ const commodity = commodityList => {
       commodityDescription: node.commodityDescription,
       themeParkCode: node.themeParkCode,
       commodityCode: node.commodityCode,
+      commoditySpecId: node.commoditySpecId,
       children: children.length > 0 ? children : null,
     });
   });
@@ -46,6 +50,7 @@ export default {
     ifEdit: false,
     ifAdd: false,
     selectedRowKeys: [],
+    selectedRowKeys2: [],
     selectedOffer: [],
     commissionTplList: [],
     PLUList: [],
@@ -54,8 +59,10 @@ export default {
     offerExistedDisales: [],
     PLUSelected: [],
     PLUSelectItem: [],
-    checked: 'commissionAmount',
     activityId: undefined,
+    PLURelationList: [],
+    commoditySpecId: null,
+    checkedList: [],
   },
   effects: {
     *fetchOfferList({ payload }, { call, put, select }) {
@@ -143,6 +150,39 @@ export default {
         });
       } else throw resultMsg;
     },
+    *add({ payload }, { call, put }) {
+      const { params, tieredList, commodityList } = payload;
+      const reqParams = {
+        ...params,
+        tieredList,
+        commodityList,
+      };
+      const { success, errorMsg } = yield call(service.add, reqParams);
+      if (success) {
+        message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
+        // fresh list data
+        yield put({
+          type: 'commissionRuleSetup/fetchCommissionRuleSetupList',
+        });
+      } else throw errorMsg;
+    },
+    *edit({ payload }, { call, put }) {
+      const { params, tieredList, commodityList, tplId } = payload;
+      const reqParams = {
+        ...params,
+        tieredList,
+        commodityList,
+        tplId,
+      };
+      const { success, errorMsg } = yield call(service.add, reqParams);
+      if (success) {
+        message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
+        // fresh list data
+        yield put({
+          type: 'commissionRuleSetup/fetchCommissionRuleSetupList',
+        });
+      } else throw errorMsg;
+    },
     *searchOffer({ payload }, { put }) {
       yield put({
         type: 'clear',
@@ -215,6 +255,21 @@ export default {
         type: 'fetchPLUList',
       });
     },
+    *binding({ payload }, { call }) {
+      const { commodityList, tplId } = payload;
+      const reqParams = {
+        commodityList,
+        tplId,
+      };
+      const { success, errorMsg } = yield call(service.grant, reqParams);
+      if (success) {
+        message.success(formatMessage({ id: 'COMMON_GRANTED_SUCCESSFULLY' }));
+
+        // yield put({
+        //   type: 'grant/fetchMappingList',
+        // });
+      } else throw errorMsg;
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -241,10 +296,14 @@ export default {
         ],
         offerList: [],
         selectedRowKeys: [],
+        selectedRowKeys2: [],
         selectedOffer: [],
         PLUList: [],
         PLUSelected: [],
         PLUSelectItem: [],
+        PLURelationList: [],
+        commoditySpecId: null,
+        checkedList: [],
       };
     },
     saveSelectOffer(state, { payload }) {
@@ -262,6 +321,23 @@ export default {
         ...state,
         selectedRowKeys,
         selectedOffer,
+      };
+    },
+    saveSelectOffer2(state, { payload }) {
+      const { offerList } = state;
+      const { selectedRowKeys2 } = payload;
+      const selectedOffer2 = [];
+      for (let i = 0; i < offerList.length; i += 1) {
+        for (let j = 0; j < offerList.length; j += 1) {
+          if (offerList[j] === offerList[i].key) {
+            offerList.push(offerList[i]);
+          }
+        }
+      }
+      return {
+        ...state,
+        selectedRowKeys2,
+        selectedOffer2,
       };
     },
     saveSelectPLU(state, { payload }) {
@@ -285,7 +361,7 @@ export default {
   subscriptions: {
     setup({ dispatch, history }) {
       history.listen(location => {
-        if (location.pathname !== '/ProductManagement/CommissionRuleSetup') {
+        if (location.pathname !== '/ProductManagement/CommissionRule/OnlineRule') {
           dispatch({ type: 'clear' });
         }
       });

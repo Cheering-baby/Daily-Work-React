@@ -1,5 +1,17 @@
 import React, { Fragment } from 'react';
-import { Tooltip, Button, Col, Popconfirm, Form, Row, Table, Card, Icon, message } from 'antd';
+import {
+  Tooltip,
+  Button,
+  Col,
+  Popconfirm,
+  Form,
+  Row,
+  Table,
+  Card,
+  Icon,
+  message,
+  Divider,
+} from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -15,17 +27,17 @@ const FormItem = Form.Item;
 @Form.create()
 @connect(({ grant, loading }) => ({
   grant,
-  loading: loading.effects['grant/fetchAgentBindingList'],
+  loading: loading.effects['grant/commodityBindingList'],
 }))
 class NewGrant extends React.PureComponent {
   columns = [
     {
       title: formatMessage({ id: 'OFFER_NAME' }),
-      dataIndex: 'bindingName',
+      dataIndex: 'commodityName',
     },
     {
       title: formatMessage({ id: 'OFFER_IDENTIFIER' }),
-      dataIndex: 'bindingIdentifier',
+      dataIndex: 'commodityIdentifier',
     },
   ];
 
@@ -140,18 +152,12 @@ class NewGrant extends React.PureComponent {
   );
 
   componentDidMount() {
-    const {
-      dispatch,
-      location: {
-        query: { rowAllSelected },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
 
     dispatch({
-      type: 'grant/fetchAgentBindingList',
+      type: 'grant/commodityBindingList',
       payload: {
-        agentId: rowAllSelected && rowAllSelected.taId ? rowAllSelected.taId : '',
-        bindingType: 'Offer',
+        commoditySpecType: 'Offer',
       },
     });
   }
@@ -203,7 +209,18 @@ class NewGrant extends React.PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const { form, dispatch } = this.props;
+    const {
+      form,
+      dispatch,
+      grant: { checkedList },
+      location: {
+        query: { taId },
+      },
+    } = this.props;
+    if (checkedList.length === 0) {
+      message.warning('Please select at least one.');
+      return false;
+    }
     const resCb = response => {
       if (response === 'SUCCESS') {
         message.success('Added successfully.');
@@ -212,22 +229,18 @@ class NewGrant extends React.PureComponent {
         message.error('Failed to add.');
       }
     };
-    form.validateFields((errors, values) => {
+    form.validateFields(errors => {
       if (errors) {
         return;
       }
       commonConfirm({
         content: `Confirm to New ?`,
         onOk: () => {
-          // Object.entries(values).forEach(([k, v]) => {
-          //   // if (k === 'arAccountCommencementDate' && v) {
-          //   //   values[k] = v.format('YYYY-MM-DD');
-          //   // }
-          // });
           dispatch({
-            type: 'grant/addMappingList',
+            type: 'grant/add',
             payload: {
-              params: values,
+              commodityList: checkedList,
+              tplId: taId,
             },
           }).then(resCb);
         },
@@ -242,9 +255,9 @@ class NewGrant extends React.PureComponent {
   render() {
     const {
       loading,
-      grant: { addOfferModal, bindingList, currentPage, pageSize, totalSize },
+      grant: { addOfferModal, currentPage, pageSize, totalSize, checkedList },
       location: {
-        query: { rowAllSelected },
+        query: { taId },
       },
       form: { getFieldDecorator },
     } = this.props;
@@ -295,7 +308,7 @@ class NewGrant extends React.PureComponent {
                   <Col span={24}>
                     <FormItem>
                       {getFieldDecorator(
-                        'arAccountCommencementDate',
+                        'subCommodityList',
                         {}
                       )(
                         <Table
@@ -303,11 +316,12 @@ class NewGrant extends React.PureComponent {
                           dataSource={[
                             {
                               key: 'addOption',
-                              bindingName: <a onClick={() => this.add()}>+ Add</a>,
-                              bindingIdentifier: ' ',
+                              commodityName: <a onClick={() => this.add()}>+ Add</a>,
+                              commodityIdentifier: ' ',
                               operation: 'ADD',
                             },
-                          ].concat(bindingList)}
+                            ...checkedList,
+                          ]}
                           columns={this.columns}
                           className={`tabs-no-padding ${styles.searchTitle}`}
                           pagination={pagination}
@@ -321,7 +335,8 @@ class NewGrant extends React.PureComponent {
                     </FormItem>
                   </Col>
                 </Row>
-                {addOfferModal ? <AddOfferModal rowAllSelected={rowAllSelected} /> : null}
+                {addOfferModal ? <AddOfferModal taId={taId} /> : null}
+                <Divider style={{ marginTop: 100 }} />
                 <Row>
                   <Col style={{ textAlign: 'right', padding: '10px 15px' }}>
                     <Button

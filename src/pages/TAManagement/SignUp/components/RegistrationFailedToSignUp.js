@@ -45,13 +45,14 @@ class RegistrationFailedToSignUp extends PureComponent {
         isShowDetail: true,
       },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
-      if (!isNvl(taId)) {
-        dispatch({
-          type: 'taMgr/fetchQueryTaInfoWithMask',
-          payload: { taId, signature },
-        });
-      }
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
+        if (!isNvl(taId)) {
+          dispatch({
+            type: 'taMgr/fetchQueryTaInfoWithMask',
+            payload: { taId, signature },
+          });
+        }
+      });
     });
   };
 

@@ -3,7 +3,19 @@ import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
-import { Button, Col, DatePicker, Form, Input, message, Modal, Row, Select, Table, Upload } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Table,
+  Upload,
+} from 'antd';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import styles from './index.less';
@@ -172,31 +184,34 @@ class RevalidationRequest extends Component {
       form.validateFields(err => {
         if (!err) {
           Modal.warning({
-            title: 'There’s $2 modification service fee. Revalidation only allowed once per order. Proceed or Not?',
+            title:
+              'There’s $2 modification service fee. Revalidation only allowed once per order. Proceed or Not?',
             centered: true,
             content: (
-              <div style={{marginBottom: 20}}>
+              <div style={{ marginBottom: 20 }}>
                 <div className={styles.operateButtonDivStyle}>
                   <Button
                     onClick={() => {
                       Modal.destroyAll();
                     }}
-                    style={{marginRight: 8, width: 40}}
+                    style={{ marginRight: 8, width: 40 }}
                   >
                     No
                   </Button>
                   <Button
-                    onClick={() => this.wantRevalidate(deliveryMode, collectionDate, selectedVidList, bookingNo)}
+                    onClick={() =>
+                      this.wantRevalidate(deliveryMode, collectionDate, selectedVidList, bookingNo)
+                    }
                     type="primary"
-                    style={{width: 40}}
+                    style={{ width: 40 }}
                   >
                     Yes
                   </Button>
                 </div>
               </div>
             ),
-            okButtonProps: {style: {display: 'none'}},
-            cancelButtonProps: {style: {display: 'none'}},
+            okButtonProps: { style: { display: 'none' } },
+            cancelButtonProps: { style: { display: 'none' } },
           });
         }
       });

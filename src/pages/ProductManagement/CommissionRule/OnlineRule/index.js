@@ -105,30 +105,20 @@ class CommissionRuleSetup extends React.PureComponent {
 
   edit = record => {
     router.push({
-      pathname: '/ProductManagement/CommissionRule/OnlineRule/Edit/${row.taId}',
+      pathname: `/ProductManagement/CommissionRule/OnlineRule/Edit/${record.id}`,
       query: { type: 'edit', tplId: record.tplId },
     });
   };
 
-  new = record => {
+  new = () => {
     router.push({
       pathname: '/ProductManagement/CommissionRule/OnlineRule/New',
-      query: { type: 'new', tplId: record.tplId },
+      query: { type: 'new' },
     });
   };
 
   detail = record => {
     router.push(`/ProductManagement/CommissionRule/OnlineRule/Detail/${record.tplId}`);
-  };
-
-  onSelectChange = selectedRowKeys => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'commissionRuleSetup/saveSelectOffer',
-      payload: {
-        selectedRowKeys,
-      },
-    });
   };
 
   handleSearch = ev => {
@@ -182,15 +172,15 @@ class CommissionRuleSetup extends React.PureComponent {
     }
   };
 
-  showTotal(total) {
+  showTotal = total => {
     return <div>Total {total} items</div>;
-  }
+  };
 
   render() {
     const {
       form: { getFieldDecorator },
       loading,
-      commissionRuleSetup: { commissionList, currentPage, pageSize, totalSize, selectedRowKeys },
+      commissionRuleSetup: { commissionList, currentPage, pageSize, totalSize },
     } = this.props;
     const pagination = {
       current: currentPage,
@@ -215,10 +205,6 @@ class CommissionRuleSetup extends React.PureComponent {
         url: null,
       },
     ];
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
-    };
     return (
       <Row type="flex" justify="space-around" id="mainTaView">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
@@ -284,10 +270,10 @@ class CommissionRuleSetup extends React.PureComponent {
                         style={{ width: '100%' }}
                         allowClear
                       >
-                        <Option value="ACTIVE" key="ACTIVE">
+                        <Option value="Active" key="Active">
                           ACTIVE
                         </Option>
-                        <Option value="INACTIVE" key="INACTIVE">
+                        <Option value="Inactive" key="Inactive">
                           INACTIVE
                         </Option>
                       </Select>
@@ -310,21 +296,16 @@ class CommissionRuleSetup extends React.PureComponent {
           <Card>
             <Row gutter={24}>
               <Col {...ColProps} style={{ padding: '12px' }}>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    this.new();
-                  }}
-                >
+                <Button type="primary" onClick={this.new}>
                   {formatMessage({ id: 'COMMON_NEW' })}
                 </Button>
-                <Button style={{ marginLeft: 8 }} onClick={() => this.binding()}>
-                  {formatMessage({ id: 'ADD_BINDING' })}
-                </Button>
+                {/* <Button style={{ marginLeft: 8 }} onClick={() => this.binding()}> */}
+                {/* {formatMessage({ id: 'ADD_BINDING' })} */}
+                {/* </Button> */}
               </Col>
             </Row>
             <Table
-              rowKey={record => record.tplId}
+              rowKey={record => record.commoditySpecId}
               bordered={false}
               size="small"
               dataSource={commissionList}
@@ -332,7 +313,6 @@ class CommissionRuleSetup extends React.PureComponent {
               loading={loading}
               columns={this.columns}
               className="table-style"
-              rowSelection={rowSelection}
               onChange={this.handleTableChange}
             />
           </Card>

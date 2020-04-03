@@ -1,5 +1,5 @@
-import {message} from 'antd';
-import {formatMessage} from 'umi/locale';
+import { message } from 'antd';
+import { formatMessage } from 'umi/locale';
 import {
   addTAUser,
   modifyUser,
@@ -125,30 +125,30 @@ export default {
     },
     *modifyUser({ payload }, { call }) {
       const {
-        data: {resultCode, resultMsg},
-      } = yield call(modifyUser, {...payload});
+        data: { resultCode, resultMsg },
+      } = yield call(modifyUser, { ...payload });
       if (resultCode === '0') {
-        message.success(formatMessage({id: 'MODIFY_SUCCESS'}), 10);
+        message.success(formatMessage({ id: 'MODIFY_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
       return false;
     },
-    * sendEmail({payload}, {call}) {
+    *sendEmail({ payload }, { call }) {
       const {
-        data: {resultCode, resultMsg},
-      } = yield call(sendEmail, {...payload});
+        data: { resultCode, resultMsg },
+      } = yield call(sendEmail, { ...payload });
       if (resultCode === '0') {
-        message.success(formatMessage({id: 'SEND_SUCCESS'}), 10);
+        message.success(formatMessage({ id: 'SEND_SUCCESS' }), 10);
         return true;
       }
       message.warn(resultMsg, 10);
       return false;
     },
-    * getTACompanyDetail({payload}, {call, put}) {
+    *getTACompanyDetail({ payload }, { call, put }) {
       const {
-        data: {resultCode, resultMsg, result = {}},
-      } = yield call(queryCompanyInfo, {taId: payload.companyId});
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(queryCompanyInfo, { taId: payload.companyId });
       if (resultCode === '0') {
         yield put({
           type: 'save',

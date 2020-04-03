@@ -30,10 +30,20 @@ class OrderPay extends Component {
     this.state = {
       clientHeight,
     };
+  }
+
+  componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
       type: 'ticketBookingAndPayMgr/initPage',
       payload: {},
+    });
+  }
+
+  componentWillUnmount() {
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'ticketBookingAndPayMgr/resetData',
     });
   }
 
@@ -206,7 +216,6 @@ class OrderPay extends Component {
             document.body.removeChild(aElement);
           });
         }
-
       }
     });
   };

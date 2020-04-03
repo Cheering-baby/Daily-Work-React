@@ -338,10 +338,10 @@ class CustomerInformationToEdit extends PureComponent {
   };
 
   onCheckRegistrationNo = keyValue => {
-    const { dispatch } = this.props;
+    const { dispatch, taId } = this.props;
     return dispatch({
       type: 'taMgr/fetchCheckCompanyExist',
-      payload: { registrationNo: keyValue },
+      payload: { registrationNo: keyValue, taId },
     });
   };
 

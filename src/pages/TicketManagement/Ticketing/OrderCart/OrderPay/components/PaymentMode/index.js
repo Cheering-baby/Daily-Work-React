@@ -14,7 +14,7 @@ class PaymentModel extends Component {
       dispatch,
       ticketBookingAndPayMgr: { payModeList },
     } = this.props;
-    const newList = payModeList.map((info) => {
+    const newList = payModeList.map(info => {
       let check = false;
       if (info.value === payModelInfo.value) {
         check = true;
@@ -129,7 +129,7 @@ class PaymentModel extends Component {
         <Row style={{ margin: '20px 0 5px 0' }}>
           <Col span={24}>
             {payModeListNew &&
-              payModeListNew.map((payModelInfo) => {
+              payModeListNew.map(payModelInfo => {
                 if (payModelInfo.check) {
                   return (
                     <div

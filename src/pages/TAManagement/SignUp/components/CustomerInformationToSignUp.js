@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Card, Col, Form, Row } from 'antd';
+import { Alert, Card, Col, Form, Row } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import ContactInformationToFrom from '../../components/ContactInformationToFrom';
@@ -9,6 +9,7 @@ import ApplyARCreditToFrom from '../../components/ApplyARCreditToFrom';
 import FileUploadToFrom from '../../components/FileUploadToFrom';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue, getFormLayout, getProductType } from '../../utils/pubUtils';
+import styles from '../index.less';
 
 const mapStateToProps = store => {
   const {
@@ -398,6 +399,32 @@ class CustomerInformationToSignUp extends PureComponent {
     };
     return (
       <React.Fragment>
+        <Alert
+          message={formatMessage({ id: 'KINDLY_SIGN_UP' })}
+          description={
+            <ul className={styles.kindlySignUpUl}>
+              <li>
+                <span className={styles.kindlySignUpLeftSpan}>
+                  {formatMessage({ id: 'SINGAPORE_REGISTERED_COMPANY' })}
+                </span>
+                <span className={styles.kindlySignUpRightSpan}>
+                  {formatMessage({ id: 'SINGAPORE_REGISTERED_CONTENT' })}
+                </span>
+              </li>
+              <li>
+                <span className={styles.kindlySignUpLeftSpan}>
+                  {formatMessage({ id: 'OVERSEAS_REGISTER_COMPANY' })}
+                </span>
+                <span className={styles.kindlySignUpRightSpan}>
+                  {formatMessage({ id: 'OVERSEAS_REGISTER_CONTENT' })}
+                </span>
+              </li>
+            </ul>
+          }
+          type="warning"
+          showIcon
+          style={{ marginBottom: '0.25rem', marginTop: '1rem', padding: '15px 8px 0 64px' }}
+        />
         <ApplyARCreditToFrom {...arCreditProps} />
         <Row type="flex" justify="space-around">
           <Col span={24}>

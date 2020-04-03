@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react';
-import { Spin, Row, Col, Card, List } from 'antd';
-import { connect } from 'dva';
+import React, {PureComponent} from 'react';
+import {Card, Col, List, Row, Spin} from 'antd';
+import {connect} from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
-import { formatMessage } from 'umi/locale';
-import { isNvl } from '@/utils/utils';
+import {formatMessage} from 'umi/locale';
+import {isNvl} from '@/utils/utils';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../components/BreadcrumbComp';
@@ -69,6 +69,18 @@ class CreateOrder extends PureComponent {
       //   type: 'ticketMgr/resetData',
       //   payload: {},
       // });
+      dispatch({
+        type: 'onceAPirateTicketMgr/resetData',
+        payload: {},
+      });
+      dispatch({
+        type: 'ticketOrderCartMgr/resetData',
+        payload: {},
+      });
+      dispatch({
+        type: 'ticketBookingAndPayMgr/resetData',
+        payload: {},
+      });
     }
   }
 

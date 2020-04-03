@@ -19,7 +19,7 @@ class MappingDetails extends React.PureComponent {
         params: { detail },
       },
       location: {
-        query: { companyName },
+        query: { companyName, arAllowed },
       },
       mapping: { type },
     } = this.props;
@@ -37,7 +37,7 @@ class MappingDetails extends React.PureComponent {
         breadcrumbName:
           type === 'edit'
             ? formatMessage({ id: 'COMMON_MODIFY' })
-            : formatMessage({ id: 'COMMON_NEW' }),
+            : formatMessage({ id: 'MENU_TA_MAPPING' }),
         url: null,
       },
     ];
@@ -53,7 +53,7 @@ class MappingDetails extends React.PureComponent {
         <MediaQuery minWidth={SCREEN.screenLgMin}>
           <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
         </MediaQuery>
-        <MappingDetail taId={detail} companyName={companyName} />
+        <MappingDetail taId={detail} companyName={companyName} arAllowed={arAllowed} />
       </Col>
     );
   }

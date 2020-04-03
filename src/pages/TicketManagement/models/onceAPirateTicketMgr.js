@@ -1,12 +1,12 @@
 import router from 'umi/router';
-import { message } from 'antd';
+import {message} from 'antd';
 import moment from 'moment';
 import {
   getAttractionProductList,
-  getPluProductByRuleId,
-  getVoucherProductList,
-  getSumPriceOfOfferPaxOfferProfile,
   getPamsPriceRuleIdByOfferProfile,
+  getPluProductByRuleId,
+  getSumPriceOfOfferPaxOfferProfile,
+  getVoucherProductList,
 } from '../utils/ticketOfferInfoUtil';
 
 export default {
@@ -27,9 +27,11 @@ export default {
   },
 
   effects: {
-    *initEditOnceAPirateOrder({ payload }, { put, select }) {},
+    * initEditOnceAPirateOrder() {
+      // console.log('initEditOnceAPirateOrder');
+    },
 
-    *addToCartByDiffMinutesLess({ payload }, { put, select }) {
+    * addToCartByDiffMinutesLess({payload}, {put}) {
       const { orderIndex, diffMinutesLess, onceAPirateOrderData = [] } = payload;
 
       const newOnceAPirateOrderData = onceAPirateOrderData.map(item => {
@@ -94,7 +96,7 @@ export default {
           },
         ];
         offerOrderInfo.orderInfo.individualSettingList = [];
-        for (let i = 0; i < offerOrderInfo.orderInfo.orderQuantity; i++) {
+        for (let i = 0; i < offerOrderInfo.orderInfo.orderQuantity; i += 1) {
           offerOrderInfo.orderInfo.individualSettingList.push({
             meals: null,
             remarks: [],
@@ -124,7 +126,7 @@ export default {
             diffSum =
               offerOrderInfo.orderInfo.individualSettingList.length -
               offerOrderInfo.orderInfo.orderQuantity;
-            for (let i = 0; i < diffSum; i++) {
+            for (let i = 0; i < diffSum; i += 1) {
               offerOrderInfo.orderInfo.individualSettingList.splice(
                 offerOrderInfo.orderInfo.individualSettingList.length - 1,
                 1
@@ -134,7 +136,7 @@ export default {
             diffSum =
               offerOrderInfo.orderInfo.orderQuantity -
               offerOrderInfo.orderInfo.individualSettingList.length;
-            for (let i = 0; i < diffSum; i++) {
+            for (let i = 0; i < diffSum; i += 1) {
               offerOrderInfo.orderInfo.individualSettingList.push({
                 meals: null,
                 remarks: [],
@@ -177,7 +179,7 @@ export default {
       }
     },
 
-    *orderToCheck({ payload }, { put, select, take }) {
+    * orderToCheck(_, {put, select, take}) {
       yield put({
         type: 'save',
         payload: {
@@ -236,7 +238,8 @@ export default {
     },
     resetData() {
       return {
-        orderDataIndex: null,
+        showPageLoading: false,
+        orderIndex: null,
         showDetail: false,
         offerDetail: {},
         onceAPirateOrderData: [],
@@ -275,8 +278,10 @@ export default {
 
         const voucherProductList = getVoucherProductList(offerProfile, requestParam.validTimeFrom);
         if (diffMinutesLess && voucherProductList && voucherProductList.length !== 0) {
+          // eslint-disable-next-line no-continue
           continue;
         } else if (!diffMinutesLess && voucherProductList && voucherProductList.length === 0) {
+          // eslint-disable-next-line no-continue
           continue;
         }
 
@@ -293,6 +298,7 @@ export default {
           offerMaxAvailable = offerMaxAvailable === -1 ? 2147483647 : offerMaxAvailable;
         }
         if (offerProfile.offerBasicInfo && offerProfile.offerBasicInfo.offerMinQuantity) {
+          // eslint-disable-next-line prefer-destructuring
           offerMinQuantity = offerProfile.offerBasicInfo.offerMinQuantity;
         }
 
@@ -392,6 +398,7 @@ export default {
           if (orderIndex !== null && onceAPirateOrder !== null) {
             onceAPirateOrder.orderOfferList.forEach(orderOffer => {
               if (orderOffer.offerInfo.offerNo === offerList[i].offerNo) {
+                // eslint-disable-next-line prefer-destructuring
                 orderQuantity = orderOffer.orderInfo.orderQuantity;
               }
             });

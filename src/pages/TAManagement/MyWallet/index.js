@@ -333,7 +333,9 @@ class MyWallet extends React.PureComponent {
                   </div>
                 </div>
                 {!ar && (
-                  <div style={{ paddingRight: '24px' }}>{arActivity === '' ? <More /> : <ARApply />}</div>
+                  <div style={{ paddingRight: '24px' }}>
+                    {arActivity === '' ? <More /> : <ARApply />}
+                  </div>
                 )}
               </div>
             </Col>

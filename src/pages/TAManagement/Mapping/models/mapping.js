@@ -87,7 +87,7 @@ export default {
 
     *fetchSelectReset(_, { put }) {
       yield put({
-        type: 'save',
+        type: 'clear',
       });
       yield put({
         type: 'fetchMappingList',

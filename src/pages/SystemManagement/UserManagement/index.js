@@ -1,8 +1,8 @@
 import React from 'react';
-import {Breadcrumb, Col} from 'antd';
+import { Breadcrumb, Col } from 'antd';
 // import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
 // import { SCREEN } from '../../../../utils/screen';
 import MediaQuery from 'react-responsive';
 import UserSearchForm from './components/UserSearchForm';
@@ -21,12 +21,12 @@ import SCREEN from '@/utils/screen';
 class Index extends React.PureComponent {
   render() {
     const breadCrumbBody = (
-      <Breadcrumb separator=" > " style={{marginBottom: '10px'}}>
+      <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
         <Breadcrumb.Item className={styles.breadCrumbStyle}>
-          {formatMessage({id: 'SYSTEM_MANAGEMENT'})}
+          {formatMessage({ id: 'SYSTEM_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item className={styles.breadCrumbBold}>
-          {formatMessage({id: 'USER_MANAGEMENT'})}
+          {formatMessage({ id: 'USER_MANAGEMENT' })}
         </Breadcrumb.Item>
       </Breadcrumb>
     );
@@ -42,14 +42,14 @@ class Index extends React.PureComponent {
         </MediaQuery>
         <MediaQuery minWidth={SCREEN.screenLgMin}>{breadCrumbBody}</MediaQuery>
         <MediaQuery maxWidth={SCREEN.screenXsMax}>
-          <div style={{marginTop: '20px', marginBottom: '20px'}}>
-            <UserSearchForm/>
+          <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+            <UserSearchForm />
           </div>
         </MediaQuery>
         <MediaQuery minWidth={SCREEN.screenSmMin}>
-          <UserSearchForm/>
+          <UserSearchForm />
         </MediaQuery>
-        <UserSearchTable/>
+        <UserSearchTable />
       </Col>
     );
   }

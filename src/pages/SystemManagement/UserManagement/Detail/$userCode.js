@@ -1,9 +1,9 @@
 import React from 'react';
-import {Breadcrumb, Card, Col, Form} from 'antd';
+import { Breadcrumb, Card, Col, Form } from 'antd';
 // import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
 import styles from '../index.less';
@@ -56,19 +56,19 @@ class UserCode extends React.PureComponent {
 
   render() {
     const breadCrumbBody = (
-      <Breadcrumb separator=" > " style={{marginBottom: '10px'}}>
+      <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
         <Breadcrumb.Item className={styles.breadCrumbStyle}>
-          {formatMessage({id: 'SYSTEM_MANAGEMENT'})}
+          {formatMessage({ id: 'SYSTEM_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item
           className={styles.breadCrumbStyle}
-          style={{cursor: 'pointer'}}
+          style={{ cursor: 'pointer' }}
           onClick={e => this.cancel(e)}
         >
-          {formatMessage({id: 'USER_MANAGEMENT'})}
+          {formatMessage({ id: 'USER_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item className={styles.breadCrumbBold}>
-          {formatMessage({id: 'COMMON_DETAIL'})}
+          {formatMessage({ id: 'COMMON_DETAIL' })}
         </Breadcrumb.Item>
       </Breadcrumb>
     );
@@ -83,7 +83,7 @@ class UserCode extends React.PureComponent {
         </MediaQuery>
         <MediaQuery minWidth={SCREEN.screenLgMin}>{breadCrumbBody}</MediaQuery>
         <Card className={styles.cardClass}>
-          <UserForm type="DETAIL"/>
+          <UserForm type="DETAIL" />
         </Card>
       </Col>
     );

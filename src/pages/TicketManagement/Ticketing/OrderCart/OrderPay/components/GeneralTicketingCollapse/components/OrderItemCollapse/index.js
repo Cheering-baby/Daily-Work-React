@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Icon, Row, Col, Collapse } from 'antd';
+import { Checkbox, Col, Collapse, Icon, Row } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
 class OrderItemCollapse extends Component {
-
   getTitleNameStr = orderOffer => {
     if (orderOffer && orderOffer.offerInfo && orderOffer.offerInfo.offerBasicInfo) {
       return orderOffer.offerInfo.offerBasicInfo.offerName;
@@ -97,7 +96,7 @@ class OrderItemCollapse extends Component {
           // eslint-disable-next-line react/no-array-index-key
           <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
             <Col span={10} className={styles.titleCol}>
-              <span className={styles.titleSpan}>{orderInfo.productInfo.productName}</span>
+              <span className={styles.titleSpan}> </span>
             </Col>
             <Col span={8} className={styles.dataCol}>
               <span className={styles.dataSpan}>
@@ -125,6 +124,97 @@ class OrderItemCollapse extends Component {
         )}
       </Collapse.Panel>
     );
+  };
+
+  getOfferFixedRender = (orderOffer, offerIndex) => {
+    const { orderIndex, companyType } = this.props;
+
+    return (
+      <Collapse.Panel
+        key={`package_${orderIndex}_${offerIndex}`}
+        className={styles.collapsePanelStyles}
+        header={
+          <Row gutter={24} className={styles.collapsePanelHeaderRow}>
+            <Col span={10}>
+              <Checkbox
+                value="ALL"
+                checked={orderOffer.orderAll}
+                indeterminate={orderOffer.indeterminate}
+                onClick={this.allClickEvent}
+                onChange={e => {
+                  this.checkOrderEvent(e, offerIndex, orderOffer);
+                }}
+              />
+              <span className={styles.collapsePanelHeaderTitle}>
+                {this.getTitleNameStr(orderOffer)}
+              </span>
+            </Col>
+            <Col span={8}>
+              <span className={styles.collapsePanelHeaderStyles}>
+                {this.getOrderTime(orderOffer)}
+              </span>
+            </Col>
+            <Col span={3} className={styles.sumPriceCol}>
+              {companyType === '01' && (
+                <span className={styles.sumPriceSpan}>
+                  {this.getOfferFixedSumPrice(orderOffer)}
+                </span>
+              )}
+            </Col>
+            <Col span={3} />
+          </Row>
+        }
+      >
+        <Row gutter={24} className={styles.contentRow}>
+          <Col span={10} className={styles.titleCol}>
+            <span className={styles.titleSpan}>{this.getProductTypeByOfferFixed(orderOffer)}</span>
+          </Col>
+          <Col span={8} className={styles.dataCol}>
+            <span className={styles.dataSpan}>Quantity x {orderOffer.orderSummary.quantity}</span>
+          </Col>
+          <Col span={3} className={styles.priceCol}>
+            {companyType === '01' && (
+              <span className={styles.priceSpan}>{this.getOfferFixedPricePax(orderOffer)}/pax</span>
+            )}
+          </Col>
+        </Row>
+        {companyType === '01' && (
+          <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
+            <Col span={11} className={styles.titleCol} />
+            <Col span={10} className={styles.totalPriceCol}>
+              <span className={styles.totalPriceSpan}>
+                TOTAL: {this.getOfferFixedSumPrice(orderOffer)}
+              </span>
+            </Col>
+          </Row>
+        )}
+      </Collapse.Panel>
+    );
+  };
+
+  getOfferFixedSumPrice = orderOffer => {
+    let offerSumPrice = 0;
+    if (orderOffer.orderSummary && orderOffer.orderSummary.totalPrice) {
+      offerSumPrice = orderOffer.orderSummary.totalPrice;
+    }
+    return `$${Number(offerSumPrice).toFixed(2)}`;
+  };
+
+  getOfferFixedPricePax = orderOffer => {
+    let offerSumPrice = 0;
+    if (orderOffer.orderSummary && orderOffer.orderSummary.pricePax) {
+      offerSumPrice = orderOffer.orderSummary.pricePax;
+    }
+    return `$${Number(offerSumPrice).toFixed(2)}`;
+  };
+
+  getProductTypeByOfferFixed = orderOffer => {
+    let productType = '';
+    if (orderOffer.orderInfo) {
+      const ageGroups = orderOffer.orderInfo.map(orderInfoItem => orderInfoItem.ageGroup);
+      productType = ageGroups.join(',');
+    }
+    return productType;
   };
 
   getOfferBundleRender = (orderOffer, offerIndex) => {
@@ -208,10 +298,15 @@ class OrderItemCollapse extends Component {
         )}
       >
         {orderOfferList.map((orderOffer, offerIndex) => {
+          let offerRender = null;
           if (orderOffer.orderType && orderOffer.orderType === 'offerBundle') {
-            return this.getOfferBundleRender(orderOffer, offerIndex);
+            offerRender = this.getOfferBundleRender(orderOffer, offerIndex);
+          } else if (orderOffer.orderType && orderOffer.orderType === 'offerFixed') {
+            offerRender = this.getOfferFixedRender(orderOffer, offerIndex);
+          } else {
+            offerRender = this.getOfferRender(orderOffer, offerIndex);
           }
-          return this.getOfferRender(orderOffer, offerIndex);
+          return offerRender;
         })}
       </Collapse>
     );

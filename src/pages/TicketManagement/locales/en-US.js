@@ -1,4 +1,3 @@
-
 export default {
   FUNCTION_NAME: 'Ticket Management',
   ORDER_TITLE_TIP: '* All the rates are tax and service charge inclusive',

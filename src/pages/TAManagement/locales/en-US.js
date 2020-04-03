@@ -20,6 +20,13 @@ export default {
   OTHER_INFORMATION: 'Step 2',
   COMPLETED: 'Completed',
 
+  KINDLY_SIGN_UP:
+    'Kindly ensure the relevant supporting documents are ready prior to commencement of this sign up',
+  SINGAPORE_REGISTERED_COMPANY: 'Singapore Registered Company: ',
+  SINGAPORE_REGISTERED_CONTENT: '1.STB Travel Agent License 2.ROC Company Business Profile',
+  OVERSEAS_REGISTER_COMPANY: 'Overseas Register Company: ',
+  OVERSEAS_REGISTER_CONTENT: '1.ROC Company Business Profile',
+
   STATUS_COMPLETED: 'COMPLETED',
   STATUS_PENDING: 'PENDING OPERATION',
   STATUS_REJECT: 'REJECT',

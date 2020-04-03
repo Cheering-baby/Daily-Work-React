@@ -3,7 +3,6 @@ import { Icon, Row, Col, Collapse } from 'antd';
 import styles from './index.less';
 
 class OrderItemCollapse extends React.PureComponent {
-
   render() {
     const { companyType = '01', quantity = 0, pricePax = 0 } = this.props;
 

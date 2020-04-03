@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import MediaQuery from 'react-responsive';
-import { connect } from 'dva';
+import {connect} from 'dva';
 import moment from 'moment';
-import { Button, Col, message, Modal, Row, Spin, Table, Tooltip } from 'antd';
-import { formatMessage } from 'umi/locale';
+import {Button, Col, message, Modal, Row, Spin, Table, Tooltip} from 'antd';
+import {formatMessage} from 'umi/locale';
 import router from 'umi/router';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../components/BreadcrumbComp';
@@ -549,27 +549,24 @@ class QueryOrder extends Component {
     return true;
   };
 
-  paymentButtonDisable = (selectedBookings) => {
-
+  paymentButtonDisable = selectedBookings => {
     const {
       global: {
-        userCompanyInfo: { companyType },
+        currentUser: {userType},
       },
     } = this.props;
 
     let paymentButtonDisable = true;
-    if (companyType && companyType==='01' && selectedBookings.length === 1) {
+    if (userType && userType === '01' && selectedBookings.length === 1) {
       const { transType, status } = selectedBookings[0];
       if (transType === 'booking' && status === 'WaitingForPaying') {
-        return false;
+        paymentButtonDisable = false;
       }
     }
     return paymentButtonDisable;
-
   };
 
-  showPaymentModal = (selectedBookings) => {
-
+  showPaymentModal = selectedBookings => {
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
       // console.log(selectedBooking);
@@ -580,11 +577,10 @@ class QueryOrder extends Component {
           paymentModalVisible: true,
           selectedBooking,
           bookDetail: selectedBooking,
-          bookingNo: selectedBooking.bookingNo
+          bookingNo: selectedBooking.bookingNo,
         },
       });
     }
-
   };
 
   render() {
@@ -661,15 +657,15 @@ class QueryOrder extends Component {
                     >
                       {formatMessage({ id: 'REFUND' })}
                     </Button>
-                    {userType === '02' &&
-                    <Button
-                      disabled={this.ifCanApprove(selectedBookings, userType)}
-                      className={styles.buttonStyle}
-                      onClick={() => this.approveOrder(selectedBookings)}
-                    >
-                      {formatMessage({id: 'APPROVE'})}
-                    </Button>
-                    }
+                    {userType === '02' && (
+                      <Button
+                        disabled={this.ifCanApprove(selectedBookings, userType)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.approveOrder(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'APPROVE' })}
+                      </Button>
+                    )}
                     <Button
                       disabled={this.ifCanExportVID(selectedBookings)}
                       className={styles.buttonStyle}

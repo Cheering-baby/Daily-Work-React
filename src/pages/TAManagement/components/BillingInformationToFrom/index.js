@@ -149,10 +149,7 @@ class BillingInformationToFrom extends PureComponent {
                   {getFieldDecorator('bilCity', {
                     initialValue: billingInfo.city || null,
                     rules: [
-                      {
-                        required: !isBilCheckBox && bilCityList && bilCityList.length > 0,
-                        message: formatMessage({ id: 'REQUIRED' }),
-                      },
+                      { required: true, message: formatMessage({ id: 'REQUIRED' }) },
                       { max: 200, message: numFormat },
                     ],
                   })(

@@ -5,7 +5,6 @@ import moment from 'moment';
 import styles from '../../index.less';
 
 class MealsItem extends Component {
-
   mealsChangeEvent = value => {
     const { offerIndex, offerDetail, mealItemIndex, itemValueChangeEvent } = this.props;
 
@@ -206,7 +205,7 @@ class MealsItem extends Component {
                   onChange={this.mealsChangeEvent}
                 >
                   {voucherProductList &&
-                    voucherProductList.map((item) => (
+                    voucherProductList.map(item => (
                       <Select.Option
                         key={`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_meals`}
                         disabled={this.mealsDisabled(item)}

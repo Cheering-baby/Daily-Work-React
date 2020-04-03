@@ -1,9 +1,9 @@
 import React from 'react';
-import {Button, Collapse, Drawer, Form, Icon, Input, Select, Table} from 'antd';
+import { Button, Collapse, Drawer, Form, Icon, Input, Select, Table } from 'antd';
 // import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import styles from '../index.less';
 import constants from '../constants';
 

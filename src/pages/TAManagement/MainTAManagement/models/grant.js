@@ -1,5 +1,6 @@
 import { message } from 'antd';
 import { isEmpty } from 'lodash';
+import { formatMessage } from 'umi/locale';
 import * as service from '../services/mainTAManagement';
 
 const bindingList2 = bindingList => {
@@ -43,18 +44,18 @@ export default {
     addOfferList: [],
     selectedRowKeys: [],
     filter: {},
+    checkedList: [],
   },
   effects: {
-    *fetchAgentBindingList({ payload }, { call, put, select }) {
-      const { agentId, bindingType } = payload;
+    *commodityBindingList({ payload }, { call, put, select }) {
+      const { commoditySpecType } = payload;
       const { pagination } = yield select(state => state.grant);
       const requestData = {
         ...pagination,
-        agentId,
-        bindingType,
+        commoditySpecType,
       };
 
-      const res = yield call(service.queryAgentBindingList, requestData);
+      const res = yield call(service.queryCommodityBindingList, requestData);
       const {
         data: { resultCode, resultMsg, result },
       } = res;
@@ -125,6 +126,21 @@ export default {
           },
         });
       } else message.warn(resultMsg, 10);
+    },
+    *add({ payload }, { call, put }) {
+      const { commodityList, tplId } = payload;
+      const reqParams = {
+        commodityList,
+        tplId,
+      };
+      const { success, errorMsg } = yield call(service.add, reqParams);
+      if (success) {
+        message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
+
+        yield put({
+          type: 'commodityBindingList',
+        });
+      } else throw errorMsg;
     },
     *search({ payload }, { put }) {
       yield put({

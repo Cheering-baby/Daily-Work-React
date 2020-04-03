@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Table, Row, Col, Button, Input, Form } from 'antd';
+import { Modal, Table, Row, Col, Button, Input, Form, message } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import styles from './AddOfferModal.less';
 
 const drawWidth = 700;
+let checkedList = [];
 @Form.create()
 @connect(({ grant, loading }) => ({
   grant,
@@ -24,11 +25,11 @@ class AddOfferModal extends React.PureComponent {
   ];
 
   componentDidMount() {
-    const { dispatch, rowAllSelected } = this.props;
+    const { dispatch, taId } = this.props;
     dispatch({
       type: 'grant/fetchCommodityList',
       payload: {
-        bindingId: rowAllSelected && rowAllSelected.taId ? rowAllSelected.taId : '',
+        bindingId: taId,
         bindingType: 'Agent',
         commodityType: 'Offer',
       },
@@ -36,13 +37,36 @@ class AddOfferModal extends React.PureComponent {
   }
 
   onSelectChange = selectedRowKeys => {
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      grant: { addOfferList },
+    } = this.props;
+    checkedList = cloneDeep(addOfferList).filter(item => {
+      return selectedRowKeys.includes(item.commoditySpecId);
+    });
     dispatch({
       type: 'grant/saveSelectOffer',
       payload: {
         selectedRowKeys,
       },
     });
+  };
+
+  handleOk = (selectedRowKeys, addOfferList) => {
+    const { dispatch } = this.props;
+    if (selectedRowKeys.length > 0) {
+      addOfferList = addOfferList.concat(checkedList);
+      dispatch({
+        type: 'grant/save',
+        payload: {
+          addOfferList,
+          checkedList,
+        },
+      });
+      this.cancel();
+    } else {
+      message.warning('Select at least one PLU.');
+    }
   };
 
   search = e => {
@@ -125,6 +149,7 @@ class AddOfferModal extends React.PureComponent {
         addOfferModal,
         addOfferList,
         selectedRowKeys,
+        checkedList,
         pagination: { currentPage, pageSize, totalSize },
       },
       form: { getFieldDecorator },
@@ -132,6 +157,11 @@ class AddOfferModal extends React.PureComponent {
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
+      getCheckboxProps: record => {
+        return {
+          disabled: !!checkedList.find(item => item.key === record.key),
+        };
+      },
     };
     const pagination = {
       current: currentPage,
@@ -152,7 +182,11 @@ class AddOfferModal extends React.PureComponent {
           onCancel={this.cancel}
           footer={
             <div>
-              <Button style={{ width: 60 }} onClick={this.OK} type="primary">
+              <Button
+                style={{ width: 60 }}
+                onClick={() => this.handleOk(selectedRowKeys, addOfferList)}
+                type="primary"
+              >
                 OK
               </Button>
               <Button onClick={this.cancel} style={{ width: 60 }}>
@@ -179,7 +213,7 @@ class AddOfferModal extends React.PureComponent {
                 </Form.Item>
               </Col>
               <Col xs={12} sm={12} md={6} className={styles.searchReset}>
-                <Button style={{ marginRight: 8 }} type="primary" onClick={this.search}>
+                <Button style={{ marginRight: 8 }} type="primary" htmlType="submit">
                   Search
                 </Button>
                 <Button onClick={this.handleReset}>Reset</Button>
@@ -194,6 +228,7 @@ class AddOfferModal extends React.PureComponent {
               loading={loading}
               pagination={pagination}
               onChange={this.handleTableChange}
+              rowKey={record => record.commoditySpecId}
             />
           </Form>
         </Modal>

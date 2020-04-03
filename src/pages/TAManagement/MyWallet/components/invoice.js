@@ -1,13 +1,13 @@
 /* eslint-disable */
 import React from 'react';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
-import {Button, Modal, Spin, message} from 'antd';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
+import { Button, Modal, Spin, message } from 'antd';
 import styles from './invoice.less';
 
 const logoImage = require('@/assets/image/logi-mini.png');
 
-@connect(({invoice, global, loading}) => ({
+@connect(({ invoice, global, loading }) => ({
   invoice,
   global,
   loading: loading.effects['invoice/fetchInvoiceDetail'],
@@ -38,31 +38,31 @@ class Invoice extends React.PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'invoice/fetchDownloadInvoice',
-      payload: { accountBookFlowId: id},
-    }).then((result)=>{
+      payload: { accountBookFlowId: id },
+    }).then(result => {
       if (result) {
         if (result) {
           const urlArray = result.split('?');
           const pointIndex = urlArray[0].lastIndexOf('.');
-          const fileType = urlArray[0].substring(pointIndex+1);
+          const fileType = urlArray[0].substring(pointIndex + 1);
           this.getBlob(result).then(blob => {
             const blobUrl = window.URL.createObjectURL(blob);
             const aElement = document.createElement('a');
             document.body.appendChild(aElement);
             aElement.style.display = 'none';
             aElement.href = blobUrl;
-            aElement.download = 'invoice.'+fileType;
+            aElement.download = 'invoice.' + fileType;
             aElement.click();
             document.body.removeChild(aElement);
           });
-        } else{
+        } else {
           message.error('Download invoice error!');
         }
-      }  
+      }
     });
   };
 
-  getBlob = (url)  => {
+  getBlob = url => {
     return new Promise(resolve => {
       const xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
@@ -73,9 +73,8 @@ class Invoice extends React.PureComponent {
         }
       };
       xhr.send();
-    })
+    });
   };
-
 
   render() {
     const { visible } = this.state;
@@ -96,14 +95,17 @@ class Invoice extends React.PureComponent {
       onCancel: this.handleCancel,
       footer: [
         <Button
-          type="download" key="submit" message=""
+          type="download"
+          key="submit"
+          message=""
           style={{ backgroundColor: '#1890FF', width: '61px', borderRadius: '4px' }}
           onClick={e => {
             e.preventDefault();
             this.downloadFileEvent(details.id);
-          }}>
+          }}
+        >
           {formatMessage({ id: 'BTN_DOWNLOAD' })}
-          </Button> 
+        </Button>,
       ],
     };
     return (

@@ -1,7 +1,7 @@
 import React from 'react';
-import {Breadcrumb, Col} from 'antd';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
+import { Breadcrumb, Col } from 'antd';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
 import styles from './index.less';
 import RoleSearchForm from './components/RoleSearchForm';
@@ -10,11 +10,10 @@ import RoleOperDrawer from './components/RoleOperDrawer';
 import GrantPrivilegeModal from './components/GrantPrivilegeModal';
 import SCREEN from '@/utils/screen';
 
-@connect(({roleMgr}) => ({
+@connect(({ roleMgr }) => ({
   roleMgr,
 }))
 class RoleManagement extends React.PureComponent {
-
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
@@ -27,16 +26,16 @@ class RoleManagement extends React.PureComponent {
 
   render() {
     const {
-      roleMgr: {drawerShowFlag = false, privilegeModalShowFlag = false},
+      roleMgr: { drawerShowFlag = false, privilegeModalShowFlag = false },
     } = this.props;
 
     const breadCrumbBody = (
-      <Breadcrumb separator=" > " style={{marginBottom: '10px'}}>
+      <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
         <Breadcrumb.Item className={styles.breadCrumbStyle}>
-          {formatMessage({id: 'SYSTEM_MANAGEMENT'})}
+          {formatMessage({ id: 'SYSTEM_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item className={styles.breadCrumbBold}>
-          {formatMessage({id: 'ROLE_MANAGEMENT'})}
+          {formatMessage({ id: 'ROLE_MANAGEMENT' })}
         </Breadcrumb.Item>
       </Breadcrumb>
     );
@@ -52,16 +51,16 @@ class RoleManagement extends React.PureComponent {
         </MediaQuery>
         <MediaQuery minWidth={SCREEN.screenLgMin}>{breadCrumbBody}</MediaQuery>
         <MediaQuery maxWidth={SCREEN.screenXsMax}>
-          <div style={{marginTop: '20px', marginBottom: '20px'}}>
-            <RoleSearchForm/>
+          <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+            <RoleSearchForm />
           </div>
         </MediaQuery>
         <MediaQuery minWidth={SCREEN.screenSmMin}>
-          <RoleSearchForm/>
+          <RoleSearchForm />
         </MediaQuery>
-        <RoleSearchTable/>
-        {drawerShowFlag ? <RoleOperDrawer/> : null}
-        {privilegeModalShowFlag ? <GrantPrivilegeModal/> : null}
+        <RoleSearchTable />
+        {drawerShowFlag ? <RoleOperDrawer /> : null}
+        {privilegeModalShowFlag ? <GrantPrivilegeModal /> : null}
       </Col>
     );
   }

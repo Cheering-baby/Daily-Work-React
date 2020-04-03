@@ -22,7 +22,7 @@ export default {
   COMMISSION_RULE_TITLE: 'Commission Rule',
   TIERED_ATTENDANCE_RULE: 'Tiered & Attendance Rule',
   EFFECTIVE_PERIOD: 'Effective Period',
-  EXPIRY_PERIOD: 'expiryDate',
+  EXPIRY_PERIOD: 'Expiry Date',
   CALCULATION_CYCLE: 'Calculation Cycle',
   MONTH: 'Month',
   CALCUATE_MONTH: 'Calcuate at end of the month',
@@ -49,4 +49,6 @@ export default {
     'If you change the commission amount to Commission Percent, the date you fill with the cleared',
   CHANGE_PERCENT_AMOUNT:
     'If you change the commission percent to Commission Schema, the date you fill with the cleared',
+  PLEASE_END_THE_CURRENT_EDIT_FIRST: 'Please end the current edit first.',
+  PLEASE_ADD_THE_CURRENT_EDIT_FIRST: 'Please add the current edit first.',
 };

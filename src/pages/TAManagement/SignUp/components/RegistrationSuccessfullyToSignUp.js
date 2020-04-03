@@ -36,8 +36,9 @@ class RegistrationSuccessfullyToSignUp extends PureComponent {
         isShowDetail: true,
       },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQueryAgentOpt' });
-      dispatch({ type: 'taMgr/fetchQueryTaInfoWithNoId' });
+      dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
+        dispatch({ type: 'taMgr/fetchQueryTaInfoWithNoId' });
+      });
     });
   };
 

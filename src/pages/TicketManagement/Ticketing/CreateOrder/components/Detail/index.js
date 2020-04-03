@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Drawer, Row, Col } from 'antd';
+import React, {Component} from 'react';
+import {Col, Drawer, Row} from 'antd';
 import styles from './index.less';
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -8,9 +8,8 @@ class Detail extends Component {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
     const {
       onClose,
-      detail: { offerContentList = [] },
+      detail: { offerContentList = [], offerBasicInfo: { offerName } },
     } = this.props;
-    let offerName;
     let longDescription;
     let offerIncludes;
     let termsAndConditions;
@@ -18,9 +17,6 @@ class Detail extends Component {
       const { contentLanguage, contentType, contentValue } = item;
       if (contentLanguage === 'en-us') {
         switch (contentType) {
-          case 'offerName':
-            offerName = contentValue;
-            break;
           case 'longDescription':
             longDescription = contentValue;
             break;

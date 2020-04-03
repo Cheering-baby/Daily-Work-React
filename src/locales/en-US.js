@@ -708,6 +708,7 @@ export default {
   WORKGROUP_CODE_ERR: 'The same user code already exists. Please input again',
 
   COMMON_ADDED_SUCCESSFULLY: 'Added Successfully.',
+  COMMON_GRANTED_SUCCESSFULLY: 'Granted Successfully.',
   COMMON_EDITED_SUCCESSFULLY: 'Edited Successfully.',
   COMMON_DELETED_SUCCESSFULLY: 'Deleted Successfully.',
   COMMON_ENABLED_SUCCESSFULLY: 'Enabled Successfully.',

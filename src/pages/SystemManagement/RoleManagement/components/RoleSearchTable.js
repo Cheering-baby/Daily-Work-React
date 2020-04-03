@@ -1,7 +1,7 @@
 import React from 'react';
-import {Badge, Button, Card, Col, Icon, Row, Table, Tooltip} from 'antd';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
+import { Badge, Button, Card, Col, Icon, Row, Table, Tooltip } from 'antd';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
 import styles from '../index.less';
 import constants from '../constants';
 
@@ -20,12 +20,12 @@ class Index extends React.PureComponent {
   componentDidMount() {
     this.columns = [
       {
-        title: this.showTableTitle(formatMessage({id: 'NO'})),
+        title: this.showTableTitle(formatMessage({ id: 'NO' })),
         dataIndex: 'id',
         width: '10%',
       },
       {
-        title: this.showTableTitle(formatMessage({id: 'ROLE_NAME'})),
+        title: this.showTableTitle(formatMessage({ id: 'ROLE_NAME' })),
         dataIndex: 'roleName',
         width: '25%',
       },

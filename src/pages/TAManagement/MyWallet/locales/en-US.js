@@ -15,6 +15,7 @@ export default {
   PENDING_OPREATION: 'Pending Approval',
   AR_APPLY_STATUS: 'Apply',
   TOPUP_AMOUNT_VALIDATE_MESSAGE: 'Please enter the valid topup amount.',
+  TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE: 'Topup amount cannot be more than $21,474,836.47.',
   INVOICE_TITLE: 'TAX INVOICE',
   AR_APPLY_BTN: 'Apply AR Account',
   AR_APPLY_TITLE: 'Apply',
@@ -26,6 +27,7 @@ export default {
   AR_APPLY_UPLOAD_REQUIRED_INFO_4: 'Other supporting documents relevant to credit application',
   AR_APPLY_UPLOAD_TEXT: 'Click or drag file to this area to upload',
   AR_APPLY_UPLOAD_HINT: 'Recommended file size 10 megabyte',
+  AR_APPLY_INFORMATION: 'AR APPLY INFORMATION',
   AR_CREDIT_LIMIT: 'AR Credit Limit ',
 
   MORE_BTN: 'More >',

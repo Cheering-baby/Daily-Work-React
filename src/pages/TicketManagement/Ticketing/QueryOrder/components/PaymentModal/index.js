@@ -1,6 +1,6 @@
-import React from "react";
-import {Button, Row, Col, message, Modal, Spin, Card} from 'antd';
-import { connect } from 'dva';
+import React from 'react';
+import {Button, Card, Col, message, Modal, Row, Spin} from 'antd';
+import {connect} from 'dva';
 import PaymentMode from '../PaymentMode';
 import styles from './index.less';
 
@@ -8,12 +8,18 @@ import styles from './index.less';
   queryOrderPaymentMgr,
 }))
 class PaymentModal extends React.Component {
-
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
       type: 'queryOrderPaymentMgr/initPage',
       payload: {},
+    });
+  }
+
+  componentWillUnmount() {
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'queryOrderPaymentMgr/resetData',
     });
   }
 
@@ -27,21 +33,17 @@ class PaymentModal extends React.Component {
     });
   };
 
-  getBookingNo = (selectedBooking) => {
-
+  getBookingNo = selectedBooking => {
     if (selectedBooking && selectedBooking.bookingNo) {
       return selectedBooking.bookingNo;
     }
 
     return '-';
-
   };
 
   payTotal = () => {
     const {
-      queryOrderPaymentMgr: {
-        bookDetail,
-      },
+      queryOrderPaymentMgr: { bookDetail },
     } = this.props;
     return Number(bookDetail.totalPrice).toFixed(2);
   };
@@ -112,28 +114,19 @@ class PaymentModal extends React.Component {
   };
 
   render() {
-
     const {
-      queryOrderPaymentMgr: {
-        paymentModalVisible,
-        payPageLoading = false,
-        selectedBooking,
-      },
+      queryOrderPaymentMgr: { paymentModalVisible, payPageLoading = false, selectedBooking },
     } = this.props;
 
     return (
       <Modal
-        title={
-          <span className={styles.modelTitleStyle}>
-            Payment
-          </span>
-        }
+        title={<span className={styles.modelTitleStyle}>Payment</span>}
         visible={paymentModalVisible}
         onCancel={this.handleCancel}
         footer={null}
       >
         <Spin spinning={payPageLoading}>
-          <Row style={{marginBottom:'16px',height: '26px',lineHeight:'26px'}}>
+          <Row style={{ marginBottom: '16px', height: '26px', lineHeight: '26px' }}>
             <Col xs={24} md={12} lg={8}>
               <span className={styles.modelFormItem}>PAMS Transaction No.</span>
             </Col>
@@ -148,10 +141,7 @@ class PaymentModal extends React.Component {
           </Row>
           <Row>
             <Col>
-              <Card
-                className={styles.cardStyles}
-                style={{ marginTop: '0' }}
-              >
+              <Card className={styles.cardStyles} style={{ marginTop: '0' }}>
                 <div className={styles.checkOut}>
                   <div className={styles.checkOutPayDiv}>
                     <div className={styles.payFont}>
@@ -173,9 +163,8 @@ class PaymentModal extends React.Component {
           </Row>
         </Spin>
       </Modal>
-    )
+    );
   }
-
 }
 
 export default PaymentModal;

@@ -194,7 +194,7 @@ class CompanyInformationToFrom extends PureComponent {
                     initialValue: !isNvl(companyInfo.city) ? companyInfo.city : [],
                     rules: [
                       {
-                        required: cityList && cityList.length > 0,
+                        required: true,
                         message: formatMessage({ id: 'REQUIRED' }),
                       },
                     ],
@@ -290,6 +290,7 @@ class CompanyInformationToFrom extends PureComponent {
                       'incorporationDate'
                     )
                   }
+                  disabledDate={value => value.valueOf() > moment().valueOf()}
                   getCalendarContainer={() => document.getElementById(`${viewId}`)}
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   style={{ width: '100%' }}
@@ -369,8 +370,43 @@ class CompanyInformationToFrom extends PureComponent {
             </Col>
           )}
         </Row>
-        {(isSaleSupportRoleFlag || isAccountingArRoleFlag) && (
-          <Row type="flex" justify="space-around">
+        <Row type="flex" justify="space-around">
+          {!isNvl(companyInfo.isGstRegIndicator) ? (
+            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+              <Form.Item
+                label={formatMessage({ id: 'GST_EFFECTIVE_DATE' })}
+                colon={false}
+                {...formItemLayout}
+              >
+                {getFieldDecorator('gstEffectiveDate', {
+                  initialValue: !isNvl(companyInfo.gstEffectiveDate)
+                    ? moment(companyInfo.gstEffectiveDate, 'YYYY-MM-DD')
+                    : null,
+                  rules: this.getGstRegNoRules(companyInfo.isGstRegIndicator),
+                })(
+                  <DatePicker
+                    format="DD/MM/YYYY"
+                    onChange={date =>
+                      onHandleChange(
+                        'gstEffectiveDate',
+                        isNvl(date) ? date : date.format('YYYY-MM-DD'),
+                        'gstEffectiveDate'
+                      )
+                    }
+                    getCalendarContainer={() => document.getElementById(`${viewId}`)}
+                    placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                    style={{ width: '100%' }}
+                    disabled={String(companyInfo.isGstRegIndicator) !== '1' || isAllDisabled}
+                  />
+                )}
+              </Form.Item>
+            </Col>
+          ) : (
+            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+              &nbsp;
+            </Col>
+          )}
+          {isSaleSupportRoleFlag || isAccountingArRoleFlag ? (
             <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
               <Form.Item
                 label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}
@@ -434,43 +470,12 @@ class CompanyInformationToFrom extends PureComponent {
                 </Input.Group>
               </Form.Item>
             </Col>
-            {!isNvl(companyInfo.isGstRegIndicator) ? (
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-                <Form.Item
-                  label={formatMessage({ id: 'GST_EFFECTIVE_DATE' })}
-                  colon={false}
-                  {...formItemLayout}
-                >
-                  {getFieldDecorator('gstEffectiveDate', {
-                    initialValue: !isNvl(companyInfo.gstEffectiveDate)
-                      ? moment(companyInfo.gstEffectiveDate, 'YYYY-MM-DD')
-                      : null,
-                    rules: this.getGstRegNoRules(companyInfo.isGstRegIndicator),
-                  })(
-                    <DatePicker
-                      format="DD/MM/YYYY"
-                      onChange={date =>
-                        onHandleChange(
-                          'gstEffectiveDate',
-                          isNvl(date) ? date : date.format('YYYY-MM-DD'),
-                          'gstEffectiveDate'
-                        )
-                      }
-                      getCalendarContainer={() => document.getElementById(`${viewId}`)}
-                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                      style={{ width: '100%' }}
-                      disabled={String(companyInfo.isGstRegIndicator) !== '1' || isAllDisabled}
-                    />
-                  )}
-                </Form.Item>
-              </Col>
-            ) : (
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-                &nbsp;
-              </Col>
-            )}
-          </Row>
-        )}
+          ) : (
+            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+              &nbsp;
+            </Col>
+          )}
+        </Row>
       </Col>
     );
   }

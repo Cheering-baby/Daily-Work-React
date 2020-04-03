@@ -4,10 +4,12 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
+import moment from 'moment';
 import detailStyles from './index.less';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import Edit from './components/Edit';
+import { isNvl } from '@/utils/utils';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -31,8 +33,8 @@ const formItemLayout2 = {
 };
 
 const ColProps = {
-  xs: 4,
-  sm: 4,
+  xs: 24,
+  sm: 12,
   md: 6,
   xl: 6,
 };
@@ -45,20 +47,16 @@ const ColProps = {
 class Offline extends React.PureComponent {
   columns = [
     {
-      title: formatMessage({ id: 'NO' }),
-      dataIndex: 'PLUName',
-    },
-    {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'PLUName',
+      dataIndex: 'commodityCode',
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
-      dataIndex: 'PLUDescription',
+      dataIndex: 'commodityDescription',
     },
     {
       title: formatMessage({ id: 'THEME_PARK' }),
-      dataIndex: 'themePark',
+      dataIndex: 'themeParkCode',
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
@@ -73,16 +71,11 @@ class Offline extends React.PureComponent {
           <div>
             <Popover trigger="click" placement="leftTop" content={this.getContent()}>
               <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
-                <Icon
-                  type="eye"
-                  onClick={() => {
-                    // this.detail(record);
-                  }}
-                />
+                <Icon type="eye" onClick={() => this.detail(record)} />
               </Tooltip>
             </Popover>
             <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
-              <Icon type="edit" onClick={() => this.edit(record, 'edit')} />
+              <Icon type="edit" onClick={() => this.edit(record)} />
             </Tooltip>
           </div>
         );
@@ -100,11 +93,26 @@ class Offline extends React.PureComponent {
       type: 'offline/queryPluAttribute',
       payload: {
         attributeItem: 'THEME_PARK',
+        attributeType: 'Attraction',
       },
     });
   }
 
+  detail = record => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'offline/detail',
+      payload: {
+        commoditySpecType: 'PackagePlu',
+        commoditySpecId: !isNvl(record.commoditySpecId) ? record.commoditySpecId : null,
+      },
+    });
+  };
+
   getContent = () => {
+    const {
+      offline: { commissionList },
+    } = this.props;
     return (
       <div className={detailStyles.msgBodyStyle}>
         <div>
@@ -121,7 +129,11 @@ class Offline extends React.PureComponent {
               </span>
             }
           >
-            <span className={detailStyles.infoStyle}>dfgdg</span>
+            <span className={detailStyles.infoStyle}>
+              {!isNvl(commissionList.commissionScheme) && commissionList.createStaff !== 'null'
+                ? commissionList.commissionScheme
+                : '-'}
+            </span>
           </FormItem>
           <FormItem
             {...formItemLayout2}
@@ -131,7 +143,11 @@ class Offline extends React.PureComponent {
               </span>
             }
           >
-            <span className={detailStyles.infoStyle}>dfgdg</span>
+            <span className={detailStyles.infoStyle}>
+              {!isNvl(commissionList.createStaff) && commissionList.createStaff !== 'null'
+                ? commissionList.createStaff
+                : '-'}
+            </span>
           </FormItem>
           <FormItem
             {...formItemLayout2}
@@ -141,15 +157,15 @@ class Offline extends React.PureComponent {
               </span>
             }
           >
-            <span className={detailStyles.infoStyle}>dfgdg</span>
+            <span className={detailStyles.infoStyle}>
+              {!isNvl(commissionList.createTime)
+                ? moment(commissionList.createTime, 'YYYY-MM-DD').format('YYYY-MM-DD hh:mm:ss')
+                : '-'}
+            </span>
           </FormItem>
         </Form>
       </div>
     );
-  };
-
-  detail = record => {
-    router.push(`/ProductManagement/CommissionRule/OfflineRule/Detail/${record.type}`);
   };
 
   new = () => {
@@ -159,30 +175,38 @@ class Offline extends React.PureComponent {
     });
   };
 
-  edit = (record, type) => {
+  edit = record => {
     const { dispatch } = this.props;
     dispatch({
       type: 'offline/save',
       payload: {
         drawerVisible: true,
-        type,
+        commoditySpecId: !isNvl(record.commoditySpecId) ? record.commoditySpecId : null,
+      },
+    });
+    dispatch({
+      type: 'offline/detail',
+      payload: {
+        commoditySpecType: 'PackagePlu',
+        commoditySpecId: !isNvl(record.commoditySpecId) ? record.commoditySpecId : null,
       },
     });
   };
 
-  handleSearch = ev => {
-    ev.preventDefault();
-    const { form } = this.props;
-    const { dispatch } = this.props;
-    form.validateFields((err, values) => {
+  handleSearch = e => {
+    const { form, dispatch } = this.props;
+    e.preventDefault();
+    form.validateFieldsAndScroll((err, values) => {
       if (!err) {
+        const likeParam = {
+          commonSearchText: values.commonSearchText || '',
+          themeParkCode: values.themeParkCode || '',
+        };
         dispatch({
           type: 'offline/search',
           payload: {
             filter: {
-              commissionName: values.commissionName,
-              commissionType: values.commissionType,
-              status: values.status,
+              likeParam,
             },
           },
         });
@@ -202,9 +226,9 @@ class Offline extends React.PureComponent {
     });
   };
 
-  showTotal(total) {
+  showTotal = total => {
     return <div>Total {total} items</div>;
-  }
+  };
 
   render() {
     const breadcrumbArr = [
@@ -235,6 +259,11 @@ class Offline extends React.PureComponent {
       pageSizeOptions: ['20', '50', '100'],
       showTotal: this.showTotal,
     };
+    const tableOpts = {
+      size: 'small',
+      bordered: false,
+      scroll: { x: 750 },
+    };
     return (
       <Row type="flex" justify="space-around" id="mainTaView">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
@@ -256,7 +285,7 @@ class Offline extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      `commissionName`,
+                      `commonSearchText`,
                       {}
                     )(
                       <Input
@@ -269,7 +298,7 @@ class Offline extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      `commissionType`,
+                      `themeParkCode`,
                       {}
                     )(
                       <Select
@@ -287,7 +316,7 @@ class Offline extends React.PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col {...ColProps} style={{ textAlign: 'right' }}>
+                <Col style={{ textAlign: 'right' }}>
                   <Button type="primary" htmlType="submit">
                     {formatMessage({ id: 'BTN_SEARCH' })}
                   </Button>
@@ -309,9 +338,8 @@ class Offline extends React.PureComponent {
               </Col>
             </Row>
             <Table
+              {...tableOpts}
               rowKey="id"
-              bordered={false}
-              size="small"
               dataSource={offlineList}
               pagination={pagination}
               loading={loading}

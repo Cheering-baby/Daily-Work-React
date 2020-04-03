@@ -22,7 +22,6 @@ import detailStyles from './index.less';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
 
-const { RangePicker } = DatePicker;
 const formItemLayout = {
   labelCol: {
     span: 6,
@@ -34,7 +33,9 @@ const formItemLayout = {
 
 const ColProps = {
   xs: 24,
+  sm: 12,
   md: 6,
+  xl: 6,
 };
 
 @Form.create()
@@ -43,6 +44,12 @@ const ColProps = {
   loading: loading.effects['mapping/fetchMappingList'],
 }))
 class Index extends React.PureComponent {
+  state = {
+    startValue: null,
+    endValue: null,
+    endOpen: false,
+  };
+
   constructor(props) {
     super(props);
     this.columns = [
@@ -71,7 +78,7 @@ class Index extends React.PureComponent {
         dataIndex: 'effectiveDate',
         key: 'effectiveDate',
         render: text => {
-          const timeText = text ? moment(text).format('YYYY-MM-DD hh:mm:ss') : '';
+          const timeText = text ? moment(text).format('YYYY-MM-DD') : '';
           return timeText ? (
             <div>
               <Tooltip title={timeText} placement="topLeft">
@@ -179,7 +186,7 @@ class Index extends React.PureComponent {
     if (type === 'edit') {
       router.push({
         pathname: `/TAManagement/Mapping/Edit/${row.taId}`,
-        query: { companyName: row.companyName },
+        query: { companyName: row.companyName, arAllowed: row.arAllowed },
       });
     } else if (type === 'block') {
       router.push({
@@ -199,26 +206,26 @@ class Index extends React.PureComponent {
   };
 
   handleSubmit = e => {
-    const {
-      form,
-      dispatch,
-      // mapping: { salutationList },
-    } = this.props;
+    const { form, dispatch } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         const likeParam = {
           idOrName: values.taId || '',
-          applicationBeginDate: '',
-          applicationEndDate: '',
+          applicationBeginDate: values.applicationBeginDate
+            ? values.applicationBeginDate.format('YYYY-MM-DD')
+            : '',
+          applicationEndDate: values.applicationBeginDate
+            ? values.applicationEndDate.format('YYYY-MM-DD')
+            : '',
           status: values.status || '',
         };
-        if (Array.isArray(values.applicationDate)) {
-          const begin = values.applicationDate[0];
-          const end = values.applicationDate[1];
-          likeParam.applicationBeginDate = begin.format('YYYY-MM-DD');
-          likeParam.applicationEndDate = end.format('YYYY-MM-DD');
-        }
+        // if (Array.isArray(values.applicationDate)) {
+        //   const begin = values.applicationDate[0];
+        //   const end = values.applicationDate[1];
+        //   likeParam.applicationBeginDate = begin.format('YYYY-MM-DD');
+        //   likeParam.applicationEndDate = end.format('YYYY-MM-DD');
+        // }
         dispatch({
           type: 'mapping/search',
           payload: {
@@ -263,9 +270,49 @@ class Index extends React.PureComponent {
     });
   };
 
-  showTotal(total) {
+  disabledStartDate = startValue => {
+    const { endValue } = this.state;
+    if (!startValue || !endValue) {
+      return false;
+    }
+    return startValue.valueOf() > endValue.valueOf();
+  };
+
+  disabledEndDate = endValue => {
+    const { startValue } = this.state;
+    if (!endValue || !startValue) {
+      return false;
+    }
+    return endValue.valueOf() <= startValue.valueOf();
+  };
+
+  onChange = (field, value) => {
+    this.setState({
+      [field]: value,
+    });
+  };
+
+  onStartChange = value => {
+    this.onChange('startValue', value);
+  };
+
+  onEndChange = value => {
+    this.onChange('endValue', value);
+  };
+
+  handleStartOpenChange = open => {
+    if (!open) {
+      this.setState({ endOpen: true });
+    }
+  };
+
+  handleEndOpenChange = open => {
+    this.setState({ endOpen: open });
+  };
+
+  showTotal = total => {
     return <div>Total {total} items</div>;
-  }
+  };
 
   render() {
     const {
@@ -292,6 +339,12 @@ class Index extends React.PureComponent {
         url: null,
       },
     ];
+    const tableOpts = {
+      size: 'small',
+      bordered: false,
+      scroll: { x: 750 },
+    };
+    const { endOpen } = this.state;
     return (
       <Row type="flex" justify="space-around" id="mapping">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
@@ -324,7 +377,7 @@ class Index extends React.PureComponent {
                 </Col>
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
-                    {getFieldDecorator(`applicationDate`, {
+                    {getFieldDecorator(`applicationBeginDate`, {
                       rules: [
                         {
                           required: false,
@@ -332,11 +385,35 @@ class Index extends React.PureComponent {
                         },
                       ],
                     })(
-                      <RangePicker
+                      <DatePicker
                         style={{ display: 'block' }}
                         format="YYYY-MM-DD"
-                        placeholder={['Start', 'End']}
-                        // separator={null}
+                        placeholder="Start Date"
+                        onChange={this.onStartChange}
+                        onOpenChange={this.handleStartOpenChange}
+                        disabledDate={this.disabledStartDate}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator(`applicationEndDate`, {
+                      rules: [
+                        {
+                          required: false,
+                          message: '',
+                        },
+                      ],
+                    })(
+                      <DatePicker
+                        style={{ display: 'block' }}
+                        format="YYYY-MM-DD"
+                        placeholder="End Date"
+                        onChange={this.onEndChange}
+                        open={endOpen}
+                        onOpenChange={this.handleEndOpenChange}
+                        disabledDate={this.disabledEndDate}
                       />
                     )}
                   </Form.Item>
@@ -361,7 +438,7 @@ class Index extends React.PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col {...ColProps} style={{ textAlign: 'right' }}>
+                <Col span={24} className={detailStyles.buttonStyle}>
                   <Button type="primary" htmlType="submit">
                     {formatMessage({ id: 'BTN_SEARCH' })}
                   </Button>
@@ -376,7 +453,7 @@ class Index extends React.PureComponent {
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
             <Table
-              size="small"
+              {...tableOpts}
               dataSource={mappingList}
               pagination={pagination}
               loading={loading}

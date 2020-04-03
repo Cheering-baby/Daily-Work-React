@@ -63,6 +63,9 @@ class MappingDetailList extends React.PureComponent {
         taId,
       },
     });
+    await dispatch({
+      type: 'mappingDetails/fetchqueryDictionary',
+    });
   }
 
   cancel = () => {
@@ -81,12 +84,12 @@ class MappingDetailList extends React.PureComponent {
       if (key === 'salesManager') {
         val = typeof val === 'string' ? val.split(',').filter(_ => _) : [];
       } else if (key === 'arAccountCommencementDate') {
-        val = moment(val);
+        val = val ? moment(val) : '';
       } else if (key === 'arAccountEndDate') {
-        val = moment(val);
+        val = val ? moment(val) : '';
       } else if (key === 'guaranteeExpiryDate') {
-        val = moment(val);
-      } else if (key === 'product') {
+        val = val ? moment(val) : '';
+      } else if (key === 'productName') {
         val = typeof val === 'string' ? val.split(',').filter(_ => _) : [];
       }
       return val;
@@ -94,15 +97,9 @@ class MappingDetailList extends React.PureComponent {
   };
 
   jumpToMapping = () => {
-    const {
-      mappingDetails: { type },
-    } = this.props;
-
-    if (type === 'block') {
-      router.push(`/TAManagement/Mapping`);
-    } else if (type === 'edit') {
-      router.push(`/TAManagement/Mapping`);
-    }
+    router.push({
+      pathname: '/TAManagement/Mapping',
+    });
   };
 
   handleSubmit = e => {
@@ -114,11 +111,11 @@ class MappingDetailList extends React.PureComponent {
       taId,
     } = this.props;
     const resCb = response => {
+      this.jumpToMapping();
       if (response === 'SUCCESS') {
-        message.success(type === 'edit' ? 'Modified successfully.' : 'Added successfully.');
-        this.jumpToMapping();
+        message.success(type === 'edit' ? 'Modified successfully.' : 'Mapping successfully.');
       } else if (response === 'ERROR') {
-        message.error(type === 'edit' ? 'Failed to modify.' : 'Failed to add.');
+        message.error(type === 'edit' ? 'Failed to modify.' : 'Failed to mapping.');
       }
     };
     form.validateFields((errors, values) => {
@@ -126,7 +123,7 @@ class MappingDetailList extends React.PureComponent {
         return;
       }
       commonConfirm({
-        content: `Confirm to ${type === 'edit' ? 'Modify' : 'New'} ?`,
+        content: `Confirm to ${type === 'edit' ? 'Modify' : 'Mapping'} ?`,
         onOk: () => {
           Object.keys(values).forEach(k => {
             const value = values[k];
@@ -167,20 +164,25 @@ class MappingDetailList extends React.PureComponent {
   };
 
   changeArAccountDate = (date, dateString) => {
-    const { form } = this.props;
-    form.resetFields({ arAccountCommencementDate: date });
-    if (date) {
-      form.setFieldsValue({ arAccountEndDate: moment(dateString).add(1, 'years') });
-    }
+    const {
+      form,
+      mappingDetails: { time },
+    } = this.props;
+    time.forEach(item => {
+      form.resetFields({ arAccountCommencementDate: date });
+      if (date) {
+        form.setFieldsValue({ arAccountEndDate: moment(dateString).add(item.dictName, 'months') });
+      }
+    });
   };
 
   render() {
     const {
       companyName,
+      arAllowed,
       form: { getFieldDecorator },
       mappingDetails: { userProfiles },
     } = this.props;
-
     const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
     const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
     return (
@@ -235,7 +237,7 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isSaleSupportRoleFlag !== true && userProfiles.accountId !== null}
+                        disabled={isSaleSupportRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -267,7 +269,7 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isSaleSupportRoleFlag !== true && userProfiles.accountId !== null}
+                        disabled={isSaleSupportRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -296,11 +298,11 @@ class MappingDetailList extends React.PureComponent {
                 <Col {...ColProps}>
                   <FormItem {...formItemLayout} label={formatMessage({ id: 'MAPPING_PRODUCT' })}>
                     {getFieldDecorator('product', {
-                      initialValue: this.handleInitVal('product'),
+                      initialValue: this.handleInitVal('productName'),
                     })(
                       <Checkbox.Group disabled={isSaleSupportRoleFlag !== true}>
-                        <Checkbox value="01">Attractions</Checkbox>
-                        <Checkbox value="02">Hotel</Checkbox>
+                        <Checkbox value="attractions">Attractions</Checkbox>
+                        <Checkbox value="hotel">Hotel</Checkbox>
                       </Checkbox.Group>
                     )}
                   </FormItem>
@@ -343,9 +345,7 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={
-                          isAccountingArRoleFlag !== true && userProfiles.accountId !== null
-                        }
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -359,7 +359,7 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('creditTerm'),
                       rules: [
                         {
-                          required: isAccountingArRoleFlag === true,
+                          required: isAccountingArRoleFlag === true || arAllowed === true,
                           msg: 'Required',
                         },
                       ],
@@ -367,7 +367,7 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true}
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -381,7 +381,7 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('creditLimit'),
                       rules: [
                         {
-                          required: isAccountingArRoleFlag === true,
+                          required: isAccountingArRoleFlag === true || arAllowed === true,
                           msg: 'Required',
                         },
                       ],
@@ -389,7 +389,7 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true}
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -425,8 +425,7 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('arFixedThreshold'),
                       rules: [
                         {
-                          required:
-                            isAccountingArRoleFlag === true && userProfiles.accountId !== null,
+                          required: isAccountingArRoleFlag === true || arAllowed === true,
                           msg: 'Required',
                         },
                       ],
@@ -434,9 +433,7 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={
-                          isAccountingArRoleFlag !== true && userProfiles.accountId !== null
-                        }
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -453,9 +450,7 @@ class MappingDetailList extends React.PureComponent {
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
                         style={{ width: '100%' }}
                         onChange={this.changeArAccountDate}
-                        disabled={
-                          isAccountingArRoleFlag !== true && userProfiles.accountId !== null
-                        }
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -471,9 +466,7 @@ class MappingDetailList extends React.PureComponent {
                       <DatePicker
                         style={{ width: '100%' }}
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={
-                          isAccountingArRoleFlag !== true && userProfiles.accountId !== null
-                        }
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -495,7 +488,7 @@ class MappingDetailList extends React.PureComponent {
                           value = value.replace(/[^\d]/g, '');
                           return value;
                         }}
-                        disabled={isAccountingArRoleFlag !== true}
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -517,7 +510,7 @@ class MappingDetailList extends React.PureComponent {
                           value = value.replace(/[^\d]/g, '');
                           return value;
                         }}
-                        disabled={isAccountingArRoleFlag !== true}
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -533,7 +526,7 @@ class MappingDetailList extends React.PureComponent {
                       <DatePicker
                         style={{ width: '100%' }}
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true}
+                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
                       />
                     )}
                   </FormItem>
@@ -544,7 +537,10 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('currency'),
                     })(
                       <Radio.Group>
-                        <Radio value="SGD" disabled={isAccountingArRoleFlag !== true}>
+                        <Radio
+                          value="SGD"
+                          disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        >
                           SGD
                         </Radio>
                       </Radio.Group>

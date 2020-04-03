@@ -1,5 +1,7 @@
+import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
+const rwsUrl = 'http://10.25.159.236:18091/pams';
 export async function queryMainTAList(params) {
   return UAAService.request(`/b2b/agent/v1/profile/queryTaList`, {
     method: 'POST',
@@ -34,54 +36,19 @@ export function offer(params) {
   });
 }
 
-export async function addOfferList(requestData) {
-  const paramstring = stringify({
-    pageSize: requestData.pageSize,
-    currentPage: requestData.currentPage,
-    bindingId: requestData.bindingId,
-    bindingType: requestData.bindingType,
-    commodityType: requestData.commodityType,
-    commonSearchText: requestData.commonSearchText,
-    themeParkCode: requestData.themeParkCode,
-  });
-  const url = `${lzqUrl}/pams/proxy/ali/b2b/api/v1/agent/commission/binding/queryCommodityList?${paramstring}`;
-  return UAAService.request(url, {
-    method: 'GET',
-  });
+export async function addOfferList(data) {
+  return UAAService.request(
+    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(data)}`,
+    {
+      method: 'GET',
+    }
+  );
 }
 
-export function queryCommodityList() {
-  return UAAService.request(`/pams/api/v1/agent/commission/binding/queryCommodityList`, {
-    method: 'GET',
-  });
-  // export async function queryAgentBindingList(params) {
-  //   const params2 = stringify({
-  //     'pageSize': params.pageSize,
-  //     'currentPage': params.currentPage,
-  //     'agentId': params.agentId,
-  //     'bindingType': params.bindingType,
-  //   });
-  //   const url = `${lzqUrl}/pams/proxy/ali/b2b/api/v1/agent/commission/binding/queryAgentBindingList?${params2}`;
-  //   return UAAService.request(url, {
-  //     method: 'GET',
-  //   });
-}
-
-export async function saveCommissionBindingList() {
-  const url = `${lzqUrl}/pams/proxy/ali/b2b/api/v1/agent//pams/api/v1/agent/commission/binding/saveCommissionBindingList`;
-  return UAAService.request(url, {
-    method: 'GET',
-  });
-}
-
-export async function queryAgentBindingList(params) {
-  const params2 = stringify({
-    pageSize: params.pageSize,
-    currentPage: params.currentPage,
-    agentId: params.agentId,
-    bindingType: params.bindingType,
-  });
-  const url = `${lzqUrl}/pams/proxy/ali/b2b/api/v1/agent/commission/binding/queryAgentBindingList?${params2}`;
+export async function queryCommodityBindingList(params) {
+  const url = `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityBindingList?${stringify(
+    params
+  )}`;
   return UAAService.request(url, {
     method: 'GET',
   });
@@ -98,6 +65,16 @@ export async function queryContractHistoryList(params) {
 
 export async function queryProfileStatusHistoryList(params) {
   return UAAService.request(`/b2b/agent/v1/profile/queryProfileStatusHistory`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
+export async function add(params) {
+  const url = `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/saveCommissionBindingList`;
+  return UAAService.request(url, {
     method: 'POST',
     body: {
       ...params,

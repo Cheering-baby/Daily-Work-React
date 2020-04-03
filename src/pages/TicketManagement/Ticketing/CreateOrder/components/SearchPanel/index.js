@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
-import { formatMessage } from 'umi/locale';
-import { Button, Card, Checkbox, DatePicker, Form, InputNumber, Select, Spin } from 'antd';
+import React, {Component} from 'react';
+import {connect} from 'dva';
+import {formatMessage} from 'umi/locale';
+import {Button, Card, Checkbox, DatePicker, Form, InputNumber, Select, Spin} from 'antd';
 import moment from 'moment';
-import { arrToString } from '../../../../utils/utils';
+import {arrToString} from '../../../../utils/utils';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -72,88 +72,8 @@ class SearchPanel extends Component {
     const { dispatch, form } = this.props;
     form.resetFields();
     dispatch({
-      type: 'ticketMgr/save',
-      payload: {
-        offerType: '',
-        themeParkTipType: 'NoTip',
-        activeDataPanel: undefined,
-        activeGroup: 0,
-        showToCart: false,
-        tipVisible: true,
-        themeParkList: [
-          {
-            group: 1,
-            value: 'USS',
-            label: 'UNIVERSAL STUDIOS SINGAPORE',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'ACW',
-            label: 'ADVENTURE COVE WATER PARK',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'SEA',
-            label: 'S.E.A AQUARIUM',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'MEM',
-            label: 'MARITIME EXPERIENTIAL MUSEUM',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'Voucher',
-            label: 'VOUCHER',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'RE',
-            label: 'RESORT EVENTS',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'HHN',
-            label: 'HALLOWEEN HORROR NIGHTS',
-            disabled: false,
-          },
-          {
-            group: 2,
-            value: 'DOL',
-            label: 'DOLPHIN ISLAND',
-            disabled: false,
-          },
-          {
-            group: 3,
-            value: 'OAP',
-            label: 'Once A Pirate',
-            disabled: false,
-          },
-        ],
-        themeParkChooseList: [],
-        dateOfVisit: null,
-        sessionTimeList: [],
-        activeGroupSelectData: {
-          themeParkCode: undefined,
-          visitOfDate: undefined,
-          sessionTime: undefined,
-          numOfGuests: undefined,
-          accessibleSeat: undefined,
-        },
-        numOfGuests: undefined,
-        selectOfferData: [],
-        orderIndex: null,
-        onceAPirateOrder: null,
-        searchPanelActive: false,
-        mainPageLoading: false,
-        onceAPirateLoading: false,
-      },
+      type: 'ticketMgr/resetData',
+      payload: {},
     });
   };
 
@@ -423,7 +343,7 @@ class SearchPanel extends Component {
           style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
           bodyStyle={{ padding: 0 }}
         >
-          <div style={{ padding: 15, minHeight: clientHeight }}>
+          <div style={{padding: 15, minHeight: clientHeight}}>
             <div className={styles.titleFontBlackWeight}>Custom filter</div>
             <Form>
               <FormItem {...formItemLayout} label={formatMessage({ id: 'Ticketing' })}>

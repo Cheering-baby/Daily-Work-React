@@ -328,13 +328,13 @@ export default {
       });
       const params = {
         queryPluKey: payload.queryPluKey,
-        activeStatus: "0",
+        activeStatus: '0',
         pageSize: 10,
         currentPage: 1,
         totalSize: 1,
-        programId: "id",
-        salesProgramIdType: "id",
-        selectCondition: {pluCode: payload.queryPluKey, activeStatus: "0"}
+        programId: 'id',
+        salesProgramIdType: 'id',
+        selectCondition: { pluCode: payload.queryPluKey, activeStatus: '0' },
       };
       const {
         data: { resultCode, resultMsg, result },
@@ -467,7 +467,7 @@ export default {
         onceAPirateOrderData,
         collectionDate,
         deliveryMode,
-        patronInfo,
+        patronInfo
       );
       bookingParam.commonOffers = [
         ...packageCommonOffers,
@@ -627,7 +627,7 @@ export default {
 
     *settingPackAgeTicketOrderData({ payload }, { put }) {
       const { orderData } = payload;
-      // console.log(orderData);
+      console.log(orderData);
       if (orderData.orderType === 'offerBundle') {
         yield put({
           type: 'settingBundleTicketOrderData',
@@ -717,11 +717,11 @@ export default {
       if (batchPullResult === 'done') {
         message.success('Order successfully!');
       }
-
     },
 
     *settingGeneralTicketOrderData({ payload }, { put, take }) {
       const { orderIndex, orderData } = payload;
+      console.log(orderData);
       const { themeParkCode, themeParkName } = orderData;
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
@@ -1044,7 +1044,30 @@ export default {
     },
     resetData() {
       return {
+        deliveryMode: undefined,
+        collectionDate: null,
+        bocaFeePax: 0.0,
         offerOrderData: [],
+        selectAllOrder: true,
+        selectAllIndeterminate: false,
+        orderCartDataAmount: 0,
+        packageOrderData: [],
+        generalTicketOrderData: [],
+        onceAPirateOrderData: [],
+        showToCartModalType: 0,
+        showToCartModal: false,
+        editOrderOffer: null,
+        attractionProduct: [],
+        deliverInfomation: {},
+        countrys: [],
+        checkOutLoading: false,
+        cartId: null,
+        taDetailInfo: null,
+        subTaDetailInfo: null,
+        showBundleToCart: false,
+        bundleOfferDetail: null,
+        orderIndex: null,
+        offerIndex: null,
       };
     },
   },

@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import {connect} from 'dva';
-import {Button, Col, Form, message, Radio, Row, Spin} from 'antd';
-import {formatMessage} from 'umi/locale';
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { Button, Col, Form, message, Radio, Row, Spin } from 'antd';
+import { formatMessage } from 'umi/locale';
 
 import moment from 'moment';
 import router from 'umi/router';

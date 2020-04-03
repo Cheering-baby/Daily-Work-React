@@ -1,7 +1,7 @@
-import React, {PureComponent} from 'react';
-import {Breadcrumb, Col, Row} from 'antd';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
+import React, { PureComponent } from 'react';
+import { Breadcrumb, Col, Row } from 'antd';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
 import OrgTree from './components/OrgTree';
 import OrgInformation from './components/OrgInformation';
@@ -10,7 +10,7 @@ import styles from './index.less';
 import constants from './constants';
 import SCREEN from '@/utils/screen';
 
-@connect(({orgMgr, global, loading}) => ({
+@connect(({ orgMgr, global, loading }) => ({
   orgMgr,
   global,
   loadUserInOrg: loading.effects['orgMgr/queryUsersInOrg'],
@@ -52,16 +52,16 @@ class OrgManagement extends PureComponent {
 
   render() {
     const {
-      orgMgr: {drawerShowFlag = false},
+      orgMgr: { drawerShowFlag = false },
     } = this.props;
 
     const breadCrumbBody = (
-      <Breadcrumb separator=" > " style={{marginBottom: '10px'}}>
+      <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
         <Breadcrumb.Item className={styles.breadCrumbStyle}>
-          {formatMessage({id: 'SYSTEM_MANAGEMENT'})}
+          {formatMessage({ id: 'SYSTEM_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item className={styles.breadCrumbBold}>
-          {formatMessage({id: 'ORG_MANAGEMENT'})}
+          {formatMessage({ id: 'ORG_MANAGEMENT' })}
         </Breadcrumb.Item>
       </Breadcrumb>
     );
@@ -78,13 +78,13 @@ class OrgManagement extends PureComponent {
         <MediaQuery minWidth={SCREEN.screenLgMin}>{breadCrumbBody}</MediaQuery>
         <Row gutter={16}>
           <Col lg={7} md={24} sm={24} xs={24}>
-            <OrgTree/>
+            <OrgTree />
           </Col>
           <Col lg={17} md={24} sm={24} xs={24}>
-            <OrgInformation/>
+            <OrgInformation />
           </Col>
         </Row>
-        {drawerShowFlag ? <OrgOperDrawer/> : null}
+        {drawerShowFlag ? <OrgOperDrawer /> : null}
       </Col>
     );
   }

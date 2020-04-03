@@ -1,9 +1,9 @@
 import React from 'react';
-import {Breadcrumb, Card, Col, Form} from 'antd';
+import { Breadcrumb, Card, Col, Form } from 'antd';
 // import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
 import styles from '../index.less';
@@ -16,8 +16,7 @@ import SCREEN from '@/utils/screen';
   addLoading: loading.effects['userMgr/addTAUser'],
 }))
 class Index extends React.PureComponent {
-  componentDidMount() {
-  }
+  componentDidMount() {}
 
   cancel = e => {
     e.preventDefault();
@@ -26,19 +25,19 @@ class Index extends React.PureComponent {
 
   render() {
     const breadCrumbBody = (
-      <Breadcrumb separator=" > " style={{marginBottom: '10px'}}>
+      <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
         <Breadcrumb.Item className={styles.breadCrumbStyle}>
-          {formatMessage({id: 'SYSTEM_MANAGEMENT'})}
+          {formatMessage({ id: 'SYSTEM_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item
           className={styles.breadCrumbStyle}
-          style={{cursor: 'pointer'}}
+          style={{ cursor: 'pointer' }}
           onClick={e => this.cancel(e)}
         >
-          {formatMessage({id: 'USER_MANAGEMENT'})}
+          {formatMessage({ id: 'USER_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item className={styles.breadCrumbBold}>
-          {formatMessage({id: 'COMMON_NEW'})}
+          {formatMessage({ id: 'COMMON_NEW' })}
         </Breadcrumb.Item>
       </Breadcrumb>
     );
@@ -54,7 +53,7 @@ class Index extends React.PureComponent {
         </MediaQuery>
         <MediaQuery minWidth={SCREEN.screenLgMin}>{breadCrumbBody}</MediaQuery>
         <Card className={styles.cardClass}>
-          <UserForm type="NEW"/>
+          <UserForm type="NEW" />
         </Card>
       </Col>
     );

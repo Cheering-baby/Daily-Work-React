@@ -1,12 +1,12 @@
-import {cloneDeep} from "lodash";
-import {message} from "antd";
+import {cloneDeep} from 'lodash';
+import {message} from 'antd';
 import {
   accountTopUp,
   paymentOrder,
   queryBookingStatus,
-  sendTransactionPaymentOrder
-} from "@/pages/TicketManagement/services/bookingAndPay";
-import {queryAccount, queryTaInfo} from "@/pages/TicketManagement/services/taMgrService";
+  sendTransactionPaymentOrder,
+} from '@/pages/TicketManagement/services/bookingAndPay';
+import {queryAccount, queryTaInfo} from '@/pages/TicketManagement/services/taMgrService';
 
 export default {
   namespace: 'queryOrderPaymentMgr',
@@ -43,7 +43,6 @@ export default {
   },
 
   effects: {
-
     *effectSave({ payload }, { put }) {
       yield put({
         type: 'save',
@@ -212,7 +211,6 @@ export default {
       }
 
       message.error(resultMsg);
-
     },
 
     *confirmEvent(_, { call, put, select }) {
@@ -231,7 +229,7 @@ export default {
         paymentMode: payMode[0].key,
       };
       const {
-        data: { resultCode, resultMsg},
+        data: { resultCode, resultMsg },
       } = yield call(paymentOrder, params);
       yield put({
         type: 'save',
@@ -295,7 +293,6 @@ export default {
         message.error(failedReason);
       }
     },
-
   },
 
   reducers: {
@@ -305,12 +302,37 @@ export default {
         ...payload,
       };
     },
-    resetData(state) {
+    resetData() {
       return {
-        ...state,
-        sendETicketVisible: false,
+        paymentModalVisible: false,
+        payPageLoading: false,
         bookingNo: null,
-        email: null,
+        selectedBooking: null,
+        bookDetail: {
+          totalPrice: 0,
+        },
+        payModeList: [
+          {
+            value: 1,
+            label: 'eWallet',
+            key: 'E_WALLET',
+            check: true,
+          },
+          {
+            value: 2,
+            label: 'Credit Card',
+            key: 'CREDIT_CARD',
+            check: false,
+          },
+          {
+            value: 3,
+            label: 'AR',
+            key: 'AR_CREDIT',
+            check: false,
+          },
+        ],
+        taDetailInfo: null,
+        accountInfo: null,
       };
     },
   },

@@ -1,4 +1,3 @@
-
 const PRODUCT_TYPE_ATTRACTION = 'Attraction';
 const PRODUCT_TYPE_VOUCHER = 'Voucher';
 const PRODUCT_RULE_NAME = 'DefaultPrice';

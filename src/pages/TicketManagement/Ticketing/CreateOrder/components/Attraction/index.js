@@ -255,7 +255,7 @@ class Attraction extends Component {
       orderSummary: {
         quantity: offerQuantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
-        totalprice: offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId),
+        totalPrice: offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId),
         selectPriceRuleId: priceRuleId,
       },
       queryInfo: {

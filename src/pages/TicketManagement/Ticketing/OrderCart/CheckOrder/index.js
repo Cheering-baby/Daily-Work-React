@@ -1,20 +1,8 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import MediaQuery from 'react-responsive';
-import {
-  Spin,
-  Card,
-  Checkbox,
-  Form,
-  Button,
-  List,
-  Row,
-  Col,
-  Select,
-  DatePicker,
-  message,
-} from 'antd';
-import { connect } from 'dva';
-import { formatMessage } from 'umi/locale';
+import {Button, Card, Checkbox, Col, DatePicker, Form, List, message, Row, Select, Spin,} from 'antd';
+import {connect} from 'dva';
+import {formatMessage} from 'umi/locale';
 import moment from 'moment';
 import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
@@ -49,6 +37,9 @@ class CheckOrder extends Component {
     this.state = {
       clientHeight,
     };
+  }
+
+  componentDidMount() {
     const {
       dispatch,
       ticketOrderCartMgr: { cartId },
@@ -80,7 +71,6 @@ class CheckOrder extends Component {
         payload: {},
       });
     }
-
     if (cartId === null) {
       dispatch({
         type: 'ticketOrderCartMgr/createShoppingCart',
@@ -92,6 +82,13 @@ class CheckOrder extends Component {
         });
       });
     }
+  }
+
+  componentWillUnmount() {
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'ticketOrderCartMgr/resetData',
+    });
   }
 
   offerPrice = (products = []) => {
@@ -152,7 +149,7 @@ class CheckOrder extends Component {
 
   checkOutEvent = () => {
     const { dispatch, form } = this.props;
-    form.validateFields((err) => {
+    form.validateFields(err => {
       if (!err) {
         dispatch({
           type: 'ticketOrderCartMgr/orderCheckOut',
@@ -421,7 +418,7 @@ class CheckOrder extends Component {
             </div>
           )}
         </Card>
-        <Card className={styles.cardStyles} style={{ marginTop: '0',marginBottom:'20px' }}>
+        <Card className={styles.cardStyles} style={{ marginTop: '0', marginBottom: '20px' }}>
           <Row className={styles.checkOut}>
             <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
               <Checkbox

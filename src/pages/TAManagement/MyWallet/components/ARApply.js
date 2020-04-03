@@ -3,10 +3,11 @@ import { formatMessage } from 'umi/locale';
 import { Button, Icon, message, Modal, Upload } from 'antd';
 import { connect } from 'dva';
 import styles from './arApply.less';
-import { handleDownFile } from '@/utils/utils';
+import { getUrl, handleDownFile } from '@/utils/utils';
 
-const actionUrl = `/pams/common/upload`;
-const downUrl = `/pams/common/downloadFile`;
+const actionUrl = `${getUrl()}/common/upload`;
+const downUrl = `${getUrl()}/common/downloadFile`;
+
 @connect(({ apply, loading }) => ({
   apply,
   loading: loading.effects['apply/feathArActitivy'],

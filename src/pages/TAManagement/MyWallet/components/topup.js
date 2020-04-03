@@ -107,6 +107,11 @@ class Arapply extends React.PureComponent {
                     required: true,
                     message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MESSAGE' }),
                   },
+                  {
+                    max: 21474836.47,
+                    message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE' }),
+                    validator: (rule, value) => Number(value) <= rule.max,
+                  },
                 ],
               })(<Input placeholder="Topup Amount" allowClear />)}
             </Form.Item>

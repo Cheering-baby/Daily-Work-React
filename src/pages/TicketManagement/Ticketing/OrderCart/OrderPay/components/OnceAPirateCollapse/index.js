@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
-import {Collapse, Form, Icon} from 'antd';
-import {connect} from 'dva';
+import React, { Component } from 'react';
+import { Collapse, Form, Icon } from 'antd';
+import { connect } from 'dva';
 import styles from '../../index.less';
 import OrderItemCollapse from './components/OrderItemCollapse';
 

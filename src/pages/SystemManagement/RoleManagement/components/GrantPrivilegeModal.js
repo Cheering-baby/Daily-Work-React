@@ -1,7 +1,7 @@
-import React, {Fragment} from 'react';
-import {Button, Form, Modal, Spin, Transfer} from 'antd';
-import {formatMessage} from 'umi/locale';
-import {connect} from 'dva';
+import React, { Fragment } from 'react';
+import { Button, Form, Modal, Spin, Transfer } from 'antd';
+import { formatMessage } from 'umi/locale';
+import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
 import constants from '../constants';
 import MobileModal from '@/components/MobileModal';
@@ -10,14 +10,13 @@ import SCREEN from '@/utils/screen';
 import styles from '../index.less';
 
 @Form.create()
-@connect(({roleMgr, loading}) => ({
+@connect(({ roleMgr, loading }) => ({
   roleMgr,
   detailLoading: loading.effects['roleMgr/queryUserRoleDetail'],
   privilegesLoading: loading.effects['roleMgr/queryAllPrivileges'],
 }))
 class Index extends React.PureComponent {
-  componentDidMount() {
-  }
+  componentDidMount() {}
 
   handleOk = () => {
     const {
@@ -92,7 +91,7 @@ class Index extends React.PureComponent {
 
   render() {
     const {
-      roleMgr: {allPrivileges = [], selectedPrivileges = []},
+      roleMgr: { allPrivileges = [], selectedPrivileges = [] },
       detailLoading = false,
       privilegesLoading = false,
       operLoading = false,
@@ -100,17 +99,17 @@ class Index extends React.PureComponent {
 
     const modalOpts = {
       wrapClassName: styles.modalClass,
-      title: formatMessage({id: 'GRANT_PRIVILEGES'}),
+      title: formatMessage({ id: 'GRANT_PRIVILEGES' }),
       visible: true,
       onOk: this.handleOk,
       onCancel: this.handleCancel,
       width: 900,
       footer: [
         <Button key="submit" type="primary" loading={operLoading} onClick={this.handleOk}>
-          {formatMessage({id: 'BTN_OK'})}
+          {formatMessage({ id: 'BTN_OK' })}
         </Button>,
         <Button key="back" onClick={this.handleCancel}>
-          {formatMessage({id: 'BTN_CANCEL'})}
+          {formatMessage({ id: 'BTN_CANCEL' })}
         </Button>,
       ],
     };
@@ -120,7 +119,7 @@ class Index extends React.PureComponent {
         <Transfer
           className={styles.transferClass}
           locale={{
-            searchPlaceholder: formatMessage({id: 'component.globalHeader.search'}),
+            searchPlaceholder: formatMessage({ id: 'component.globalHeader.search' }),
           }}
           dataSource={allPrivileges}
           showSearch
