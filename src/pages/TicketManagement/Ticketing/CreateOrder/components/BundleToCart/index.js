@@ -201,7 +201,9 @@ class ToCart extends Component {
         >
           <div className={styles.termsAndConditionTitle}>Terms and Condition</div>
           {termsAndConditionItems.map(item => (
-            <div className={styles.termsAndConditionText} key={Math.random()}>{item}</div>
+            <div className={styles.termsAndConditionText} key={Math.random()}>
+              {item}
+            </div>
           ))}
         </Drawer>
         <Drawer
@@ -316,7 +318,11 @@ class ToCart extends Component {
                 </Form>
               </Row>
             </div>
-            <Col span={24} style={{ height: '25px', marginTop: '24px' }} className={styles.title}>
+            <Col
+              span={24}
+              style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
+              className={styles.title}
+            >
               DELIVERY INFORMATION
             </Col>
             <Form>

@@ -385,6 +385,7 @@ class Attraction extends Component {
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
         offerInfo: {
           ...detail,
+          selectRuleId: priceRuleId,
         },
       };
     });

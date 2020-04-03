@@ -489,7 +489,11 @@ class ToCart extends Component {
                 )}
               </Row>
             </div>
-            <Col span={24} style={{ height: '25px', marginTop: '24px' }} className={styles.title}>
+            <Col
+              span={24}
+              style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
+              className={styles.title}
+            >
               DELIVERY INFORMATION
             </Col>
             <Form>
