@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {Checkbox, Col, Collapse, Icon, Modal, Row, Tooltip} from 'antd';
+import React, { Component } from 'react';
+import { Checkbox, Col, Collapse, Icon, Modal, Row, Tooltip } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
@@ -117,15 +117,34 @@ class OrderItemCollapse extends Component {
   };
 
   getOrderTime = orderOffer => {
+    let titleNameStr = '-';
+    let sessionTime;
+
     if (orderOffer.queryInfo && orderOffer.queryInfo.dateOfVisit) {
-      const titleNameStr = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('DD-MMM-YYYY');
-      return titleNameStr;
+      titleNameStr = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('DD-MMM-YYYY');
     }
-    return '-';
+
+    if (orderOffer.orderInfo) {
+      orderOffer.orderInfo.forEach(orderInfoItem => {
+        // eslint-disable-next-line prefer-destructuring
+        sessionTime = orderInfoItem.sessionTime;
+      });
+    }
+
+    if (orderOffer.orderSummary && orderOffer.orderSummary.sessionTime) {
+      // eslint-disable-next-line prefer-destructuring
+      sessionTime = orderOffer.orderSummary.sessionTime;
+    }
+
+    if (sessionTime) {
+      titleNameStr += ` ${sessionTime}`;
+    }
+
+    return titleNameStr;
   };
 
   getOfferRender = (orderOffer, offerIndex) => {
-    const { orderIndex, companyType } = this.props;
+    const { orderIndex, companyType, functionActive } = this.props;
 
     return (
       <Collapse.Panel
@@ -142,6 +161,7 @@ class OrderItemCollapse extends Component {
                 onChange={e => {
                   this.checkOrderEvent(e, offerIndex, orderOffer);
                 }}
+                disabled={orderOffer.orderDisabled}
               />
               <span className={styles.collapsePanelHeaderTitle}>
                 {this.getTitleNameStr(orderOffer)}
@@ -158,24 +178,30 @@ class OrderItemCollapse extends Component {
               )}
             </Col>
             <Col span={3}>
-              <Tooltip title="Delete">
-                <Icon
-                  className={styles.collapsePanelHeaderButton}
-                  type="delete"
-                  onClick={e => {
-                    this.deleteClickEvent(e, offerIndex);
-                  }}
-                />
-              </Tooltip>
-              <Tooltip title="Edit">
-                <Icon
-                  className={styles.collapsePanelHeaderButton}
-                  type="edit"
-                  onClick={e => {
-                    this.editClickEvent(e, offerIndex);
-                  }}
-                />
-              </Tooltip>
+              {functionActive && (
+                <div>
+                  <Tooltip title="Delete">
+                    <Icon
+                      className={styles.collapsePanelHeaderButton}
+                      type="delete"
+                      onClick={e => {
+                        this.deleteClickEvent(e, offerIndex);
+                      }}
+                    />
+                  </Tooltip>
+                  {!orderOffer.orderDisabled && (
+                    <Tooltip title="Edit">
+                      <Icon
+                        className={styles.collapsePanelHeaderButton}
+                        type="edit"
+                        onClick={e => {
+                          this.editClickEvent(e, offerIndex);
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                </div>
+              )}
             </Col>
           </Row>
         }
@@ -223,7 +249,7 @@ class OrderItemCollapse extends Component {
   };
 
   getOfferFixedRender = (orderOffer, offerIndex) => {
-    const {orderIndex, companyType} = this.props;
+    const { orderIndex, companyType, functionActive } = this.props;
 
     return (
       <Collapse.Panel
@@ -240,6 +266,7 @@ class OrderItemCollapse extends Component {
                 onChange={e => {
                   this.checkOrderEvent(e, offerIndex, orderOffer);
                 }}
+                disabled={orderOffer.orderDisabled}
               />
               <span className={styles.collapsePanelHeaderTitle}>
                 {this.getTitleNameStr(orderOffer)}
@@ -258,24 +285,30 @@ class OrderItemCollapse extends Component {
               )}
             </Col>
             <Col span={3}>
-              <Tooltip title="Delete">
-                <Icon
-                  className={styles.collapsePanelHeaderButton}
-                  type="delete"
-                  onClick={e => {
-                    this.deleteClickEvent(e, offerIndex);
-                  }}
-                />
-              </Tooltip>
-              <Tooltip title="Edit">
-                <Icon
-                  className={styles.collapsePanelHeaderButton}
-                  type="edit"
-                  onClick={e => {
-                    this.editClickEvent(e, offerIndex);
-                  }}
-                />
-              </Tooltip>
+              {functionActive && (
+                <div>
+                  <Tooltip title="Delete">
+                    <Icon
+                      className={styles.collapsePanelHeaderButton}
+                      type="delete"
+                      onClick={e => {
+                        this.deleteClickEvent(e, offerIndex);
+                      }}
+                    />
+                  </Tooltip>
+                  {!orderOffer.orderDisabled && (
+                    <Tooltip title="Edit">
+                      <Icon
+                        className={styles.collapsePanelHeaderButton}
+                        type="edit"
+                        onClick={e => {
+                          this.editClickEvent(e, offerIndex);
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                </div>
+              )}
             </Col>
           </Row>
         }
@@ -294,8 +327,8 @@ class OrderItemCollapse extends Component {
           </Col>
         </Row>
         {companyType === '01' && (
-          <Row gutter={24} className={styles.contentRowTwo} style={{margin: '0'}}>
-            <Col span={11} className={styles.titleCol}/>
+          <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
+            <Col span={11} className={styles.titleCol} />
             <Col span={10} className={styles.totalPriceCol}>
               <span className={styles.totalPriceSpan}>
                 TOTAL: {this.getOfferFixedSumPrice(orderOffer)}
@@ -318,8 +351,8 @@ class OrderItemCollapse extends Component {
   getProductTypeByOfferFixed = orderOffer => {
     let productType = '';
     if (orderOffer.orderInfo) {
-      const ageGroups = orderOffer.orderInfo.map(orderInfoItem => orderInfoItem.ageGroup);
-      productType = ageGroups.join(',');
+      const ageGroups = orderOffer.orderInfo.map(orderInfoItem => orderInfoItem.ageGroup || '-');
+      productType = ageGroups.join(';');
     }
     return productType;
   };
@@ -342,14 +375,14 @@ class OrderItemCollapse extends Component {
   };
 
   getTitleNameByOrderInfo = orderInfo => {
-    if (orderInfo && orderInfo.offerInfo && orderInfo.offerInfo.offerBasicInfo) {
-      return orderInfo.offerInfo.offerBasicInfo.offerName;
+    if (orderInfo && orderInfo.offerInfo && orderInfo.offerInfo.offerBundle) {
+      return orderInfo.offerInfo.offerBundle[0].bundleLabel;
     }
     return '-';
   };
 
   getOfferBundleRender = (orderOffer, offerIndex) => {
-    const { orderIndex, companyType } = this.props;
+    const { orderIndex, companyType, functionActive } = this.props;
 
     return (
       <Collapse.Panel
@@ -366,6 +399,7 @@ class OrderItemCollapse extends Component {
                 onChange={e => {
                   this.checkOrderEvent(e, offerIndex, orderOffer);
                 }}
+                disabled={orderOffer.orderDisabled}
               />
               <span className={styles.collapsePanelHeaderTitle}>
                 {this.getBundleTitleNameStr(orderOffer)}
@@ -384,24 +418,30 @@ class OrderItemCollapse extends Component {
               )}
             </Col>
             <Col span={3}>
-              <Tooltip title="Delete">
-                <Icon
-                  className={styles.collapsePanelHeaderButton}
-                  type="delete"
-                  onClick={e => {
-                    this.deleteClickEvent(e, offerIndex);
-                  }}
-                />
-              </Tooltip>
-              <Tooltip title="Edit">
-                <Icon
-                  className={styles.collapsePanelHeaderButton}
-                  type="edit"
-                  onClick={e => {
-                    this.editClickEvent(e, offerIndex);
-                  }}
-                />
-              </Tooltip>
+              {functionActive && (
+                <div>
+                  <Tooltip title="Delete">
+                    <Icon
+                      className={styles.collapsePanelHeaderButton}
+                      type="delete"
+                      onClick={e => {
+                        this.deleteClickEvent(e, offerIndex);
+                      }}
+                    />
+                  </Tooltip>
+                  {!orderOffer.orderDisabled && (
+                    <Tooltip title="Edit">
+                      <Icon
+                        className={styles.collapsePanelHeaderButton}
+                        type="edit"
+                        onClick={e => {
+                          this.editClickEvent(e, offerIndex);
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                </div>
+              )}
             </Col>
           </Row>
         }

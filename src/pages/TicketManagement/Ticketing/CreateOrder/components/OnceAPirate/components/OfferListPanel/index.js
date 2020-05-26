@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { message, Form, Table, Tooltip, Icon, InputNumber } from 'antd';
+import { Form, Icon, InputNumber, message, Table, Tooltip } from 'antd';
 import styles from './index.less';
 import OfferDetail from './components/OfferDetail';
 
@@ -139,7 +139,10 @@ class OfferListPanel extends Component {
           if (offerCategory.categoryName === 'VIP') {
             isVip = true;
           }
-          if (offerCategory.categoryName === 'Regular') {
+          if (
+            offerCategory.categoryName === 'General' ||
+            offerCategory.categoryName === 'GENERAL'
+          ) {
             isRegular = true;
           }
         });

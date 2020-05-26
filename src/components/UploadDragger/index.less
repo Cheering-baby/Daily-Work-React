@@ -1,0 +1,40 @@
+@prefix-cls: ~'@{ant-prefix}';
+
+.uploadCard {
+  border: 0;
+
+  :global {
+    .@{prefix-cls}-card-body {
+      padding: 0 !important;
+    }
+  }
+}
+
+.uploadDragIcon {
+  margin-bottom: 20px;
+
+  .uploadIcon {
+    color: #40a9ff;
+    font-size: 48px;
+    display: inline-block;
+    font-style: normal;
+    line-height: 0;
+    text-align: center;
+    text-transform: none;
+    vertical-align: -0.125em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.uploadText {
+  margin: 0 0 4px;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 16px;
+}
+
+.uploadHint {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+}

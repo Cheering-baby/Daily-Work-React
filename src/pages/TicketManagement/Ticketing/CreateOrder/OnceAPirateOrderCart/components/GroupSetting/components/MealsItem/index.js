@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Row, Col, Select, InputNumber, Tooltip, Button } from 'antd';
+import { Button, Col, Form, InputNumber, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from '../../index.less';
@@ -250,7 +250,7 @@ class MealsItem extends Component {
           <Col {...gridOpts} className={styles.basicInfoContent}>
             <Row>
               <Col span={16}>
-                <Form.Item label={formatMessage({ id: 'NUMBER' })} {...formItemLayout2}>
+                <Form.Item label="Number" {...formItemLayout2}>
                   {getFieldDecorator(`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_number`, {
                     rules: [{ required: true, message: 'Required' }],
                     initialValue: mealItem.number,

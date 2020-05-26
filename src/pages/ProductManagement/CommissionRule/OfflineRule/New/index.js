@@ -7,22 +7,20 @@ import {
   Row,
   Button,
   Table,
-  Divider,
   InputNumber,
   message,
   Tooltip,
   Icon,
+  Card,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import classNames from 'classnames';
 import MediaQuery from 'react-responsive';
-import detailStyles from './index.less';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '@/components/BreadcrumbComp';
 import styles from '../../OnlineRule/New/index.less';
 import AddOfflinePLUModal from '../components/AddOfflinePLUModal';
-import { commonConfirm } from '@/components/CommonModal';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
+import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -32,10 +30,7 @@ const formItemLayout = {
   wrapperCol: {
     span: 20,
   },
-};
-const COMMONRule = {
-  required: true,
-  msg: 'Required',
+  colon: false,
 };
 
 @Form.create()
@@ -47,21 +42,35 @@ class OfflineNew extends React.PureComponent {
   columns = [
     {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'commodityCode',
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
       dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'THEME_PARK' }),
       dataIndex: 'themeParkCode',
+      key: 'themeParkCode',
+      render: text => this.showThemeParkName(text),
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
       dataIndex: 'operation',
       render: (text, record) => {
-        return record && record.key && record.key !== 'addOption' ? (
+        return record && !record.key && record.key !== 'addOption' ? (
           <div>
             <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
               <Icon
@@ -77,26 +86,157 @@ class OfflineNew extends React.PureComponent {
     },
   ];
 
+  detailColumns = [
+    {
+      title: formatMessage({ id: 'PLU_CODE' }),
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'PLU_DESCRIPTION' }),
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'THEME_PARK' }),
+      dataIndex: 'themeParkCode',
+      key: 'themeParkCode',
+      render: text => this.showThemeParkName(text),
+    },
+    {
+      title: formatMessage({ id: 'OPERATION' }),
+      dataIndex: 'operation',
+      render: (text, record) => {
+        return (
+          <div>
+            <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
+              <Icon
+                type="delete"
+                onClick={() => {
+                  this.deleteSubPLU(record);
+                }}
+              />
+            </Tooltip>
+          </div>
+        );
+      },
+    },
+  ];
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({ type: 'offlineNew/queryThemeParks' });
+  }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'offlineNew/resetData',
+    });
+  }
+
+  showThemeParkName = text => {
+    const {
+      offlineNew: { themeParkList },
+    } = this.props;
+    for (let i = 0; i < themeParkList.length; i += 1) {
+      if (themeParkList[i].itemValue === text) {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+          >
+            <span>{themeParkList[i].itemName}</span>
+          </Tooltip>
+        );
+      }
+    }
+    return null;
+  };
+
   delete = record => {
     const {
-      offlineNew: { checkedList },
+      offlineNew: {
+        checkedList,
+        offlinePLUPagination: { currentPage, pageSize },
+      },
       dispatch,
     } = this.props;
     const filterCheckedList = checkedList.filter(item => {
       const { commoditySpecId } = item;
       return commoditySpecId !== record.commoditySpecId;
     });
+    if ((currentPage - 1) * pageSize >= filterCheckedList.length && currentPage > 1) {
+      dispatch({
+        type: 'offlineNew/effectSave',
+        payload: {
+          offlinePLUPagination: {
+            currentPage: currentPage - 1,
+            pageSize,
+          },
+        },
+      }).then(() => {
+        setTimeout(() => {
+          dispatch({
+            type: 'offlineNew/changeOfflinePage',
+            payload: {
+              checkedList: filterCheckedList,
+            },
+          });
+        }, 500);
+      });
+    } else {
+      dispatch({
+        type: 'offlineNew/changeOfflinePage',
+        payload: {
+          checkedList: filterCheckedList,
+        },
+      });
+    }
+  };
+
+  deleteSubPLU = record => {
+    const {
+      offlineNew: { checkedList },
+      dispatch,
+    } = this.props;
+    for (let i = 0; i < checkedList.length; i += 1) {
+      if (record.proCommoditySpecId === checkedList[i].commoditySpecId) {
+        for (let j = 0; j < checkedList[i].subCommodityList.length; j += 1) {
+          if (record.commoditySpecId === checkedList[i].subCommodityList[j].commoditySpecId) {
+            checkedList[i].subCommodityList.splice(j, 1);
+            j -= 1;
+          }
+        }
+      }
+      if (
+        checkedList[i].subCommodityList.length === 0 &&
+        checkedList[i].selectedType === 'packagePLU'
+      ) {
+        checkedList.splice(i, 1);
+        i -= 1;
+      }
+    }
     dispatch({
-      type: 'offlineNew/save',
+      type: 'offlineNew/changeOfflinePage',
       payload: {
-        checkedList: filterCheckedList,
+        checkedList,
       },
     });
   };
 
   add = () => {
     const { dispatch } = this.props;
-
     dispatch({
       type: 'offlineNew/save',
       payload: {
@@ -111,45 +251,121 @@ class OfflineNew extends React.PureComponent {
     });
   };
 
-  handleSubmit = e => {
+  handleSubmit = () => {
     const {
-      form,
       dispatch,
-      offlineNew: { checkedList },
+      offlineNew: {
+        checkedList,
+        commissionScheme,
+        commissionAmountValue,
+        commissionPercentageValue,
+      },
     } = this.props;
-    e.preventDefault();
-    const resCb = response => {
-      this.onClose();
-      if (response === 'SUCCESS') {
-        message.success('Newed successfully.');
-      } else if (response === 'ERROR') {
-        message.error('Failed to new.');
+    if (
+      commissionScheme === 'Amount' &&
+      (commissionAmountValue === null || commissionAmountValue === '')
+    ) {
+      message.warning('Commission amount is required.');
+      return;
+    }
+    if (
+      commissionScheme === 'Percentage' &&
+      (commissionPercentageValue === null || commissionPercentageValue === '')
+    ) {
+      message.warning('Commission percentage is required.');
+      return;
+    }
+    if (checkedList.length === 0) {
+      message.warning('Select at least one PLU.');
+      return;
+    }
+    dispatch({
+      type: 'offlineNew/add',
+      payload: {
+        commissionType: 'Fixed',
+        commissionScheme,
+        commissionValue:
+          commissionScheme === 'Amount' ? commissionAmountValue : commissionPercentageValue,
+        commodityList: checkedList,
+        usageScope: 'Offline',
+      },
+    }).then(resultCode => {
+      if (resultCode === '0') {
+        message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
+        this.onClose();
+      } else {
+        message.error(resultCode);
       }
-    };
-    form.validateFields((errors, values) => {
-      if (errors) {
-        return;
-      }
-      values.commissionValue =
-        values.commissionScheme === 'Amount' ? values.Amount : values.Percentage;
-      commonConfirm({
-        content: `Confirm to New ?`,
-        onOk: async () => {
-          const res = await dispatch({
-            type: 'offlineNew/add',
-            payload: {
-              params: values,
-              commodityList: checkedList,
-            },
-          });
-          resCb(res);
-        },
-      });
     });
   };
 
   cancel = () => {
     router.push('/ProductManagement/CommissionRule/OfflineRule');
+  };
+
+  commissionSchemeChange = value => {
+    const { dispatch } = this.props;
+    if (value === 'Amount') {
+      dispatch({
+        type: 'offlineNew/save',
+        payload: {
+          commissionScheme: value,
+          commissionPercentageValue: '',
+        },
+      });
+    } else {
+      dispatch({
+        type: 'offlineNew/save',
+        payload: {
+          commissionScheme: value,
+          commissionAmountValue: '',
+        },
+      });
+    }
+  };
+
+  inputChange = (value, flag) => {
+    const { dispatch } = this.props;
+    if (flag === 'Amount') {
+      dispatch({
+        type: 'offlineNew/save',
+        payload: {
+          commissionAmountValue: value,
+        },
+      });
+    } else if (flag === 'Percentage') {
+      dispatch({
+        type: 'offlineNew/save',
+        payload: {
+          commissionPercentageValue: value,
+        },
+      });
+    }
+  };
+
+  expandedRowRender = record => {
+    const { subCommodityList } = record;
+    return (
+      <div>
+        <Table
+          size="small"
+          columns={this.detailColumns}
+          dataSource={subCommodityList}
+          pagination={false}
+          bordered={false}
+        />
+      </div>
+    );
+  };
+
+  getRowSelectedClassName = (record, index) => {
+    if (index === 0) {
+      return styles.hideIcon;
+    }
+    if (record.subCommodityList.length === 0) {
+      return styles.hideIcon;
+    }
+    return undefined;
   };
 
   render() {
@@ -158,139 +374,155 @@ class OfflineNew extends React.PureComponent {
         query: { type },
       },
     } = this.props;
-    const breadcrumbArr = [
+    const title = [
       {
-        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
-        url: null,
+        name: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
       },
       {
-        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
-        url: null,
+        name: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
       },
       {
-        breadcrumbName: formatMessage({ id: 'OFFLINE_FIXED_COMMISSION' }),
-        url: '/ProductManagement/CommissionRule/OfflineRule',
+        name: formatMessage({ id: 'OFFLINE_FIXED_COMMISSION' }),
+        href: '#/ProductManagement/CommissionRule/OfflineRule',
       },
       {
-        breadcrumbName:
+        name:
           type && type === 'edit'
             ? formatMessage({ id: 'COMMON_MODIFY' })
             : formatMessage({ id: 'COMMON_NEW' }),
-        url: null,
       },
     ];
+
     const {
-      form: { getFieldDecorator },
-      offlineNew: { addPLUModal, checkedList },
+      offlineNew: {
+        commissionScheme,
+        commissionAmountValue,
+        commissionPercentageValue,
+        addPLUModal,
+        checkedList = [],
+        offlinePLUPagination,
+        displayOfflineList = [],
+      },
     } = this.props;
+    const { currentPage, pageSize: nowPageSize } = offlinePLUPagination;
+    const pageOpts = {
+      total: checkedList.length,
+      current: currentPage,
+      pageSize: nowPageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'offlineNew/effectSave',
+          payload: {
+            offlinePLUPagination: {
+              currentPage: page,
+              pageSize,
+            },
+          },
+        }).then(() => {
+          setTimeout(() => {
+            dispatch({
+              type: 'offlineNew/changeOfflinePage',
+              payload: {
+                checkedList,
+              },
+            });
+          }, 500);
+        });
+      },
+    };
 
     return (
-      <Form className="ant-advanced-search-form" onSubmit={this.handleSubmit}>
-        <Row type="flex" justify="space-around" id="mainTaView">
-          <Col span={24} className={detailStyles.pageHeaderTitle}>
-            <MediaQuery
-              maxWidth={SCREEN.screenMdMax}
-              minWidth={SCREEN.screenSmMin}
-              minHeight={SCREEN.screenSmMin}
-            >
-              <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-            </MediaQuery>
-            <MediaQuery minWidth={SCREEN.screenLgMin}>
-              <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-            </MediaQuery>
-          </Col>
-          <Col span={24}>
-            <div className={classNames(detailStyles.formStyle, 'has-shadow no-border')}>
-              <div className="title-header" style={{ padding: '16px' }}>
-                <span>{formatMessage({ id: 'OFFLINE_FIXED_COMMISSION_RULE' })}</span>
-              </div>
-              <Row>
+      <div>
+        <MediaQuery minWidth={SCREEN.screenSm}>
+          <BreadcrumbCompForPams title={title} />
+        </MediaQuery>
+        <div className={styles.pageTableCard}>
+          <Card>
+            <div className="title-header">
+              <span>{formatMessage({ id: 'OFFLINE_FIXED_COMMISSION_RULE' })}</span>
+            </div>
+            <Form style={{ marginTop: 10 }}>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'COMMISSION_SCHEMA' })}>
+                <Radio.Group
+                  value={commissionScheme}
+                  onChange={e => this.commissionSchemeChange(e.target.value)}
+                >
+                  <Radio value="Amount">
+                    {formatMessage({ id: 'COMMISSION_AMOUNT' })}
+                    <InputNumber
+                      value={commissionAmountValue}
+                      style={{ marginLeft: '10px' }}
+                      precision={2}
+                      min={0}
+                      formatter={value => `$ ${value}`}
+                      parser={value => {
+                        value = value.match(/\d+(\.\d{0,2})?/)
+                          ? value.match(/\d+(\.\d{0,2})?/)[0]
+                          : '';
+                        return String(value);
+                      }}
+                      onChange={value => this.inputChange(value, 'Amount')}
+                    />
+                  </Radio>
+                  <Radio value="Percentage" style={{ marginLeft: '30px' }}>
+                    {formatMessage({ id: 'COMMISSION_PERCENTAGE' })}
+                    <InputNumber
+                      value={commissionPercentageValue}
+                      style={{ marginLeft: '10px' }}
+                      formatter={value => `${value}%`}
+                      min={0}
+                      max={100}
+                      parser={value => {
+                        value = value.replace(/[^\d]/g, '');
+                        return String(value);
+                      }}
+                      onChange={value => this.inputChange(value, 'Percentage')}
+                    />
+                  </Radio>
+                </Radio.Group>
+              </FormItem>
+            </Form>
+            <div className="title-header" style={{ marginTop: 10 }}>
+              <span>{formatMessage({ id: 'BINDING' })}</span>
+            </div>
+            <div>
+              <Row style={{ marginBottom: 50 }}>
                 <Col span={24}>
-                  <FormItem {...formItemLayout} label={formatMessage({ id: 'COMMISSION_SCHEMA' })}>
-                    {getFieldDecorator('commissionScheme', {
-                      rules: [COMMONRule],
-                    })(
-                      <Radio.Group>
-                        <Radio value="Amount">
-                          {formatMessage({ id: 'COMMISSION_AMOUNT' })}
-                          {getFieldDecorator('Amount', {
-                            // rules: [COMMONRule],
-                          })(
-                            <InputNumber
-                              style={{ marginLeft: '10px' }}
-                              formatter={value =>
-                                `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                              }
-                              parser={value => {
-                                value = value.replace(/[^\d]/g, '');
-                                return value;
-                              }}
-                            />
-                          )}
-                        </Radio>
-                        <Radio value="Percentage" style={{ marginLeft: '60px' }}>
-                          {formatMessage({ id: 'COMMISSION_PERCENTAGE' })}
-                          {getFieldDecorator('Percentage', {
-                            // rules: [COMMONRule],
-                          })(
-                            <InputNumber
-                              style={{ marginLeft: '10px' }}
-                              formatter={value => `${value}%`}
-                              parser={value => {
-                                value = value.replace(/[^\d]/g, '');
-                                value = +value > 100 ? 100 : value.substr(0, 2);
-                                return String(value);
-                              }}
-                            />
-                          )}
-                        </Radio>
-                      </Radio.Group>
-                    )}
-                  </FormItem>
-                </Col>
-              </Row>
-              <div className="title-header" style={{ padding: '16px' }}>
-                <span>{formatMessage({ id: 'BINDING' })}</span>
-              </div>
-              <Row>
-                <Col span={24} style={{ padding: '0 15px' }}>
                   <Table
+                    style={{ marginTop: 10 }}
                     size="small"
                     columns={this.columns}
                     rowKey={record => record.commoditySpecId}
                     className={`tabs-no-padding ${styles.searchTitle}`}
+                    rowClassName={(record, index) => this.getRowSelectedClassName(record, index)}
+                    expandedRowRender={record => this.expandedRowRender(record)}
                     pagination={false}
                     dataSource={[
                       {
                         key: 'addOption',
-                        commodityCode: <a onClick={() => this.add()}>+ Add</a>,
-                        commodityDescription: ' ',
-                        themeParkCode: '',
+                        commoditySpecId: <a onClick={this.add}>+ Add</a>,
+                        themeParkCode: ' ',
+                        operation: '',
                       },
-                      ...checkedList,
-                    ]}
+                    ].concat(displayOfflineList)}
                   />
-                </Col>
-              </Row>
-              {addPLUModal ? <AddOfflinePLUModal /> : null}
-              <Divider style={{ marginTop: 100 }} />
-              <Row>
-                <Col style={{ textAlign: 'right', padding: '10px 15px' }}>
-                  <Button onClick={this.cancel}>{formatMessage({ id: 'COMMON_CANCEL' })}</Button>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    // loading={addLoading || modifyLoading}
-                    style={{ marginLeft: '10px' }}
-                  >
-                    {formatMessage({ id: 'COMMON_OK' })}
-                  </Button>
+                  <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
                 </Col>
               </Row>
             </div>
-          </Col>
-        </Row>
-      </Form>
+            {addPLUModal ? <AddOfflinePLUModal /> : null}
+            <div className={styles.operateButtonDivStyle}>
+              <Button style={{ marginRight: 8 }} onClick={this.cancel}>
+                {formatMessage({ id: 'COMMON_CANCEL' })}
+              </Button>
+              <Button style={{ width: 60 }} onClick={() => this.handleSubmit()} type="primary">
+                {formatMessage({ id: 'COMMON_OK' })}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
     );
   }
 }

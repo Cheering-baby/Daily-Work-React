@@ -300,7 +300,7 @@ export default {
   'app.setting.copyinfo': 'copy success，please replace defaultSettings in src/models/setting.js',
   'app.setting.production.hint':
     'Setting panel shows in development environment only, please manually modify',
-  COMMON_PAMS: 'PAMS',
+  COMMON_PAMS: 'PARTNERS',
   OPERATE: 'Action',
   COMMON_DETAIL: 'Detail',
   COMMON_DETAILS: 'Details',
@@ -389,6 +389,9 @@ export default {
   // frame
   FRAME_FAVOURITE_CUSTOMERS: 'Favourite Customer',
   FRAME_MENU_TITLE: 'UAA Modules',
+
+  UPLOAD_CLICK_OR_DRAG: 'Click or drag file to this area to upload',
+  UPLOAD_SUPPORT_EXTENSION: 'Support Extension: Csv. Pdf. Txt. Doc. Docx. Xls. XLsx. Zip. Rar.',
   // user
   USERMGR_MENU_PRIV_MGR: 'User Menu Privilege Management',
   USERMGR_LOCK_USER_CONFIRM: 'Are you sure to lock the user?',
@@ -710,9 +713,11 @@ export default {
   COMMON_ADDED_SUCCESSFULLY: 'Added Successfully.',
   COMMON_GRANTED_SUCCESSFULLY: 'Granted Successfully.',
   COMMON_EDITED_SUCCESSFULLY: 'Edited Successfully.',
+  COMMON_MAPPING_SUCCESSFULLY: 'Mapping completed.',
   COMMON_DELETED_SUCCESSFULLY: 'Deleted Successfully.',
   COMMON_ENABLED_SUCCESSFULLY: 'Enabled Successfully.',
   COMMON_DISABLED_SUCCESSFULLY: 'Disabled Successfully.',
+  COMMON_MODIFY_SUCCESSFULLY: 'Modify Successfully.',
 
   COMMON_CODE_ILLEGAL_STRING:
     'Please enter a string of characters, numbers, underscores, spaces, points, crossbars.',
@@ -720,5 +725,5 @@ export default {
   MOBILE_NOT_EXIST: 'Your mobilePhone does not exist.',
   APPROVAL_RE_ROUTE: 'Re-Route',
   APPROVAL_REASON: 'Reason For Rejection',
-  TA_REGISTRATION_NOT_ALLOW_RESTART: 'Not allow to do re_registration',
+  TA_REGISTRATION_NOT_ALLOW_RESTART: 'Resubmission is not required',
 };

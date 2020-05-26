@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Badge, Button, Card, Col, Icon, Modal, Row, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
-import PaginationComp from './PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import { isNvl } from '@/utils/utils';
 import { showTableTitle } from '../utils/pubUtils';
 import styles from '../index.less';
@@ -24,7 +24,7 @@ class NotificationMgr extends PureComponent {
       return [
         {
           title: showTableTitle(formatMessage({ id: 'NO' })),
-          width: '10%',
+          width: '8%',
           dataIndex: 'index',
           key: 'index',
           render: (text, record, index) => `${index + 1}`,
@@ -46,8 +46,8 @@ class NotificationMgr extends PureComponent {
           render: targetList => {
             let text = '';
             if (targetList && targetList.length > 0) {
-              targetList.map((target, index) => {
-                if (index === 0) {
+              targetList.map(target => {
+                if (isNvl(text)) {
                   text += !isNvl(target.targetObjName) ? `${target.targetObjName}` : '';
                 } else {
                   text += !isNvl(target.targetObjName) ? `,${target.targetObjName}` : '';
@@ -62,7 +62,7 @@ class NotificationMgr extends PureComponent {
           title: showTableTitle(formatMessage({ id: 'FILE' })),
           dataIndex: 'fileList',
           key: 'fileList',
-          width: '10%',
+          width: '12%',
           render: fileList => {
             return !isNvl(fileList) && fileList.length > 0 ? (
               <div className={styles.fileListLenInfo}>
@@ -101,7 +101,7 @@ class NotificationMgr extends PureComponent {
           title: showTableTitle(formatMessage({ id: 'STATUS' })),
           dataIndex: 'status',
           key: 'status',
-          width: '15%',
+          width: '13%',
           render: text => {
             let statusStr;
             let statusTxt;
@@ -130,8 +130,17 @@ class NotificationMgr extends PureComponent {
           },
         },
         {
+          title: showTableTitle(formatMessage({ id: 'PUBLISHED_DATE' })),
+          dataIndex: 'scheduleDate',
+          key: 'scheduleDate',
+          width: '22%',
+          render: text => {
+            return !isNvl(text) ? moment(text).format('DD-MMM-YYYY HH:mm:ss') : '-';
+          },
+        },
+        {
           title: showTableTitle(formatMessage({ id: 'OPERATION' })),
-          width: '10%',
+          width: '12%',
           render: (text, record) => (
             <div>
               <Tooltip title="detail">
@@ -178,10 +187,25 @@ class NotificationMgr extends PureComponent {
     }
     return [
       {
-        title: showTableTitle(formatMessage({ id: 'NO' })),
+        title: <span style={{ marginLeft: 12 }}>{formatMessage({ id: 'NO' })}</span>,
         key: 'id',
         dataIndex: 'id',
         width: '10%',
+        render: (text, record) => {
+          const { currentReceiver } = record;
+          if(currentReceiver){
+            const { status = '01' } = currentReceiver;
+            if(status === '02'){
+              return (
+                <div>
+                  <div className={styles.statusRadiusStyle} style={{ background: '#118AFA' }} />
+                  {text}
+                </div>
+              );
+            }
+          }
+          return <span style={{marginLeft:12}}>{text}</span>;
+        },
       },
       {
         title: showTableTitle(formatMessage({ id: 'TITLE' })),
@@ -196,7 +220,7 @@ class NotificationMgr extends PureComponent {
         title: showTableTitle(formatMessage({ id: 'PUBLISHED_TIME' })),
         dataIndex: 'scheduleDate',
         key: 'scheduleDate',
-        width: '15%',
+        width: '25%',
         render: text => {
           return !isNvl(text) ? moment(text).format('DD-MMM-YYYY HH:mm:ss') : '-';
         },
@@ -205,7 +229,7 @@ class NotificationMgr extends PureComponent {
         title: showTableTitle(formatMessage({ id: 'FILE' })),
         dataIndex: 'fileList',
         key: 'fileList',
-        width: '25%',
+        width: '15%',
         render: (text, record) => {
           return (
             <Col span={24}>
@@ -283,6 +307,16 @@ class NotificationMgr extends PureComponent {
     }
   };
 
+  showRowClassName = record => {
+    const { currentReceiver } = record;
+    if(currentReceiver){
+      const { status = '01' } = currentReceiver;
+      if(status === '02'){
+        return styles.tableSpanStyle;
+      }
+    }
+  };
+
   render() {
     const {
       pagination,
@@ -323,6 +357,7 @@ class NotificationMgr extends PureComponent {
           className={`tabs-no-padding ${styles.searchTitle}`}
           columns={this.getColumn(isAdminRoleFlag)}
           rowKey={record => `notificationList${record.id}`}
+          rowClassName={record => this.showRowClassName(record)}
           dataSource={notificationList}
           loading={notificationListLoading}
           scroll={{ x: 660 }}

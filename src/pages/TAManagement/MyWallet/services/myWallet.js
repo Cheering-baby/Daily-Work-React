@@ -50,7 +50,7 @@ export function topup(params) {
 }
 
 export function createActivity(params) {
-  return UAAService.request(`/b2b/user/v1/activity/create`, {
+  return UAAService.request(`/b2b/account/activity/arApply`, {
     method: 'POST',
     body: params,
   });

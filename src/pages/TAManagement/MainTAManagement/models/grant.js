@@ -1,36 +1,32 @@
-import { message } from 'antd';
-import { isEmpty } from 'lodash';
-import { formatMessage } from 'umi/locale';
 import * as service from '../services/mainTAManagement';
-
-const bindingList2 = bindingList => {
-  const list = [];
-  bindingList.forEach(node => {
-    const children = [];
-    if (node.subBinding && node.subBinding.length > 0) {
-      node.subBinding.forEach(child => {
-        children.push({
-          isSubNode: true,
-          ...child,
-          key: child.bindingId,
-        });
-      });
-    }
-    list.push({
-      key: node.bindingId,
-      bindingName: node.bindingName,
-      bindingDescription: node.bindingDescription,
-      bindingIdentifier: node.bindingIdentifier,
-      children: children.length > 0 ? children : null,
-    });
-  });
-  return list;
-};
+import { setSelected } from '../../../ProductManagement/utils/tools';
 
 export default {
   namespace: 'grant',
   state: {
     addOfferModal: false,
+    searchCondition: {
+      commonSearchText: null,
+      bindingId: null,
+      bindingType: 'Agent',
+      usageScope: 'Online',
+      currentPage: 1,
+      pageSize: 10,
+    },
+    addOfferList: [],
+    searchOfferTotalSize: 0,
+    checkedList: [],
+    displayGrantOfferList: [],
+
+    grantPagination: {
+      currentPage: 1,
+      pageSize: 10,
+    },
+
+    checkedOnlineList: [],
+
+    subPLUList: [],
+
     pagination: {
       currentPage: 1,
       pageSize: 10,
@@ -41,106 +37,130 @@ export default {
     },
     bindingList: [],
     expandedRowKeys: [],
-    addOfferList: [],
+
     selectedRowKeys: [],
     filter: {},
-    checkedList: [],
   },
   effects: {
-    *commodityBindingList({ payload }, { call, put, select }) {
-      const { commoditySpecType } = payload;
-      const { pagination } = yield select(state => state.grant);
+    *effectSave({ payload }, { put }) {
+      yield put({
+        type: 'save',
+        payload,
+      });
+    },
+    *fetch({ payload }, { call, put }) {
+      const { agentId } = payload;
       const requestData = {
-        ...pagination,
-        commoditySpecType,
+        agentId,
+        bindingType: 'Offer',
       };
-
-      const res = yield call(service.queryCommodityBindingList, requestData);
+      const res = yield call(service.queryAgentBindingList, requestData);
       const {
         data: { resultCode, resultMsg, result },
       } = res;
-
       if (resultCode === '0' || resultCode === 0) {
-        const {
-          page: { currentPage, pageSize, totalSize },
-          bindingList,
-        } = result;
+        const { bindingList } = result;
         yield put({
-          type: 'save',
+          type: 'changePage',
           payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            bindingList: bindingList2(bindingList),
+            checkedList: bindingList,
           },
         });
-      } else message.warn(resultMsg, 10);
+      } else throw resultMsg;
     },
     *fetchCommodityList({ payload }, { call, put, select }) {
-      const { bindingId, bindingType, commodityType } = payload;
-      const { pagination2, filter } = yield select(state => state.grant);
-      const { likeParam } = filter;
-      let requestData = {
-        ...pagination2,
-        bindingId,
-        bindingType,
-        commodityType,
-      };
-      if (!isEmpty(likeParam)) {
-        requestData = {
-          ...pagination2,
-          bindingId,
-          bindingType,
-          commodityType,
-          ...likeParam,
-        };
-      }
-      const res = yield call(service.addOfferList, requestData);
+      const { searchCondition, checkedList } = yield select(state => state.grant);
+      const params = { ...searchCondition, ...payload };
+      yield put({
+        type: 'save',
+        payload: {
+          searchCondition: params,
+        },
+      });
+      const res = yield call(service.queryCommodityList, params);
+      if (!res) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = res;
-
       if (resultCode === 0 || resultCode === '0') {
-        const {
-          page: { currentPage, pageSize, totalSize },
-          commodityList,
-        } = result;
-        if (commodityList && commodityList.length > 0) {
-          commodityList.map(v => {
-            Object.assign(v, { key: `${v.commoditySpecId}` });
-            return v;
-          });
+        const { page, commodityList } = result;
+        const { totalSize } = page;
+        for (let i = 0; i < commodityList.length; i += 1) {
+          commodityList[i].isSelected = false;
+          if (commodityList[i].subCommodityList === null) {
+            commodityList[i].subCommodityList = [];
+          }
+          for (let j = 0; j < commodityList[i].subCommodityList.length; j += 1) {
+            commodityList[i].subCommodityList[j].isSelected = false;
+            if (commodityList[i].subCommodityList[j].subCommodityList === null) {
+              commodityList[i].subCommodityList[j].subCommodityList = [];
+            }
+            const { subCommodityList } = commodityList[i].subCommodityList[j];
+            for (let k = 0; k < subCommodityList.length; k += 1) {
+              if (subCommodityList[k].subCommodityList === null) {
+                subCommodityList[k].subCommodityList = [];
+              }
+              subCommodityList[k].isSelected = false;
+            }
+          }
         }
-
+        setSelected(commodityList, checkedList);
         yield put({
           type: 'save',
           payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            addOfferList: commodityList,
+            searchOfferTotalSize: totalSize,
+            addOfferList: commodityList || [],
           },
         });
-      } else message.warn(resultMsg, 10);
+      } else throw resultMsg;
     },
-    *add({ payload }, { call, put }) {
-      const { commodityList, tplId } = payload;
-      const reqParams = {
-        commodityList,
-        tplId,
-      };
-      const { success, errorMsg } = yield call(service.add, reqParams);
-      if (success) {
-        message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
-
-        yield put({
-          type: 'commodityBindingList',
+    *add({ payload }, { call }) {
+      const { checkedList, agentList, bindingType } = payload;
+      const subBindingList = [];
+      for (let i = 0; i < checkedList.length; i += 1) {
+        subBindingList.push({
+          bindingId: checkedList[i].bindingId,
+          bindingType: 'Offer',
         });
-      } else throw errorMsg;
+      }
+      const reqParams = {
+        agentList,
+        bindingList: subBindingList,
+        bindingType,
+      };
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.add, reqParams);
+      if (resultCode !== '0') {
+        throw resultMsg;
+      }
+      return resultCode;
+    },
+    *queryCommodityBindingList({ payload }, { call, put, select }) {
+      const { subPLUList } = yield select(state => state.grant);
+      const { commoditySpecId } = payload;
+      const params = {
+        commoditySpecId,
+        commoditySpecType: 'Offer',
+      };
+      const res = yield call(service.queryCommodityBindingList, params);
+      if (!res) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = res;
+      if (resultCode === 0 || resultCode === '0') {
+        const { subCommodityList } = result;
+        subPLUList.push({
+          commoditySpecId,
+          subCommodityList,
+        });
+        yield put({
+          type: 'save',
+          payload: {
+            subPLUList,
+          },
+        });
+      } else throw resultMsg;
     },
     *search({ payload }, { put }) {
       yield put({
@@ -190,31 +210,174 @@ export default {
       };
     },
     saveSelectOffer(state, { payload }) {
-      const { addOfferList } = state;
-      const { selectedRowKeys } = payload;
-      const selectedOffer = [];
+      const { selectedRowKeys, addOfferList } = payload;
       for (let i = 0; i < addOfferList.length; i += 1) {
-        for (let j = 0; j < addOfferList.length; j += 1) {
-          if (addOfferList[j] === addOfferList[i].key) {
-            addOfferList.push(addOfferList[i]);
+        let flag = true;
+        for (let j = 0; j < selectedRowKeys.length; j += 1) {
+          if (selectedRowKeys[j] === addOfferList[i].commoditySpecId) {
+            addOfferList[i].isSelected = true;
+            flag = false;
+            let unSelected = true;
+            for (let k = 0; k < addOfferList[i].subCommodityList.length; k += 1) {
+              if (addOfferList[i].subCommodityList[k].isSelected === true) {
+                unSelected = false;
+              }
+            }
+            if (unSelected) {
+              for (let k = 0; k < addOfferList[i].subCommodityList.length; k += 1) {
+                addOfferList[i].subCommodityList[k].isSelected = true;
+                for (
+                  let l = 0;
+                  l < addOfferList[i].subCommodityList[k].subCommodityList.length;
+                  l += 1
+                ) {
+                  addOfferList[i].subCommodityList[k].subCommodityList[l].isSelected = true;
+                }
+              }
+              addOfferList[i].subCommodityList.map(e => {
+                Object.assign(e, {
+                  isSelected: true,
+                });
+                return e;
+              });
+            }
+          }
+        }
+        if (flag) {
+          addOfferList[i].isSelected = false;
+          for (let k = 0; k < addOfferList[i].subCommodityList.length; k += 1) {
+            addOfferList[i].subCommodityList[k].isSelected = false;
+            for (
+              let j = 0;
+              j < addOfferList[i].subCommodityList[k].subCommodityList.length;
+              j += 1
+            ) {
+              addOfferList[i].subCommodityList[k].subCommodityList[j].isSelected = false;
+            }
           }
         }
       }
       return {
         ...state,
-        selectedRowKeys,
-        selectedOffer,
+        addOfferList,
       };
     },
-    clear(state, { payload }) {
+    saveSubSelectOffer(state, { payload }) {
+      const { subSelectedRowKeys, commoditySpecId, addOfferList } = payload;
+      for (let i = 0; i < addOfferList.length; i += 1) {
+        if (commoditySpecId === addOfferList[i].commoditySpecId) {
+          for (let j = 0; j < addOfferList[i].subCommodityList.length; j += 1) {
+            addOfferList[i].subCommodityList[j].isSelected = false;
+            let flag = true;
+            for (let k = 0; k < subSelectedRowKeys.length; k += 1) {
+              if (addOfferList[i].subCommodityList[j].commoditySpecId === subSelectedRowKeys[k]) {
+                flag = false;
+                addOfferList[i].subCommodityList[j].isSelected = true;
+                let unSelected = true;
+                for (
+                  let l = 0;
+                  l < addOfferList[i].subCommodityList[j].subCommodityList.length;
+                  l += 1
+                ) {
+                  if (addOfferList[i].subCommodityList[j].subCommodityList[l].isSelected) {
+                    unSelected = false;
+                  }
+                }
+                if (unSelected) {
+                  for (
+                    let l = 0;
+                    l < addOfferList[i].subCommodityList[j].subCommodityList.length;
+                    l += 1
+                  ) {
+                    addOfferList[i].subCommodityList[j].subCommodityList[l].isSelected = true;
+                  }
+                }
+              }
+            }
+            if (flag) {
+              for (
+                let k = 0;
+                k < addOfferList[i].subCommodityList[j].subCommodityList.length;
+                k += 1
+              ) {
+                addOfferList[i].subCommodityList[j].subCommodityList[k].isSelected = false;
+              }
+            }
+          }
+          if (subSelectedRowKeys.length === 0) {
+            addOfferList[i].isSelected = false;
+          } else {
+            addOfferList[i].isSelected = true;
+          }
+        }
+      }
       return {
         ...state,
-        ...payload,
-        // addOfferModal: false,
-        bindingList: [],
+        addOfferList,
+      };
+    },
+    changePage(state, { payload }) {
+      const {
+        grantPagination: { currentPage, pageSize },
+      } = state;
+      const { checkedList } = payload;
+      const displayGrantOfferList = [];
+      if (currentPage * pageSize < checkedList.length) {
+        for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i += 1) {
+          displayGrantOfferList.push(checkedList[i]);
+        }
+      } else {
+        for (let i = (currentPage - 1) * pageSize; i < checkedList.length; i += 1) {
+          displayGrantOfferList.push(checkedList[i]);
+        }
+      }
+
+      return {
+        ...state,
+        displayGrantOfferList,
+        checkedList,
+      };
+    },
+    resetAddOffer(state) {
+      return {
+        ...state,
+        addOfferModal: false,
+        searchCondition: {
+          commonSearchText: null,
+          bindingId: null,
+          bindingType: 'Agent',
+          usageScope: 'Online',
+          currentPage: 1,
+          pageSize: 10,
+        },
         addOfferList: [],
-        selectedRowKeys: [],
-        filter: {},
+        searchOfferTotalSize: 0,
+      };
+    },
+    clear(state) {
+      return {
+        ...state,
+        addOfferModal: false,
+        searchCondition: {
+          commonSearchText: null,
+          bindingId: null,
+          bindingType: 'Agent',
+          usageScope: 'Online',
+          currentPage: 1,
+          pageSize: 10,
+        },
+        addOfferList: [],
+        searchOfferTotalSize: 0,
+        checkedList: [],
+        displayGrantOfferList: [],
+
+        grantPagination: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+
+        subPLUList: [],
+
         pagination: {
           currentPage: 1,
           pageSize: 10,
@@ -223,6 +386,11 @@ export default {
           currentPage: 1,
           pageSize: 10,
         },
+        bindingList: [],
+        expandedRowKeys: [],
+
+        selectedRowKeys: [],
+        filter: {},
       };
     },
   },

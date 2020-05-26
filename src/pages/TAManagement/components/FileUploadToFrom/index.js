@@ -17,7 +17,7 @@ class FileUploadToFrom extends PureComponent {
         taFileLoadingFlag: false,
         arAccountFileLoadingFlag: false,
       },
-      props
+      this.props
     );
   }
 
@@ -28,6 +28,14 @@ class FileUploadToFrom extends PureComponent {
       taFileLoadingFlag,
       arAccountFileLoadingFlag,
     } = state;
+    if (props.isRegistration) {
+      return {
+        newTaFileList: [...newTaFileList],
+        newArAccountFileList: [...newArAccountFileList],
+        taFileLoadingFlag,
+        arAccountFileLoadingFlag,
+      };
+    }
     return {
       newTaFileList: [...newTaFileList, ...this.normFile(props.taFileList)],
       newArAccountFileList: [...newArAccountFileList, ...this.normFile(props.arAccountFileList)],

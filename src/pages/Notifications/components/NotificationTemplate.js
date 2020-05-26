@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Col, Form, Input, Popover, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import PaginationComp from './PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import { showTableTitle } from '../utils/pubUtils';
 import styles from '../index.less';
 import NotificationDetail from '@/pages/Notifications/components/NotificationDetail';

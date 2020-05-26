@@ -1,0 +1,17 @@
+export default {
+  REPORT_CENTER: 'Report Center',
+  PAMS: 'PARTNERS',
+  SCHEDULED_TASKS: 'Scheduled Tasks',
+  SCHEDULED_TASKS_NEW: 'New Scheduled Task',
+  REPORT_NAME: 'Report Name',
+  STATUS: 'Status',
+  RECEIVER: 'Receiver',
+  LAST_SEND_TIME: 'Last Send Time',
+  OPERATION: 'Operation',
+  OK: 'Ok',
+  Cancel: 'Cancel',
+  USER_ID: 'User Id',
+  USER_CODE: 'User Code',
+  USER_TYPE: 'User Type',
+  ADHOC_REPORTS: 'Ad-hoc Reports',
+};

@@ -1,7 +1,6 @@
 import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-const rwsUrl = 'http://10.25.159.236:18091/pams';
 export function commissionRuleSetupList(data) {
   return UAAService.request(
     `/b2b/agent/v1/commission/template/queryCommissionTplList?${stringify(data)}`,
@@ -11,11 +10,19 @@ export function commissionRuleSetupList(data) {
   );
 }
 
+const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
+export async function queryPluAttribute(params) {
+  return UAAService.request(`${localPath}/b2c/product/v1/dictionary/attraction/list`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
 export function queryCommissionTplDetail(data) {
   return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/template/queryCommissionTplDetail?${stringify(
-      data
-    )}`,
+    `/b2b/agent/v1/commission/template/queryCommissionTplDetail?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -24,9 +31,7 @@ export function queryCommissionTplDetail(data) {
 
 export function queryCommissionBindingList(data) {
   return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityBindingList?${stringify(
-      data
-    )}`,
+    `/b2b/agent/v1/commission/binding/queryCommissionBindingList?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -35,7 +40,7 @@ export function queryCommissionBindingList(data) {
 
 export function offerList(data) {
   return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(data)}`,
+    `/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -43,7 +48,7 @@ export function offerList(data) {
 }
 
 export async function grant(params) {
-  const url = `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/saveCommissionBindingList`;
+  const url = `/b2b/agent/v1/commission/binding/saveCommissionBindingList`;
   return UAAService.request(url, {
     method: 'POST',
     body: {
@@ -53,7 +58,7 @@ export async function grant(params) {
 }
 
 export async function edit(params) {
-  const url = `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/template/saveCommissionTpl`;
+  const url = `/b2b/agent/v1/commission/template/saveCommissionTpl`;
   return UAAService.request(url, {
     method: 'POST',
     body: {
@@ -63,11 +68,8 @@ export async function edit(params) {
 }
 
 export async function add(params) {
-  return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/template/saveCommissionTpl`,
-    {
-      method: 'POST',
-      body: params,
-    }
-  );
+  return UAAService.request(`/b2b/agent/v1/commission/template/saveCommissionTpl`, {
+    method: 'POST',
+    body: params,
+  });
 }

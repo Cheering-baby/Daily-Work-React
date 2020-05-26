@@ -1,11 +1,12 @@
 import React from 'react';
-import { Col, Row, Spin } from 'antd';
+import { Col, Descriptions, Row, Spin } from 'antd';
 import { formatMessage } from 'umi/locale';
-import DetailForFileInformation from '@/components/DetailForFileInformation';
 import styles from './index.less';
+import DetailForFileInfo from '@/components/DetailForFileInfo';
 
 const DetailForFileUploadInformation = props => {
   const { companyInfo = {}, updateDownFileLoading, downFileLoadingFlag = false } = props;
+  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -14,32 +15,34 @@ const DetailForFileUploadInformation = props => {
         </Col>
       </Row>
       <Spin spinning={downFileLoadingFlag}>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-            <DetailForFileInformation
-              fileTxt={formatMessage({ id: 'FILE_REGISTRATION_DOCS' })}
-              fileList={companyInfo.fileList || null}
-              fileKeys={{
-                labelName: 'name',
-                labelPath: 'path',
-                labelSourceName: 'sourceName',
-              }}
-              beforeDown={() => updateDownFileLoading({ downFileLoadingFlag: true })}
-              afterDown={() => updateDownFileLoading({ downFileLoadingFlag: false })}
-            />
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-            <DetailForFileInformation
-              fileTxt={formatMessage({ id: 'FILE_AR_CREDIT_LIMIT' })}
-              fileList={companyInfo.arAccountFileList || null}
-              fileKeys={{
-                labelName: 'name',
-                labelPath: 'path',
-                labelSourceName: 'sourceName',
-              }}
-              beforeDown={() => updateDownFileLoading({ downFileLoadingFlag: true })}
-              afterDown={() => updateDownFileLoading({ downFileLoadingFlag: false })}
-            />
+        <Row type="flex" justify="space-around" className={styles.detailContent}>
+          <Col span={24}>
+            <Descriptions className={styles.descriptionsStyle} column={layout}>
+              <Descriptions.Item label={formatMessage({ id: 'FILE_REGISTRATION_DOCS' })}>
+                <DetailForFileInfo
+                  fileList={companyInfo.fileList || null}
+                  fileKeys={{
+                    labelName: 'name',
+                    labelPath: 'path',
+                    labelSourceName: 'sourceName',
+                  }}
+                  beforeDown={() => updateDownFileLoading({ downFileLoadingFlag: true })}
+                  afterDown={() => updateDownFileLoading({ downFileLoadingFlag: false })}
+                />
+              </Descriptions.Item>
+              <Descriptions.Item label={formatMessage({ id: 'FILE_AR_CREDIT_LIMIT' })}>
+                <DetailForFileInfo
+                  fileList={companyInfo.arAccountFileList || null}
+                  fileKeys={{
+                    labelName: 'name',
+                    labelPath: 'path',
+                    labelSourceName: 'sourceName',
+                  }}
+                  beforeDown={() => updateDownFileLoading({ downFileLoadingFlag: true })}
+                  afterDown={() => updateDownFileLoading({ downFileLoadingFlag: false })}
+                />
+              </Descriptions.Item>
+            </Descriptions>
           </Col>
         </Row>
       </Spin>

@@ -20,20 +20,17 @@ export default {
       } = yield call(service.registrationSubTaInfo, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
         yield put({ type: 'save', payload: { subTaInfoLoadingFlag: false } });
-        if (result) {
-          const { subTaId } = result;
-          if (subTaId) {
-            yield put({
-              type: 'save',
-              payload: {
-                subTaId,
-              },
-            });
-          }
+        if (result && result.subTaId) {
+          yield put({
+            type: 'save',
+            payload: {
+              subTaId: result.subTaId,
+            },
+          });
         }
         return true;
       }
-      yield put({ type: 'save', payload: { taInfoLoadingFlag: false } });
+      yield put({ type: 'save', payload: { subTaInfoLoadingFlag: false } });
       message.warn(resultMsg, 10);
       return false;
     },
@@ -44,20 +41,17 @@ export default {
       } = yield call(service.modifySubTaInfo, { ...payload });
       if (resultCode === '0' || resultCode === 0) {
         yield put({ type: 'save', payload: { subTaInfoLoadingFlag: false } });
-        if (result) {
-          const { subTaId } = result;
-          if (subTaId) {
-            yield put({
-              type: 'save',
-              payload: {
-                subTaId,
-              },
-            });
-          }
+        if (result && result.subTaId) {
+          yield put({
+            type: 'save',
+            payload: {
+              subTaId: result.subTaId,
+            },
+          });
         }
         return true;
       }
-      yield put({ type: 'save', payload: { taInfoLoadingFlag: false } });
+      yield put({ type: 'save', payload: { subTaInfoLoadingFlag: false } });
       message.warn(resultMsg, 10);
       return false;
     },

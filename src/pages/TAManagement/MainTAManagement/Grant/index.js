@@ -1,166 +1,445 @@
-import React, { Fragment } from 'react';
-import {
-  Tooltip,
-  Button,
-  Col,
-  Popconfirm,
-  Form,
-  Row,
-  Table,
-  Card,
-  Icon,
-  message,
-  Divider,
-} from 'antd';
+import React from 'react';
+import { Tooltip, Button, Col, Row, Table, Card, Icon, message, Popover } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
 import { cloneDeep } from 'lodash';
+import moment from 'moment';
 import styles from './index.less';
 import SCREEN from '../../../../utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import AddOfferModal from '../components/AddOfferModal';
-import { commonConfirm } from '@/components/CommonModal';
+import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
+import { objDeepCopy } from '../../utils/tools';
+import { isNvl } from '@/utils/utils';
 
-const FormItem = Form.Item;
-@Form.create()
 @connect(({ grant, loading }) => ({
   grant,
-  loading: loading.effects['grant/commodityBindingList'],
+  loading: loading.effects['grant/fetch'],
+  pluLoading: loading.effects['grant/queryCommodityBindingList'],
 }))
 class NewGrant extends React.PureComponent {
   columns = [
     {
       title: formatMessage({ id: 'OFFER_NAME' }),
-      dataIndex: 'commodityName',
+      dataIndex: 'bindingName',
+      key: 'bindingName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'OFFER_IDENTIFIER' }),
-      dataIndex: 'commodityIdentifier',
+      dataIndex: 'bindingIdentifier',
+      key: 'bindingIdentifier',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'OFFER_DESCRIPTION' }),
+      dataIndex: 'bindingDescription',
+      key: 'bindingDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'OPERATION' }),
+      dataIndex: 'operation',
+      render: (text, record) => {
+        return record && !record.key && record.key !== 'addOption' ? (
+          <div>
+            <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
+              <Icon
+                type="delete"
+                onClick={() => {
+                  this.delete(record);
+                }}
+              />
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
   ];
 
   pluColumns = [
     {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'bindingCode',
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
-      dataIndex: 'bindingDescription',
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'COMMISSION' }),
-      dataIndex: 'subBinding',
-      render: (text, record, idx) => {
-        if (idx > 0 && text) {
-          return (
-            <Popconfirm
-              title={this.addModelTitle}
-              overlayClassName={styles.popClass}
-              icon={null}
-              // onVisibleChange={this.onVisibleChange}
-              placement="leftTop"
-              okText={null}
-            >
-              <div>
-                <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
-                  <Icon
-                    type="eye"
-                    onClick={() => {
-                      // this.detail('eye', record);
-                    }}
-                  />
-                </Tooltip>
-              </div>
-            </Popconfirm>
-          );
-        }
+      render: (text, record) => {
+        return (
+          <div>
+            <Popover trigger="click" placement="left" content={this.getContent(record)}>
+              <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
+                <Icon type="eye" />
+              </Tooltip>
+            </Popover>
+          </div>
+        );
       },
     },
   ];
 
-  tieredColumns = [
+  subPluColumns = [
     {
-      title: formatMessage({ id: 'TIERED_COMMISSION_TIER' }),
-      key: 'offerName',
-      dataIndex: 'offerName',
+      title: formatMessage({ id: 'PLU_CODE' }),
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
-      title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
-      key: 'offerIdentify',
-      dataIndex: 'offerIdentify',
+      title: formatMessage({ id: 'PLU_DESCRIPTION' }),
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'COMMISSION' }),
+      render: (text, record) => {
+        return (
+          <div>
+            <Popover trigger="click" placement="left" content={this.getContent(record)}>
+              <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
+                <Icon type="eye" />
+              </Tooltip>
+            </Popover>
+          </div>
+        );
+      },
     },
   ];
-
-  attendanceColumns = [
-    {
-      title: formatMessage({ id: 'ATTENDANCE_COMMISSION_TIER' }),
-      key: 'attendanceCommissionTier',
-      dataIndex: 'attendanceCommissionTier',
-    },
-    {
-      title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
-      key: 'commissionScheme',
-      dataIndex: 'commissionScheme',
-    },
-  ];
-
-  addModelTitle = (
-    <div>
-      <Row>
-        <Col span={24}>
-          <span className={styles.DetailTitle}>{formatMessage({ id: 'FIXED_COMMISSION' })}</span>
-        </Col>
-        <Col span={8} className={styles.drawerBlackText}>
-          {formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' })}
-        </Col>
-        <Col span={16}>
-          <span>qwe wq</span>
-        </Col>
-
-        <Col span={24} style={{ paddingTop: '10px' }}>
-          <span className={styles.DetailTitle}>{formatMessage({ id: 'TIERED_COMMISSION' })}</span>
-        </Col>
-        <Col span={24}>
-          <Table
-            size="small"
-            // dataSource={roomTypeConfigList}
-            columns={this.tieredColumns}
-            className={`tabs-no-padding ${styles.searchTitle}`}
-            pagination={false}
-          />
-        </Col>
-
-        <Col span={24} style={{ paddingTop: '10px' }}>
-          <span className={styles.DetailTitle}>
-            {formatMessage({ id: 'ATTENDANCE_COMMISSION' })}
-          </span>
-        </Col>
-        <Col span={24}>
-          <Table
-            size="small"
-            // dataSource={transform2List}
-            columns={this.attendanceColumns}
-            className={`tabs-no-padding ${styles.searchTitle}`}
-            pagination={false}
-          />
-        </Col>
-      </Row>
-    </div>
-  );
 
   componentDidMount() {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'grant/commodityBindingList',
-      payload: {
-        commoditySpecType: 'Offer',
+    const {
+      dispatch,
+      location: {
+        query: { taIdList },
       },
+    } = this.props;
+    const newTaIdList = taIdList.split(',');
+    if (newTaIdList.length === 1) {
+      dispatch({
+        type: 'grant/fetch',
+        payload: {
+          agentId: newTaIdList[0],
+        },
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'grant/clear',
     });
   }
+
+  delete = record => {
+    const {
+      grant: {
+        checkedList,
+        grantPagination: { currentPage, pageSize },
+      },
+      dispatch,
+    } = this.props;
+    const filterCheckedList = checkedList.filter(item => {
+      const { bindingId } = item;
+      return bindingId !== record.bindingId;
+    });
+    if ((currentPage - 1) * pageSize >= filterCheckedList.length && currentPage > 1) {
+      dispatch({
+        type: 'grant/effectSave',
+        payload: {
+          grantPagination: {
+            currentPage: currentPage - 1,
+            pageSize,
+          },
+        },
+      }).then(() => {
+        setTimeout(() => {
+          dispatch({
+            type: 'grant/changePage',
+            payload: {
+              checkedList: filterCheckedList,
+            },
+          });
+        }, 500);
+      });
+    } else {
+      dispatch({
+        type: 'grant/changePage',
+        payload: {
+          checkedList: filterCheckedList,
+        },
+      });
+    }
+  };
+
+  getTieredColumns = commissionScheme => {
+    return [
+      {
+        title: formatMessage({ id: 'TIERED_COMMISSION_TIER' }),
+        key: 'tieredCommissionTier',
+        render: (text, record) => {
+          const { minimum, maxmum } = record;
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={
+                <span style={{ whiteSpace: 'pre-wrap' }}>
+                  {minimum} ~ {maxmum}
+                </span>
+              }
+            >
+              <span>
+                {minimum} ~ {maxmum}
+              </span>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
+        key: 'commissionScheme',
+        render: (text, record) => {
+          const { commissionValue } = record;
+          if (commissionScheme === 'Amount') {
+            return (
+              <Tooltip
+                placement="topLeft"
+                title={<span style={{ whiteSpace: 'pre-wrap' }}>${commissionValue} / Ticket</span>}
+              >
+                <span>${commissionValue} / Ticket</span>
+              </Tooltip>
+            );
+          }
+          if (commissionScheme === 'Percentage') {
+            return (
+              <Tooltip
+                placement="topLeft"
+                title={<span style={{ whiteSpace: 'pre-wrap' }}>{commissionValue}%</span>}
+              >
+                <span>{commissionValue}%</span>
+              </Tooltip>
+            );
+          }
+        },
+      },
+    ];
+  };
+
+  getAttendanceColumns = commissionScheme => {
+    return [
+      {
+        title: formatMessage({ id: 'ATTENDANCE_COMMISSION_TIER' }),
+        key: 'attendanceCommissionTier',
+        render: (text, record) => {
+          const { minimum, maxmum } = record;
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={
+                <span style={{ whiteSpace: 'pre-wrap' }}>
+                  {minimum} ~ {maxmum}
+                </span>
+              }
+            >
+              <span>
+                {minimum} ~ {maxmum}
+              </span>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
+        key: 'commissionScheme',
+        render: (text, record) => {
+          const { commissionValue } = record;
+          if (commissionScheme === 'Amount') {
+            return (
+              <Tooltip
+                placement="topLeft"
+                title={<span style={{ whiteSpace: 'pre-wrap' }}>${commissionValue} / Ticket</span>}
+              >
+                <span>${commissionValue} / Ticket</span>
+              </Tooltip>
+            );
+          }
+          if (commissionScheme === 'Percentage') {
+            return (
+              <Tooltip
+                placement="topLeft"
+                title={<span style={{ whiteSpace: 'pre-wrap' }}>{commissionValue}%</span>}
+              >
+                <span>{commissionValue}%</span>
+              </Tooltip>
+            );
+          }
+        },
+      },
+    ];
+  };
+
+  showFixedCommission = contentValue => {
+    const child = [];
+    for (let i = 0; i < contentValue.length; i += 1) {
+      const {
+        title,
+        value: { commissionScheme, effectiveDate, expiryDate, tieredList = [] },
+      } = contentValue[i];
+      if (title === 'Tiered') {
+        child.push(
+          <div style={{ marginTop: 10 }}>
+            <Col span={8} className={styles.drawerBlackText}>
+              {formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' })}
+            </Col>
+            <Col span={16}>
+              <span>{commissionScheme}</span>
+            </Col>
+            <Col span={8} className={styles.drawerBlackText}>
+              {formatMessage({ id: 'EFFECTIVE_PERIOD' })}
+            </Col>
+            <Col span={16}>
+              <span>
+                {!isNvl(effectiveDate) ? `${moment(effectiveDate).format('DD-MMM-YYYY')} ~` : '-'}
+                {!isNvl(expiryDate) ? moment(expiryDate).format('DD-MMM-YYYY') : '-'}
+              </span>
+            </Col>
+            <Col span={24}>
+              <Table
+                style={{ marginBottom: 10 }}
+                size="small"
+                dataSource={tieredList}
+                columns={this.getTieredColumns(commissionScheme)}
+                className={`tabs-no-padding ${styles.searchTitle}`}
+                pagination={false}
+              />
+            </Col>
+          </div>
+        );
+      }
+    }
+    return child;
+  };
+
+  showAttendanceCommission = contentValue => {
+    const child = [];
+    for (let i = 0; i < contentValue.length; i += 1) {
+      const {
+        title,
+        value: { commissionScheme, effectiveDate, expiryDate, tieredList = [] },
+      } = contentValue[i];
+      if (title === 'Attendance') {
+        child.push(
+          <div style={{ marginTop: 10 }}>
+            <Col span={8} className={styles.drawerBlackText}>
+              {formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' })}
+            </Col>
+            <Col span={16}>
+              <span>{commissionScheme}</span>
+            </Col>
+            <Col span={8} className={styles.drawerBlackText}>
+              {formatMessage({ id: 'EFFECTIVE_PERIOD' })}
+            </Col>
+            <Col span={16}>
+              <span>
+                {!isNvl(effectiveDate) ? `${moment(effectiveDate).format('DD-MMM-YYYY')} ~` : '-'}
+                {!isNvl(expiryDate) ? moment(expiryDate).format('DD-MMM-YYYY') : '-'}
+              </span>
+            </Col>
+            <Col span={24}>
+              <Table
+                style={{ marginBottom: 10 }}
+                size="small"
+                dataSource={tieredList}
+                columns={this.getAttendanceColumns(commissionScheme)}
+                className={`tabs-no-padding ${styles.searchTitle}`}
+                pagination={false}
+              />
+            </Col>
+          </div>
+        );
+      }
+    }
+    return child;
+  };
+
+  getContent = record => {
+    const { commissionList = {} } = record;
+    const contentValue = [];
+    for (const key in commissionList) {
+      let title = 'Attendance';
+      if (key.length >= 5 && key.substr(0, 5) === 'Fixed') {
+        title = 'Fixed';
+      }
+      if (key.length >= 6 && key.substr(0, 6) === 'Tiered') {
+        title = 'Tiered';
+      }
+      contentValue.push({
+        title,
+        value: commissionList[key],
+      });
+    }
+
+    return (
+      <div className={styles.contentDiv}>
+        <Row>
+          <Col span={24}>
+            <span className={styles.DetailTitle}>{formatMessage({ id: 'FIXED_COMMISSION' })}</span>
+          </Col>
+          <Col span={24} style={{ paddingTop: '10px' }}>
+            <span className={styles.DetailTitle}>
+              {formatMessage({ id: 'TIERED_COMMISSION_TITLE' })}
+            </span>
+          </Col>
+          {this.showFixedCommission(contentValue)}
+          <Col span={24} style={{ paddingTop: '10px' }}>
+            <span className={styles.DetailTitle}>
+              {formatMessage({ id: 'ATTENDANCE_COMMISSION_TITLE' })}
+            </span>
+          </Col>
+          {this.showAttendanceCommission(contentValue)}
+        </Row>
+      </div>
+    );
+  };
 
   add = () => {
     const {
@@ -186,81 +465,119 @@ class NewGrant extends React.PureComponent {
     router.push(`/TAManagement/MainTAManagement`);
   };
 
-  onChangeEvent = pagination => {
-    const { dispatch } = this.props;
-    const { current, pageSize } = pagination;
-    dispatch({
-      type: 'grant/save',
-      payload: {
-        currentPage: current,
-        pageSize,
-        expandedRowKeys: [],
-      },
-    }).then(() => {
-      dispatch({
-        type: 'grant/fetchOfferList',
-      });
-    });
-  };
-
   jumpToMainTA = () => {
     router.push(`/MainTAManagement/Grant`);
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
+  handleSubmit = () => {
     const {
-      form,
       dispatch,
       grant: { checkedList },
       location: {
-        query: { taId },
+        query: { taIdList },
       },
     } = this.props;
-    if (checkedList.length === 0) {
-      message.warning('Please select at least one.');
-      return false;
-    }
-    const resCb = response => {
-      if (response === 'SUCCESS') {
-        message.success('Added successfully.');
-        this.jumpToMainTA();
-      } else if (response === 'ERROR') {
-        message.error('Failed to add.');
+    // if (checkedList.length === 0) {
+    //   message.warning('Please select at least one offer.');
+    //   return false;
+    // }
+    dispatch({
+      type: 'grant/add',
+      payload: {
+        checkedList,
+        agentList: taIdList.split(','),
+        bindingType: 'Offer',
+      },
+    }).then(resultCode => {
+      if (resultCode === '0') {
+        router.push('/TAManagement/MainTAManagement');
+        message.success(formatMessage({ id: 'COMMON_MODIFY_SUCCESSFULLY' }));
       }
-    };
-    form.validateFields(errors => {
-      if (errors) {
-        return;
-      }
-      commonConfirm({
-        content: `Confirm to New ?`,
-        onOk: () => {
-          dispatch({
-            type: 'grant/add',
-            payload: {
-              commodityList: checkedList,
-              tplId: taId,
-            },
-          }).then(resCb);
-        },
-      });
     });
   };
 
-  showTotal(total) {
-    return <div>Total {total} items</div>;
-  }
+  openRow = (record, subPLUList) => {
+    const { dispatch } = this.props;
+    const { bindingId } = record;
+    let flag = true;
+    for (let i = 0; i < subPLUList.length; i += 1) {
+      if (subPLUList[i].commoditySpecId === bindingId) {
+        flag = false;
+      }
+    }
+    if (flag) {
+      dispatch({
+        type: 'grant/queryCommodityBindingList',
+        payload: {
+          commoditySpecId: bindingId,
+        },
+      });
+    }
+  };
+
+  subExpandedRowRender = record => {
+    const { subCommodityList } = record;
+    return (
+      <div>
+        <Table
+          size="small"
+          columns={this.subPluColumns}
+          dataSource={subCommodityList}
+          expandedRowRender={rec => this.subExpandedRowRender(rec)}
+          rowClassName={rec =>
+            rec.subCommodityList === null || rec.subCommodityList.length === 0
+              ? styles.hideIcon
+              : undefined
+          }
+          pagination={false}
+          bordered={false}
+        />
+      </div>
+    );
+  };
+
+  expandedRowRender = (record, subPLUList, pluLoading) => {
+    const { bindingId } = record;
+    let pluDateSource = [];
+    for (let i = 0; i < subPLUList.length; i += 1) {
+      if (subPLUList[i].commoditySpecId === bindingId) {
+        pluDateSource = objDeepCopy(subPLUList[i].subCommodityList);
+      }
+    }
+    return (
+      <div>
+        <Table
+          size="small"
+          columns={this.pluColumns}
+          dataSource={pluDateSource}
+          pagination={false}
+          bordered={false}
+          loading={!!pluLoading}
+          expandedRowRender={rec => this.subExpandedRowRender(rec)}
+          rowClassName={rec =>
+            rec.subCommodityList === null || rec.subCommodityList.length === 0
+              ? styles.hideIcon
+              : undefined
+          }
+        />
+      </div>
+    );
+  };
 
   render() {
     const {
       loading,
-      grant: { addOfferModal, currentPage, pageSize, totalSize, checkedList },
-      location: {
-        query: { taId },
+      pluLoading,
+      grant: {
+        addOfferModal,
+        checkedList,
+        grantPagination,
+        displayGrantOfferList = [],
+        subPLUList = [],
       },
-      form: { getFieldDecorator },
     } = this.props;
+
+    const { currentPage, pageSize: nowPageSize } = grantPagination;
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
@@ -275,14 +592,31 @@ class NewGrant extends React.PureComponent {
         url: null,
       },
     ];
-    const pagination = {
+    const pageOpts = {
+      total: checkedList.length,
       current: currentPage,
-      pageSize,
-      total: totalSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSizeOptions: ['20', '50', '100'],
-      showTotal: this.showTotal,
+      pageSize: nowPageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'grant/effectSave',
+          payload: {
+            grantPagination: {
+              currentPage: page,
+              pageSize,
+            },
+          },
+        }).then(() => {
+          setTimeout(() => {
+            dispatch({
+              type: 'grant/changePage',
+              payload: {
+                checkedList,
+              },
+            });
+          }, 500);
+        });
+      },
     };
 
     return (
@@ -298,62 +632,48 @@ class NewGrant extends React.PureComponent {
           <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
         </MediaQuery>
         <Card className={styles.cardClass}>
-          <Fragment>
-            <Form onSubmit={this.handleSubmit}>
-              <div style={{ padding: 15 }}>
-                <Row>
-                  <Col className={styles.DetailTitle}>{formatMessage({ id: 'NEW_GRANT' })}</Col>
-                </Row>
-                <Row>
-                  <Col span={24}>
-                    <FormItem>
-                      {getFieldDecorator(
-                        'subCommodityList',
-                        {}
-                      )(
-                        <Table
-                          size="small"
-                          dataSource={[
-                            {
-                              key: 'addOption',
-                              commodityName: <a onClick={() => this.add()}>+ Add</a>,
-                              commodityIdentifier: ' ',
-                              operation: 'ADD',
-                            },
-                            ...checkedList,
-                          ]}
-                          columns={this.columns}
-                          className={`tabs-no-padding ${styles.searchTitle}`}
-                          pagination={pagination}
-                          onChange={(pagination, filters, sorter, extra) => {
-                            this.onChangeEvent(pagination, filters, sorter, extra);
-                          }}
-                          loading={loading}
-                          rowKey={record => record.bindingId}
-                        />
-                      )}
-                    </FormItem>
-                  </Col>
-                </Row>
-                {addOfferModal ? <AddOfferModal taId={taId} /> : null}
-                <Divider style={{ marginTop: 100 }} />
-                <Row>
-                  <Col style={{ textAlign: 'right', padding: '10px 15px' }}>
-                    <Button
-                      onClick={() => {
-                        this.cancel();
-                      }}
-                    >
-                      {formatMessage({ id: 'COMMON_CANCEL' })}
-                    </Button>
-                    <Button type="primary" htmlType="submit" style={{ marginLeft: '10px' }}>
-                      {formatMessage({ id: 'COMMON_OK' })}
-                    </Button>
-                  </Col>
-                </Row>
-              </div>
-            </Form>
-          </Fragment>
+          <div style={{ padding: 15 }}>
+            <Row>
+              <Col className={styles.DetailTitle}>{formatMessage({ id: 'NEW_GRANT' })}</Col>
+            </Row>
+            <Row style={{ marginBottom: 40 }}>
+              <Col span={24}>
+                <Table
+                  size="small"
+                  dataSource={[
+                    {
+                      key: 'addOption',
+                      bindingName: <a onClick={() => this.add()}>+ Add</a>,
+                    },
+                  ].concat(displayGrantOfferList)}
+                  columns={this.columns}
+                  className={`tabs-no-padding ${styles.searchTitle}`}
+                  rowClassName={(_, index) => (index === 0 ? styles.hideIcon : undefined)}
+                  pagination={false}
+                  loading={loading}
+                  expandedRowRender={record =>
+                    this.expandedRowRender(record, subPLUList, pluLoading)
+                  }
+                  onExpand={(_, record) => this.openRow(record, subPLUList)}
+                />
+                <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
+              </Col>
+            </Row>
+            {addOfferModal ? <AddOfferModal /> : null}
+            <div className={styles.operateButtonDivStyle}>
+              <Button
+                style={{ marginRight: 8 }}
+                onClick={() => {
+                  this.cancel();
+                }}
+              >
+                {formatMessage({ id: 'COMMON_CANCEL' })}
+              </Button>
+              <Button style={{ width: 60 }} onClick={this.handleSubmit} type="primary">
+                {formatMessage({ id: 'COMMON_OK' })}
+              </Button>
+            </div>
+          </div>
         </Card>
       </div>
     );

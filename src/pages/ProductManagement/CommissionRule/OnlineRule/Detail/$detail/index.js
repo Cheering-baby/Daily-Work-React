@@ -1,40 +1,86 @@
 import React, { Fragment } from 'react';
-import { Card, Col, Form, Row } from 'antd';
+import { Card, Col, Form, Row, Button, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
+import router from 'umi/router';
 import detailStyles from '../../index.less';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '@/components/BreadcrumbComp';
 import DetailForCommission from '../../components/DetailForCommission';
-import DetailForBinding from '../../components/DetailForBinding';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
+import DetailForBinding from '@/pages/ProductManagement/CommissionRule/OnlineRule/components/DetailForBinding';
 
 @Form.create()
 @connect(({ commissionNew }) => ({
   commissionNew,
 }))
 class CommissionDetail extends React.PureComponent {
+  componentDidMount() {
+    const {
+      dispatch,
+      location: {
+        query: { tplId },
+      },
+    } = this.props;
+    if (tplId !== null) {
+      dispatch({
+        type: 'detail/queryDetail',
+        payload: {
+          tplId,
+        },
+      });
+      dispatch({
+        type: 'commissionNew/queryBindingDetailList',
+        payload: {
+          tplId,
+          usageScope: 'Online',
+        },
+      });
+      dispatch({
+        type: 'commissionNew/queryBindingDetailList',
+        payload: {
+          tplId,
+          usageScope: 'Offline',
+        },
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'commissionNew/clean',
+    });
+  }
+
+  toEdit = (tplId, id) => {
+    router.push({
+      pathname: `/ProductManagement/CommissionRule/OnlineRule/Edit/${id}`,
+      query: { type: 'edit', tplId },
+    });
+  };
+
   render() {
     const {
       match: { params },
+      location: {
+        query: { tplId },
+      },
     } = this.props;
 
-    const breadcrumbArr = [
+    const title = [
       {
-        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
-        url: null,
+        name: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
       },
       {
-        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
-        url: null,
+        name: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
       },
       {
-        breadcrumbName: formatMessage({ id: 'TIERED_ATTENDANCE_RULE' }),
-        url: '/ProductManagement/CommissionRule/OnlineRule',
+        name: formatMessage({ id: 'ONLINE_FIXED_COMMISSION' }),
+        href: '#/ProductManagement/CommissionRule/OnlineRule',
       },
       {
-        breadcrumbName: formatMessage({ id: 'COMMON_DETAILS' }),
-        url: null,
+        name: formatMessage({ id: 'COMMON_DETAILS' }),
       },
     ];
 
@@ -43,21 +89,21 @@ class CommissionDetail extends React.PureComponent {
         <Form onSubmit={this.commit}>
           <Row type="flex" justify="space-around" id="mainTaView">
             <Col span={24} className={detailStyles.pageHeaderTitle}>
-              <MediaQuery
-                maxWidth={SCREEN.screenMdMax}
-                minWidth={SCREEN.screenSmMin}
-                minHeight={SCREEN.screenSmMin}
-              >
-                <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-              </MediaQuery>
-              <MediaQuery minWidth={SCREEN.screenLgMin}>
-                <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+              <MediaQuery minWidth={SCREEN.screenSm}>
+                <BreadcrumbCompForPams title={title} />
               </MediaQuery>
             </Col>
             <Col span={24}>
               <Card>
-                <DetailForCommission tplId={params.detail} />
-                <DetailForBinding tplId={params.detail} />
+                <Tooltip placement="top" title="Edit">
+                  <Button
+                    icon="edit"
+                    style={{ marginBottom: 10 }}
+                    onClick={() => this.toEdit(tplId, params.detail)}
+                  />
+                </Tooltip>
+                <DetailForCommission tplId={tplId} />
+                <DetailForBinding tplId={tplId} />
               </Card>
             </Col>
           </Row>

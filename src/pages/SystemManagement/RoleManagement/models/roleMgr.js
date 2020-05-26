@@ -16,8 +16,8 @@ const generateList = (data = [], result = [], resultMap = new Map()) => {
     const node = data[i];
     const { menuCode, menuName, appCode } = node;
     result.push({ key: menuCode + appCode, title: menuName, menuCode });
-    if (node.subMenus) {
-      generateList(node.subMenus, result);
+    if (node.subMenus && node.subMenus.length > 0) {
+      generateList(node.subMenus, result, resultMap);
       resultMap.set(menuCode + appCode, true);
     } else {
       resultMap.set(menuCode + appCode, false);
@@ -52,6 +52,7 @@ export default {
     allPrivileges: [],
     rolePrivileges: [],
     selectedPrivileges: [],
+    menuChangeFlag: false,
   },
 
   effects: {

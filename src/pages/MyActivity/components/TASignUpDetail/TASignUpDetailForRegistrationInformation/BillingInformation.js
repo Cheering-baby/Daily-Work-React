@@ -10,7 +10,16 @@ import {
 } from '@/pages/TAManagement/utils/pubUtils';
 
 const BillingInformation = props => {
-  const { billingInfo = {}, countryList = [], bilCityList = [], salutationList = [] } = props;
+  const {
+    billingInfo = {},
+    countryList = [],
+    bilCityList = [],
+    salutationList = [],
+    layoutDisplay = {},
+    valueDisplay = {},
+    longLayoutDisplay = {},
+    longValueDisplay = {},
+  } = props;
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -21,12 +30,26 @@ const BillingInformation = props => {
       <Row type="flex" justify="space-around">
         <Col span={24}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
+            <Col
+              xs={longLayoutDisplay.xs}
+              sm={longLayoutDisplay.sm}
+              md={longLayoutDisplay.md}
+              lg={longLayoutDisplay.lg}
+              xl={longLayoutDisplay.xl}
+              xxl={longLayoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BILLING_COMPANY_NAME' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
+            <Col
+              xs={longValueDisplay.xs}
+              sm={longValueDisplay.sm}
+              md={longValueDisplay.md}
+              lg={longValueDisplay.lg}
+              xl={longValueDisplay.xl}
+              xxl={longValueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{!isNvl(billingInfo.companyName) ? billingInfo.companyName : '-'}</span>
               </div>
@@ -35,12 +58,26 @@ const BillingInformation = props => {
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BILLING_COUNTRY_AND_CITY_STATE' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>
                   {getCountryAndCityStr(
@@ -56,12 +93,26 @@ const BillingInformation = props => {
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BILLING_ZIP_POSTAL_CODE' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{!isNvl(billingInfo.postalCode) ? billingInfo.postalCode : '-'}</span>
               </div>
@@ -70,12 +121,26 @@ const BillingInformation = props => {
         </Col>
         <Col span={24}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
+            <Col
+              xs={longLayoutDisplay.xs}
+              sm={longLayoutDisplay.sm}
+              md={longLayoutDisplay.md}
+              lg={longLayoutDisplay.lg}
+              xl={longLayoutDisplay.xl}
+              xxl={longLayoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BIL_ADDRESS' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
+            <Col
+              xs={longValueDisplay.xs}
+              sm={longValueDisplay.sm}
+              md={longValueDisplay.md}
+              lg={longValueDisplay.lg}
+              xl={longValueDisplay.xl}
+              xxl={longValueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{!isNvl(billingInfo.address) ? billingInfo.address : '-'}</span>
               </div>
@@ -84,12 +149,26 @@ const BillingInformation = props => {
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BILLING_EMAIL' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{!isNvl(billingInfo.email) ? billingInfo.email : '-'}</span>
               </div>
@@ -98,12 +177,26 @@ const BillingInformation = props => {
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BILLING_TEL' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{getTelStr(countryList, billingInfo.country, billingInfo.phone)}</span>
               </div>
@@ -112,12 +205,26 @@ const BillingInformation = props => {
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BIL_CONTACT_PERSON_SALUTATION' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{getSalutationStr(salutationList, billingInfo.salutation)}</span>
               </div>
@@ -125,16 +232,57 @@ const BillingInformation = props => {
           </Row>
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-          &nbsp;
+          <Row type="flex" justify="space-around">
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
+              <div className={styles.detailRightStyle}>
+                <span>{formatMessage({ id: 'BIL_MOBILE_NO' })}</span>
+              </div>
+            </Col>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
+              <div className={styles.detailLeftStyle}>
+                <span>
+                  {getTelStr(countryList, billingInfo.mobileCountry, billingInfo.mobileNumber)}
+                </span>
+              </div>
+            </Col>
+          </Row>{' '}
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BIL_CONTACT_PERSON_FIRST_NAME' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{!isNvl(billingInfo.firstName) ? billingInfo.firstName : '-'}</span>
               </div>
@@ -143,12 +291,26 @@ const BillingInformation = props => {
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'BIL_CONTACT_PERSON_LAST_NAME' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>{!isNvl(billingInfo.lastName) ? billingInfo.lastName : '-'}</span>
               </div>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import router from 'umi/router';
 import { connect } from 'dva';
-import { Form, Button, Card, message, Spin } from 'antd';
+import { Button, Card, Form, message, Spin } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from './index.less';
@@ -70,7 +70,7 @@ class OnceAPirate extends Component {
       dateOfVisitTimeStr = `${dateOfVisitTimeStr} ${queryInfo.sessionTime}`;
       const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
       const du = moment.duration(dateOfVisitTimeMoment - moment(), 'ms');
-      const diffMinutes = du.get('hour');
+      const diffMinutes = du.asHours();
       if (diffMinutes < 3) {
         dispatch({
           type: 'onceAPirateTicketMgr/addToCartByDiffMinutesLess',
@@ -101,7 +101,7 @@ class OnceAPirate extends Component {
     const { clientHeight } = this.state;
 
     const {
-      ticketMgr: { onceAPirateLoading = false },
+      ticketMgr: { onceAPirateLoading = false, functionActive },
     } = this.props;
 
     return (
@@ -118,7 +118,7 @@ class OnceAPirate extends Component {
             <OfferListPanel />
           </div>
           <div className={styles.formControl}>
-            <Button type="primary" onClick={this.addToCart}>
+            <Button type="primary" onClick={this.addToCart} disabled={!functionActive}>
               {formatMessage({ id: 'ADD_TO_CART' })}
             </Button>
           </div>

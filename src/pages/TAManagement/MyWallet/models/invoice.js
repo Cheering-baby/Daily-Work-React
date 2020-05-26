@@ -29,7 +29,7 @@ const InvoiceModel = {
     },
     details: {
       Date: 'NaN',
-      Line_Description: 'WIN1300001-Top up prepayment \nfor Nov19',
+      Line_Description: '',
       Total_Amount: 'NaN',
       internal: {
         befGstAmount: 'NaN',
@@ -75,7 +75,11 @@ const InvoiceModel = {
                 .format('DD/MM/YYYY')
                 .toString(),
               Total_Amount: flow.charge.toFixed(2),
-              Line_Description: 'WIN1300001-Top up prepayment \nfor Nov19',
+              Line_Description: `${
+                mappingInfo.peoplesoftEwalletId
+              }-Top up prepayment \nfor ${moment(flow.createTime)
+                .format('MMMDD')
+                .toString()}`,
               internal: {
                 befGstAmount: Number(flow.befGstAmount.toFixed(2)),
                 gstAmount: flow.gstAmount.toFixed(2),
@@ -88,7 +92,7 @@ const InvoiceModel = {
       } else message.warn(resultMsg, 10);
     },
     *fetchDownloadInvoice({ payload }, { call, put }) {
-      yield put({ type: 'clear' });
+      yield put({ type: 'save' });
       const params = { accountBookFlowId: payload.accountBookFlowId };
       const {
         data: { resultCode, resultMsg, result = {} },
@@ -125,7 +129,7 @@ const InvoiceModel = {
         },
         details: {
           Date: 'NaN',
-          Line_Description: 'WIN1300001-Top up prepayment \nfor Nov19',
+          Line_Description: '',
           Total_Amount: 'NaN',
           internal: {
             befGstAmount: 'NaN',

@@ -69,13 +69,17 @@ class ApprovalHistory extends PureComponent {
       const stepTitle = (
         <div className={styles.stepTitle}>
           <span className={styles.approveStyle}>{statusName1}</span>
+        </div>
+      );
+      const stepDesc = (
+        <div>
           <span>{pendingUsers.join(',')}</span>
         </div>
       );
       steps.push({
         stepsIcon,
         stepTitle,
-        stepDesc: '',
+        stepDesc,
         key: 0,
       });
     }

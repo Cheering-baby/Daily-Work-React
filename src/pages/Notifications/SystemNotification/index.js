@@ -25,6 +25,14 @@ class SystemNotification extends PureComponent {
     this.onSearch({});
   }
 
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'systemNotification/clear',
+      payload: {},
+    });
+  }
+
   onSearch = param => {
     const { dispatch, filter } = this.props;
     if (param) {
@@ -41,7 +49,7 @@ class SystemNotification extends PureComponent {
       reqParams.queryType = '01';
     }
     dispatch({
-      type: 'systemNotification/change',
+      type: 'systemNotification/search',
       payload: {
         filter: { ...reqParams },
       },

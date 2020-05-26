@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Col, DatePicker, Input, message, Row, Select } from 'antd';
+import { Button, Col, DatePicker, Input, message, Radio, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
@@ -15,19 +15,19 @@ const { Option } = Select;
 class SearchCondition extends Component {
   inputChange = (value, flag) => {
     const { dispatch } = this.props;
-    if (flag === 'lastName') {
+    if (flag === 'deliveryLastName') {
       dispatch({
         type: 'queryOrderMgr/saveSearchConditions',
         payload: {
-          lastName: value,
+          deliveryLastName: value,
         },
       });
     }
-    if (flag === 'firstName') {
+    if (flag === 'deliveryFirstName') {
       dispatch({
         type: 'queryOrderMgr/saveSearchConditions',
         payload: {
-          firstName: value,
+          deliveryFirstName: value,
         },
       });
     }
@@ -63,11 +63,11 @@ class SearchCondition extends Component {
         },
       });
     }
-    if (flag === 'agentName') {
+    if (flag === 'agentValue') {
       dispatch({
         type: 'queryOrderMgr/saveSearchConditions',
         payload: {
-          agentName: value,
+          agentValue: value,
         },
       });
     }
@@ -129,8 +129,8 @@ class SearchCondition extends Component {
     dispatch({
       type: 'queryOrderMgr/queryTransactions',
       payload: {
-        lastName: null,
-        firstName: null,
+        deliveryLastName: null,
+        deliveryFirstName: null,
         confirmationNumber: null,
         bookingId: null,
         taReferenceNo: null,
@@ -158,153 +158,155 @@ class SearchCondition extends Component {
     } else {
       dispatch({
         type: 'queryOrderMgr/queryTransactions',
+        payload: {
+          currentPage: 1,
+        },
       });
     }
+  };
+
+  onAgentTypeChange = e => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'queryOrderMgr/saveSearchConditions',
+      payload: {
+        agentType: e.target.value,
+        agentValue: null,
+      },
+    });
   };
 
   render() {
     const {
       queryOrderMgr: {
         searchConditions: {
-          lastName,
-          firstName,
+          deliveryLastName,
+          deliveryFirstName,
           confirmationNumber,
           bookingId,
-          taReferenceNo,
           status,
           orderType,
           createTimeFrom,
           createTimeTo,
-          agentId,
-          agentName,
+          agentType,
+          agentValue,
         },
       },
       global: {
         currentUser: { userType },
       },
     } = this.props;
+    const rwsLogin = userType === '01';
     return (
       <Card>
-        {(userType === '02' || userType === '03') && (
-          <Row>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Input
-                allowClear
-                placeholder={formatMessage({ id: 'LAST_NAME' })}
-                onChange={e => this.inputChange(e.target.value, 'lastName')}
-                value={lastName}
-              />
-            </Col>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Input
-                allowClear
-                placeholder={formatMessage({ id: 'FIRST_NAME' })}
-                onChange={e => this.inputChange(e.target.value, 'firstName')}
-                value={firstName}
-              />
-            </Col>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Input
-                allowClear
-                placeholder={formatMessage({ id: 'CONFIRMATION_NO' })}
-                onChange={e => this.inputChange(e.target.value, 'confirmationNumber')}
-                value={confirmationNumber}
-              />
-            </Col>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Input
-                allowClear
-                placeholder={formatMessage({ id: 'PAMS_TRANSACTION_NO' })}
-                onChange={e => this.inputChange(e.target.value, 'bookingId')}
-                value={bookingId}
-              />
-            </Col>
-          </Row>
-        )}
-        {(userType === '02' || userType === '03') && (
-          <Row>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Input
-                allowClear
-                placeholder={formatMessage({ id: 'TA_REFERENCE_NO' })}
-                onChange={e => this.inputChange(e.target.value, 'taReferenceNo')}
-                value={taReferenceNo}
-              />
-            </Col>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Select
-                allowClear
-                placeholder={formatMessage({ id: 'STATUS' })}
-                className={styles.inputStyle}
-                onChange={value => this.selectChange(value, 'status')}
-                value={status === null ? undefined : status}
-              >
-                <Option value="Confirmed">Confirmed</Option>
-                <Option value="PendingPayment">Pending Payment</Option>
-                <Option value="Pending">Pending Payment</Option>
-                <Option value="PendingApproval">Pending Approval</Option>
-                <Option value="PendingOrderNo">Pending order No.</Option>
-                <Option value="PendingRefund">Pending Refund</Option>
-                <Option value="Reject">Reject</Option>
-                <Option value="PendingTopUp">Pending Topup</Option>
-              </Select>
-            </Col>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <DatePicker
-                allowClear
-                showTime
-                placeholder={formatMessage({ id: 'START_DATE' })}
-                className={styles.inputStyle}
-                value={this.showDateValue(createTimeFrom)}
-                onChange={date => this.dateChange(date, 'StartDate')}
-              />
-            </Col>
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <DatePicker
-                allowClear
-                showTime
-                placeholder={formatMessage({ id: 'END_DATE' })}
-                className={styles.inputStyle}
-                value={this.showDateValue(createTimeTo)}
-                onChange={date => this.dateChange(date, 'EndDate')}
-              />
-            </Col>
-          </Row>
-        )}
         <Row>
-          {(userType === '02' || userType === '03') && (
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Select
-                allowClear
-                mode="multiple"
-                placeholder={formatMessage({ id: 'ORDER_TYPE' })}
-                className={styles.inputStyle}
-                onChange={value => this.selectChange(value, 'orderType')}
-                value={orderType === null ? [] : orderType.split(',')}
-              >
-                <Option value="Booking">Booking</Option>
-                <Option value="Revalidation">Revalidation</Option>
-                <Option value="Refund">Refund</Option>
-              </Select>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <Input
+              allowClear
+              placeholder={formatMessage({ id: 'FIRST_NAME' })}
+              onChange={e => this.inputChange(e.target.value, 'deliveryFirstName')}
+              value={deliveryFirstName}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <Input
+              allowClear
+              placeholder={formatMessage({ id: 'LAST_NAME' })}
+              onChange={e => this.inputChange(e.target.value, 'deliveryLastName')}
+              value={deliveryLastName}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <Input
+              allowClear
+              placeholder={formatMessage({ id: 'PARTNERS_TRANSACTION_NO' })}
+              onChange={e => this.inputChange(e.target.value, 'bookingId')}
+              value={bookingId}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <Input
+              allowClear
+              placeholder={formatMessage({ id: 'CONFIRMATION_NO' })}
+              onChange={e => this.inputChange(e.target.value, 'confirmationNumber')}
+              value={confirmationNumber}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <DatePicker
+              allowClear
+              showTime
+              placeholder={formatMessage({ id: 'ORDER_DATE_FROM' })}
+              className={styles.inputStyle}
+              value={this.showDateValue(createTimeFrom)}
+              onChange={date => this.dateChange(date, 'StartDate')}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <DatePicker
+              allowClear
+              showTime
+              placeholder={formatMessage({ id: 'ORDER_DATE_TO' })}
+              className={styles.inputStyle}
+              value={this.showDateValue(createTimeTo)}
+              onChange={date => this.dateChange(date, 'EndDate')}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              mode="multiple"
+              placeholder={formatMessage({ id: 'ORDER_TYPE' })}
+              className={styles.inputStyle}
+              onChange={value => this.selectChange(value, 'orderType')}
+              value={orderType === null ? [] : orderType.split(',')}
+            >
+              <Option value="Booking">Booking</Option>
+              <Option value="Revalidation">Revalidation</Option>
+              <Option value="Refund">Refund</Option>
+            </Select>
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              showSearch
+              placeholder={formatMessage({ id: 'STATUS' })}
+              className={styles.inputStyle}
+              onChange={value => this.selectChange(value, 'status')}
+              value={status === null ? undefined : status}
+            >
+              <Option value="Confirmed">Confirmed</Option>
+              <Option value="WaitingForPaying">Pending Payment</Option>
+              <Option value="PendingApproval">Pending Approval</Option>
+              <Option value="PendingOrderNo">Pending order No.</Option>
+              <Option value="PendingRefund">Pending Refund</Option>
+              <Option value="Reject">Reject</Option>
+              <Option value="PendingTopup">Pending Topup</Option>
+              <Option value="Cancelled">Cancelled</Option>
+              <Option value="Failed">Failed</Option>
+              <Option value="ArchiveFailed">ArchiveFailed</Option>
+              <Option value="CommissionFail">CommissionFail</Option>
+            </Select>
+          </Col>
+          {rwsLogin && (
+            <Col className={styles.radioColStyle} xs={24} sm={12} md={8} lg={6}>
+              <Radio.Group value={agentType} onChange={this.onAgentTypeChange}>
+                <Radio value="agentId">Agent ID</Radio>
+                <Radio value="agentName">Agent Name</Radio>
+              </Radio.Group>
             </Col>
           )}
-          {userType === '01' && (
+          {rwsLogin && (
             <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
               <Input
                 allowClear
-                placeholder={formatMessage({ id: 'AGENT_ID' })}
-                onChange={e => this.inputChange(e.target.value, 'agentId')}
-                value={agentId}
-              />
-            </Col>
-          )}
-          {userType === '01' && (
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Input
-                allowClear
-                placeholder={formatMessage({ id: 'AGENT_NAME' })}
-                onChange={e => this.inputChange(e.target.value, 'agentName')}
-                value={agentName}
+                placeholder={
+                  agentType === 'agentId'
+                    ? formatMessage({ id: 'AGENT_ID' })
+                    : formatMessage({ id: 'AGENT_NAME' })
+                }
+                onChange={e => this.inputChange(e.target.value, 'agentValue')}
+                value={agentValue}
               />
             </Col>
           )}

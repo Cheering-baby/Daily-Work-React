@@ -1,17 +1,19 @@
 import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-const rwsUrl = 'http://10.25.159.236:18091/pams';
+const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 export async function queryPluAttribute(params) {
-  return UAAService.request(`/b2c/product/v1/dictionary/attraction/list`, {
+  return UAAService.request(`${localPath}/b2c/product/v1/dictionary/attraction/list`, {
     method: 'POST',
-    body: params,
+    body: {
+      ...params,
+    },
   });
 }
 
 export function commodityList(data) {
   return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(data)}`,
+    `/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -26,20 +28,16 @@ export function like(likeParam) {
     }
   });
   return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/template/queryCommodityCommissionTplList?${stringify(
-      newParam
-    )}`,
+    `/b2b/agent/v1/commission/template/queryCommodityCommissionTplList?${stringify(newParam)}`,
     {
       method: 'GET',
     }
   );
 }
 
-export function queryCommodityCommissionTplList(pagination) {
+export function queryCommodityCommissionTplList(data) {
   return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/template/queryCommodityCommissionTplList?${stringify(
-      pagination
-    )}`,
+    `/b2b/agent/v1/commission/template/queryCommodityCommissionTplList?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -48,9 +46,7 @@ export function queryCommodityCommissionTplList(pagination) {
 
 export function detail(data) {
   return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityBindingList?${stringify(
-      data
-    )}`,
+    `/b2b/agent/v1/commission/binding/queryCommodityBindingList?${stringify(data)}`,
     {
       method: 'GET',
     }
@@ -58,21 +54,22 @@ export function detail(data) {
 }
 
 export async function edit(params) {
-  return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/template/saveCommissionTpl`,
-    {
-      method: 'POST',
-      body: params,
-    }
-  );
+  return UAAService.request(`/b2b/agent/v1/commission/template/saveCommissionTpl`, {
+    method: 'POST',
+    body: params,
+  });
 }
 
 export async function add(params) {
-  return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/template/saveCommissionTpl`,
-    {
-      method: 'POST',
-      body: params,
-    }
-  );
+  return UAAService.request(`/b2b/agent/v1/commission/template/batchSaveCommodityCommissionTpl`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function themepark(params) {
+  return UAAService.request(`/b2c/product/v1/dictionary/attraction/list`, {
+    method: 'POST',
+    body: params,
+  });
 }

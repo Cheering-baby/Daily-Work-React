@@ -1,3 +1,7 @@
+@import '../../../../theme/screen.less';
+
+@prefix-cls: ~'@{ant-prefix}';
+
 .detailRightStyle {
   font-size: 15px;
   color: #858585;
@@ -7,6 +11,12 @@
   position: relative;
   padding-right: 5px;
   margin-top: 15px;
+  @media screen and (max-width: @screenXsMax) {
+    text-align: left;
+  }
+  @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+    text-align: left;
+  }
 }
 
 .detailLeftStyle {

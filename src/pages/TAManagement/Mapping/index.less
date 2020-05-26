@@ -84,22 +84,16 @@
 }
 
 .searchTitle {
-  border: 0;
+  border:0;
+  border-bottom: 1px solid #EEE;
 
   :global {
-    .@{ant-prefix}-table-title {
+    .ant-table-title {
       padding: 10px 0 !important;
     }
 
-    .@{ant-prefix}-table-row {
-      overflow: hidden;
-
-      :hover {
-        overflow: initial;
-      }
-    }
-
     th div {
+      font-family: calibriBold;
       font-weight: 600;
     }
   }
@@ -107,5 +101,4 @@
 
 .buttonStyle {
   text-align: right;
-  padding-top: 15px;
 }

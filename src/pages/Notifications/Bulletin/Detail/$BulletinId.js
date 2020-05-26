@@ -10,11 +10,12 @@ import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 
 const mapStateToProps = store => {
-  const { notificationInfo } = store.notification;
+  const { notificationInfo, isAdminRoleFlag } = store.notification;
   const { pagePrivileges = [] } = store.global;
   return {
     pagePrivileges,
     notificationInfo,
+    isAdminRoleFlag,
   };
 };
 
@@ -38,7 +39,7 @@ class BulletinDetail extends PureComponent {
   }
 
   render() {
-    const { notificationInfo } = this.props;
+    const { notificationInfo, isAdminRoleFlag } = this.props;
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_NOTIFICATIONS' }),
@@ -69,7 +70,7 @@ class BulletinDetail extends PureComponent {
           </MediaQuery>
         </Col>
         <Col span={24}>
-          <NotificationDetail notificationInfo={notificationInfo} />
+          <NotificationDetail notificationInfo={notificationInfo} isAdminRoleFlag={isAdminRoleFlag} />
         </Col>
       </Row>
     );

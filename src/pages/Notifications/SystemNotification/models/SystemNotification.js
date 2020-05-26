@@ -7,7 +7,7 @@ export default {
       title: undefined,
       type: undefined,
       status: undefined,
-      // circular
+      // system
       notificationTypeList: ['03', '04'],
       targetList: [],
       startDate: undefined,
@@ -20,6 +20,18 @@ export default {
     notificationList: [],
   },
   effects: {
+    *search({ payload }, { put }) {
+      yield put({
+        type: 'clear',
+      });
+      yield put({
+        type: 'save',
+        payload,
+      });
+      yield put({
+        type: 'queryNotificationList',
+      });
+    },
     *queryNotificationList(_, { call, put, select }) {
       const { filter, pagination } = yield select(state => state.systemNotification);
       const requestData = {

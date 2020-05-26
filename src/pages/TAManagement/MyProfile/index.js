@@ -23,6 +23,7 @@ const mapStateToProps = store => {
     categoryList,
     customerGroupList,
     marketList,
+    createTeamList,
   } = store.taCommon;
   const {
     otherInfo,
@@ -56,6 +57,7 @@ const mapStateToProps = store => {
     categoryList,
     customerGroupList,
     marketList,
+    createTeamList,
     currentStep,
   };
 };
@@ -70,6 +72,7 @@ class MyProfile extends PureComponent {
       payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
     }).then(() => {
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
+      dispatch({ type: 'taCommon/fetchQueryCreateTeam' });
       dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
         if (!isNvl(taInfo.companyId)) {
           dispatch({
@@ -114,6 +117,7 @@ class MyProfile extends PureComponent {
       currencyList = [],
       categoryList = [],
       customerGroupList = [],
+      createTeamList = [],
       taInfoLoadingFlag,
       taMappingInfoLoadingFlag,
       taAccountInfoLoadingFlag,
@@ -131,6 +135,7 @@ class MyProfile extends PureComponent {
       currencyList,
       categoryList,
       customerGroupList,
+      createTeamList,
     };
     const breadcrumbArr = [
       {

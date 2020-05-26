@@ -8,7 +8,7 @@ import {
 } from '@/utils/PrivilegeUtil';
 
 export function getTravelAgentNoLabel(country) {
-  if (String(country).toLowerCase() === 'singapore') {
+  if (String(country).toLowerCase() === '65') {
     return formatMessage({ id: 'STB_TRAVEL_AGENT_LICENSE_NUMBER' });
   }
   return formatMessage({ id: 'TRAVEL_AGENT_REGISTRATION_NUMBER' });
@@ -86,6 +86,16 @@ export function getTopNationalitiesStr(countryList, topNationalities) {
     });
   }
   return !isNvl(topNationalitiesStr) ? topNationalitiesStr : '-';
+}
+
+export function getCreateTeamStr(createTeamList, createTeam) {
+  if (createTeam && createTeamList && createTeamList.length > 0) {
+    const createTeamInfo = createTeamList.find(n => String(n.dictId) === String(createTeam)) || {};
+    if (!isNvl(createTeamInfo) && !isNvl(createTeamInfo.dictName)) {
+      return createTeamInfo.dictName;
+    }
+  }
+  return '-';
 }
 
 export function getMoneyStr(moneyStr) {
@@ -195,16 +205,16 @@ export function getFormLayout() {
       sm: { span: 12 },
       md: { span: 10 },
       lg: { span: 12 },
-      xl: { span: 8 },
-      xxl: { span: 8 },
+      xl: { span: 10 },
+      xxl: { span: 10 },
     },
     wrapperCol: {
       xs: { span: 12 },
       sm: { span: 12 },
       md: { span: 14 },
       lg: { span: 12 },
-      xl: { span: 16 },
-      xxl: { span: 16 },
+      xl: { span: 14 },
+      xxl: { span: 14 },
     },
   };
   const formItemRowLayout = {
@@ -213,16 +223,16 @@ export function getFormLayout() {
       sm: { span: 12 },
       md: { span: 10 },
       lg: { span: 6 },
-      xl: { span: 4 },
-      xxl: { span: 4 },
+      xl: { span: 5 },
+      xxl: { span: 5 },
     },
     wrapperCol: {
       xs: { span: 12 },
       sm: { span: 12 },
       md: { span: 14 },
       lg: { span: 18 },
-      xl: { span: 20 },
-      xxl: { span: 20 },
+      xl: { span: 19 },
+      xxl: { span: 19 },
     },
   };
   const formItemLongLayout = {
@@ -247,6 +257,51 @@ export function getFormLayout() {
     formItemLayout,
     formItemRowLayout,
     formItemLongLayout,
+  };
+}
+
+export function getDetailLayout() {
+  const layoutDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 8,
+    lg: 12,
+    xl: 12,
+    xxl: 12,
+  };
+
+  const valueDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 16,
+    lg: 12,
+    xl: 12,
+    xxl: 12,
+  };
+
+  const longLayoutDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 8,
+    lg: 6,
+    xl: 6,
+    xxl: 6,
+  };
+
+  const longValueDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 16,
+    lg: 18,
+    xl: 18,
+    xxl: 18,
+  };
+
+  return {
+    layoutDisplay,
+    valueDisplay,
+    longLayoutDisplay,
+    longValueDisplay,
   };
 }
 
@@ -300,6 +355,12 @@ export function getBillingInfo(otherInfo, customerInfo, checked) {
     }
     if (!isNvl(contactInfo.phone)) {
       newBillingInfo.phone = contactInfo.phone;
+    }
+    if (!isNvl(contactInfo.mobileCountry)) {
+      newBillingInfo.mobileCountry = contactInfo.mobileCountry;
+    }
+    if (!isNvl(contactInfo.mobileNumber)) {
+      newBillingInfo.mobileNumber = contactInfo.mobileNumber;
     }
     if (!isNvl(contactInfo.fax)) {
       newBillingInfo.fax = contactInfo.fax;

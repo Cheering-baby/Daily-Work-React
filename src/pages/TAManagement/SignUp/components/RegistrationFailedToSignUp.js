@@ -24,12 +24,16 @@ const mapStateToProps = store => {
 class RegistrationFailedToSignUp extends PureComponent {
   goReRegistration = e => {
     e.preventDefault();
-    const { dispatch, taId } = this.props;
+    const { dispatch, taId, signature } = this.props;
     dispatch({
-      type: 'signUp/doCleanData',
-      payload: { taId: !isNvl(taId) ? taId : null },
+      type: 'signUp/doCleanSignUpData',
+      payload: {
+        taId: !isNvl(taId) ? taId : null,
+        signature: !isNvl(signature) ? signature : null,
+        isRegistration: true,
+      },
     }).then(() => {
-      router.push('/TAManagement/SignUp');
+      router.push(`/TAManagement/SignUp?taId=${taId}&signature=${signature}`);
     });
   };
 
@@ -42,6 +46,7 @@ class RegistrationFailedToSignUp extends PureComponent {
         taId: !isNvl(taId) ? taId : null,
         status,
         remark,
+        signature,
         isShowDetail: true,
       },
     }).then(() => {

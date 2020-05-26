@@ -211,9 +211,9 @@ class BasicLayout extends React.PureComponent {
   getPageTitle = pathname => {
     const currRouterData = this.matchParamsPath(pathname);
     if (!currRouterData) {
-      return 'PAMS';
+      return 'PARTNERS';
     }
-    return 'PAMS';
+    return 'PARTNERS';
   };
 
   getLayoutStyle = () => {
@@ -316,7 +316,6 @@ class BasicLayout extends React.PureComponent {
       privilegeLoading,
       needChangePassword,
     } = this.props;
-
     const isSignUp =
       pathname.indexOf('/TAManagement/SignUp') >= 0 ||
       pathname.indexOf('/SubTAManagement/SignUp') >= 0;
@@ -343,6 +342,13 @@ class BasicLayout extends React.PureComponent {
         </Fragment>
       );
     }
+    if (
+      pathname === '/' &&
+      !menuLoaded &&
+      String(needChangePassword) !== '01' &&
+      String(needChangePassword) !== '02'
+    )
+      return <Redirect to="/userLogin" />;
     if (pathname === '/userLogin') return this.judgeBeforeRenderLogin();
     if (pathname !== '/userLogin' && pathname.indexOf('/userLogin') !== -1)
       return this.judgeBeforeRenderLogin();
@@ -352,7 +358,6 @@ class BasicLayout extends React.PureComponent {
       if (rawMenu.length === 0) {
         return false;
       }
-
       if (window.location.hash !== '#/') {
         const currentMenu = this.getCurrentMenu(rawMenu, pathname);
         loginSession.saveData('currentMenu', currentMenu);

@@ -7,10 +7,11 @@ export default {
   state: {
     updateVisible: false,
     activityId: null,
-    updateType: 'Revalidation',
+    updateType: null,
     galaxyOrderNo: null,
     refundSelected: 'Complete',
     rejectReason: null,
+    bookingNo: null,
   },
 
   effects: {
@@ -20,10 +21,15 @@ export default {
         payload,
       });
     },
-    *update(_, { call, put, select }) {
-      const { activityId, refundSelected, rejectReason, updateType, galaxyOrderNo } = yield select(
-        state => state.updateOrderMgr
-      );
+    *update(_, { call, select, put }) {
+      const {
+        activityId,
+        refundSelected,
+        rejectReason,
+        updateType,
+        galaxyOrderNo,
+        bookingNo,
+      } = yield select(state => state.updateOrderMgr);
       let response = null;
       if (updateType === 'Refund') {
         if (refundSelected === 'Complete') {
@@ -36,15 +42,25 @@ export default {
       }
       if (!response) return false;
       const { data: resultData, success, errorMsg } = response;
+      let resultFlag = null;
       if (success) {
         const { resultCode, resultMsg } = resultData;
         if (resultCode !== ERROR_CODE_SUCCESS) {
-          throw resultMsg;
+          message.error(resultMsg);
         }
-        message.success(resultMsg);
-        yield put({ type: 'resetData' });
-        yield put({ type: 'queryOrderMgr/queryTransactions' });
-      } else throw errorMsg;
+        resultFlag = resultCode;
+        if (updateType === 'Refund' && refundSelected === 'Complete') {
+          yield put({
+            type: 'refundRequestMgr/fetchPendToUpOnBookingNo',
+            payload: {
+              bookingNo,
+            },
+          });
+        }
+      } else {
+        message.error(errorMsg);
+      }
+      return resultFlag;
     },
   },
 
@@ -59,7 +75,7 @@ export default {
       return {
         ...state,
         updateVisible: false,
-        updateType: 'Revalidation',
+        updateType: null,
         galaxyOrderNo: null,
         refundSelected: 'Complete',
         rejectReason: null,

@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
-import { Button, Card, Col, DatePicker, Drawer, Form, Input, message, Row, Select } from 'antd';
+import { Button, Card, Col, Drawer, Form, Input, message, Row, Select } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue } from '../../../utils/pubUtils';
+import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 const mapStateToProps = store => {
   const {
@@ -227,8 +228,7 @@ class ConstraintComp extends PureComponent {
                         : null,
                       rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                     })(
-                      <DatePicker
-                        format="DD/MM/YYYY"
+                      <FriendlyDatePicker
                         disabledDate={this.disabledStartDate}
                         onChange={date =>
                           this.onHandleChange(
@@ -240,6 +240,8 @@ class ConstraintComp extends PureComponent {
                         getCalendarContainer={() => document.getElementById(`${viewId}`)}
                         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                         style={{ width: '100%' }}
+                        displayFormat="DD/MM/YYYY"
+                        searchFormat="DDMMYYYY"
                       />
                     )}
                   </Form.Item>
@@ -259,8 +261,7 @@ class ConstraintComp extends PureComponent {
                         : null,
                       rules: [],
                     })(
-                      <DatePicker
-                        format="DD/MM/YYYY"
+                      <FriendlyDatePicker
                         disabledDate={this.disabledEndDate}
                         onChange={date =>
                           this.onHandleChange(
@@ -272,6 +273,8 @@ class ConstraintComp extends PureComponent {
                         getCalendarContainer={() => document.getElementById(`${viewId}`)}
                         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                         style={{ width: '100%' }}
+                        displayFormat="DD/MM/YYYY"
+                        searchFormat="DDMMYYYY"
                       />
                     )}
                   </Form.Item>

@@ -51,7 +51,12 @@ class NormalLoginForm extends React.Component {
         <FormItem label={formatMessage({ id: 'PASSWORD' })}>
           {getFieldDecorator('password', {
             rules: [{ required: true, message: requiredMsg }],
-          })(<Input placeholder={formatMessage({ id: 'PASSWORD_PLACEHOLDER' })} type="password" />)}
+          })(
+            <Input.Password
+              placeholder={formatMessage({ id: 'PASSWORD_PLACEHOLDER' })}
+              type="password"
+            />
+          )}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit" className={loginStyles.btn} block>

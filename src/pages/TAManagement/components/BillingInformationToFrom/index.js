@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Checkbox, Col, Form, Input, Row, Select } from 'antd';
+import { Checkbox, Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { getBillingInfo } from '../../utils/pubUtils';
@@ -43,15 +43,63 @@ class BillingInformationToFrom extends PureComponent {
       <Select
         showSearch
         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-        optionFilterProp="children"
+        optionFilterProp="label"
         getPopupContainer={() => document.getElementById(`${viewId}`)}
         onChange={value => onHandleChange('phoneCountry', value, 'phoneCountry')}
         disabled={isAllDisabled}
       >
         {countryList && countryList.length > 0
           ? countryList.map(item => (
-            <Select.Option key={`bilCountryPhoneList${item.dictId}`} value={`${item.dictId}`}>
-              {`${item.dictName} +${item.dictId}`}
+            <Select.Option
+              key={`bilCountryPhoneList${item.dictId}`}
+              value={`${item.dictId}`}
+              label={`${item.dictName} +${item.dictId}`}
+            >
+              <Tooltip
+                placement="topLeft"
+                title={
+                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                    {`${item.dictName} +${item.dictId}`}
+                  </span>
+                  }
+              >
+                {`${item.dictName} +${item.dictId}`}
+              </Tooltip>
+            </Select.Option>
+            ))
+          : null}
+      </Select>
+    );
+    const prefixMobileSelector = getFieldDecorator('bilMobileCountry', {
+      initialValue: !isNvl(billingInfo.mobileCountry) ? billingInfo.mobileCountry : [],
+      rules: [{ required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) }],
+    })(
+      <Select
+        showSearch
+        placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+        optionFilterProp="label"
+        getPopupContainer={() => document.getElementById(`${viewId}`)}
+        onChange={value => onHandleChange('mobileCountry', value, 'bilMobileCountry')}
+        disabled={isAllDisabled}
+      >
+        {countryList && countryList.length > 0
+          ? countryList.map(item => (
+            <Select.Option
+              key={`bilMobileCountryList${item.dictId}`}
+              value={`${item.dictId}`}
+              label={`${item.dictName} +${item.dictId}`}
+            >
+              <Tooltip
+                placement="topLeft"
+                title={
+                  <span
+                    style={{ whiteSpace: 'pre-wrap' }}
+                  >{`${item.dictName} +${item.dictId}`}
+                  </span>
+                  }
+              >
+                {`${item.dictName} +${item.dictId}`}
+              </Tooltip>
             </Select.Option>
             ))
           : null}
@@ -60,16 +108,17 @@ class BillingInformationToFrom extends PureComponent {
     return (
       <Col span={24}>
         <Row type="flex" justify="space-around">
-          <Col span={24}>
+          <Col span={24} className={styles.bilCheckBoxItem}>
             <Form.Item label={' '} colon={false} {...formItemRowLayout}>
               {getFieldDecorator('isBilCheckBox', {
                 valuePropName: 'checked',
                 initialValue: isBilCheckBox,
               })(
                 <Checkbox onChange={e => onHandleToBilCheckBox(e)} disabled={isAllDisabled}>
-                  <span className={styles.bilCheckBoxDiv}>
-                    {formatMessage({ id: 'BIL_CHECKBOX' })}
-                  </span>
+                  <span
+                    className={styles.bilCheckBoxDiv}
+                    dangerouslySetInnerHTML={{ __html: formatMessage({ id: 'BIL_CHECKBOX' }) }}
+                  />
                 </Checkbox>
               )}
             </Form.Item>
@@ -127,7 +176,7 @@ class BillingInformationToFrom extends PureComponent {
                     <Select
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                      optionFilterProp="children"
+                      optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       onChange={value => onHandleChange('country', value, 'bilCountry')}
                       disabled={isCountryDisabled || false}
@@ -137,8 +186,16 @@ class BillingInformationToFrom extends PureComponent {
                           <Select.Option
                             key={`bilCountryList${item.dictId}`}
                             value={`${item.dictId}`}
+                            label={item.dictName}
                           >
-                            {item.dictName}
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                                }
+                            >
+                              {item.dictName}
+                            </Tooltip>
                           </Select.Option>
                           ))
                         : null}
@@ -156,7 +213,7 @@ class BillingInformationToFrom extends PureComponent {
                     <Select
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                      optionFilterProp="children"
+                      optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       onChange={value => onHandleChange('city', value, 'bilCity')}
                       loading={bilCityLoadingFlag}
@@ -167,8 +224,16 @@ class BillingInformationToFrom extends PureComponent {
                           <Select.Option
                             key={`bilCityList${item.dictId}`}
                             value={`${item.dictId}`}
+                            label={item.dictName}
                           >
-                            {item.dictName}
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                                }
+                            >
+                              {item.dictName}
+                            </Tooltip>
                           </Select.Option>
                           ))
                         : null}
@@ -287,7 +352,7 @@ class BillingInformationToFrom extends PureComponent {
                 <Select
                   showSearch
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                  optionFilterProp="children"
+                  optionFilterProp="label"
                   getPopupContainer={() => document.getElementById(`${viewId}`)}
                   onChange={value => onHandleChange('salutation', value, 'bilSalutation')}
                   disabled={isAllDisabled}
@@ -297,8 +362,14 @@ class BillingInformationToFrom extends PureComponent {
                       <Select.Option
                         key={`salutationList${item.dictId}`}
                         value={`${item.dictId}`}
+                        label={item.dictName}
                       >
-                        {item.dictName}
+                        <Tooltip
+                          placement="topLeft"
+                          title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
+                        >
+                          {item.dictName}
+                        </Tooltip>
                       </Select.Option>
                       ))
                     : null}
@@ -307,7 +378,38 @@ class BillingInformationToFrom extends PureComponent {
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-            &nbsp;
+            <Form.Item
+              label={formatMessage({ id: 'BIL_MOBILE_NO' })}
+              colon={false}
+              {...formItemLayout}
+              className={!isBilCheckBox ? styles.bilTelItem : null}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.bilPhoneCountryItem}>
+                  {prefixMobileSelector}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.bilPhoneItem}>
+                  {getFieldDecorator('bilMobileNumber', {
+                    initialValue: billingInfo.mobileNumber || null,
+                    rules: [
+                      { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
+                      { max: 200, message: numFormat },
+                    ],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e =>
+                        onHandleChange('mobileNumber', e.target.value, 'bilMobileNumber')
+                      }
+                      onPressEnter={e =>
+                        onHandleChange('mobileNumber', e.target.value, 'bilMobileNumber')
+                      }
+                      disabled={isAllDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
           </Col>
         </Row>
         <Row type="flex" justify="space-around">

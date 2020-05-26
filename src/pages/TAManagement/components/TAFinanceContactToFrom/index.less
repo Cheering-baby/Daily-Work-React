@@ -1,3 +1,5 @@
+@prefix-cls: ~'@{ant-prefix}';
+
 .financeConcatTitle {
   border-left: 3px solid #118AFA;
   padding-left: 10px;
@@ -11,10 +13,72 @@
 
 .isAllInformationToRwsCheckboxCol {
   padding-left: 1rem;
+
+  :global {
+    .@{prefix-cls}-checkbox-inner {
+      width: 20px;
+      height: 20px;
+    }
+
+    .@{prefix-cls}-checkbox-inner::after {
+      top: 40%;
+      left: 14%;
+      width: 8.71428571px;
+      height: 16.14285714px;
+    }
+
+    .@{prefix-cls}-checkbox-wrapper::before {
+      display: inline-block;
+      margin-right: 4px;
+      color: #f5222d;
+      font-size: 14px;
+      font-family: SimSun, sans-serif;
+      line-height: 1;
+      content: '*';
+    }
+  }
 }
 
 .isAllInformationToRwsCheckbox {
-  font-size: 15px;
-  color: #565656;
+  font-size: 14px;
+  color: #3B414A;
   letter-spacing: 0.24px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.taCountryItem {
+  width: 35%;
+
+  :global {
+    .@{prefix-cls}-select-selection {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+.taPhoneItem {
+  width: 65%;
+
+  :global {
+    .@{prefix-cls}-input {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+}
+
+.taFinanceTelItem {
+  :global {
+    .@{prefix-cls}-form-item-no-colon::before {
+      display: inline-block;
+      margin-right: 4px;
+      color: #f5222d;
+      font-size: 14px;
+      font-family: SimSun, sans-serif;
+      line-height: 1;
+      content: '*';
+    }
+  }
 }

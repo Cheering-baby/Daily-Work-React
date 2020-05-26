@@ -24,11 +24,12 @@ import SCREEN from '@/utils/screen';
 
 const formItemLayout = {
   labelCol: {
-    span: 6,
+    span: 0,
   },
   wrapperCol: {
-    span: 23,
+    span: 24,
   },
+  colon: false,
 };
 
 const ColProps = {
@@ -57,31 +58,72 @@ class Index extends React.PureComponent {
         title: formatMessage({ id: 'NO' }),
         dataIndex: 'number',
         key: 'number',
+        width: 100,
+        render: text =>
+          text ? (
+            <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
+              {text}
+            </Tooltip>
+          ) : (
+            '-'
+          ),
       },
       {
         title: formatMessage({ id: 'AGENT_ID' }),
         dataIndex: 'taId',
         key: 'taId',
+        width: 100,
+        render: text =>
+          text ? (
+            <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
+              {text}
+            </Tooltip>
+          ) : (
+            '-'
+          ),
       },
       {
         title: formatMessage({ id: 'TA_COMPANY_NAME' }),
         dataIndex: 'companyName',
         key: 'companyName',
+        width: 160,
+        render: text =>
+          text ? (
+            <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
+              {text}
+            </Tooltip>
+          ) : (
+            '-'
+          ),
       },
       {
         title: formatMessage({ id: 'GST_REG_NO' }),
         dataIndex: 'gstRegNo',
         key: 'gstRegNo',
+        width: 160,
+        render: text =>
+          text ? (
+            <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
+              {text}
+            </Tooltip>
+          ) : (
+            '-'
+          ),
       },
       {
         title: formatMessage({ id: 'ADD_USER_EFFECTIVE_DATE' }),
         dataIndex: 'effectiveDate',
         key: 'effectiveDate',
+        width: 160,
         render: text => {
           const timeText = text ? moment(text).format('YYYY-MM-DD') : '';
           return timeText ? (
             <div>
-              <Tooltip title={timeText} placement="topLeft">
+              <Tooltip
+                title={timeText}
+                placement="topLeft"
+                overlayStyle={{ whiteSpace: 'pre-wrap' }}
+              >
                 {timeText}
               </Tooltip>
             </div>
@@ -90,35 +132,55 @@ class Index extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'AR_CREDIT_BALANCE' }),
-        dataIndex: 'AR',
+        dataIndex: 'arCredit',
         key: 'AR',
+        width: 100,
+        render: text =>
+          text ? (
+            <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
+              {text}
+            </Tooltip>
+          ) : (
+            '-'
+          ),
       },
       {
         title: formatMessage({ id: 'EWALLET_BALANCE' }),
         dataIndex: 'eWallet',
         key: 'eWallet',
-      },
-      {
-        title: formatMessage({ id: 'STATUS' }),
-        dataIndex: 'statusName',
-        key: 'statusName',
-        render: text => {
-          let flagClass = '';
-          if (text === 'PENDING OPERATION') flagClass = detailStyles.flagStyle1;
-          if (text === 'FAIL') flagClass = detailStyles.flagStyle3;
-          if (text === 'COMPLETE') flagClass = detailStyles.flagStyle2;
-          return (
-            <div>
-              <span className={flagClass} />
+        width: 100,
+        render: text =>
+          text ? (
+            <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
               {text}
-            </div>
-          );
-        },
+            </Tooltip>
+          ) : (
+            '-'
+          ),
       },
+      // {
+      //   title: formatMessage({ id: 'STATUS' }),
+      //   dataIndex: 'statusName',
+      //   key: 'statusName',
+      //   width: 100,
+      //   render: text => {
+      //     let flagClass = '';
+      //     if (text === 'PENDING OPERATION') flagClass = detailStyles.flagStyle1;
+      //     if (text === 'FAIL') flagClass = detailStyles.flagStyle3;
+      //     if (text === 'COMPLETE') flagClass = detailStyles.flagStyle2;
+      //     return (
+      //       <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
+      //         <span className={flagClass} />
+      //         {text}
+      //       </Tooltip>
+      //     );
+      //   },
+      // },
       {
         title: formatMessage({ id: 'OPERATION' }),
         dataIndex: 'operation',
         key: 'operation',
+        width: 100,
         render: (value, row) => {
           let iconType = '';
           let message = {};
@@ -131,7 +193,10 @@ class Index extends React.PureComponent {
           }
           return (
             <div>
-              <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
+              <Tooltip
+                title={formatMessage({ id: 'COMMON_DETAIL' })}
+                overlayStyle={{ whiteSpace: 'pre-wrap' }}
+              >
                 {row.statusName === 'COMPLETE' ? (
                   <Icon
                     type="eye"
@@ -142,7 +207,7 @@ class Index extends React.PureComponent {
                 ) : null}
               </Tooltip>
               {row.statusName ? (
-                <Tooltip title={message}>
+                <Tooltip title={message} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
                   <Icon
                     type={iconType}
                     onClick={() => {
@@ -191,7 +256,7 @@ class Index extends React.PureComponent {
     } else if (type === 'block') {
       router.push({
         pathname: `/TAManagement/Mapping/New/${row.taId}`,
-        query: { companyName: row.companyName },
+        query: { companyName: row.companyName, arAllowed: row.arAllowed },
       });
     }
   };
@@ -361,7 +426,7 @@ class Index extends React.PureComponent {
         </Col>
         <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
-            <Form className="ant-advanced-search-form" onSubmit={this.handleSubmit}>
+            <Form onSubmit={this.handleSubmit}>
               <Row gutter={24}>
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>

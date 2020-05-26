@@ -9,6 +9,7 @@ import OrgOperDrawer from './components/OrgOperDrawer';
 import styles from './index.less';
 import constants from './constants';
 import SCREEN from '@/utils/screen';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 @connect(({ orgMgr, global, loading }) => ({
   orgMgr,
@@ -19,20 +20,29 @@ class OrgManagement extends PureComponent {
   componentDidMount() {
     const {
       dispatch,
-      global: { currentUser = {}, userCompanyInfo = {} },
+      global: { userCompanyInfo = {} },
     } = this.props;
 
     // sale support 进来， 只能看到 顶层 TA， 无法查看 sub TA 和 子机构
     // TA admin 进来，只能看到自己的 机构树 和 sub TA 无法查看 sub TA的子机构
     // sub TA admin 进来，只能看到自己的机构树
 
-    const { userType = '' } = currentUser;
     let payload = {};
-    if (userType === '01') {
+    if (
+      PrivilegeUtil.hasAnyPrivilege([
+        PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+        PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
+      ])
+    ) {
       payload = {
         orgCode: constants.RWS_ORG_CODE,
       };
-    } else {
+    } else if (
+      PrivilegeUtil.hasAnyPrivilege([
+        PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+        PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE,
+      ])
+    ) {
       const { companyId, companyType } = userCompanyInfo;
       payload = {
         companyId,

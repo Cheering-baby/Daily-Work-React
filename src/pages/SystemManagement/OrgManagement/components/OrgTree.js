@@ -14,8 +14,8 @@ const getParentKey = (key, tree) => {
   for (let i = 0; i < tree.length; i += 1) {
     const node = tree[i];
     if (node.subOrgs) {
-      if (node.subOrgs.some(item => item.code === key)) {
-        parentKey = node.code;
+      if (node.subOrgs.some(item => item.key === key)) {
+        parentKey = node.key;
       } else if (getParentKey(key, node.subOrgs)) {
         parentKey = getParentKey(key, node.subOrgs);
       }
@@ -60,6 +60,7 @@ class OrgTree extends React.Component {
     }
 
     const privilege =
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE]) ||
       PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) ||
       PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]);
 
@@ -98,14 +99,14 @@ class OrgTree extends React.Component {
         );
       if (item.subOrgs) {
         return (
-          <TreeNode title={this.getTreeNodeTitle(title, item)} key={item.code} dataRef={item}>
+          <TreeNode title={this.getTreeNodeTitle(title, item)} key={item.key} dataRef={item}>
             {this.renderTreeNodes(item.subOrgs)}
           </TreeNode>
         );
       }
       return (
         <TreeNode
-          key={item.code}
+          key={item.key}
           title={this.getTreeNodeTitle(title, item)}
           dataRef={item}
           className="treeNodeClass"
@@ -117,13 +118,13 @@ class OrgTree extends React.Component {
   getTreeNodeTitle = (title, item) => {
     const {
       orgMgr: {
-        selectedOrg: { code = '' },
+        selectedOrg: { key = '' },
       },
     } = this.props;
     return (
       <div className={styles.treeTitleClass}>
         {title}
-        {code === item.code && code !== constants.RWS_ORG_CODE ? (
+        {key === item.key && key !== constants.RWS_ORG_CODE ? (
           <Icon onClick={this.modifyOrg} type="edit" className={styles.treeTitleRightIcon} />
         ) : null}
       </div>
@@ -142,10 +143,21 @@ class OrgTree extends React.Component {
   };
 
   onChange = e => {
+    const { value } = e.target;
     const {
+      dispatch,
       orgMgr: { orgTree = [], orgList = [] },
     } = this.props;
-    const { value } = e.target;
+    if (!value) {
+      dispatch({
+        type: 'orgMgr/saveData',
+        payload: {
+          searchValue: value,
+        },
+      });
+      return;
+    }
+
     const expandedKeys = orgList
       .map(item => {
         if (item.title.indexOf(value) > -1) {
@@ -154,7 +166,6 @@ class OrgTree extends React.Component {
         return null;
       })
       .filter((item, i, self) => item && self.indexOf(item) === i);
-    const { dispatch } = this.props;
     dispatch({
       type: 'orgMgr/saveData',
       payload: {
@@ -192,7 +203,6 @@ class OrgTree extends React.Component {
             autoExpandParent={autoExpandParent}
             onSelect={this.onSelect}
             selectedKeys={selectedKeys}
-            // className={styles.treeClass}
           >
             {this.renderTreeNodes(orgTree)}
           </Tree>

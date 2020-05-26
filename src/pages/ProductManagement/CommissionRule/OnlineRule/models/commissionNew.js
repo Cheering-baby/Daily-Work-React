@@ -1,36 +1,9 @@
-import { isEmpty } from 'lodash';
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { router } from 'umi';
 import * as service from '../services/commissionRuleSetup';
+import { objDeepCopy, setSelected } from '../../../utils/tools';
 
-const commodity = commodityList => {
-  const list = [];
-  commodityList.forEach(node => {
-    const children = [];
-    if (node.subCommodityList && node.subCommodityList.length > 0) {
-      const key = `add_${node.commoditySpecId}`;
-      children.push({
-        key: `${key}-${0}`,
-        isSubNode: true,
-        commodityName: node.commodityName,
-        commodityDescription: node.commodityDescription,
-        themeParkCode: node.themeParkCode,
-        commodityCode: node.commodityCode,
-        commoditySpecId: node.commoditySpecId,
-      });
-    }
-    list.push({
-      key: node.commoditySpecId,
-      commodityName: node.commodityName,
-      commodityDescription: node.commodityDescription,
-      themeParkCode: node.themeParkCode,
-      commodityCode: node.commodityCode,
-      commoditySpecId: node.commoditySpecId,
-      children: children.length > 0 ? children : null,
-    });
-  });
-  return list;
-};
 export default {
   namespace: 'commissionNew',
   state: {
@@ -41,19 +14,57 @@ export default {
     addPLUModal: false,
     addCommissionSchema: false,
     type: '',
-    pagination: {
+
+    onlineSearchCondition: {
+      bindingId: null,
+      bindingType: 'Commission',
+      usageScope: 'Online',
+      commonSearchText: null,
+      themeParkCode: null,
+      currentPage: 1,
+      pageSize: 10,
+    },
+    addOnlinePLUTotalSize: 0,
+    offerList: [],
+    checkedOnlineList: [],
+    displayOnlineList: [],
+    themeParkList: [],
+
+    onlineOfferPagination: {
+      currentPage: 1,
+      pageSize: 10,
+    },
+
+    offlineSearchCondition: {
+      bindingId: null,
+      bindingType: 'Commission',
+      usageScope: 'Offline',
+      commonSearchText: null,
+      themeParkCode: null,
+      currentPage: 1,
+      pageSize: 10,
+    },
+    addOfflinePLUTotalSize: 0,
+    PLUList: [],
+    checkedList: [],
+    displayOfflineList: [],
+
+    offlinePLUPagination: {
+      currentPage: 1,
+      pageSize: 10,
+    },
+
+    pagination2: {
       currentPage: 1,
       pageSize: 10,
     },
     filter: {},
-    offerList: [],
     ifEdit: false,
     ifAdd: false,
-    selectedRowKeys: [],
+
     selectedRowKeys2: [],
-    selectedOffer: [],
+
     commissionTplList: [],
-    PLUList: [],
     expandedRowKeys: [],
     index: undefined,
     offerExistedDisales: [],
@@ -62,126 +73,228 @@ export default {
     activityId: undefined,
     PLURelationList: [],
     commoditySpecId: null,
-    checkedList: [],
   },
   effects: {
+    *queryThemeParks(_, { call, put }) {
+      const response = yield call(service.queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        yield put({ type: 'save', payload: { themeParkList: result.items } });
+      } else throw resultMsg;
+    },
+    *queryBindingDetailList({ payload }, { call, put }) {
+      const { usageScope } = payload;
+      const res = yield call(service.queryCommissionBindingList, payload);
+      if (!res) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = res;
+      if (resultCode === '0' || resultCode === 0) {
+        const { commodityList } = result;
+        if (usageScope === 'Online') {
+          for (let i = 0; i < commodityList.length; i += 1) {
+            commodityList[i].selectedType = 'offerPLU';
+            for (let j = 0; j < commodityList[i].subCommodityList.length; j += 1) {
+              commodityList[i].subCommodityList[j].selectedType = 'subPLU';
+              commodityList[i].subCommodityList[j].proCommoditySpecId =
+                commodityList[i].commoditySpecId;
+              for (
+                let k = 0;
+                k < commodityList[i].subCommodityList[j].subCommodityList.length;
+                k += 1
+              ) {
+                commodityList[i].subCommodityList[j].selectedType = 'packagePLU';
+                commodityList[i].subCommodityList[j].subCommodityList[k].selectedType = 'subPLU';
+                commodityList[i].subCommodityList[j].subCommodityList[k].proProCommoditySpecId =
+                  commodityList[i].subCommodityList[j].commoditySpecId;
+                commodityList[i].subCommodityList[j].subCommodityList[k].proProCommoditySpecId =
+                  commodityList[i].commoditySpecId;
+              }
+            }
+          }
+          yield put({
+            type: 'changeOnlinePage',
+            payload: {
+              checkedOnlineList: commodityList || [],
+            },
+          });
+        } else if (usageScope === 'Offline') {
+          for (let i = 0; i < commodityList.length; i += 1) {
+            commodityList[i].selectedType = 'subPLU';
+            for (let j = 0; j < commodityList[i].subCommodityList.length; j += 1) {
+              commodityList[i].selectedType = 'packagePLU';
+              commodityList[i].subCommodityList[j].proCommoditySpecId =
+                commodityList[i].commoditySpecId;
+              commodityList[i].subCommodityList[j].selectedType = 'subPLU';
+            }
+          }
+          yield put({
+            type: 'changeOfflinePage',
+            payload: {
+              checkedList: commodityList || [],
+            },
+          });
+        }
+      } else throw resultMsg;
+    },
     *fetchOfferList({ payload }, { call, put, select }) {
-      const { bindingId, bindingType, commodityType } = payload;
-      const { pagination, filter } = yield select(state => state.commissionNew);
-      const { likeParam } = filter;
-      let requestData = {
-        ...pagination,
-        bindingId,
-        bindingType,
-        commodityType,
+      const { onlineSearchCondition, checkedOnlineList } = yield select(
+        state => state.commissionNew
+      );
+      const params = { ...onlineSearchCondition, ...payload };
+      yield put({
+        type: 'save',
+        payload: {
+          onlineSearchCondition: params,
+        },
+      });
+      const paramsList = {
+        ...params,
+        bindingType: params.bindingId !== null ? 'Commission' : null,
       };
-      if (!isEmpty(likeParam)) {
-        requestData = {
-          ...pagination,
-          bindingId,
-          bindingType,
-          commodityType,
-          ...likeParam,
-        };
-      }
-
-      const res = yield call(service.offerList, requestData);
+      const res = yield call(service.offerList, paramsList);
+      if (!res) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = res;
       if (resultCode === '0' || resultCode === 0) {
         const {
-          page: { currentPage, pageSize, totalSize },
+          page: { totalSize },
           commodityList,
         } = result;
-
+        for (let i = 0; i < commodityList.length; i += 1) {
+          commodityList[i].isSelected = false;
+          if (commodityList[i].subCommodityList === null) {
+            commodityList[i].subCommodityList = [];
+          }
+          for (let j = 0; j < commodityList[i].subCommodityList.length; j += 1) {
+            commodityList[i].subCommodityList[j].isSelected = false;
+            if (commodityList[i].subCommodityList[j].subCommodityList === null) {
+              commodityList[i].subCommodityList[j].subCommodityList = [];
+            }
+            const { subCommodityList } = commodityList[i].subCommodityList[j];
+            for (let k = 0; k < subCommodityList.length; k += 1) {
+              if (subCommodityList[k].subCommodityList === null) {
+                subCommodityList[k].subCommodityList = [];
+              }
+              subCommodityList[k].isSelected = false;
+            }
+          }
+        }
+        setSelected(commodityList, checkedOnlineList);
         yield put({
           type: 'save',
           payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            offerList: commodityList,
+            addOnlinePLUTotalSize: totalSize,
+            offerList: commodityList || [],
+            selectedRowKeys: [],
+            selectedOffer: [],
           },
         });
       } else throw resultMsg;
     },
     *fetchPLUList({ payload }, { call, put, select }) {
-      const { bindingId, bindingType, commodityType } = payload;
-      const { pagination, filter } = yield select(state => state.commissionNew);
-      const { likeParam } = filter;
-      let requestData = {
-        ...pagination,
-        bindingId,
-        bindingType,
-        commodityType,
+      const { offlineSearchCondition, checkedList } = yield select(state => state.commissionNew);
+      const params = { ...offlineSearchCondition, ...payload };
+      yield put({
+        type: 'save',
+        payload: {
+          offlineSearchCondition: params,
+        },
+      });
+      const paramsList = {
+        ...params,
+        bindingType: params.bindingId !== null ? 'Commission' : null,
       };
-      if (!isEmpty(likeParam)) {
-        requestData = {
-          ...pagination,
-          bindingId,
-          bindingType,
-          commodityType,
-          ...likeParam,
-        };
-      }
-      const res = yield call(service.offerList, requestData);
+      const res = yield call(service.offerList, paramsList);
+      if (!res) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = res;
-
       if (resultCode === '0' || resultCode === 0) {
         const {
-          page: { currentPage, pageSize, totalSize },
+          page: { totalSize },
           commodityList,
         } = result;
+        for (let i = 0; i < commodityList.length; i += 1) {
+          commodityList[i].isSelected = false;
+          for (let j = 0; j < commodityList[i].subCommodityList.length; j += 1) {
+            commodityList[i].subCommodityList[j].isSelected = false;
+          }
+        }
+        for (let i = 0; i < commodityList.length; i += 1) {
+          let checkedCommodity = [];
+          for (let j = 0; j < checkedList.length; j += 1) {
+            if (checkedList[j].commoditySpecId === commodityList[i].commoditySpecId) {
+              commodityList[i].isSelected = true;
+              checkedCommodity = objDeepCopy(checkedList[j].subCommodityList);
+            }
+          }
+          if (checkedCommodity.length > 0) {
+            for (let j = 0; j < commodityList[i].subCommodityList.length; j += 1) {
+              for (let k = 0; k < checkedCommodity.length; k += 1) {
+                if (
+                  checkedCommodity[k].commoditySpecId ===
+                  commodityList[i].subCommodityList[j].commoditySpecId
+                ) {
+                  commodityList[i].subCommodityList[j].isSelected = true;
+                }
+              }
+            }
+          }
+        }
         yield put({
           type: 'save',
           payload: {
-            pagination: {
-              currentPage,
-              pageSize,
-              totalSize,
-            },
-            PLUList: commodity(commodityList),
+            addOfflinePLUTotalSize: totalSize,
+            PLUList: commodityList || [],
           },
         });
       } else throw resultMsg;
     },
     *add({ payload }, { call, put }) {
-      const { params, tieredList, commodityList } = payload;
+      const { params, tieredList, commodityList, usageScope } = payload;
       const reqParams = {
         ...params,
         tieredList,
         commodityList,
+        usageScope,
       };
-      const { success, errorMsg } = yield call(service.add, reqParams);
-      if (success) {
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.add, reqParams);
+      if (resultCode === '0' || resultCode === 0) {
         message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
         // fresh list data
         yield put({
           type: 'commissionRuleSetup/fetchCommissionRuleSetupList',
         });
-      } else throw errorMsg;
+        router.push({
+          pathname: '/ProductManagement/CommissionRule/OnlineRule',
+        });
+      } else {
+        message.error(resultMsg);
+      }
     },
-    *edit({ payload }, { call, put }) {
-      const { params, tieredList, commodityList, tplId } = payload;
+    *edit({ payload }, { call }) {
+      const { params, tieredList, commodityList, tplId, usageScope } = payload;
       const reqParams = {
         ...params,
         tieredList,
         commodityList,
         tplId,
+        usageScope,
       };
-      const { success, errorMsg } = yield call(service.add, reqParams);
-      if (success) {
-        message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
-        // fresh list data
-        yield put({
-          type: 'commissionRuleSetup/fetchCommissionRuleSetupList',
-        });
-      } else throw errorMsg;
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.add, reqParams);
+      if (resultCode !== '0') {
+        message.error(resultMsg);
+      }
+      return resultCode;
     },
     *searchOffer({ payload }, { put }) {
       yield put({
@@ -255,20 +368,11 @@ export default {
         type: 'fetchPLUList',
       });
     },
-    *binding({ payload }, { call }) {
-      const { commodityList, tplId } = payload;
-      const reqParams = {
-        commodityList,
-        tplId,
-      };
-      const { success, errorMsg } = yield call(service.grant, reqParams);
-      if (success) {
-        message.success(formatMessage({ id: 'COMMON_GRANTED_SUCCESSFULLY' }));
-
-        // yield put({
-        //   type: 'grant/fetchMappingList',
-        // });
-      } else throw errorMsg;
+    *effectSave({ payload }, { put }) {
+      yield put({
+        type: 'save',
+        payload,
+      });
     },
   },
   reducers: {
@@ -278,83 +382,429 @@ export default {
         ...payload,
       };
     },
-    clear(state, { payload }) {
+    clean(state) {
       return {
         ...state,
-        ...payload,
         value: 'tiered',
         tieredCommissionRuleList: [],
         commission: [[]],
-        // addBindingModal: false,
-        // addPLUModal: false,
-        // addCommissionSchema: false,
-        tags: [
-          {
-            id: undefined,
-            segments: [],
-          },
-        ],
+        addBindingModal: false,
+        addPLUModal: false,
+        addCommissionSchema: false,
+        type: '',
+
+        onlineSearchCondition: {
+          bindingId: null,
+          bindingType: 'Commission',
+          usageScope: 'Online',
+          commonSearchText: null,
+          themeParkCode: null,
+          currentPage: 1,
+          pageSize: 10,
+        },
+        addOnlinePLUTotalSize: 0,
         offerList: [],
-        selectedRowKeys: [],
-        selectedRowKeys2: [],
-        selectedOffer: [],
+        checkedOnlineList: [],
+        displayOnlineList: [],
+        themeParkList: [],
+
+        onlineOfferPagination: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+
+        offlineSearchCondition: {
+          bindingId: null,
+          bindingType: 'Commission',
+          usageScope: 'Offline',
+          commonSearchText: null,
+          themeParkCode: null,
+          currentPage: 1,
+          pageSize: 10,
+        },
+        addOfflinePLUTotalSize: 0,
         PLUList: [],
+        checkedList: [],
+        displayOfflineList: [],
+
+        offlinePLUPagination: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+
+        pagination2: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+        filter: {},
+        ifEdit: false,
+        ifAdd: false,
+
+        selectedRowKeys2: [],
+
+        commissionTplList: [],
+        expandedRowKeys: [],
+        index: undefined,
+        offerExistedDisales: [],
         PLUSelected: [],
         PLUSelectItem: [],
+        activityId: undefined,
         PLURelationList: [],
         commoditySpecId: null,
-        checkedList: [],
       };
     },
     saveSelectOffer(state, { payload }) {
-      const { offerList } = state;
-      const { selectedRowKeys } = payload;
-      const selectedOffer = [];
+      const { selectedRowKeys, offerList } = payload;
       for (let i = 0; i < offerList.length; i += 1) {
-        for (let j = 0; j < offerList.length; j += 1) {
-          if (offerList[j] === offerList[i].key) {
-            offerList.push(offerList[i]);
+        let flag = true;
+        for (let j = 0; j < selectedRowKeys.length; j += 1) {
+          if (selectedRowKeys[j] === offerList[i].commoditySpecId) {
+            offerList[i].isSelected = true;
+            flag = false;
+            let unSelected = true;
+            for (let k = 0; k < offerList[i].subCommodityList.length; k += 1) {
+              if (offerList[i].subCommodityList[k].isSelected === true) {
+                unSelected = false;
+              }
+            }
+            if (unSelected) {
+              for (let k = 0; k < offerList[i].subCommodityList.length; k += 1) {
+                offerList[i].subCommodityList[k].isSelected = true;
+                for (
+                  let l = 0;
+                  l < offerList[i].subCommodityList[k].subCommodityList.length;
+                  l += 1
+                ) {
+                  offerList[i].subCommodityList[k].subCommodityList[l].isSelected = true;
+                }
+              }
+              offerList[i].subCommodityList.map(e => {
+                Object.assign(e, {
+                  isSelected: true,
+                });
+                return e;
+              });
+            }
+          }
+        }
+        if (flag) {
+          offerList[i].isSelected = false;
+          for (let k = 0; k < offerList[i].subCommodityList.length; k += 1) {
+            offerList[i].subCommodityList[k].isSelected = false;
+            for (let j = 0; j < offerList[i].subCommodityList[k].subCommodityList.length; j += 1) {
+              offerList[i].subCommodityList[k].subCommodityList[j].isSelected = false;
+            }
           }
         }
       }
       return {
         ...state,
-        selectedRowKeys,
-        selectedOffer,
+        offerList,
       };
     },
-    saveSelectOffer2(state, { payload }) {
-      const { offerList } = state;
-      const { selectedRowKeys2 } = payload;
-      const selectedOffer2 = [];
+    saveSubSelectOffer(state, { payload }) {
+      const { subSelectedRowKeys, commoditySpecId, offerList } = payload;
       for (let i = 0; i < offerList.length; i += 1) {
-        for (let j = 0; j < offerList.length; j += 1) {
-          if (offerList[j] === offerList[i].key) {
-            offerList.push(offerList[i]);
+        if (commoditySpecId === offerList[i].commoditySpecId) {
+          for (let j = 0; j < offerList[i].subCommodityList.length; j += 1) {
+            offerList[i].subCommodityList[j].isSelected = false;
+            let flag = true;
+            for (let k = 0; k < subSelectedRowKeys.length; k += 1) {
+              if (offerList[i].subCommodityList[j].commoditySpecId === subSelectedRowKeys[k]) {
+                flag = false;
+                offerList[i].subCommodityList[j].isSelected = true;
+                let unSelected = true;
+                for (
+                  let l = 0;
+                  l < offerList[i].subCommodityList[j].subCommodityList.length;
+                  l += 1
+                ) {
+                  if (offerList[i].subCommodityList[j].subCommodityList[l].isSelected) {
+                    unSelected = false;
+                  }
+                }
+                if (unSelected) {
+                  for (
+                    let l = 0;
+                    l < offerList[i].subCommodityList[j].subCommodityList.length;
+                    l += 1
+                  ) {
+                    offerList[i].subCommodityList[j].subCommodityList[l].isSelected = true;
+                  }
+                }
+              }
+            }
+            if (flag) {
+              for (
+                let k = 0;
+                k < offerList[i].subCommodityList[j].subCommodityList.length;
+                k += 1
+              ) {
+                offerList[i].subCommodityList[j].subCommodityList[k].isSelected = false;
+              }
+            }
+          }
+          if (subSelectedRowKeys.length === 0) {
+            offerList[i].isSelected = false;
+          } else {
+            offerList[i].isSelected = true;
           }
         }
       }
       return {
         ...state,
-        selectedRowKeys2,
-        selectedOffer2,
+        offerList,
+      };
+    },
+    saveSubSubSelectOffer(state, { payload }) {
+      const { subSubSelectedRowKeys, commoditySpecId, subCommoditySpecId, offerList } = payload;
+      for (let i = 0; i < offerList.length; i += 1) {
+        if (commoditySpecId === offerList[i].commoditySpecId) {
+          for (let j = 0; j < offerList[i].subCommodityList.length; j += 1) {
+            if (offerList[i].subCommodityList[j].commoditySpecId === subCommoditySpecId) {
+              if (subSubSelectedRowKeys.length === 0) {
+                offerList[i].subCommodityList[j].isSelected = false;
+                offerList[i].isSelected = false;
+                for (let k = 0; k < offerList[i].subCommodityList.length; k += 1) {
+                  if (offerList[i].subCommodityList[k].isSelected) {
+                    offerList[i].isSelected = true;
+                  }
+                }
+              } else {
+                offerList[i].subCommodityList[j].isSelected = true;
+                offerList[i].isSelected = true;
+              }
+              for (
+                let k = 0;
+                k < offerList[i].subCommodityList[j].subCommodityList.length;
+                k += 1
+              ) {
+                offerList[i].subCommodityList[j].subCommodityList[k].isSelected = false;
+                for (let l = 0; l < subSubSelectedRowKeys.length; l += 1) {
+                  if (
+                    offerList[i].subCommodityList[j].subCommodityList[k].commoditySpecId ===
+                    subSubSelectedRowKeys[l]
+                  ) {
+                    offerList[i].subCommodityList[j].subCommodityList[k].isSelected = true;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return {
+        ...state,
+        offerList,
+      };
+    },
+    changeOnlinePage(state, { payload }) {
+      const {
+        onlineOfferPagination: { currentPage, pageSize },
+      } = state;
+      const { checkedOnlineList } = payload;
+      const displayOnlineList = [];
+      if (currentPage * pageSize < checkedOnlineList.length) {
+        for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i += 1) {
+          displayOnlineList.push(checkedOnlineList[i]);
+        }
+      } else {
+        for (let i = (currentPage - 1) * pageSize; i < checkedOnlineList.length; i += 1) {
+          displayOnlineList.push(checkedOnlineList[i]);
+        }
+      }
+
+      return {
+        ...state,
+        displayOnlineList,
+        checkedOnlineList,
       };
     },
     saveSelectPLU(state, { payload }) {
-      const { PLUList } = state;
-      const { selectedRowKeys } = payload;
-      const selectedPLU = [];
+      const { selectedRowKeys, PLUList } = payload;
       for (let i = 0; i < PLUList.length; i += 1) {
-        for (let j = 0; j < PLUList.length; j += 1) {
-          if (PLUList[j] === PLUList[i].key) {
-            PLUList.push(PLUList[i]);
+        let flag = true;
+        for (let j = 0; j < selectedRowKeys.length; j += 1) {
+          if (selectedRowKeys[j] === PLUList[i].commoditySpecId) {
+            PLUList[i].isSelected = true;
+            flag = false;
+            let unSelected = true;
+            for (let k = 0; k < PLUList[i].subCommodityList.length; k += 1) {
+              if (PLUList[i].subCommodityList[k].isSelected === true) {
+                unSelected = false;
+              }
+            }
+            if (unSelected) {
+              PLUList[i].subCommodityList.map(e => {
+                Object.assign(e, {
+                  isSelected: true,
+                });
+                return e;
+              });
+            }
+          }
+        }
+        if (flag) {
+          PLUList[i].isSelected = false;
+          for (let k = 0; k < PLUList[i].subCommodityList.length; k += 1) {
+            PLUList[i].subCommodityList[k].isSelected = false;
           }
         }
       }
       return {
         ...state,
-        selectedRowKeys,
-        selectedPLU,
+        PLUList,
+      };
+    },
+    saveSubSelectPLU(state, { payload }) {
+      const { subSelectedRowKeys, commoditySpecId, PLUList } = payload;
+      for (let i = 0; i < PLUList.length; i += 1) {
+        if (commoditySpecId === PLUList[i].commoditySpecId) {
+          for (let j = 0; j < PLUList[i].subCommodityList.length; j += 1) {
+            PLUList[i].subCommodityList[j].isSelected = false;
+            for (let k = 0; k < subSelectedRowKeys.length; k += 1) {
+              if (PLUList[i].subCommodityList[j].commoditySpecId === subSelectedRowKeys[k]) {
+                PLUList[i].subCommodityList[j].isSelected = true;
+              }
+            }
+          }
+          if (subSelectedRowKeys.length === 0) {
+            PLUList[i].isSelected = false;
+          } else {
+            PLUList[i].isSelected = true;
+          }
+        }
+      }
+      return {
+        ...state,
+        PLUList,
+      };
+    },
+    changeOfflinePage(state, { payload }) {
+      const {
+        offlinePLUPagination: { currentPage, pageSize },
+      } = state;
+      const { checkedList } = payload;
+      const displayOfflineList = [];
+      if (currentPage * pageSize < checkedList.length) {
+        for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i += 1) {
+          displayOfflineList.push(checkedList[i]);
+        }
+      } else {
+        for (let i = (currentPage - 1) * pageSize; i < checkedList.length; i += 1) {
+          displayOfflineList.push(checkedList[i]);
+        }
+      }
+
+      return {
+        ...state,
+        displayOfflineList,
+        checkedList,
+      };
+    },
+    resetAddOnlinePLUData(state) {
+      return {
+        ...state,
+        addBindingModal: false,
+        onlineSearchCondition: {
+          bindingId: null,
+          bindingType: 'Commission',
+          usageScope: 'Online',
+          commonSearchText: null,
+          themeParkCode: null,
+          currentPage: 1,
+          pageSize: 10,
+        },
+        addOnlinePLUTotalSize: 0,
+        offerList: [],
+      };
+    },
+    resetAddOfflinePLUData(state) {
+      return {
+        ...state,
+        addPLUModal: false,
+        offlineSearchCondition: {
+          bindingId: null,
+          bindingType: 'Commission',
+          usageScope: 'Offline',
+          commonSearchText: null,
+          themeParkCode: null,
+          currentPage: 1,
+          pageSize: 10,
+        },
+        addOfflinePLUTotalSize: 0,
+        PLUList: [],
+      };
+    },
+    clear(state) {
+      return {
+        ...state,
+        value: 'tiered',
+        tieredCommissionRuleList: [],
+        commission: [[]],
+        addBindingModal: false,
+        addPLUModal: false,
+        addCommissionSchema: false,
+        type: '',
+
+        onlineSearchCondition: {
+          bindingId: null,
+          bindingType: 'Commission',
+          usageScope: 'Online',
+          commonSearchText: null,
+          themeParkCode: null,
+          currentPage: 1,
+          pageSize: 10,
+        },
+        addOnlinePLUTotalSize: 0,
+        offerList: [],
+        checkedOnlineList: [],
+        displayOnlineList: [],
+        themeParkList: [],
+
+        onlineOfferPagination: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+
+        offlineSearchCondition: {
+          bindingId: null,
+          bindingType: 'Commission',
+          usageScope: 'Offline',
+          commonSearchText: null,
+          themeParkCode: null,
+          currentPage: 1,
+          pageSize: 10,
+        },
+        addOfflinePLUTotalSize: 0,
+        PLUList: [],
+        checkedList: [],
+        displayOfflineList: [],
+
+        offlinePLUPagination: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+
+        pagination2: {
+          currentPage: 1,
+          pageSize: 10,
+        },
+        filter: {},
+        ifEdit: false,
+        ifAdd: false,
+
+        selectedRowKeys2: [],
+
+        commissionTplList: [],
+        expandedRowKeys: [],
+        index: undefined,
+        offerExistedDisales: [],
+        PLUSelected: [],
+        PLUSelectItem: [],
+        activityId: undefined,
+        PLURelationList: [],
+        commoditySpecId: null,
       };
     },
   },

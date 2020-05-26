@@ -53,6 +53,7 @@ class Index extends React.PureComponent {
         autoExpandParent: true,
         checkedKeys: [],
         searchValue: '',
+        menuChangeFlag: false,
       },
     });
   }
@@ -82,8 +83,16 @@ class Index extends React.PureComponent {
 
   getRemoveMenuCodes = () => {
     const {
-      roleMgr: { checkedKeys = [], halfCheckedKeys = [], checkedMenuCodes = [] },
+      roleMgr: {
+        checkedKeys = [],
+        halfCheckedKeys = [],
+        checkedMenuCodes = [],
+        menuChangeFlag = false,
+      },
     } = this.props;
+    if (!menuChangeFlag) {
+      return [];
+    }
     const allCheckedKeys = [...checkedKeys, ...halfCheckedKeys];
     const removeCodes = [];
     checkedMenuCodes.forEach(item => {
@@ -97,8 +106,16 @@ class Index extends React.PureComponent {
 
   getAddMenuCodes = () => {
     const {
-      roleMgr: { checkedKeys = [], halfCheckedKeys = [], checkedMenuCodes = [] },
+      roleMgr: {
+        checkedKeys = [],
+        halfCheckedKeys = [],
+        checkedMenuCodes = [],
+        menuChangeFlag = false,
+      },
     } = this.props;
+    if (!menuChangeFlag) {
+      return [];
+    }
     const checkedMenuCode = [...checkedKeys, ...halfCheckedKeys];
     const addCodes = [];
     checkedMenuCode.forEach(item => {
@@ -173,6 +190,7 @@ class Index extends React.PureComponent {
       payload: {
         checkedKeys,
         halfCheckedKeys,
+        menuChangeFlag: true,
       },
     });
   };
@@ -277,6 +295,7 @@ class Index extends React.PureComponent {
           rules: [
             {
               required: true,
+              message: formatMessage({ id: 'REQUIRED' }),
             },
           ],
         })(
@@ -313,6 +332,7 @@ class Index extends React.PureComponent {
                 rules: [
                   {
                     required: true,
+                    message: formatMessage({ id: 'REQUIRED' }),
                   },
                 ],
               })(
@@ -330,6 +350,7 @@ class Index extends React.PureComponent {
                 rules: [
                   {
                     required: true,
+                    message: formatMessage({ id: 'REQUIRED' }),
                   },
                 ],
               })(

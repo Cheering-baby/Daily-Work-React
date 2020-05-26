@@ -1,60 +1,131 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Table, Row, Col, Button, Select, Input, Form, message } from 'antd';
+import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { cloneDeep } from 'lodash';
 import styles from './AddOfflinePLUModal.less';
+import PaginationComp from '../../../components/PaginationComp';
+import { objDeepCopy } from '@/pages/ProductManagement/utils/tools';
 
 const drawWidth = 700;
 const { Option } = Select;
-let checkedList = [];
 @Form.create()
-@connect(({ offlineNew }) => ({
+@connect(({ offlineNew, loading }) => ({
   offlineNew,
+  loading: loading.effects['offlineNew/fetchPLUList'],
 }))
 class AddOfflinePLUModal extends React.PureComponent {
   columns = [
     {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'commodityCode',
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
       dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'THEME_PARK' }),
       dataIndex: 'themeParkCode',
+      key: 'themeParkCode',
+      render: text => this.showThemeParkName(text),
+    },
+  ];
+
+  detailColumns = [
+    {
+      title: formatMessage({ id: 'PLU_CODE' }),
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'PLU_DESCRIPTION' }),
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'THEME_PARK' }),
+      dataIndex: 'themeParkCode',
+      key: 'themeParkCode',
+      render: text => this.showThemeParkName(text),
     },
   ];
 
   componentDidMount() {
     const { dispatch } = this.props;
-
+    dispatch({ type: 'offlineNew/queryThemeParks' });
     dispatch({
       type: 'offlineNew/fetchPLUList',
       payload: {
-        commodityType: 'PackagePlu',
-        bindingType: 'Agent',
+        bindingId: null,
+        bindingType: 'Commission',
+        usageScope: 'Offline',
       },
     });
   }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'offlineNew/resetAddOfflinePLUData',
+    });
+  }
+
+  showThemeParkName = text => {
+    const {
+      offlineNew: { themeParkList },
+    } = this.props;
+    for (let i = 0; i < themeParkList.length; i += 1) {
+      if (themeParkList[i].itemValue === text) {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+          >
+            <span>{themeParkList[i].itemName}</span>
+          </Tooltip>
+        );
+      }
+    }
+    return null;
+  };
 
   handleSearch = e => {
     const { form, dispatch } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        const likeParam = {
-          commonSearchText: values.commonSearchText || '',
-          themeParkCode: values.themeParkCode || '',
-        };
         dispatch({
-          type: 'offlineNew/searchPLU',
+          type: 'offlineNew/fetchPLUList',
           payload: {
-            filter: {
-              likeParam,
-            },
+            bindingId: null,
+            bindingType: 'Commission',
+            usageScope: 'Offline',
+            commonSearchText: values.commonSearchText,
+            themeParkCode: values.themeParkCode,
+            currentPage: 1,
+            pageSize: 10,
           },
         });
       }
@@ -65,8 +136,13 @@ class AddOfflinePLUModal extends React.PureComponent {
     const { dispatch, form } = this.props;
     form.resetFields();
     dispatch({
-      type: 'offlineNew/resetPLU',
+      type: 'offlineNew/fetchPLUList',
       payload: {
+        bindingId: null,
+        bindingType: 'Commission',
+        usageScope: 'Offline',
+        commonSearchText: null,
+        themeParkCode: null,
         currentPage: 1,
         pageSize: 10,
       },
@@ -87,64 +163,176 @@ class AddOfflinePLUModal extends React.PureComponent {
     const {
       offlineNew: { PLUList },
     } = this.props;
-    checkedList = cloneDeep(PLUList).filter(item => {
-      return selectedRowKeys.includes(item.key);
-    });
     const { dispatch } = this.props;
     dispatch({
       type: 'offlineNew/saveSelectPLU',
       payload: {
         selectedRowKeys,
+        PLUList,
       },
     });
   };
 
-  handleOk = (selectedRowKeys, PLUList) => {
-    const { dispatch } = this.props;
-    if (selectedRowKeys.length > 0) {
-      PLUList = PLUList.concat(checkedList);
-      dispatch({
-        type: 'offlineNew/save',
-        payload: {
-          PLUList,
-          checkedList,
-        },
-      });
-      this.handleCancel();
-    } else {
-      message.warning('Select at least one PLU.');
+  handleOk = (PLUList, checkedList) => {
+    const {
+      dispatch,
+      offlineNew: {
+        offlinePLUPagination: { currentPage, pageSize },
+      },
+    } = this.props;
+    const selectedPLUList = [];
+    for (let i = 0; i < PLUList.length; i += 1) {
+      if (PLUList[i].isSelected) {
+        selectedPLUList.push(objDeepCopy(PLUList[i]));
+      }
     }
+    if (selectedPLUList.length === 0) {
+      message.warning('Select at least one PLU.');
+      return;
+    }
+    for (let i = 0; i < selectedPLUList.length; i += 1) {
+      selectedPLUList[i].selectedType = 'subPLU';
+      for (let k = 0; k < selectedPLUList[i].subCommodityList.length; k += 1) {
+        selectedPLUList[i].selectedType = 'packagePLU';
+        selectedPLUList[i].subCommodityList[k].proCommoditySpecId =
+          selectedPLUList[i].commoditySpecId;
+        selectedPLUList[i].subCommodityList[k].selectedType = 'subPLU';
+      }
+      for (let j = 0; j < selectedPLUList[i].subCommodityList.length; j += 1) {
+        if (!selectedPLUList[i].subCommodityList[j].isSelected) {
+          selectedPLUList[i].subCommodityList.splice(j, 1);
+          j -= 1;
+        }
+      }
+    }
+    for (let i = 0; i < selectedPLUList.length; i += 1) {
+      let changeFlag = true;
+      for (let j = 0; j < checkedList.length; j += 1) {
+        if (checkedList[j].commoditySpecId === selectedPLUList[i].commoditySpecId) {
+          changeFlag = false;
+          checkedList[j].subCommodityList = objDeepCopy(selectedPLUList[i].subCommodityList);
+        }
+      }
+      if (changeFlag) {
+        checkedList.push(selectedPLUList[i]);
+      }
+    }
+    const displayOfflineList = [];
+    if (currentPage * pageSize < checkedList.length) {
+      for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i += 1) {
+        displayOfflineList.unshift(checkedList[i]);
+      }
+    } else {
+      for (let i = (currentPage - 1) * pageSize; i < checkedList.length; i += 1) {
+        displayOfflineList.unshift(checkedList[i]);
+      }
+    }
+    dispatch({
+      type: 'offlineNew/save',
+      payload: {
+        checkedList,
+        displayOfflineList,
+      },
+    });
+    this.handleCancel();
   };
 
   handleCancel = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'offlineNew/save',
+      type: 'offlineNew/resetAddOfflinePLUData',
+    });
+  };
+
+  getSubRowSelectedRowKeys = (record, PLUList) => {
+    for (let i = 0; i < PLUList.length; i += 1) {
+      if (PLUList[i].commoditySpecId === record.commoditySpecId) {
+        const subSelectedKeys = [];
+        for (let j = 0; j < PLUList[i].subCommodityList.length; j += 1) {
+          if (PLUList[i].subCommodityList[j].isSelected) {
+            subSelectedKeys.push(PLUList[i].subCommodityList[j].commoditySpecId);
+          }
+        }
+        return subSelectedKeys;
+      }
+    }
+    return [];
+  };
+
+  onSubSelectChange = (subSelectedRowKeys, commoditySpecId, PLUList) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'offlineNew/saveSubSelectPLU',
       payload: {
-        addPLUModal: false,
+        subSelectedRowKeys,
+        commoditySpecId,
+        PLUList,
       },
     });
   };
 
-  showTotal(total) {
-    return <div>Total {total} items</div>;
-  }
+  expandedRowRender = (record, PLUList, checkedList) => {
+    const { subCommodityList, commoditySpecId } = record;
+    let subCheckedList = [];
+    for (let i = 0; i < checkedList.length; i += 1) {
+      if (commoditySpecId === checkedList[i].commoditySpecId) {
+        subCheckedList = checkedList[i].subCommodityList;
+      }
+    }
+    const subRowSelection = {
+      selectedRowKeys: this.getSubRowSelectedRowKeys(record, PLUList),
+      onChange: selectedRowKeys =>
+        this.onSubSelectChange(selectedRowKeys, record.commoditySpecId, PLUList),
+      getCheckboxProps: rec => {
+        return {
+          disabled: !!subCheckedList.find(item => item.commoditySpecId === rec.commoditySpecId),
+        };
+      },
+    };
+    if (subCommodityList.length === 0) {
+      return null;
+    }
+    return (
+      <div>
+        <Table
+          size="small"
+          columns={this.detailColumns}
+          dataSource={subCommodityList}
+          pagination={false}
+          bordered={false}
+          rowKey={rec => rec.commoditySpecId}
+          rowSelection={subRowSelection}
+        />
+      </div>
+    );
+  };
+
+  getSelectedRowKes = PLUList => {
+    const selectedRowKeys = [];
+    for (let i = 0; i < PLUList.length; i += 1) {
+      if (PLUList[i].isSelected) {
+        selectedRowKeys.push(PLUList[i].commoditySpecId);
+      }
+    }
+    return selectedRowKeys;
+  };
 
   render() {
     const {
       form: { getFieldDecorator },
+      loading,
       offlineNew: {
         addPLUModal,
-        selectedRowKeys,
         PLUList,
-        currentPage,
-        pageSize,
-        totalSize,
         checkedList,
+        themeParkList = [],
+        offlineSearchCondition: { currentPage, pageSize: nowPageSize },
+        addOfflinePLUTotalSize,
       },
     } = this.props;
     const rowSelection = {
-      selectedRowKeys,
+      columnWidth: 40,
+      selectedRowKeys: this.getSelectedRowKes(PLUList),
       onChange: this.onSelectChange,
       getCheckboxProps: record => {
         return {
@@ -152,15 +340,22 @@ class AddOfflinePLUModal extends React.PureComponent {
         };
       },
     };
-    const pagination = {
+    const pageOpts = {
+      total: addOfflinePLUTotalSize,
       current: currentPage,
-      pageSize,
-      total: totalSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSizeOptions: ['20', '50', '100'],
-      showTotal: this.showTotal,
+      pageSize: nowPageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'offlineNew/fetchPLUList',
+          payload: {
+            currentPage: page,
+            pageSize,
+          },
+        });
+      },
     };
+
     return (
       <div>
         <Modal
@@ -173,7 +368,7 @@ class AddOfflinePLUModal extends React.PureComponent {
             <div>
               <Button
                 style={{ width: 60 }}
-                onClick={() => this.handleOk(selectedRowKeys, PLUList)}
+                onClick={() => this.handleOk(PLUList, checkedList)}
                 type="primary"
               >
                 OK
@@ -215,9 +410,12 @@ class AddOfflinePLUModal extends React.PureComponent {
                   ],
                 })(
                   <Select showSearch placeholder="Theme Park" allowClear style={{ width: '100%' }}>
-                    <Option value="NEW">NEW</Option>
-                    <Option value="PUBLISH">PUBLISH</Option>
-                    <Option value="UNPUBLISH">UNPUBLISH</Option>
+                    {themeParkList &&
+                      themeParkList.map(item => (
+                        <Option key={item.itemValue} value={item.itemValue}>
+                          {item.itemName}
+                        </Option>
+                      ))}
                   </Select>
                 )}
               </Col>
@@ -233,11 +431,17 @@ class AddOfflinePLUModal extends React.PureComponent {
             className={`tabs-no-padding ${styles.searchTitle}`}
             columns={this.columns}
             dataSource={PLUList}
-            pagination={pagination}
+            pagination={false}
             rowKey={record => record.commoditySpecId}
             size="small"
+            loading={!!loading}
+            expandedRowRender={record => this.expandedRowRender(record, PLUList, checkedList)}
             rowSelection={rowSelection}
+            rowClassName={record =>
+              record.subCommodityList.length === 0 ? styles.hideIcon : undefined
+            }
           />
+          <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
         </Modal>
       </div>
     );

@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
-import {connect} from 'dva';
-import {formatMessage} from 'umi/locale';
-import {Button, Card, Checkbox, DatePicker, Form, InputNumber, Select, Spin} from 'antd';
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
+import { Button, Card, Checkbox, DatePicker, Form, InputNumber, Select, Spin } from 'antd';
 import moment from 'moment';
-import {arrToString} from '../../../../utils/utils';
+import { arrToString } from '../../../../utils/utils';
 import styles from './index.less';
 
 const FormItem = Form.Item;
@@ -30,11 +30,8 @@ class SearchPanel extends Component {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'ticketMgr/queryCountry',
-      payload: {
-        tableName: 'CUST_PROFILE',
-        columnName: 'NOTIONALITY',
-      },
+      type: 'ticketMgr/fetchQueryAgentOpt',
+      payload: {},
     });
   }
 
@@ -57,6 +54,7 @@ class SearchPanel extends Component {
     });
     const data = {
       dateOfVisit,
+      sessionTime: undefined,
     };
     form.setFieldsValue(data);
     form.validateFields(['dateOfVisit']);
@@ -127,6 +125,8 @@ class SearchPanel extends Component {
     dispatch({
       type: 'ticketMgr/queryOfferList',
       payload: {
+        pageSize: 1000,
+        currentPage: 1,
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
         requestParams,
       },
@@ -170,6 +170,8 @@ class SearchPanel extends Component {
     dispatch({
       type: 'ticketMgr/queryDolphinIsland',
       payload: {
+        pageSize: 1000,
+        currentPage: 1,
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
         requestParams,
       },
@@ -343,7 +345,7 @@ class SearchPanel extends Component {
           style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
           bodyStyle={{ padding: 0 }}
         >
-          <div style={{padding: 15, minHeight: clientHeight}}>
+          <div style={{ minHeight: clientHeight }} className={styles.bodyContainer}>
             <div className={styles.titleFontBlackWeight}>Custom filter</div>
             <Form>
               <FormItem {...formItemLayout} label={formatMessage({ id: 'Ticketing' })}>
@@ -395,7 +397,7 @@ class SearchPanel extends Component {
                     style={{ width: '100%' }}
                     placeholder="Select Date"
                     showToday={false}
-                    format="DD-MMM-YYYY"
+                    format={['DD-MMM-YYYY', 'DDMMYYYY']}
                     onChange={this.changeDateOfVisit}
                     disabledDate={this.disabledDateOfVisit}
                   />
@@ -473,19 +475,19 @@ class SearchPanel extends Component {
                 </FormItem>
               )}
             </Form>
-          </div>
-          <div className={styles.formControl}>
-            <Button
-              disabled={searchPanelActive}
-              type="primary"
-              style={{ marginRight: 8, width: '70px' }}
-              onClick={this.search}
-            >
-              {formatMessage({ id: 'SEARCH' })}
-            </Button>
-            <Button disabled={searchPanelActive} style={{ width: '70px' }} onClick={this.reset}>
-              {formatMessage({ id: 'RESET' })}
-            </Button>
+            <div className={styles.formControl}>
+              <Button
+                disabled={searchPanelActive}
+                type="primary"
+                style={{ marginRight: 8, width: '70px' }}
+                onClick={this.search}
+              >
+                {formatMessage({ id: 'SEARCH' })}
+              </Button>
+              <Button disabled={searchPanelActive} style={{ width: '70px' }} onClick={this.reset}>
+                {formatMessage({ id: 'RESET' })}
+              </Button>
+            </div>
           </div>
         </Card>
       </Spin>

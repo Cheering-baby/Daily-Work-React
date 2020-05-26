@@ -1,27 +1,33 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import {
-  Drawer,
-  Row,
-  Col,
-  Form,
   Button,
-  InputNumber,
-  Select,
-  Input,
   Checkbox,
+  Col,
+  DatePicker,
+  Drawer,
+  Form,
+  Input,
+  InputNumber,
   message,
+  Radio,
+  Row,
+  Select,
+  Spin,
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
+import { reBytesStr } from '@/utils/utils';
 import { calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 @Form.create()
-@connect(({ global }) => ({
+@connect(({ global, ticketMgr }) => ({
   global,
+  countrys: ticketMgr.countrys,
+  ticketTypesEnums: ticketMgr.ticketTypesEnums,
 }))
 class ToCart extends Component {
   constructor(props) {
@@ -29,7 +35,17 @@ class ToCart extends Component {
     this.state = {
       showTermsAndCondition: false,
       checkTermsAndCondition: false,
+      loading: false,
     };
+  }
+
+  componentDidMount() {
+    const { modify } = this.props;
+    if (modify) {
+      this.setState({
+        checkTermsAndCondition: true,
+      });
+    }
   }
 
   changeTicketNumber = (index, value, productPrice) => {
@@ -45,20 +61,29 @@ class ToCart extends Component {
   };
 
   formatInputValue = (index, value) => {
-    const { formatInputValue } = this.props;
-    if (isNullOrUndefined(formatInputValue(index, value, 'Bundle'))) {
-      return '';
+    const { offers = [] } = this.props;
+    const originalValue = offers[index].ticketNumber;
+    const testReg = /^[1-9]\d*$/;
+    const testZero = /^0$/;
+    if (value === '' || testZero.test(value) || testReg.test(value)) {
+      return value;
     }
-    return formatInputValue(index, value, 'Bundle');
+    return originalValue;
   };
 
   calculateTotalPrice = () => {
     const { offers = [] } = this.props;
     let totalPrice = 0;
     offers.forEach(item => {
-      const { price } = item;
-      if (!isNullOrUndefined(price) && price !== '') {
-        totalPrice += Number(price);
+      const {
+        attractionProduct,
+        detail,
+        detail: { priceRuleId },
+        ticketNumber,
+      } = item;
+      if (!isNullOrUndefined(ticketNumber) && ticketNumber !== '') {
+        totalPrice +=
+          calculateAllProductPrice(attractionProduct, priceRuleId, null, detail) * ticketNumber;
       }
     });
     return `$ ${Number(totalPrice).toFixed(2)}`;
@@ -72,10 +97,27 @@ class ToCart extends Component {
       order,
       offers = [],
       numOfGuests,
-      deliverInformation: { country },
+      deliverInformation: {
+        country,
+        birth,
+        address,
+        gender,
+        cardDisplayName,
+        customerEmailAddress,
+      },
+      modify,
     } = this.props;
-    const data = {};
+    let data = {};
+    const hasApspTicket = this.hasApspTicket();
     data.country = country;
+    if (hasApspTicket) {
+      data = Object.assign(data, {
+        birth,
+        address,
+        gender,
+        cardDisplayName,
+      });
+    }
     offers.forEach((item, index) => {
       const { ticketNumber } = item;
       const ticketNumberLabel = `offer${index}`;
@@ -89,8 +131,17 @@ class ToCart extends Component {
           const { ticketNumber } = item;
           allTicketNumbers += ticketNumber;
         });
-        if (allTicketNumbers !== numOfGuests) {
+        if (!modify && allTicketNumbers !== numOfGuests) {
           message.warning(`Total quantity must be ${numOfGuests}.`);
+          return false;
+        }
+        if (allTicketNumbers === 0) {
+          message.warning('Please select one product at least.');
+          return false;
+        }
+        const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+        if (customerEmailAddress && !emailReg.test(customerEmailAddress)) {
+          message.warning('Customer email address is invalid.');
           return false;
         }
         if (!checkTermsAndCondition) {
@@ -103,6 +154,9 @@ class ToCart extends Component {
           data[ticketNumberLabel] = ticketNumber;
         });
         let hasInventory = true;
+        this.setState({
+          loading: true,
+        });
         for (let i = 0; i < offers.length; i += 1) {
           const {
             ticketNumber,
@@ -112,7 +166,6 @@ class ToCart extends Component {
               offerBasicInfo: { offerNo },
             },
           } = offers[i];
-          // eslint-disable-next-line no-loop-func
           const orderProducts = attractionProduct.map(orderProductItem => {
             const { productNo } = orderProductItem;
             return {
@@ -126,7 +179,6 @@ class ToCart extends Component {
             payload: {
               offerNo,
               dateOfVisit,
-              offerQuantity: ticketNumber,
               orderProducts,
             },
             // eslint-disable-next-line no-loop-func
@@ -136,21 +188,16 @@ class ToCart extends Component {
             }
           });
         }
+        this.setState({
+          loading: false,
+        });
         if (hasInventory) {
           order();
         } else {
-          message.warning('Out of stock.');
+          message.warning('There is not enough stock to book.');
         }
       }
     });
-  };
-
-  changeCountry = value => {
-    const { form, changeDeliveryInformation } = this.props;
-    form.setFieldsValue({
-      country: value,
-    });
-    changeDeliveryInformation('country', value);
   };
 
   toShowTermsAndCondition = value => {
@@ -167,22 +214,49 @@ class ToCart extends Component {
 
   changeDeliveryInformation = (type, value) => {
     const { form, changeDeliveryInformation } = this.props;
+    const arr = ['guestLastName', 'guestFirstName', 'taNo', 'cardDisplayName', 'address'];
+    let transferValue = value;
+    if (
+      type === 'customerEmailAddress' &&
+      value &&
+      value.replace(/[\u0391-\uFFE5]/g, 'aa').length > 50
+    ) {
+      transferValue = reBytesStr(value, 50);
+    }
+    if (arr.indexOf(type) !== -1 && value && value.replace(/[\u0391-\uFFE5]/g, 'aa').length > 64) {
+      transferValue = reBytesStr(value, 64);
+    }
+    if (
+      type === 'customerContactNo' &&
+      value &&
+      value.replace(/[\u0391-\uFFE5]/g, 'aa').length > 32
+    ) {
+      transferValue = reBytesStr(value, 32);
+    }
     const data = {};
-    data[type] = value;
+    data[type] = transferValue;
     form.setFieldsValue(data);
-    changeDeliveryInformation(type, value);
+    changeDeliveryInformation(type, transferValue);
+  };
+
+  hasApspTicket = () => {
+    const { offers = [] } = this.props;
+    return offers.some(({ attractionProduct = [], ticketNumber }) => {
+      return attractionProduct.some(
+        ({ attractionProduct: { ticketSubType } }) => ticketNumber && ticketSubType === 'ApSp'
+      );
+    });
   };
 
   render() {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
-    const { showTermsAndCondition, checkTermsAndCondition } = this.state;
+    const { showTermsAndCondition, checkTermsAndCondition, loading } = this.state;
     const {
       form: { getFieldDecorator },
       dateOfVisit,
       onClose,
+      ticketTypesEnums = [],
       countrys = [],
-      ticketType,
-      description,
       offers,
       deliverInformation: {
         country,
@@ -191,27 +265,36 @@ class ToCart extends Component {
         guestLastName,
         customerContactNo,
         customerEmailAddress,
+        birth,
+        address,
+        gender,
+        cardDisplayName,
       },
       global: {
         userCompanyInfo: { companyType },
       },
     } = this.props;
-    let nameAndEmailRequired = false;
-    const arr = ['USS', 'SEA'];
+    const description = [];
+    const hasApspTicket = this.hasApspTicket();
     const termsAndConditionItems = [];
+    const ticketType = [];
     offers.forEach(item => {
       const {
         attractionProduct = [],
-        detail: { offerContentList = [], offerTagList = [] },
+        detail: { offerContentList = [] },
       } = item;
-      attractionProduct.forEach(item2 => {
-        if (arr.indexOf(item2.attractionProduct.themePark) !== -1) {
-          nameAndEmailRequired = true;
-        }
-      });
-      offerTagList.forEach(item2 => {
-        if (item2.tagName === 'VIP Tour') {
-          nameAndEmailRequired = true;
+      attractionProduct.forEach(itemProduct => {
+        if (itemProduct.attractionProduct.ticketType) {
+          const matchTicketTypes = ticketTypesEnums.filter(
+            ({ itemValue }) => itemValue === itemProduct.attractionProduct.ticketType
+          );
+          if (matchTicketTypes.length > 0) {
+            ticketType.push(matchTicketTypes[0].itemName);
+          } else {
+            ticketType.push(`${itemProduct.attractionProduct.ticketType}`);
+          }
+        } else {
+          ticketType.push(`-`);
         }
       });
       offerContentList.forEach(item2 => {
@@ -220,6 +303,9 @@ class ToCart extends Component {
           switch (contentType) {
             case 'termsAndConditions':
               termsAndConditionItems.push(contentValue);
+              break;
+            case 'shortDescription':
+              description.push(contentValue);
               break;
             default:
               break;
@@ -266,181 +352,297 @@ class ToCart extends Component {
           onClose={() => onClose()}
         >
           <div className={styles.bodyContainer}>
-            <div>
-              <Row>
-                <Col style={{ height: '35px' }} className={styles.title}>
-                  TICKET INFORMATION
-                </Col>
-                <Col span={24} style={{ marginBottom: '10px' }}>
-                  <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Ticket Type</span>
+            <Spin spinning={loading}>
+              <div>
+                <Row>
+                  <Col style={{ height: '35px' }} className={styles.title}>
+                    TICKET INFORMATION
                   </Col>
-                  <Col span={15}>
-                    <span className={styles.detailText}>{ticketType || '-'}</span>
-                  </Col>
-                </Col>
-                <Col span={24} style={{ marginBottom: '10px' }}>
-                  <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Description</span>
-                  </Col>
-                  <Col span={15}>
-                    <span className={styles.detailText}>{description || '-'}</span>
-                  </Col>
-                </Col>
-                <Col span={24} style={{ marginBottom: '10px' }}>
-                  <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Date of Visit</span>
-                  </Col>
-                  <Col span={15}>
-                    <span className={styles.detailText}>
-                      {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
-                    </span>
-                  </Col>
-                </Col>
-                <Col span={24} style={{ marginTop: '15px' }} className={styles.title}>
-                  BOOKING INFORMATION
-                </Col>
-                <Form className={styles.product}>
-                  {offers.map((item, index) => {
-                    const {
-                      id,
-                      ticketNumber,
-                      attractionProduct = [],
-                      detail: {
-                        priceRuleId,
-                        offerBasicInfo: { offerName, offerMinQuantity, offerMaxQuantity },
-                      },
-                    } = item;
-                    const priceShow = calculateAllProductPrice(attractionProduct, priceRuleId);
-                    const ticketNumberLabel = `offer${index}`;
-                    return (
-                      <Col span={24} className={styles.ageItem} key={id}>
-                        <Col span={18} className={styles.age}>
-                          <span style={{ color: '#565656' }}>{offerName}</span>
-                          {companyType === '02' ? null : (
-                            <span style={{ color: '#171B21' }}>$ {priceShow}</span>
-                          )}
-                        </Col>
-                        <Col span={6}>
-                          <FormItem className={styles.label}>
-                            {getFieldDecorator(ticketNumberLabel, {
-                              initialValue: ticketNumber,
-                              rules: [
-                                {
-                                  required: true,
-                                  message: 'Required',
-                                },
-                              ],
-                            })(
-                              <div>
-                                <InputNumber
-                                  max={offerMaxQuantity}
-                                  min={offerMinQuantity}
-                                  value={ticketNumber}
-                                  onChange={value =>
-                                    this.changeTicketNumber(index, value, priceShow)
-                                  }
-                                  parser={value => this.formatInputValue(index, value)}
-                                />
-                              </div>
-                            )}
-                          </FormItem>
-                        </Col>
-                      </Col>
-                    );
-                  })}
-                  {companyType === '02' ? null : (
-                    <Col span={24} className={styles.totalMoney}>
-                      <Col span={18} style={{ textAlign: 'right', paddingRight: '10px' }}>
-                        Total:
-                      </Col>
-                      <Col span={6} style={{ textAlign: 'right' }}>
-                        {this.calculateTotalPrice()}
-                      </Col>
+                  <Col span={24} style={{ marginBottom: '10px' }}>
+                    <Col span={9} style={{ height: '30px' }}>
+                      <span className={styles.detailLabel}>Ticket Type</span>
                     </Col>
-                  )}
+                    <Col span={15}>
+                      {ticketType.map(e => (
+                        <div style={{ color: '#3b414a' }}>{e}</div>
+                      ))}
+                    </Col>
+                  </Col>
+                  <Col span={24} style={{ marginBottom: '10px' }}>
+                    <Col span={9} style={{ height: '30px' }}>
+                      <span className={styles.detailLabel}>Description</span>
+                    </Col>
+                    <Col span={15}>
+                      <span className={styles.detailText}>
+                        {description.length > 0
+                          ? description.map(item => <div>{item || '-'}</div>)
+                          : '-'}
+                      </span>
+                    </Col>
+                  </Col>
+                  <Col span={24} style={{ marginBottom: '10px' }}>
+                    <Col span={9} style={{ height: '30px' }}>
+                      <span className={styles.detailLabel}>Date of Visit</span>
+                    </Col>
+                    <Col span={15}>
+                      <span className={styles.detailText}>
+                        {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
+                      </span>
+                    </Col>
+                  </Col>
+                  <Col span={24} style={{ marginTop: '15px' }} className={styles.title}>
+                    BOOKING INFORMATION
+                  </Col>
+                  <Form className={styles.product} hideRequiredMark layout="inline" colon={false}>
+                    {offers.map((item, index) => {
+                      const {
+                        ticketNumber,
+                        attractionProduct = [],
+                        detail,
+                        detail: {
+                          priceRuleId,
+                          offerBasicInfo: { offerMinQuantity, offerMaxQuantity },
+                          offerBundle = [{}],
+                        },
+                      } = item;
+                      const priceShow = calculateAllProductPrice(
+                        attractionProduct,
+                        priceRuleId,
+                        null,
+                        detail
+                      );
+                      const ticketNumberLabel = `offer${index}`;
+                      return (
+                        <Col span={24} className={styles.ageItem} key={ticketNumberLabel}>
+                          <Col
+                            xs={8}
+                            sm={12}
+                            md={12}
+                            lg={12}
+                            xl={12}
+                            xxl={12}
+                            className={styles.age}
+                          >
+                            <span style={{ color: '#565656' }}>{offerBundle[0].bundleLabel}</span>
+                            {companyType === '02' ? null : (
+                              <span style={{ color: '#171B21' }}>$ {priceShow}</span>
+                            )}
+                          </Col>
+                          <Col
+                            xs={16}
+                            sm={12}
+                            md={12}
+                            lg={12}
+                            xl={12}
+                            xxl={12}
+                            style={{ paddingBottom: '5px' }}
+                          >
+                            <FormItem className={styles.label}>
+                              {getFieldDecorator(ticketNumberLabel, {
+                                initialValue: ticketNumber,
+                                validateTrigger: '',
+                                rules: [
+                                  {
+                                    required: true,
+                                    message: 'Required',
+                                  },
+                                ],
+                              })(
+                                <div>
+                                  <InputNumber
+                                    max={offerMaxQuantity}
+                                    min={offerMinQuantity}
+                                    value={ticketNumber}
+                                    onChange={value =>
+                                      this.changeTicketNumber(index, value, priceShow)
+                                    }
+                                    parser={value => this.formatInputValue(index, value)}
+                                  />
+                                </div>
+                              )}
+                            </FormItem>
+                          </Col>
+                        </Col>
+                      );
+                    })}
+                    {companyType === '02' ? null : (
+                      <Col span={24} className={styles.totalMoney}>
+                        <Col style={{ textAlign: 'right', paddingRight: '10px' }}>Total:</Col>
+                        <Col style={{ textAlign: 'right', minWidth: '135px' }}>
+                          {this.calculateTotalPrice()}
+                        </Col>
+                      </Col>
+                    )}
+                  </Form>
+                </Row>
+              </div>
+              <Col
+                span={24}
+                style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
+                className={styles.title}
+              >
+                DELIVERY INFORMATION
+              </Col>
+              <Col span={24} style={{ marginTop: '5px', paddingLeft: '0' }}>
+                <div style={{ color: '#171b21' }}>
+                  Kindly provide guest name and contact number / email address REQUIRED for all USS
+                  and SEAA VIP Experience Booking.
+                </div>
+              </Col>
+              {hasApspTicket ? (
+                <Form>
+                  <Col span={24} className={styles.deliverColInline} style={{ marginTop: '10px' }}>
+                    <FormItem className={styles.label} label="Guest Gender" colon={false}>
+                      {getFieldDecorator('gender', {
+                        initialValue: gender,
+                        validateTrigger: '',
+                        rules: [
+                          {
+                            required: true,
+                            message: 'Required',
+                          },
+                        ],
+                      })(
+                        <div>
+                          <Radio.Group
+                            value={gender}
+                            onChange={e => {
+                              this.changeDeliveryInformation('gender', e.target.value);
+                            }}
+                          >
+                            <Radio value="Male">Male</Radio>
+                            <Radio value="Female">Female</Radio>
+                          </Radio.Group>
+                        </div>
+                      )}
+                    </FormItem>
+                  </Col>
+                  <Col span={24} className={styles.deliverColInline}>
+                    <FormItem className={styles.label} label="Guest Birth" colon={false}>
+                      {getFieldDecorator('birth', {
+                        initialValue: birth,
+                        validateTrigger: '',
+                        rules: [
+                          {
+                            required: true,
+                            message: 'Required',
+                          },
+                        ],
+                      })(
+                        <div>
+                          <DatePicker
+                            value={birth ? moment(birth) : null}
+                            showToday={false}
+                            format={['DD-MMM-YYYY', 'DDMMYYYY']}
+                            placeholder="Select Date"
+                            onChange={date => {
+                              this.changeDeliveryInformation('birth', date);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  </Col>
+                  <Col span={24} className={styles.deliverCol}>
+                    <FormItem className={styles.label} label="Guest Address" colon={false}>
+                      {getFieldDecorator('address', {
+                        initialValue: address,
+                        validateTrigger: '',
+                        rules: [
+                          {
+                            required: true,
+                            message: 'Required',
+                          },
+                        ],
+                      })(
+                        <div>
+                          <Input
+                            value={address}
+                            placeholder="Please Enter"
+                            onChange={e => {
+                              this.changeDeliveryInformation('address', e.target.value);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  </Col>
+                  <Col span={24} className={styles.deliverCol}>
+                    <FormItem className={styles.label} label="Card Display Name" colon={false}>
+                      {getFieldDecorator('cardDisplayName', {
+                        initialValue: cardDisplayName,
+                        validateTrigger: '',
+                        rules: [
+                          {
+                            required: true,
+                            message: 'Required',
+                          },
+                        ],
+                      })(
+                        <div>
+                          <Input
+                            value={cardDisplayName}
+                            placeholder="Please Enter"
+                            onChange={e => {
+                              this.changeDeliveryInformation('cardDisplayName', e.target.value);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  </Col>
                 </Form>
-              </Row>
-            </div>
-            <Col
-              span={24}
-              style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
-              className={styles.title}
-            >
-              DELIVERY INFORMATION
-            </Col>
-            <Form>
-              <Col span={24} className={styles.deliverCol}>
-                <FormItem className={styles.label} label="Country of Residence" colon={false}>
-                  {getFieldDecorator('country', {
-                    validateTrigger: '',
-                    rules: [
-                      {
-                        required: true,
-                        message: 'Required',
-                      },
-                    ],
-                  })(
-                    <div>
-                      <Select
-                        value={country}
-                        showSearch
-                        allowClear
-                        placeholder="Please Select"
-                        style={{ width: '100%' }}
-                        onChange={value => this.changeDeliveryInformation('country', value)}
-                        filterOption={(input, option) =>
-                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }
-                      >
-                        {countrys.map((item, index) => {
-                          const { lookupName } = item;
-                          return (
-                            <Option key={`country_${index}`} value={lookupName}>
-                              {lookupName}
-                            </Option>
-                          );
-                        })}
-                      </Select>
-                    </div>
-                  )}
-                </FormItem>
-              </Col>
-              <Col span={24} className={styles.deliverCol}>
-                <FormItem className={styles.label} label="TA Reference No." colon={false}>
-                  {getFieldDecorator('taNo', {
-                    initialValue: taNo,
-                    validateTrigger: '',
-                    rules: [
-                      {
-                        required: false,
-                        message: 'Required',
-                      },
-                    ],
-                  })(
-                    <div>
-                      <Input
-                        allowClear
-                        placeholder="Please Enter"
-                        style={{ width: '100%' }}
-                        value={taNo}
-                        onChange={e => {
-                          this.changeDeliveryInformation('taNo', e.target.value);
-                        }}
-                      />
-                    </div>
-                  )}
-                </FormItem>
-              </Col>
-              <Col span={24} className={styles.deliverCol}>
-                <Col span={12} className={styles.firstName}>
-                  <FormItem className={styles.label} label="Guest First Name" colon={false}>
-                    {getFieldDecorator('guestFirstName', {
-                      initialValue: guestFirstName,
+              ) : null}
+              <Form>
+                <Col span={24} className={styles.deliverCol}>
+                  <FormItem className={styles.label} label="Country of Residence" colon={false}>
+                    {getFieldDecorator('country', {
                       validateTrigger: '',
                       rules: [
                         {
-                          required: nameAndEmailRequired,
+                          required: true,
+                          message: 'Required',
+                        },
+                      ],
+                    })(
+                      <div>
+                        <Select
+                          value={country}
+                          showSearch
+                          allowClear
+                          placeholder="Please Select"
+                          style={{ width: '100%' }}
+                          onChange={value => this.changeDeliveryInformation('country', value)}
+                          filterOption={(input, option) =>
+                            option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          }
+                        >
+                          {countrys.map((item, index) => {
+                            const key = `country_${index}`;
+                            const { lookupName } = item;
+                            return (
+                              <Option key={key} value={lookupName}>
+                                {lookupName}
+                              </Option>
+                            );
+                          })}
+                        </Select>
+                      </div>
+                    )}
+                  </FormItem>
+                </Col>
+                <Col span={24} className={styles.deliverCol}>
+                  <FormItem
+                    className={styles.label}
+                    label="Travel Agent Reference No."
+                    colon={false}
+                  >
+                    {getFieldDecorator('taNo', {
+                      initialValue: taNo,
+                      validateTrigger: '',
+                      rules: [
+                        {
+                          required: false,
                           message: 'Required',
                         },
                       ],
@@ -450,23 +652,77 @@ class ToCart extends Component {
                           allowClear
                           placeholder="Please Enter"
                           style={{ width: '100%' }}
-                          value={guestFirstName}
+                          value={taNo}
                           onChange={e => {
-                            this.changeDeliveryInformation('guestFirstName', e.target.value);
+                            this.changeDeliveryInformation('taNo', e.target.value);
                           }}
                         />
                       </div>
                     )}
                   </FormItem>
                 </Col>
-                <Col span={12} className={styles.lastName}>
-                  <FormItem className={styles.label} label="Guest Last Name" colon={false}>
-                    {getFieldDecorator('guestLastName', {
-                      initialValue: guestLastName,
+                <Col span={24} className={styles.deliverCol}>
+                  <Col span={12} className={styles.firstName}>
+                    <FormItem className={styles.label} label="Guest First Name" colon={false}>
+                      {getFieldDecorator('guestFirstName', {
+                        initialValue: guestFirstName,
+                        validateTrigger: '',
+                        rules: [
+                          {
+                            required: hasApspTicket,
+                            message: 'Required',
+                          },
+                        ],
+                      })(
+                        <div>
+                          <Input
+                            allowClear
+                            placeholder="Please Enter"
+                            style={{ width: '100%' }}
+                            value={guestFirstName}
+                            onChange={e => {
+                              this.changeDeliveryInformation('guestFirstName', e.target.value);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  </Col>
+                  <Col span={12} className={styles.lastName}>
+                    <FormItem className={styles.label} label="Guest Last Name" colon={false}>
+                      {getFieldDecorator('guestLastName', {
+                        initialValue: guestLastName,
+                        validateTrigger: '',
+                        rules: [
+                          {
+                            required: hasApspTicket,
+                            message: 'Required',
+                          },
+                        ],
+                      })(
+                        <div>
+                          <Input
+                            allowClear
+                            placeholder="Please Enter"
+                            style={{ width: '100%' }}
+                            value={guestLastName}
+                            onChange={e => {
+                              this.changeDeliveryInformation('guestLastName', e.target.value);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                  </Col>
+                </Col>
+                <Col span={24} className={styles.deliverCol}>
+                  <FormItem className={styles.label} label="Customer Contact No." colon={false}>
+                    {getFieldDecorator('customerContactNo', {
+                      initialValue: customerContactNo,
                       validateTrigger: '',
                       rules: [
                         {
-                          required: nameAndEmailRequired,
+                          required: hasApspTicket,
                           message: 'Required',
                         },
                       ],
@@ -476,84 +732,58 @@ class ToCart extends Component {
                           allowClear
                           placeholder="Please Enter"
                           style={{ width: '100%' }}
-                          value={guestLastName}
+                          value={customerContactNo}
                           onChange={e => {
-                            this.changeDeliveryInformation('guestLastName', e.target.value);
+                            this.changeDeliveryInformation('customerContactNo', e.target.value);
                           }}
                         />
                       </div>
                     )}
                   </FormItem>
                 </Col>
-              </Col>
-              <Col span={24} className={styles.deliverCol}>
-                <FormItem className={styles.label} label="Customer Contact No." colon={false}>
-                  {getFieldDecorator('customerContactNo', {
-                    initialValue: customerContactNo,
-                    validateTrigger: '',
-                    rules: [
-                      {
-                        required: nameAndEmailRequired,
-                        message: 'Required',
-                      },
-                    ],
-                  })(
-                    <div>
-                      <Input
-                        allowClear
-                        placeholder="Please Enter"
-                        style={{ width: '100%' }}
-                        value={customerContactNo}
-                        onChange={e => {
-                          this.changeDeliveryInformation('customerContactNo', e.target.value);
-                        }}
-                      />
-                    </div>
-                  )}
-                </FormItem>
-              </Col>
-              <Col span={24} className={styles.deliverCol} style={{ marginBottom: '5px' }}>
-                <FormItem className={styles.label} label="Customer Email Address" colon={false}>
-                  {getFieldDecorator('customerEmailAddress', {
-                    initialValue: customerEmailAddress,
-                    validateTrigger: '',
-                    rules: [
-                      {
-                        required: nameAndEmailRequired,
-                        message: 'Required',
-                      },
-                    ],
-                  })(
-                    <div>
-                      <Input
-                        allowClear
-                        placeholder="Please Enter"
-                        style={{ width: '100%' }}
-                        value={customerEmailAddress}
-                        onChange={e => {
-                          this.changeDeliveryInformation('customerEmailAddress', e.target.value);
-                        }}
-                      />
-                    </div>
-                  )}
-                </FormItem>
-              </Col>
-            </Form>
-            <div className={styles.itemTC}>
-              <Checkbox
-                checked={checkTermsAndCondition}
-                onChange={this.changeCheckTermsAndCondition}
-              />
-              <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
-                Terms and Conditions &gt;
-              </span>
-            </div>
+                <Col span={24} className={styles.deliverCol} style={{ marginBottom: '5px' }}>
+                  <FormItem className={styles.label} label="Customer Email Address" colon={false}>
+                    {getFieldDecorator('customerEmailAddress', {
+                      initialValue: customerEmailAddress,
+                      validateTrigger: '',
+                      rules: [
+                        {
+                          required: false,
+                          message: 'Required',
+                        },
+                      ],
+                    })(
+                      <div>
+                        <Input
+                          allowClear
+                          placeholder="Please Enter"
+                          style={{ width: '100%' }}
+                          value={customerEmailAddress}
+                          onChange={e => {
+                            this.changeDeliveryInformation('customerEmailAddress', e.target.value);
+                          }}
+                        />
+                      </div>
+                    )}
+                  </FormItem>
+                </Col>
+              </Form>
+              <div className={styles.itemTC}>
+                <Checkbox
+                  checked={checkTermsAndCondition}
+                  onChange={this.changeCheckTermsAndCondition}
+                />
+                <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
+                  Terms and Conditions &gt;
+                </span>
+              </div>
+            </Spin>
           </div>
           <div className={styles.formControl}>
             <Button onClick={() => onClose()} style={{ marginRight: 8, width: 60 }}>
               Cancel
             </Button>
-            <Button onClick={this.order} type="primary" style={{ width: 60 }}>
+            <Button onClick={this.order} type="primary" style={{ minWidth: 60 }} loading={loading}>
               Order
             </Button>
           </div>

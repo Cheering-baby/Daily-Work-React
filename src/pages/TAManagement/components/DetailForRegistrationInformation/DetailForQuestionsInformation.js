@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Row } from 'antd';
+import { Col, Descriptions, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
@@ -49,40 +49,19 @@ const DetailForQuestionsInformation = props => {
           <span className={styles.DetailTitle}>{formatMessage({ id: 'QUESTIONS' })}</span>
         </Col>
       </Row>
-      <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
-          <div className={styles.detailRightStyle}>
-            <span>{formatMessage({ id: 'CUSTOMER_NATIONALITY' })}</span>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
-          <div className={styles.detailLeftStyle}>
-            <span>{getTopNationalitiesStr(countryList, companyInfo.topNationalities)}</span>
-          </div>
-        </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
-          <div className={styles.detailRightStyle}>
-            <span>{formatMessage({ id: 'QUESTIONS_Q_ONE' })}</span>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
-          <div className={styles.detailLeftStyle}>
-            <span>{volumeOne}</span>
-          </div>
-        </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
-          <div className={styles.detailRightStyle}>
-            <span>{formatMessage({ id: 'QUESTIONS_Q_TWO' })}</span>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
-          <div className={styles.detailLeftStyle}>
-            <span>{volumeTwo}</span>
-          </div>
+      <Row type="flex" justify="space-around" className={styles.detailContent}>
+        <Col span={24}>
+          <Descriptions className={styles.descriptionsStyle} column={1}>
+            <Descriptions.Item label={formatMessage({ id: 'CUSTOMER_NATIONALITY' })}>
+              {getTopNationalitiesStr(countryList, companyInfo.topNationalities)}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'QUESTIONS_Q_ONE' })}>
+              {volumeOne}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'QUESTIONS_Q_TWO' })}>
+              {volumeTwo}
+            </Descriptions.Item>
+          </Descriptions>
         </Col>
       </Row>
     </React.Fragment>

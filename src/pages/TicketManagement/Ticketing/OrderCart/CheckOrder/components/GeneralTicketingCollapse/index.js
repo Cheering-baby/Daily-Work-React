@@ -6,9 +6,9 @@ import OrderItemCollapse from './components/OrderItemCollapse';
 import ToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/AttractionToCart';
 import BundleToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/components/BundleToCart';
 import {
-  arrToString,
   calculateAllProductPrice,
-  calculateTicketPrice,
+  calculateProductPrice,
+  isSessionProduct,
 } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
@@ -48,7 +48,7 @@ class GeneralTicketingCollapse extends Component {
           }
         });
         if (handleResult === 0) {
-          message.success('Delete successfully!');
+          message.success('Deleted successfully.');
         }
       } else {
         dispatch({
@@ -64,7 +64,7 @@ class GeneralTicketingCollapse extends Component {
           },
         }).then(resultCode => {
           if (resultCode === '0') {
-            message.success('Delete successfully!');
+            message.success('Deleted successfully.');
           }
         });
       }
@@ -118,7 +118,7 @@ class GeneralTicketingCollapse extends Component {
         let attractionProduct = [];
         if (editOrderOffer.orderInfo) {
           editOrderOffer.orderInfo.forEach(orderInfoItem => {
-            attractionProduct = [...attractionProduct, {...orderInfoItem.productInfo}];
+            attractionProduct = [...attractionProduct, { ...orderInfoItem.productInfo }];
           });
         }
         const deliverInformation = { ...editOrderOffer.deliveryInfo };
@@ -177,24 +177,7 @@ class GeneralTicketingCollapse extends Component {
     });
   };
 
-  formatInputValue = (index, value, productInventory) => {
-    const {
-      ticketOrderCartMgr: { attractionProduct = [] },
-    } = this.props;
-    const originalValue = attractionProduct[index].ticketNumber;
-    const testReg = /^[1-9]\d*$/;
-    const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
-      return value;
-    }
-    return originalValue;
-  };
-
-  changeTicketNumber = async (index, value, productPrice, productInventory) => {
+  changeTicketNumber = async (index, value) => {
     const {
       dispatch,
       ticketOrderCartMgr: { attractionProduct = [] },
@@ -203,13 +186,8 @@ class GeneralTicketingCollapse extends Component {
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
+    if (value === '' || testZero.test(value) || testReg.test(value)) {
       attractionProductCopy[index].ticketNumber = value;
-      attractionProductCopy[index].price = calculateTicketPrice(value, productPrice);
       dispatch({
         type: 'ticketOrderCartMgr/save',
         payload: {
@@ -236,6 +214,136 @@ class GeneralTicketingCollapse extends Component {
     });
   };
 
+  orderDolOffer = () => {
+    const {
+      dispatch,
+      ticketOrderCartMgr: {
+        orderIndex,
+        offerIndex,
+        deliverInformation = {},
+        attractionProduct = [],
+        editOrderOffer,
+        generalTicketOrderData,
+      },
+    } = this.props;
+
+    const orderDataGroup = generalTicketOrderData[orderIndex];
+    const { themeParkCode, themeParkName } = orderDataGroup;
+
+    const detail = editOrderOffer.offerInfo;
+    let offerConstrain = 'offer';
+    editOrderOffer.offerInfo.productGroup.forEach(item => {
+      if (item.productType === 'Attraction') {
+        item.productGroup.forEach(item2 => {
+          if (item2.groupName === 'Attraction') {
+            offerConstrain = item2.choiceConstrain;
+          }
+        });
+      }
+    });
+    if (offerConstrain === 'Fixed') {
+      this.orderDolOfferFixed();
+      return true;
+    }
+    const { dateOfVisit, numOfGuests, priceRuleId } = detail;
+    const { sessionTime } = editOrderOffer.orderInfo[0];
+    const orderInfoList = [];
+    attractionProduct.forEach(item => {
+      const { ticketNumber, numOfPax } = item;
+      orderInfoList.push({
+        numOfPax,
+        sessionTime: isSessionProduct(priceRuleId, item) ? sessionTime : undefined,
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: ticketNumber || 0,
+        pricePax: calculateProductPrice(item, priceRuleId, sessionTime),
+        productInfo: item,
+      });
+    });
+    const orderData = {
+      themeParkCode,
+      themeParkName,
+      orderType: 'offer',
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderInfo: orderInfoList,
+      offerInfo: { ...detail, selectRuleId: priceRuleId },
+      deliveryInfo: deliverInformation,
+    };
+    dispatch({
+      type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
+      payload: {
+        orderIndex,
+        offerIndex,
+        orderData,
+      },
+    });
+
+    this.onClose();
+  };
+
+  orderDolOfferFixed = () => {
+    const {
+      dispatch,
+      ticketOrderCartMgr: {
+        orderIndex,
+        offerIndex,
+        deliverInformation = {},
+        attractionProduct = [],
+        editOrderOffer,
+        generalTicketOrderData,
+      },
+    } = this.props;
+    const orderDataGroup = generalTicketOrderData[orderIndex];
+    const { themeParkCode, themeParkName } = orderDataGroup;
+    const detail = editOrderOffer.offerInfo;
+    const { dateOfVisit, numOfGuests } = detail;
+    const { offerQuantity } = editOrderOffer.offerInfo;
+    const priceRuleId = editOrderOffer.orderSummary.selectPriceRuleId;
+    const { sessionTime } = editOrderOffer.orderInfo[0];
+    const orderInfoList = [];
+    attractionProduct.forEach(item => {
+      orderInfoList.push({
+        numOfPax: item.numOfPax,
+        sessionTime: isSessionProduct(priceRuleId, item) ? sessionTime : undefined,
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: offerQuantity,
+        pricePax: calculateProductPrice(item, priceRuleId),
+        productInfo: item,
+      });
+    });
+    const orderData = {
+      themeParkCode,
+      themeParkName,
+      orderType: 'offerFixed',
+      orderSummary: {
+        quantity: offerQuantity,
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
+        totalPrice:
+          offerQuantity *
+          calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
+        selectPriceRuleId: priceRuleId,
+      },
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderInfo: orderInfoList,
+      offerInfo: { ...detail },
+      deliveryInfo: deliverInformation,
+    };
+    dispatch({
+      type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
+      payload: {
+        orderIndex,
+        offerIndex,
+        orderData,
+      },
+    });
+    this.onClose();
+  };
+
   order = () => {
     const {
       dispatch,
@@ -245,8 +353,17 @@ class GeneralTicketingCollapse extends Component {
         deliverInformation = {},
         attractionProduct = [],
         editOrderOffer,
+        generalTicketOrderData,
       },
     } = this.props;
+
+    const orderDataGroup = generalTicketOrderData[orderIndex];
+    const { themeParkCode, themeParkName } = orderDataGroup;
+    if (themeParkCode === 'DOL') {
+      this.orderDolOffer();
+      return;
+    }
+
     const detail = editOrderOffer.offerInfo;
     let offerConstrain = 'offer';
     editOrderOffer.offerInfo.productGroup.forEach(item => {
@@ -262,36 +379,42 @@ class GeneralTicketingCollapse extends Component {
       this.orderFixedOffer();
       return true;
     }
-    const { dateOfVisit, numOfGuests } = detail;
-    const { ticketNumber, price } = attractionProduct[0];
-    const themeParkCode = attractionProduct[0].attractionProduct.themePark;
-    const { themeParkName, ageGroup } = attractionProduct[0].attractionProduct;
+    const { dateOfVisit, numOfGuests, priceRuleId } = detail;
     const orderInfo = [];
-    orderInfo.push({
-      ageGroup,
-      quantity: ticketNumber,
-      pricePax: price,
-      productInfo: attractionProduct[0],
+    attractionProduct.forEach(item => {
+      const { ticketNumber } = item;
+      orderInfo.push({
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: ticketNumber || 0,
+        pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
+        productInfo: item,
+      });
     });
     const orderData = {
       themeParkCode,
       themeParkName,
+      orderType: 'offer',
       queryInfo: {
         dateOfVisit,
         numOfGuests,
       },
       orderInfo,
-      offerInfo: { ...detail },
+      offerInfo: { ...detail, selectRuleId: priceRuleId },
       deliveryInfo: deliverInformation,
     };
+    const type =
+      attractionProduct.length === 1
+        ? 'ticketOrderCartMgr/settingGeneralTicketOrderData'
+        : 'ticketOrderCartMgr/settingPackAgeTicketOrderData';
     dispatch({
-      type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
+      type,
       payload: {
         orderIndex,
         offerIndex,
         orderData,
       },
     });
+
     this.onClose();
   };
 
@@ -304,30 +427,42 @@ class GeneralTicketingCollapse extends Component {
         deliverInformation = {},
         attractionProduct = [],
         editOrderOffer,
+        generalTicketOrderData,
       },
     } = this.props;
+    const orderDataGroup = generalTicketOrderData[orderIndex];
+    const { themeParkCode, themeParkName } = orderDataGroup;
     const detail = editOrderOffer.offerInfo;
-    const {dateOfVisit, numOfGuests} = detail;
-    const themeParkCode = attractionProduct[0].attractionProduct.themePark;
-    const {themeParkName} = attractionProduct[0].attractionProduct;
-    const {offerQuantity} = editOrderOffer.offerInfo;
+    const { dateOfVisit, numOfGuests } = detail;
+    const { offerQuantity } = editOrderOffer.offerInfo;
     const priceRuleId = editOrderOffer.orderSummary.selectPriceRuleId;
+    const orderInfo = [];
+    attractionProduct.forEach(item => {
+      orderInfo.push({
+        numOfPax: item.numOfPax,
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: 1,
+        pricePax: calculateProductPrice(item, priceRuleId),
+        productInfo: item,
+      });
+    });
     const orderData = {
       themeParkCode,
       themeParkName,
       orderType: 'offerFixed',
       orderSummary: {
         quantity: offerQuantity,
-        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
-        totalPrice: offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId),
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
+        totalPrice:
+          offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         selectPriceRuleId: priceRuleId,
       },
       queryInfo: {
         dateOfVisit,
         numOfGuests,
       },
-      orderInfo: editOrderOffer.orderInfo,
-      offerInfo: {...detail},
+      orderInfo,
+      offerInfo: { ...detail },
       deliveryInfo: deliverInformation,
     };
     dispatch({
@@ -349,6 +484,7 @@ class GeneralTicketingCollapse extends Component {
         offerIndex,
         deliverInformation = {},
         bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
+        generalTicketOrderData,
       },
     } = this.props;
     const orderInfo = offers.map(item => {
@@ -360,15 +496,17 @@ class GeneralTicketingCollapse extends Component {
       } = item;
       return {
         quantity,
-        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         offerInfo: {
           ...detail,
         },
       };
     });
+    const orderDataGroup = generalTicketOrderData[orderIndex];
+    const { themeParkCode, themeParkName } = orderDataGroup;
     const orderData = {
-      themeParkCode: offers[0].attractionProduct[0].attractionProduct.themePark,
-      themeParkName: offers[0].attractionProduct[0].attractionProduct.themeParkName,
+      themeParkCode,
+      themeParkName,
       orderType: 'offerBundle',
       bundleName,
       queryInfo: {
@@ -389,7 +527,7 @@ class GeneralTicketingCollapse extends Component {
     this.onClose();
   };
 
-  changeBundleOfferNumber = async (index, value, productPrice) => {
+  changeBundleOfferNumber = async (index, value) => {
     const {
       dispatch,
       ticketOrderCartMgr: {
@@ -403,7 +541,6 @@ class GeneralTicketingCollapse extends Component {
     const testZero = /^0$/;
     if (value === '' || testZero.test(value) || testReg.test(value)) {
       offersCopy[index].ticketNumber = value;
-      offersCopy[index].price = value * productPrice;
       dispatch({
         type: 'ticketOrderCartMgr/save',
         payload: {
@@ -421,7 +558,7 @@ class GeneralTicketingCollapse extends Component {
   changeFixedOfferNumbers = value => {
     const {
       dispatch,
-      ticketOrderCartMgr: {editOrderOffer},
+      ticketOrderCartMgr: { editOrderOffer },
     } = this.props;
     const editOrderOfferNew = JSON.parse(JSON.stringify(editOrderOffer));
     editOrderOfferNew.offerInfo.offerQuantity = value;
@@ -439,7 +576,6 @@ class GeneralTicketingCollapse extends Component {
         userCompanyInfo: { companyType },
       },
       ticketOrderCartMgr: {
-        countrys,
         showToCartModalType,
         showToCartModal = false,
         showBundleToCart = false,
@@ -448,24 +584,14 @@ class GeneralTicketingCollapse extends Component {
         attractionProduct = [],
         deliverInformation = {},
         bundleOfferDetail = {},
+        functionActive,
       },
       form,
     } = this.props;
-
     const activeKeyList = this.getActiveKeyList();
-
-    const ticketTypeItems = [];
-    const descriptionItems = [];
-    let ticketType = '';
-    let description = '';
-
+    let eventSession = null;
     if (editOrderOffer && editOrderOffer.orderInfo) {
-      attractionProduct.forEach(item => {
-        ticketTypeItems.push(item.attractionProduct.ticketType);
-        descriptionItems.push(item.attractionProduct.pluDesc);
-      });
-      ticketType = arrToString(ticketTypeItems);
-      description = arrToString(descriptionItems);
+      eventSession = editOrderOffer.orderInfo[0].sessionTime;
     }
 
     return (
@@ -492,6 +618,7 @@ class GeneralTicketingCollapse extends Component {
             >
               <OrderItemCollapse
                 form={form}
+                functionActive={functionActive}
                 companyType={companyType}
                 orderIndex={orderIndex}
                 orderData={orderData}
@@ -507,19 +634,14 @@ class GeneralTicketingCollapse extends Component {
         })}
         {showToCartModal && showToCartModalType === 0 && (
           <ToCart
-            ticketType={ticketType}
-            description={description}
+            eventSession={eventSession}
             attractionProduct={attractionProduct}
             detail={editOrderOffer.offerInfo}
             onClose={this.onClose}
             changeTicketNumber={this.changeTicketNumber}
-            formatInputValue={this.formatInputValue}
-            priceRuleIndex={0}
-            countrys={countrys}
             order={this.order}
             deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
-            initialAcceptTermsAndConditions
             changeFixedOfferNumbers={this.changeFixedOfferNumbers}
             modify
           />
@@ -528,12 +650,11 @@ class GeneralTicketingCollapse extends Component {
           <BundleToCart
             {...bundleOfferDetail}
             onClose={this.onClose}
-            countrys={countrys}
             order={this.bundleOrder}
-            formatInputValue={this.formatInputValue}
             changeTicketNumber={this.changeBundleOfferNumber}
             deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
+            modify
           />
         ) : null}
       </Collapse>

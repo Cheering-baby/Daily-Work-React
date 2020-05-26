@@ -2,11 +2,16 @@ import React from 'react';
 import { Col, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { isNvl } from '@/utils/utils';
-import { getFinanceType } from '@/pages/TAManagement/utils/pubUtils';
+import { getFinanceType, getTelStr } from '@/pages/TAManagement/utils/pubUtils';
 import styles from './TaRegistration.less';
 
 const TaFinanceContact = props => {
-  const { financeContactList = [] } = props;
+  const {
+    financeContactList = [],
+    countryList = [],
+    layoutDisplay = {},
+    valueDisplay = {},
+  } = props;
   const { financeTypeOne, financeTypeTwo } = getFinanceType() || {};
   let financeInfoOne = {};
   if (financeContactList && financeContactList.length > 0) {
@@ -30,40 +35,124 @@ const TaFinanceContact = props => {
         </Col>
       </Row>
       <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
-          <div className={styles.detailRightStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}</span>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
-          <div className={styles.detailLeftStyle}>
-            <span>{!isNvl(financeInfoOne.contactPerson) ? financeInfoOne.contactPerson : '-'}</span>
-          </div>
-        </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
-                <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}</span>
+                <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
-                <span>{!isNvl(financeInfoOne.contactNo) ? financeInfoOne.contactNo : '-'}</span>
+                <span>
+                  {!isNvl(financeInfoOne.contactPerson) ? financeInfoOne.contactPerson : '-'}
+                </span>
               </div>
             </Col>
           </Row>
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
+              <div className={styles.detailRightStyle}>
+                <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_MOBILE_NO' })}</span>
+              </div>
+            </Col>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
+              <div className={styles.detailLeftStyle}>
+                <span>
+                  {getTelStr(
+                    countryList,
+                    financeInfoOne.mobileCountry,
+                    financeInfoOne.mobileNumber
+                  )}
+                </span>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <Row type="flex" justify="space-around">
+        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Row type="flex" justify="space-around">
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
+              <div className={styles.detailRightStyle}>
+                <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}</span>
+              </div>
+            </Col>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
+              <div className={styles.detailLeftStyle}>
+                <span>
+                  {getTelStr(countryList, financeInfoOne.country, financeInfoOne.contactNo)}
+                </span>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Row type="flex" justify="space-around">
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_EMAIL' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>
                   {!isNvl(financeInfoOne.contactEmail) ? financeInfoOne.contactEmail : '-'}
@@ -74,40 +163,124 @@ const TaFinanceContact = props => {
         </Col>
       </Row>
       <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
-          <div className={styles.detailRightStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}</span>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
-          <div className={styles.detailLeftStyle}>
-            <span>{!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}</span>
-          </div>
-        </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
-                <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}</span>
+                <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
-                <span>{!isNvl(financeInfoTwo.contactNo) ? financeInfoTwo.contactNo : '-'}</span>
+                <span>
+                  {!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}
+                </span>
               </div>
             </Col>
           </Row>
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
           <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
+              <div className={styles.detailRightStyle}>
+                <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_MOBILE_NO' })}</span>
+              </div>
+            </Col>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
+              <div className={styles.detailLeftStyle}>
+                <span>
+                  {getTelStr(
+                    countryList,
+                    financeInfoTwo.mobileCountry,
+                    financeInfoTwo.mobileNumber
+                  )}
+                </span>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <Row type="flex" justify="space-around">
+        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Row type="flex" justify="space-around">
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
+              <div className={styles.detailRightStyle}>
+                <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}</span>
+              </div>
+            </Col>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
+              <div className={styles.detailLeftStyle}>
+                <span>
+                  {getTelStr(countryList, financeInfoTwo.country, financeInfoTwo.contactNo)}
+                </span>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Row type="flex" justify="space-around">
+            <Col
+              xs={layoutDisplay.xs}
+              sm={layoutDisplay.sm}
+              md={layoutDisplay.md}
+              lg={layoutDisplay.lg}
+              xl={layoutDisplay.xl}
+              xxl={layoutDisplay.xxl}
+            >
               <div className={styles.detailRightStyle}>
                 <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_EMAIL' })}</span>
               </div>
             </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+            <Col
+              xs={valueDisplay.xs}
+              sm={valueDisplay.sm}
+              md={valueDisplay.md}
+              lg={valueDisplay.lg}
+              xl={valueDisplay.xl}
+              xxl={valueDisplay.xxl}
+            >
               <div className={styles.detailLeftStyle}>
                 <span>
                   {!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}

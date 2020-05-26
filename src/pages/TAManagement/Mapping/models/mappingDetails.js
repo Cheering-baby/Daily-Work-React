@@ -10,6 +10,8 @@ export default {
     queryMappingInfo: {},
     userProfiles: [],
     time: [],
+    createTeamList: [],
+    lintNum: '10',
   },
   effects: {
     *queryMappingDetail({ payload }, { call, put }) {
@@ -31,14 +33,19 @@ export default {
         ...params,
         taId,
       };
-      const { resultCode, resultMsg } = yield call(service.endInvitation, reqParams);
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.endInvitation, reqParams);
       if (resultCode === '0' || resultCode === 0) {
         message.success(formatMessage({ id: 'COMMON_EDITED_SUCCESSFULLY' }));
         // fresh list data
         yield put({
           type: 'mapping/fetchMappingList',
         });
-      } else message.warn(resultMsg, 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
     },
     *addMappingList({ payload }, { call, put }) {
       const { params, taId } = payload;
@@ -46,15 +53,19 @@ export default {
         ...params,
         taId,
       };
-      const { resultCode, resultMsg } = yield call(service.endInvitation, reqParams);
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.endInvitation, reqParams);
       if (resultCode === '0' || resultCode === 0) {
-        message.success(formatMessage({ id: 'COMMON_ADDED_SUCCESSFULLY' }));
-
+        message.success(formatMessage({ id: 'COMMON_MAPPING_SUCCESSFULLY' }));
         // fresh list data
         yield put({
           type: 'mapping/fetchMappingList',
         });
-      } else message.warn(resultMsg, 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
     },
     *querySalePerson(_, { call, put }) {
       const res = yield call(service.querySalePerson);
@@ -81,6 +92,33 @@ export default {
         yield put({ type: 'save', payload: { time: result || [] } });
       } else message.warn(resultMsg, 10);
     },
+    *fetchQueryLintNum(_, { call, put }) {
+      const params = {
+        dictType: '10',
+        dictSubType: '1011',
+      };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.queryDictionary, { ...params });
+      if (resultCode === '0' || resultCode === 0) {
+        if (result && result.length > 0) {
+          const lintNum = result[0].dictName;
+          yield put({ type: 'save', payload: { lintNum: lintNum || '10' } });
+        }
+      } else message.warn(resultMsg, 10);
+    },
+    *fetchQueryCreateTeam(_, { call, put }) {
+      const params = {
+        dictType: '10',
+        dictSubType: '1012',
+      };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.queryDictionary, { ...params });
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({ type: 'save', payload: { createTeamList: result || [] } });
+      } else message.warn(resultMsg, 10);
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -97,6 +135,8 @@ export default {
         type: '',
         queryMappingInfo: {},
         time: [],
+        createTeamList: [],
+        lintNum: '10',
       };
     },
   },

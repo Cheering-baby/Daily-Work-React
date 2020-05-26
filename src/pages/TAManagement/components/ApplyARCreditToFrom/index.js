@@ -38,19 +38,14 @@ class ApplyARCreditToFrom extends PureComponent {
                     }}
                   >
                     <span className={styles.topColCheckBoxMsgTitle}>
-                      {formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT' })}
-                    </span>
-                    <span className={styles.topColCheckBoxMsgNote}>
-                      {formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT_NOTE' })}
+                      <ul>
+                        <li>{formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT' })}</li>
+                        <li>{formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT_NOTE' })}</li>
+                      </ul>
                     </span>
                   </Checkbox>
                 )}
               </Form.Item>
-            </Col>
-          </Row>
-          <Row type="flex" justify="space-around">
-            <Col span={24} className={styles.topColApplicationMsg}>
-              <p>{formatMessage({ id: 'DOWNLOAD_APPLICATION_MESSAGE' })}</p>
             </Col>
           </Row>
         </Col>

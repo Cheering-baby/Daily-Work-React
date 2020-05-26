@@ -25,6 +25,7 @@ const mapStateToProps = store => {
     marketList,
     salesPersonList,
     settlementCycleList,
+    createTeamList,
   } = store.taCommon;
   const {
     otherInfo,
@@ -56,6 +57,7 @@ const mapStateToProps = store => {
     marketList,
     salesPersonList,
     settlementCycleList,
+    createTeamList,
   };
 };
 
@@ -73,6 +75,7 @@ class DetailToTA extends PureComponent {
       payload: { taId: !isNvl(taId) ? taId : null },
     }).then(() => {
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
+      dispatch({ type: 'taCommon/fetchQueryCreateTeam' });
       dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
         if (!isNvl(taId)) {
           dispatch({
@@ -92,29 +95,22 @@ class DetailToTA extends PureComponent {
     });
   }
 
-  getStatusMsg = status => {
+  getStatusMsg = customerInfo => {
+    const { companyInfo = {} } = customerInfo || {};
     let statusStr = 'default';
     let statusTxt = '';
-    switch (status) {
-      case '04':
-        statusStr = 'error';
-        statusTxt = formatMessage({ id: 'TA_STATUS_FAIL' });
-        break;
-      case '03':
-        statusStr = 'processing';
-        statusTxt = formatMessage({ id: 'TA_STATUS_SUCCESS' });
-        break;
-      case '02':
-        statusStr = 'warning';
-        statusTxt = formatMessage({ id: 'TA_STATUS_PENDING_OPERATION' });
-        break;
-      case '01':
+    switch (String(companyInfo.statusName).toLowerCase()) {
+      case 'active':
         statusStr = 'success';
         statusTxt = formatMessage({ id: 'TA_STATUS_ACTIVE' });
         break;
+      case 'inactive':
+        statusStr = 'default';
+        statusTxt = formatMessage({ id: 'TA_STATUS_INACTIVE' });
+        break;
       default:
         statusStr = 'default';
-        statusTxt = formatMessage({ id: 'TA_STATUS_PENDING_OPERATION' });
+        statusTxt = formatMessage({ id: 'TA_STATUS_INACTIVE' });
         break;
     }
     return <Badge status={statusStr} text={statusTxt || null} />;
@@ -138,6 +134,7 @@ class DetailToTA extends PureComponent {
       marketList = [],
       salesPersonList = [],
       settlementCycleList = [],
+      createTeamList = [],
       taInfoLoadingFlag,
       taMappingInfoLoadingFlag,
       taAccountInfoLoadingFlag,
@@ -159,6 +156,7 @@ class DetailToTA extends PureComponent {
       marketList,
       salesPersonList,
       settlementCycleList,
+      createTeamList,
     };
     const breadcrumbArr = [
       {
@@ -202,7 +200,7 @@ class DetailToTA extends PureComponent {
                   <Col span={24}>
                     <Card
                       title={formatMessage({ id: 'ACCOUNTING_INFORMATION' })}
-                      extra={this.getStatusMsg(mappingInfo.status)}
+                      extra={this.getStatusMsg(customerInfo)}
                     >
                       <DetailForAccountingInformation {...detailProps} />
                     </Card>

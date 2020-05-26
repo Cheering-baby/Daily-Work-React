@@ -129,20 +129,34 @@ class GlobalHeaderRight extends PureComponent {
           </div>
         </div>
         <Divider style={{ margin: 0 }} />
-        <Row type="flex" justify="space-around">
-          <Col span={10}>
-            <div className={styles.logout} onClick={() => onMenuClick({ key: 'logout' })}>
-              <Icon type="export" />
-              <FormattedMessage id="menu.account.logout" defaultMessage="logout" />
-            </div>
-          </Col>
-          <Col span={14}>
-            <div className={styles.logout} onClick={() => onMenuClick({ key: 'changePassword' })}>
-              <Icon type="lock" />
-              <FormattedMessage id="menu.account.changePassword" defaultMessage="Change Password" />
-            </div>
-          </Col>
-        </Row>
+        {String(userType) === '01' ? (
+          <Row type="flex" justify="space-around">
+            <Col span={24}>
+              <div className={styles.logout} onClick={() => onMenuClick({ key: 'logout' })}>
+                <Icon type="export" />
+                <FormattedMessage id="menu.account.logout" defaultMessage="logout" />
+              </div>
+            </Col>
+          </Row>
+        ) : (
+          <Row type="flex" justify="space-around">
+            <Col span={10}>
+              <div className={styles.logout} onClick={() => onMenuClick({ key: 'logout' })}>
+                <Icon type="export" />
+                <FormattedMessage id="menu.account.logout" defaultMessage="logout" />
+              </div>
+            </Col>
+            <Col span={14}>
+              <div className={styles.logout} onClick={() => onMenuClick({ key: 'changePassword' })}>
+                <Icon type="lock" />
+                <FormattedMessage
+                  id="menu.account.changePassword"
+                  defaultMessage="Change Password"
+                />
+              </div>
+            </Col>
+          </Row>
+        )}
       </div>
     );
 

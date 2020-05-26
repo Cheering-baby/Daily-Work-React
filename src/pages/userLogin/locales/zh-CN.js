@@ -1,6 +1,6 @@
 export default {
-  TA_RWS_USER: 'TA/RWS USER',
-  SUB_TA: 'SUB-TA',
+  TA_RWS_USER: 'Travel Agent/RWS USER',
+  SUB_TA: 'SUB-Travel Agent',
   USER_LOGIN: '用户名',
   SUB_TA_USER_LOGIN: '用户名',
   TA_COMPANY_NAME: '代理商',

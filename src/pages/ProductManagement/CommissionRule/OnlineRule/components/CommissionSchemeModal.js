@@ -1,10 +1,11 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Row, Col, Button, Icon } from 'antd';
+import { Button, Col, Icon, Modal, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from '../New/index.less';
 
 const drawWidth = 438;
+
 @connect(({ commissionNew, detail }) => ({
   commissionNew,
   detail,
@@ -44,9 +45,9 @@ class AddCommissionSchema extends React.PureComponent {
     });
   };
 
-  showTotal(total) {
+  showTotal = total => {
     return <div>Total {total} items</div>;
-  }
+  };
 
   render() {
     const {
@@ -64,7 +65,7 @@ class AddCommissionSchema extends React.PureComponent {
               <Button style={{ width: 60 }} onClick={this.OK} type="primary">
                 OK
               </Button>
-              <Button onClick={this.cancel} style={{ width: 60 }} onClick={this.cancel}>
+              <Button style={{ width: 60 }} onClick={this.cancel}>
                 Cancel
               </Button>
             </div>

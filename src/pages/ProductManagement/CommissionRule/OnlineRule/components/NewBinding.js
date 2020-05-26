@@ -10,11 +10,11 @@ import NewOfflineplu from './NewOfflineplu';
 }))
 class newBinding extends Component {
   render() {
-    const { type, tplId, handleOk } = this.props;
+    const { type, tplId = null, handleOk } = this.props;
     return (
       <div>
         <NewOnlineOffer type={type} tplId={tplId} />
-        <NewOfflineplu type={type} handleOk={handleOk} />
+        <NewOfflineplu type={type} tplId={tplId} handleOk={handleOk} />
       </div>
     );
   }

@@ -324,7 +324,6 @@ class Restmodal extends Component {
                   ],
                 })(<Input type="password" onBlur={this.handleConfirmBlur} />)}
               </FormItem>
-              g
             </Col>
           </div>
         </Row>

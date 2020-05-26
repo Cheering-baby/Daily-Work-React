@@ -461,6 +461,17 @@ export function isNvl(obj) {
   return false;
 }
 
+/**
+ * @param inputStr
+ * @returns
+ */
+export function isNumber(inputStr) {
+  if (!isNvl(inputStr)) {
+    return !isNaN(parseFloat(inputStr));
+  }
+  return false;
+}
+
 export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown, afterDown) {
   if (beforeDown) {
     beforeDown();
@@ -470,6 +481,7 @@ export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown
     body: JSON.stringify(reqParamJson),
     credentials: 'include',
     headers: new Headers({
+      Accept: 'application/json',
       'Content-Type': 'application/json',
       'App-Code': 'PAMS',
     }),
@@ -524,4 +536,31 @@ export function getUrl() {
 export function getLocalUrl() {
   return `${window.location.protocol}//${window.location.host}${defaultSettings.publicPath}`;
   // return 'http://localhost:8000';
+}
+
+export function reBytesStr(str, L) {
+  if (isNvl(str)) {
+    return '';
+  }
+  let result = '';
+  const strlen = str.length;
+  const chrlen = str.replace(/[^\x00-\xff]/g, '**').length;
+
+  if (chrlen <= L) {
+    return str;
+  }
+
+  for (let i = 0, j = 0; i < strlen; i += 1) {
+    const chr = str.charAt(i);
+    if (/[\x00-\xff]/.test(chr)) {
+      j += 1;
+    } else {
+      j += 2;
+    }
+    if (j <= L) {
+      result += chr;
+    } else {
+      return result;
+    }
+  }
 }

@@ -6,6 +6,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import constants from '../constants';
 import styles from '../index.less';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 const { Option } = Select;
 
@@ -39,16 +40,23 @@ const colProps1 = {
 }))
 class Index extends React.PureComponent {
   componentDidMount() {
-    const {
-      dispatch,
-      global: { currentUser = {} },
-    } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'userMgr/queryAllCompany',
     });
 
-    const { userType = '' } = currentUser;
-    if (userType === constants.RWS_USER_TYPE) {
+    if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE])) {
+      dispatch({
+        type: 'userMgr/querySubTAList',
+      });
+    }
+
+    if (
+      PrivilegeUtil.hasAnyPrivilege([
+        PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+        PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
+      ])
+    ) {
       dispatch({
         type: 'userMgr/queryCategories',
       });
@@ -90,8 +98,12 @@ class Index extends React.PureComponent {
       payload: {
         searchUserCode: undefined,
         searchCompanyId: undefined,
+        searchSubCompanyId: undefined,
         searchCategoryId: undefined,
         searchCustomerGroupId: undefined,
+        subTaCompanyList: [],
+        subCompanyMap: new Map([]),
+        customerGroups: [],
       },
     }).then(() => {
       form.resetFields();
@@ -106,6 +118,17 @@ class Index extends React.PureComponent {
       userMgr: { companyList = [] },
     } = this.props;
     return companyList.map(item => (
+      <Option key={item.id} value={item.id}>
+        {item.companyName}
+      </Option>
+    ));
+  };
+
+  getSubCompanyOptions = () => {
+    const {
+      userMgr: { subTaCompanyList = [] },
+    } = this.props;
+    return subTaCompanyList.map(item => (
       <Option key={item.id} value={item.id}>
         {item.companyName}
       </Option>
@@ -163,6 +186,7 @@ class Index extends React.PureComponent {
       type: 'userMgr/saveData',
       payload: {
         searchCategoryId: value,
+        searchCustomerGroupId: undefined,
       },
     });
   };
@@ -179,22 +203,53 @@ class Index extends React.PureComponent {
   };
 
   companyChange = value => {
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      form: { setFields },
+    } = this.props;
+    setFields({
+      subCompanyIds: {
+        value: undefined,
+      },
+    });
     dispatch({
       type: 'userMgr/saveData',
       payload: {
         searchCompanyId: value,
+        searchSubCompanyId: undefined,
+        searchCategoryId: undefined,
+        searchCustomerGroupId: undefined,
+        subTaCompanyList: [],
+        subCompanyMap: new Map([]),
       },
     });
     if (value) {
-      dispatch({
-        type: 'userMgr/saveData',
-        payload: {
-          categoryId: undefined,
-          customerGroupId: undefined,
-        },
-      });
+      // have privilege and  not  rws company
+      if (
+        PrivilegeUtil.hasAnyPrivilege([
+          PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+          PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+        ]) &&
+        value !== -1
+      ) {
+        dispatch({
+          type: 'userMgr/querySubTACompanies',
+          payload: {
+            companyId: value,
+          },
+        });
+      }
     }
+  };
+
+  subCompanyChange = value => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'userMgr/saveData',
+      payload: {
+        searchSubCompanyId: value,
+      },
+    });
   };
 
   customerGroupChange = value => {
@@ -211,7 +266,13 @@ class Index extends React.PureComponent {
     const {
       global: { currentUser = {} },
       form: { getFieldDecorator },
-      userMgr: { searchUserCode = '', searchCompanyId, searchCategoryId, searchCustomerGroupId },
+      userMgr: {
+        searchUserCode = '',
+        searchCompanyId,
+        searchSubCompanyId,
+        searchCategoryId,
+        searchCustomerGroupId,
+      },
     } = this.props;
     const { userType = '' } = currentUser;
     const btnColProps = userType === constants.RWS_USER_TYPE ? colProps1 : colProps;
@@ -233,23 +294,56 @@ class Index extends React.PureComponent {
               </Form.Item>
             </Col>
             <Col {...colProps}>
-              {userType === constants.SUB_TA_USER_TYPE ? null : (
+              {PrivilegeUtil.hasAnyPrivilege([
+                PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+                PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
+                PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+              ]) ? (
                 <Form.Item {...formItemLayout} style={{ width: '100%' }}>
                   {getFieldDecorator(`companyIds`, {
                     initialValue: searchCompanyId,
                   })(
                     <Select
+                      showSearch
                       onChange={this.companyChange}
                       placeholder={formatMessage({ id: 'COMPANY_NAME' })}
                       style={{ width: '100%' }}
                       allowClear
+                      filterOption={(input, option) =>
+                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
                     >
                       {this.getCompanyOptions()}
                     </Select>
                   )}
                 </Form.Item>
-              )}
+              ) : null}
             </Col>
+            {PrivilegeUtil.hasAnyPrivilege([
+              PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+              PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+            ]) && searchCompanyId !== -1 ? (
+              <Col {...colProps}>
+                <Form.Item {...formItemLayout} style={{ width: '100%' }}>
+                  {getFieldDecorator(`subCompanyIds`, {
+                    initialValue: searchSubCompanyId,
+                  })(
+                    <Select
+                      showSearch
+                      onChange={this.subCompanyChange}
+                      placeholder={formatMessage({ id: 'SUB_COMPANY_NAME' })}
+                      style={{ width: '100%' }}
+                      allowClear
+                      filterOption={(input, option) =>
+                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
+                    >
+                      {this.getSubCompanyOptions()}
+                    </Select>
+                  )}
+                </Form.Item>
+              </Col>
+            ) : null}
             {userType !== constants.RWS_USER_TYPE ? <Col {...colProps} /> : null}
             {userType === constants.SUB_TA_USER_TYPE ? <Col {...colProps} /> : null}
             <Col {...colProps}>

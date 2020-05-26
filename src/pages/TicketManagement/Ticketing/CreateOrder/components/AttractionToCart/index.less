@@ -51,6 +51,13 @@
   font-weight: 600;
 }
 
+.ageGroup {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 250px;
+}
+
 .totalMoney {
   margin-left: -20px;
   width: calc(100% + 40px);
@@ -62,16 +69,21 @@
   height: 40px;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   font-weight: 600;
 }
 
 .product {
   :global {
-    .ant-form-item {
-      height: 35px;
-    }
     .ant-form-item-control-wrapper {
       padding-top: 6px;
+    }
+    .ant-form-item-label {
+      width: 82px;
+      margin-top: 5px;
+    }
+    .ant-form-item-no-colon {
+      color: #858585;
     }
   }
 }
@@ -85,6 +97,23 @@
 .deliverCol {
   height: 70px;
   padding: 0 !important;
+}
+
+.deliverColInline {
+  height: 45px;
+  padding: 0 !important;
+  :global {
+    .ant-form-item {
+      display: flex;
+    }
+    .ant-form-item-label {
+      width: 145px;
+      text-align: left;
+    }
+    .ant-radio-group {
+      margin-top: 6px;
+    }
+  }
 }
 
 .firstName {

@@ -1,11 +1,23 @@
+@import '../../../../../theme/screen.less';
 
 .orderTitleStyles {
   width: 100%;
 
-  .orderTitleButtonStyles {
-    display: inline-block;
-    float: right;
-    padding-right: 8px;
+  @media screen and (max-width: @screenSm) {
+    .orderTitleButtonStyles {
+      display: inline-block;
+      float: right;
+      padding-right: 8px;
+      padding-top: 10px;
+    }
+  }
+
+  @media screen and (min-width: @screenSmMin) {
+    .orderTitleButtonStyles {
+      display: inline-block;
+      float: right;
+      padding-right: 8px;
+    }
   }
 }
 
@@ -68,4 +80,17 @@
   right: 0;
   bottom: 0;
   padding: 24px 32px;
+}
+
+.tableSpan {
+  white-space: pre;
+}
+
+.statusRadiusStyle {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 10px;
+  margin-right: 6px;
+  margin-bottom: 1px;
 }

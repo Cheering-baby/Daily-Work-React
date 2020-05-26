@@ -1,12 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import moment from 'moment';
-import {Button, Col, message, Modal, Row, Spin, Table, Tooltip} from 'antd';
-import {formatMessage} from 'umi/locale';
+import { Button, Col, message, Modal, Row, Spin, Table, Tooltip } from 'antd';
+import { formatMessage } from 'umi/locale';
 import router from 'umi/router';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '../../components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
 import SearchCondition from './components/SearchCondition';
 import Card from '../../components/Card';
@@ -16,6 +16,8 @@ import ExportVID from './components/ExPortVID';
 import Detail from './components/Detail';
 import PaymentModal from './components/PaymentModal';
 import PaginationComp from './components/PaginationComp';
+import Audit from './components/Audit';
+import PaymentPromptModal from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaymentPromptModal';
 
 @connect(({ queryOrderMgr, loading, global }) => ({
   queryOrderMgr,
@@ -23,13 +25,21 @@ import PaginationComp from './components/PaginationComp';
   tableLoading: loading.effects['queryOrderMgr/queryTransactions'],
   pageLoading:
     loading.effects['revalidationRequestMgr/queryBookingDetail'] ||
-    loading.effects['refundRequestMgr/queryBookingDetail'],
+    loading.effects['refundRequestMgr/queryBookingDetail'] ||
+    loading.effects['queryOrderMgr/download'] ||
+    loading.effects['queryOrderMgr/resubmit'] ||
+    loading.effects['exportVIDMgr/downloadETicket'] ||
+    loading.effects['updateOrderMgr/update'] ||
+    loading.effects['sendETicketMgr/sendEmail'] ||
+    loading.effects['auditOrderMgr/audit'],
 }))
 class QueryOrder extends Component {
   columns = [
     {
       title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'PAMS_TRANSACTION_NO' })}</span>
+        <span className={styles.tableTitle}>
+          {formatMessage({ id: 'PARTNERS_TRANSACTION_NO' })}
+        </span>
       ),
       dataIndex: 'bookingNo',
       key: 'bookingNo',
@@ -41,12 +51,23 @@ class QueryOrder extends Component {
       ),
     },
     {
-      title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'GALAXY_BOOKING_NO' })}</span>
-      ),
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'GALAXY_ORDER_NO' })}</span>,
       key: 'galaxyBookingNo',
       width: '160px',
       render: (_, record) => this.showGalaxyBookingNo(record),
+    },
+    {
+      title: (
+        <span className={styles.tableTitle}>{formatMessage({ id: 'ORIGINAL_ORDER_NO' })}</span>
+      ),
+      dataIndex: 'originalOrderNo',
+      key: 'originalOrderNo',
+      width: '160px',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'ORDER_TYPE' })}</span>,
@@ -67,58 +88,30 @@ class QueryOrder extends Component {
       ),
     },
     {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'TXN_DATE' })}</span>,
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'ORDER_DATE' })}</span>,
       dataIndex: 'createTime',
       key: 'createTime',
-      width: '100px',
+      width: '160px',
       render: text => this.showTxnDate(text),
     },
     {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'GUEST_NAME' })}</span>,
-      key: 'guestName',
+      title: <span className={styles.tableTitle}>First Name</span>,
+      key: 'firstName',
       width: '110px',
-      render: (text, record) => {
-        if (record.firstName || record.lastName) {
-          let guestName = '';
-          if (record.firstName && record.lastName) {
-            guestName = `${record.firstName} ${record.lastName}`;
-          } else {
-            guestName = record.firstName ? record.firstName : record.lastName;
-          }
-          return (
-            <Tooltip
-              placement="topLeft"
-              title={<span style={{ whiteSpace: 'pre-wrap' }}>{guestName}</span>}
-            >
-              <span>{guestName}</span>
-            </Tooltip>
-          );
-        }
-      },
+      render: (_, record) => this.showOrderDeliveryName(record, 'firstName'),
     },
     {
-      title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'ORIGINAL_ORDER_NO' })}</span>
-      ),
-      dataIndex: 'originalOrderNo',
-      key: 'originalOrderNo',
-      width: '160px',
-      render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span className={styles.tableSpan}>{text}</span>
-        </Tooltip>
-      ),
+      title: <span className={styles.tableTitle}>Last Name</span>,
+      key: 'lastName',
+      width: '110px',
+      render: (_, record) => this.showOrderDeliveryName(record, 'lastName'),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
       dataIndex: 'status',
       key: 'status',
       width: '100px',
-      render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span className={styles.tableSpan}>{text}</span>
-        </Tooltip>
-      ),
+      render: (_, record) => this.showStatus(record),
     },
     {
       title: (
@@ -135,48 +128,33 @@ class QueryOrder extends Component {
     },
   ];
 
-  detailColumns = [
-    {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'CONFIRMATION_NO' })}</span>,
-      dataIndex: 'confirmationNo',
-      key: 'confirmationNo',
-      render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span className={styles.tableSpan}>{text}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'SUB_SYSTEM' })}</span>,
-      dataIndex: 'salesChannel',
-      render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span className={styles.tableSpan}>{text}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'TOTAL_AMOUNT' })}</span>,
-      dataIndex: 'totalAmount',
-      render: text => {
-        if (text) {
-          return `${text}(SGD)`;
-        }
-        return '';
-      },
-    },
-    {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'DATE_OF_VISIT' })}</span>,
-      dataIndex: 'visitDate',
-      render: text => this.showVisitDate(text),
-    },
-  ];
-
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'queryOrderMgr/queryTransactions',
-    });
+    const {
+      dispatch,
+      location: {
+        query: { orderNo },
+      },
+      queryOrderMgr: { searchConditions },
+    } = this.props;
+
+    if (orderNo) {
+      dispatch({
+        type: 'queryOrderMgr/save',
+        payload: {
+          searchConditions: {
+            ...searchConditions,
+            bookingId: orderNo,
+          },
+        },
+      });
+      dispatch({
+        type: 'queryOrderMgr/queryTransactions',
+      });
+    } else {
+      dispatch({
+        type: 'queryOrderMgr/queryTransactions',
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -185,6 +163,57 @@ class QueryOrder extends Component {
       type: 'queryOrderMgr/resetData',
     });
   }
+
+  showOrderDeliveryName = (record, flag) => {
+    const { offInstances = [] } = record;
+    if (offInstances.length > 0) {
+      let text = '';
+      const { deliveryFirstName, deliveryLastName } = offInstances[0];
+      if (flag === 'firstName') {
+        text = deliveryFirstName;
+      } else if (flag === 'lastName') {
+        text = deliveryLastName;
+      }
+      return (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      );
+    }
+  };
+
+  showStatus = record => {
+    const { status, transType } = record;
+    let statusDisplay = status;
+    if (status === 'Complete') {
+      statusDisplay = 'Confirmed';
+    }
+    if (status === 'Confirmed') {
+      if (transType === 'revalidation') {
+        statusDisplay = 'Pending order No.';
+      }
+      if (transType === 'refund') {
+        statusDisplay = 'Pending Refund';
+      }
+    }
+    if (status === 'PendingApproval') {
+      statusDisplay = 'Pending Approval';
+    }
+    if (status === 'WaitingForPaying') {
+      statusDisplay = 'Pending Payment';
+    }
+    if (status === 'PendingTopup') {
+      statusDisplay = 'Pending Topup';
+    }
+    return (
+      <Tooltip
+        placement="topLeft"
+        title={<span style={{ whiteSpace: 'pre-wrap' }}>{statusDisplay}</span>}
+      >
+        <span className={styles.tableSpan}>{statusDisplay}</span>
+      </Tooltip>
+    );
+  };
 
   showGalaxyBookingNo = record => {
     const { productInstances } = record;
@@ -253,23 +282,92 @@ class QueryOrder extends Component {
     return null;
   };
 
-  expandedRowRender = record => {
-    const { productInstances } = record;
+  expandedRowRender = (record, userType) => {
+    const { offInstances, productInstances } = record;
     productInstances.map(e => {
       Object.assign(e, {
         key: e.confirmationNo,
       });
       return e;
     });
+    let deliveryMode = 'VID';
+    let deliveryFee = 0;
+    offInstances.forEach(offInstance => {
+      // eslint-disable-next-line prefer-destructuring
+      deliveryMode = offInstance.deliveryMode;
+      deliveryFee += !offInstance.deliveryFee ? 0 : Number.parseFloat(offInstance.deliveryFee);
+    });
+    deliveryFee = Number(deliveryFee).toFixed(2);
+
+    const detailColumns = [
+      {
+        title: (
+          <span className={styles.tableTitle}>{formatMessage({ id: 'CONFIRMATION_NO' })}</span>
+        ),
+        dataIndex: 'confirmationNo',
+        key: 'confirmationNo',
+        render: text => (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span className={styles.tableSpan}>{text}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: <span className={styles.tableTitle}>{formatMessage({ id: 'SUB_SYSTEM' })}</span>,
+        dataIndex: 'salesChannel',
+        render: text => (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span className={styles.tableSpan}>{text}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: <span className={styles.tableTitle}>{formatMessage({ id: 'TOTAL_AMOUNT' })}</span>,
+        dataIndex: 'totalAmount',
+        render: text => {
+          if (text !== null) {
+            return `${text}(SGD)`;
+          }
+          return '';
+        },
+      },
+      {
+        title: <span className={styles.tableTitle}>{formatMessage({ id: 'DATE_OF_VISIT' })}</span>,
+        dataIndex: 'visitDate',
+        render: text => this.showVisitDate(text),
+      },
+    ];
+
+    if (userType === '03') {
+      // delete totalAmount column
+      detailColumns.splice(2, 1);
+    }
+
     return (
       <div>
         <Table
           size="small"
-          columns={this.detailColumns}
+          columns={detailColumns}
           dataSource={productInstances}
           pagination={false}
           bordered={false}
         />
+        {deliveryMode === 'BOCA' && userType !== '03' && (
+          <Row className={styles.bocaRow}>
+            <Col span={12} className={styles.bocaTitleCol}>
+              <span>BOCA FEE</span>
+            </Col>
+            <Col span={12} className={styles.bocaValueCol}>
+              <span>${deliveryFee}</span>
+            </Col>
+          </Row>
+        )}
       </div>
     );
   };
@@ -293,7 +391,7 @@ class QueryOrder extends Component {
   ifShowAllowedModel = (bookingNo, isSubOrder, vidList, flag) => {
     let ifAllowed = false;
     for (let i = 0; i < vidList.length; i += 1) {
-      if (vidList[i].status === 'ISSUED') {
+      if (vidList[i].status === 'false' && vidList[i].hadRefunded !== 'Yes') {
         ifAllowed = true;
       }
     }
@@ -318,7 +416,10 @@ class QueryOrder extends Component {
                 Cancel
               </Button>
               <Button
-                onClick={() => this.jumpToOperation(bookingNo, isSubOrder, flag)}
+                // onClick={() => this.jumpToOperation(bookingNo, isSubOrder, flag)}
+                onClick={() => {
+                  Modal.destroyAll();
+                }}
                 type="primary"
                 style={{ width: 60 }}
               >
@@ -386,7 +487,7 @@ class QueryOrder extends Component {
     if (selectedBookings.length === 1) {
       const { bookingNo } = selectedBookings[0];
       dispatch({
-        type: 'queryOrderMgr/downloadETicket',
+        type: 'queryOrderMgr/download',
         payload: {
           forderNo: bookingNo,
         },
@@ -418,7 +519,7 @@ class QueryOrder extends Component {
     const { dispatch } = this.props;
     if (selectedBookings.length === 1) {
       const { bookingNo, transType, activityId, status } = selectedBookings[0];
-      if (transType === 'refund' && status === 'PendingRefund') {
+      if (transType === 'refund' && status === 'Confirmed') {
         dispatch({
           type: 'updateOrderMgr/save',
           payload: {
@@ -428,7 +529,7 @@ class QueryOrder extends Component {
             activityId,
           },
         });
-      } else if (transType === 'revalidation' && status === 'PendingOrderNo.') {
+      } else if (transType === 'revalidation' && status === 'Confirmed') {
         dispatch({
           type: 'updateOrderMgr/save',
           payload: {
@@ -447,8 +548,9 @@ class QueryOrder extends Component {
     if (selectedBookings.length === 1) {
       const { activityId } = selectedBookings[0];
       dispatch({
-        type: 'queryOrderMgr/approve',
+        type: 'auditOrderMgr/save',
         payload: {
+          auditVisible: true,
           activityId,
         },
       });
@@ -486,19 +588,26 @@ class QueryOrder extends Component {
   };
 
   // -------disable button------
-  ifCanRevalidation = (selectedBookings, userType) => {
+  ifCanRevalidation = (selectedBookings, userType, functionActive) => {
+    if (!functionActive) {
+      return true;
+    }
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
       return !(
         selectedBooking.transType === 'booking' &&
-        selectedBooking.status === 'Confirmed' &&
+        selectedBooking.status === 'Complete' &&
+        selectedBooking.revalidationFlag === 'No' &&
         (userType === '02' || userType === '03')
       );
     }
     return true;
   };
 
-  ifCanApprove = (selectedBookings, userType) => {
+  ifCanApprove = (selectedBookings, userType, functionActive) => {
+    if (!functionActive) {
+      return true;
+    }
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
       return !(selectedBooking.status === 'PendingApproval' && userType === '02');
@@ -511,7 +620,7 @@ class QueryOrder extends Component {
       const selectedBooking = selectedBookings[0];
       if (
         selectedBooking.transType === 'booking' &&
-        selectedBooking.status === 'Confirmed' &&
+        selectedBooking.status === 'Complete' &&
         selectedBooking.offInstances.length > 0 &&
         selectedBooking.offInstances[0].deliveryMode === 'VID'
       ) {
@@ -526,7 +635,7 @@ class QueryOrder extends Component {
       const selectedBooking = selectedBookings[0];
       if (
         selectedBooking.transType === 'booking' &&
-        selectedBooking.status === 'Confirmed' &&
+        selectedBooking.status === 'Complete' &&
         selectedBooking.offInstances.length > 0 &&
         selectedBooking.offInstances[0].deliveryMode === 'e-Ticket'
       ) {
@@ -539,31 +648,27 @@ class QueryOrder extends Component {
   ifCanUpdate = (selectedBookings, userType) => {
     if (selectedBookings.length === 1 && userType === '01') {
       const { transType, status } = selectedBookings[0];
-      if (transType === 'refund' && status === 'PendingRefund') {
+      if (transType === 'refund' && status === 'Confirmed') {
         return false;
       }
-      if (transType === 'revalidation' && status === 'PendingOrderNo.') {
+      if (transType === 'revalidation' && status === 'Confirmed') {
         return false;
       }
     }
     return true;
   };
 
-  paymentButtonDisable = selectedBookings => {
-    const {
-      global: {
-        currentUser: {userType},
-      },
-    } = this.props;
-
-    let paymentButtonDisable = true;
-    if (userType && userType === '01' && selectedBookings.length === 1) {
+  paymentButtonDisable = (selectedBookings, userType, functionActive) => {
+    if (!functionActive) {
+      return true;
+    }
+    if (userType === '02' && selectedBookings.length === 1) {
       const { transType, status } = selectedBookings[0];
       if (transType === 'booking' && status === 'WaitingForPaying') {
-        paymentButtonDisable = false;
+        return false;
       }
     }
-    return paymentButtonDisable;
+    return true;
   };
 
   showPaymentModal = selectedBookings => {
@@ -583,6 +688,123 @@ class QueryOrder extends Component {
     }
   };
 
+  resubmitButtonDisable = (selectedBookings, functionActive) => {
+    if (!functionActive) {
+      return true;
+    }
+    if (selectedBookings.length === 1) {
+      const { transType, status } = selectedBookings[0];
+      if (transType === 'refund' && status === 'PendingTopup') {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  resubmitOrder = selectedBookings => {
+    if (selectedBookings.length === 1) {
+      const { bookingNo } = selectedBookings[0];
+      const { dispatch } = this.props;
+      dispatch({
+        type: 'queryOrderMgr/resubmit',
+        payload: {
+          bookingNo,
+        },
+      }).then(resultCode => {
+        if (resultCode === '0') {
+          message.success(formatMessage({ id: 'RESUBMIT_SUCCESSFULLY' }));
+        } else {
+          // message.warning(formatMessage({ id: 'FAILED_TO_RESUBMIT' }));
+        }
+      });
+    }
+  };
+
+  reprintButtonDisable = selectedBookings => {
+    if (selectedBookings.length === 1) {
+      const selectedBooking = selectedBookings[0];
+      if (selectedBooking.transType === 'booking' && selectedBooking.status === 'Complete') {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  reprint = selectedBookings => {
+    const { dispatch } = this.props;
+    if (selectedBookings.length === 1) {
+      const { bookingNo } = selectedBookings[0];
+      dispatch({
+        type: 'queryOrderMgr/download',
+        payload: {
+          forderNo: bookingNo,
+          ifReprint: true,
+        },
+      }).then(resultCode => {
+        if (resultCode === '0') {
+          message.success(formatMessage({ id: 'REPRINT_SUCCESSFULLY' }));
+        } else {
+          message.warning(resultCode);
+        }
+      });
+    }
+  };
+
+  revalidationVIDDisable = selectedBookings => {
+    if (selectedBookings.length === 1) {
+      const selectedBooking = selectedBookings[0];
+      if (selectedBooking.transType === 'revalidation' && selectedBooking.status === 'Complete') {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  exportRevalidationVID = selectedBookings => {
+    if (selectedBookings.length === 1) {
+      const selectedBooking = selectedBookings[0];
+      if (selectedBooking.transType === 'revalidation' && selectedBooking.status === 'Complete') {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'exportVIDMgr/downloadETicket',
+          payload: {
+            forderNo: selectedBooking.bookingNo,
+          },
+        }).then(resultCode => {
+          if (resultCode === '0') {
+            message.success(formatMessage({ id: 'EXPORTED_SUCCESSFULLY' }));
+          } else {
+            message.warning(resultCode);
+          }
+        });
+      }
+    }
+    return true;
+  };
+
+  checkTAStatus = () => {
+    const {
+      global: {
+        currentUser: { userType },
+        userCompanyInfo,
+      },
+    } = this.props;
+    let taStatus = false;
+    if (userType === '02') {
+      if (userCompanyInfo.status === '0') {
+        taStatus = true;
+      }
+    } else if (userType === '03') {
+      if (userCompanyInfo.status === '0') {
+        taStatus = true;
+      }
+      if (userCompanyInfo.mainTAInfo && userCompanyInfo.mainTAInfo.status !== '0') {
+        taStatus = false;
+      }
+    }
+    return taStatus;
+  };
+
   render() {
     const {
       pageLoading,
@@ -598,6 +820,8 @@ class QueryOrder extends Component {
         currentUser: { userType },
       },
     } = this.props;
+
+    const functionActive = this.checkTAStatus();
 
     const dataSource = [...transactionList];
 
@@ -632,9 +856,11 @@ class QueryOrder extends Component {
         <Update />
         <Detail />
         <PaymentModal />
+        <PaymentPromptModal />
+        <Audit />
         <div>
           <MediaQuery minWidth={SCREEN.screenSm}>
-            <BreadcrumbComp title={title} />
+            <BreadcrumbCompForPams title={title} />
           </MediaQuery>
           <Row type="flex">
             <Col span={24}>
@@ -644,26 +870,46 @@ class QueryOrder extends Component {
               <Card>
                 <Row>
                   <Col className={styles.inputColStyle} span={24}>
+                    {(userType === '02' || userType === '03') && (
+                      <Button
+                        disabled={this.ifCanRevalidation(
+                          selectedBookings,
+                          userType,
+                          functionActive
+                        )}
+                        className={styles.buttonStyle}
+                        onClick={() => this.toOperation(selectedBookings, 'Revalidation')}
+                      >
+                        {formatMessage({ id: 'REVALIDATION' })}
+                      </Button>
+                    )}
                     <Button
-                      disabled={this.ifCanRevalidation(selectedBookings, userType)}
-                      onClick={() => this.toOperation(selectedBookings, 'Revalidation')}
-                    >
-                      {formatMessage({ id: 'REVALIDATION' })}
-                    </Button>
-                    <Button
-                      disabled={this.ifCanRevalidation(selectedBookings, userType)}
+                      disabled={this.revalidationVIDDisable(selectedBookings, userType)}
                       className={styles.buttonStyle}
-                      onClick={() => this.toOperation(selectedBookings, 'Refund')}
+                      onClick={() => this.exportRevalidationVID(selectedBookings)}
                     >
-                      {formatMessage({ id: 'REFUND' })}
+                      {formatMessage({ id: 'REVALIDATION_VID' })}
                     </Button>
+                    {(userType === '02' || userType === '03') && (
+                      <Button
+                        disabled={this.ifCanRevalidation(
+                          selectedBookings,
+                          userType,
+                          functionActive
+                        )}
+                        className={styles.buttonStyle}
+                        onClick={() => this.toOperation(selectedBookings, 'Refund')}
+                      >
+                        {formatMessage({ id: 'REFUND' })}
+                      </Button>
+                    )}
                     {userType === '02' && (
                       <Button
-                        disabled={this.ifCanApprove(selectedBookings, userType)}
+                        disabled={this.ifCanApprove(selectedBookings, userType, functionActive)}
                         className={styles.buttonStyle}
                         onClick={() => this.approveOrder(selectedBookings)}
                       >
-                        {formatMessage({ id: 'APPROVE' })}
+                        {formatMessage({ id: 'AUDIT' })}
                       </Button>
                     )}
                     <Button
@@ -687,13 +933,15 @@ class QueryOrder extends Component {
                     >
                       {formatMessage({ id: 'SEND_ETICKET' })}
                     </Button>
-                    <Button
-                      disabled={this.ifCanUpdate(selectedBookings, userType)}
-                      className={styles.buttonStyle}
-                      onClick={() => this.openUpdateModel(selectedBookings)}
-                    >
-                      {formatMessage({ id: 'UPDATE' })}
-                    </Button>
+                    {userType === '01' && (
+                      <Button
+                        disabled={this.ifCanUpdate(selectedBookings, userType)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.openUpdateModel(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'UPDATE' })}
+                      </Button>
+                    )}
                     <Button
                       disabled={selectedBookings.length !== 1}
                       className={styles.buttonStyle}
@@ -701,23 +949,44 @@ class QueryOrder extends Component {
                     >
                       {formatMessage({ id: 'ORDER_DETAIL' })}
                     </Button>
+                    {userType === '02' && (
+                      <Button
+                        disabled={this.paymentButtonDisable(
+                          selectedBookings,
+                          userType,
+                          functionActive
+                        )}
+                        className={styles.buttonStyle}
+                        onClick={() => this.showPaymentModal(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'PAYMENT' })}
+                      </Button>
+                    )}
                     <Button
-                      disabled={this.paymentButtonDisable(selectedBookings, userType)}
+                      disabled={this.resubmitButtonDisable(selectedBookings, functionActive)}
                       className={styles.buttonStyle}
-                      onClick={() => this.showPaymentModal(selectedBookings)}
+                      onClick={() => this.resubmitOrder(selectedBookings)}
                     >
-                      {formatMessage({ id: 'PAYMENT' })}
+                      {formatMessage({ id: 'RESUBMIT' })}
                     </Button>
+                    {(userType === '01' || userType === '02') && (
+                      <Button
+                        disabled={this.reprintButtonDisable(selectedBookings)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.reprint(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'REPRINT' })}
+                      </Button>
+                    )}
                   </Col>
                   <Col span={24}>
                     <Table
                       size="small"
                       className="components-table-demo-nested"
-                      style={{ marginTop: 5 }}
                       columns={this.columns}
                       rowSelection={rowSelection}
                       loading={!!tableLoading}
-                      expandedRowRender={record => this.expandedRowRender(record)}
+                      expandedRowRender={record => this.expandedRowRender(record, userType)}
                       dataSource={dataSource}
                       scroll={{ x: 1140 }}
                       pagination={false}

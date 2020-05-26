@@ -5,8 +5,9 @@ import { router } from 'umi';
 import detailStyles from './OperationApprovalDrawer.less';
 import OperationApproval from '@/pages/MyActivity/components/OperationApproval';
 
-@connect(({ operationApproval }) => ({
+@connect(({ operationApproval, global }) => ({
   operationApproval,
+  global,
 }))
 class OperationApprovalDrawer extends PureComponent {
   operation = () => {
@@ -38,8 +39,15 @@ class OperationApprovalDrawer extends PureComponent {
   render() {
     const {
       operationApproval: { operationVisible },
+      global: { userCompanyInfo },
       activityTplCode,
+      pendStepTplCode,
     } = this.props;
+    let isPermission = false;
+    if (userCompanyInfo && JSON.stringify(userCompanyInfo) !== '{}') {
+      const { status } = userCompanyInfo;
+      isPermission = '1' === status;
+    }
     return (
       <Col span={24}>
         <div className={detailStyles.cancelOk}>
@@ -49,8 +57,9 @@ class OperationApprovalDrawer extends PureComponent {
             htmlType="submit"
             className={detailStyles.ok}
             onClick={this.operation}
+            disabled={isPermission}
           >
-            OPERATION
+            Operation
           </Button>
 
           <Drawer
@@ -62,7 +71,10 @@ class OperationApprovalDrawer extends PureComponent {
             visible={operationVisible}
             bodyStyle={{ padding: '0px' }}
           >
-            <OperationApproval activityTplCode={activityTplCode} />
+            <OperationApproval
+              activityTplCode={activityTplCode}
+              pendStepTplCode={pendStepTplCode}
+            />
           </Drawer>
         </div>
       </Col>

@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { queryAgentOpt, querySalesPerson } from '../services/taCommon';
+import { queryAgentOpt, queryDictionary, querySalesPerson } from '../services/taCommon';
 
 export default {
   namespace: 'taCommon',
@@ -9,7 +9,7 @@ export default {
     countryList: [],
     cityList: [],
     bilCityList: [],
-    currencyList: [{ dictId: 'GSD', dictName: 'GSD' }],
+    currencyList: [{ dictId: 'SGD', dictName: 'SGD' }],
     categoryList: [],
     customerGroupList: [],
     marketList: [],
@@ -19,6 +19,7 @@ export default {
       { dictId: '01', dictName: 'Quarter' },
       { dictId: '02', dictName: 'Month' },
     ],
+    createTeamList: [],
     arAccountEndConfig: '24',
     bilCityLoadingFlag: false,
     cityLoadingFlag: false,
@@ -147,6 +148,12 @@ export default {
               {}
             ).dictionaryList || [];
           countryList.sort((a, b) => {
+            if (String(a.dictId) === '65' || String(a.dictId) === '86') {
+              return -1;
+            }
+            if (String(b.dictId) === '65' || String(b.dictId) === '86') {
+              return -1;
+            }
             if (a.dictName > b.dictName) {
               return 1;
             }
@@ -253,6 +260,18 @@ export default {
       message.warn(resultMsg, 10);
       return null;
     },
+    *fetchQueryCreateTeam(_, { call, put }) {
+      const params = {
+        dictType: '10',
+        dictSubType: '1012',
+      };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryDictionary, { ...params });
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({ type: 'save', payload: { createTeamList: result || [] } });
+      } else message.warn(resultMsg, 10);
+    },
     *doCleanData({ payload }, { put }) {
       yield put({ type: 'clean', payload });
     },
@@ -273,7 +292,7 @@ export default {
           countryList: [],
           cityList: [],
           bilCityList: [],
-          currencyList: [{ dictId: 'GSD', dictName: 'GSD' }],
+          currencyList: [{ dictId: 'SGD', dictName: 'SGD' }],
           categoryList: [],
           customerGroupList: [],
           marketList: [],
@@ -283,6 +302,7 @@ export default {
             { dictId: '02', dictName: 'Month' },
           ],
           allDictList: [],
+          createTeamList: [],
           arAccountEndConfig: '24',
           bilCityLoadingFlag: false,
           cityLoadingFlag: false,

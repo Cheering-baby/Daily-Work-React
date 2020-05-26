@@ -15,6 +15,7 @@ const mapStateToProps = store => {
     countryList,
     bilCityList,
     bilCityLoadingFlag,
+    createTeamList,
   } = store.taCommon;
   const { isBilCheckBox, isAllInformationToRws, viewId } = store.signUp;
   return {
@@ -23,6 +24,7 @@ const mapStateToProps = store => {
     countryList,
     bilCityList,
     bilCityLoadingFlag,
+    createTeamList,
     otherInfo,
     customerInfo,
     isBilCheckBox,
@@ -49,7 +51,7 @@ class OtherInformationToSignUp extends PureComponent {
           type: 'taCommon/fetchQueryCityList',
           payload: { countryId: keyValue, isBil: true },
         });
-        const source = { city: '' };
+        const source = { city: String(keyValue) === '65' ? '65' : null };
         form.setFieldsValue(source);
         Object.assign(newBillingInfo, source);
       }
@@ -133,6 +135,7 @@ class OtherInformationToSignUp extends PureComponent {
       countryList = [],
       bilCityList = [],
       currencyList = [],
+      createTeamList = [],
       otherInfo = {},
       customerInfo = {},
       bilCityLoadingFlag = false,
@@ -160,6 +163,8 @@ class OtherInformationToSignUp extends PureComponent {
       ...detailOpt,
       viewId,
       currencyList,
+      countryList,
+      createTeamList,
       otherInfo: otherInfo || {},
       mappingInfo: {},
       isAllInformationToRws,

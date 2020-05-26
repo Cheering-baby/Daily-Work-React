@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Icon, Menu } from 'antd';
+import { Icon, Menu, Tooltip } from 'antd';
 import Link from 'umi/link';
 import { forEach, isArray, isEqual } from 'lodash';
 import memoizeOne from 'memoize-one';
@@ -118,7 +118,9 @@ export default class BaseMenu extends PureComponent {
           title={
             <span>
               {getIcon(icon)}
-              <span>{name}</span>
+              <Tooltip placement="bottom" title={name}>
+                <span>{name}</span>
+              </Tooltip>
             </span>
           }
           key={item.path}
@@ -127,7 +129,11 @@ export default class BaseMenu extends PureComponent {
         </SubMenu>
       );
     }
-    return <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
+    return (
+      <Menu.Item key={item.path} title={item.name}>
+        {this.getMenuItemPath(item)}
+      </Menu.Item>
+    );
   };
 
   /**

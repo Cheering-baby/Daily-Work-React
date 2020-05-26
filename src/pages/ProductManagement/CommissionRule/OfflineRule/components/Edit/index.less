@@ -1,3 +1,11 @@
+.drawerTitle{
+  font-family: Calibri-Bold;
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.23px;
+  line-height: 26px;
+}
+
 .basicInfo {
   font-size: 17px;
   color: #171b21;
@@ -13,4 +21,26 @@
   padding: 10px 16px;
   background-color: #fff;
   text-align: right;
+}
+
+.modifyDivStyle {
+  width: 180px;
+  display: inline-block;
+}
+
+.modifyTitleDiv {
+  margin-bottom: 15px;
+  .titleSpan {
+    font-family: Calibri;
+    font-size: 15px;
+    color: #262626;
+    letter-spacing: 0.24px;
+    line-height: 22px;
+  }
+}
+
+.confirmStyle {
+  :global .ant-btn {
+    float: none !important;
+  }
 }

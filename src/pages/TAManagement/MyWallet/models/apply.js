@@ -14,16 +14,13 @@ const ApplyModel = {
         userCompanyInfo: { companyId = '' },
       } = yield select(state => state.global);
       const params = {
-        activityCode: 'ACCOUNT_AR_APPLY',
-        content: JSON.stringify({ uploadFiles: payload.uploadFiles }),
+        uploadFiles: payload.uploadFiles,
         remarks: '',
-        businessId: companyId,
-        scope: 'pams',
       };
       const {
         data: { resultCode, resultMsg, result = {} },
       } = yield call(service.createActivity, params);
-      if (resultCode === '00') {
+      if (resultCode === '0') {
         if (callback && typeof callback === 'function') {
           callback(resultCode, resultMsg, result);
         }

@@ -149,6 +149,7 @@ class NotificationSearchForm extends PureComponent {
       },
       dropdownStyle: {
         maxHeight: '300px',
+        maxWidth: '200px',
       },
     };
     return (

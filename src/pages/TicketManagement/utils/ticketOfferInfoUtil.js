@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const PRODUCT_TYPE_ATTRACTION = 'Attraction';
 const PRODUCT_TYPE_VOUCHER = 'Voucher';
 const PRODUCT_RULE_NAME = 'DefaultPrice';
@@ -17,17 +19,17 @@ export function getProductGroupByOfferProfile(offerProfile, productType) {
 }
 
 export function getPluProductByRuleName(productInfo, priceRuleName, validTimeFrom) {
-  let pluProduct = null;
   if (!productInfo || !productInfo.priceRule) {
     return null;
   }
+  const pluProduct = [];
   const priceRuleList = productInfo.priceRule;
   priceRuleList.forEach(priceRule => {
     if (priceRule.priceRuleName === priceRuleName) {
       const productPriceList = priceRule.productPrice || [];
       productPriceList.forEach(productPrice => {
         if (productPrice.priceDate === validTimeFrom) {
-          pluProduct = productPrice;
+          pluProduct.push(productPrice);
         }
       });
     }
@@ -76,7 +78,7 @@ export function getProductList(offerProfile, productType, priceRuleId, validTime
   return attractionProductList;
 }
 
-export function calculateProductPrice(product, selectRuleId) {
+export function calculateProductPrice(product, selectRuleId, sessionTime) {
   const { priceRule = [], productType, special = [], needChoiceCount } = product;
   const ruleId = selectRuleId || null;
   const { productPrice } = priceRule.find(({ priceRuleId }) => priceRuleId === ruleId);
@@ -93,7 +95,14 @@ export function calculateProductPrice(product, selectRuleId) {
     price +=
       hotelPrice.length === 0 ? 0 : hotelPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
   } else if (productType === 'Attraction') {
-    const priceArray = productPrice.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
+    let productPriceList = [...productPrice];
+    if (sessionTime) {
+      productPriceList = productPrice.filter(({ priceTimeFrom }) => priceTimeFrom === sessionTime);
+    }
+    let priceArray = [...productPriceList];
+    if (productPriceList.length > 1) {
+      priceArray = productPriceList.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
+    }
     const attractionPrice = priceArray.map(
       ({ perPiece, discountUnitPrice }) =>
         parseFloat(perPiece || needChoiceCount) * parseFloat(discountUnitPrice)
@@ -134,7 +143,12 @@ export function getVoucherProductList(offerProfile, validTimeFrom) {
   return getProductList(offerProfile, PRODUCT_TYPE_VOUCHER, priceRuleId, validTimeFrom);
 }
 
-export function getSumPriceOfOfferPaxOfferProfile(offerProfile, dateOfVisit, selectRuleId) {
+export function getSumPriceOfOfferPaxOfferProfile(
+  offerProfile,
+  dateOfVisit,
+  selectRuleId,
+  sessionTime
+) {
   if (!selectRuleId) {
     selectRuleId = getPamsPriceRuleIdByOfferProfile(offerProfile);
   }
@@ -142,7 +156,7 @@ export function getSumPriceOfOfferPaxOfferProfile(offerProfile, dateOfVisit, sel
   let sumPriceOfOfferPax = 0.0;
   if (attractionProductList && attractionProductList.length > 0) {
     attractionProductList.forEach(attractionProduct => {
-      sumPriceOfOfferPax += calculateProductPrice(attractionProduct, selectRuleId);
+      sumPriceOfOfferPax += calculateProductPrice(attractionProduct, selectRuleId, sessionTime);
     });
   }
   return sumPriceOfOfferPax;
@@ -152,15 +166,66 @@ export function getSessionTimeList(offerProfile, validTimeFrom) {
   const sessionTimeList = [];
   const attractionProductList = getAttractionProductList(offerProfile, validTimeFrom);
   attractionProductList.forEach(productInfo => {
-    const pluProduct = getPluProductByRuleName(productInfo, PRODUCT_RULE_NAME, validTimeFrom);
-    const { priceTimeFrom } = pluProduct;
-    const existSession = sessionTimeList.find(item => item.value === priceTimeFrom);
-    if (priceTimeFrom && !existSession) {
-      sessionTimeList.push({
-        value: priceTimeFrom,
-        label: priceTimeFrom,
+    const pluProductList = getPluProductByRuleName(productInfo, PRODUCT_RULE_NAME, validTimeFrom);
+    if (pluProductList && pluProductList.length > 0) {
+      pluProductList.forEach(pluProduct => {
+        const { priceTimeFrom } = pluProduct;
+        const existSession = sessionTimeList.find(item => item.value === priceTimeFrom);
+        if (priceTimeFrom && !existSession) {
+          const dateOfVisitTimeStr = `${validTimeFrom} ${priceTimeFrom}`;
+          const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
+          const du = moment.duration(dateOfVisitTimeMoment - moment(), 'ms');
+          const diffMilliseconds = du.asMilliseconds();
+          if (diffMilliseconds > 0) {
+            sessionTimeList.push({
+              value: priceTimeFrom,
+              label: priceTimeFrom,
+            });
+          }
+        }
       });
     }
   });
   return sessionTimeList;
+}
+
+export function changeVoucherToAttraction(offerProfile) {
+  const newOfferProfile = {
+    ...offerProfile,
+  };
+  if (offerProfile && offerProfile.productGroup) {
+    const newProductGroupInfo = [];
+    let changeNew = false;
+    offerProfile.productGroup.forEach(productGroupInfo => {
+      if (productGroupInfo.productType === PRODUCT_TYPE_ATTRACTION) {
+        const productGroupInfoNew = {
+          ...productGroupInfo,
+        };
+        let haveAttraction = false;
+        let haveVoucher = false;
+        productGroupInfo.productGroup = productGroupInfo.productGroup || [];
+        const productGroupNew = [];
+        productGroupInfo.productGroup.forEach(productGroupItem => {
+          if (productGroupItem.groupName === PRODUCT_TYPE_ATTRACTION) {
+            haveAttraction = true;
+          } else if (productGroupItem.groupName === PRODUCT_TYPE_VOUCHER) {
+            haveVoucher = true;
+            productGroupNew.push({
+              ...productGroupItem,
+              groupName: PRODUCT_TYPE_ATTRACTION,
+            });
+          }
+        });
+        if (haveVoucher && !haveAttraction) {
+          productGroupInfoNew.productGroup = productGroupNew;
+          newProductGroupInfo.push(productGroupInfoNew);
+          changeNew = true;
+        }
+      }
+    });
+    if (changeNew) {
+      newOfferProfile.productGroup = newProductGroupInfo;
+    }
+  }
+  return newOfferProfile;
 }

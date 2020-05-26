@@ -1,19 +1,30 @@
-import { isEmpty } from 'lodash';
 import { message } from 'antd';
-import { formatMessage } from 'umi/locale';
 import * as service from '../services/offline';
+import { objDeepCopy } from '../../../utils/tools';
 
 export default {
   namespace: 'offline',
   state: {
-    filter: {
-      likeParam: {},
-    },
-    pagination: {
+    searchCondition: {
+      commonSearchText: null,
+      themeParkCode: null,
+      usageScope: 'Offline',
       currentPage: 1,
       pageSize: 10,
     },
+    totalSize: 0,
     offlineList: [],
+
+    modifyParams: {
+      tplId: null,
+      usageScope: 'Offline',
+      commissionType: 'Fixed',
+      commissionScheme: 'Amount',
+      commissionValue: null,
+      commissionValueAmount: null,
+      commissionValuePercent: null,
+    },
+
     detailVisible: false,
     type: '',
     drawerVisible: false,
@@ -21,58 +32,64 @@ export default {
     commissionList: [],
   },
   effects: {
-    *fetchOfflineList(_, { call, put, select }) {
-      const { filter, pagination } = yield select(state => state.offline);
-      const { likeParam } = filter;
-      let res;
-      if (isEmpty(likeParam)) {
-        res = yield call(service.queryCommodityCommissionTplList, pagination);
-      } else {
-        res = yield call(service.like, {
-          ...likeParam,
-          ...pagination,
-        });
-      }
-
+    *queryThemeParks(_, { call, put }) {
+      const response = yield call(service.queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({ type: 'save', payload: { themeParkList: result.items } });
+      } else throw resultMsg;
+    },
+    *fetchOfflineList({ payload }, { call, put, select }) {
+      const { searchCondition } = yield select(state => state.offline);
+      const params = { ...searchCondition, ...payload };
+      yield put({
+        type: 'save',
+        payload: {
+          searchCondition: params,
+        },
+      });
+      const res = yield call(service.queryCommodityCommissionTplList, params);
+      if (!res) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = res;
       const {
-        page: { currentPage, pageSize, totalSize },
+        page: { totalSize, currentPage, pageSize },
         commodityList,
       } = result;
       if (resultCode === '0' || resultCode === 0) {
         if (commodityList && commodityList.length > 0) {
-          commodityList.map(v => {
-            Object.assign(v, { key: `offlineList${v.commoditySpecId}` });
+          commodityList.map((v, index) => {
+            Object.assign(v, {
+              key: v.commoditySpecId,
+              no: (currentPage - 1) * pageSize + index + 1,
+              children: objDeepCopy(v.subCommodityList),
+            });
             return v;
           });
         }
         yield put({
           type: 'save',
           payload: {
-            currentPage,
-            pageSize,
             totalSize,
             offlineList: commodityList,
           },
         });
       } else throw resultMsg;
     },
-    *edit({ payload }, { call, put }) {
-      const { params, taId } = payload;
-      const reqParams = {
-        ...params,
-        taId,
-      };
-      const { success, errorMsg } = yield call(service.edit, reqParams);
-      if (success) {
-        message.success(formatMessage({ id: 'COMMON_EDITED_SUCCESSFULLY' }));
-        // fresh list data
-        yield put({
-          type: 'fetchOfflineList',
-        });
-      } else throw errorMsg;
+    *edit({ payload }, { call }) {
+      const res = yield call(service.edit, payload);
+      if (!res) return false;
+      const {
+        data: { resultCode, resultMsg },
+      } = res;
+      if (resultCode !== '0') {
+        throw resultMsg;
+      }
+      return resultCode;
     },
     *detail({ payload }, { call, put }) {
       const { commoditySpecType, commoditySpecId } = payload;
@@ -101,12 +118,24 @@ export default {
       });
       yield put({
         type: 'fetchOfflineList',
+        payload,
       });
     },
-    *fetchSelectReset(_, { put }) {
+    *fetchSelectReset({ payload }, { put }) {
       yield put({
         type: 'clear',
       });
+      yield put({
+        type: 'fetchOfflineList',
+        payload,
+      });
+    },
+    *tableChanged({ payload }, { put }) {
+      yield put({
+        type: 'save',
+        payload,
+      });
+
       yield put({
         type: 'fetchOfflineList',
       });
@@ -116,18 +145,44 @@ export default {
     save(state, { payload }) {
       return { ...state, ...payload };
     },
+    saveModifyParams(state, { payload }) {
+      const { modifyParams } = state;
+      return {
+        ...state,
+        modifyParams: {
+          ...modifyParams,
+          ...payload,
+        },
+      };
+    },
     clear(state) {
       return {
         ...state,
-        filter: {},
-        pagination: {
+        searchCondition: {
+          commonSearchText: null,
+          themeParkCode: null,
+          usageScope: 'Offline',
           currentPage: 1,
           pageSize: 10,
         },
-        commissionRuleSetupList: [],
+        totalSize: 0,
+        offlineList: [],
+
+        modifyParams: {
+          tplId: null,
+          usageScope: 'Offline',
+          commissionType: 'Fixed',
+          commissionScheme: 'Amount',
+          commissionValue: null,
+          commissionValueAmount: null,
+          commissionValuePercent: null,
+        },
+
         detailVisible: false,
         type: '',
         drawerVisible: false,
+        themeParkList: [],
+        commissionList: [],
       };
     },
   },

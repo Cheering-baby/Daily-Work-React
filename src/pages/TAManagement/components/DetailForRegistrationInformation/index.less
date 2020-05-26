@@ -1,23 +1,56 @@
+@import '../../../../theme/screen.less';
+
+@prefix-cls: ~'@{ant-prefix}';
+
 .DetailTitle {
   border-left: 3px solid #118AFA;
   padding-left: 10px;
   font-weight: normal;
   margin: 0.5rem 0 0.5rem 0;
   line-height: 1.75rem;
-  font-size: 15px;
-  color: #171B21;
+  font-size: 1rem;
+  color: rgba(0, 0, 0);
   letter-spacing: 0;
+}
+
+.descriptionsStyle {
+  :global {
+    .@{prefix-cls}-descriptions-item-label {
+      color: rgba(0, 0, 0, .85);
+      font-size: 1rem;
+      padding-right: 5px;
+      letter-spacing: 0.24px;
+    }
+
+    .@{prefix-cls}-descriptions-item-content {
+      color: rgba(0, 0, 0, .65);
+      font-size: 1rem;
+      letter-spacing: 0.24px;
+      word-break: break-all;
+      word-wrap: break-word;
+    }
+  }
+}
+
+.detailContent {
+  padding: 15px;
 }
 
 .detailRightStyle {
   font-size: 15px;
-  color: #858585;
+  color: rgba(0, 0, 0, .65);
   letter-spacing: 0.24px;
-  text-align: right;
+  text-align: left;
   line-height: 12px;
   position: relative;
   padding-right: 5px;
   margin-top: 15px;
+  @media screen and (max-width: @screenXsMax) {
+    text-align: left;
+  }
+  @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
+    text-align: left;
+  }
 }
 
 .uploadListItem {
@@ -62,7 +95,7 @@
 
 .detailLeftStyle {
   font-size: 14px;
-  color: #3B414A;
+  color: rgba(0, 0, 0, .95);
   letter-spacing: 0.24px;
   line-height: 18px;
   position: relative;

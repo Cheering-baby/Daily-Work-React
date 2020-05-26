@@ -11,7 +11,7 @@
     }
 
     .@{prefix-cls}-page-header-heading-sub-title {
-      font-size: 13px;
+      font-size: 14px;
       color: #858585;
       letter-spacing: 0.22px;
       line-height: 15px;
@@ -24,7 +24,7 @@
 .information {
   position: relative;
   align-items: center;
-  font-size: 16px;
+  font-size: 1rem;
   background: #fff;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.32);
   padding: 0;
@@ -360,7 +360,25 @@
 
   .stepsInformationSteps {
     width: 60%;
-    margin: 0.75rem auto;
+    margin: 0 auto;
+
+    :global {
+      .@{prefix-cls}-steps-item-tail {
+        padding: 3.5px 16px;
+      }
+
+      .@{prefix-cls}-steps-item-content {
+        width: 100%;
+        margin-top: 0;
+        text-align: left;
+      }
+
+      .@{prefix-cls}-steps-item-active {
+        .@{prefix-cls}-steps-item-title {
+          color: #279ADD;
+        }
+      }
+    }
   }
 
   @media screen and (max-width: @screenXsMax) {
@@ -374,6 +392,7 @@
 
         .@{prefix-cls}-steps-item-content {
           min-height: 32px;
+          text-align: center;
         }
       }
     }
@@ -389,6 +408,24 @@
 
         .@{prefix-cls}-steps-item-content {
           min-height: 32px;
+        }
+      }
+    }
+  }
+
+  @media screen and (min-width: @screenMdMax) {
+    :global {
+      .@{prefix-cls}-steps-item {
+        &:first-of-type {
+          .@{prefix-cls}-steps-item-title {
+            margin-left: -12px;
+          }
+        }
+
+        &:last-of-type {
+          .@{prefix-cls}-steps-item-title {
+            margin-left: -20px;
+          }
         }
       }
     }
@@ -535,6 +572,52 @@
   line-height: 22px;
 }
 
+.importInformation {
+  margin-bottom: 0.25rem;
+  margin-top: 1rem;
+  padding: 15px 8px 0 64px;
+
+  :global {
+    .@{prefix-cls}-alert-message {
+      font-size: 17px;
+      color: #171B21;
+    }
+  }
+
+  .importInformationTitle {
+    display: block;
+    margin-bottom: 4px;
+    color: #565656;
+    font-size: 16px;
+  }
+
+  .descriptionsStyle {
+    :global {
+      .@{prefix-cls}-descriptions-item-label {
+        font-family: calibriBold;
+        width: 12.5rem;
+        font-size: 14px;
+        color: #3b414a;
+        letter-spacing: .23px;
+        line-height: 18px;
+        vertical-align: top;
+      }
+
+      .@{prefix-cls}-descriptions-item-content {
+        font-size: 14px;
+        color: #858585;
+        letter-spacing: 0.24px;
+        line-height: 18px;
+        padding-left: 12px;
+
+        > ol {
+          list-style-type: decimal;
+        }
+      }
+    }
+  }
+}
+
 .kindlySignUpUl {
   padding-left: 0;
 }
@@ -555,4 +638,12 @@
   letter-spacing: 0.24px;
   line-height: 18px;
   padding-left: 12px;
+
+  > ol {
+    list-style-type: decimal;
+  }
+}
+
+.whiteSpacePreWrap {
+  white-space: pre-wrap;
 }

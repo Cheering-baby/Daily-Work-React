@@ -1,13 +1,13 @@
 import React from 'react';
-import { Col, Form, Icon, Row, Table, Tooltip } from 'antd';
+import { Col, Form, Row, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { isEqual } from 'lodash';
 import styles from '../Detail/$detail/index.less';
+import PaginationComp from '../../../components/PaginationComp';
 
 @Form.create()
-@connect(({ detail, loading }) => ({
-  detail,
+@connect(({ commissionNew, loading }) => ({
+  commissionNew,
   loading: loading.effects['detail/offerDetail'],
 }))
 class DetailForBinding extends React.PureComponent {
@@ -15,112 +15,180 @@ class DetailForBinding extends React.PureComponent {
     {
       title: formatMessage({ id: 'OFFER_NAME' }),
       dataIndex: 'commodityName',
+      key: 'commodityName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'OFFER_IDENTIFIER' }),
       dataIndex: 'commodityIdentifier',
+      key: 'commodityIdentifier',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
-      title: formatMessage({ id: 'OPERATION' }),
-      dataIndex: 'commoditySpecId',
-      render: (text, record) => {
-        const Text = text || '';
-        return Text ? (
-          <div>
-            <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
-              <Icon
-                type="delete"
-                onClick={() => {
-                  this.delete(record);
-                }}
-              />
-            </Tooltip>
-          </div>
-        ) : null;
-      },
+      title: formatMessage({ id: 'OFFER_DESCRIPTION' }),
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
   ];
 
   detailColumns = [
     {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'commodityCode',
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
       dataIndex: 'commodityDescription',
-    },
-    {
-      title: formatMessage({ id: 'OPERATION' }),
-      dataIndex: 'commoditySpecId',
-      render: (text, record) => {
-        const Text = text || '';
-        return Text ? (
-          <div>
-            <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
-              <Icon
-                type="delete"
-                onClick={() => {
-                  this.delete(record);
-                }}
-              />
-            </Tooltip>
-          </div>
-        ) : null;
-      },
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
   ];
 
   pluColumns = [
     {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'commodityCode',
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
       dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'THEME_PARK' }),
       dataIndex: 'themeParkCode',
+      key: 'themeParkCode',
+      render: text => this.showThemeParkName(text),
     },
   ];
 
-  componentDidMount() {
-    const { dispatch, tplId } = this.props;
-    dispatch({
-      type: 'detail/offerDetail',
-      payload: {
-        tplId,
-        commodityType: 'Offer',
-      },
-    });
-    dispatch({
-      type: 'detail/pluDetail',
-      payload: {
-        tplId,
-        commodityType: 'PackagePlu',
-      },
-    });
-  }
+  pluDetailColumns = [
+    {
+      title: formatMessage({ id: 'PLU_CODE' }),
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'PLU_DESCRIPTION' }),
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'THEME_PARK' }),
+      dataIndex: 'themeParkCode',
+      key: 'themeParkCode',
+      render: text => this.showThemeParkName(text),
+    },
+  ];
 
-  onExpandEvent = (expanded, record) => {
-    const { expandedRowKeys = [], dispatch } = this.props;
-    const expandedRowKeySet = new Set(expandedRowKeys);
-    if (expanded) {
-      expandedRowKeySet.add(record.commodityCode);
-    } else {
-      expandedRowKeySet.delete(record.commodityCode);
+  subDetailColumns = [
+    {
+      title: formatMessage({ id: 'PLU_CODE' }),
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'PLU_DESCRIPTION' }),
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+  ];
+
+  showThemeParkName = text => {
+    const {
+      commissionNew: { themeParkList },
+    } = this.props;
+    for (let i = 0; i < themeParkList.length; i += 1) {
+      if (themeParkList[i].itemValue === text) {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+          >
+            <span>{themeParkList[i].itemName}</span>
+          </Tooltip>
+        );
+      }
     }
-    dispatch({
-      type: 'detail/saveData',
-      payload: {
-        expandedRowKeys: [...expandedRowKeySet],
-      },
-    });
+    return null;
   };
 
-  expandedRowRender = record => {
+  subExpandedRowRender = record => {
+    const { subCommodityList } = record;
+    return (
+      <div>
+        <Table
+          size="small"
+          columns={this.subDetailColumns}
+          dataSource={subCommodityList}
+          expandedRowRender={rec => this.subExpandedRowRender(rec)}
+          rowClassName={rec =>
+            rec.subCommodityList === null || rec.subCommodityList.length === 0
+              ? styles.hideIcon
+              : undefined
+          }
+          pagination={false}
+          bordered={false}
+        />
+      </div>
+    );
+  };
+
+  onlineExpandedRowRender = record => {
     const { subCommodityList } = record;
     return (
       <div>
@@ -131,84 +199,121 @@ class DetailForBinding extends React.PureComponent {
           pagination={false}
           bordered={false}
           className={`tabs-no-padding ${styles.searchTitle}`}
+          expandedRowRender={rec => this.subExpandedRowRender(rec)}
+          rowClassName={rec =>
+            rec.subCommodityList === null || rec.subCommodityList.length === 0
+              ? styles.hideIcon
+              : undefined
+          }
         />
       </div>
     );
   };
 
-  handleTableChange = page => {
-    const {
-      dispatch,
-      detail: { pagination },
-    } = this.props;
-
-    // page change
-    if (!isEqual(page, pagination)) {
-      dispatch({
-        type: 'detail/bindingDetail',
-        payload: {
-          pagination: {
-            currentPage: page.current,
-            pageSize: page.pageSize,
-          },
-          commodityType: 'PackagePlu',
-        },
-      });
-    }
+  offlineExpandedRowRender = record => {
+    const { subCommodityList } = record;
+    return (
+      <div>
+        <Table
+          size="small"
+          columns={this.pluDetailColumns}
+          dataSource={subCommodityList}
+          pagination={false}
+          bordered={false}
+          rowClassName={rec =>
+            rec.subCommodityList === null || rec.subCommodityList.length === 0
+              ? styles.hideIcon
+              : undefined
+          }
+        />
+      </div>
+    );
   };
 
-  pluTableChange = page => {
-    const {
-      dispatch,
-      detail: { pagination },
-    } = this.props;
-
-    // page change
-    if (!isEqual(page, pagination)) {
-      dispatch({
-        type: 'detail/bindingDetail',
-        payload: {
-          pagination: {
-            currentPage: page.current,
-            pageSize: page.pageSize,
-          },
-          commodityType: 'Offer',
-        },
-      });
+  getRowSelectedClassName = (record, index) => {
+    if (index === 0) {
+      return styles.hideIcon;
     }
+    if (record.subCommodityList.length === 0) {
+      return styles.hideIcon;
+    }
+    return undefined;
   };
 
-  showTotal(total) {
-    return <div>Total {total} items</div>;
-  }
-
-  pluShowTotal(total) {
-    return <div>Total {total} items</div>;
-  }
+  getRowSelectedClassName2 = record => {
+    if (record.subCommodityList.length === 0) {
+      return styles.hideIcon;
+    }
+  };
 
   render() {
     const {
-      detail: { bingdingOffer, currentPage, pageSize, totalSize, bingdingPLU },
-      offerDetail,
+      commissionNew: {
+        checkedOnlineList = [],
+        onlineOfferPagination,
+        displayOnlineList = [],
+        checkedList = [],
+        offlinePLUPagination,
+        displayOfflineList = [],
+      },
+      loading,
     } = this.props;
-    const pagination = {
-      current: currentPage,
-      pageSize,
-      total: totalSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSizeOptions: ['20', '50', '100'],
-      showTotal: this.pluShowTotal,
+    const { currentPage: onlineCurrentPage, pageSize: onlinePageSize } = onlineOfferPagination;
+    const { currentPage: offlineCurrentPage, pageSize: offlinePageSize } = offlinePLUPagination;
+    const onlinePageOpts = {
+      total: checkedOnlineList.length,
+      current: onlineCurrentPage,
+      pageSize: onlinePageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'commissionNew/effectSave',
+          payload: {
+            onlineOfferPagination: {
+              currentPage: page,
+              pageSize,
+            },
+          },
+        }).then(() => {
+          setTimeout(() => {
+            dispatch({
+              type: 'commissionNew/changeOnlinePage',
+              payload: {
+                checkedOnlineList,
+              },
+            });
+          }, 500);
+        });
+      },
     };
-    const pluPagination = {
-      current: currentPage,
-      pageSize,
-      total: totalSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSizeOptions: ['20', '50', '100'],
-      showTotal: this.showTotal,
+
+    const offlinePageOpts = {
+      total: checkedList.length,
+      current: offlineCurrentPage,
+      pageSize: offlinePageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'commissionNew/effectSave',
+          payload: {
+            offlinePLUPagination: {
+              currentPage: page,
+              pageSize,
+            },
+          },
+        }).then(() => {
+          setTimeout(() => {
+            dispatch({
+              type: 'commissionNew/changeOfflinePage',
+              payload: {
+                checkedList,
+              },
+            });
+          }, 500);
+        });
+      },
     };
+
     return (
       <div>
         <Col lg={24} md={24} id="detailForBinding">
@@ -223,16 +328,14 @@ class DetailForBinding extends React.PureComponent {
                 rowKey={record => record.commoditySpecId}
                 size="small"
                 columns={this.columns}
-                dataSource={bingdingOffer}
-                pagination={pagination}
-                onChange={this.handleTableChange}
-                expandedRowRender={this.expandedRowRender}
-                onExpand={(expanded, record) => {
-                  this.onExpandEvent(expanded, record);
-                }}
-                loading={offerDetail}
+                dataSource={displayOnlineList}
+                pagination={false}
+                expandedRowRender={this.onlineExpandedRowRender}
+                loading={loading}
                 className={`tabs-no-padding ${styles.searchTitle}`}
+                rowClassName={(record, index) => this.getRowSelectedClassName2(record, index)}
               />
+              <PaginationComp style={{ marginTop: 10 }} {...onlinePageOpts} />
             </Col>
           </Row>
           <Row type="flex" justify="space-around">
@@ -246,11 +349,13 @@ class DetailForBinding extends React.PureComponent {
                 rowKey={record => record.commoditySpecId}
                 size="small"
                 columns={this.pluColumns}
-                dataSource={bingdingPLU}
+                dataSource={displayOfflineList}
                 className={`tabs-no-padding ${styles.searchTitle}`}
-                pagination={pluPagination}
-                onChange={this.pluTableChange}
+                rowClassName={(record, index) => this.getRowSelectedClassName(record, index)}
+                expandedRowRender={this.offlineExpandedRowRender}
+                pagination={false}
               />
+              <PaginationComp style={{ marginTop: 10 }} {...offlinePageOpts} />
             </Col>
           </Row>
         </Col>

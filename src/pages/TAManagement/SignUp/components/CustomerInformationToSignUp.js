@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
-import { Alert, Card, Col, Form, Row } from 'antd';
+import { Alert, Card, Col, Descriptions, Form, Row } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
+import moment from 'moment';
 import ContactInformationToFrom from '../../components/ContactInformationToFrom';
 import CompanyInformationToFrom from '../../components/CompanyInformationToFrom';
 import QuestionsToFrom from '../../components/QuestionsToFrom';
 import ApplyARCreditToFrom from '../../components/ApplyARCreditToFrom';
-import FileUploadToFrom from '../../components/FileUploadToFrom';
+import FileUploadToFrom from './FileUploadToFrom';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue, getFormLayout, getProductType } from '../../utils/pubUtils';
 import styles from '../index.less';
@@ -22,8 +23,8 @@ const mapStateToProps = store => {
     cityLoadingFlag,
     customerGroupLoadingFlag,
   } = store.taCommon;
-  const { customerInfo, taId, isCompanyExist } = store.taMgr;
-  const { isRwsRoom, isRwsAttraction, viewId } = store.signUp;
+  const { customerInfo, taId, isRegistration, isCompanyExist } = store.taMgr;
+  const { isRwsRoom, isRwsAttraction, viewId, taFileCheck, arAccountFileCheck } = store.signUp;
   return {
     organizationRoleList,
     countryList,
@@ -35,10 +36,13 @@ const mapStateToProps = store => {
     customerGroupLoadingFlag,
     customerInfo,
     taId,
+    isRegistration,
     isRwsRoom,
     isRwsAttraction,
     viewId,
     isCompanyExist,
+    taFileCheck,
+    arAccountFileCheck,
   };
 };
 @connect(mapStateToProps)
@@ -69,6 +73,31 @@ class CustomerInformationToSignUp extends PureComponent {
     });
   };
 
+  getGst = (keyValue, newCompanyInfo) => {
+    const { form } = this.props;
+    if (String(keyValue) !== '1') {
+      form.setFieldsValue({ gstRegNo: null });
+      form.setFieldsValue({ gstEffectiveDate: null });
+      Object.assign(newCompanyInfo, { gstRegNo: null });
+      Object.assign(newCompanyInfo, { gstEffectiveDate: null });
+    } else {
+      form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
+      const gstEffectiveDateObj = {
+        gstEffectiveDate: newCompanyInfo.gstEffectiveDate,
+      };
+      if (newCompanyInfo.gstEffectiveDate) {
+        gstEffectiveDateObj.gstEffectiveDate = moment(
+          newCompanyInfo.gstEffectiveDate,
+          newCompanyInfo.gstEffectiveDate.includes('-') ? 'YYYY-MM-DD' : 'DD/MM/YYYY'
+        );
+      }
+      form.setFieldsValue(gstEffectiveDateObj);
+      Object.assign(newCompanyInfo, { gstRegNo: newCompanyInfo.gstRegNo });
+      Object.assign(newCompanyInfo, gstEffectiveDateObj);
+    }
+    return newCompanyInfo;
+  };
+
   onHandleCompanyChange = (key, keyValue, fieldKey) => {
     const { dispatch, form, customerInfo } = this.props;
     let newCompanyInfo = {};
@@ -81,8 +110,13 @@ class CustomerInformationToSignUp extends PureComponent {
           type: 'taCommon/fetchQueryCityList',
           payload: { countryId: keyValue },
         });
-        const sourceOne = { city: null };
+        const sourceOne = { city: String(keyValue) === '65' ? '65' : null };
         form.setFieldsValue(sourceOne);
+        newCompanyInfo.isGstRegIndicator = '0';
+        if (String(keyValue) === '65') {
+          newCompanyInfo.isGstRegIndicator = '1';
+        }
+        this.getGst(newCompanyInfo.isGstRegIndicator, newCompanyInfo);
         Object.assign(newCompanyInfo, sourceOne);
       }
     }
@@ -98,8 +132,21 @@ class CustomerInformationToSignUp extends PureComponent {
       }
     }
     if (String(key) === 'isGstRegIndicator') {
-      form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
-      form.setFieldsValue({ gstEffectiveDate: newCompanyInfo.gstEffectiveDate });
+      this.getGst(keyValue, newCompanyInfo);
+    }
+    if (String(key) === 'applyArAccount') {
+      const arAccountFileCheck = {};
+      if (String(keyValue) === 'N') {
+        const sourceOne = { arAccountFileList: [] };
+        form.setFieldsValue(sourceOne);
+        Object.assign(newCompanyInfo, sourceOne);
+      }
+      dispatch({
+        type: 'signUp/save',
+        payload: {
+          arAccountFileCheck,
+        },
+      });
     }
     const noVal = getFormKeyValue(keyValue);
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));
@@ -264,6 +311,17 @@ class CustomerInformationToSignUp extends PureComponent {
     if (!isDel) {
       newFileList.push(taFile);
     }
+    const taFileCheck = {};
+    if (!newFileList || newFileList.length <= 0) {
+      taFileCheck.validateStatus = 'error';
+      taFileCheck.help = formatMessage({ id: 'REQUIRED' });
+    }
+    dispatch({
+      type: 'signUp/save',
+      payload: {
+        taFileCheck,
+      },
+    });
     dispatch({
       type: 'taMgr/save',
       payload: {
@@ -290,6 +348,20 @@ class CustomerInformationToSignUp extends PureComponent {
     if (!isDel) {
       newArAccountFileList.push(arAccountFile);
     }
+    const arAccountFileCheck = {};
+    if (
+      String(companyInfo.applyArAccount) === 'Y' &&
+      (!newArAccountFileList || newArAccountFileList.length <= 0)
+    ) {
+      arAccountFileCheck.validateStatus = 'error';
+      arAccountFileCheck.help = formatMessage({ id: 'REQUIRED' });
+    }
+    dispatch({
+      type: 'signUp/save',
+      payload: {
+        arAccountFileCheck,
+      },
+    });
     dispatch({
       type: 'taMgr/save',
       payload: {
@@ -339,6 +411,9 @@ class CustomerInformationToSignUp extends PureComponent {
       isRwsRoom,
       isRwsAttraction,
       viewId,
+      isRegistration,
+      taFileCheck,
+      arAccountFileCheck,
     } = this.props;
     const { companyInfo = {} } = customerInfo || {};
     const detailOpt = getFormLayout();
@@ -390,40 +465,72 @@ class CustomerInformationToSignUp extends PureComponent {
       form,
       ...detailOpt,
       viewId,
+      isRegistration: !isRegistration,
       applyArAccount: companyInfo.applyArAccount,
       taFileList: companyInfo.fileList || [],
       arAccountFileList: companyInfo.arAccountFileList || [],
+      taFileCheck,
+      arAccountFileCheck,
       onHandleTaFileChange: this.onHandleTaFileChange,
       onHandleArAccountFileChange: this.onHandleArAccountFileChange,
       onHandleDelTaFile: this.onHandleDelTaFile,
     };
+    const columns = { xs: 1, sm: 1, md: 1, lg: 1, xl: 1, xxl: 1 };
     return (
       <React.Fragment>
         <Alert
-          message={formatMessage({ id: 'KINDLY_SIGN_UP' })}
+          message={formatMessage({ id: 'IMPORTANT_INFORMATION' })}
           description={
-            <ul className={styles.kindlySignUpUl}>
-              <li>
-                <span className={styles.kindlySignUpLeftSpan}>
-                  {formatMessage({ id: 'SINGAPORE_REGISTERED_COMPANY' })}
-                </span>
-                <span className={styles.kindlySignUpRightSpan}>
-                  {formatMessage({ id: 'SINGAPORE_REGISTERED_CONTENT' })}
-                </span>
-              </li>
-              <li>
-                <span className={styles.kindlySignUpLeftSpan}>
-                  {formatMessage({ id: 'OVERSEAS_REGISTER_COMPANY' })}
-                </span>
-                <span className={styles.kindlySignUpRightSpan}>
-                  {formatMessage({ id: 'OVERSEAS_REGISTER_CONTENT' })}
-                </span>
-              </li>
-            </ul>
+            <React.Fragment>
+              <span className={styles.importInformationTitle}>
+                {formatMessage({ id: 'KINDLY_SIGN_UP' })}
+              </span>
+              <Descriptions className={styles.descriptionsStyle} column={{ ...columns }}>
+                <Descriptions.Item label={formatMessage({ id: 'SINGAPORE_REGISTERED_COMPANY' })}>
+                  <ol type={1}>
+                    <li>{formatMessage({ id: 'SINGAPORE_REGISTERED_CONTENT_ONE' })}</li>
+                    <li>{formatMessage({ id: 'SINGAPORE_REGISTERED_CONTENT_TWO' })}</li>
+                  </ol>
+                </Descriptions.Item>
+                <Descriptions.Item label={formatMessage({ id: 'OVERSEAS_REGISTER_COMPANY' })}>
+                  <ol type={1}>
+                    <li>{formatMessage({ id: 'OVERSEAS_REGISTER_CONTENT_ONE' })}</li>
+                    <li>{formatMessage({ id: 'OVERSEAS_REGISTER_CONTENT_TWO' })}</li>
+                  </ol>
+                </Descriptions.Item>
+              </Descriptions>
+              <span className={styles.importInformationTitle}>
+                {formatMessage({ id: 'TO_APPLY_FOR_CREDIT_TITLE_ONE' })}
+              </span>
+              <span className={styles.importInformationTitle}>
+                {formatMessage({ id: 'TO_APPLY_FOR_CREDIT_TITLE_TWO' })}
+              </span>
+              <span className={styles.importInformationTitle}>
+                {formatMessage({ id: 'TO_APPLY_FOR_CREDIT_TITLE_THREE' })}
+              </span>
+              <Descriptions className={styles.descriptionsStyle} column={{ ...columns }}>
+                <Descriptions.Item label={formatMessage({ id: 'DOWNLOAD_FORMS' })}>
+                  <ol type={1}>
+                    <li>{formatMessage({ id: 'DOWNLOAD_FORMS_CONTENT_ONE' })}</li>
+                    <li>{formatMessage({ id: 'DOWNLOAD_FORMS_CONTENT_TWO' })}</li>
+                  </ol>
+                </Descriptions.Item>
+                <Descriptions.Item label={formatMessage({ id: 'SUPPORTING_DOCUMENTS' })}>
+                  <ol type={1}>
+                    <li>{formatMessage({ id: 'SUPPORTING_DOCUMENTS_CONTENT_ONE' })}</li>
+                    <li>{formatMessage({ id: 'SUPPORTING_DOCUMENTS_CONTENT_TWO' })}</li>
+                    <li>{formatMessage({ id: 'SUPPORTING_DOCUMENTS_CONTENT_THREE' })}</li>
+                  </ol>
+                </Descriptions.Item>
+              </Descriptions>
+              <span className={styles.importInformationTitle}>
+                {formatMessage({ id: 'PLEASE_ALSO_NOTE_TITLE' })}
+              </span>
+            </React.Fragment>
           }
           type="warning"
           showIcon
-          style={{ marginBottom: '0.25rem', marginTop: '1rem', padding: '15px 8px 0 64px' }}
+          className={styles.importInformation}
         />
         <ApplyARCreditToFrom {...arCreditProps} />
         <Row type="flex" justify="space-around">

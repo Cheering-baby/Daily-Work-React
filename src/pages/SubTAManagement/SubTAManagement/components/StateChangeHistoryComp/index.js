@@ -4,7 +4,7 @@ import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import { isNvl } from '@/utils/utils';
-import PaginationComp from '../PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import styles from './index.less';
 import { getKeyValue } from '../../../utils/pubUtils';
 

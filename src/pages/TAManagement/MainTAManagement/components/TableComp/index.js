@@ -7,7 +7,7 @@ import router from 'umi/router';
 import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 import MobileModal from '../../../../../components/MobileModal';
-import PaginationComp from '../PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import UploadContractComp from '../UploadContractComp';
 import UploadContractHistoryComp from '../UploadContractHistoryComp';
 import StateChangeHistoryComp from '../StateChangeHistoryComp';
@@ -17,7 +17,6 @@ import { isNvl } from '@/utils/utils';
 import {
   AR_ACCOUNT_PRIVILEGE,
   hasAllPrivilege,
-  MAIN_TA_ADMIN_PRIVILEGE,
   SALES_SUPPORT_PRIVILEGE,
 } from '@/utils/PrivilegeUtil';
 
@@ -38,6 +37,7 @@ const mapStateToProps = store => {
     selectedRowKeys = [],
     rowSelected,
     rowAllSelected,
+    taSelectedRowKeys = [],
   } = store.mainTAManagement;
   const { contractFileList = [], contractFileUploading = false } = store.uploadContract;
   return {
@@ -60,6 +60,7 @@ const mapStateToProps = store => {
     selectedRowKeys,
     rowSelected,
     rowAllSelected,
+    taSelectedRowKeys,
   };
 };
 
@@ -71,11 +72,17 @@ class TableComp extends PureComponent {
         title: formatMessage({ id: 'TA_TABLE_NO' }),
         dataIndex: 'number',
         width: '60px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'TA_TABLE_AGENT_ID' }),
         dataIndex: 'taId',
         width: '120px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'TA_TABLE_AR_COMPANY_NAME' }),
@@ -89,11 +96,41 @@ class TableComp extends PureComponent {
         title: formatMessage({ id: 'TA_TABLE_AR_E_WALLET_ID' }),
         dataIndex: 'peoplesoftEwalletId',
         width: '200px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'TA_TABLE_AR_AR_ACCOUNT_ID' }),
         dataIndex: 'peoplesoftArAccountId',
         width: '200px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_AR_CREDIT_BALANCE' }),
+        dataIndex: 'arCreditBalance',
+        width: '200px',
+        render: text => {
+          return !isNvl(text)
+            ? Number(text)
+                .toFixed(2)
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '-';
+        },
+      },
+      {
+        title: formatMessage({ id: 'TA_TABLE_E_WALLET_BALANCE' }),
+        dataIndex: 'eWalletIdBalance',
+        width: '200px',
+        render: text => {
+          return !isNvl(text)
+            ? Number(text)
+                .toFixed(2)
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '-';
+        },
       },
       {
         title: formatMessage({ id: 'TA_TABLE_AR_EFFECTIVE_DATE' }),
@@ -134,24 +171,43 @@ class TableComp extends PureComponent {
         render: (text, record) => {
           const { selectMoreTaId, taMoreVisible } = this.props;
           const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
-          const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
           const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
+          const showEdit =
+            isAccountingArRoleFlag && !isSaleSupportRoleFlag ? (
+              <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}>
+                <Icon type="edit" onClick={e => this.goEditInformation(e, record.taId)} />
+              </Tooltip>
+            ) : null;
+          const showMore =
+            isAccountingArRoleFlag && !isSaleSupportRoleFlag ? (
+              <Popover
+                placement="bottomRight"
+                visible={
+                  !isNvl(selectMoreTaId) && String(selectMoreTaId) === String(record.taId)
+                    ? taMoreVisible
+                    : false
+                }
+                onVisibleChange={visible => this.onMoreVisibleChange(record.taId, visible)}
+                content={this.getAccountingArRoleMoreContent(record)}
+                overlayClassName={styles.popClassName}
+                getPopupContainer={() => document.getElementById(`mainTaView`)}
+              >
+                <Icon type="more" />
+              </Popover>
+            ) : null;
           return (
             <div>
               <Tooltip placement="top" title={formatMessage({ id: 'COMMON_DETAIL' })}>
                 <Icon type="eye" onClick={e => this.goDetailInformation(e, record.taId)} />
               </Tooltip>
-              {isSaleSupportRoleFlag && (
+              {isSaleSupportRoleFlag ? (
                 <Tooltip placement="top" title={formatMessage({ id: 'TA_TABLE_ADDITIONAL' })}>
                   <Icon type="plus" onClick={e => this.goAdditionalInformation(e, record.taId)} />
                 </Tooltip>
+              ) : (
+                showEdit
               )}
-              {(isAccountingArRoleFlag || isMainTaRoleFlag) && (
-                <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}>
-                  <Icon type="edit" onClick={e => this.goEditInformation(e, record.taId)} />
-                </Tooltip>
-              )}
-              {isSaleSupportRoleFlag && (
+              {isSaleSupportRoleFlag ? (
                 <Popover
                   placement="bottomRight"
                   visible={
@@ -166,6 +222,8 @@ class TableComp extends PureComponent {
                 >
                   <Icon type="more" />
                 </Popover>
+              ) : (
+                showMore
               )}
             </div>
           );
@@ -221,9 +279,19 @@ class TableComp extends PureComponent {
             </div>
           )}
         </Col>
+      </Row>
+    );
+  };
+
+  getAccountingArRoleMoreContent = record => {
+    return (
+      <Row type="flex" justify="space-around" className={styles.contentRow}>
         <Col span={24}>
-          <div className={styles.contentCol} onClick={e => this.addGrant(e, record)}>
-            {formatMessage({ id: 'TA_TABLE_GRANT' })}
+          <div
+            className={styles.contentCol}
+            onClick={() => this.onShowContractFileHisModal(record.taId)}
+          >
+            {formatMessage({ id: 'TA_TABLE_HISTORY' })}
           </div>
         </Col>
       </Row>
@@ -273,6 +341,7 @@ class TableComp extends PureComponent {
         },
       });
       dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
+      dispatch({ type: 'taCommon/fetchQueryCreateTeam' });
       dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
         if (!isNvl(taId)) {
           dispatch({
@@ -476,24 +545,22 @@ class TableComp extends PureComponent {
     });
   };
 
-  addGrant = (e, record) => {
-    e.preventDefault();
+  grantTa = taSelectedRowKeys => {
+    if (taSelectedRowKeys.length > 0) {
+      router.push({
+        pathname: `/TAManagement/MainTAManagement/Grant`,
+        query: { taIdList: taSelectedRowKeys.join(',') },
+      });
+    }
+  };
+
+  onTaSelectChange = selectedRowKeys => {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'mainTAManagement/changeSelectedKey',
-      payload: {
-        rowSelected: record.number,
-      },
-    });
     dispatch({
       type: 'mainTAManagement/save',
       payload: {
-        rowAllSelected: record,
+        taSelectedRowKeys: selectedRowKeys,
       },
-    });
-    router.push({
-      pathname: `/TAManagement/MainTAManagement/Grant`,
-      query: { rowAllSelected: record.number },
     });
   };
 
@@ -517,7 +584,7 @@ class TableComp extends PureComponent {
       contractFileUploading = false,
       contractHisModalVisible = false,
       hisActiveKey,
-      selectedRowKeys,
+      taSelectedRowKeys = [],
     } = this.props;
     const pageOpts = {
       total: searchList.total,
@@ -576,14 +643,20 @@ class TableComp extends PureComponent {
       onCancel: () => this.handleHisModalCancel(),
       footer: null,
     };
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
-      type: null,
+    const taRowSelection = {
+      selectedRowKeys: taSelectedRowKeys,
+      onChange: this.onTaSelectChange,
     };
     return (
       <Col span={24}>
+        <Button
+          onClick={() => this.grantTa(taSelectedRowKeys)}
+          disabled={taSelectedRowKeys.length === 0}
+        >
+          {formatMessage({ id: 'GRANT' })}
+        </Button>
         <Table
+          style={{ marginTop: 10 }}
           size="small"
           className={`tabs-no-padding ${styles.searchTitle}`}
           columns={this.getColumns()}
@@ -591,6 +664,7 @@ class TableComp extends PureComponent {
           dataSource={mainTAList}
           loading={qryTaTableLoading}
           scroll={{ x: 660 }}
+          rowSelection={taRowSelection}
           {...tableOpts}
         />
         <Modal
@@ -612,7 +686,6 @@ class TableComp extends PureComponent {
               {formatMessage({ id: 'COMMON_OK' })}
             </Button>,
           ]}
-          rowSelection={rowSelection}
         >
           <UploadContractComp {...myFileProps} />
         </Modal>

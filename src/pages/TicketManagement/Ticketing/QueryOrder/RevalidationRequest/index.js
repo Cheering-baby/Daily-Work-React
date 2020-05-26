@@ -13,11 +13,13 @@ import {
   Modal,
   Row,
   Select,
+  Spin,
   Table,
+  Tooltip,
   Upload,
 } from 'antd';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '../../../components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
 import Card from '../../../components/Card';
 import PaginationComp from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaginationComp';
@@ -41,6 +43,7 @@ const formLayout = {
   revalidationRequestMgr,
   global,
   tableLoading: loading.effects['revalidationRequestMgr/queryBookingDetail'],
+  pageLoading: loading.effects['revalidationRequestMgr/revalidationTicket'],
 }))
 class RevalidationRequest extends Component {
   columns = [
@@ -48,22 +51,74 @@ class RevalidationRequest extends Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
       dataIndex: 'vidNo',
       key: 'vidNo',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
       dataIndex: 'vidCode',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
       dataIndex: 'status',
+      render: (text, record) => {
+        let status = text;
+        const { hadRefunded } = record;
+        if (text === 'false' && hadRefunded !== 'Yes') {
+          status = 'ISSUED';
+        } else {
+          status = 'INVALID';
+        }
+        return (
+          <div>
+            <div
+              className={styles.statusRadiusStyle}
+              style={{ background: `${this.setStatusColor(text, hadRefunded)}` }}
+            />
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{status}</span>}
+            >
+              <span className={styles.tableSpan}>{status}</span>
+            </Tooltip>
+          </div>
+        );
+      },
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'EXPIRY_DATE' })}</span>,
       dataIndex: 'expiryDate',
+      render: text => {
+        if (text) {
+          const date = moment(text, 'YYYY-MM-DD');
+          const dateString = moment(date).format('DD-MMM-YYYY');
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{dateString}</span>}
+            >
+              <span className={styles.tableSpan}>{dateString}</span>
+            </Tooltip>
+          );
+        }
+      },
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' })}</span>,
       dataIndex: 'offerName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
   ];
 
@@ -100,6 +155,13 @@ class RevalidationRequest extends Component {
       type: 'revalidationRequestMgr/resetData',
     });
   }
+
+  setStatusColor = (status, hadRefunded) => {
+    if (status === 'false' && hadRefunded !== 'Yes') {
+      return '#40C940';
+    }
+    return '#C0C0C0';
+  };
 
   changeDeliveryMode = value => {
     const { dispatch, form } = this.props;
@@ -176,7 +238,7 @@ class RevalidationRequest extends Component {
     });
   };
 
-  revalidationTicket = (deliveryMode, collectionDate, selectedVidList, bookingNo) => {
+  revalidationTicket = (deliveryMode, collectionDate, selectedVidList, bookingNo, userType) => {
     const { form } = this.props;
     if (selectedVidList.length < 1) {
       message.warning('Select at least one VID.');
@@ -200,7 +262,13 @@ class RevalidationRequest extends Component {
                   </Button>
                   <Button
                     onClick={() =>
-                      this.wantRevalidate(deliveryMode, collectionDate, selectedVidList, bookingNo)
+                      this.wantRevalidate(
+                        deliveryMode,
+                        collectionDate,
+                        selectedVidList,
+                        bookingNo,
+                        userType
+                      )
                     }
                     type="primary"
                     style={{ width: 40 }}
@@ -218,11 +286,37 @@ class RevalidationRequest extends Component {
     }
   };
 
-  wantRevalidate = (deliveryMode, collectionDate, selectedVidList, bookingNo) => {
-    const { dispatch } = this.props;
+  wantRevalidate = (deliveryMode, collectionDate, selectedVidList, bookingNo, userType) => {
+    const {
+      dispatch,
+      revalidationRequestMgr: { bookingDetail },
+    } = this.props;
+    Modal.destroyAll();
     const visualIds = [];
-    for (let i = 0; i < selectedVidList.length; i += 1) {
-      visualIds.push(selectedVidList[i].vidCode);
+    const selectOfferGroupList = [];
+    selectedVidList.forEach(selectedVid => {
+      const index = selectOfferGroupList.findIndex(
+        selectOfferGroup => selectOfferGroup === selectedVid.offerGroup
+      );
+      if (index < 0) {
+        selectOfferGroupList.push(selectedVid.offerGroup);
+      }
+    });
+    const { offers = [] } = bookingDetail;
+    for (let i = 0; i < offers.length; i += 1) {
+      const index = selectOfferGroupList.findIndex(
+        selectOfferGroup => selectOfferGroup === offers[i].offerGroup
+      );
+      if (index < 0) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      const { attraction = [] } = offers[i];
+      if (attraction) {
+        for (let j = 0; j < attraction.length; j += 1) {
+          visualIds.push(attraction[j].visualID);
+        }
+      }
     }
     dispatch({
       type: 'revalidationRequestMgr/revalidationTicket',
@@ -236,7 +330,12 @@ class RevalidationRequest extends Component {
       },
     }).then(resultCode => {
       if (resultCode === '0') {
-        message.success('Submit successfully.');
+        if (userType === '02') {
+          message.success(formatMessage({ id: 'REVALIDATED_SUCCESSFULLY' }));
+        }
+        if (userType === '03') {
+          message.success(formatMessage({ id: 'SUB_TA_REQUESTED_SUCCESSFULLY' }));
+        }
       } else {
         message.warning(resultCode);
       }
@@ -256,9 +355,9 @@ class RevalidationRequest extends Component {
         },
       }).then(uploadStatus => {
         if (uploadStatus) {
-          message.success('Update successfully.');
+          message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
         } else {
-          message.warning('Failed to update.');
+          message.warning(formatMessage({ id: 'FAILED_TO_UPDATE' }));
         }
       });
     };
@@ -274,9 +373,59 @@ class RevalidationRequest extends Component {
     }
   };
 
+  onSelectAll = (selected, selectedRows) => {
+    const { dispatch } = this.props;
+    if (selected) {
+      const selectedRowKeys = selectedRows.map(selectedRow => selectedRow.key);
+      dispatch({
+        type: 'revalidationRequestMgr/saveSelectVid',
+        payload: {
+          selectedRowKeys,
+        },
+      });
+    } else {
+      dispatch({
+        type: 'revalidationRequestMgr/save',
+        payload: {
+          selectedRowKeys: [],
+          selectedVidList: [],
+        },
+      });
+    }
+  };
+
+  onSelect = (record, selected) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'revalidationRequestMgr/settingSelectVid',
+      payload: {
+        selected,
+        record,
+      },
+    });
+  };
+
+  getCheckboxProps = record => {
+    const {
+      revalidationRequestMgr: { disabledKeyList, disabledVidList = [] },
+    } = this.props;
+    const index = disabledKeyList.findIndex(disabledKey => disabledKey === record.offerGroup);
+    const vidCodeIndex = disabledVidList.findIndex(
+      disabledVid => disabledVid.vidCode === record.vidCode
+    );
+    let disabledResult = false;
+    if (vidCodeIndex > -1 || index > -1) {
+      disabledResult = true;
+    }
+    return {
+      disabled: disabledResult,
+    };
+  };
+
   render() {
     const {
       tableLoading,
+      pageLoading,
       form: { getFieldDecorator },
       revalidationRequestMgr: {
         orderCreateTime,
@@ -320,15 +469,17 @@ class RevalidationRequest extends Component {
 
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange,
+      onSelectAll: this.onSelectAll,
+      onSelect: this.onSelect,
+      getCheckboxProps: this.getCheckboxProps,
     };
 
     return (
-      <div>
+      <Spin spinning={!!pageLoading}>
         <Row gutter={12}>
           <Col span={12}>
             <MediaQuery minWidth={SCREEN.screenSm}>
-              <BreadcrumbComp title={title} />
+              <BreadcrumbCompForPams title={title} />
             </MediaQuery>
           </Col>
           <Col span={12}>
@@ -341,7 +492,8 @@ class RevalidationRequest extends Component {
                       deliveryMode,
                       collectionDate,
                       selectedVidList,
-                      bookingNo
+                      bookingNo,
+                      userType
                     )
                   }
                 >
@@ -450,6 +602,7 @@ class RevalidationRequest extends Component {
                     rowSelection={rowSelection}
                     pagination={false}
                     bordered={false}
+                    scroll={{ x: 660 }}
                   />
                   <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
                 </Col>
@@ -457,7 +610,7 @@ class RevalidationRequest extends Component {
             </Card>
           </Col>
         </Row>
-      </div>
+      </Spin>
     );
   }
 }

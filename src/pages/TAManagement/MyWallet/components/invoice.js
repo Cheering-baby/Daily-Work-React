@@ -2,7 +2,7 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { Button, Modal, Spin, message } from 'antd';
+import { Button, message, Modal, Spin } from 'antd';
 import styles from './invoice.less';
 
 const logoImage = require('@/assets/image/logi-mini.png');
@@ -95,10 +95,8 @@ class Invoice extends React.PureComponent {
       onCancel: this.handleCancel,
       footer: [
         <Button
-          type="download"
-          key="submit"
-          message=""
-          style={{ backgroundColor: '#1890FF', width: '61px', borderRadius: '4px' }}
+          type="primary"
+          className={styles.downloadBtn}
           onClick={e => {
             e.preventDefault();
             this.downloadFileEvent(details.id);
@@ -110,7 +108,7 @@ class Invoice extends React.PureComponent {
     };
     return (
       <React.Fragment>
-        <Modal {...modelProps}>
+        <Modal {...modelProps} className={styles.invoiceModal}>
           <Spin spinning={loading}>
             <div
               className={styles['invoice-container']}

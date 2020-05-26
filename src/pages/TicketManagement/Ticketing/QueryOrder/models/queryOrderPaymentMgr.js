@@ -1,16 +1,20 @@
-import {cloneDeep} from 'lodash';
-import {message} from 'antd';
+import { cloneDeep } from 'lodash';
+import { message, Modal } from 'antd';
 import {
   accountTopUp,
+  invoiceDownload,
   paymentOrder,
   queryBookingStatus,
   sendTransactionPaymentOrder,
+  ticketDownload,
 } from '@/pages/TicketManagement/services/bookingAndPay';
-import {queryAccount, queryTaInfo} from '@/pages/TicketManagement/services/taMgrService';
+import { queryAccount, queryTaInfo } from '@/pages/TicketManagement/services/taMgrService';
 
 export default {
   namespace: 'queryOrderPaymentMgr',
   state: {
+    downloadFileLoading: false,
+    paymentPromptVisible: false,
     paymentModalVisible: false,
     payPageLoading: false,
     bookingNo: null,
@@ -22,7 +26,7 @@ export default {
       {
         value: 1,
         label: 'eWallet',
-        key: 'E_WALLET',
+        key: 'eWallet',
         check: true,
       },
       {
@@ -34,7 +38,7 @@ export default {
       {
         value: 3,
         label: 'AR',
-        key: 'AR_CREDIT',
+        key: 'AR',
         check: false,
       },
     ],
@@ -180,6 +184,20 @@ export default {
           payPageLoading: true,
         },
       });
+
+      const {
+        bookDetail: { totalPrice },
+      } = yield select(state => state.queryOrderPaymentMgr);
+
+      if (Number.parseFloat(totalPrice) === Number.parseFloat(0)) {
+        yield put({
+          type: 'queryBookingStatus',
+          payload: {},
+        });
+        message.success('Confirmed successfully.');
+        return null;
+      }
+
       const { bookingNo, taDetailInfo } = yield select(state => state.queryOrderPaymentMgr);
 
       let emailNo = '';
@@ -206,7 +224,7 @@ export default {
           type: 'queryBookingStatus',
           payload: {},
         });
-        message.success('Confirm successfully!');
+        message.success('Confirmed successfully.');
         return result;
       }
 
@@ -220,6 +238,18 @@ export default {
           payPageLoading: true,
         },
       });
+
+      const {
+        bookDetail: { totalPrice },
+      } = yield select(state => state.queryOrderPaymentMgr);
+
+      if (Number.parseFloat(totalPrice) === Number.parseFloat(0)) {
+        yield put({
+          type: 'queryBookingStatus',
+          payload: {},
+        });
+        return null;
+      }
 
       const { bookingNo, payModeList } = yield select(state => state.queryOrderPaymentMgr);
 
@@ -258,8 +288,12 @@ export default {
       const { bookingNo } = yield select(state => state.queryOrderPaymentMgr);
       let status = 'WaitingForPaying';
       let statusResult = {};
-      while (status === 'WaitingForPaying' || status === 'Archiving') {
+      while (status === 'WaitingForPaying' || status === 'Paying' || status === 'Archiving') {
         const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
+        const { bookingNo: bookingNoNew } = yield select(state => state.queryOrderPaymentMgr);
+        if (!bookingNoNew || bookingNo !== bookingNoNew) {
+          return;
+        }
         const { resultCode: statusResultCode, result: newResult = {} } = statusData;
         if (statusResultCode === '0') {
           const { transStatus } = newResult;
@@ -267,6 +301,15 @@ export default {
           statusResult = newResult;
         } else {
           status = 'Failed';
+        }
+        if (status === 'WaitingForPaying' || status === 'Paying' || status === 'Archiving') {
+          // if status is still WaitingForPaying, suspend 5 second.
+          yield call(
+            () =>
+              new Promise(resolve => {
+                setTimeout(() => resolve(), 5000);
+              })
+          );
         }
       }
       yield put({
@@ -281,17 +324,71 @@ export default {
           payload: {
             payPageLoading: false,
             paymentModalVisible: false,
+            paymentPromptVisible: true,
           },
         });
         yield put({
           type: 'queryOrderMgr/queryTransactions',
           payload: {},
         });
-        message.success('Confirm successfully!');
+        yield put({
+          type: 'fetchInvoiceDownload',
+          payload: {},
+        });
       } else {
         const { failedReason } = statusResult;
-        message.error(failedReason);
+        Modal.error({
+          title: 'Confirm failed',
+          content: failedReason,
+        });
       }
+    },
+
+    *fetchTicketDownload(_, { call, put, select }) {
+      yield put({
+        type: 'save',
+        payload: {
+          downloadFileLoading: true,
+        },
+      });
+      const { bookingNo } = yield select(state => state.queryOrderPaymentMgr);
+      const params = {
+        forderNo: bookingNo,
+      };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(ticketDownload, params);
+      yield put({
+        type: 'save',
+        payload: {
+          downloadFileLoading: false,
+        },
+      });
+      if (resultCode === '0') {
+        return result;
+      }
+      message.error(resultMsg);
+    },
+
+    *fetchInvoiceDownload(_, { call, select }) {
+      const { bookingNo } = yield select(state => state.queryOrderPaymentMgr);
+      const params = {
+        forderNo: bookingNo,
+      };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(invoiceDownload, params);
+
+      if (resultCode === '0') {
+        const openWindow = window.open('about:blank');
+        if (openWindow) {
+          openWindow.location.href = result;
+        } else {
+          message.error('Confirmation receipt download error!');
+        }
+        return result;
+      }
+      message.error(resultMsg);
     },
   },
 
@@ -304,6 +401,8 @@ export default {
     },
     resetData() {
       return {
+        downloadFileLoading: false,
+        paymentPromptVisible: false,
         paymentModalVisible: false,
         payPageLoading: false,
         bookingNo: null,
@@ -315,7 +414,7 @@ export default {
           {
             value: 1,
             label: 'eWallet',
-            key: 'E_WALLET',
+            key: 'eWallet',
             check: true,
           },
           {
@@ -327,7 +426,7 @@ export default {
           {
             value: 3,
             label: 'AR',
-            key: 'AR_CREDIT',
+            key: 'AR',
             check: false,
           },
         ],

@@ -1,10 +1,8 @@
-import {message} from 'antd';
-import router from 'umi/router';
-import moment from 'moment';
-import {cloneDeep} from 'lodash';
+import { message, Modal } from 'antd';
+import { cloneDeep } from 'lodash';
 import {
   accountTopUp,
-  createBooking,
+  invoiceDownload,
   paymentOrder,
   queryBookingStatus,
   sendTransactionPaymentOrder,
@@ -28,7 +26,7 @@ export default {
       {
         value: 1,
         label: 'eWallet',
-        key: 'E_WALLET',
+        key: 'eWallet',
         check: true,
       },
       {
@@ -40,7 +38,7 @@ export default {
       {
         value: 3,
         label: 'AR',
-        key: 'AR_CREDIT',
+        key: 'AR',
         check: false,
       },
     ],
@@ -56,7 +54,7 @@ export default {
     taDetailInfo: null,
     accountInfo: null,
     bookDetail: {
-      totalPrice: 20000.0,
+      totalPrice: 0,
     },
     downloadFileLoading: false,
   },
@@ -68,16 +66,6 @@ export default {
         payload: {
           payPageLoading: true,
         },
-      });
-
-      yield put({
-        type: 'fetchAccountDetail',
-        payload: {},
-      });
-
-      yield put({
-        type: 'fetchQueryTaDetail',
-        payload: {},
       });
     },
 
@@ -125,6 +113,27 @@ export default {
         },
       });
       if (resultCode === '0') {
+        return result;
+      }
+      message.error(resultMsg);
+    },
+
+    *fetchInvoiceDownload(_, { call, select }) {
+      const { bookingNo } = yield select(state => state.ticketBookingAndPayMgr);
+      const params = {
+        forderNo: bookingNo,
+      };
+      const {
+        data: { resultCode, resultMsg, result = {} },
+      } = yield call(invoiceDownload, params);
+
+      if (resultCode === '0') {
+        const openWindow = window.open('about:blank');
+        if (openWindow) {
+          openWindow.location.href = result;
+        } else {
+          message.error('Confirmation receipt download error!');
+        }
         return result;
       }
       message.error(resultMsg);
@@ -220,6 +229,20 @@ export default {
           payPageLoading: true,
         },
       });
+
+      const {
+        bookDetail: { totalPrice },
+      } = yield select(state => state.ticketBookingAndPayMgr);
+
+      if (Number.parseFloat(totalPrice) === Number.parseFloat(0)) {
+        yield put({
+          type: 'queryBookingStatus',
+          payload: {},
+        });
+        message.success('Confirmed successfully.');
+        return null;
+      }
+
       const { bookingNo, taDetailInfo } = yield select(state => state.ticketBookingAndPayMgr);
 
       let emailNo = '';
@@ -246,7 +269,7 @@ export default {
           type: 'queryBookingStatus',
           payload: {},
         });
-        message.success('Confirm successfully!');
+        message.success('Confirmed successfully.');
         return result;
       }
 
@@ -263,25 +286,12 @@ export default {
       const {
         userCompanyInfo: { companyType },
       } = yield select(state => state.global);
-      const { bookingNo, payModeList } = yield select(state => state.ticketBookingAndPayMgr);
-
-      const payMode = payModeList.filter(payModeObj => payModeObj.check);
-      const params = {
-        orderNo: bookingNo,
-        paymentMode: payMode[0].key,
-      };
       const {
-        data: { resultCode, resultMsg },
-      } = yield call(paymentOrder, params);
-      yield put({
-        type: 'save',
-        payload: {
-          payPageLoading: false,
-        },
-      });
-      if (resultCode === '0') {
+        bookDetail: { totalPrice },
+      } = yield select(state => state.ticketBookingAndPayMgr);
+      if (Number.parseFloat(totalPrice) === Number.parseFloat(0)) {
         if (companyType === '02') {
-          message.success('Confirm successfully!');
+          message.success('Confirmed successfully.');
         } else {
           yield put({
             type: 'queryBookingStatus',
@@ -289,7 +299,33 @@ export default {
           });
         }
       } else {
-        message.error(resultMsg);
+        const { bookingNo, payModeList } = yield select(state => state.ticketBookingAndPayMgr);
+        const payMode = payModeList.filter(payModeObj => payModeObj.check);
+        const params = {
+          orderNo: bookingNo,
+          paymentMode: payMode[0].key,
+        };
+        const {
+          data: { resultCode, resultMsg },
+        } = yield call(paymentOrder, params);
+        yield put({
+          type: 'save',
+          payload: {
+            payPageLoading: false,
+          },
+        });
+        if (resultCode === '0') {
+          if (companyType === '02') {
+            message.success('Confirmed successfully.');
+          } else {
+            yield put({
+              type: 'queryBookingStatus',
+              payload: {},
+            });
+          }
+        } else {
+          message.error(resultMsg);
+        }
       }
     },
 
@@ -304,8 +340,12 @@ export default {
       const { bookingNo } = yield select(state => state.ticketBookingAndPayMgr);
       let status = 'WaitingForPaying';
       let statusResult = {};
-      while (status === 'WaitingForPaying' || status === 'Archiving') {
+      while (status === 'WaitingForPaying' || status === 'Paying' || status === 'Archiving') {
         const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
+        const { bookingNo: bookingNoNew } = yield select(state => state.ticketBookingAndPayMgr);
+        if (!bookingNoNew || bookingNo !== bookingNoNew) {
+          return;
+        }
         const { resultCode: statusResultCode, result: newResult = {} } = statusData;
         if (statusResultCode === '0') {
           const { transStatus } = newResult;
@@ -313,6 +353,15 @@ export default {
           statusResult = newResult;
         } else {
           status = 'Failed';
+        }
+        if (status === 'WaitingForPaying' || status === 'Paying' || status === 'Archiving') {
+          // if status is still WaitingForPaying, suspend 5 second.
+          yield call(
+            () =>
+              new Promise(resolve => {
+                setTimeout(() => resolve(), 5000);
+              })
+          );
         }
       }
       yield put({
@@ -329,9 +378,16 @@ export default {
             payModelShow: true,
           },
         });
+        yield put({
+          type: 'fetchInvoiceDownload',
+          payload: {},
+        });
       } else {
         const { failedReason } = statusResult;
-        message.error(failedReason);
+        Modal.error({
+          title: 'Confirm failed',
+          content: failedReason,
+        });
       }
     },
 
@@ -402,222 +458,6 @@ export default {
         },
       });
     },
-
-    *orderCreate({ payload }, { call, put }) {
-      const {
-        deliveryMode,
-        collectionDate,
-        ticketAmount,
-        generalTicketOrderData = [],
-        packageOrderData = [],
-        onceAPirateOrderData = [],
-      } = payload;
-
-      const bookingParam = {
-        customerId: '',
-        commonOffers: [],
-        patronInfo: null,
-        totalPrice: 0,
-        identificationNo: null,
-        identificationType: null,
-        voucherNos: [],
-      };
-
-      const ticketOrderData = [...packageOrderData, ...generalTicketOrderData];
-      ticketOrderData.forEach(orderData => {
-        orderData.orderOfferList.forEach(orderOffer => {
-          const { queryInfo, offerInfo, orderInfo, deliveryInfo } = orderOffer;
-          let totalPrice = 0;
-          const attractionProducts = [];
-          orderInfo.forEach(orderInfoItem => {
-            totalPrice += orderInfoItem.pricePax * orderInfoItem.quantity;
-            const { productInfo } = orderInfoItem;
-            const attractionProduct = {
-              productNo: productInfo.productNo,
-              numOfAttraction: orderInfoItem.quantity,
-              visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
-            };
-            attractionProducts.push(attractionProduct);
-          });
-          const submitCommonOffer = {
-            offerNo: offerInfo.offerNo,
-            priceRuleId: null,
-            offerCount: 1,
-            attractionProducts,
-            totalPrice,
-            patronInfo: null,
-            deliveryInfo: {
-              referenceNo: deliveryInfo.taNo,
-              contactNo: deliveryInfo.customerContactNo,
-              lastName: deliveryInfo.guestLastName,
-              firstName: deliveryInfo.guestFirstName,
-              country: deliveryInfo.country,
-              collectionDate,
-              deliveryMode: deliveryMode ? moment(deliveryMode, 'x').format('YYYY-MM-DD') : null,
-            },
-          };
-          bookingParam.commonOffers.push(submitCommonOffer);
-          bookingParam.totalPrice += totalPrice;
-        });
-      });
-
-      onceAPirateOrderData.forEach(orderData => {
-        const { queryInfo } = orderData;
-        orderData.orderOfferList.forEach(orderOffer => {
-          const { offerInfo, orderInfo } = orderOffer;
-          let totalPrice = orderInfo.offerSumPrice * orderInfo.orderQuantity;
-          let mealsProductList = [];
-          if (orderInfo.voucherType === '1') {
-            mealsProductList = orderInfo.groupSettingList;
-          } else {
-            mealsProductList = orderInfo.individualSettingList;
-          }
-          const attractionProducts = [];
-          mealsProductList.forEach(mealsProduct => {
-            const attractionProduct = {
-              productNo: mealsProduct.meals,
-              numOfAttraction: mealsProduct.number,
-              visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
-              comment: mealsProduct.remarks.join(','),
-              accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
-            };
-            attractionProducts.push(attractionProduct);
-            offerInfo.voucherProductList.forEach(voucherProduct => {
-              if (voucherProduct.productNo === mealsProduct.meals) {
-                voucherProduct.priceRule.forEach(rule => {
-                  if (rule.priceRuleName === 'DefaultPrice' && rule.productPrice) {
-                    rule.productPrice.forEach(productPrice => {
-                      if (
-                        productPrice.priceDate ===
-                        moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
-                      ) {
-                        const { discountUnitPrice } = productPrice;
-                        totalPrice += voucherProduct.needChoiceCount * discountUnitPrice;
-                      }
-                    });
-                  }
-                });
-              }
-            });
-          });
-          if (orderOffer.offerProfile && orderOffer.offerProfile.productGroup) {
-            orderOffer.offerProfile.productGroup.forEach(productGroupInfo => {
-              if (productGroupInfo && productGroupInfo.productType === 'Attraction') {
-                productGroupInfo.productGroup.forEach(productList => {
-                  if (productList.products) {
-                    productList.products.forEach(product => {
-                      const attractionProduct = {
-                        productNo: product.productNo,
-                        numOfAttraction: 1,
-                        visitDate: moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD'),
-                        accessibleSeat: queryInfo.accessibleSeat ? 'accessibleSeat' : null,
-                      };
-                      attractionProducts.push(attractionProduct);
-                    });
-                  }
-                });
-              }
-            });
-          }
-          const submitCommonOffer = {
-            offerNo: offerInfo.offerNo,
-            priceRuleId: null,
-            offerCount: orderInfo.orderQuantity,
-            attractionProducts,
-            totalPrice,
-            patronInfo: null,
-            deliveryInfo: {
-              referenceNo: null,
-              contactNo: null,
-              lastName: null,
-              firstName: null,
-              country: null,
-              collectionDate,
-              deliveryMode: deliveryMode ? moment(deliveryMode, 'x').format('YYYY-MM-DD') : null,
-            },
-          };
-          bookingParam.commonOffers.push(submitCommonOffer);
-          bookingParam.totalPrice += totalPrice;
-        });
-      });
-
-      bookingParam.totalPrice = parseFloat(bookingParam.totalPrice);
-      // console.log(bookingParam);
-
-      yield put({
-        type: 'save',
-        payload: {
-          deliveryMode,
-          collectionDate,
-          ticketAmount,
-          packageOrderData,
-          generalTicketOrderData,
-          onceAPirateOrderData,
-        },
-      });
-
-      // router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
-
-      const { data } = yield call(createBooking, bookingParam);
-      if (data) {
-        const { resultCode, resultMsg, result = {} } = data;
-        if (resultCode !== '0') {
-          yield put({
-            type: 'ticketOrderCartMgr/save',
-            payload: {
-              type: 'CreateErrors',
-              resultMsg,
-            },
-          });
-        }
-        // query status
-        const { bookingNo } = result;
-        let status = 'Creating';
-        let statusResult = {};
-        while (status === 'Creating') {
-          const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
-          const { resultCode: statusResultCode, result: newResult = {} } = statusData;
-          if (statusResultCode === '0') {
-            const { transStatus } = newResult;
-            status = transStatus;
-            statusResult = newResult;
-          } else {
-            status = 'Failed';
-          }
-        }
-        // status: WaitingForPaying
-        if (status === 'WaitingForPaying') {
-          yield put({
-            type: 'save',
-            payload: {
-              bookingNo,
-            },
-          });
-          router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
-        }
-        // status: Failed
-        if (status === 'Failed') {
-          const { failedReason } = statusResult;
-          yield put({
-            type: 'ticketOrderCartMgr/save',
-            payload: {
-              checkOutLoading: false,
-              type: 'BookingFailed',
-              resultMsg: failedReason,
-            },
-          });
-        }
-      } else {
-        yield put({
-          type: 'ticketOrderCartMgr/save',
-          payload: {
-            checkOutLoading: false,
-            type: 'Error',
-            resultMsg: '',
-          },
-        });
-      }
-    },
   },
 
   reducers: {
@@ -635,7 +475,7 @@ export default {
           {
             value: 1,
             label: 'eWallet',
-            key: 'E_WALLET',
+            key: 'eWallet',
             check: true,
           },
           {
@@ -647,7 +487,7 @@ export default {
           {
             value: 3,
             label: 'AR',
-            key: 'AR_CREDIT',
+            key: 'AR',
             check: false,
           },
         ],

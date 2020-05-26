@@ -1,14 +1,13 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Button, Drawer, Form, Radio, InputNumber, message } from 'antd';
+import { Button, Drawer, Radio, InputNumber, message, Modal, Icon } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { commonConfirm } from '@/components/CommonModal';
 
-const FormItem = Form.Item;
-const drawWidth = 480;
+const { confirm } = Modal;
+const drawWidth = 400;
 
-@Form.create()
 @connect(({ offline }) => ({
   offline,
 }))
@@ -20,63 +19,155 @@ class EditCommission extends React.PureComponent {
       payload: {
         drawerVisible: false,
         type: undefined,
+        modifyParams: {
+          tplId: null,
+          usageScope: 'Offline',
+          commissionType: 'Fixed',
+          commissionScheme: 'Amount',
+          commissionValue: null,
+          commissionValueAmount: null,
+          commissionValuePercent: null,
+        },
       },
     });
   };
 
-  handleSubmit = e => {
+  handleSubmit = () => {
     const {
-      form,
       dispatch,
-      offline: { commoditySpecId },
+      offline: {
+        modifyParams: {
+          tplId,
+          usageScope,
+          commissionType,
+          commissionScheme,
+          commissionValueAmount,
+          commissionValuePercent,
+        },
+      },
     } = this.props;
-    e.preventDefault();
-    const resCb = response => {
-      this.onClose();
-      if (response === 'SUCCESS') {
-        message.success('Modified successfully.');
-      } else if (response === 'ERROR') {
-        message.error('Failed to modify.');
-      }
-    };
-    form.validateFields((errors, values) => {
-      if (errors) {
-        return;
-      }
-      values.commissionValue =
-        values.commissionScheme === 'Amount' ? values.Amount : values.Percentage;
-      commonConfirm({
-        content: `Confirm to Modify ?`,
-        onOk: () => {
+    if (
+      commissionScheme === 'Amount' &&
+      (commissionValueAmount === null || commissionValueAmount === '')
+    ) {
+      message.warning('Commission amount is required.');
+      return;
+    }
+    if (
+      commissionScheme === 'Percentage' &&
+      (commissionValuePercent === null || commissionValuePercent === '')
+    ) {
+      message.warning('Commission percentage is required.');
+      return;
+    }
+    commonConfirm({
+      content: `Confirm to modify?`,
+      onOk: () => {
+        dispatch({
+          type: 'offline/edit',
+          payload: {
+            tplId,
+            usageScope,
+            commissionType,
+            commissionScheme,
+            commissionValue:
+              commissionScheme === 'Amount' ? commissionValueAmount : commissionValuePercent,
+          },
+        }).then(resultCode => {
+          if (resultCode === '0') {
+            message.success('Modified successfully.');
+            dispatch({
+              type: 'offline/fetchOfflineList',
+            });
+            this.onClose();
+          }
+        });
+      },
+    });
+  };
+
+  changeRadioValue = value => {
+    const { dispatch } = this.props;
+
+    confirm({
+      className: styles.confirmStyle,
+      title: 'Change the Commission Schema?',
+      content:
+        value === 'Amount' ? (
+          <span>{formatMessage({ id: 'CHANGE_COMMISSION_AMOUNT' })}</span>
+        ) : (
+          <span>{formatMessage({ id: 'CHANGE_PERCENT_AMOUNT' })}</span>
+        ),
+      icon: <Icon type="exclamation-circle" />,
+      cancelText: 'No',
+      cancelButtonProps: {
+        type: 'default',
+      },
+      okText: 'Yes',
+      okButtonProps: {
+        type: 'primary',
+      },
+      onOk() {
+        if (value === 'Amount') {
           dispatch({
-            type: 'offline/edit',
+            type: 'offline/saveModifyParams',
             payload: {
-              params: values,
-              taId: commoditySpecId,
+              commissionScheme: value,
+              commissionValuePercent: '',
             },
-          }).then(resCb);
+          });
+        } else {
+          dispatch({
+            type: 'offline/saveModifyParams',
+            payload: {
+              commissionScheme: value,
+              commissionValueAmount: '',
+            },
+          });
+        }
+      },
+      onCancel() {
+        dispatch({
+          type: 'offline/saveModifyParams',
+          payload: {
+            commissionScheme: value === 'Amount' ? 'Percentage' : 'Amount',
+          },
+        });
+      },
+    });
+  };
+
+  changeInputValue = (value, flag) => {
+    const { dispatch } = this.props;
+    if (flag === 'Amount') {
+      dispatch({
+        type: 'offline/saveModifyParams',
+        payload: {
+          commissionValueAmount: value,
         },
       });
-    });
+    }
+    if (flag === 'Percentage') {
+      dispatch({
+        type: 'offline/saveModifyParams',
+        payload: {
+          commissionValuePercent: value,
+        },
+      });
+    }
   };
 
   render() {
     const {
-      offline: { drawerVisible, commissionList = [] },
-      form: { getFieldDecorator },
+      offline: {
+        drawerVisible,
+        modifyParams: { commissionScheme, commissionValueAmount, commissionValuePercent },
+      },
     } = this.props;
-    const { commissionValue, commissionScheme } = commissionList;
-    let commissionValueAmount;
-    let commissionValuePercent;
-    if (commissionScheme === 'Amount') {
-      commissionValueAmount = commissionValue;
-    } else {
-      commissionValuePercent = commissionValue;
-    }
     return (
       <div>
         <Drawer
-          title={<div className={styles.type}>MODIFY</div>}
+          title={<div className={styles.drawerTitle}>MODIFY</div>}
           placement="right"
           destroyOnClose
           maskClosable={false}
@@ -90,62 +181,56 @@ class EditCommission extends React.PureComponent {
           }}
         >
           <div>
-            <Form onSubmit={this.handleSubmit}>
-              <FormItem label={formatMessage({ id: 'COMMISSION_SCHEMA' })} colon={false}>
-                {getFieldDecorator('commissionScheme', {
-                  initialValue: commissionScheme,
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Required',
-                    },
-                  ],
-                })(
-                  <Radio.Group>
-                    <Radio value="Amount">
-                      {formatMessage({ id: 'COMMISSION_AMOUNT' })}
-                      {getFieldDecorator('Amount', {
-                        initialValue: commissionValueAmount,
-                      })(
-                        <InputNumber
-                          style={{ marginLeft: '10px' }}
-                          formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                          parser={value => {
-                            value = value.replace(/[^\d]/g, '');
-                            value = +value > 100 ? 100 : value.substr(0, 2);
-                            return String(value);
-                          }}
-                        />
-                      )}
-                    </Radio>
-                    <Radio value="Percentage" style={{ paddingTop: '15px' }}>
-                      {formatMessage({ id: 'COMMISSION_PERCENTAGE' })}
-                      {getFieldDecorator('Percent', {
-                        initialValue: commissionValuePercent,
-                      })(
-                        <InputNumber
-                          style={{ marginLeft: '10px' }}
-                          formatter={value => `${value}%`}
-                          parser={value => {
-                            value = value.replace(/[^\d]/g, '');
-                            value = +value > 100 ? 100 : value.substr(0, 2);
-                            return String(value);
-                          }}
-                        />
-                      )}
-                    </Radio>
-                  </Radio.Group>
-                )}
-              </FormItem>
-              <div className={styles.formControl}>
-                <Button onClick={this.onClose} style={{ marginRight: 8, width: 60 }}>
-                  Cancel
-                </Button>
-                <Button htmlType="submit" type="primary" style={{ width: 60 }}>
-                  OK
-                </Button>
-              </div>
-            </Form>
+            <div className={styles.modifyTitleDiv}>
+              <span className={styles.titleSpan}>{formatMessage({ id: 'COMMISSION_SCHEMA' })}</span>
+            </div>
+            <Radio.Group
+              value={commissionScheme}
+              onChange={e => this.changeRadioValue(e.target.value)}
+            >
+              <Radio value="Amount">
+                <div className={styles.modifyDivStyle}>
+                  <span>{formatMessage({ id: 'COMMISSION_AMOUNT' })}</span>
+                </div>
+                <InputNumber
+                  value={commissionValueAmount}
+                  style={{ marginLeft: '10px' }}
+                  precision={2}
+                  min={0}
+                  formatter={value => `$ ${value}`}
+                  parser={value => {
+                    value = value.match(/\d+(\.\d{0,2})?/) ? value.match(/\d+(\.\d{0,2})?/)[0] : '';
+                    return String(value);
+                  }}
+                  onChange={value => this.changeInputValue(value, 'Amount')}
+                />
+              </Radio>
+              <Radio value="Percentage" style={{ paddingTop: '15px' }}>
+                <div className={styles.modifyDivStyle}>
+                  <span>{formatMessage({ id: 'COMMISSION_PERCENTAGE' })}</span>
+                </div>
+                <InputNumber
+                  value={commissionValuePercent}
+                  style={{ marginLeft: '10px' }}
+                  formatter={value => `${value}%`}
+                  min={0}
+                  max={100}
+                  parser={value => {
+                    value = value.replace(/[^\d]/g, '');
+                    return String(value);
+                  }}
+                  onChange={value => this.changeInputValue(value, 'Percentage')}
+                />
+              </Radio>
+            </Radio.Group>
+            <div className={styles.formControl}>
+              <Button onClick={this.onClose} style={{ marginRight: 8, width: 60 }}>
+                Cancel
+              </Button>
+              <Button type="primary" onClick={() => this.handleSubmit()} style={{ width: 60 }}>
+                OK
+              </Button>
+            </div>
           </div>
         </Drawer>
       </div>

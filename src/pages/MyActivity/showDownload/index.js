@@ -2,9 +2,10 @@ import React from 'react';
 import { Col, Form, Icon, Input, Row, Switch } from 'antd';
 import { formatMessage } from 'umi/locale';
 
-class ShowDownload extends Component {
-  render = () => {
-    const { getFieldDecorator } = this.props.form;
+class ShowDownload extends React.PureComponent {
+  render() {
+    const { form } = this.props;
+    const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -87,7 +88,7 @@ class ShowDownload extends Component {
         </Form>
       </div>
     );
-  };
+  }
 }
 
 export default ShowDownload;

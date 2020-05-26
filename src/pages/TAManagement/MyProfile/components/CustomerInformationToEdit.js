@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Card, Col, Form, Row } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
+import moment from 'moment';
 import ContactInformationToFrom from '../../components/ContactInformationToFrom';
 import CompanyInformationToFrom from '../../components/CompanyInformationToFrom';
 import QuestionsToFrom from '../../components/QuestionsToFrom';
@@ -75,6 +76,31 @@ class CustomerInformationToEdit extends PureComponent {
     });
   };
 
+  getGst = (keyValue, newCompanyInfo) => {
+    const { form } = this.props;
+    if (String(keyValue) !== '1') {
+      form.setFieldsValue({ gstRegNo: null });
+      form.setFieldsValue({ gstEffectiveDate: null });
+      Object.assign(newCompanyInfo, { gstRegNo: null });
+      Object.assign(newCompanyInfo, { gstEffectiveDate: null });
+    } else {
+      form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
+      const gstEffectiveDateObj = {
+        gstEffectiveDate: newCompanyInfo.gstEffectiveDate,
+      };
+      if (newCompanyInfo.gstEffectiveDate) {
+        gstEffectiveDateObj.gstEffectiveDate = moment(
+          newCompanyInfo.gstEffectiveDate,
+          newCompanyInfo.gstEffectiveDate.includes('-') ? 'YYYY-MM-DD' : 'DD/MM/YYYY'
+        );
+      }
+      form.setFieldsValue(gstEffectiveDateObj);
+      Object.assign(newCompanyInfo, { gstRegNo: newCompanyInfo.gstRegNo });
+      Object.assign(newCompanyInfo, gstEffectiveDateObj);
+    }
+    return newCompanyInfo;
+  };
+
   onHandleCompanyEditChange = (key, keyValue, fieldKey) => {
     const { dispatch, form, customerInfo, taId } = this.props;
     let newCompanyInfo = {};
@@ -87,8 +113,13 @@ class CustomerInformationToEdit extends PureComponent {
           type: 'taCommon/fetchQueryCityList',
           payload: { countryId: keyValue },
         });
-        const sourceOne = { city: null };
+        const sourceOne = { city: String(keyValue) === '65' ? '65' : null };
         form.setFieldsValue(sourceOne);
+        newCompanyInfo.isGstRegIndicator = '0';
+        if (String(keyValue) === '65') {
+          newCompanyInfo.isGstRegIndicator = '1';
+        }
+        this.getGst(newCompanyInfo.isGstRegIndicator, newCompanyInfo);
         Object.assign(newCompanyInfo, sourceOne);
       }
     }
@@ -119,8 +150,7 @@ class CustomerInformationToEdit extends PureComponent {
       }
     }
     if (String(key) === 'isGstRegIndicator') {
-      form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
-      form.setFieldsValue({ gstEffectiveDate: newCompanyInfo.gstEffectiveDate });
+      this.getGst(keyValue, newCompanyInfo);
     }
     const noVal = getFormKeyValue(keyValue);
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));

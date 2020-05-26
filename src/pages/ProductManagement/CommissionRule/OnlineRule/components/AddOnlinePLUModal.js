@@ -1,13 +1,13 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Table, Row, Col, Button, Select, Input, Form, message } from 'antd';
+import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { cloneDeep } from 'lodash';
 import styles from './AddOnlinePLUModal.less';
+import PaginationComp from '../../../components/PaginationComp';
+import { objDeepCopy } from '../../../utils/tools';
 
-const drawWidth = 700;
+const drawWidth = 800;
 const { Option } = Select;
-let checkedList = [];
 @Form.create()
 @connect(({ commissionNew, loading }) => ({
   commissionNew,
@@ -18,34 +18,75 @@ class AddOnlinePLUModal extends React.PureComponent {
     {
       title: formatMessage({ id: 'OFFER_NAME' }),
       dataIndex: 'commodityName',
+      key: 'commodityName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'OFFER_IDENTIFIER' }),
       dataIndex: 'commodityIdentifier',
+      key: 'commodityIdentifier',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: formatMessage({ id: 'OFFER_DESCRIPTION' }),
+      dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
   ];
 
   detailColumns = [
     {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'commodityCode',
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
       dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
   ];
 
   componentDidMount() {
-    const { dispatch, tplId } = this.props;
-
+    const { dispatch } = this.props;
+    dispatch({ type: 'commissionNew/queryThemeParks' });
     dispatch({
       type: 'commissionNew/fetchOfferList',
       payload: {
-        bindingId: tplId,
-        bindingType: 'Agent',
-        commodityType: 'Offer',
+        bindingId: null,
+        bindingType: 'Commission',
+        usageScope: 'Online',
       },
+    });
+  }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'commissionNew/resetAddOnlinePLUData',
     });
   }
 
@@ -54,15 +95,16 @@ class AddOnlinePLUModal extends React.PureComponent {
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        const likeParam = {
-          commonSearchText: values.offerName || '',
-        };
         dispatch({
-          type: 'commissionNew/searchOffer',
+          type: 'commissionNew/fetchOfferList',
           payload: {
-            filter: {
-              likeParam,
-            },
+            bindingId: null,
+            bindingType: 'Commission',
+            usageScope: 'Online',
+            commonSearchText: values.commonSearchText,
+            themeParkCode: values.themeParkCode,
+            currentPage: 1,
+            pageSize: 10,
           },
         });
       }
@@ -70,16 +112,18 @@ class AddOnlinePLUModal extends React.PureComponent {
   };
 
   reset = () => {
-    const { dispatch, form, tplId } = this.props;
+    const { dispatch, form } = this.props;
     form.resetFields();
     dispatch({
-      type: 'commissionNew/reset',
+      type: 'commissionNew/fetchOfferList',
       payload: {
+        bindingId: null,
+        bindingType: 'Commission',
+        usageScope: 'Online',
+        commonSearchText: null,
+        themeParkCode: null,
         currentPage: 1,
         pageSize: 10,
-        bindingId: tplId,
-        bindingType: 'Agent',
-        commodityType: 'Offer',
       },
     });
   };
@@ -87,63 +131,133 @@ class AddOnlinePLUModal extends React.PureComponent {
   cancel = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'commissionNew/save',
-      payload: {
-        addBindingModal: false,
-      },
+      type: 'commissionNew/resetAddOnlinePLUData',
     });
   };
 
-  onSelectChange = selectedRowKeys => {
-    const {
-      commissionNew: { offerList },
-    } = this.props;
-    checkedList = cloneDeep(offerList).filter(item => {
-      return selectedRowKeys.includes(item.commoditySpecId);
-    });
+  onSelectChange = (selectedRowKeys, offerList) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'commissionNew/saveSelectOffer',
       payload: {
         selectedRowKeys,
+        offerList,
       },
     });
   };
 
-  onExpandEvent = (expanded, record) => {
-    const { expandedRowKeys = [], dispatch } = this.props;
-    const expandedRowKeySet = new Set(expandedRowKeys);
-    if (expanded) {
-      expandedRowKeySet.add(record.commoditySpecId);
-    } else {
-      expandedRowKeySet.delete(record.commoditySpecId);
-    }
-    dispatch({
-      type: 'commissionNew/saveData',
-      payload: {
-        expandedRowKeys: [...expandedRowKeySet],
-      },
-    });
-  };
-
-  onSelectChange2 = selectedRowKeys2 => {
+  onSubSelectChange = (subSelectedRowKeys, commoditySpecId, offerList) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'commissionNew/saveSelectOffer2',
+      type: 'commissionNew/saveSubSelectOffer',
       payload: {
-        selectedRowKeys2,
+        subSelectedRowKeys,
+        commoditySpecId,
+        offerList,
       },
     });
   };
 
-  expandedRowRender = record => {
-    const {
-      commissionNew: { selectedRowKeys2 },
-    } = this.props;
-    const { subCommodityList } = record;
-    const rowSelection2 = {
-      selectedRowKeys2,
-      onChange: this.onSelectChange2,
+  getSubRowSelectedRowKeys = (record, offerList) => {
+    for (let i = 0; i < offerList.length; i += 1) {
+      if (offerList[i].commoditySpecId === record.commoditySpecId) {
+        const subSelectedKeys = [];
+        for (let j = 0; j < offerList[i].subCommodityList.length; j += 1) {
+          if (offerList[i].subCommodityList[j].isSelected) {
+            subSelectedKeys.push(offerList[i].subCommodityList[j].commoditySpecId);
+          }
+        }
+        return subSelectedKeys;
+      }
+    }
+    return [];
+  };
+
+  onSubSubSelectChange = (
+    subSubSelectedRowKeys,
+    commoditySpecId,
+    subCommoditySpecId,
+    offerList
+  ) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'commissionNew/saveSubSubSelectOffer',
+      payload: {
+        subSubSelectedRowKeys,
+        commoditySpecId,
+        subCommoditySpecId,
+        offerList,
+      },
+    });
+  };
+
+  subExpandedRowRender = (
+    record,
+    commoditySpecId,
+    subCommodityList,
+    offerList,
+    subCheckedOnlineList
+  ) => {
+    const { subCommodityList: dateList, commoditySpecId: selectedCommoditySpecId } = record;
+    let subSubCheckedOnlineList = [];
+    for (let i = 0; i < subCheckedOnlineList.length; i += 1) {
+      if (selectedCommoditySpecId === subCheckedOnlineList[i].commoditySpecId) {
+        subSubCheckedOnlineList = subCheckedOnlineList[i].subCommodityList;
+      }
+    }
+    const subRowSelection = {
+      columnWidth: 40,
+      selectedRowKeys: this.getSubRowSelectedRowKeys(record, subCommodityList),
+      onChange: selectedRowKeys =>
+        this.onSubSubSelectChange(
+          selectedRowKeys,
+          commoditySpecId,
+          record.commoditySpecId,
+          offerList
+        ),
+      getCheckboxProps: rec => {
+        return {
+          disabled: !!subSubCheckedOnlineList.find(
+            item => item.commoditySpecId === rec.commoditySpecId
+          ),
+        };
+      },
+    };
+    return (
+      <div>
+        <Table
+          size="small"
+          columns={this.detailColumns}
+          dataSource={dateList}
+          pagination={false}
+          bordered={false}
+          rowKey={rec => rec.commoditySpecId}
+          rowSelection={subRowSelection}
+        />
+      </div>
+    );
+  };
+
+  expandedRowRender = (record, offerList, checkedOnlineList) => {
+    const { subCommodityList, commoditySpecId } = record;
+    let subCheckedOnlineList = [];
+    for (let i = 0; i < checkedOnlineList.length; i += 1) {
+      if (commoditySpecId === checkedOnlineList[i].commoditySpecId) {
+        subCheckedOnlineList = checkedOnlineList[i].subCommodityList;
+      }
+    }
+    const subRowSelection = {
+      columnWidth: 40,
+      selectedRowKeys: this.getSubRowSelectedRowKeys(record, offerList),
+      onChange: selectedRowKeys =>
+        this.onSubSelectChange(selectedRowKeys, record.commoditySpecId, offerList),
+      getCheckboxProps: rec => {
+        return {
+          disabled: !!subCheckedOnlineList.find(
+            item => item.commoditySpecId === rec.commoditySpecId
+          ),
+        };
+      },
     };
     return (
       <div>
@@ -153,75 +267,163 @@ class AddOnlinePLUModal extends React.PureComponent {
           dataSource={subCommodityList}
           pagination={false}
           bordered={false}
-          rowSelection={rowSelection2}
+          rowClassName={rec => (rec.subCommodityList.length === 0 ? styles.hideIcon : undefined)}
+          expandedRowRender={rec =>
+            this.subExpandedRowRender(
+              rec,
+              record.commoditySpecId,
+              subCommodityList,
+              offerList,
+              subCheckedOnlineList
+            )
+          }
+          rowKey={rec => rec.commoditySpecId}
+          rowSelection={subRowSelection}
         />
       </div>
     );
   };
 
-  onChangeEvent = pagination => {
-    const { dispatch } = this.props;
-    const { current, pageSize } = pagination;
-    dispatch({
-      type: 'commissionNew/saveData',
-      payload: {
-        currentPage: current,
-        pageSize,
-        expandedRowKeys: [],
+  handelOK = (offerList, checkedOnlineList) => {
+    const {
+      dispatch,
+      commissionNew: {
+        onlineOfferPagination: { currentPage, pageSize },
       },
-    }).then(() => {
-      dispatch({
-        type: 'commissionNew/fetchOfferList',
-      });
-    });
-  };
-
-  handelOK = (selectedRowKeys, offerList) => {
-    const { dispatch } = this.props;
-    if (selectedRowKeys.length > 0) {
-      offerList = offerList.concat(checkedList);
-      dispatch({
-        type: 'commissionNew/save',
-        payload: {
-          offerList,
-          checkedList,
-        },
-      });
-      this.cancel();
-    } else {
-      message.warning('Select at least one PLU.');
+    } = this.props;
+    const selectedOfferList = [];
+    for (let i = 0; i < offerList.length; i += 1) {
+      if (offerList[i].isSelected) {
+        selectedOfferList.push(objDeepCopy(offerList[i]));
+      }
     }
+    if (selectedOfferList.length === 0) {
+      message.warning('Select at least one PLU.');
+      return;
+    }
+    for (let i = 0; i < selectedOfferList.length; i += 1) {
+      selectedOfferList[i].selectedType = 'offerPLU';
+      for (let k = 0; k < selectedOfferList[i].subCommodityList.length; k += 1) {
+        selectedOfferList[i].subCommodityList[k].proCommoditySpecId =
+          selectedOfferList[i].commoditySpecId;
+      }
+      for (let j = 0; j < selectedOfferList[i].subCommodityList.length; j += 1) {
+        selectedOfferList[i].subCommodityList[j].selectedType = 'subPLU';
+        for (
+          let k = 0;
+          k < selectedOfferList[i].subCommodityList[j].subCommodityList.length;
+          k += 1
+        ) {
+          selectedOfferList[i].subCommodityList[j].selectedType = 'packagePLU';
+          selectedOfferList[i].subCommodityList[j].subCommodityList[k].proProCommoditySpecId =
+            selectedOfferList[i].commoditySpecId;
+          selectedOfferList[i].subCommodityList[j].subCommodityList[k].proCommoditySpecId =
+            selectedOfferList[i].subCommodityList[j].commoditySpecId;
+          selectedOfferList[i].subCommodityList[j].subCommodityList[k].selectedType = 'subPLU';
+          if (!selectedOfferList[i].subCommodityList[j].subCommodityList[k].isSelected) {
+            selectedOfferList[i].subCommodityList[j].subCommodityList.splice(k, 1);
+            k -= 1;
+          }
+        }
+        if (!selectedOfferList[i].subCommodityList[j].isSelected) {
+          selectedOfferList[i].subCommodityList.splice(j, 1);
+          j -= 1;
+        }
+      }
+    }
+
+    for (let i = 0; i < selectedOfferList.length; i += 1) {
+      let changeFlag = true;
+      for (let j = 0; j < checkedOnlineList.length; j += 1) {
+        if (checkedOnlineList[j].commoditySpecId === selectedOfferList[i].commoditySpecId) {
+          changeFlag = false;
+          checkedOnlineList[j].subCommodityList = objDeepCopy(
+            selectedOfferList[i].subCommodityList
+          );
+        }
+      }
+      if (changeFlag) {
+        checkedOnlineList.push(selectedOfferList[i]);
+      }
+    }
+    const displayOnlineList = [];
+    if (currentPage * pageSize < checkedOnlineList.length) {
+      for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i += 1) {
+        displayOnlineList.unshift(checkedOnlineList[i]);
+      }
+    } else {
+      for (let i = (currentPage - 1) * pageSize; i < checkedOnlineList.length; i += 1) {
+        displayOnlineList.unshift(checkedOnlineList[i]);
+      }
+    }
+    dispatch({
+      type: 'commissionNew/save',
+      payload: {
+        checkedOnlineList,
+        displayOnlineList,
+      },
+    });
+    this.cancel();
   };
 
-  showTotal(total) {
-    return <div>Total {total} items</div>;
-  }
+  getSelectedRowKes = offerList => {
+    const selectedRowKeys = [];
+    for (let i = 0; i < offerList.length; i += 1) {
+      if (offerList[i].isSelected) {
+        selectedRowKeys.push(offerList[i].commoditySpecId);
+      }
+      for (let j = 0; j < offerList[i].subCommodityList.length; j += 1) {
+        if (offerList[i].subCommodityList[j].isSelected) {
+          if (offerList[i].subCommodityList[j].bindingFlg === 'Y') {
+            message.warning(
+              'The system check selected product under this offer is tagged to any commission rule.'
+            );
+          }
+        }
+      }
+    }
+    return selectedRowKeys;
+  };
 
   render() {
     const {
       loading,
       commissionNew: {
         addBindingModal,
-        offerList,
-        currentPage,
-        pageSize,
-        totalSize,
-        selectedRowKeys,
+        offerList = [],
+        onlineSearchCondition: { currentPage, pageSize: nowPageSize },
+        checkedOnlineList = [],
+        addOnlinePLUTotalSize,
+        themeParkList = [],
       },
       form: { getFieldDecorator },
     } = this.props;
-    const pagination = {
+    const pageOpts = {
+      total: addOnlinePLUTotalSize,
       current: currentPage,
-      pageSize,
-      total: totalSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSizeOptions: ['20', '50', '100'],
-      showTotal: this.showTotal,
+      pageSize: nowPageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'commissionNew/fetchOfferList',
+          payload: {
+            currentPage: page,
+            pageSize,
+          },
+        });
+      },
     };
     const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
+      columnWidth: 40,
+      selectedRowKeys: this.getSelectedRowKes(offerList),
+      onChange: selectedRowKey => this.onSelectChange(selectedRowKey, offerList),
+      getCheckboxProps: record => {
+        return {
+          disabled: !!checkedOnlineList.find(
+            item => item.commoditySpecId === record.commoditySpecId
+          ),
+        };
+      },
     };
     return (
       <div>
@@ -235,7 +437,7 @@ class AddOnlinePLUModal extends React.PureComponent {
             <div>
               <Button
                 style={{ width: 60 }}
-                onClick={() => this.handelOK(selectedRowKeys, offerList)}
+                onClick={() => this.handelOK(offerList, checkedOnlineList)}
                 type="primary"
               >
                 OK
@@ -251,29 +453,39 @@ class AddOnlinePLUModal extends React.PureComponent {
               <Col className={styles.inputColStyle} xs={24} sm={12} md={9}>
                 <Form.Item>
                   {getFieldDecorator(
-                    `offerName`,
+                    `commonSearchText`,
                     {}
                   )(
                     <Input
                       style={{ minWidth: '100%' }}
-                      placeholder="Search (Offer Name/Identifier)"
+                      placeholder="Offer Name/Identifier/Description"
                       allowClear
-                      onChange={this.changeOfferIdenOrName}
-                      // value={offerIdenOrName}
                       autoComplete="off"
                     />
                   )}
                 </Form.Item>
               </Col>
-              <Col className={styles.inputColStyle} xs={12} sm={12} md={9}>
-                <Select showSearch placeholder="Status" allowClear style={{ width: '100%' }}>
-                  <Option value="Active" key="Active">
-                    ACTIVE
-                  </Option>
-                  <Option value="Inactive" key="Inactive">
-                    INACTIVE
-                  </Option>
-                </Select>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={9}>
+                <Form.Item>
+                  {getFieldDecorator(
+                    `themeParkCode`,
+                    {}
+                  )(
+                    <Select
+                      placeholder={formatMessage({ id: 'THEME_PARK' })}
+                      optionFilterProp="children"
+                      style={{ width: '100%' }}
+                      allowClear
+                    >
+                      {themeParkList &&
+                        themeParkList.map(item => (
+                          <Option key={item.itemValue} value={item.itemValue}>
+                            {item.itemName}
+                          </Option>
+                        ))}
+                    </Select>
+                  )}
+                </Form.Item>
               </Col>
               <Col xs={12} sm={12} md={6} className={styles.searchReset}>
                 <Button style={{ marginRight: 8 }} type="primary" htmlType="submit">
@@ -287,19 +499,19 @@ class AddOnlinePLUModal extends React.PureComponent {
             className={`tabs-no-padding ${styles.searchTitle}`}
             columns={this.columns}
             dataSource={offerList}
-            pagination={pagination}
+            pagination={false}
             size="small"
-            loading={loading}
-            expandedRowRender={this.expandedRowRender}
-            onChange={(pagination, filters, sorter, extra) => {
-              this.onChangeEvent(pagination, filters, sorter, extra);
-            }}
-            onExpand={(expanded, record) => {
-              this.onExpandEvent(expanded, record);
-            }}
+            loading={!!loading}
+            expandedRowRender={record =>
+              this.expandedRowRender(record, offerList, checkedOnlineList)
+            }
+            rowClassName={record =>
+              record.subCommodityList.length === 0 ? styles.hideIcon : undefined
+            }
             rowKey={record => record.commoditySpecId}
             rowSelection={rowSelection}
           />
+          <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
         </Modal>
       </div>
     );

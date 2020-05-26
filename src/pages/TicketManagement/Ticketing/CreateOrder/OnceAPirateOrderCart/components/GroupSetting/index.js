@@ -20,7 +20,7 @@ class GroupSetting extends Component {
     offerDetail.orderInfo.groupSettingList.push({
       meals: null,
       remarks: [],
-      number: 0,
+      number: 1,
     });
     Object.assign(onceAPirateOrderData, {
       [index]: {

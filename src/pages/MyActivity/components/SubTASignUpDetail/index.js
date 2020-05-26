@@ -9,7 +9,21 @@ import SubTaRegistration from '@/pages/MyActivity/components/SubTASignUpDetail/S
   subTaSignUpDetail,
 }))
 class SubTASignUpDetail extends React.PureComponent {
-  componentDidMount() {}
+  componentDidMount() {
+    const {
+      dispatch,
+      subTaSignUpDetail: { customerInfo },
+    } = this.props;
+    const { companyInfo = {} } = customerInfo || {};
+    dispatch({
+      type: 'commonSignUpDetail/queryCityList',
+      payload: { countryId: companyInfo.country },
+    });
+    dispatch({
+      type: 'commonSignUpDetail/queryCityList',
+      payload: { countryId: companyInfo.country, isBil: true },
+    });
+  }
 
   render() {
     const {

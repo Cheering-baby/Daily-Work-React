@@ -7,12 +7,12 @@ import styles from './index.less';
 class BreadcrumbComp extends Component {
   breadcrumbNameDeal = name => {
     if (!isNvl(name)) {
-      const len = name.length;
-      if (len > 20) {
-        const start = name.substr(0, 2);
-        const end = name.substr(-2);
-        return `${start}*****${end}`;
-      }
+      // const len = name.length;
+      // if (len > 20) {
+      //   const start = name.substr(0, 5);
+      //   const end = name.substr(-5);
+      //   return `${start}...${end}`;
+      // }
       return name;
     }
     return null;

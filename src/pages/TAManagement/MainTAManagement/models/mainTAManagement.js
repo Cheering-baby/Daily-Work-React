@@ -36,6 +36,8 @@ export default {
     selectedRowKeys: [],
     rowSelected: '',
     rowAllSelected: {},
+
+    taSelectedRowKeys: [],
   },
   effects: {
     *fetchQryMainTAList({ payload }, { call, put, select }) {
@@ -171,6 +173,8 @@ export default {
           isAllInformationToRws: true,
           currentStep: 0,
           viewId: 'mainTaEditView',
+
+          taSelectedRowKeys: [],
         },
         ...payload,
       };

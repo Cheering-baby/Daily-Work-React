@@ -1,9 +1,19 @@
 import { message } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
-import { queryCountry, queryOfferDetail, queryOfferList } from '../services/ticketCommon';
-import { getSessionTimeList } from '../utils/ticketOfferInfoUtil';
-import { checkInventory } from '../utils/utils';
+import {
+  queryAgentOpt,
+  queryCountry,
+  queryOfferDetail,
+  queryOfferList,
+  queryPluAttribute,
+} from '../services/ticketCommon';
+import { changeVoucherToAttraction, getSessionTimeList } from '../utils/ticketOfferInfoUtil';
+import {
+  checkInventory,
+  checkNumOfGuestsAvailable,
+  checkSessionProductInventory,
+} from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
 export default {
@@ -12,7 +22,7 @@ export default {
   state: {
     offerType: '',
     themeParkTipType: 'NoTip',
-    activeDataPanel: undefined,
+    activeDataPanel: null,
     activeGroup: 0,
     showToCart: false,
     tipVisible: true,
@@ -43,7 +53,7 @@ export default {
       },
       {
         group: 1,
-        value: 'Voucher',
+        value: 'VOUCHER',
         label: 'Voucher',
         disabled: false,
       },
@@ -89,9 +99,48 @@ export default {
     searchPanelActive: false,
     mainPageLoading: false,
     onceAPirateLoading: false,
+    functionActive: true,
   },
 
   effects: {
+    *fetchQueryAgentOpt(_, { call, put }) {
+      const param = { queryType: 'signUp' };
+      const response = yield call(queryAgentOpt, param);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        if (result && result.length > 0) {
+          const countryList =
+            (
+              result.find(n => String(n.subDictType) === '1002' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          const countryArray = [];
+          countryList.forEach(countryItem => {
+            countryArray.push(
+              Object.assign(
+                {},
+                {
+                  ...countryItem,
+                  value: countryItem.dictName,
+                  lookupName: countryItem.dictName,
+                }
+              )
+            );
+          });
+          yield put({
+            type: 'save',
+            payload: {
+              countrys: countryArray,
+            },
+          });
+        }
+      } else {
+        message.error(resultMsg);
+      }
+    },
     *changeOfferType({ payload }, { put }) {
       const { offerType } = payload;
       yield put({
@@ -179,14 +228,14 @@ export default {
     },
     *querySessionTime(_, { call, put, select }) {
       const { dateOfVisit, themeParkChooseList = [] } = yield select(state => state.ticketMgr);
-      let sessionTimeList = [];
+      const sessionTimeList = [];
 
       const requestParams = themeParkChooseList.map(() => ({
         paramCode: 'BookingCategory',
         paramValue: 'OAP',
       }));
       const requestParam = {
-        pageSize: 100,
+        pageSize: 1000,
         currentPage: 1,
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
         requestParams,
@@ -220,7 +269,27 @@ export default {
                 },
               } = responseDetail;
               offerList[i].offerProfile = offerProfile;
-              sessionTimeList = getSessionTimeList(offerProfile, requestParam.validTimeFrom);
+              const sessionTimeListNew = getSessionTimeList(
+                offerProfile,
+                requestParam.validTimeFrom
+              );
+              if (sessionTimeListNew && sessionTimeListNew.length > 0) {
+                sessionTimeListNew.forEach(sessionTimeItem => {
+                  const existSession = sessionTimeList.find(
+                    item => item.value === sessionTimeItem.value
+                  );
+                  if (!existSession) {
+                    sessionTimeList.push(
+                      Object.assign(
+                        {},
+                        {
+                          ...sessionTimeItem,
+                        }
+                      )
+                    );
+                  }
+                });
+              }
             }
           } else {
             message.error(responseDetail.errorMsg);
@@ -265,7 +334,7 @@ export default {
       ];
 
       const requestParam = {
-        pageSize: 100,
+        pageSize: 1000,
         currentPage: 1,
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
         requestParams,
@@ -336,8 +405,7 @@ export default {
       }
     },
     queryOfferList: [
-      // eslint-disable-next-line func-names
-      function*({ payload }, { select, put, call }) {
+      function* queryOfferListFunction({ payload }, { select, put, call }) {
         const response = yield call(queryOfferList, payload);
         const {
           themeParkList: attractionList = [],
@@ -353,7 +421,13 @@ export default {
           const themeParkList = [];
           const tags = ['Admission', 'VIP Tour', 'Express', 'Promo', 'Group'];
           const categories = tags.map(item => ({ tag: item, products: [], bundleNames: [] }));
-          themeParkChooseList.forEach(item => {
+          const themeParkChooseListCodes = [];
+          attractionList.forEach(item => {
+            if (themeParkChooseList.indexOf(item.value) !== -1) {
+              themeParkChooseListCodes.push(item.value);
+            }
+          });
+          themeParkChooseListCodes.forEach(item => {
             attractionList.forEach(item2 => {
               if (item2.value === item) {
                 themeParkList.push({
@@ -374,7 +448,10 @@ export default {
               validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
             };
             const responseDetail = yield call(queryOfferDetail, params);
-            if (!responseDetail) return false;
+            if (!responseDetail) {
+              // eslint-disable-next-line no-continue
+              continue;
+            }
             const {
               data: { result: resultDetail },
             } = responseDetail;
@@ -392,10 +469,14 @@ export default {
             let attractionProduct;
             let noMatchPriceRule = false;
             let priceRuleId;
-            // const {
-            // offerProfile: { inventories = [] },
-            // } = resultDetail;
-            // eslint-disable-next-line no-loop-func
+            const {
+              offerProfile: { bookingCategory = [] },
+            } = resultDetail;
+            resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
+            if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
+              // eslint-disable-next-line no-continue
+              continue;
+            }
             resultDetail.offerProfile.productGroup.forEach(item => {
               const { productType } = item;
               if (productType === 'Attraction') {
@@ -409,51 +490,37 @@ export default {
                       priceRuleId = attractionProduct[0].priceRule[1].priceRuleId;
                     }
                     if (noMatchPriceRule) return false;
-                    let allProductInventory = 0;
-                    attractionProduct.forEach(item3 => {
-                      const { priceRule, needChoiceCount } = item3;
-                      priceRule.forEach(item4 => {
-                        const { priceRuleName, productPrice = [] } = item4;
-                        if (priceRuleName === 'DefaultPrice') {
-                          // eslint-disable-next-line no-unused-vars
-                          const maxProductInventory1 =
-                            productPrice[0].productInventory === -1
-                              ? 100000000 / needChoiceCount
-                              : productPrice[0].productInventory / needChoiceCount;
-                          // const maxProductInventory2 = inventories[0].available === -1 ? 100000000 / needChoiceCount : inventories[0].available / needChoiceCount;
-                          allProductInventory += maxProductInventory1;
+                    bookingCategory.forEach(item3 => {
+                      themeParkList.forEach((item4, index4) => {
+                        if (
+                          item4.themeparkCode === item3 &&
+                          item4.offerNos.indexOf(offerNo) === -1
+                        ) {
+                          const data = {};
+                          data.attractionProduct = attractionProduct;
+                          data.detail = resultDetail.offerProfile;
+                          data.detail.priceRuleId = priceRuleId;
+                          data.detail.offerPrice = offerList[i].offerPrice;
+                          data.detail.dateOfVisit = dateOfVisit;
+                          data.detail.numOfGuests = numOfGuests;
+                          themeParkList[index4].products.push(data);
+                          themeParkList[index4].offerNos.push(offerNo);
                         }
                       });
                     });
-                    if (allProductInventory >= numOfGuests) {
-                      attractionProduct.forEach((item3, index3) => {
-                        themeParkList.forEach((item4, index4) => {
-                          if (
-                            item4.themeparkCode === item3.attractionProduct.themePark &&
-                            item4.offerNos.indexOf(offerNo) === -1
-                          ) {
-                            const data = {};
-                            data.attractionProduct = attractionProduct;
-                            data.detail = resultDetail.offerProfile;
-                            data.detail.priceRuleId = priceRuleId;
-                            data.detail.offerPrice = offerList[i].offerPrice;
-                            data.detail.dateOfVisit = dateOfVisit;
-                            data.detail.numOfGuests = numOfGuests;
-                            themeParkList[index4].products.push(data);
-                            themeParkList[index4].offerNos.push(offerNo);
-                          }
-                        });
-                        attractionProduct[index3].selected = true;
-                      });
-                    }
                   }
                 });
               }
             });
           }
-
+          const themeParkList2 = JSON.parse(JSON.stringify(themeParkList));
           themeParkList.forEach((item, index) => {
-            const { categories: categoriesItem = [], products = [] } = item;
+            const {
+              categories: categoriesItem = [],
+              products = [],
+              themeparkCode: themeParkCode,
+              themeparkName: themeParkName,
+            } = item;
             categoriesItem.forEach((item2, index2) => {
               const { tag } = item2;
               products.forEach(item3 => {
@@ -470,30 +537,38 @@ export default {
                     if (offerBundleFilter.length > 0) {
                       const { bundleName, bundleLabel } = offerBundleFilter[0];
                       if (
-                        themeParkList[index].categories[index2].bundleNames.indexOf(bundleName) ===
+                        themeParkList2[index].categories[index2].bundleNames.indexOf(bundleName) ===
                         -1
                       ) {
-                        themeParkList[index].categories[index2].bundleNames.push(bundleName);
-                        themeParkList[index].categories[index2].products.push({
+                        themeParkList2[index].categories[index2].bundleNames.push(bundleName);
+                        themeParkList2[index].categories[index2].products.push({
                           bundleName,
                           bundleLabel,
                           offers: [item3],
                           ...item3,
+                          themeParkCode,
+                          themeParkName,
                         });
                       } else {
-                        themeParkList[index].categories[index2].products.forEach(
+                        themeParkList2[index].categories[index2].products.forEach(
                           (item5, index5) => {
                             if (item5.bundleName === bundleName) {
-                              themeParkList[index].categories[index2].products[index5] = {
+                              themeParkList2[index].categories[index2].products[index5] = {
                                 ...item5,
                                 offers: item5.offers.concat([item3]),
+                                themeParkCode,
+                                themeParkName,
                               };
                             }
                           }
                         );
                       }
                     } else {
-                      themeParkList[index].categories[index2].products.push(item3);
+                      themeParkList2[index].categories[index2].products.push({
+                        ...item3,
+                        themeParkCode,
+                        themeParkName,
+                      });
                     }
                   }
                 });
@@ -503,7 +578,7 @@ export default {
           yield put({
             type: 'save',
             payload: {
-              themeParkListByCode: themeParkList,
+              themeParkListByCode: themeParkList2,
             },
           });
         } else {
@@ -514,8 +589,7 @@ export default {
     ],
 
     queryDolphinIsland: [
-      // eslint-disable-next-line func-names
-      function*({ payload }, { call, put, select }) {
+      function* queryDolphinIslandFunction({ payload }, { call, put, select }) {
         const response = yield call(queryOfferList, payload);
         const { dateOfVisit, numOfGuests } = yield select(({ ticketMgr }) => ticketMgr);
         if (!response) return false;
@@ -524,7 +598,7 @@ export default {
         } = response;
         const { offerList = [] } = result;
         const dolphinIslandOfferList = [];
-        const tags = ['DIA', 'DID', 'DIE', 'DIO', 'DIT'];
+        const tags = ['DIA', 'DID', 'DIE', 'DIO', 'DIV'];
         tags.forEach(item => {
           dolphinIslandOfferList.push({
             tag: item,
@@ -538,7 +612,10 @@ export default {
             validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
           };
           const responseDetail = yield call(queryOfferDetail, params);
-          if (!responseDetail) return false;
+          if (!responseDetail) {
+            // eslint-disable-next-line no-continue
+            continue;
+          }
           const {
             data: { result: resultDetail },
           } = responseDetail;
@@ -550,31 +627,26 @@ export default {
             // eslint-disable-next-line no-continue
             continue;
           }
-          // eslint-disable-next-line no-loop-func
+          resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
+          if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
+            // eslint-disable-next-line no-continue
+            continue;
+          }
           resultDetail.offerProfile.productGroup.forEach(item => {
             const { productType } = item;
             const sessions = [];
             let attractionProduct;
+            let priceRuleId;
             if (productType === 'Attraction') {
               item.productGroup.forEach(item2 => {
                 if (item2.groupName === 'Attraction') {
-                  const { priceRule } = item2.products[0];
-                  // eslint-disable-next-line prefer-destructuring
                   attractionProduct = item2.products;
-                  let allProductInventory = 0;
-                  priceRule.forEach(item4 => {
-                    const { priceRuleName, productPrice = [] } = item4;
-                    if (priceRuleName === 'DefaultPrice') {
-                      const maxProductInventory =
-                        productPrice[0].productInventory === -1
-                          ? 100000000
-                          : productPrice[0].productInventory;
-                      allProductInventory += maxProductInventory;
-                    }
-                  });
-                  if (allProductInventory >= numOfGuests) {
-                    priceRule.forEach(itemPrice => {
-                      if (itemPrice.priceRuleName === 'DefaultPrice') {
+                  // eslint-disable-next-line prefer-destructuring
+                  priceRuleId = attractionProduct[0].priceRule[1].priceRuleId;
+                  attractionProduct.forEach(itemProduct => {
+                    const { priceRule = [] } = itemProduct;
+                    priceRule.forEach((itemPrice, itemPriceIndex) => {
+                      if (itemPriceIndex === 1) {
                         const { productPrice } = itemPrice;
                         productPrice.forEach(itemProductPrice => {
                           const sessionsExist = [];
@@ -582,17 +654,22 @@ export default {
                             sessionsExist.push(itemSessions.priceTimeFrom),
                           ]);
                           const { priceTimeFrom } = itemProductPrice;
-                          if (sessionsExist.indexOf(priceTimeFrom) === -1) {
+                          if (
+                            priceTimeFrom &&
+                            sessionsExist.indexOf(priceTimeFrom) === -1 &&
+                            checkSessionProductInventory(numOfGuests, priceTimeFrom, itemProduct)
+                          ) {
                             sessions.push(itemProductPrice);
                           }
                         });
                       }
                     });
-                  }
+                  });
                 }
               });
             }
             resultDetail.offerProfile.dateOfVisit = dateOfVisit;
+            resultDetail.offerProfile.priceRuleId = priceRuleId;
             resultDetail.offerProfile.numOfGuests = numOfGuests;
             dolphinIslandOfferList.forEach((item2, index) => {
               const { tag } = item2;
@@ -644,7 +721,7 @@ export default {
     },
 
     *checkInventory({ payload }, { call }) {
-      const { dateOfVisit, offerNo, offerQuantity, orderProducts = [] } = payload;
+      const { dateOfVisit, offerNo, orderProducts = [] } = payload;
       const response = yield call(queryOfferDetail, {
         offerNo,
         validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
@@ -655,10 +732,27 @@ export default {
       } = response;
       if (resultCode === '0') {
         const { offerProfile } = result;
-        return checkInventory(offerProfile, offerQuantity, orderProducts);
+        return checkInventory(offerProfile, orderProducts);
       }
       message.error(resultMsg);
       return false;
+    },
+
+    *queryPluAttribute({ payload }, { call, put }) {
+      const response = yield call(queryPluAttribute, payload);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        const { items } = result;
+        yield put({
+          type: 'save',
+          payload: {
+            ticketTypesEnums: items,
+          },
+        });
+      } else throw resultMsg;
     },
 
     *effectSave({ payload }, { put }) {
@@ -680,7 +774,7 @@ export default {
       return {
         offerType: '',
         themeParkTipType: 'NoTip',
-        activeDataPanel: undefined,
+        activeDataPanel: null,
         activeGroup: 0,
         showToCart: false,
         tipVisible: true,
@@ -712,7 +806,7 @@ export default {
           },
           {
             group: 1,
-            value: 'Voucher',
+            value: 'VOUCHER',
             label: 'Voucher',
             disabled: false,
           },
@@ -758,6 +852,7 @@ export default {
         searchPanelActive: false,
         mainPageLoading: false,
         onceAPirateLoading: false,
+        functionActive: true,
       };
     },
   },

@@ -1,7 +1,4 @@
 module.exports = {
-  MAIN_TA_PRIVILEGE: 'ORG_MGR_MAIN_TA_ADMIN',
-  SUB_TA_PRIVILEGE: 'ORG_MGR_SUB_TA_ADMIN',
-  SALES_SUPPORT_PRIVILEGE: 'ORG_MGR_SALES_SUPPORT',
   RWS_ORG_TYPES: [{ key: '01', value: '01', text: 'TA Org' }],
   TA_ORG_TYPES: [
     { key: '02', value: '02', text: 'Sub TA' },

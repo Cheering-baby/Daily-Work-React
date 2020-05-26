@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { isNullOrUndefined } from 'util';
-import { Tabs, Table, Button, Tooltip, Icon, message } from 'antd';
-import {
-  arrToString,
-  calculateAllProductPrice,
-  calculateProductPrice,
-} from '../../../../utils/utils';
+import { Button, Icon, Table, Tabs, Tooltip } from 'antd';
+import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
@@ -31,7 +27,14 @@ class Attraction extends Component {
 
   showToCart = record => {
     const { dispatch } = this.props;
-    const { bundleName, offers = [], attractionProduct = [], detail } = record;
+    const {
+      bundleName,
+      offers = [],
+      attractionProduct = [],
+      detail,
+      themeParkCode,
+      themeParkName,
+    } = record;
     const { numOfGuests } = detail;
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const detailCopy = JSON.parse(JSON.stringify(detail));
@@ -55,6 +58,8 @@ class Attraction extends Component {
         showToCartModal: isNullOrUndefined(bundleName),
         showBundleToCart: !isNullOrUndefined(bundleName),
         bundleOfferDetail,
+        themeParkCode,
+        themeParkName,
       },
     });
   };
@@ -125,28 +130,7 @@ class Attraction extends Component {
     });
   };
 
-  formatInputValue = (index, value, type) => {
-    const {
-      ticketMgr: {
-        attractionProduct = [],
-        bundleOfferDetail: { offers = [] },
-      },
-    } = this.props;
-    let originalValue;
-    if (type === 'Bundle') {
-      originalValue = offers[index].ticketNumber;
-    } else {
-      originalValue = attractionProduct[index].ticketNumber;
-    }
-    const testReg = /^[1-9]\d*$/;
-    const testZero = /^0$/;
-    if (value === '' || testZero.test(value) || testReg.test(value)) {
-      return value;
-    }
-    return originalValue;
-  };
-
-  changeTicketNumber = async (index, value, productPrice) => {
+  changeTicketNumber = async (index, value) => {
     const {
       dispatch,
       ticketMgr: { attractionProduct = [] },
@@ -157,7 +141,6 @@ class Attraction extends Component {
     const testZero = /^0$/;
     if (value === '' || testZero.test(value) || testReg.test(value)) {
       attractionProductCopy[index].ticketNumber = value;
-      attractionProductCopy[index].price = value * productPrice;
       dispatch({
         type: 'ticketMgr/save',
         payload: {
@@ -184,7 +167,7 @@ class Attraction extends Component {
     });
   };
 
-  changeBundleOfferNumber = async (index, value, productPrice) => {
+  changeBundleOfferNumber = async (index, value) => {
     const {
       dispatch,
       ticketMgr: {
@@ -198,7 +181,6 @@ class Attraction extends Component {
     const testZero = /^0$/;
     if (value === '' || testZero.test(value) || testReg.test(value)) {
       offersCopy[index].ticketNumber = value;
-      offersCopy[index].price = value * productPrice;
       dispatch({
         type: 'ticketMgr/save',
         payload: {
@@ -236,10 +218,11 @@ class Attraction extends Component {
         attractionProduct = [],
         detail,
         detail: { dateOfVisit, numOfGuests, priceRuleId, offerQuantity },
+        themeParkCode,
+        themeParkName,
       },
     } = this.props;
     const orderInfo = [];
-    const { themeParkName, themePark: themeParkCode } = attractionProduct[0].attractionProduct;
     attractionProduct.forEach(item => {
       orderInfo.push({
         ageGroup: item.attractionProduct.ageGroup,
@@ -254,8 +237,9 @@ class Attraction extends Component {
       orderType: 'offerFixed',
       orderSummary: {
         quantity: offerQuantity,
-        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
-        totalPrice: offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId),
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
+        totalPrice:
+          offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         selectPriceRuleId: priceRuleId,
       },
       queryInfo: {
@@ -284,6 +268,8 @@ class Attraction extends Component {
         attractionProduct = [],
         detail,
         detail: { dateOfVisit, numOfGuests, priceRuleId, productGroup = [] },
+        themeParkCode,
+        themeParkName,
       },
     } = this.props;
     let offerConstrain;
@@ -300,68 +286,40 @@ class Attraction extends Component {
       this.orderFixedOffer();
       return true;
     }
-    if (attractionProduct.length === 1) {
-      const { ticketNumber, price } = attractionProduct[0];
-      const themeParkCode = attractionProduct[0].attractionProduct.themePark;
-      const { themeParkName, ageGroup } = attractionProduct[0].attractionProduct;
-      const orderInfo = [];
+    const orderInfo = [];
+    attractionProduct.forEach(item => {
+      const { ticketNumber } = item;
       orderInfo.push({
-        ageGroup,
-        quantity: ticketNumber,
-        pricePax: price / ticketNumber,
-        productInfo: attractionProduct[0],
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: ticketNumber || 0,
+        pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
+        productInfo: item,
       });
-      const orderData = {
-        themeParkCode,
-        themeParkName,
-        orderType: 'offer',
-        queryInfo: {
-          dateOfVisit,
-          numOfGuests,
-        },
-        orderInfo,
-        offerInfo: { ...detail, selectRuleId: priceRuleId },
-        deliveryInfo: deliverInformation,
-      };
-      dispatch({
-        type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
-        payload: {
-          orderIndex: null,
-          orderData,
-        },
-      });
-    } else {
-      const orderInfo = [];
-      const { themeParkName, themePark: themeParkCode } = attractionProduct[0].attractionProduct;
-      attractionProduct.forEach(item => {
-        const { ticketNumber, price } = item;
-        orderInfo.push({
-          ageGroup: item.attractionProduct.ageGroup,
-          quantity: ticketNumber,
-          pricePax: price / ticketNumber,
-          productInfo: item,
-        });
-      });
-      const orderData = {
-        themeParkCode,
-        themeParkName,
-        orderType: 'offer',
-        queryInfo: {
-          dateOfVisit,
-          numOfGuests,
-        },
-        orderInfo,
-        offerInfo: { ...detail, selectRuleId: priceRuleId },
-        deliveryInfo: deliverInformation,
-      };
-      dispatch({
-        type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
-        payload: {
-          orderIndex: null,
-          orderData,
-        },
-      });
-    }
+    });
+    const orderData = {
+      themeParkCode,
+      themeParkName,
+      orderType: 'offer',
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderInfo,
+      offerInfo: { ...detail, selectRuleId: priceRuleId },
+      deliveryInfo: deliverInformation,
+    };
+    console.log(orderData);
+    const type =
+      attractionProduct.length === 1
+        ? 'ticketOrderCartMgr/settingGeneralTicketOrderData'
+        : 'ticketOrderCartMgr/settingPackAgeTicketOrderData';
+    dispatch({
+      type,
+      payload: {
+        orderIndex: null,
+        orderData,
+      },
+    });
     this.onClose();
   };
 
@@ -371,6 +329,8 @@ class Attraction extends Component {
       ticketMgr: {
         deliverInformation = {},
         bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
+        themeParkCode,
+        themeParkName,
       },
     } = this.props;
     const orderInfo = offers.map(item => {
@@ -382,7 +342,7 @@ class Attraction extends Component {
       } = item;
       return {
         quantity,
-        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId),
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         offerInfo: {
           ...detail,
           selectRuleId: priceRuleId,
@@ -390,8 +350,8 @@ class Attraction extends Component {
       };
     });
     const orderData = {
-      themeParkCode: offers[0].attractionProduct[0].attractionProduct.themePark,
-      themeParkName: offers[0].attractionProduct[0].attractionProduct.themeParkName,
+      themeParkCode,
+      themeParkName,
       orderType: 'offerBundle',
       bundleName,
       queryInfo: {
@@ -401,6 +361,7 @@ class Attraction extends Component {
       orderInfo,
       deliveryInfo: deliverInformation,
     };
+    console.log(orderData);
     dispatch({
       type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
       payload: {
@@ -419,30 +380,22 @@ class Attraction extends Component {
         attractionProduct = [],
         detail,
         showToCartModal,
-        countrys,
         deliverInformation = {},
         showBundleToCart,
         bundleOfferDetail = {},
         showBundleDetailModal,
+        functionActive,
       },
       global: {
         userCompanyInfo: { companyType },
       },
     } = this.props;
-    const ticketTypeItems = [];
-    const descriptionItems = [];
-    attractionProduct.forEach(item => {
-      ticketTypeItems.push(item.attractionProduct.ticketType);
-      descriptionItems.push(item.attractionProduct.pluDesc);
-    });
-    const ticketType = arrToString(ticketTypeItems);
-    const description = arrToString(descriptionItems);
     const { clientHeight } = this.state;
     const columns = [
       {
         title: 'Offer Name',
         key: 'name',
-        width: '40%',
+        width: '30%',
         render: record => {
           const {
             bundleName,
@@ -452,7 +405,7 @@ class Attraction extends Component {
           } = record;
           return (
             <Tooltip
-              title={offerName}
+              title={bundleName || offerName}
               placement="topLeft"
               overlayStyle={{ whiteSpace: 'pre-wrap' }}
             >
@@ -462,8 +415,108 @@ class Attraction extends Component {
         },
       },
       {
+        title: 'Price',
+        key: 'Price',
+        align: 'right',
+        width: '35%',
+        render: record => {
+          const {
+            bundleName,
+            offers = [],
+            detail: { priceRuleId, productGroup = [] },
+          } = record;
+          if (!isNullOrUndefined(bundleName)) {
+            return (
+              <div>
+                {offers.map(offerItem => {
+                  const {
+                    attractionProduct: attractionProductItems = [],
+                    detail: {
+                      offerBasicInfo: { offerNo },
+                      priceRuleId: offerPriceRuleId,
+                      offerBundle = [{}],
+                    },
+                  } = offerItem;
+                  return (
+                    <div key={offerNo} className={styles.productPrice}>
+                      <div style={{ marginRight: '10px' }}>{offerBundle[0].bundleLabel}</div>
+                      <div>
+                        From ${' '}
+                        {calculateAllProductPrice(
+                          attractionProductItems,
+                          offerPriceRuleId,
+                          null,
+                          offerItem.detail
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
+          let offerConstrain;
+          const ageGroups = [];
+          productGroup.forEach(item => {
+            if (item.productType === 'Attraction') {
+              item.productGroup.forEach(item2 => {
+                if (item2.groupName === 'Attraction') {
+                  offerConstrain = item2.choiceConstrain;
+                }
+              });
+            }
+          });
+          if (offerConstrain === 'Fixed') {
+            record.attractionProduct.forEach(item => {
+              if (item.attractionProduct.ageGroup) {
+                ageGroups.push(`${item.attractionProduct.ageGroup}`);
+              } else {
+                ageGroups.push(`-`);
+              }
+            });
+            return (
+              <div className={styles.productPrice}>
+                <div style={{ marginRight: '10px' }}>{ageGroups.join('; ')}</div>
+                <div>
+                  From ${' '}
+                  {calculateAllProductPrice(
+                    record.attractionProduct,
+                    priceRuleId,
+                    null,
+                    record.detail
+                  )}
+                </div>
+              </div>
+            );
+          }
+          return (
+            <div>
+              {record.attractionProduct.map(item => {
+                const { productNo } = item;
+                const { ageGroup } = item.attractionProduct;
+                return (
+                  <div key={productNo} className={styles.productPrice}>
+                    <div style={{ marginRight: '10px' }}>{ageGroup || '-'}</div>
+                    <div>From ${` ${calculateProductPrice(item, priceRuleId).toFixed(2)}`}</div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        },
+      },
+      {
+        title: '',
+        key: 'empty',
+        width: '5%',
+        render: () => {
+          return <div />;
+        },
+      },
+      {
         title: 'Operation',
         key: 'Operation',
+        className: styles.option,
         width: '30%',
         render: (_, record) => {
           return (
@@ -484,6 +537,7 @@ class Attraction extends Component {
                   e.stopPropagation();
                   this.showToCart(record);
                 }}
+                disabled={!functionActive}
               >
                 Add to Cart
               </Button>
@@ -492,6 +546,7 @@ class Attraction extends Component {
         },
       },
     ];
+    const columns2 = columns.filter(({ title }) => title === 'Offer Name' || title === 'Operation');
     return (
       <div className={styles.container} style={{ minHeight: clientHeight }}>
         {showBundleDetailModal ? (
@@ -502,15 +557,10 @@ class Attraction extends Component {
         ) : null}
         {showToCartModal ? (
           <ToCart
-            ticketType={ticketType}
-            description={description}
             attractionProduct={attractionProduct}
             detail={detail}
             onClose={this.onClose}
             changeTicketNumber={this.changeTicketNumber}
-            formatInputValue={this.formatInputValue}
-            priceRuleIndex={0}
-            countrys={countrys}
             order={this.order}
             deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
@@ -522,9 +572,7 @@ class Attraction extends Component {
           <BundleToCart
             {...bundleOfferDetail}
             onClose={this.onClose}
-            countrys={countrys}
             order={this.bundleOrder}
-            formatInputValue={this.formatInputValue}
             changeTicketNumber={this.changeBundleOfferNumber}
             deliverInformation={deliverInformation}
             changeDeliveryInformation={(type, value) => this.changeDeliveryInformation(type, value)}
@@ -559,7 +607,7 @@ class Attraction extends Component {
                       {showDetail ? (
                         <Table
                           className={styles.table}
-                          columns={columns}
+                          columns={companyType === '02' ? columns2 : columns}
                           dataSource={products}
                           pagination={false}
                           rowKey={record => record.id}

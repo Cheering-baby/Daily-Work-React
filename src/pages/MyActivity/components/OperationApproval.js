@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Form,
   Icon,
@@ -9,15 +10,15 @@ import {
   Radio,
   Row,
   Select,
-  Switch,
   Spin,
-  Checkbox,
+  Switch,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import detailStyles from './OperationApproval.less';
 import OperationApprovalHistory from '@/pages/MyActivity/components/OperationApprovalHistory';
+import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
 
 const { Option } = Select;
 const ColProps = {
@@ -33,6 +34,9 @@ class OperationApproval extends React.PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'operationApproval/queryRerouteList',
+    });
+    dispatch({
+      type: 'operationApproval/querySalePerson',
     });
   }
 
@@ -75,6 +79,12 @@ class OperationApproval extends React.PureComponent {
     } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
+        dispatch({
+          type: 'operationApproval/save',
+          payload: {
+            loadingFlag: true,
+          },
+        });
         if (bReroute === true) {
           dispatch({
             type: 'operationApproval/approve',
@@ -91,6 +101,7 @@ class OperationApproval extends React.PureComponent {
               reason: values.reason,
               remarks: values.remarks,
               allowRestart: values.allowRestart,
+              saleManager: values.saleManager,
             },
           });
         }
@@ -106,16 +117,28 @@ class OperationApproval extends React.PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      operationApproval: { bReroute, approvalStatus, rerouteList = [] },
+      operationApproval: {
+        bReroute,
+        approvalStatus,
+        rerouteList = [],
+        saleManagerList = [],
+        loadingFlag,
+      },
       activityTplCode,
+      pendStepTplCode,
       approveLoading,
     } = this.props;
+    const isTaRegistrationAllowedRole = hasAllPrivilege(['TA_REGISTRATION_NOT_ALLOWED_PRIVILEGE']);
     const rerouteSelectList = rerouteList.map(item => (
       <Option key={item} value={item}>
         {item}
       </Option>
     ));
-
+    const saleManagerSelectList = saleManagerList.map(user => (
+      <Option key={`option_${user.id}`} value={user.userCode}>
+        {user.userCode}
+      </Option>
+    ));
     return (
       <React.Fragment>
         <Spin spinning={approveLoading === true}>
@@ -133,33 +156,35 @@ class OperationApproval extends React.PureComponent {
                     <div className={classNames(detailStyles.searchDiv, 'no-shadow', 'no-border')}>
                       <Form className={classNames('ant-advanced-search-form')}>
                         <Row>
-                          <Col {...ColProps}>
-                            <Form.Item
-                              labelCol={{ span: 4 }}
-                              wrapperCol={{ span: 6 }}
-                              label={formatMessage({ id: 'APPROVAL_RE_ROUTE' })}
-                            >
-                              {getFieldDecorator(`bReroute`, {
-                                rules: [
-                                  {
-                                    required: false,
-                                    msg: 'Required',
-                                  },
-                                ],
-                              })(
-                                <div style={{ marginTop: '4px' }}>
-                                  <Switch
-                                    disabled={rerouteList == null || rerouteList.length === 0}
-                                    checkedChildren={<Icon type="check" />}
-                                    unCheckedChildren={<Icon type="close" />}
-                                    style={{ marginRight: '20px' }}
-                                    onChange={this.reroute}
-                                    checked={bReroute}
-                                  />
-                                </div>
-                              )}
-                            </Form.Item>
-                          </Col>
+                          {activityTplCode !== 'SUB-TA-SIGN-UP' ? (
+                            <Col {...ColProps}>
+                              <Form.Item
+                                labelCol={{ span: 4 }}
+                                wrapperCol={{ span: 6 }}
+                                label={formatMessage({ id: 'APPROVAL_RE_ROUTE' })}
+                              >
+                                {getFieldDecorator(`bReroute`, {
+                                  rules: [
+                                    {
+                                      required: false,
+                                      msg: 'Required',
+                                    },
+                                  ],
+                                })(
+                                  <div style={{ marginTop: '4px' }}>
+                                    <Switch
+                                      disabled={rerouteList == null || rerouteList.length === 0}
+                                      checkedChildren={<Icon type="check" />}
+                                      unCheckedChildren={<Icon type="close" />}
+                                      style={{ marginRight: '20px' }}
+                                      onChange={this.reroute}
+                                      checked={bReroute}
+                                    />
+                                  </div>
+                                )}
+                              </Form.Item>
+                            </Col>
+                          ) : null}
                           {bReroute !== true ? (
                             <Col {...ColProps}>
                               <Form.Item
@@ -219,6 +244,31 @@ class OperationApproval extends React.PureComponent {
                               </Form.Item>
                             </Col>
                           ) : null}
+                          {approvalStatus === 'A' &&
+                          !bReroute &&
+                          pendStepTplCode === 'TA_SALES_LEAD_APPROVAL' ? (
+                            <Col {...ColProps}>
+                              <Form.Item
+                                labelCol={{ span: 24 }}
+                                wrapperCol={{ span: 24 }}
+                                label={formatMessage({ id: 'SALE_MANAGER' })}
+                              >
+                                {getFieldDecorator(
+                                  `saleManager`,
+                                  {}
+                                )(
+                                  <Select
+                                    showSearch
+                                    placeholder="Please Select"
+                                    filterOption={(input, option) =>
+                                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }>
+                                    {saleManagerSelectList}
+                                  </Select>
+                                )}
+                              </Form.Item>
+                            </Col>
+                          ) : null}
                           {approvalStatus === 'R' && !bReroute ? (
                             <Col {...ColProps}>
                               <Form.Item
@@ -239,6 +289,7 @@ class OperationApproval extends React.PureComponent {
                           ) : null}
                           {approvalStatus === 'R' &&
                           !bReroute &&
+                          isTaRegistrationAllowedRole &&
                           activityTplCode === 'TA-SIGN-UP' ? (
                             <Col {...ColProps}>
                               {getFieldDecorator('allowRestart', {
@@ -275,7 +326,13 @@ class OperationApproval extends React.PureComponent {
         </Spin>
         <div className={detailStyles.cancelOk}>
           <Button onClick={this.cancel}>Cancel</Button>
-          <Button type="primary" htmlType="submit" className={detailStyles.ok} onClick={this.ok}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className={detailStyles.ok}
+            loading={loadingFlag}
+            onClick={this.ok}
+          >
             OK
           </Button>
         </div>

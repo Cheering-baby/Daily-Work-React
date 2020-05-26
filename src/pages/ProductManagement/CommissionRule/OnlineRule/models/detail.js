@@ -34,7 +34,7 @@ export default {
   state: {
     pagination: {
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 5,
     },
     commisssionList: {},
     tieredList: [],
@@ -43,30 +43,49 @@ export default {
     addInput1Min: '',
     addInput1Max: '',
     addInput2: '',
+    // list: [],
+    commissionName: '',
   },
   effects: {
     *queryDetail({ payload }, { call, put }) {
       const { tplId } = payload;
+      const res = yield call(service.queryCommissionTplDetail, { tplId });
+      if (!res) return false;
       const {
         data: { resultCode, resultMsg, result },
-      } = yield call(service.queryCommissionTplDetail, { tplId });
-
-      const {
-        commissionName,
-        commissionType,
-        effectiveDate,
-        expiryDate,
-        caluculateCycle,
-        commissionScheme,
-        tieredList,
-      } = result;
+      } = res;
       if (resultCode === 0 || resultCode === '0') {
-        if (tieredList && tieredList.length > 0) {
-          tieredList.map(v => {
-            Object.assign(v, { key: `commissionList${v.tplId}` });
-            return v;
-          });
-        }
+        const {
+          commissionName,
+          commissionType,
+          effectiveDate,
+          expiryDate,
+          caluculateCycle,
+          commissionScheme,
+          tieredList,
+          createStaff,
+          createTime,
+        } = result;
+
+        if (commissionScheme === 'Percentage') {
+          if (tieredList && tieredList.length > 0) {
+            tieredList.map((v, index) => {
+              Object.assign(v, {
+                commissionValue: v.commissionValue ? Math.round(v.commissionValue * 100) : '',
+                maxmum: v.maxmum === null ? '' : v.maxmum,
+              });
+              return v;
+            });
+          }
+        } else if (tieredList && tieredList.length > 0) {
+            tieredList.map((v, index) => {
+              Object.assign(v, {
+                maxmum: v.maxmum === null ? '' : v.maxmum,
+              });
+              return v;
+            });
+          }
+
         yield put({
           type: 'save',
           payload: {
@@ -77,8 +96,11 @@ export default {
               expiryDate,
               caluculateCycle,
               commissionScheme,
+              createStaff,
+              createTime,
             },
             tieredList,
+            // tieredList: addRow ? [addRow, ...tieredList] : tieredList,
           },
         });
       } else message.warn(resultMsg, 10);
@@ -179,7 +201,7 @@ export default {
         ...payload,
         pagination: {
           currentPage: 1,
-          pageSize: 10,
+          pageSize: 5,
         },
         commisssionList: {},
         tieredList: [],
@@ -188,6 +210,7 @@ export default {
         addInput1Min: '',
         addInput1Max: '',
         addInput2: '',
+        commissionName: '',
       };
     },
     saveSelectOffer(state, { payload }) {

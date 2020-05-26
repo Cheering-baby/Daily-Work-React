@@ -1,9 +1,15 @@
 import React from 'react';
-import { Col, Row } from 'antd';
+import { Col, Descriptions, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import { isNvl } from '@/utils/utils';
-import { getCurrencyStr, getFinanceType, getMoneyStr } from '../../utils/pubUtils';
+import {
+  getCreateTeamStr,
+  getCurrencyStr,
+  getFinanceType,
+  getMoneyStr,
+  getTelStr,
+} from '../../utils/pubUtils';
 import styles from './index.less';
 
 const DetailForTaFinanceContact = props => {
@@ -11,6 +17,8 @@ const DetailForTaFinanceContact = props => {
     mappingInfo = {},
     financeContactList = [],
     currencyList = [],
+    countryList = [],
+    createTeamList = [],
     isMainTaRoleFlag,
     isAccountingArRoleFlag,
   } = props;
@@ -29,6 +37,7 @@ const DetailForTaFinanceContact = props => {
     );
   }
   if (isNvl(financeInfoTwo)) financeInfoTwo = {};
+  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -36,234 +45,94 @@ const DetailForTaFinanceContact = props => {
           <span className={styles.DetailTitle}>{formatMessage({ id: 'PRIMARY_FINANCE' })}</span>
         </Col>
       </Row>
-      <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
-          <div className={styles.detailRightStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}</span>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
-          <div className={styles.detailLeftStyle}>
-            <span>{!isNvl(financeInfoOne.contactPerson) ? financeInfoOne.contactPerson : '-'}</span>
-          </div>
+      <Row type="flex" justify="space-around" className={styles.detailContent}>
+        <Col span={24}>
+          <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}>
+              {!isNvl(financeInfoOne.contactPerson) ? financeInfoOne.contactPerson : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_MOBILE_NO' })}
+            >
+              {getTelStr(countryList, financeInfoOne.mobileCountry, financeInfoOne.mobileNumber)}
+            </Descriptions.Item>
+          </Descriptions>
+          <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}>
+              {getTelStr(countryList, financeInfoOne.country, financeInfoOne.contactNo)}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_EMAIL' })}>
+              {!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}
+            </Descriptions.Item>
+          </Descriptions>
+          <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}>
+              {!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_MOBILE_NO' })}
+            >
+              {getTelStr(countryList, financeInfoTwo.mobileCountry, financeInfoTwo.mobileNumber)}
+            </Descriptions.Item>
+          </Descriptions>
+          <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}>
+              {getTelStr(countryList, financeInfoTwo.country, financeInfoTwo.contactNo)}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_EMAIL' })}>
+              {!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}
+            </Descriptions.Item>
+          </Descriptions>
+          {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
+            <Descriptions className={styles.descriptionsStyle} column={layout}>
+              <Descriptions.Item
+                label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_AMOUNT' })}
+              >
+                {getMoneyStr(mappingInfo.securityDepositAmount)}
+              </Descriptions.Item>
+              <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_CURRENCY' })}>
+                {getCurrencyStr(currencyList, mappingInfo.currency)}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+          {isAccountingArRoleFlag && (
+            <Descriptions className={styles.descriptionsStyle} column={layout}>
+              <Descriptions.Item
+                label={formatMessage({ id: 'TA_FINANCE_E_WALLET_FIXED_THRESHOLD' })}
+              >
+                {getMoneyStr(mappingInfo.ewalletFixedThreshold)}
+              </Descriptions.Item>
+              <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_AR_FIXED_THRESHOLD' })}>
+                {getMoneyStr(mappingInfo.arFixedThreshold)}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+          {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
+            <Descriptions className={styles.descriptionsStyle} column={layout}>
+              <Descriptions.Item
+                label={formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_AMOUNT' })}
+              >
+                {getMoneyStr(mappingInfo.guaranteeAmount)}
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_EXPIRY_DATE' })}
+              >
+                {!isNvl(mappingInfo.guaranteeExpiryDate)
+                  ? moment(mappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD').format('DD-MMM-YYYY')
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_CREDIT_TERM' })}>
+                {!isNvl(mappingInfo.creditTerm)
+                  ? getCreateTeamStr(createTeamList, mappingInfo.creditTerm)
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_CREDIT_LIMIT' })}>
+                {getMoneyStr(mappingInfo.creditLimit)}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
         </Col>
       </Row>
-      <Row type="flex" justify="space-around">
-        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-          <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-              <div className={styles.detailRightStyle}>
-                <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}</span>
-              </div>
-            </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-              <div className={styles.detailLeftStyle}>
-                <span>{!isNvl(financeInfoOne.contactNo) ? financeInfoOne.contactNo : '-'}</span>
-              </div>
-            </Col>
-          </Row>
-        </Col>
-        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-          <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-              <div className={styles.detailRightStyle}>
-                <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_EMAIL' })}</span>
-              </div>
-            </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-              <div className={styles.detailLeftStyle}>
-                <span>
-                  {!isNvl(financeInfoOne.contactEmail) ? financeInfoOne.contactEmail : '-'}
-                </span>
-              </div>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
-          <div className={styles.detailRightStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}</span>
-          </div>
-        </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
-          <div className={styles.detailLeftStyle}>
-            <span>{!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}</span>
-          </div>
-        </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
-        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-          <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-              <div className={styles.detailRightStyle}>
-                <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}</span>
-              </div>
-            </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-              <div className={styles.detailLeftStyle}>
-                <span>{!isNvl(financeInfoTwo.contactNo) ? financeInfoTwo.contactNo : '-'}</span>
-              </div>
-            </Col>
-          </Row>
-        </Col>
-        <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-          <Row type="flex" justify="space-around">
-            <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-              <div className={styles.detailRightStyle}>
-                <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_EMAIL' })}</span>
-              </div>
-            </Col>
-            <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-              <div className={styles.detailLeftStyle}>
-                <span>
-                  {!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}
-                </span>
-              </div>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-      {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-            <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                <div className={styles.detailRightStyle}>
-                  <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_AMOUNT' })}</span>
-                </div>
-              </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                <div className={styles.detailLeftStyle}>
-                  <span>{getMoneyStr(mappingInfo.securityDepositAmount)}</span>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-            <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                <div className={styles.detailRightStyle}>
-                  <span>{formatMessage({ id: 'TA_FINANCE_CURRENCY' })}</span>
-                </div>
-              </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                <div className={styles.detailLeftStyle}>
-                  <span>{getCurrencyStr(currencyList, mappingInfo.currency)}</span>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      )}
-      {isAccountingArRoleFlag && (
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-            <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                <div className={styles.detailRightStyle}>
-                  <span>{formatMessage({ id: 'TA_FINANCE_E_WALLET_FIXED_THRESHOLD' })}</span>
-                </div>
-              </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                <div className={styles.detailLeftStyle}>
-                  <span>
-                    {!isNvl(mappingInfo.ewalletFixedThreshold)
-                      ? mappingInfo.ewalletFixedThreshold
-                      : '-'}
-                  </span>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-            <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                <div className={styles.detailRightStyle}>
-                  <span>{formatMessage({ id: 'TA_FINANCE_AR_FIXED_THRESHOLD' })}</span>
-                </div>
-              </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                <div className={styles.detailLeftStyle}>
-                  <span>
-                    {!isNvl(mappingInfo.arFixedThreshold) ? mappingInfo.arFixedThreshold : '-'}
-                  </span>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      )}
-      {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
-        <React.Fragment>
-          <Row type="flex" justify="space-around">
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-              <Row type="flex" justify="space-around">
-                <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                  <div className={styles.detailRightStyle}>
-                    <span>{formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_AMOUNT' })}</span>
-                  </div>
-                </Col>
-                <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                  <div className={styles.detailLeftStyle}>
-                    <span>{getMoneyStr(mappingInfo.guaranteeAmount)}</span>
-                  </div>
-                </Col>
-              </Row>
-            </Col>
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-              <Row type="flex" justify="space-around">
-                <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                  <div className={styles.detailRightStyle}>
-                    <span>{formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_EXPIRY_DATE' })}</span>
-                  </div>
-                </Col>
-                <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                  <div className={styles.detailLeftStyle}>
-                    <span>
-                      {!isNvl(mappingInfo.guaranteeExpiryDate)
-                        ? moment(mappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD').format(
-                            'DD-MMM-YYYY'
-                          )
-                        : '-'}
-                    </span>
-                  </div>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-          <Row type="flex" justify="space-around">
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-              <Row type="flex" justify="space-around">
-                <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                  <div className={styles.detailRightStyle}>
-                    <span>{formatMessage({ id: 'TA_FINANCE_CREDIT_TERM' })}</span>
-                  </div>
-                </Col>
-                <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                  <div className={styles.detailLeftStyle}>
-                    <span>{!isNvl(mappingInfo.creditTerm) ? mappingInfo.creditTerm : '-'}</span>
-                  </div>
-                </Col>
-              </Row>
-            </Col>
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-              <Row type="flex" justify="space-around">
-                <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                  <div className={styles.detailRightStyle}>
-                    <span>{formatMessage({ id: 'TA_FINANCE_CREDIT_LIMIT' })}</span>
-                  </div>
-                </Col>
-                <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                  <div className={styles.detailLeftStyle}>
-                    <span>{!isNvl(mappingInfo.creditLimit) ? mappingInfo.creditLimit : '-'}</span>
-                  </div>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-        </React.Fragment>
-      )}
     </React.Fragment>
   );
 };

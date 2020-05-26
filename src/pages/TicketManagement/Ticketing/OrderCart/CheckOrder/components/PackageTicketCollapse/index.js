@@ -41,7 +41,7 @@ class PackageTicketingCollapse extends Component {
               },
             });
           }
-          message.success('Delete successfully!');
+          message.success('Deleted successfully.');
         }
       });
     } else if (opType === 'edit') {

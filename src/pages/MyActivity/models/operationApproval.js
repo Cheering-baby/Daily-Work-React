@@ -2,6 +2,7 @@ import { router } from 'umi';
 import { message } from 'antd';
 import * as service from '../services/myActivity';
 import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
+import { isNvl } from '@/utils/utils';
 
 export default {
   namespace: 'operationApproval',
@@ -10,12 +11,14 @@ export default {
     bReroute: false,
     approvalStatus: undefined,
     rerouteList: [],
+    saleManagerList: [],
     allowRestart: false,
     operationVisible: false,
+    loadingFlag: false,
   },
   effects: {
     *approve({ payload }, { call, select, put }) {
-      const { reason, approver, allowRestart, remarks } = payload;
+      const { reason, approver, allowRestart, remarks, saleManager } = payload;
       const { activityId } = yield select(state => state.activityDetail);
       const { bReroute, approvalStatus } = yield select(state => state.operationApproval);
 
@@ -36,10 +39,21 @@ export default {
           targetList,
         });
       } else if (approvalStatus === 'A') {
-        result = yield call(service.accept, { activityId, remarks });
+        if (!isNvl(saleManager)) {
+          const pload = `{'saleManager' : '${saleManager}'}`;
+          result = yield call(service.accept, { activityId, remarks, payload: pload });
+        } else {
+          result = yield call(service.accept, { activityId, remarks });
+        }
       } else if (approvalStatus === 'R') {
         result = yield call(service.reject, { activityId, reason, allowRestart });
       }
+      yield put({
+        type: 'save',
+        payload: {
+          loadingFlag: false,
+        },
+      });
 
       const {
         data: { resultCode, resultMsg },
@@ -58,6 +72,20 @@ export default {
       router.push({
         pathname: '/MyActivity',
       });
+    },
+
+    *querySalePerson(_, { call, put }) {
+      const res = yield call(service.querySalePerson);
+      const { resultCode, resultMsg, resultData } = res.data;
+      if (resultCode === '0' || resultCode === 0) {
+        const { userProfiles } = resultData;
+        yield put({
+          type: 'save',
+          payload: {
+            saleManagerList: userProfiles,
+          },
+        });
+      } else message.warn(resultMsg, 10);
     },
 
     *queryRerouteList(_, { call, put }) {
@@ -96,6 +124,7 @@ export default {
         rerouteList: [],
         allowRestart: false,
         operationVisible: false,
+        saleManagerList: [],
       };
     },
   },

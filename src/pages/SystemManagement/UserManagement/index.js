@@ -2,7 +2,6 @@ import React from 'react';
 import { Breadcrumb, Col } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
-import { connect } from 'dva';
 // import { SCREEN } from '../../../../utils/screen';
 import MediaQuery from 'react-responsive';
 import UserSearchForm from './components/UserSearchForm';
@@ -14,10 +13,6 @@ import SCREEN from '@/utils/screen';
 // TA 用户进来，只能看到该公司的用户 和 SUB TA 公司的主用户
 // SUB TA 用户进来， 只能看到该公司的用户
 
-@connect(({ userMgr, loading }) => ({
-  userMgr,
-  loading: loading.effects['userMgr/queryUsersByCondition'],
-}))
 class Index extends React.PureComponent {
   render() {
     const breadCrumbBody = (

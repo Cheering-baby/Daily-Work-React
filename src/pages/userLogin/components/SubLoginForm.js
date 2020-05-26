@@ -57,7 +57,7 @@ class SubLoginForm extends Component {
               placeholder={formatMessage({ id: 'USER_LOGIN_PLACEHOLDER' })}
               size="default"
               autoComplete="off"
-              onChange={e => this.getUserOrg(e)}
+              onBlur={e => this.getUserOrg(e)}
             />
           )}
         </FormItem>
@@ -87,7 +87,12 @@ class SubLoginForm extends Component {
         <FormItem label={formatMessage({ id: 'PASSWORD' })}>
           {getFieldDecorator('password', {
             rules: [{ required: true, message: requiredMsg }],
-          })(<Input placeholder={formatMessage({ id: 'PASSWORD_PLACEHOLDER' })} type="password" />)}
+          })(
+            <Input.Password
+              placeholder={formatMessage({ id: 'PASSWORD_PLACEHOLDER' })}
+              type="password"
+            />
+          )}
         </FormItem>
         <FormItem>
           <Button type="primary" htmlType="submit" className={loginStyles.btn} block>

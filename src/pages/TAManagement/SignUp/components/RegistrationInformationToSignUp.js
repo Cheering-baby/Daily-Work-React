@@ -9,7 +9,7 @@ import smallErrorURL from '../../../../assets/pams/signup/smallError.svg';
 import { isNvl } from '@/utils/utils';
 
 const mapStateToProps = store => {
-  const { customerInfo, otherInfo, mappingInfo, taId, status, remark } = store.taMgr;
+  const { customerInfo, otherInfo, mappingInfo, taId, signature, status, remark } = store.taMgr;
   const {
     organizationRoleList,
     salutationList,
@@ -18,12 +18,14 @@ const mapStateToProps = store => {
     bilCityList,
     currencyList,
     categoryList,
+    createTeamList,
   } = store.taCommon;
   return {
     customerInfo,
     otherInfo,
     mappingInfo,
     taId,
+    signature,
     status,
     remark,
     organizationRoleList,
@@ -33,6 +35,7 @@ const mapStateToProps = store => {
     bilCityList,
     currencyList,
     categoryList,
+    createTeamList,
   };
 };
 
@@ -41,16 +44,16 @@ class RegistrationInformationToSignUp extends PureComponent {
   getStatusMsg = status => {
     let statusStr = 'default';
     let statusTxt = '';
-    switch (status) {
-      case '02':
+    switch (String(status).toUpperCase()) {
+      case 'REJECTED':
         statusStr = 'error';
         statusTxt = formatMessage({ id: 'STATUS_REJECT' });
         break;
-      case '00':
+      case 'COMPLETED':
         statusStr = 'processing';
         statusTxt = formatMessage({ id: 'STATUS_COMPLETED' });
         break;
-      case '01':
+      case 'PENDING OPERATION':
         statusStr = 'warning';
         statusTxt = formatMessage({ id: 'STATUS_PENDING' });
         break;
@@ -64,12 +67,16 @@ class RegistrationInformationToSignUp extends PureComponent {
 
   goReRegistration = e => {
     e.preventDefault();
-    const { dispatch, taId } = this.props;
+    const { dispatch, taId, signature } = this.props;
     dispatch({
-      type: 'signUp/doCleanData',
-      payload: { taId: !isNvl(taId) ? taId : null },
+      type: 'signUp/doCleanSignUpData',
+      payload: {
+        taId: !isNvl(taId) ? taId : null,
+        signature: !isNvl(signature) ? signature : null,
+        isRegistration: true,
+      },
     }).then(() => {
-      router.push('/TAManagement/SignUp');
+      router.push(`/TAManagement/SignUp?taId=${taId}&signature=${signature}`);
     });
   };
 
@@ -86,6 +93,7 @@ class RegistrationInformationToSignUp extends PureComponent {
       currencyList = [],
       categoryList = [],
       customerGroupList = [],
+      createTeamList = [],
       status,
       remark,
     } = this.props;
@@ -101,10 +109,11 @@ class RegistrationInformationToSignUp extends PureComponent {
       currencyList,
       categoryList,
       customerGroupList,
+      createTeamList,
     };
     return (
       <Col span={24}>
-        {String(status) === '05' && (
+        {String(status).toUpperCase() === 'REJECTED' && (
           <Row type="flex" justify="space-around" className={styles.rejectInformation}>
             <Col xs={24} sm={24} md={16} lg={20} xl={20} xxl={20} className={styles.topRejectCol}>
               <Row type="flex" justify="space-around">

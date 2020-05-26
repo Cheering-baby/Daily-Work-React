@@ -7,8 +7,8 @@ export default {
   MENU_NEW: 'New',
   MENU_EDIT: 'Edit',
   NOTIFICATIONS_DEL_MENU_CONFIRM: 'Are you sure to delete the Notifications?',
-  ADD_SUCCESS: 'Add Success',
-  MODIFY_SUCCESS: 'Modify Success',
+  ADD_SUCCESS: 'Added Successfully',
+  MODIFY_SUCCESS: 'Modified Successfully',
   DELETE_SUCCESS: 'Delete Success',
   DELETE_FILE_SUCCESS: 'Delete File Success',
 
@@ -34,10 +34,11 @@ export default {
   TITLE: 'Title',
   TARGET_OBJECT: 'Scope/Role',
   PUBLISHED_TIME: 'Published Time',
+  PUBLISHED_DATE: 'Published Date',
   FILE: 'File',
   OPERATION: 'operation',
   CATEGORISED: 'Categorised',
-  READ_STATUS: 'Read status',
+  READ_STATUS: 'Read Status',
   READ_STATUS_READ: 'Read',
   READ_STATUS_UNREAD: 'Unread',
 

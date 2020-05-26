@@ -9,11 +9,7 @@ import RegistrationInformationToSubTaEdit from './components/RegistrationInforma
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import SCREEN from '@/utils/screen';
-import {
-  hasAllPrivilege,
-  MAIN_TA_ADMIN_PRIVILEGE,
-  SUB_TA_ADMIN_PRIVILEGE,
-} from '@/utils/PrivilegeUtil';
+import { hasAllPrivilege, SUB_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const { subTaId, subTaInfo, subTaInfoLoadingFlag, countryList } = store.subTaMgr;
@@ -83,9 +79,8 @@ class SubTAProfile extends PureComponent {
         url: null,
       },
     ];
-    const isMainTaRoleSubFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
     const isAdminRoleSubFlag = hasAllPrivilege([SUB_TA_ADMIN_PRIVILEGE]);
-    const isEdit = isMainTaRoleSubFlag || isAdminRoleSubFlag;
+    const isEdit = isAdminRoleSubFlag;
     const isProfile = true;
     return (
       <Col span={24}>

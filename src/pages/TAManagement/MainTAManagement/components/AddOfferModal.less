@@ -29,9 +29,17 @@
 }
 
 .title {
-  font-family: Calibri-Bold;
-  font-size: 15px;
+  font-family: Calibri;
+  font-size: 16px;
   color: #171B21;
   letter-spacing: 0.24px;
   line-height: 22px;
+}
+
+.hideIcon{
+  :global {
+    .ant-table-row-expand-icon{
+      display: none;
+    }
+  }
 }

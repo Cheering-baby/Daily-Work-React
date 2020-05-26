@@ -8,12 +8,18 @@ export default {
     currentStep: 0,
     isShowDetail: false,
     viewId: 'signUpView',
+    taFileCheck: {},
+    arAccountFileCheck: {},
   },
   effects: {
     *doCleanData({ payload }, { put }) {
       yield put({ type: 'clean', payload });
       yield put({ type: 'taCommon/clean', payload });
       yield put({ type: 'taMgr/clean', payload });
+    },
+    *doCleanSignUpData({ payload }, { put }) {
+      yield put({ type: 'clean', payload });
+      yield put({ type: 'taMgr/save', payload });
     },
   },
   reducers: {
@@ -34,6 +40,8 @@ export default {
           currentStep: 0,
           isShowDetail: false,
           viewId: 'signUpView',
+          taFileCheck: {},
+          arAccountFileCheck: {},
         },
         ...payload,
       };

@@ -25,7 +25,7 @@ export default {
         routes: {
           // exclude: [/models/, /locales/, /service/, /components/, /utils/, /config.js/],
           exclude: [
-            /(consts|models|messages|locales|services|components|utils)/,
+            /(consts|models|messages|locales|services|components|utils|hooks)/,
             /model\.js/,
             /config\.js/,
           ],

@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Card, Col, DatePicker, Form, Icon, Row, Spin, Table } from 'antd';
+import { Button, Card, Col, Form, Icon, Row, Spin, Table } from 'antd';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
-import PaginationComp from '../PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import styles from './index.less';
 import { getUrl, handleDownFile, isNvl } from '@/utils/utils';
 import { getKeyValue } from '../../../utils/pubUtils';
+import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 const downUrl = `${getUrl()}/common/downloadFile`;
 
@@ -216,7 +217,8 @@ class UploadContractHistoryComp extends PureComponent {
     const { getFieldDecorator } = form;
     const startDateOpts = {
       placeholder: formatMessage({ id: 'TA_TABLE_Q_START_TIME' }),
-      format: 'DD-MMM-YYYY',
+      displayFormat: 'DD-MMM-YYYY',
+      searchFormat: 'DDMMYYYY',
       disabledDate: this.disabledStartDate,
       getCalendarContainer: () => document.getElementById(`contactCardView`),
       onChange: date =>
@@ -228,7 +230,8 @@ class UploadContractHistoryComp extends PureComponent {
     };
     const endDateOpts = {
       placeholder: formatMessage({ id: 'TA_TABLE_Q_END_TIME' }),
-      format: 'DD-MMM-YYYY',
+      displayFormat: 'DD-MMM-YYYY',
+      searchFormat: 'DDMMYYYY',
       disabledDate: this.disabledEndDate,
       getCalendarContainer: () => document.getElementById(`contactCardView`),
       onChange: date =>
@@ -259,14 +262,14 @@ class UploadContractHistoryComp extends PureComponent {
                 initialValue: !isNvl(searchContractForm.uploadedStartTime)
                   ? moment(searchContractForm.uploadedStartTime, 'YYYY-MM-DD')
                   : null,
-              })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
+              })(<FriendlyDatePicker {...startDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.contractCompCol}>
               {getFieldDecorator('uploadedEndTime', {
                 initialValue: !isNvl(searchContractForm.uploadedEndTime)
                   ? moment(searchContractForm.uploadedEndTime, 'YYYY-MM-DD')
                   : null,
-              })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
+              })(<FriendlyDatePicker {...endDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col
               xs={24}

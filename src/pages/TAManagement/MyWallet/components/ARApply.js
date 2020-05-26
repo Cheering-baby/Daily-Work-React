@@ -55,6 +55,7 @@ class ARApply extends React.PureComponent {
       callback: (resultCode, resultMsg) => {
         message.success(resultMsg);
         this.setState({ visible: false });
+        dispatch({ type: 'myWallet/fetchMyActivityList' });
       },
     });
   };

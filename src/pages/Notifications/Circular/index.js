@@ -26,6 +26,14 @@ class Circular extends PureComponent {
     this.onSearch({});
   }
 
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'circular/clear',
+      payload: {},
+    });
+  }
+
   onSearch = param => {
     const { dispatch, filter } = this.props;
     if (param) {
@@ -42,7 +50,7 @@ class Circular extends PureComponent {
       reqParams.queryType = null;
     }
     dispatch({
-      type: 'circular/change',
+      type: 'circular/search',
       payload: {
         filter: { ...reqParams },
       },
@@ -89,10 +97,12 @@ class Circular extends PureComponent {
 
   onTableDetailChange = notificationInfo => {
     const { dispatch } = this.props;
+    const isAdminRoleFlag = hasAllPrivilege(['NOTIFICATION_CIRCULAR_MANAGE_PRIVILEGE']);
     dispatch({
       type: 'notification/saveData',
       payload: {
         notificationInfo,
+        isAdminRoleFlag,
       },
     }).then(() => {
       router.push({ pathname: `/Notifications/Circular/Detail/${notificationInfo.id}` });

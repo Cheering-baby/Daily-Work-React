@@ -1,18 +1,21 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import {Button, Card, Col, Form, Icon, message, Modal, Row, Spin} from 'antd';
-import {connect} from 'dva';
-import {formatMessage} from 'umi/locale';
+import { Button, Card, Col, Form, Icon, message, Modal, Row, Spin } from 'antd';
+import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import router from 'umi/router';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '../../../components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
 import PackageTicketCollapse from './components/PackageTicketCollapse';
 import GeneralTicketingCollapse from './components/GeneralTicketingCollapse';
 import OnceAPirateCollapse from './components/OnceAPirateCollapse';
 import PaymentMode from './components/PaymentMode';
 import BOCAOfferCollapse from '@/pages/TicketManagement/components/BOCAOfferCollapse';
+import { transBookingToPayTotalPrice } from '@/pages/TicketManagement/utils/orderCartUtil';
+
+let confirmEventSubmitTime = 0;
 
 @Form.create()
 @connect(({ global, ticketBookingAndPayMgr }) => ({
@@ -33,15 +36,30 @@ class OrderPay extends Component {
   }
 
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'ticketBookingAndPayMgr/initPage',
-      payload: {},
-    });
+    const {
+      dispatch,
+      global: {
+        userCompanyInfo: { companyType },
+      },
+    } = this.props;
+    if (companyType === '01') {
+      dispatch({
+        type: 'ticketBookingAndPayMgr/initPage',
+        payload: {},
+      });
+      dispatch({
+        type: 'ticketBookingAndPayMgr/fetchAccountDetail',
+        payload: {},
+      });
+      dispatch({
+        type: 'ticketBookingAndPayMgr/fetchQueryTaDetail',
+        payload: {},
+      });
+    }
   }
 
   componentWillUnmount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'ticketBookingAndPayMgr/resetData',
     });
@@ -60,6 +78,10 @@ class OrderPay extends Component {
   };
 
   confirmEvent = () => {
+    if (confirmEventSubmitTime !== 0) {
+      return;
+    }
+
     const {
       dispatch,
       global: {
@@ -74,12 +96,15 @@ class OrderPay extends Component {
       return;
     }
 
+    confirmEventSubmitTime = 1;
     const payMode = payModeList.find(payModeItem => payModeItem.check);
     if (payMode.label === 'eWallet') {
       if (accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         dispatch({
           type: 'ticketBookingAndPayMgr/confirmEvent',
           payload: {},
+        }).then(() => {
+          confirmEventSubmitTime = 0;
         });
       }
     } else if (payMode.label === 'Credit Card') {
@@ -87,6 +112,7 @@ class OrderPay extends Component {
         type: 'ticketBookingAndPayMgr/sendTransactionPaymentOrder',
         payload: {},
       }).then(result => {
+        confirmEventSubmitTime = 0;
         if (result && result.url) {
           const openWindow = window.open('about:blank');
           if (openWindow) {
@@ -101,9 +127,14 @@ class OrderPay extends Component {
         dispatch({
           type: 'ticketBookingAndPayMgr/confirmEvent',
           payload: {},
+        }).then(() => {
+          confirmEventSubmitTime = 0;
         });
       }
     }
+    setTimeout(() => {
+      confirmEventSubmitTime = 0;
+    }, 1000);
   };
 
   getConfirmEventStatus = () => {
@@ -118,20 +149,25 @@ class OrderPay extends Component {
       return true;
     }
 
+    let active = false;
+    if (!payModeList) {
+      return false;
+    }
+    const payMode = payModeList.find(payModeItem => payModeItem.check);
+    if (payMode.label === 'Credit Card') {
+      return true;
+    }
     if (!accountInfo) {
       return false;
     }
 
-    let active = false;
-    const payMode = payModeList.find(payModeItem => payModeItem.check);
     if (payMode.label === 'eWallet') {
       if (accountInfo.eWallet && accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         active = true;
       }
     } else if (payMode.label === 'Credit Card') {
-      if (accountInfo.cc && accountInfo.cc.balance >= bookDetail.totalPrice) {
-        active = true;
-      }
+      // check balance
+      active = true;
     } else if (payMode.label === 'AR') {
       if (accountInfo.ar && accountInfo.ar.balance >= bookDetail.totalPrice) {
         active = true;
@@ -151,70 +187,34 @@ class OrderPay extends Component {
       },
     } = this.props;
     let payTotal = 0;
-    let ticketAmount = 0;
-    generalTicketOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        orderOffer.orderInfo.forEach(orderInfo => {
-          if (orderInfo.orderCheck) {
-            payTotal += orderInfo.pricePax * orderInfo.quantity;
-            ticketAmount += orderInfo.quantity;
-          }
-        });
-      });
-    });
-    packageOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        orderOffer.orderInfo.forEach(orderInfo => {
-          if (orderInfo.orderCheck) {
-            payTotal += orderInfo.pricePax * orderInfo.quantity;
-            ticketAmount += orderInfo.quantity;
-          }
-        });
-      });
-    });
-    onceAPirateOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        if (orderOffer.orderCheck) {
-          payTotal += orderOffer.orderInfo.offerSumPrice;
-          ticketAmount += orderOffer.orderInfo.orderQuantity;
-        }
-      });
-    });
     if (deliveryMode === 'BOCA') {
-      payTotal += ticketAmount * bocaFeePax;
+      payTotal = transBookingToPayTotalPrice(
+        packageOrderData,
+        generalTicketOrderData,
+        onceAPirateOrderData,
+        bocaFeePax
+      );
+    } else {
+      payTotal = transBookingToPayTotalPrice(
+        packageOrderData,
+        generalTicketOrderData,
+        onceAPirateOrderData,
+        null
+      );
     }
     return Number(payTotal).toFixed(2);
   };
 
   downloadFileEvent = () => {
-    const {
-      dispatch,
-      ticketBookingAndPayMgr: { deliveryMode },
-    } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'ticketBookingAndPayMgr/fetchTicketDownload',
       payload: {},
     }).then(result => {
       if (result) {
-        if (deliveryMode === 'VID') {
-          const openWindow = window.open(result);
-          if (!openWindow) {
-            message.error('Open window error!');
-          }
-        } else {
-          const urlArray = result.split('?');
-          const pointIndex = urlArray[0].lastIndexOf('.');
-          const fileType = urlArray[0].substring(pointIndex + 1);
-          this.getBlob(result).then(blob => {
-            const blobUrl = window.URL.createObjectURL(blob);
-            const aElement = document.createElement('a');
-            document.body.appendChild(aElement);
-            aElement.style.display = 'none';
-            aElement.href = blobUrl;
-            aElement.download = `${deliveryMode}_${new Date().getTime()}.${fileType}`;
-            aElement.click();
-            document.body.removeChild(aElement);
-          });
+        const openWindow = window.open(result);
+        if (!openWindow) {
+          message.error('Open window error!');
         }
       }
     });
@@ -293,9 +293,7 @@ class OrderPay extends Component {
     return (
       <Spin spinning={payPageLoading}>
         <MediaQuery minWidth={SCREEN.screenSm}>
-          <div style={{ height: 34 }}>
-            <BreadcrumbComp title={title} />
-          </div>
+          <BreadcrumbCompForPams title={title} />
         </MediaQuery>
 
         {companyType && (
@@ -344,31 +342,38 @@ class OrderPay extends Component {
               pricePax={bocaFeePax}
             />
           )}
-          {companyType !== '02' && <PaymentMode form={form} />}
+          {companyType !== '02' && this.payTotal() > 0 && <PaymentMode form={form} />}
         </Card>
 
         <Card
           className={styles.cardStyles}
-          style={{ marginTop: '0', boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
+          style={{
+            marginTop: '0',
+            marginBottom: '20px',
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)',
+          }}
         >
-          <div className={styles.checkOut}>
-            {companyType === '01' && (
-              <div className={styles.checkOutPayDiv}>
-                <div className={styles.payFont}>
-                  TOTAL PAY: <span className={styles.priceFont}>${this.payTotal()}</span>
+          <Row className={styles.checkOut}>
+            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox} />
+            <Col xs={24} md={16} lg={20} className={styles.checkOutBtn}>
+              {companyType === '01' && (
+                <div className={styles.checkOutPayDiv}>
+                  <div className={styles.payFont}>
+                    TOTAL PAY: <span className={styles.priceFont}>${this.payTotal()}</span>
+                  </div>
                 </div>
-              </div>
-            )}
-            <Button
-              className={styles.checkOutButton}
-              htmlType="button"
-              size="large"
-              onClick={this.confirmEvent}
-              disabled={!this.getConfirmEventStatus()}
-            >
-              {companyType !== '02' ? 'Confirm' : 'Submit'}
-            </Button>
-          </div>
+              )}
+              <Button
+                className={styles.checkOutButton}
+                htmlType="button"
+                size="large"
+                onClick={this.confirmEvent}
+                disabled={!this.getConfirmEventStatus()}
+              >
+                {companyType !== '02' ? 'Confirm' : 'Submit'}
+              </Button>
+            </Col>
+          </Row>
         </Card>
 
         <Modal
@@ -387,7 +392,7 @@ class OrderPay extends Component {
               twoToneColor="#52c41a"
             />
           </div>
-          <p className={styles.payModelP}>Payment Successful ！</p>
+          <p className={styles.payModelP}>Payment Successfully</p>
           <Row className={styles.payModelBtnRow}>
             <Col>
               <Button className={styles.payModelOneBtn} key="back" onClick={this.handleOkEvent}>

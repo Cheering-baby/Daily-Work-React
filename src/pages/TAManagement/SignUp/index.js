@@ -24,6 +24,7 @@ const mapStateToProps = store => {
     taInfoLoadingFlag,
     status,
     remark,
+    isRegistration,
     isCompanyExist,
   } = store.taMgr;
   return {
@@ -32,6 +33,7 @@ const mapStateToProps = store => {
     taId,
     status,
     remark,
+    isRegistration,
     isCompanyExist,
     countryList,
     categoryList,
@@ -89,24 +91,24 @@ class SignUp extends PureComponent {
             },
           });
         }
+        if (!isNvl(taId)) {
+          dispatch({
+            type: 'taMgr/fetchQueryTaInfoWithMask',
+            payload: { taId, signature },
+          });
+        }
       });
-      if (!isNvl(taId)) {
-        dispatch({
-          type: 'taMgr/fetchQueryTaInfoWithMask',
-          payload: { taId, signature },
-        });
-      }
     });
   };
 
   getPageHeader = (currentStep, status) => {
     let pageHeaderTitle = formatMessage({ id: 'WELCOME_TO_SIGN_UP' });
     let pageHeaderSubTitle = formatMessage({ id: 'SUB_WELCOME_TO_SIGN_UP' });
-    if (!isNvl(status) && String(status) === '05') {
+    if (!isNvl(status) && String(status).toUpperCase() === 'REJECTED') {
       pageHeaderTitle = formatMessage({ id: 'REGISTRATION_FAILED' });
       pageHeaderSubTitle = formatMessage({ id: 'SUB_REGISTRATION_FAILED' });
     }
-    if (!isNvl(status) && String(status) !== '05') {
+    if (!isNvl(status) && String(status).toUpperCase() !== 'REJECTED') {
       // 05：Reject
       pageHeaderTitle = formatMessage({ id: 'STATUS' });
       pageHeaderSubTitle = formatMessage({ id: 'SUB_STATUS' });
@@ -124,9 +126,10 @@ class SignUp extends PureComponent {
     isShowDetail,
     taInfoLoadingFlag,
     isAllInformationToRws,
+    isRegistration,
     isCompanyExist
   ) => {
-    if (isShowDetail) {
+    if (!isRegistration && isShowDetail) {
       return (
         <Card className={styles.information} loading={taInfoLoadingFlag}>
           <Row type="flex" justify="space-around">
@@ -137,7 +140,7 @@ class SignUp extends PureComponent {
         </Card>
       );
     }
-    if (!isShowDetail && !isNvl(status) && String(status) === '05') {
+    if (!isRegistration && !isShowDetail && !isNvl(status) && String(status) === 'REJECTED') {
       return (
         <Card className={styles.information} loading={taInfoLoadingFlag}>
           <Row type="flex" justify="space-around">
@@ -191,18 +194,23 @@ class SignUp extends PureComponent {
                 minWidth={SCREEN.screenSmMin}
                 maxHeight={SCREEN.screenXsMax}
               >
-                <Steps current={currentStep} size="small" className={styles.stepsInformationSteps}>
+                <Steps
+                  labelPlacement="vertical"
+                  current={currentStep}
+                  size="small"
+                  className={styles.stepsInformationSteps}
+                >
                   <Steps.Step
                     key={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
-                    title={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
+                    title={formatMessage({ id: 'CUSTOMER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'OTHER_INFORMATION' })}
-                    title={formatMessage({ id: 'OTHER_INFORMATION' })}
+                    title={formatMessage({ id: 'OTHER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'COMPLETED' })}
-                    title={formatMessage({ id: 'COMPLETED' })}
+                    title={formatMessage({ id: 'COMPLETED_NAME' })}
                   />
                 </Steps>
               </MediaQuery>
@@ -211,50 +219,63 @@ class SignUp extends PureComponent {
                 minWidth={SCREEN.screenSmMin}
                 minHeight={SCREEN.screenSmMin}
               >
-                <Steps current={currentStep} className={styles.stepsInformationSteps}>
+                <Steps
+                  labelPlacement="vertical"
+                  current={currentStep}
+                  className={styles.stepsInformationSteps}
+                >
                   <Steps.Step
                     key={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
-                    title={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
+                    title={formatMessage({ id: 'CUSTOMER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'OTHER_INFORMATION' })}
-                    title={formatMessage({ id: 'OTHER_INFORMATION' })}
+                    title={formatMessage({ id: 'OTHER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'COMPLETED' })}
-                    title={formatMessage({ id: 'COMPLETED' })}
+                    title={formatMessage({ id: 'COMPLETED_NAME' })}
                   />
                 </Steps>
               </MediaQuery>
               <MediaQuery minWidth={SCREEN.screenLgMin}>
-                <Steps current={currentStep} className={styles.stepsInformationSteps}>
+                <Steps
+                  labelPlacement="vertical"
+                  current={currentStep}
+                  className={styles.stepsInformationSteps}
+                >
                   <Steps.Step
                     key={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
-                    title={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
+                    title={formatMessage({ id: 'CUSTOMER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'OTHER_INFORMATION' })}
-                    title={formatMessage({ id: 'OTHER_INFORMATION' })}
+                    title={formatMessage({ id: 'OTHER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'COMPLETED' })}
-                    title={formatMessage({ id: 'COMPLETED' })}
+                    title={formatMessage({ id: 'COMPLETED_NAME' })}
                   />
                 </Steps>
               </MediaQuery>
               <MediaQuery maxWidth={SCREEN.screenXsMax}>
-                <Steps current={currentStep} size="small" className={styles.stepsInformationSteps}>
+                <Steps
+                  labelPlacement="vertical"
+                  current={currentStep}
+                  size="small"
+                  className={styles.stepsInformationSteps}
+                >
                   <Steps.Step
                     key={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
-                    title={formatMessage({ id: 'CUSTOMER_INFORMATION' })}
+                    title={formatMessage({ id: 'CUSTOMER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'OTHER_INFORMATION' })}
-                    title={formatMessage({ id: 'OTHER_INFORMATION' })}
+                    title={formatMessage({ id: 'OTHER_INFORMATION_NAME' })}
                   />
                   <Steps.Step
                     key={formatMessage({ id: 'COMPLETED' })}
-                    title={formatMessage({ id: 'COMPLETED' })}
+                    title={formatMessage({ id: 'COMPLETED_NAME' })}
                   />
                 </Steps>
               </MediaQuery>
@@ -289,7 +310,11 @@ class SignUp extends PureComponent {
     e.preventDefault();
     Modal.confirm({
       title: formatMessage({ id: 'LEAVE_SIGN_UP_TITLE' }),
-      content: formatMessage({ id: 'LEAVE_SIGN_UP_CONTENT' }),
+      content: (
+        <span className={styles.whiteSpacePreWrap}>
+          {formatMessage({ id: 'LEAVE_SIGN_UP_CONTENT' })}
+        </span>
+      ),
       okText: formatMessage({ id: 'LEAVE_SIGN_UP_YES' }),
       cancelText: formatMessage({ id: 'LEAVE_SIGN_UP_NOT' }),
       icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
@@ -304,11 +329,38 @@ class SignUp extends PureComponent {
     if (String(currentStep) === '0') {
       const { form } = this.customerRef.props;
       form.validateFieldsAndScroll(error => {
+        const { companyInfo = {} } = customerInfo || {};
+        const { productList = [], applyArAccount, fileList = [], arAccountFileList = [] } =
+          companyInfo || {};
+        const taFileCheck = {};
+        if (!fileList || fileList.length <= 0) {
+          taFileCheck.validateStatus = 'error';
+          taFileCheck.help = formatMessage({ id: 'REQUIRED' });
+        }
+        const arAccountFileCheck = {};
+        if (
+          String(applyArAccount).toUpperCase() === 'Y' &&
+          (!arAccountFileList || arAccountFileList.length <= 0)
+        ) {
+          arAccountFileCheck.validateStatus = 'error';
+          arAccountFileCheck.help = formatMessage({ id: 'REQUIRED' });
+        }
+        dispatch({
+          type: 'signUp/save',
+          payload: {
+            taFileCheck,
+            arAccountFileCheck,
+          },
+        });
         if (error) {
           return;
         }
-        const { companyInfo = {} } = customerInfo || {};
-        const { productList = [] } = companyInfo || {};
+        if (
+          arAccountFileCheck.validateStatus === 'error' ||
+          taFileCheck.validateStatus === 'error'
+        ) {
+          return;
+        }
         if (!productList || productList.length <= 0) {
           message.warn(formatMessage({ id: 'QUESTIONS_Q_CHECK_MSG' }), 10);
           return;
@@ -366,6 +418,7 @@ class SignUp extends PureComponent {
       status = null,
       isShowDetail = false,
       isAllInformationToRws = false,
+      isRegistration = false,
       isCompanyExist,
       viewId,
     } = this.props;
@@ -384,6 +437,7 @@ class SignUp extends PureComponent {
               isShowDetail,
               taInfoLoadingFlag,
               isAllInformationToRws,
+              isRegistration,
               isCompanyExist
             )}
           </Col>

@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Checkbox, Col, DatePicker, Form, Input, Row, Select } from 'antd';
+import { Checkbox, Col, Form, Input, InputNumber, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getFinanceType } from '../../utils/pubUtils';
+import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 class TAFinanceContactToFrom extends PureComponent {
   render() {
@@ -16,6 +17,8 @@ class TAFinanceContactToFrom extends PureComponent {
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
       currencyList = [],
+      countryList = [],
+      createTeamList = [],
       otherInfo = {},
       mappingInfo = {},
       isAllInformationToRws,
@@ -97,7 +100,83 @@ class TAFinanceContactToFrom extends PureComponent {
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-            &nbsp;
+            <Form.Item
+              label={formatMessage({ id: 'TA_FINANCE_CONTACT_MOBILE_NO' })}
+              colon={false}
+              {...formItemLayout}
+              className={styles.taFinanceTelItem}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.taCountryItem}>
+                  {getFieldDecorator('mobileCountryOne', {
+                    initialValue: financeInfoOne.mobileCountry || [],
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Select
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                      onChange={value =>
+                        onHandleChange('mobileCountry', value, 'mobileCountryOne', financeTypeOne)
+                      }
+                      disabled={isAllDisabled}
+                    >
+                      {countryList && countryList.length > 0
+                        ? countryList.map(item => (
+                          <Select.Option
+                            key={`mobileCountryListOne${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName} +${item.dictId}`}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName} +${item.dictId}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName} +${item.dictId}`}
+                            </Tooltip>
+                          </Select.Option>
+                          ))
+                        : null}
+                    </Select>
+                  )}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.taPhoneItem}>
+                  {getFieldDecorator('mobileNumberOne', {
+                    initialValue: financeInfoOne.mobileNumber || null,
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'REQUIRED' }) },
+                      { max: 200, message: numFormat },
+                    ],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e =>
+                        onHandleChange(
+                          'mobileNumber',
+                          e.target.value,
+                          'mobileNumberOne',
+                          financeTypeOne
+                        )
+                      }
+                      onPressEnter={e =>
+                        onHandleChange(
+                          'mobileNumber',
+                          e.target.value,
+                          'mobileNumberOne',
+                          financeTypeOne
+                        )
+                      }
+                      disabled={isAllDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
           </Col>
         </Row>
         <Row type="flex" justify="space-around">
@@ -106,25 +185,68 @@ class TAFinanceContactToFrom extends PureComponent {
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_NO' })}
               colon={false}
               {...formItemLayout}
+              className={styles.taFinanceTelItem}
             >
-              {getFieldDecorator('contactNoOne', {
-                initialValue: financeInfoOne.contactNo || null,
-                rules: [
-                  { required: true, message: formatMessage({ id: 'REQUIRED' }) },
-                  { max: 200, message: numFormat },
-                ],
-              })(
-                <Input
-                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                  onChange={e =>
-                    onHandleChange('contactNo', e.target.value, 'contactNoOne', financeTypeOne)
-                  }
-                  onPressEnter={e =>
-                    onHandleChange('contactNo', e.target.value, 'contactNoOne', financeTypeOne)
-                  }
-                  disabled={isAllDisabled}
-                />
-              )}
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.taCountryItem}>
+                  {getFieldDecorator('countryOne', {
+                    initialValue: financeInfoOne.country || [],
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Select
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                      onChange={value =>
+                        onHandleChange('country', value, 'countryOne', financeTypeOne)
+                      }
+                      disabled={isAllDisabled}
+                    >
+                      {countryList && countryList.length > 0
+                        ? countryList.map(item => (
+                          <Select.Option
+                            key={`countryListOne${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName} +${item.dictId}`}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName} +${item.dictId}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName} +${item.dictId}`}
+                            </Tooltip>
+                          </Select.Option>
+                          ))
+                        : null}
+                    </Select>
+                  )}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.taPhoneItem}>
+                  {getFieldDecorator('contactNoOne', {
+                    initialValue: financeInfoOne.contactNo || null,
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'REQUIRED' }) },
+                      { max: 200, message: numFormat },
+                    ],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e =>
+                        onHandleChange('contactNo', e.target.value, 'contactNoOne', financeTypeOne)
+                      }
+                      onPressEnter={e =>
+                        onHandleChange('contactNo', e.target.value, 'contactNoOne', financeTypeOne)
+                      }
+                      disabled={isAllDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
@@ -210,7 +332,83 @@ class TAFinanceContactToFrom extends PureComponent {
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-            &nbsp;
+            <Form.Item
+              label={formatMessage({ id: 'TA_FINANCE_CONTACT_MOBILE_NO' })}
+              colon={false}
+              {...formItemLayout}
+              className={styles.taFinanceTelItem}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.taCountryItem}>
+                  {getFieldDecorator('mobileCountryTwo', {
+                    initialValue: financeInfoTwo.mobileCountry || [],
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Select
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                      onChange={value =>
+                        onHandleChange('mobileCountry', value, 'mobileCountryTwo', financeTypeTwo)
+                      }
+                      disabled={isAllDisabled}
+                    >
+                      {countryList && countryList.length > 0
+                        ? countryList.map(item => (
+                          <Select.Option
+                            key={`mobileCountryListTwo${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName} +${item.dictId}`}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName} +${item.dictId}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName} +${item.dictId}`}
+                            </Tooltip>
+                          </Select.Option>
+                          ))
+                        : null}
+                    </Select>
+                  )}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.taPhoneItem}>
+                  {getFieldDecorator('mobileNumberTwo', {
+                    initialValue: financeInfoTwo.mobileNumber || null,
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'REQUIRED' }) },
+                      { max: 200, message: numFormat },
+                    ],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e =>
+                        onHandleChange(
+                          'mobileNumber',
+                          e.target.value,
+                          'mobileNumberTwo',
+                          financeTypeTwo
+                        )
+                      }
+                      onPressEnter={e =>
+                        onHandleChange(
+                          'mobileNumber',
+                          e.target.value,
+                          'mobileNumberTwo',
+                          financeTypeTwo
+                        )
+                      }
+                      disabled={isAllDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
           </Col>
         </Row>
         <Row type="flex" justify="space-around">
@@ -219,25 +417,68 @@ class TAFinanceContactToFrom extends PureComponent {
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_NO' })}
               colon={false}
               {...formItemLayout}
+              className={styles.taFinanceTelItem}
             >
-              {getFieldDecorator('contactNoTwo', {
-                initialValue: financeInfoTwo.contactNo || null,
-                rules: [
-                  { required: true, message: formatMessage({ id: 'REQUIRED' }) },
-                  { max: 200, message: numFormat },
-                ],
-              })(
-                <Input
-                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                  onChange={e =>
-                    onHandleChange('contactNo', e.target.value, 'contactNoTwo', financeTypeTwo)
-                  }
-                  onPressEnter={e =>
-                    onHandleChange('contactNo', e.target.value, 'contactNoTwo', financeTypeTwo)
-                  }
-                  disabled={isAllDisabled}
-                />
-              )}
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.taCountryItem}>
+                  {getFieldDecorator('countryTwo', {
+                    initialValue: financeInfoTwo.country || [],
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Select
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                      onChange={value =>
+                        onHandleChange('country', value, 'countryTwo', financeTypeTwo)
+                      }
+                      disabled={isAllDisabled}
+                    >
+                      {countryList && countryList.length > 0
+                        ? countryList.map(item => (
+                          <Select.Option
+                            key={`countryListTwo${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName} +${item.dictId}`}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName} +${item.dictId}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName} +${item.dictId}`}
+                            </Tooltip>
+                          </Select.Option>
+                          ))
+                        : null}
+                    </Select>
+                  )}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.taPhoneItem}>
+                  {getFieldDecorator('contactNoTwo', {
+                    initialValue: financeInfoTwo.contactNo || null,
+                    rules: [
+                      { required: true, message: formatMessage({ id: 'REQUIRED' }) },
+                      { max: 200, message: numFormat },
+                    ],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e =>
+                        onHandleChange('contactNo', e.target.value, 'contactNoTwo', financeTypeTwo)
+                      }
+                      onPressEnter={e =>
+                        onHandleChange('contactNo', e.target.value, 'contactNoTwo', financeTypeTwo)
+                      }
+                      disabled={isAllDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
@@ -287,17 +528,28 @@ class TAFinanceContactToFrom extends PureComponent {
                 {...formItemLayout}
               >
                 {getFieldDecorator('securityDepositAmount', {
-                  initialValue: mappingInfo.securityDepositAmount || null,
-                  rules: [{ max: 200, message: numFormat }],
+                  initialValue: !isNvl(mappingInfo.securityDepositAmount)
+                    ? Number(String(mappingInfo.securityDepositAmount))
+                    : null,
+                  rules: [
+                    {
+                      required: false,
+                      message: formatMessage({ id: 'INPUT_ONLY_NUMBER' }),
+                      pattern: /^(([1-9]{1}\d{0,100})|(0{1}))(\.\d{1,2})?$/g,
+                    },
+                  ],
                 })(
-                  <Input
+                  <InputNumber
+                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => {
+                      if (!isNvl(value)) {
+                        return value.replace(/\$\s?|(,*)/g, '');
+                      }
+                      return null;
+                    }}
                     placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                    onChange={e =>
-                      onMappingHandleChange(
-                        'securityDepositAmount',
-                        e.target.value,
-                        'securityDepositAmount'
-                      )
+                    onChange={value =>
+                      onMappingHandleChange('securityDepositAmount', value, 'securityDepositAmount')
                     }
                     onPressEnter={e =>
                       onMappingHandleChange(
@@ -306,6 +558,7 @@ class TAFinanceContactToFrom extends PureComponent {
                         'securityDepositAmount'
                       )
                     }
+                    style={{ width: '100%' }}
                     disabled={isMappingDisabled}
                   />
                 )}
@@ -323,7 +576,7 @@ class TAFinanceContactToFrom extends PureComponent {
                   <Select
                     showSearch
                     placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                    optionFilterProp="children"
+                    optionFilterProp="label"
                     getPopupContainer={() => document.getElementById(`${viewId}`)}
                     onChange={value => onMappingHandleChange('currency', value, 'currency')}
                     disabled={isMappingDisabled}
@@ -333,8 +586,16 @@ class TAFinanceContactToFrom extends PureComponent {
                         <Select.Option
                           key={`currencyList${item.dictId}`}
                           value={`${item.dictId}`}
+                          label={`${item.dictName}`}
                         >
-                          {item.dictName}
+                          <Tooltip
+                            placement="topLeft"
+                            title={
+                              <span style={{ whiteSpace: 'pre-wrap' }}>{`${item.dictName}`}</span>
+                              }
+                          >
+                            {`${item.dictName}`}
+                          </Tooltip>
                         </Select.Option>
                         ))
                       : null}
@@ -353,23 +614,32 @@ class TAFinanceContactToFrom extends PureComponent {
                 {...formItemLayout}
               >
                 {getFieldDecorator('ewalletFixedThreshold', {
-                  initialValue: mappingInfo.ewalletFixedThreshold || null,
+                  initialValue: !isNvl(mappingInfo.ewalletFixedThreshold)
+                    ? Number(String(mappingInfo.ewalletFixedThreshold))
+                    : null,
                   rules: [
                     {
                       required: isAllInformationToRws || false,
                       message: formatMessage({ id: 'REQUIRED' }),
                     },
-                    { max: 200, message: numFormat },
+                    {
+                      required: false,
+                      message: formatMessage({ id: 'INPUT_ONLY_NUMBER' }),
+                      pattern: /^(([1-9]{1}\d{0,100})|(0{1}))(\.\d{1,2})?$/g,
+                    },
                   ],
                 })(
-                  <Input
+                  <InputNumber
+                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => {
+                      if (!isNvl(value)) {
+                        return value.replace(/\$\s?|(,*)/g, '');
+                      }
+                      return null;
+                    }}
                     placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                    onChange={e =>
-                      onMappingHandleChange(
-                        'ewalletFixedThreshold',
-                        e.target.value,
-                        'ewalletFixedThreshold'
-                      )
+                    onChange={value =>
+                      onMappingHandleChange('ewalletFixedThreshold', value, 'ewalletFixedThreshold')
                     }
                     onPressEnter={e =>
                       onMappingHandleChange(
@@ -378,6 +648,7 @@ class TAFinanceContactToFrom extends PureComponent {
                         'ewalletFixedThreshold'
                       )
                     }
+                    style={{ width: '100%' }}
                     disabled={isMappingDisabled}
                   />
                 )}
@@ -390,23 +661,37 @@ class TAFinanceContactToFrom extends PureComponent {
                 {...formItemLayout}
               >
                 {getFieldDecorator('arFixedThreshold', {
-                  initialValue: mappingInfo.arFixedThreshold || null,
+                  initialValue: !isNvl(mappingInfo.arFixedThreshold)
+                    ? Number(String(mappingInfo.arFixedThreshold))
+                    : null,
                   rules: [
                     {
                       required: isAllInformationToRws || false,
                       message: formatMessage({ id: 'REQUIRED' }),
                     },
-                    { max: 200, message: numFormat },
+                    {
+                      required: false,
+                      message: formatMessage({ id: 'INPUT_ONLY_NUMBER' }),
+                      pattern: /^(([1-9]{1}\d{0,100})|(0{1}))(\.\d{1,2})?$/g,
+                    },
                   ],
                 })(
-                  <Input
+                  <InputNumber
+                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => {
+                      if (!isNvl(value)) {
+                        return value.replace(/\$\s?|(,*)/g, '');
+                      }
+                      return null;
+                    }}
                     placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                    onChange={e =>
-                      onMappingHandleChange('arFixedThreshold', e.target.value, 'arFixedThreshold')
+                    onChange={value =>
+                      onMappingHandleChange('arFixedThreshold', value, 'arFixedThreshold')
                     }
                     onPressEnter={e =>
                       onMappingHandleChange('arFixedThreshold', e.target.value, 'arFixedThreshold')
                     }
+                    style={{ width: '100%' }}
                     disabled={isMappingDisabled}
                   />
                 )}
@@ -424,17 +709,33 @@ class TAFinanceContactToFrom extends PureComponent {
                   {...formItemLayout}
                 >
                   {getFieldDecorator('guaranteeAmount', {
-                    initialValue: mappingInfo.guaranteeAmount || null,
-                    rules: [{ max: 200, message: numFormat }],
+                    initialValue: !isNvl(mappingInfo.guaranteeAmount)
+                      ? Number(String(mappingInfo.guaranteeAmount))
+                      : null,
+                    rules: [
+                      {
+                        required: false,
+                        message: formatMessage({ id: 'INPUT_ONLY_NUMBER' }),
+                        pattern: /^(([1-9]{1}\d{0,100})|(0{1}))(\.\d{1,2})?$/g,
+                      },
+                    ],
                   })(
-                    <Input
+                    <InputNumber
+                      formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                      parser={value => {
+                        if (!isNvl(value)) {
+                          return value.replace(/\$\s?|(,*)/g, '');
+                        }
+                        return null;
+                      }}
                       placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      onChange={e =>
-                        onMappingHandleChange('guaranteeAmount', e.target.value, 'guaranteeAmount')
+                      onChange={value =>
+                        onMappingHandleChange('guaranteeAmount', value, 'guaranteeAmount')
                       }
                       onPressEnter={e =>
                         onMappingHandleChange('guaranteeAmount', e.target.value, 'guaranteeAmount')
                       }
+                      style={{ width: '100%' }}
                       disabled={isMappingDisabled}
                     />
                   )}
@@ -451,12 +752,11 @@ class TAFinanceContactToFrom extends PureComponent {
                       ? moment(mappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD')
                       : null,
                   })(
-                    <DatePicker
-                      format="DD/MM/YYYY"
+                    <FriendlyDatePicker
                       onChange={date =>
                         onMappingHandleChange(
                           'guaranteeExpiryDate',
-                          isNvl(date) ? date : date.format('YYYYMMDD'),
+                          isNvl(date) ? date : date.format('YYYY-MM-DD'),
                           'guaranteeExpiryDate'
                         )
                       }
@@ -464,6 +764,8 @@ class TAFinanceContactToFrom extends PureComponent {
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       style={{ width: '100%' }}
                       disabled={isMappingDisabled}
+                      displayFormat="DD/MM/YYYY"
+                      searchFormat="DDMMYYYY"
                     />
                   )}
                 </Form.Item>
@@ -477,19 +779,37 @@ class TAFinanceContactToFrom extends PureComponent {
                   {...formItemLayout}
                 >
                   {getFieldDecorator('creditTerm', {
-                    initialValue: mappingInfo.creditTerm || null,
-                    rules: [{ max: 200, message: numFormat }],
+                    initialValue: mappingInfo.creditTerm || [],
                   })(
-                    <Input
-                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      onChange={e =>
-                        onMappingHandleChange('creditTerm', e.target.value, 'creditTerm')
-                      }
-                      onPressEnter={e =>
-                        onMappingHandleChange('creditTerm', e.target.value, 'creditTerm')
-                      }
+                    <Select
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
                       disabled={isMappingDisabled}
-                    />
+                      onChange={value => onMappingHandleChange('creditTerm', value, 'creditTerm')}
+                    >
+                      {createTeamList && createTeamList.length > 0
+                        ? createTeamList.map(item => (
+                          <Select.Option
+                            key={`createTeamList${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName}`}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName}`}
+                            </Tooltip>
+                          </Select.Option>
+                          ))
+                        : null}
+                    </Select>
                   )}
                 </Form.Item>
               </Col>
@@ -500,17 +820,31 @@ class TAFinanceContactToFrom extends PureComponent {
                   {...formItemLayout}
                 >
                   {getFieldDecorator('creditLimit', {
-                    initialValue: mappingInfo.creditLimit || null,
-                    rules: [{ max: 200, message: numFormat }],
+                    initialValue: !isNvl(mappingInfo.creditLimit)
+                      ? Number(String(mappingInfo.creditLimit))
+                      : null,
+                    rules: [
+                      {
+                        required: false,
+                        message: formatMessage({ id: 'INPUT_ONLY_NUMBER' }),
+                        pattern: /^(([1-9]{1}\d{0,100})|(0{1}))(\.\d{1,2})?$/g,
+                      },
+                    ],
                   })(
-                    <Input
+                    <InputNumber
+                      formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                      parser={value => {
+                        if (!isNvl(value)) {
+                          return value.replace(/\$\s?|(,*)/g, '');
+                        }
+                        return null;
+                      }}
                       placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      onChange={e =>
-                        onMappingHandleChange('creditLimit', e.target.value, 'creditLimit')
-                      }
+                      onChange={value => onMappingHandleChange('creditLimit', value, 'creditLimit')}
                       onPressEnter={e =>
                         onMappingHandleChange('creditLimit', e.target.value, 'creditLimit')
                       }
+                      style={{ width: '100%' }}
                       disabled={isMappingDisabled}
                     />
                   )}
@@ -532,9 +866,12 @@ class TAFinanceContactToFrom extends PureComponent {
                     onChange={e => onHandleToTAFinanceCheckBoxEdit(e)}
                     disabled={isAllDisabled}
                   >
-                    <span className={styles.isAllInformationToRwsCheckbox}>
-                      {formatMessage({ id: 'TA_IS_ALL_INFORMATION_TO_RWS' })}
-                    </span>
+                    <span
+                      className={styles.isAllInformationToRwsCheckbox}
+                      dangerouslySetInnerHTML={{
+                        __html: formatMessage({ id: 'TA_IS_ALL_INFORMATION_TO_RWS' }),
+                      }}
+                    />
                   </Checkbox>
                 )}
               </Form.Item>

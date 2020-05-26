@@ -18,19 +18,20 @@ import {
   removeUserOrg,
 } from '../service/orgService';
 
-const generateList = (data = [], result = []) => {
+const generateList = (data = [], result = [], taOrgCode = '') => {
   for (let i = 0; i < data.length; i += 1) {
     const node = data[i];
-    const { code, orgName } = node;
+    const { code, orgName, subOrgs = [], orgType = '' } = node;
     if (i === 0) {
       node.isFirst = true;
     }
     if (i === data.length - 1) {
       node.isLast = true;
     }
-    result.push({ key: code, title: orgName, ...node });
-    if (node.subOrgs) {
-      generateList(node.subOrgs, result);
+    Object.assign(node, { key: `${code}${taOrgCode}` });
+    result.push({ title: orgName, ...node });
+    if (subOrgs) {
+      generateList(subOrgs, result, orgType === '01' ? code : taOrgCode);
     }
   }
 };
@@ -47,6 +48,15 @@ const getCanAddUsers = (operType = 'ADD_USER_ORG', companyUsers = [], orgUsers =
     }
   });
   return result;
+};
+
+const getSelectedOrg = (userOrg = {}, orgList = []) => {
+  for (const item of orgList) {
+    if (userOrg.key === item.key) {
+      return { ...item };
+    }
+  }
+  return {};
 };
 
 export default {
@@ -76,14 +86,19 @@ export default {
       } = yield call(queryUserOrgTree, { ...payload });
       if (resultCode === '0') {
         const orgList = [];
-        const { code = '' } = resultData;
-        const expandedKeys = [code];
         generateList([resultData], orgList);
-        const { selectedOrg = {} } = yield select(state => state.orgMgr);
+        const { key = '' } = resultData;
+
+        let { selectedOrg = {} } = yield select(state => state.orgMgr);
+        const { expandedKeys = [] } = yield select(state => state.orgMgr);
+        if (expandedKeys.length === 0) {
+          expandedKeys.push(key);
+        }
         if (Object.keys(selectedOrg).length > 0) {
+          selectedOrg = getSelectedOrg(selectedOrg, orgList);
           const { operType = '' } = payload;
           if (operType === 'ADD_USER_ORG') {
-            expandedKeys.push(selectedOrg.code);
+            expandedKeys.push(selectedOrg.key);
           }
         }
         yield put({
@@ -91,7 +106,7 @@ export default {
           payload: {
             orgTree: [resultData],
             orgList,
-            expandedKeys,
+            expandedKeys: [...expandedKeys],
             selectedOrg,
           },
         });
@@ -171,10 +186,12 @@ export default {
       const { selectedOrg = {}, operType = 'ADD_USER_ORG', orgUsers = [] } = yield select(
         state => state.orgMgr
       );
+      const { companyId, companyType } = selectedOrg;
       const {
         data: { resultCode, resultMsg, resultData },
       } = yield call(queryUsersInCompany, {
-        companyIds: [selectedOrg.companyId].join(','),
+        companyId,
+        companyType,
         pageSize: 1000,
         currentPage: 1,
       });

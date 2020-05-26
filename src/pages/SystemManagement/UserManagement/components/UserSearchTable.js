@@ -37,11 +37,11 @@ class Index extends React.PureComponent {
           rwsInfo = rwsInfo || {};
           taInfo = taInfo || {};
           if (userType === '01') {
-            const { surName = '', givenName = '' } = rwsInfo;
-            return `${surName} ${givenName}`;
+            const { fullName = '' } = rwsInfo;
+            return fullName || '';
           }
           const { fullName = '' } = taInfo;
-          return fullName;
+          return fullName || '';
         },
       },
       {
@@ -67,7 +67,7 @@ class Index extends React.PureComponent {
         width: '12.5%',
         render: (text, record) => {
           const {
-            userMgr: { companyMap = new Map() },
+            userMgr: { companyMap = new Map(), allSubTACompanyMap = new Map() },
           } = this.props;
           let { taInfo = {} } = record;
           const { userType } = record;
@@ -75,8 +75,17 @@ class Index extends React.PureComponent {
           if (userType === '01') {
             return constants.RWS_ORG;
           }
+          if (userType === '02') {
+            const { companyId = '' } = taInfo;
+            const { companyName = '' } = companyMap.get(`${companyId}`) || {};
+            return <Tooltip title={companyName}>{companyName}</Tooltip>;
+          }
           const { companyId = '' } = taInfo;
-          const { companyName = '' } = companyMap.get(`${companyId}`) || {};
+          if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])) {
+            const { companyName = '' } = companyMap.get(`${companyId}`) || {};
+            return <Tooltip title={companyName}>{companyName}</Tooltip>;
+          }
+          const { companyName = '' } = allSubTACompanyMap.get(`${companyId}`) || {};
           return <Tooltip title={companyName}>{companyName}</Tooltip>;
         },
       },
@@ -185,24 +194,19 @@ class Index extends React.PureComponent {
             }}
           />
         </Tooltip>
-        <Tooltip
-          title={formatMessage({
-            id: record.status !== '99' ? 'COMMON_DISABLE' : 'COMMON_ENABLE',
-          })}
+        <Popover
+          placement="bottomRight"
+          content={this.getMoreContent(record)}
+          overlayClassName={styles.popClassName}
         >
-          <span
-            style={{ fontSize: '14px' }}
-            onClick={() => {
-              this.oprUserStatus(record);
-            }}
-            className={record.status !== '99' ? 'iconfont icon-ban' : 'iconfont icon-circle-o'}
-          />
-        </Tooltip>
+          <Icon type="more" />
+        </Popover>
       </Fragment>
     );
   };
 
   getMoreContent = record => {
+    const { userType = '', status = '' } = record;
     return (
       <Row type="flex" justify="space-around" className={styles.contentMenuRow}>
         <Col span={24}>
@@ -222,14 +226,26 @@ class Index extends React.PureComponent {
             </Tooltip>
           </div>
         </Col>
-        <Col span={24}>
-          <div className={styles.contentMenuCol} onClick={() => this.edit(record)}>
-            <Tooltip title={formatMessage({ id: 'app.settings.security.modify' })}>
-              <Icon style={{ fontSize: '14px', paddingRight: '15px' }} type="edit" />
-              {formatMessage({ id: 'COMMON_EDIT' })}
-            </Tooltip>
-          </div>
-        </Col>
+        {status === '01' ? (
+          <Col span={24}>
+            <div className={styles.contentMenuCol} onClick={() => this.edit(record)}>
+              <Tooltip title={formatMessage({ id: 'app.settings.security.modify' })}>
+                <Icon style={{ fontSize: '14px', paddingRight: '15px' }} type="edit" />
+                {formatMessage({ id: 'COMMON_EDIT' })}
+              </Tooltip>
+            </div>
+          </Col>
+        ) : null}
+        {userType === '01' || status === '01' ? null : (
+          <Col span={24}>
+            <div className={styles.contentMenuCol} onClick={() => this.resetPassword(record)}>
+              <Tooltip title={formatMessage({ id: 'RESET_PASSWORD' })}>
+                <Icon style={{ fontSize: '14px', paddingRight: '15px' }} type="key" />
+                {formatMessage({ id: 'RESET_PASSWORD' })}
+              </Tooltip>
+            </div>
+          </Col>
+        )}
       </Row>
     );
   };
@@ -239,7 +255,7 @@ class Index extends React.PureComponent {
     const { userCode = '' } = record;
     confirm({
       title: formatMessage({ id: 'COMMON_EMAIL' }),
-      content: formatMessage({ id: 'SEND_EMAIL_CONTENT' }).replace('${userCode}', userCode),
+      content: formatMessage({ id: 'SEND_EMAIL_CONTENT' }).replace('userCode', userCode),
       okText: formatMessage({ id: 'COMMON_YES' }),
       cancelText: formatMessage({ id: 'COMMON_NO' }),
       onOk() {
@@ -248,6 +264,29 @@ class Index extends React.PureComponent {
           payload: {
             userCode,
           },
+        });
+      },
+    });
+  };
+
+  resetPassword = record => {
+    const { dispatch } = this.props;
+    const { userCode = '' } = record;
+    confirm({
+      title: formatMessage({ id: 'RESET_PASSWORD' }),
+      content: formatMessage({ id: 'RESET_PASSWORD_CONTENT' }).replace('userCode', userCode),
+      okText: formatMessage({ id: 'COMMON_YES' }),
+      cancelText: formatMessage({ id: 'COMMON_NO' }),
+      onOk() {
+        dispatch({
+          type: 'userMgr/resetPassword',
+          payload: {
+            userCode,
+          },
+        }).then(() => {
+          dispatch({
+            type: 'userMgr/queryUsersByCondition',
+          });
         });
       },
     });
@@ -412,9 +451,10 @@ class Index extends React.PureComponent {
               onClick={e => this.addUser(e)}
               disabled={
                 !PrivilegeUtil.hasAnyPrivilege([
+                  PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
                   PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
                   PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE,
-                  constants.RWS_USER_PRIVILEGE,
+                  PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
                 ])
               }
             >

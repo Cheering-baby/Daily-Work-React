@@ -10,11 +10,11 @@ import styles from '../index.less';
 import UserForm from '../components/UserForm';
 import constants from '../constants';
 import SCREEN from '@/utils/screen';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 @Form.create()
-@connect(({ userMgr, loading }) => ({
+@connect(({ userMgr }) => ({
   userMgr,
-  addLoading: loading.effects['userMgr/addTAUser'],
 }))
 class UserCode extends React.PureComponent {
   componentDidMount() {
@@ -29,6 +29,12 @@ class UserCode extends React.PureComponent {
           userCode,
         },
       });
+
+      if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE])) {
+        dispatch({
+          type: 'userMgr/querySubTAList',
+        });
+      }
     } else {
       const { userType = '', taInfo = {} } = currentUserProfile;
       dispatch({

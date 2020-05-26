@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import { Form, Radio, Select, DatePicker, Button } from 'antd';
+import { Button, DatePicker, Form, Radio } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
@@ -29,7 +29,7 @@ const themeParkList = [
   },
   {
     group: 1,
-    value: 'MXM',
+    value: 'MEM',
     label: 'Maritime Experiential Museum',
     disabled: false,
   },
@@ -80,6 +80,18 @@ class SearchPanel extends Component {
       payload: {},
     });
   }
+
+  reset = () => {
+    const { dispatch, form } = this.props;
+    dispatch({
+      type: 'seasonalityCalendarMgr/save',
+      payload: {
+        themeParkCode: undefined,
+        year: undefined,
+      },
+    });
+    form.resetFields();
+  };
 
   changeThemeParkCode = e => {
     const { dispatch } = this.props;

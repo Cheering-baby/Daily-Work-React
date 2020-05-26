@@ -21,13 +21,11 @@ export async function modifyUser(params) {
   });
 }
 
-export async function queryAllCompany() {
-  return UAAService.request(
-    `/b2b/agent/v1/profile/queryAllCompanyConfig?showColumnName=companyName`,
-    {
-      method: 'GET',
-    }
-  );
+export async function queryAllCompany(params) {
+  return UAAService.request(`/b2b/agent/v1/profile/queryAllCompanyConfig`, {
+    params,
+    method: 'GET',
+  });
 }
 
 export async function queryUsersInCompany(params) {
@@ -62,6 +60,13 @@ export async function queryDictionary(params) {
 
 export async function sendEmail(params) {
   return UAAService.request(`/b2b/user/v1/user/sendEmail`, {
+    body: params,
+    method: 'POST',
+  });
+}
+
+export async function resetPassword(params) {
+  return UAAService.request(`/b2b/user/v1/user/resetPassword`, {
     body: params,
     method: 'POST',
   });

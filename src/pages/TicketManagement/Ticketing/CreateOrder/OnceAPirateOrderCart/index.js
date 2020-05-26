@@ -9,7 +9,7 @@ import MediaQuery from 'react-responsive';
 import Card from '@/pages/TicketManagement/components/Card';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '@/pages/TicketManagement/components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import GroupSetting from './components/GroupSetting';
 import IndividualSetting from './components/IndividualSetting';
 import MyOrderButton from '@/pages/TicketManagement/components/MyOrderButton';
@@ -161,9 +161,7 @@ class OnceAPirateOrderCart extends Component {
         <Row gutter={12}>
           <Col {...gridOpts} className={styles.marginBottom8}>
             <MediaQuery minWidth={SCREEN.screenSm}>
-              <div style={{ height: 34 }}>
-                <BreadcrumbComp title={title} />
-              </div>
+              <BreadcrumbCompForPams title={title} />
             </MediaQuery>
           </Col>
           <Col {...gridOpts} className={styles.marginBottom8}>

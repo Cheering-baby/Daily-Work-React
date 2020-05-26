@@ -42,6 +42,7 @@ export default {
         sendETicketVisible: false,
         bookingNo: null,
         email: null,
+        emailCorrect: true,
       };
     },
   },

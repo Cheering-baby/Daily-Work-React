@@ -1,9 +1,9 @@
 export default {
-  TA_RWS_USER: 'TA/RWS USER',
-  SUB_TA: 'SUB-TA',
+  TA_RWS_USER: 'Travel Agent/RWS User',
+  SUB_TA: 'Sub-Travel Agent',
   USER_LOGIN: 'User Login',
-  SUB_TA_USER_LOGIN: 'Sub-TA User Login',
-  TA_COMPANY_NAME: 'TA Company Name',
+  SUB_TA_USER_LOGIN: 'Sub-Travel Agent User Login',
+  TA_COMPANY_NAME: 'Travel Agent Company Name',
   PASSWORD: 'Password',
   USER_LOGIN_PLACEHOLDER: 'User Name / User Code',
   TA_COMPANY_NAME_PLACEHOLDER: 'Please Select',
@@ -11,7 +11,7 @@ export default {
   REQUIRED: 'The field is required.',
   LOGIN: 'LOGIN',
   SIGN_UP: 'Sign up',
-  SIGN_UP_CHECK: 'Please select TA Company Name',
+  SIGN_UP_CHECK: 'Please select Travel Agent Company Name',
 
   // pwd
   PWD_MOD_PWD: 'Modify Password',

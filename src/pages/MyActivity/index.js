@@ -7,23 +7,22 @@ import {
   DatePicker,
   Form,
   Icon,
+  Input,
   message,
   Modal,
   Row,
   Select,
   Table,
   Tooltip,
-  Input,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
-import MediaQuery from 'react-responsive';
 import detailStyles from './index.less';
-import SCREEN from '@/utils/screen';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import UploadContract from '@/pages/MyActivity/components/UploadContract';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
+import { isNvl } from '@/utils/utils';
 
 const { Option } = Select;
 
@@ -37,10 +36,11 @@ const formItemLayout = {
 };
 
 const ColProps = {
-  xs: 24,
-  sm: 12,
-  md: 6,
-  xl: 6,
+  span: 6,
+};
+
+const BtnColProps = {
+  span: 12,
 };
 
 @Form.create()
@@ -55,33 +55,62 @@ class MyActivity extends React.PureComponent {
     this.columns = [
       {
         title: 'No.',
-        width: '8%',
+        width: '6%',
         dataIndex: 'index',
         key: 'index',
         render: (text, record, index) => (index < 9 ? `0${index + 1}` : `${index + 1}`),
       },
       {
         title: formatMessage({ id: 'ACTIVITY_ID' }),
-        width: '15%',
+        width: '10%',
         dataIndex: 'activityId',
         sorter: (a, b) => (a.activityId > b.activityId ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
       },
       {
         title: formatMessage({ id: 'ACTIVITY_TYPE' }),
-        width: '15%',
+        width: '16%',
         dataIndex: 'activityTypeName',
         sorter: (a, b) => (a.activityTypeName > b.activityTypeName ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
+      },
+      {
+        title: formatMessage({ id: 'AGENT_ID' }),
+        width: '10%',
+        dataIndex: 'agentId',
+        sorter: (a, b) => (a.agentId > b.agentId ? -1 : 1),
+        sortDirections: ['descend', 'ascend'],
+        render: (text, record) => {
+          if (record.activityTplCode === 'TA-SIGN-UP' && record.status !== '00') {
+            return '-';
+          }
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
+      },
+      {
+        title: formatMessage({ id: 'COMPANY_NAME' }),
+        width: '13%',
+        dataIndex: 'companyName',
+        sorter: (a, b) => (a.companyName > b.companyName ? -1 : 1),
+        sortDirections: ['descend', 'ascend'],
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'REMARKS' }),
         width: '18%',
         dataIndex: 'remarks',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'CREATE_DATE' }),
-        width: '15%',
+        width: '12%',
         dataIndex: 'createTime',
         sorter: (a, b) => (a.createTime > b.createTime ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -98,7 +127,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'STATUS' }),
-        width: '20%',
+        width: '16%',
         dataIndex: 'status',
         sorter: (a, b) => (a.status > b.status ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -110,14 +139,14 @@ class MyActivity extends React.PureComponent {
           return (
             <div>
               <span className={flagClass} />
-              {record.statusName}
+              <Tooltip title={record.statusName}>{record.statusName}</Tooltip>
             </div>
           );
         },
       },
       {
         title: formatMessage({ id: 'OPERATION' }),
-        width: '15%',
+        width: '10%',
         dataIndex: 'operation',
         render: (text, record) => {
           return (
@@ -164,6 +193,18 @@ class MyActivity extends React.PureComponent {
                   />
                 </Tooltip>
               ) : null}
+              {record.activityTplCode === 'ACCOUNT_AR_APPLY' &&
+              (record.status === '00' || record.status === '01') &&
+              PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.AR_ACCOUNT_PRIVILEGE]) ? (
+                <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
+                  <Icon
+                    type="upload"
+                    onClick={() => {
+                      this.detail('upload_credit_application_documents', record);
+                    }}
+                  />
+                </Tooltip>
+              ) : null}
             </div>
           );
         },
@@ -186,6 +227,14 @@ class MyActivity extends React.PureComponent {
 
     dispatch({
       type: 'myActivity/queryTemplateList',
+      payload: {},
+    });
+  }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'myActivity/clear',
       payload: {},
     });
   }
@@ -223,7 +272,8 @@ class MyActivity extends React.PureComponent {
               activityTplCode: values.activityTplCode,
               status: values.status,
               activityId: values.activityId,
-              keyword: values.keyword,
+              agentId: values.agentId,
+              companyName: values.companyName,
             },
           },
         });
@@ -347,6 +397,19 @@ class MyActivity extends React.PureComponent {
           query: { companyName: companyDetailInfo.companyName },
         });
       });
+    } else if (type === 'upload_credit_application_documents') {
+      this.uploadProps = {
+        ...this.uploadProps,
+        title: formatMessage({
+          id: 'UPLOAD_CREDIT_APPLICATION_DOCUMENTS',
+        }),
+        type: 'upload',
+        record,
+        onCancel: () => {
+          this.handleModal('uploadVisible', false);
+        },
+      };
+      this.handleModal('uploadVisible', true);
     }
   };
 
@@ -502,16 +565,7 @@ class MyActivity extends React.PureComponent {
     return (
       <Row type="flex" justify="space-around" id="myActivity">
         <Col span={24} className={detailStyles.pageHeaderTitle}>
-          <MediaQuery
-            maxWidth={SCREEN.screenMdMax}
-            minWidth={SCREEN.screenSmMin}
-            minHeight={SCREEN.screenSmMin}
-          >
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-          </MediaQuery>
-          <MediaQuery minWidth={SCREEN.screenLgMin}>
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-          </MediaQuery>
+          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
         </Col>
         <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
@@ -603,18 +657,32 @@ class MyActivity extends React.PureComponent {
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
-                      'keyword',
+                      'agentId',
                       {}
                     )(
                       <Input
                         allowClear
-                        placeholder={formatMessage({ id: 'KEYWORD' })}
+                        placeholder={formatMessage({ id: 'AGENT_ID' })}
                         autoComplete="off"
                       />
                     )}
                   </Form.Item>
                 </Col>
-                <Col span={18} style={{ textAlign: 'right', paddingRight: '24px' }}>
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator(
+                      'companyName',
+                      {}
+                    )(
+                      <Input
+                        allowClear
+                        placeholder={formatMessage({ id: 'COMPANY_NAME' })}
+                        autoComplete="off"
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col {...BtnColProps} style={{ textAlign: 'right', paddingRight: '24px' }}>
                   <Button type="primary" htmlType="submit" style={{ marginRight: 15 }}>
                     {formatMessage({ id: 'BTN_SEARCH' })}
                   </Button>

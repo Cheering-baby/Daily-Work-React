@@ -26,6 +26,14 @@ class bulletin extends PureComponent {
     this.onSearch({});
   }
 
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'bulletin/clear',
+      payload: {},
+    });
+  }
+
   onSearch = param => {
     const { dispatch, filter } = this.props;
     if (param) {
@@ -42,7 +50,7 @@ class bulletin extends PureComponent {
       reqParams.queryType = null;
     }
     dispatch({
-      type: 'bulletin/change',
+      type: 'bulletin/search',
       payload: {
         filter: { ...reqParams },
       },
@@ -89,10 +97,12 @@ class bulletin extends PureComponent {
 
   onTableDetailChange = notificationInfo => {
     const { dispatch } = this.props;
+    const isAdminRoleFlag = hasAllPrivilege(['NOTIFICATION_BULLETIN_MANAGE_PRIVILEGE']);
     dispatch({
       type: 'notification/saveData',
       payload: {
         notificationInfo,
+        isAdminRoleFlag,
       },
     }).then(() => {
       router.push({ pathname: `/Notifications/Bulletin/Detail/${notificationInfo.id}` });

@@ -1,5 +1,5 @@
 import router from 'umi/router';
-import {message} from 'antd';
+import { message } from 'antd';
 import moment from 'moment';
 import {
   getAttractionProductList,
@@ -21,17 +21,17 @@ export default {
     diffMinutesLess: false,
     settingMethodType: '1',
     diningRemarkList: [],
-    showCategory: '0',
+    showCategory: '1',
     showCategoryLoading: false,
     queryInfo: null,
   },
 
   effects: {
-    * initEditOnceAPirateOrder() {
+    *initEditOnceAPirateOrder() {
       // console.log('initEditOnceAPirateOrder');
     },
 
-    * addToCartByDiffMinutesLess({payload}, {put}) {
+    *addToCartByDiffMinutesLess({ payload }, { put }) {
       const { orderIndex, diffMinutesLess, onceAPirateOrderData = [] } = payload;
 
       const newOnceAPirateOrderData = onceAPirateOrderData.map(item => {
@@ -179,7 +179,7 @@ export default {
       }
     },
 
-    * orderToCheck(_, {put, select, take}) {
+    *orderToCheck(_, { put, select, take }) {
       yield put({
         type: 'save',
         payload: {
@@ -217,7 +217,7 @@ export default {
 
       yield take('ticketOrderCartMgr/settingOnceAPirateOrderData/@@end');
       if (settingOnceAPirateOrderDataCallbackFn.callbackFnCode === 'done') {
-        message.success('Order successfully!');
+        message.success('Order successfully.');
         router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
       }
       yield put({
@@ -246,7 +246,7 @@ export default {
         diffMinutesLess: false,
         settingMethodType: '1',
         diningRemarkList: [],
-        showCategory: '0',
+        showCategory: '1',
         showCategoryLoading: false,
         queryInfo: null,
       };
@@ -269,7 +269,7 @@ export default {
         dateOfVisitTimeStr = `${dateOfVisitTimeStr} ${activeGroupSelectData.sessionTime}`;
         const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
         const du = moment.duration(dateOfVisitTimeMoment - moment(), 'ms');
-        const diffMinutes = du.get('hour');
+        const diffMinutes = du.asHours();
         diffMinutesLess = diffMinutes < 3;
       }
 
@@ -292,6 +292,8 @@ export default {
         let offerInventoryByDateOfVisit = 0;
         let productMaxAvailable = 0;
         let productInventoryByDateOfVisit = 0;
+        let choiceConstrain = 'Fixed';
+        let needChoiceCount = 1;
 
         if (offerProfile.offerBasicInfo && offerProfile.offerBasicInfo.offerMaxQuantity) {
           offerMaxAvailable = offerProfile.offerBasicInfo.offerMaxQuantity;
@@ -306,6 +308,8 @@ export default {
           offerProfile.productGroup.forEach(productGroupItem => {
             if (productGroupItem.productType === 'Attraction') {
               productGroupItem.productGroup.forEach(productGroupInfo => {
+                // eslint-disable-next-line prefer-destructuring
+                choiceConstrain = productGroupInfo.choiceConstrain;
                 if (
                   productGroupInfo.groupName === 'Attraction' &&
                   productGroupInfo.choiceConstrain !== 'Fixed'
@@ -340,18 +344,24 @@ export default {
 
         const attractionProductList = getAttractionProductList(offerProfile, validTimeFrom);
         attractionProductList.forEach(attractionProduct => {
-          if (attractionProduct) {
-            const pluProductList = getPluProductByRuleId(
-              attractionProduct,
-              selectRuleId,
-              validTimeFrom
-            );
-            let isEmpty = false;
-            pluProductList.forEach(pluProduct => {
-              if (isEmpty) {
+          if (choiceConstrain === 'Fixed') {
+            needChoiceCount += attractionProduct.needChoiceCount;
+          } else if (needChoiceCount < attractionProduct.needChoiceCount) {
+            // eslint-disable-next-line prefer-destructuring
+            needChoiceCount = attractionProduct.needChoiceCount;
+          }
+          const pluProductList = getPluProductByRuleId(
+            attractionProduct,
+            selectRuleId,
+            validTimeFrom
+          );
+          let isEmpty = false;
+          pluProductList.forEach(pluProduct => {
+            if (pluProduct.priceTimeFrom === activeGroupSelectData.sessionTime) {
+              if (pluProduct.productInventory === 0) {
                 productInventoryByDateOfVisit = 0;
                 isEmpty = true;
-              } else if (productInventoryByDateOfVisit === 0) {
+              } else if (productInventoryByDateOfVisit === 0 && !isEmpty) {
                 productInventoryByDateOfVisit = pluProduct.productInventory;
               } else if (
                 productInventoryByDateOfVisit !== 0 &&
@@ -359,11 +369,12 @@ export default {
               ) {
                 productInventoryByDateOfVisit = pluProduct.productInventory;
               }
-            });
-          }
+            }
+          });
         });
 
         let offerMaxQuantity = offerMaxAvailable;
+        offerInventoryByDateOfVisit /= needChoiceCount;
         if (offerMaxQuantity > offerInventoryByDateOfVisit) {
           offerMaxQuantity = offerInventoryByDateOfVisit;
         } else if (offerMaxQuantity > productMaxAvailable) {
@@ -380,17 +391,19 @@ export default {
             requestParam.validTimeFrom
           );
           if (pluProductList && pluProductList.length > 0) {
-            const pluProduct = pluProductList[0];
-            if (pluProduct.priceTimeFrom === activeGroupSelectData.sessionTime) {
-              sessionTimeFix = true;
-            }
+            pluProductList.forEach(pluProduct => {
+              if (pluProduct.priceTimeFrom === activeGroupSelectData.sessionTime) {
+                sessionTimeFix = true;
+              }
+            });
           }
         });
 
         const offerPricePax = getSumPriceOfOfferPaxOfferProfile(
           offerProfile,
           requestParam.validTimeFrom,
-          selectRuleId
+          selectRuleId,
+          activeGroupSelectData.sessionTime
         );
 
         if (sessionTimeFix && offerPricePax > 0 && offerMaxQuantity > 0) {

@@ -280,9 +280,10 @@ class OrgInformation extends React.Component {
 
   addOrgBtnClick = e => {
     const {
-      global: { currentUser = {} },
+      orgMgr: { selectedOrg = {} },
     } = this.props;
-    if (currentUser.userType === '01') {
+    const { code = '' } = selectedOrg;
+    if (code === constants.RWS_ORG_CODE) {
       this.showOperDrawer(e, 'ADD_TA_COMPANY');
     } else {
       this.showOperDrawer(e, 'ADD_USER_ORG');
@@ -293,7 +294,7 @@ class OrgInformation extends React.Component {
     e.preventDefault();
     const {
       dispatch,
-      global: { currentUser = {}, userCompanyInfo = {} },
+      orgMgr: { selectedOrg = {} },
     } = this.props;
     dispatch({
       type: 'orgMgr/saveData',
@@ -312,9 +313,8 @@ class OrgInformation extends React.Component {
           type: 'orgMgr/queryAllCompany',
         });
       }
-      const { userType = '' } = currentUser;
-      const { companyId } = userCompanyInfo;
-      if (userType === '02' && type === 'ADD_USER_ORG') {
+      if (type === 'ADD_USER_ORG') {
+        const { companyId } = selectedOrg;
         dispatch({
           type: 'orgMgr/querySubCompany',
           payload: {
@@ -362,23 +362,28 @@ class OrgInformation extends React.Component {
 
     const { userType = '' } = currentUser;
 
+    if (Object.keys(selectedOrg).length === 0) {
+      return true;
+    }
+
     // 如果不是同一家公司 禁止操作 其他公司的组织结构
-    if (orgList.length > 0 && Object.keys(selectedOrg).length > 0) {
-      if (orgList[0].companyId !== selectedOrg.companyId) {
+    if (orgList.length > 0) {
+      if (
+        orgList[0].companyId !== selectedOrg.companyId &&
+        !PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE])
+      ) {
         return true;
       }
     }
 
-    return (
-      Object.keys(selectedOrg).length === 0 ||
-      !(
-        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) &&
-          userType === constants.RWS_USER_TYPE) ||
-        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) &&
-          userType === constants.TA_USER_TYPE) ||
-        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) &&
-          userType === constants.SUB_TA_USER_TYPE)
-      )
+    return !(
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE]) ||
+      (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) &&
+        userType === constants.RWS_USER_TYPE) ||
+      (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) &&
+        userType === constants.TA_USER_TYPE) ||
+      (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) &&
+        userType === constants.SUB_TA_USER_TYPE)
     );
   };
 
@@ -390,21 +395,67 @@ class OrgInformation extends React.Component {
 
     const { userType = '' } = currentUser;
 
+    if (Object.keys(selectedOrg).length === 0) {
+      return true;
+    }
+
+    const { code = '' } = selectedOrg;
+    if (code === constants.RWS_ORG_CODE) {
+      return true;
+    }
+
     // 如果不是同一家公司 禁止操作 其他公司的组织结构
-    if (orgList.length > 0 && Object.keys(selectedOrg).length > 0) {
-      if (orgList[0].companyId !== selectedOrg.companyId) {
+    if (orgList.length > 0) {
+      if (
+        orgList[0].companyId !== selectedOrg.companyId &&
+        !PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE])
+      ) {
         return true;
       }
     }
 
-    return (
-      Object.keys(selectedOrg).length === 0 ||
-      !(
-        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) &&
-          userType === constants.TA_USER_TYPE) ||
-        (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) &&
-          userType === constants.SUB_TA_USER_TYPE)
-      )
+    return !(
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE]) ||
+      (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) &&
+        userType === constants.TA_USER_TYPE) ||
+      (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) &&
+        userType === constants.SUB_TA_USER_TYPE)
+    );
+  };
+
+  getAddMemberCardShow = () => {
+    const {
+      orgMgr: { selectedOrg = {}, orgList = [] },
+      global: { currentUser = {} },
+    } = this.props;
+
+    const { userType = '' } = currentUser;
+
+    if (Object.keys(selectedOrg).length === 0) {
+      return true;
+    }
+
+    const { code = '' } = selectedOrg;
+    if (code === constants.RWS_ORG_CODE) {
+      return true;
+    }
+
+    // 如果不是同一家公司 禁止操作 其他公司的组织结构 除非是 pams admin
+    if (orgList.length > 0) {
+      if (
+        orgList[0].companyId !== selectedOrg.companyId &&
+        !PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE])
+      ) {
+        return true;
+      }
+    }
+
+    return !(
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE]) ||
+      (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE]) &&
+        userType === constants.TA_USER_TYPE) ||
+      (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) &&
+        userType === constants.SUB_TA_USER_TYPE)
     );
   };
 
@@ -452,28 +503,32 @@ class OrgInformation extends React.Component {
           className="no-border"
           pagination={false}
         />
-        <div className={styles.titleHeader}>
-          {formatMessage({ id: 'PERSONNEL' })}({orgUsers.length})
-        </div>
-        <Button
-          disabled={this.getAddMemberBtnDisable()}
-          type="link"
-          className={styles.addBtnClass}
-          onClick={e => this.showOperDrawer(e, 'ADD_MEMBER')}
-        >
-          {formatMessage({ id: 'ADD_BTN_TEXT' })}
-        </Button>
-        <Table
-          rowKey="userCode"
-          loading={loadUserInOrg}
-          bordered={false}
-          size="small"
-          dataSource={orgUsers}
-          columns={this.memberColumns}
-          scroll={{ y: 190 }}
-          className="no-border"
-          pagination={false}
-        />
+        {this.getAddMemberCardShow() ? null : (
+          <React.Fragment>
+            <div className={styles.titleHeader}>
+              {formatMessage({ id: 'PERSONNEL' })}({orgUsers.length})
+            </div>
+            <Button
+              disabled={this.getAddMemberBtnDisable()}
+              type="link"
+              className={styles.addBtnClass}
+              onClick={e => this.showOperDrawer(e, 'ADD_MEMBER')}
+            >
+              {formatMessage({ id: 'ADD_BTN_TEXT' })}
+            </Button>
+            <Table
+              rowKey="userCode"
+              loading={loadUserInOrg}
+              bordered={false}
+              size="small"
+              dataSource={orgUsers}
+              columns={this.memberColumns}
+              scroll={{ y: 190 }}
+              className="no-border"
+              pagination={false}
+            />
+          </React.Fragment>
+        )}
       </Card>
     );
   }

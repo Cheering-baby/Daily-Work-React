@@ -29,6 +29,7 @@ const MyWalletModel = {
     transactionTypes: [],
     dataSource: [],
     arActivity: undefined,
+    mappingForArApplicationActivityId: undefined,
   },
   subscriptions: {},
   effects: {
@@ -107,6 +108,7 @@ const MyWalletModel = {
       if (resultCode === '0') {
         if (!result.accountProfileBean) return;
         const bean = cloneDeep(result.accountProfileBean);
+        let arRemark = {};
         bean.accountBookBeanList.forEach(item => {
           if (item.accountBookType === 'E_WALLET') {
             const strs = item.balance
@@ -126,6 +128,10 @@ const MyWalletModel = {
             };
           }
           if (item.accountBookType === 'AR_CREDIT') {
+            arRemark = item.remark ? JSON.parse(item.remark) : {};
+            if (item.status !== 'A') {
+              return;
+            }
             const strs = item.balance
               .toFixed(3)
               .toString()
@@ -150,14 +156,24 @@ const MyWalletModel = {
             account: bean,
           },
         });
+        yield put({
+          type: 'save',
+          payload: {
+            mappingForArApplicationActivityId: arRemark.activityId,
+          },
+        });
       } else throw resultMsg;
     },
-    *fetchMyActivityList(_, { call, put }) {
+    *fetchMyActivityList(_, { call, put, select }) {
+      const { mappingForArApplicationActivityId } = yield select(state => state.myWallet);
+      const {
+        userCompanyInfo: { companyId = '' },
+      } = yield select(state => state.global);
       const params = {
         activityTplCode: 'ACCOUNT_AR_APPLY',
+        businessId: companyId,
         currentPage: 1,
         pageSize: 1,
-        queryType: '03',
       };
       const result = yield call(service.queryActivityList, params);
       const { data: resultData, success, errorMsg } = result;
@@ -171,20 +187,18 @@ const MyWalletModel = {
         if (resultCode !== ERROR_CODE_SUCCESS) {
           throw resultMsg;
         }
-        let activity;
         if (activityInfoList && activityInfoList.length > 0) {
-          activityInfoList.forEach(item => {
-            if (item.status === '02' || item.status === '03') {
-              activity = item;
-            }
-          });
+          const index = 0;
+          const activity = activityInfoList[index];
+          if (mappingForArApplicationActivityId !== activity.activityId) {
+            yield put({
+              type: 'save',
+              payload: {
+                arActivity: activity,
+              },
+            });
+          }
         }
-        yield put({
-          type: 'save',
-          payload: {
-            arActivity: activity,
-          },
-        });
       } else throw errorMsg;
     },
   },

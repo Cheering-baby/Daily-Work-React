@@ -5,10 +5,10 @@ import { router, withRouter } from 'umi';
 import detailStyles from './index.less';
 import TASignUpDetail from '@/pages/MyActivity/components/TASignUpDetail';
 import SubTASignUpDetail from '@/pages/MyActivity/components/SubTASignUpDetail';
-import { isNvl } from '@/utils/utils';
 import ApprovalHistory from '@/pages/MyActivity/components/ApprovalHistory';
 import OperationApprovalDrawer from '@/pages/MyActivity/components/OperationApprovalDrawer';
-import ARApplyDetails from '@/pages/TAManagement/MyWallet/components/ARApplyDetails';
+import ARApplicationDetail from '@/pages/MyActivity/components/ARApplicationDetail';
+import TransactionBookingDetail from '@/pages/MyActivity/components/TransactionBookingDetail';
 
 @withRouter
 @Form.create()
@@ -46,28 +46,25 @@ class ActivityDetail extends React.PureComponent {
         activityDetail: { activityInfo },
       } = this.props;
       const { businessId } = activityInfo;
-      dispatch({ type: 'commonSignUpDetail/queryCountryList' }).then(flag => {
-        const {
-          commonSignUpDetail: { countryList },
-        } = this.props;
-        if (flag && isNvl(businessId) && countryList && countryList.length > 0) {
-          const countryInfo = countryList[0];
-          dispatch({
-            type: 'commonSignUpDetail/queryCityList',
-            payload: { countryId: countryInfo.dictId },
-          });
-          dispatch({
-            type: 'commonSignUpDetail/queryCityList',
-            payload: { countryId: countryInfo.dictId, isBil: true },
-          });
-        }
-      });
-      if (activityInfo.activityTplCode === 'TA-SIGN-UP') {
+      dispatch({ type: 'commonSignUpDetail/queryCountryList' });
+      if (
+        activityInfo.activityTplCode === 'TA-SIGN-UP' ||
+        activityInfo.activityTplCode === 'ACCOUNT_AR_APPLY'
+      ) {
         dispatch({
           type: 'taSignUpDetail/queryTaInfo',
           payload: {
             taId: businessId,
           },
+        }).then(country => {
+          dispatch({
+            type: 'commonSignUpDetail/queryCityList',
+            payload: { countryId: country },
+          });
+          dispatch({
+            type: 'commonSignUpDetail/queryCityList',
+            payload: { countryId: country, isBil: true },
+          });
         });
         dispatch({ type: 'commonSignUpDetail/querySalutationList' });
         dispatch({ type: 'commonSignUpDetail/queryOrganizationRoleList' });
@@ -86,20 +83,47 @@ class ActivityDetail extends React.PureComponent {
     router.push('/MyActivity');
   };
 
+  checkTransactionBookingTplCode = activityTplCode => {
+    let result = false;
+    switch (activityTplCode) {
+      case 'TRANSACTION_PAMS_BOOKING_AUDIT':
+      case 'TRANSACTION_PAMS_MAIN_BOOKING':
+      case 'TRANSACTION_PAMS_BOOKING':
+      case 'TRANSACTION_PAMS_MAIN_REFUND':
+      case 'TRANSACTION_PAMS_REVALIDATION':
+      case 'TRANSACTION_PAMS_REFUND':
+      case 'TRANSACTION_PAMS_MAIN_REVALIDATION': {
+        result = true;
+        break;
+      }
+      default: {
+        result = false;
+      }
+    }
+    return result;
+  };
+
   render() {
     const { activityDetail = {} } = this.props;
     const {
       activityDetail: {
-        activityInfo: { activityTplCode, historyHandlers, pendingHandlers },
+        activityInfo: { activityTplCode },
+        historyHandlers,
+        pendingHandlers,
         isOperationApproval,
       },
     } = this.props;
+    let pendStepTplCode = '';
+    if (pendingHandlers.length > 0) {
+      const { stepCode } = pendingHandlers[0];
+      pendStepTplCode = stepCode;
+    }
     return (
       <React.Fragment>
         <Col lg={24} md={24} id="myActivityDetail">
           <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
             <Breadcrumb.Item className={detailStyles.BreadcrumbStyle}>
-              TA Management
+              Travel Agent Management
             </Breadcrumb.Item>
             <Breadcrumb.Item className={detailStyles.BreadcrumbStyle} onClick={this.routerTo}>
               My Activity
@@ -119,11 +143,18 @@ class ActivityDetail extends React.PureComponent {
           {activityTplCode && activityTplCode === 'SUB-TA-SIGN-UP' ? <SubTASignUpDetail /> : null}
 
           {activityTplCode && activityTplCode === 'ACCOUNT_AR_APPLY' ? (
-            <ARApplyDetails activityDetail={activityDetail} />
+            <ARApplicationDetail activityDetail={activityDetail} />
           ) : null}
+
+          {this.checkTransactionBookingTplCode(activityTplCode) && <TransactionBookingDetail />}
         </Col>
 
-        {isOperationApproval && <OperationApprovalDrawer activityTplCode={activityTplCode} />}
+        {isOperationApproval && (
+          <OperationApprovalDrawer
+            activityTplCode={activityTplCode}
+            pendStepTplCode={pendStepTplCode}
+          />
+        )}
       </React.Fragment>
     );
   }

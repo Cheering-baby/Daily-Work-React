@@ -11,7 +11,7 @@ import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import prohibit from '../../../../../assets/pams/prohibit.svg';
 import circleURL from '../../../../../assets/pams/circle.svg';
-import PaginationComp from '@/pages/TAManagement/MainTAManagement/components/PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import { hasAllPrivilege, MAIN_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
@@ -43,6 +43,9 @@ class TableComp extends PureComponent {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_NO' }),
         dataIndex: 'number',
         width: '60px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_SUB_AGENT_COMPANY_NAME' }),
@@ -64,6 +67,9 @@ class TableComp extends PureComponent {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_EMAIL' }),
         dataIndex: 'email',
         width: '180px',
+        render: text => {
+          return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+        },
       },
       {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_APPLICATION_DATE' }),

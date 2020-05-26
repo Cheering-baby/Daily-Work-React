@@ -6,7 +6,12 @@ import { isNvl } from '@/utils/utils';
 import { getProductType, getTopNationalitiesStr } from '@/pages/TAManagement/utils/pubUtils';
 
 const QuestionsInformation = props => {
-  const { companyInfo = {}, countryList = [] } = props;
+  const {
+    companyInfo = {},
+    countryList = [],
+    longLayoutDisplay = {},
+    longValueDisplay = {},
+  } = props;
   const { productTypeRoom, productTypeAttractions } = getProductType() || {};
   let productInfoOne = {};
   if (companyInfo && companyInfo.productList && companyInfo.productList.length > 0) {
@@ -50,36 +55,78 @@ const QuestionsInformation = props => {
         </Col>
       </Row>
       <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
+        <Col
+          xs={longLayoutDisplay.xs}
+          sm={longLayoutDisplay.sm}
+          md={longLayoutDisplay.md}
+          lg={longLayoutDisplay.lg}
+          xl={longLayoutDisplay.xl}
+          xxl={longLayoutDisplay.xxl}
+        >
           <div className={styles.detailRightStyle}>
             <span>{formatMessage({ id: 'CUSTOMER_NATIONALITY' })}</span>
           </div>
         </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
+        <Col
+          xs={longValueDisplay.xs}
+          sm={longValueDisplay.sm}
+          md={longValueDisplay.md}
+          lg={longValueDisplay.lg}
+          xl={longValueDisplay.xl}
+          xxl={longValueDisplay.xxl}
+        >
           <div className={styles.detailLeftStyle}>
             <span>{getTopNationalitiesStr(countryList, companyInfo.topNationalities)}</span>
           </div>
         </Col>
       </Row>
       <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
+        <Col
+          xs={longLayoutDisplay.xs}
+          sm={longLayoutDisplay.sm}
+          md={longLayoutDisplay.md}
+          lg={longLayoutDisplay.lg}
+          xl={longLayoutDisplay.xl}
+          xxl={longLayoutDisplay.xxl}
+        >
           <div className={styles.detailRightStyle}>
             <span>{formatMessage({ id: 'QUESTIONS_Q_ONE' })}</span>
           </div>
         </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
+        <Col
+          xs={longValueDisplay.xs}
+          sm={longValueDisplay.sm}
+          md={longValueDisplay.md}
+          lg={longValueDisplay.lg}
+          xl={longValueDisplay.xl}
+          xxl={longValueDisplay.xxl}
+        >
           <div className={styles.detailLeftStyle}>
             <span>{volumeOne}</span>
           </div>
         </Col>
       </Row>
       <Row type="flex" justify="space-around">
-        <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
+        <Col
+          xs={longLayoutDisplay.xs}
+          sm={longLayoutDisplay.sm}
+          md={longLayoutDisplay.md}
+          lg={longLayoutDisplay.lg}
+          xl={longLayoutDisplay.xl}
+          xxl={longLayoutDisplay.xxl}
+        >
           <div className={styles.detailRightStyle}>
             <span>{formatMessage({ id: 'QUESTIONS_Q_TWO' })}</span>
           </div>
         </Col>
-        <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
+        <Col
+          xs={longValueDisplay.xs}
+          sm={longValueDisplay.sm}
+          md={longValueDisplay.md}
+          lg={longValueDisplay.lg}
+          xl={longValueDisplay.xl}
+          xxl={longValueDisplay.xxl}
+        >
           <div className={styles.detailLeftStyle}>
             <span>{volumeTwo}</span>
           </div>

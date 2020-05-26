@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
@@ -36,7 +35,7 @@ class Arapply extends React.PureComponent {
     this.setState({ visible: true });
   };
 
-  handleOk = e => {
+  handleOk = () => {
     const { dispatch, form } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
@@ -45,9 +44,21 @@ class Arapply extends React.PureComponent {
           payload: values,
           callback: (result = {}) => {
             if (!result || !result.paymentPageUrl) return;
-            const w = window.open('about:blank');
-            w.location.href = result.paymentPageUrl;
-            // this.setState({ visible: false });
+            window.open(result.paymentPageUrl);
+            this.setState({ visible: false });
+            Modal.confirm({
+              content: formatMessage({ id: 'TOPUP_COMPLETED_TIPS' }),
+              cancelText: formatMessage({ id: 'TOPUP_COMPLETED_TIPS_CANCEL_TEXT' }),
+              okText: formatMessage({ id: 'TOPUP_COMPLETED_TIPS_OK_TEXT' }),
+              onCancel: () => {
+                dispatch({ type: 'myWallet/fetchAccountDetail' });
+                dispatch({ type: 'myWallet/fetchAccountFlowList' });
+              },
+              onOk: () => {
+                dispatch({ type: 'myWallet/fetchAccountDetail' });
+                dispatch({ type: 'myWallet/fetchAccountFlowList' });
+              },
+            });
           },
         });
       }
@@ -108,12 +119,16 @@ class Arapply extends React.PureComponent {
                     message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MESSAGE' }),
                   },
                   {
+                    min: 0,
                     max: 21474836.47,
                     message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE' }),
-                    validator: (rule, value) => Number(value) <= rule.max,
+                    validator: (rule, value) => {
+                      const v = Number(value);
+                      return v > rule.min && v <= rule.max;
+                    },
                   },
                 ],
-              })(<Input placeholder="Topup Amount" allowClear />)}
+              })(<Input prefix="$" placeholder="Topup Amount" allowClear />)}
             </Form.Item>
           </Form>
         </Modal>

@@ -121,8 +121,12 @@ class InvitationComp extends PureComponent {
   };
 
   showHtml = htmlString => {
-    const html = { __html: htmlString };
-    return <div dangerouslySetInnerHTML={html} />;
+    if (htmlString) {
+      const nowHtmlString = htmlString.replace('<a href="#">', '').replace('</a>', '');
+      const html = { __html: nowHtmlString };
+      return <div dangerouslySetInnerHTML={html} />;
+    }
+    return <div />;
   };
 
   render() {

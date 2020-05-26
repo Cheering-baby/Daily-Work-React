@@ -1,23 +1,31 @@
 import React from 'react';
-import {Button, Card, Col, message, Modal, Row, Spin} from 'antd';
-import {connect} from 'dva';
+import { Button, Card, Col, message, Modal, Row, Spin } from 'antd';
+import { connect } from 'dva';
 import PaymentMode from '../PaymentMode';
 import styles from './index.less';
 
-@connect(({ queryOrderPaymentMgr }) => ({
+@connect(({ queryOrderPaymentMgr, global }) => ({
   queryOrderPaymentMgr,
+  global,
 }))
 class PaymentModal extends React.Component {
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'queryOrderPaymentMgr/initPage',
-      payload: {},
-    });
+    const {
+      dispatch,
+      global: {
+        currentUser: { userType },
+      },
+    } = this.props;
+    if (userType === '02') {
+      dispatch({
+        type: 'queryOrderPaymentMgr/initPage',
+        payload: {},
+      });
+    }
   }
 
   componentWillUnmount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'queryOrderPaymentMgr/resetData',
     });
@@ -29,6 +37,8 @@ class PaymentModal extends React.Component {
       type: 'queryOrderPaymentMgr/save',
       payload: {
         paymentModalVisible: false,
+        payPageLoading: false,
+        bookingNo: null,
       },
     });
   };
@@ -91,20 +101,27 @@ class PaymentModal extends React.Component {
       queryOrderPaymentMgr: { payModeList, accountInfo, bookDetail },
     } = this.props;
 
+    let active = false;
+    if (!payModeList) {
+      return false;
+    }
+    const payMode = payModeList.find(payModeItem => payModeItem.check);
+
+    if (payMode.label === 'Credit Card') {
+      return true;
+    }
+
     if (!accountInfo) {
       return false;
     }
 
-    let active = false;
-    const payMode = payModeList.find(payModeItem => payModeItem.check);
     if (payMode.label === 'eWallet') {
       if (accountInfo.eWallet && accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         active = true;
       }
     } else if (payMode.label === 'Credit Card') {
-      if (accountInfo.cc && accountInfo.cc.balance >= bookDetail.totalPrice) {
-        active = true;
-      }
+      // check balance
+      active = true;
     } else if (payMode.label === 'AR') {
       if (accountInfo.ar && accountInfo.ar.balance >= bookDetail.totalPrice) {
         active = true;
@@ -128,7 +145,7 @@ class PaymentModal extends React.Component {
         <Spin spinning={payPageLoading}>
           <Row style={{ marginBottom: '16px', height: '26px', lineHeight: '26px' }}>
             <Col xs={24} md={12} lg={8}>
-              <span className={styles.modelFormItem}>PAMS Transaction No.</span>
+              <span className={styles.modelFormItem}>PARTNERS Order No.</span>
             </Col>
             <Col xs={24} md={12} lg={16}>
               <span>{this.getBookingNo(selectedBooking)}</span>

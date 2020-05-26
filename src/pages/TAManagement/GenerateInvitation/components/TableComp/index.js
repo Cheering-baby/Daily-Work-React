@@ -3,7 +3,7 @@ import { Badge, Button, Col, Table } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
-import PaginationComp from '../PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 

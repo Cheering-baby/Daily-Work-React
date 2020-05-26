@@ -1,0 +1,39 @@
+.titleHeader {
+  font-family: CalibriBold;
+  font-size: 14px;
+  color: #3B414A;
+  letter-spacing: 0.23px;
+  line-height: 26px;
+
+  :global {
+    .ant-card-bordered {
+      border: 0 !important;
+    }
+  }
+}
+
+.basicInfoContent {
+  margin-bottom: 6px;
+
+  > div:not(.basicInfoInput) {
+    padding: 4px;
+  }
+
+  > div:nth-child(1) {
+    text-align: right;
+    font-family: Calibri;
+    font-size: 15px;
+    color: #858585;
+  }
+
+  > div:nth-child(2):not(.basicInfoInput) {
+    font-family: Calibri;
+    font-size: 15px;
+    color: #3B414A;
+  }
+
+  .basicInfoInput {
+    padding: 0 4px;
+    margin-top: -3px
+  }
+}

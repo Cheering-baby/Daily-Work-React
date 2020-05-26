@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Button, Col, Form, Input, InputNumber, message, Row, Select } from 'antd';
+import { Button, Col, Form, Input, Row, Select } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
@@ -9,6 +9,7 @@ import router from 'umi/router';
 import moment from 'moment';
 import styles from '../index.less';
 import constants from '../constants';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 const { Option } = Select;
 
@@ -67,8 +68,6 @@ class Index extends React.PureComponent {
     }
   }
 
-  componentWillUnmount() {}
-
   getRoleCodes = (currentUserProfile = {}) => {
     const { type = 'NEW' } = this.props;
     if (type === 'NEW') {
@@ -89,7 +88,7 @@ class Index extends React.PureComponent {
       dispatch,
       form,
       type = 'NEW',
-      userMgr: { currentUserProfile = {}, companyMap = new Map() },
+      userMgr: { currentUserProfile = {} },
     } = this.props;
 
     form.validateFields((err, values) => {
@@ -97,15 +96,15 @@ class Index extends React.PureComponent {
         let dispatchType = '';
         if (type === 'NEW') {
           dispatchType = 'userMgr/addTAUser';
-          const { companyId } = values;
-          const companyInfo = companyMap.get(`${companyId}`);
-          if (companyInfo.companyType === '01') {
-            values.userType = '02';
-          } else if (companyInfo.companyType === '02') {
+          const { subCompanyId } = values;
+          if (subCompanyId) {
             values.userType = '03';
+            values.companyId = subCompanyId;
           } else {
-            message.warn(formatMessage({ id: 'COMPANY_TYPE_ERROR' }), 10);
-            return;
+            values.userType = '02';
+          }
+          if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])) {
+            values.userType = '03';
           }
         } else {
           dispatchType = 'userMgr/modifyUser';
@@ -113,23 +112,13 @@ class Index extends React.PureComponent {
           const { roleCodes = [] } = values;
           const removeRoleCodes = this.getRemoveRoleCodes(userRoles, roleCodes);
           const addRoleCodes = this.getAddRoleCodes(userRoles, roleCodes);
-          if (userType === constants.RWS_USER_TYPE) {
-            delete values.companyId;
-            values.userType = '01';
-          } else {
-            const { companyId } = values;
-            const companyInfo = companyMap.get(`${companyId}`);
-            if (companyInfo.companyType === '01') {
-              values.userType = '02';
-            } else if (companyInfo.companyType === '02') {
-              values.userType = '03';
-            } else {
-              message.warn(formatMessage({ id: 'COMPANY_TYPE_ERROR' }), 10);
-              return;
-            }
-          }
           values.removeRoleCodes = removeRoleCodes;
           values.addRoleCodes = addRoleCodes;
+          values.userType = userType;
+
+          if (userType === '01') {
+            delete values.companyId;
+          }
         }
         dispatch({
           type: dispatchType,
@@ -172,8 +161,27 @@ class Index extends React.PureComponent {
 
   getCompanyOptions = () => {
     const {
-      userMgr: { companyList = [] },
+      type = '',
+      userMgr: { companyList = [], allSubTACompanies = [], currentUserProfile },
     } = this.props;
+    const { userType = '' } = currentUserProfile;
+    if (
+      PrivilegeUtil.hasAnyPrivilege([
+        PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+        PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+      ])
+    ) {
+      if (userType === constants.SUB_TA_USER_TYPE && (type === 'EDIT' || type === 'DETAIL')) {
+        return allSubTACompanies.map(item => {
+          if (item.id === -1) return null;
+          return (
+            <Option key={item.id} value={`${item.id}`}>
+              {item.companyName}
+            </Option>
+          );
+        });
+      }
+    }
     return companyList.map(item => {
       if (item.id === -1) return null;
       return (
@@ -184,36 +192,50 @@ class Index extends React.PureComponent {
     });
   };
 
+  getSubCompanyOptions = () => {
+    const {
+      userMgr: { formSubTaCompanies = [] },
+    } = this.props;
+    return formSubTaCompanies.map(item => (
+      <Option key={item.id} value={item.id}>
+        {item.companyName}
+      </Option>
+    ));
+  };
+
   companyChange = value => {
     const {
       dispatch,
-      type = '',
-      global: { currentUser = {}, userCompanyInfo = {} },
-      userMgr: { currentUserProfile = {}, companyMap = new Map() },
       form: { setFields },
     } = this.props;
-    const { userType = '' } = currentUser;
-    const { companyId } = userCompanyInfo;
-    const { userType: currentUserType = '', taInfo = {} } = currentUserProfile;
     let flag = false;
-    if (userType === constants.RWS_USER_TYPE) {
-      flag = true;
-    } else if (userType === constants.TA_USER_TYPE && String(companyId) !== String(value)) {
+    if (
+      !PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE]) &&
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE])
+    ) {
       flag = true;
     }
 
-    if (currentUserType !== constants.RWS_USER_TYPE && type === 'EDIT') {
-      const { companyId: userCompanyId } = taInfo;
-      if (String(userCompanyId) === String(value)) {
-        flag = false;
-      }
-    }
+    dispatch({
+      type: 'userMgr/saveData',
+      payload: {
+        userFormOkDisable: false,
+        formSubTaCompanies: [],
+        companyDetailInfo: {},
+      },
+    });
+    setFields({
+      subCompanyId: {
+        value: undefined,
+      },
+    });
 
     if (flag && value) {
       dispatch({
         type: 'userMgr/checkHasMasterUser',
         payload: {
-          companyIds: value,
+          companyId: value,
+          companyType: '01',
         },
       }).then(result => {
         if (!result) {
@@ -229,7 +251,76 @@ class Index extends React.PureComponent {
               userFormOkDisable: true,
             },
           });
+        } else {
+          setFields({
+            companyId: {
+              value,
+            },
+          });
         }
+      });
+    }
+
+    if (value) {
+      if (
+        PrivilegeUtil.hasAnyPrivilege([
+          PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+          PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
+          PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+        ])
+      ) {
+        this.getTACompanyDetail(value);
+        this.getUserRoles('01');
+      } else if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])) {
+        this.getUserRoles('02');
+      }
+    }
+  };
+
+  subCompanyChange = value => {
+    const {
+      dispatch,
+      form: { setFields },
+    } = this.props;
+    let flag = false;
+    if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE])) {
+      flag = true;
+    }
+
+    if (flag && value) {
+      dispatch({
+        type: 'userMgr/checkHasMasterUser',
+        payload: {
+          companyId: value,
+          companyType: '02',
+        },
+      }).then(result => {
+        if (!result) {
+          setFields({
+            subCompanyId: {
+              value,
+              errors: [new Error(formatMessage({ id: 'THIS_COMPANY_ALREADY_HAS_USER' }))],
+            },
+          });
+          dispatch({
+            type: 'userMgr/saveData',
+            payload: {
+              userFormOkDisable: true,
+            },
+          });
+        } else {
+          setFields({
+            subCompanyId: {
+              value,
+            },
+          });
+        }
+      });
+    } else {
+      setFields({
+        subCompanyId: {
+          value,
+        },
       });
     }
     dispatch({
@@ -238,21 +329,16 @@ class Index extends React.PureComponent {
         userFormOkDisable: false,
       },
     });
+    setFields({
+      roleCodes: {
+        value: undefined,
+      },
+    });
 
     if (value) {
-      const userCompanyType = currentUserType === constants.TA_USER_TYPE ? '01' : '02';
-      const companyInfo = companyMap.get(`${value}`);
-      const { companyType: selectedCompanyType = '' } = companyInfo;
-      setFields({
-        roleCodes: {
-          value:
-            userCompanyType !== selectedCompanyType ? [] : this.getRoleCodes(currentUserProfile),
-        },
-      });
-      this.getUserRoles(value);
-      if (userType === constants.RWS_USER_TYPE) {
-        this.getTACompanyDetail(value);
-      }
+      this.getUserRoles('02');
+    } else {
+      this.getUserRoles('01');
     }
   };
 
@@ -266,25 +352,12 @@ class Index extends React.PureComponent {
     });
   };
 
-  getUserRoles = companyId => {
-    const {
-      dispatch,
-      userMgr: { companyMap = new Map() },
-    } = this.props;
-    const companyInfo = companyMap.get(`${companyId}`);
-    let roleType = '';
-    if (companyInfo.companyType === '01') {
-      roleType = '02';
-    } else if (companyInfo.companyType === '02') {
-      roleType = '03';
-    } else {
-      message.warn(formatMessage({ id: 'COMPANY_TYPE_ERROR' }), 10);
-      return;
-    }
+  getUserRoles = companyType => {
+    const { dispatch } = this.props;
     dispatch({
       type: 'userMgr/queryUserRoles',
       payload: {
-        roleType,
+        roleType: companyType === '01' ? '02' : '03',
       },
     });
   };
@@ -312,16 +385,22 @@ class Index extends React.PureComponent {
     taInfo = taInfo || {};
     rwsInfo = rwsInfo || {};
     const { companyId, fullName = '', phone = '', email = '', address = '', remarks = '' } = taInfo;
-    const { surName = '', givenName = '', phone: rwsPhone = '', email: rwsEmail = '' } = rwsInfo;
+    const {
+      address: rwsAddress = '',
+      remarks: rwsRemarks = '',
+      fullName: rwsFullName = '',
+      phone: rwsPhone = '',
+      email: rwsEmail = '',
+    } = rwsInfo;
 
     return {
       userCode,
       companyId: userType === constants.RWS_USER_TYPE ? 'RWS' : companyId,
-      userName: userType === constants.RWS_USER_TYPE ? `${surName} ${givenName}` : fullName,
+      userName: userType === constants.RWS_USER_TYPE ? rwsFullName : fullName,
       phone: userType === constants.RWS_USER_TYPE ? rwsPhone : phone,
       email: userType === constants.RWS_USER_TYPE ? rwsEmail : email,
-      address: userType === constants.RWS_USER_TYPE ? '' : address,
-      remarks: userType === constants.RWS_USER_TYPE ? '' : remarks,
+      address: userType === constants.RWS_USER_TYPE ? rwsAddress : address,
+      remarks: userType === constants.RWS_USER_TYPE ? rwsRemarks : remarks,
     };
   };
 
@@ -363,9 +442,9 @@ class Index extends React.PureComponent {
       effectiveDate,
       endDate,
       salesPerson = '',
-      settlementCycle = '',
-      settlementValue,
     } = companyDetailInfo;
+
+    const subCompanyId = '';
 
     return (
       <Fragment>
@@ -378,26 +457,65 @@ class Index extends React.PureComponent {
             </Row>
             <Row>
               <Col {...colProps}>
-                <Form.Item {...formItemLayout} label={formatMessage({ id: 'COMPANY_NAME' })}>
+                <Form.Item
+                  {...formItemLayout}
+                  label={
+                    PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) ||
+                    type === 'EDIT' ||
+                    type === 'DETAIL'
+                      ? formatMessage({ id: 'COMPANY_NAME' })
+                      : formatMessage({ id: 'TA_COMPANY_NAME' })
+                  }
+                >
                   {getFieldDecorator(`companyId`, {
                     initialValue: type === 'NEW' ? undefined : String(companyId),
                     rules: [
                       {
                         required: userType !== constants.RWS_USER_TYPE,
+                        message: formatMessage({ id: 'REQUIRED' }),
                       },
                     ],
                   })(
                     <Select
                       onChange={this.companyChange}
-                      disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
+                      disabled={type === 'DETAIL' || type === 'EDIT'}
                       allowClear
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      showSearch
+                      filterOption={(input, option) =>
+                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                      }
                     >
                       {this.getCompanyOptions()}
                     </Select>
                   )}
                 </Form.Item>
               </Col>
+              {PrivilegeUtil.hasAnyPrivilege([
+                PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+                PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+              ]) && type === 'NEW' ? (
+                <Col {...colProps}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'SUB_COMPANY_NAME' })}>
+                    {getFieldDecorator(`subCompanyId`, {
+                      initialValue: type === 'NEW' ? undefined : String(subCompanyId),
+                    })(
+                      <Select
+                        onChange={this.subCompanyChange}
+                        disabled={type === 'DETAIL' || type === 'EDIT'}
+                        allowClear
+                        placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                        showSearch
+                        filterOption={(input, option) =>
+                          option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                      >
+                        {this.getSubCompanyOptions()}
+                      </Select>
+                    )}
+                  </Form.Item>
+                </Col>
+              ) : null}
               <Col {...colProps}>
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'USER_LOGIN' })}>
                   {getFieldDecorator(`userCode`, {
@@ -405,6 +523,7 @@ class Index extends React.PureComponent {
                     rules: [
                       {
                         required: true,
+                        message: formatMessage({ id: 'REQUIRED' }),
                       },
                     ],
                   })(
@@ -425,11 +544,12 @@ class Index extends React.PureComponent {
                     rules: [
                       {
                         required: userType !== constants.RWS_USER_TYPE,
+                        message: formatMessage({ id: 'REQUIRED' }),
                       },
                     ],
                   })(
                     <Input
-                      disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
+                      disabled={type === 'DETAIL'}
                       maxLength={100}
                       allowClear
                       placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
@@ -444,12 +564,14 @@ class Index extends React.PureComponent {
                     initialValue: this.getRoleCodes(currentUserProfile),
                     rules: [
                       {
-                        required: false,
+                        required: true,
+                        message: formatMessage({ id: 'REQUIRED' }),
                       },
                     ],
                   })(
                     <Select
                       allowClear
+                      showArrow
                       mode="multiple"
                       disabled={type === 'DETAIL'}
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
@@ -465,8 +587,8 @@ class Index extends React.PureComponent {
                     initialValue: phone,
                   })(
                     <Input
-                      disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
-                      type="number"
+                      disabled={type === 'DETAIL'}
+                      type="tel"
                       allowClear
                       maxLength={255}
                       placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
@@ -485,12 +607,13 @@ class Index extends React.PureComponent {
                         message: formatMessage({ id: 'VALID_EMAIL' }),
                       },
                       {
-                        required: userType !== constants.RWS_USER_TYPE,
+                        required: true,
+                        message: formatMessage({ id: 'REQUIRED' }),
                       },
                     ],
                   })(
                     <Input
-                      disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
+                      disabled={type === 'DETAIL'}
                       allowClear
                       maxLength={200}
                       placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
@@ -505,7 +628,7 @@ class Index extends React.PureComponent {
                     initialValue: address,
                   })(
                     <Input
-                      disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
+                      disabled={type === 'DETAIL'}
                       allowClear
                       maxLength={1000}
                       placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
@@ -514,7 +637,7 @@ class Index extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              {userType === constants.RWS_USER_TYPE ? (
+              {loginUserType === constants.RWS_USER_TYPE ? (
                 <Col span={24}>
                   <Form.Item {...formItemLayoutFull} label={formatMessage({ id: 'REMARKS' })}>
                     {getFieldDecorator(`remarks`, {
@@ -531,79 +654,61 @@ class Index extends React.PureComponent {
                 </Col>
               ) : null}
             </Row>
-            {userType === constants.RWS_USER_TYPE ||
-            loginUserType === constants.SUB_TA_USER_TYPE ? null : (
-              <React.Fragment>
-                <Row>
-                  <Col className={styles.headerClass}>
-                    {formatMessage({ id: 'TA_SUPPLEMENTARY_INFORMATION' })}
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={24}>
-                    <Form.Item
-                      {...formItemLayoutFull1}
-                      label={formatMessage({ id: 'SETTLEMENT_CYCLE' })}
-                    >
-                      <div>
-                        <span className={styles.spanClass}>{formatMessage({ id: 'THE' })}</span>
-                        {getFieldDecorator(`settlementValue`, {
-                          initialValue: settlementValue,
-                        })(
-                          <InputNumber
-                            style={{ marginLeft: '10px', marginRight: '10px' }}
-                            disabled
-                          />
-                        )}
-                        <span className={styles.spanClass}>
-                          {settlementCycle === '01'
-                            ? formatMessage({ id: 'TH_DATA_OF_THE_QUARTER' })
-                            : formatMessage({ id: 'TH_DATA_OF_THE_MONTH' })}
-                        </span>
-                      </div>
-                    </Form.Item>
-                  </Col>
-                  <Col span={24}>
-                    <Form.Item {...formItemLayoutFull1} label={formatMessage({ id: 'MARKET' })}>
-                      {getFieldDecorator(`market`, {
-                        initialValue: marketName,
+            {userType === constants.TA_USER_TYPE ||
+            (type === 'NEW' &&
+              PrivilegeUtil.hasAnyPrivilege([
+                PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+                PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
+                PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+              ])) ? (
+                <React.Fragment>
+                  <Row>
+                    <Col className={styles.headerClass}>
+                      {formatMessage({ id: 'TA_SUPPLEMENTARY_INFORMATION' })}
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span={24}>
+                      <Form.Item {...formItemLayoutFull1} label={formatMessage({ id: 'MARKET' })}>
+                        {getFieldDecorator(`market`, {
+                        initialValue: marketName || '',
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                  <Col {...colProps}>
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
-                      {getFieldDecorator(`effectiveDate`, {
+                      </Form.Item>
+                    </Col>
+                    <Col {...colProps}>
+                      <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
+                        {getFieldDecorator(`effectiveDate`, {
                         initialValue: this.toDateTime(effectiveDate),
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                  <Col {...colProps}>
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'END_DATE' })}>
-                      {getFieldDecorator(`endDate`, {
+                      </Form.Item>
+                    </Col>
+                    <Col {...colProps}>
+                      <Form.Item {...formItemLayout} label={formatMessage({ id: 'END_DATE' })}>
+                        {getFieldDecorator(`endDate`, {
                         initialValue: this.toDateTime(endDate),
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                  <Col {...colProps}>
-                    <Form.Item {...formItemLayout} label={formatMessage({ id: 'SALES_PERSON' })}>
-                      {getFieldDecorator(`salesPerson`, {
-                        initialValue: salesPerson,
+                      </Form.Item>
+                    </Col>
+                    <Col {...colProps}>
+                      <Form.Item {...formItemLayout} label={formatMessage({ id: 'SALES_PERSON' })}>
+                        {getFieldDecorator(`salesPerson`, {
+                        initialValue: salesPerson || '',
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                  <Col {...colProps}>
-                    <Form.Item
-                      {...formItemLayout}
-                      label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}
-                    >
-                      {getFieldDecorator(`cateAndGroup`, {
-                        initialValue: `${categoryName}/${customerGroupName}`,
+                      </Form.Item>
+                    </Col>
+                    <Col {...colProps}>
+                      <Form.Item
+                        {...formItemLayout}
+                        label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}
+                      >
+                        {getFieldDecorator(`cateAndGroup`, {
+                        initialValue: `${categoryName || ''}/${customerGroupName || ''}`,
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </React.Fragment>
-            )}
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </React.Fragment>
+            ) : null}
           </div>
           <Row>
             <Col style={{ textAlign: 'right', borderTop: '1px solid #EEE', padding: '10px 15px' }}>

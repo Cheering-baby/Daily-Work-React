@@ -68,6 +68,10 @@ export default {
         });
         const { currentUser } = yield select(state => state.global);
         const { orgType } = yield select(state => state.login);
+        let agentId = currentUser.taInfo.companyId;
+        if (String(orgType) !== '01') {
+          agentId = currentUser.companyInfo.mainTAInfo.companyId;
+        }
         yield put({
           type: 'login',
           payload: {
@@ -75,7 +79,7 @@ export default {
             password: payload.newPwd,
             appCode: `${UAAService.defaults.appCode}`,
             loginType: orgType || '01',
-            agentId: currentUser.taInfo.companyId,
+            agentId,
           },
         });
       } else message.warn(resultMsg, 10);

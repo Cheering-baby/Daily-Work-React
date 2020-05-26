@@ -1,14 +1,16 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
-import { Button, Form, Input, Modal, Radio } from 'antd';
+import { Button, Form, Input, message, Modal, Radio, Spin } from 'antd';
 import { connect } from 'dva';
 import styles from './index.less';
+import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
 const FormItem = Form.Item;
 
 @Form.create()
-@connect(({ updateOrderMgr }) => ({
+@connect(({ updateOrderMgr, loading }) => ({
   updateOrderMgr,
+  pageLoading: loading.effects['updateOrderMgr/update'],
 }))
 class Update extends React.Component {
   componentWillUnmount() {
@@ -24,6 +26,14 @@ class Update extends React.Component {
       if (!err) {
         dispatch({
           type: 'updateOrderMgr/update',
+        }).then(resultCode => {
+          if (resultCode === ERROR_CODE_SUCCESS) {
+            this.handleCancel();
+            message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
+            dispatch({
+              type: 'queryOrderMgr/queryTransactions',
+            });
+          }
         });
       }
     });
@@ -162,6 +172,7 @@ class Update extends React.Component {
 
   render() {
     const {
+      pageLoading,
       form: { getFieldDecorator },
       updateOrderMgr: { updateVisible, updateType, galaxyOrderNo, refundSelected, rejectReason },
     } = this.props;
@@ -170,17 +181,31 @@ class Update extends React.Component {
         title={this.showUpdateTitle(updateType)}
         visible={updateVisible}
         centered
+        maskClosable={false}
         onCancel={this.handleCancel}
         footer={
           <div>
-            <Button onClick={() => this.handleOk()} type="primary">
-              {formatMessage({ id: 'CONFIRM' })}
+            <Button
+              style={{ width: 70 }}
+              loading={!!pageLoading}
+              onClick={() => this.handleOk()}
+              type="primary"
+            >
+              {!pageLoading ? formatMessage({ id: 'CONFIRM' }) : null}
             </Button>
             <Button onClick={this.handleCancel}>{formatMessage({ id: 'CANCEL' })}</Button>
           </div>
         }
       >
-        {this.showMain(updateType, galaxyOrderNo, refundSelected, rejectReason, getFieldDecorator)}
+        <Spin spinning={!!pageLoading}>
+          {this.showMain(
+            updateType,
+            galaxyOrderNo,
+            refundSelected,
+            rejectReason,
+            getFieldDecorator
+          )}
+        </Spin>
       </Modal>
     );
   }

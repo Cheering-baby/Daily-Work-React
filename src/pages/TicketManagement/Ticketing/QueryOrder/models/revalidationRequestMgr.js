@@ -1,4 +1,5 @@
-import { serialize } from '../utils/utils';
+import moment from 'moment';
+import serialize from '../utils/utils';
 import {
   queryBookingDetail,
   revalidationTicket,
@@ -21,6 +22,9 @@ export default {
     selectedRowKeys: [],
     selectedVidList: [],
     orderCreateTime: null,
+    bookingDetail: null,
+    disabledKeyList: [],
+    disabledVidList: [],
   },
 
   effects: {
@@ -42,20 +46,98 @@ export default {
       const vidResultList = [];
       if (resultCode === '0') {
         const {
+          bookingDetail,
           bookingDetail: { offers = [], createTime },
         } = result;
+        const disabledKeyList = [];
+        for (let i = 0; i < offers.length; i += 1) {
+          if (offers[i].bundleName && offers[i].bundleName !== '') {
+            offers[i].offerName = offers[i].bundleLabel;
+          } else {
+            // eslint-disable-next-line operator-assignment
+            offers[i].offerGroup = offers[i].offerGroup + i;
+          }
+        }
         for (let i = 0; i < offers.length; i += 1) {
           const { attraction = [] } = offers[i];
           if (attraction) {
             for (let j = 0; j < attraction.length; j += 1) {
-              vidResultList.push({
-                key: null,
-                vidNo: null,
-                vidCode: attraction[j].visualID,
-                offerName: offers[i].offerName,
-                expiryDate: attraction[j].validDayTo,
-                status: attraction[j].visualIdStatus,
-              });
+              if (attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes') {
+                let isPackage = false;
+                if (attraction[j].packageSpec) {
+                  isPackage = true;
+                }
+                if (isPackage) {
+                  const packageSpecObj = JSON.parse(attraction[j].packageSpec);
+                  const itemPluList = packageSpecObj.packageSpecAttributes || [];
+                  const packageThemeparkList = [];
+                  itemPluList.forEach(itemPlu => {
+                    if (itemPlu.ticketType !== 'Voucher' && itemPlu.themeParkCode) {
+                      const themeParkIndex = packageThemeparkList.findIndex(
+                        item => item === itemPlu.themeParkCode
+                      );
+                      if (themeParkIndex < 0) {
+                        packageThemeparkList.push(itemPlu.themeParkCode);
+                      }
+                    }
+                  });
+                  itemPluList.forEach(itemPlu => {
+                    if (itemPlu.ticketType === 'Voucher' || packageThemeparkList.length < 2) {
+                      let ticketExpiryDate = null;
+                      if (attraction[j].ticketNumOfPax) {
+                        const ticketNumOfPaxList = JSON.parse(attraction[j].ticketNumOfPax);
+                        if (ticketNumOfPaxList) {
+                          ticketNumOfPaxList.forEach(ticketNumOfPax => {
+                            if (
+                              itemPlu.visualId === ticketNumOfPax.visualID &&
+                              ticketNumOfPax.validTo
+                            ) {
+                              ticketExpiryDate = moment(ticketNumOfPax.validTo, 'x').format(
+                                'YYYY-MM-DD'
+                              );
+                            }
+                          });
+                        }
+                      }
+                      vidResultList.push({
+                        key: null,
+                        vidNo: null,
+                        vidCode: itemPlu.visualId,
+                        offerName: offers[i].offerName,
+                        offerGroup: offers[i].offerGroup,
+                        expiryDate: ticketExpiryDate,
+                        status: attraction[j].visualIdStatus,
+                        hadRefunded: attraction[j].hadRefunded,
+                      });
+                    }
+                  });
+                  if (packageThemeparkList.length > 1) {
+                    vidResultList.push({
+                      key: null,
+                      vidNo: null,
+                      vidCode: attraction[j].visualID,
+                      offerName: offers[i].offerName,
+                      offerGroup: offers[i].offerGroup,
+                      expiryDate: attraction[j].validDayTo,
+                      status: attraction[j].visualIdStatus,
+                      hadRefunded: attraction[j].hadRefunded,
+                    });
+                  }
+                } else {
+                  vidResultList.push({
+                    key: null,
+                    vidNo: null,
+                    vidCode: attraction[j].visualID,
+                    offerName: offers[i].offerName,
+                    offerGroup: offers[i].offerGroup,
+                    expiryDate: attraction[j].validDayTo,
+                    status: attraction[j].visualIdStatus,
+                    hadRefunded: attraction[j].hadRefunded,
+                  });
+                }
+              } else {
+                disabledKeyList.push(offers[i].offerGroup);
+              }
             }
           }
         }
@@ -68,6 +150,8 @@ export default {
           payload: {
             vidResultList,
             orderCreateTime: createTime,
+            bookingDetail,
+            disabledKeyList,
           },
         });
       } else throw resultMsg;
@@ -101,9 +185,7 @@ export default {
       const { vidResultList } = yield select(state => state.revalidationRequestMgr);
       const { uploadVidList, pageSize } = payload;
       const csvList = uploadVidList !== undefined ? uploadVidList.split('\r\n') : [];
-      let uploadStatus = false;
       if (csvList.length > 0) {
-        uploadStatus = true;
         const vidData = [];
         const headers = csvList[0].split(',');
         for (let i = 1; i < csvList.length; i += 1) {
@@ -122,10 +204,36 @@ export default {
             }
           }
         }
+        if (newVidList.length === 0) {
+          return false;
+        }
         for (let i = 0; i < newVidList.length; i += 1) {
           newVidList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
           newVidList[i].key = i;
         }
+        const disabledVidList = [];
+        newVidList.forEach(newVid => {
+          const vidOfferGroupList = [];
+          vidResultList.forEach(vidResult => {
+            if (vidResult.offerGroup === newVid.offerGroup) {
+              vidOfferGroupList.push({ ...vidResult });
+            }
+          });
+          let isAll = true;
+          vidOfferGroupList.forEach(vidOfferGroup => {
+            if (isAll) {
+              const vidCodeIndex = newVidList.findIndex(
+                newVidObj => newVidObj.vidCode === vidOfferGroup.vidCode
+              );
+              if (vidCodeIndex < 0) {
+                isAll = false;
+              }
+            }
+          });
+          if (!isAll) {
+            disabledVidList.push({ ...newVid });
+          }
+        });
         yield put({
           type: 'saveSearchVidList',
           payload: {
@@ -133,10 +241,12 @@ export default {
             pageSize,
             vidCode: null,
             vidResultList: newVidList,
+            disabledVidList,
           },
         });
+        return true;
       }
-      return uploadStatus;
+      return false;
     },
   },
 
@@ -158,7 +268,7 @@ export default {
       };
     },
     saveSearchVidList(state, { payload }) {
-      const { currentPage, pageSize, vidCode, vidResultList } = payload;
+      const { currentPage, pageSize, vidCode, vidResultList, disabledVidList } = payload;
       const { searchList } = state;
       let vidSearchList = vidResultList;
       if (vidCode !== null) {
@@ -177,7 +287,6 @@ export default {
       return {
         ...state,
         vidList,
-        vidResultList,
         total: vidSearchList.length,
         selectedRowKeys: [],
         selectedVidList: [],
@@ -187,10 +296,78 @@ export default {
           currentPage,
           pageSize,
         },
+        disabledVidList,
+      };
+    },
+    settingSelectVid(state, { payload }) {
+      const { selected, record } = payload;
+      const { selectedRowKeys, vidList, vidResultList } = state;
+      const selectedVidList = [];
+      let selectedRowKeysNew = [];
+      if (selected) {
+        selectedRowKeysNew = [...selectedRowKeys];
+        selectedRowKeysNew.push(record.key);
+        for (let i = 0; i < vidList.length; i += 1) {
+          for (let j = 0; j < selectedRowKeysNew.length; j += 1) {
+            if (selectedRowKeysNew[j] === vidList[i].key) {
+              selectedVidList.push(vidList[i]);
+            }
+          }
+        }
+        const addSelectedVidList = [];
+        selectedVidList.forEach(selectedVid => {
+          const { offerGroup } = selectedVid;
+          const findResultList = [];
+          vidResultList.forEach(vidResult => {
+            if (vidResult.offerGroup === offerGroup) {
+              findResultList.push({
+                ...vidResult,
+              });
+            }
+          });
+          findResultList.forEach(findResult => {
+            const keyIndex = selectedVidList.findIndex(
+              selectedVidItem => selectedVidItem.key === findResult.key
+            );
+            if (keyIndex < 0) {
+              addSelectedVidList.push({
+                ...findResult,
+              });
+            }
+          });
+        });
+        selectedRowKeysNew = [...selectedVidList, ...addSelectedVidList].map(
+          selectedVid => selectedVid.key
+        );
+      } else {
+        const selectedVidListOld = [];
+        let deleteOfferGroup = null;
+        for (let i = 0; i < vidList.length; i += 1) {
+          for (let j = 0; j < selectedRowKeys.length; j += 1) {
+            if (selectedRowKeys[j] === vidList[i].key) {
+              selectedVidListOld.push(vidList[i]);
+            }
+          }
+          if (record.key === vidList[i].key) {
+            deleteOfferGroup = vidList[i].offerGroup;
+          }
+        }
+        selectedVidListOld.forEach(selectedVid => {
+          if (selectedVid.offerGroup !== deleteOfferGroup) {
+            selectedVidList.push({ ...selectedVid });
+            selectedRowKeysNew.push(selectedVid.key);
+          }
+        });
+      }
+
+      return {
+        ...state,
+        selectedRowKeys: selectedRowKeysNew,
+        selectedVidList,
       };
     },
     saveSelectVid(state, { payload }) {
-      const { vidList } = state;
+      const { vidList, vidResultList } = state;
       const { selectedRowKeys } = payload;
       const selectedVidList = [];
       for (let i = 0; i < vidList.length; i += 1) {
@@ -200,9 +377,34 @@ export default {
           }
         }
       }
+      const addSelectedVidList = [];
+      selectedVidList.forEach(selectedVid => {
+        const { offerGroup } = selectedVid;
+        const findResultList = [];
+        vidResultList.forEach(vidResult => {
+          if (vidResult.offerGroup === offerGroup) {
+            findResultList.push({
+              ...vidResult,
+            });
+          }
+        });
+        findResultList.forEach(findResult => {
+          const keyIndex = selectedVidList.findIndex(
+            selectedVidItem => selectedVidItem.key === findResult.key
+          );
+          if (keyIndex < 0) {
+            addSelectedVidList.push({
+              ...findResult,
+            });
+          }
+        });
+      });
+      const selectedRowKeysNew = [...selectedVidList, ...addSelectedVidList].map(
+        selectedVid => selectedVid.key
+      );
       return {
         ...state,
-        selectedRowKeys,
+        selectedRowKeys: selectedRowKeysNew,
         selectedVidList,
       };
     },
@@ -223,6 +425,9 @@ export default {
         selectedRowKeys: [],
         selectedVidList: [],
         orderCreateTime: null,
+        bookingDetail: null,
+        disabledKeyList: [],
+        disabledVidList: [],
       };
     },
   },

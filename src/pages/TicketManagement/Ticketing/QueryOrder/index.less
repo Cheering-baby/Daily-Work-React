@@ -4,8 +4,17 @@
   padding: 5px 8px;
 }
 
+@media screen and (max-width: @screenXsMax) {
+  .buttonStyle {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    width: 145px;
+  }
+}
+
 .buttonStyle {
-  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 
 .tableTitle {
@@ -23,125 +32,27 @@
   padding: 24px 32px;
 }
 
-//.cardStyle {
-//  padding: 0;
-//}
-//
-//.searchTitle {
-//  border:0;
-//  margin-top: 10px;
-//  border-bottom: 1px solid #EEE;
-//
-//  :global {
-//    .ant-table-title {
-//      padding: 10px 0 !important;
-//    }
-//
-//    th div {
-//      font-family: calibriBold;
-//    }
-//  }
-//}
-//
-
-//
-//@media screen and (max-width: @screenSmMax) {
-//  .buttonColStyle {
-//    float: right;
-//    padding: 10px 6px 0 6px;
-//    .searchButton {
-//      float: right;
-//      margin-left: 12px;
-//    }
-//  }
-//}
-//
-//@media screen and (min-width: @screenMdMin) {
-//  .buttonColStyle {
-//    float: right;
-//    padding: 0 6px;
-//    .searchButton {
-//      float: right;
-//      margin-left: 12px;
-//    }
-//  }
-//}
-//
-//@media screen and (max-width: @screenSm) {
-//  .inputStyle {
-//    width: 100%;
-//    padding-top: 10px;
-//  }
-//}
-//
-//@media screen and (min-width: @screenSmMin) {
-//  .inputStyle {
-//    width: 100%;
-//  }
-//}
-//
-
-//
-//.iconStyle {
-//  margin-left: 20px;
-//}
-//
-//.statusRadiusStyle {
-//  display: inline-block;
-//  width: 6px;
-//  height: 6px;
-//  border-radius: 10px;
-//  margin-right: 6px;
-//  margin-bottom: 1px;
-//}
-//
-//.scheduleTitle {
-//  font-family: Calibri-Bold;
-//  font-size: 15px;
-//  color: #171B21;
-//  letter-spacing: 0.24px;
-//  line-height: 22px;
-//}
-//
-//.operateButtonDivStyle {
-//  position: absolute;
-//  right: 0;
-//  bottom: 0;
-//  width: 100%;
-//  border-top: 1px solid #e9e9e9;
-//  padding: 10px 16px;
-//  background: #fff;
-//  text-align: right;
-//}
-//
-//.formStyle {
-//  :global {
-//    .ant-form-item-children{
-//      line-height: 32px !important;
-//    }
-//    .ant-form-explain-holder{
-//      line-height: 0 !important;
-//    }
-//  }
-//}
-//
-//.labelStyle {
-//  font-family: Calibri;
-//  font-size: 15px;
-//  color: #262626;
-//  letter-spacing: 0.24px;
-//  line-height: 22px;
-//}
-//
-//
 .tableSpan {
   white-space: pre;
 }
-//
-//.modelStyle{
-//  :global {
-//    .ant-btn{
-//      width: 60px;
-//    }
-//  }
-//}
+
+.bocaRow {
+  height: 36px;
+  line-height: 36px;
+  background-color: #fff;
+  margin-top: 4px;
+  border: 1px solid #f3f3f3;
+}
+
+.bocaTitleCol {
+  font-family: calibriBold;
+  font-size: 15px;
+  color: #565656;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.bocaValueCol {
+  padding-right: 10px;
+  text-align: center;
+}

@@ -1,4 +1,4 @@
-import { serialize } from '../utils/utils';
+import serialize from '../utils/utils';
 import { queryBookingDetail } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
 export default {
@@ -65,24 +65,67 @@ export default {
         const { attraction = [] } = offers[i];
         if (attraction) {
           for (let j = 0; j < attraction.length; j += 1) {
-            vidList.push({
-              vidNo: null,
-              vidCode: attraction[j].visualID,
-            });
-            vidResultList.push({
-              vidNo: null,
-              vidCode: attraction[j].visualID,
-              offerName: offers[i].offerName,
-            });
+            let isPackage = false;
+            if (attraction[j].packageSpec) {
+              isPackage = true;
+            }
+            if (isPackage) {
+              const packageSpecObj = JSON.parse(attraction[j].packageSpec);
+              const itemPluList = packageSpecObj.packageSpecAttributes || [];
+              const packageThemeparkList = [];
+              itemPluList.forEach(itemPlu => {
+                if (itemPlu.ticketType !== 'Voucher' && itemPlu.themeParkCode) {
+                  const themeParkIndex = packageThemeparkList.findIndex(
+                    item => item === itemPlu.themeParkCode
+                  );
+                  if (themeParkIndex < 0) {
+                    packageThemeparkList.push(itemPlu.themeParkCode);
+                  }
+                }
+              });
+              itemPluList.forEach(itemPlu => {
+                if (itemPlu.ticketType === 'Voucher' || packageThemeparkList.length < 2) {
+                  vidList.push({
+                    vidNo: null,
+                    vidCode: itemPlu.visualId,
+                  });
+                  vidResultList.push({
+                    vidNo: null,
+                    vidCode: itemPlu.visualId,
+                    offerName: offers[i].offerName,
+                  });
+                }
+              });
+              if (packageThemeparkList.length > 1) {
+                vidList.push({
+                  vidNo: null,
+                  vidCode: attraction[j].visualID,
+                });
+                vidResultList.push({
+                  vidNo: null,
+                  vidCode: attraction[j].visualID,
+                  offerName: offers[i].offerName,
+                });
+              }
+            } else {
+              vidList.push({
+                vidNo: null,
+                vidCode: attraction[j].visualID,
+              });
+              vidResultList.push({
+                vidNo: null,
+                vidCode: attraction[j].visualID,
+                offerName: offers[i].offerName,
+              });
+            }
           }
-        }
-        for (let j = 0; j < vidList.length; j += 1) {
-          vidList[j].vidNo = (Array(3).join('0') + (j + 1)).slice(-3);
         }
         detailList.push({
           offerName: offers[i].offerName,
+          bundleName: offers[i].bundleName,
           vidList,
           delivery: offers[i].deliveryInfo,
+          offerGroup: offers[i].offerGroup,
         });
       }
       for (let i = 0; i < vidResultList.length; i += 1) {

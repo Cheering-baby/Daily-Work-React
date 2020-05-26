@@ -1,11 +1,23 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import {Button, Card, Checkbox, Col, DatePicker, Form, List, message, Row, Select, Spin,} from 'antd';
-import {connect} from 'dva';
-import {formatMessage} from 'umi/locale';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  DatePicker,
+  Form,
+  List,
+  message,
+  Row,
+  Select,
+  Spin,
+} from 'antd';
+import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '../../../components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
 import PackageTicketCollapse from './components/PackageTicketCollapse';
 import OnceAPirateCollapse from './components/OnceAPirateCollapse';
@@ -20,6 +32,8 @@ import {
 } from '@/pages/TicketManagement/utils/orderCartUtil';
 
 const FormItem = Form.Item;
+
+let checkOutSubmitTime = 0;
 
 @Form.create()
 @connect(({ global, ticketOrderCartMgr }) => ({
@@ -48,17 +62,24 @@ class CheckOrder extends Component {
       },
     } = this.props;
     dispatch({
+      type: 'ticketMgr/fetchQueryAgentOpt',
+      payload: {},
+    });
+    dispatch({
+      type: 'ticketMgr/queryPluAttribute',
+      payload: {
+        attributeItem: 'TICKET_TYPE',
+      },
+    });
+    dispatch({
       type: 'ticketOrderCartMgr/queryPluAttribute',
       payload: {
         attributeItem: 'BOCA_PLU',
       },
     });
     dispatch({
-      type: 'ticketOrderCartMgr/queryCountry',
-      payload: {
-        tableName: 'CUST_PROFILE',
-        columnName: 'NOTIONALITY',
-      },
+      type: 'ticketOrderCartMgr/fetchQueryAgentOpt',
+      payload: {},
     });
     if (companyType === '02') {
       dispatch({
@@ -79,17 +100,56 @@ class CheckOrder extends Component {
         dispatch({
           type: 'ticketOrderCartMgr/queryShoppingCart',
           payload: {},
+        }).then(() => {
+          dispatch({
+            type: 'ticketOrderCartMgr/checkShoppingCart',
+            payload: {},
+          });
         });
       });
+    } else {
+      dispatch({
+        type: 'ticketOrderCartMgr/checkShoppingCart',
+        payload: {},
+      });
     }
+    dispatch({
+      type: 'ticketOrderCartMgr/save',
+      payload: {
+        functionActive: this.checkTAStatus(),
+      },
+    });
   }
 
   componentWillUnmount() {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'ticketOrderCartMgr/resetData',
     });
   }
+
+  checkTAStatus = () => {
+    const {
+      global: {
+        currentUser: { userType },
+        userCompanyInfo,
+      },
+    } = this.props;
+    let taStatus = false;
+    if (userType === '02') {
+      if (userCompanyInfo.status === '0') {
+        taStatus = true;
+      }
+    } else if (userType === '03') {
+      if (userCompanyInfo.status === '0') {
+        taStatus = true;
+      }
+      if (userCompanyInfo.mainTAInfo && userCompanyInfo.mainTAInfo.status !== '0') {
+        taStatus = false;
+      }
+    }
+    return taStatus;
+  };
 
   offerPrice = (products = []) => {
     let totalPrice = 0;
@@ -148,15 +208,30 @@ class CheckOrder extends Component {
   };
 
   checkOutEvent = () => {
+    if (checkOutSubmitTime !== 0) {
+      return;
+    }
     const { dispatch, form } = this.props;
-    form.validateFields(err => {
+    form.validateFields((err, values) => {
+      if (values && !values.deliveryMode) {
+        message.warn('Delivery mode is required!');
+      }
+      if (values && values.deliveryMode === 'BOCA' && !values.collectionDate) {
+        message.warn('Collection date is required!');
+      }
       if (!err) {
+        checkOutSubmitTime = 1;
         dispatch({
           type: 'ticketOrderCartMgr/orderCheckOut',
           payload: {},
+        }).then(() => {
+          checkOutSubmitTime = 0;
         });
       }
     });
+    setTimeout(() => {
+      checkOutSubmitTime = 0;
+    }, 1000);
   };
 
   getOrderAmount = () => {
@@ -198,28 +273,18 @@ class CheckOrder extends Component {
   checkCollectionWithVisitOfDate = collectionDate => {
     // compare CollectionDate with visit of date
     const {
-      ticketOrderCartMgr: {
-        packageOrderData = [],
-        generalTicketOrderData = [],
-        onceAPirateOrderData = [],
-      },
+      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
     } = this.props;
 
     let isMoreThan = false;
+    const collectionDateMoment = moment(collectionDate, 'x');
+    const collectionDateNum = Number.parseInt(collectionDateMoment.format('YYYYMMDD'), 10);
     generalTicketOrderData.forEach(orderData => {
       orderData.orderOfferList.forEach(orderOffer => {
-        if (orderOffer.queryInfo.dateOfVisit < collectionDate) {
-          if (!isMoreThan) {
-            isMoreThan = true;
-            message.warn('The collection date is later than date of visit!');
-          }
-        }
-      });
-    });
-    packageOrderData.forEach(orderData => {
-      orderData.orderOfferList.forEach(orderOffer => {
-        if (orderOffer.queryInfo.dateOfVisit < collectionDate) {
-          if (!isMoreThan) {
+        const dateOfVisitMoment = moment(orderOffer.queryInfo.dateOfVisit, 'x');
+        const dateOfVisitNum = Number.parseInt(dateOfVisitMoment.format('YYYYMMDD'), 10);
+        if (dateOfVisitNum < collectionDateNum) {
+          if (!isMoreThan && orderOffer.orderAll) {
             isMoreThan = true;
             message.warn('The collection date is later than date of visit!');
           }
@@ -227,8 +292,10 @@ class CheckOrder extends Component {
       });
     });
     onceAPirateOrderData.forEach(orderData => {
-      if (orderData.queryInfo.dateOfVisit < collectionDate) {
-        if (!isMoreThan) {
+      const dateOfVisitMoment = moment(orderData.queryInfo.dateOfVisit, 'x');
+      const dateOfVisitNum = Number.parseInt(dateOfVisitMoment.format('YYYYMMDD'), 10);
+      if (dateOfVisitNum < collectionDateNum) {
+        if (!isMoreThan && orderData.orderAll) {
           isMoreThan = true;
           message.warn('The collection date is later than date of visit!');
         }
@@ -272,6 +339,21 @@ class CheckOrder extends Component {
       onceAPirateOrderData
     );
     return ticketAmount || 0;
+  };
+
+  checkoutBtnDisabled = () => {
+    let disabled = true;
+    const {
+      ticketOrderCartMgr: { functionActive },
+    } = this.props;
+    const ticketAmount = this.getTicketAmount();
+    if (ticketAmount > 0) {
+      disabled = false;
+    }
+    if (!functionActive) {
+      disabled = true;
+    }
+    return disabled;
   };
 
   render() {
@@ -325,9 +407,7 @@ class CheckOrder extends Component {
     return (
       <Spin spinning={checkOutLoading}>
         <MediaQuery minWidth={SCREEN.screenSm}>
-          <div style={{ height: 34 }}>
-            <BreadcrumbComp title={title} />
-          </div>
+          <BreadcrumbCompForPams title={title} />
         </MediaQuery>
         <Card className={styles.cardDeliverStyles}>
           <Row style={{ padding: '15px' }}>
@@ -423,7 +503,7 @@ class CheckOrder extends Component {
             <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
               <Checkbox
                 value="SelectAll"
-                style={{ position: 'absolute', left: 34 }}
+                style={{ marginLeft: 34 }}
                 onChange={this.clickSelectAll}
                 checked={selectAllOrder}
                 indeterminate={selectAllIndeterminate}
@@ -432,15 +512,15 @@ class CheckOrder extends Component {
               </Checkbox>
             </Col>
             <Col xs={24} md={16} lg={20} className={styles.checkOutBtn}>
-              <div className={styles.checkOutPayDiv}>
-                {companyType === '01' && (
+              {companyType === '01' && (
+                <div className={styles.checkOutPayDiv}>
                   <div className={styles.payFont}>
                     Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               <Button
-                disabled={this.payTotal() <= 0}
+                disabled={this.checkoutBtnDisabled()}
                 className={styles.checkOutButton}
                 htmlType="button"
                 size="large"

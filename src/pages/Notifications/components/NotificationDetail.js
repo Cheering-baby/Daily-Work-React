@@ -101,7 +101,7 @@ class NotificationDetail extends PureComponent {
   };
 
   render() {
-    const { notificationInfo } = this.props;
+    const { notificationInfo, isAdminRoleFlag = false } = this.props;
     const { fileTableLoadingFlag } = this.state;
     if (notificationInfo.fileList && notificationInfo.fileList.length > 0) {
       notificationInfo.fileList.map(item =>
@@ -128,7 +128,7 @@ class NotificationDetail extends PureComponent {
             {notificationInfo.subType === '01' ? (
               <span>{this.getReceiverArray(notificationInfo.targetList)}</span>
             ) : null}
-            <span>{notificationInfo.createBy}</span>
+            {isAdminRoleFlag ? <span>{notificationInfo.createBy}</span> : null}
           </Col>
           <Col span={24}>
             <div className={styles.detailCardContent}>

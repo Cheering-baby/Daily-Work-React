@@ -22,6 +22,7 @@ const mapStateToProps = store => {
     cityList,
     bilCityList,
     bilCityLoadingFlag,
+    createTeamList,
   } = store.taCommon;
   const {
     otherInfo,
@@ -48,6 +49,7 @@ const mapStateToProps = store => {
     cityList,
     bilCityList,
     bilCityLoadingFlag,
+    createTeamList,
     isBilCheckBox,
     isAllInformationToRws,
     viewId,
@@ -154,7 +156,7 @@ class OtherInformationToEdit extends PureComponent {
       type: 'taMgr/save',
       payload: {
         mappingInfo: {
-          ...mappingInfo,
+          ...newMappingInfo,
         },
       },
     });
@@ -178,6 +180,7 @@ class OtherInformationToEdit extends PureComponent {
       currencyList = [],
       countryList = [],
       bilCityList = [],
+      createTeamList = [],
       otherInfo = {},
       customerInfo = {},
       mappingInfo = {},
@@ -214,6 +217,8 @@ class OtherInformationToEdit extends PureComponent {
       isAccountingArRoleFlag,
       viewId,
       currencyList: currencyList || [],
+      countryList,
+      createTeamList,
       otherInfo: otherInfo || {},
       mappingInfo: mappingInfo || {},
       isAllInformationToRws,

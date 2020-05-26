@@ -9,6 +9,42 @@ import BillingInformation from '@/pages/MyActivity/components/TASignUpDetail/TAS
 import TaFinanceContact from '@/pages/MyActivity/components/TASignUpDetail/TASignUpDetailForRegistrationInformation/TaFinanceContact';
 import CompanyInformation from '@/pages/MyActivity/components/TASignUpDetail/TASignUpDetailForRegistrationInformation/CompanyInformation';
 
+const layoutDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 8,
+  lg: 12,
+  xl: 12,
+  xxl: 12,
+};
+
+const valueDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 16,
+  lg: 12,
+  xl: 12,
+  xxl: 12,
+};
+
+const longLayoutDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 8,
+  lg: 6,
+  xl: 6,
+  xxl: 6,
+};
+
+const longValueDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 16,
+  lg: 18,
+  xl: 18,
+  xxl: 18,
+};
+
 @Form.create()
 @connect(({ commonSignUpDetail }) => ({
   commonSignUpDetail,
@@ -34,6 +70,10 @@ class TaRegistration extends React.PureComponent {
       bilCityList,
       salutationList,
       organizationRoleList,
+      layoutDisplay,
+      valueDisplay,
+      longLayoutDisplay,
+      longValueDisplay,
     };
     return (
       <Col span={24}>

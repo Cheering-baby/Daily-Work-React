@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Button, Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
+import { Button, Col, Form, Input, Row, Select, Spin } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
+import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 const mapStateToProps = store => {
   const {
@@ -129,7 +130,8 @@ class SearchComp extends Component {
     const startDateOpts = {
       placeholder: formatMessage({ id: 'GI_Q_BEGIN_INVITATION_DATE' }),
       disabledDate: this.disabledStartDate,
-      format: 'DD-MMM-YYYY',
+      displayFormat: 'DD/MM/YYYY',
+      searchFormat: 'DDMMYYYY',
       getCalendarContainer: () => document.getElementById(`${viewId}`),
       onChange: date =>
         this.onHandleChange(
@@ -141,7 +143,8 @@ class SearchComp extends Component {
     const endDateOpts = {
       placeholder: formatMessage({ id: 'GI_Q_END_INVITATION_DATE' }),
       disabledDate: this.disabledEndDate,
-      format: 'DD-MMM-YYYY',
+      displayFormat: 'DD/MM/YYYY',
+      searchFormat: 'DDMMYYYY',
       getCalendarContainer: () => document.getElementById(`${viewId}`),
       onChange: date =>
         this.onHandleChange(
@@ -170,14 +173,14 @@ class SearchComp extends Component {
               initialValue: !isNvl(searchForm.invitationStartDate)
                 ? moment(searchForm.invitationStartDate, 'YYYY-MM-DD')
                 : null,
-            })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
+            })(<FriendlyDatePicker {...startDateOpts} style={{ width: '100%' }} />)}
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
             {getFieldDecorator('invitationEndDate', {
               initialValue: !isNvl(searchForm.invitationEndDate)
                 ? moment(searchForm.invitationEndDate, 'YYYY-MM-DD')
                 : null,
-            })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
+            })(<FriendlyDatePicker {...endDateOpts} style={{ width: '100%' }} />)}
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
             {getFieldDecorator('status', {

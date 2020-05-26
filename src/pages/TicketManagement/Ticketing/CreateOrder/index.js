@@ -1,13 +1,13 @@
-import React, {PureComponent} from 'react';
-import {Card, Col, List, Row, Spin} from 'antd';
-import {connect} from 'dva';
+import React, { PureComponent } from 'react';
+import { Card, Col, List, Row, Spin } from 'antd';
+import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
-import {formatMessage} from 'umi/locale';
-import {isNvl} from '@/utils/utils';
+import { formatMessage } from 'umi/locale';
+import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '../../components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import SearchPanel from './components/SearchPanel';
 import OnceAPirate from './components/OnceAPirate';
 import Attraction from './components/Attraction';
@@ -16,7 +16,8 @@ import MyOrderButton from '@/pages/TicketManagement/components/MyOrderButton';
 
 const productPanelList = [<Attraction />, <OnceAPirate />, <DolphinIslandOffer />];
 
-@connect(({ ticketMgr, ticketOrderCartMgr, loading }) => ({
+@connect(({ global, ticketMgr, ticketOrderCartMgr, loading }) => ({
+  global,
   ticketMgr,
   ticketOrderCartMgr,
   productPanelListLoading:
@@ -42,6 +43,12 @@ class CreateOrder extends PureComponent {
       },
     } = this.props;
     dispatch({
+      type: 'ticketMgr/queryPluAttribute',
+      payload: {
+        attributeItem: 'TICKET_TYPE',
+      },
+    });
+    dispatch({
       type: 'ticketOrderCartMgr/createShoppingCart',
       payload: {},
     }).then(() => {
@@ -65,10 +72,10 @@ class CreateOrder extends PureComponent {
         });
       }
     } else {
-      // dispatch({
-      //   type: 'ticketMgr/resetData',
-      //   payload: {},
-      // });
+      dispatch({
+        type: 'ticketMgr/resetData',
+        payload: {},
+      });
       dispatch({
         type: 'onceAPirateTicketMgr/resetData',
         payload: {},
@@ -81,8 +88,37 @@ class CreateOrder extends PureComponent {
         type: 'ticketBookingAndPayMgr/resetData',
         payload: {},
       });
+      dispatch({
+        type: 'ticketMgr/save',
+        payload: {
+          functionActive: this.checkTAStatus(),
+        },
+      });
     }
   }
+
+  checkTAStatus = () => {
+    const {
+      global: {
+        currentUser: { userType },
+        userCompanyInfo,
+      },
+    } = this.props;
+    let taStatus = false;
+    if (userType === '02') {
+      if (userCompanyInfo.status === '0') {
+        taStatus = true;
+      }
+    } else if (userType === '03') {
+      if (userCompanyInfo.status === '0') {
+        taStatus = true;
+      }
+      if (userCompanyInfo.mainTAInfo && userCompanyInfo.mainTAInfo.status !== '0') {
+        taStatus = false;
+      }
+    }
+    return taStatus;
+  };
 
   clickOrder = () => {
     router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
@@ -106,9 +142,7 @@ class CreateOrder extends PureComponent {
         <Row gutter={12}>
           <Col {...searchPanelGrid} className={styles.marginBottom8}>
             <MediaQuery minWidth={SCREEN.screenSm}>
-              <div style={{ height: 34 }}>
-                <BreadcrumbComp title={title} />
-              </div>
+              <BreadcrumbCompForPams title={title} />
             </MediaQuery>
             <SearchPanel />
           </Col>

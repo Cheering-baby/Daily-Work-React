@@ -24,6 +24,18 @@ export default {
   },
 
   effects: {
+    *search({ payload }, { put }) {
+      yield put({
+        type: 'clear',
+      });
+      yield put({
+        type: 'save',
+        payload,
+      });
+      yield put({
+        type: 'queryNotificationList',
+      });
+    },
     *queryNotificationList(_, { call, put, select }) {
       const { filter, pagination } = yield select(state => state.bulletin);
       const requestData = {

@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Table, Button, Tooltip, Icon, Card, List } from 'antd';
-import { formatMessage } from 'umi/locale';
+import { Button, Icon, List, Table, Tooltip } from 'antd';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
-import { calculateTicketPrice, arrToString } from '../../../../utils/utils';
+import {
+  arrToString,
+  calculateAllProductPrice,
+  calculateProductPrice,
+  filterSessionProduct,
+  isSessionProduct,
+} from '../../../../utils/utils';
 import styles from './index.less';
 
 @connect(({ ticketMgr, global }) => ({
@@ -27,13 +32,15 @@ class DolphinIslandOffer extends Component {
     const {
       attractionProduct = [],
       detail,
+      detail: { priceRuleId, numOfGuests },
       session: { priceTimeFrom },
     } = record;
-    const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
+    const attractionProductCopy = JSON.parse(
+      JSON.stringify(filterSessionProduct(priceRuleId, priceTimeFrom, attractionProduct))
+    );
     const detailCopy = JSON.parse(JSON.stringify(detail));
     const { priceRule } = attractionProduct[0];
     let dolphinSessionIndex;
-
     priceRule.forEach(item => {
       const { productPrice, priceRuleName } = item;
       if (priceRuleName === 'DefaultPrice') {
@@ -48,21 +55,10 @@ class DolphinIslandOffer extends Component {
       type: 'ticketMgr/save',
       payload: {
         attractionProduct: attractionProductCopy,
-        detail: detailCopy,
+        detail: { ...detailCopy, offerQuantity: numOfGuests },
         showToCartModal: true,
         dolphinSessionIndex,
         eventSession: priceTimeFrom,
-      },
-    });
-  };
-
-  detailToCart = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'ticketMgr/save',
-      payload: {
-        showDetailModal: false,
-        showToCartModal: true,
       },
     });
   };
@@ -82,24 +78,7 @@ class DolphinIslandOffer extends Component {
     });
   };
 
-  formatInputValue = (index, value, productInventory) => {
-    const {
-      ticketMgr: { attractionProduct = [] },
-    } = this.props;
-    const originalValue = attractionProduct[index].ticketNumber;
-    const testReg = /^[1-9]\d*$/;
-    const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
-      return value;
-    }
-    return originalValue;
-  };
-
-  changeTicketNumber = async (index, value, productPrice, productInventory) => {
+  changeTicketNumber = async (index, value) => {
     const {
       dispatch,
       ticketMgr: { attractionProduct = [] },
@@ -108,13 +87,8 @@ class DolphinIslandOffer extends Component {
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
-    if (
-      value === '' ||
-      testZero.test(value) ||
-      (testReg.test(value) && value <= productInventory)
-    ) {
+    if (value === '' || testZero.test(value) || testReg.test(value)) {
       attractionProductCopy[index].ticketNumber = value;
-      attractionProductCopy[index].price = calculateTicketPrice(value, productPrice);
       dispatch({
         type: 'ticketMgr/save',
         payload: {
@@ -168,6 +142,60 @@ class DolphinIslandOffer extends Component {
     });
   };
 
+  orderFixedOffer = () => {
+    const {
+      dispatch,
+      ticketMgr: {
+        deliverInformation = {},
+        attractionProduct = [],
+        detail,
+        detail: { dateOfVisit, numOfGuests, priceRuleId, offerQuantity },
+        eventSession: sessionTime,
+      },
+    } = this.props;
+    const orderInfo = [];
+    attractionProduct.forEach(item => {
+      orderInfo.push({
+        sessionTime: isSessionProduct(priceRuleId, item) ? sessionTime : undefined,
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: offerQuantity,
+        pricePax: calculateProductPrice(item, priceRuleId),
+        productInfo: item,
+      });
+    });
+    const orderData = {
+      sessionTime,
+      themeParkCode: 'DOL',
+      themeParkName: 'Dolphin Island',
+      orderType: 'offerFixed',
+      orderSummary: {
+        sessionTime,
+        quantity: offerQuantity,
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
+        totalPrice:
+          offerQuantity *
+          calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
+        selectPriceRuleId: priceRuleId,
+      },
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderInfo,
+      offerInfo: { ...detail, selectRuleId: priceRuleId },
+      deliveryInfo: deliverInformation,
+    };
+    console.log(orderData);
+    dispatch({
+      type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
+      payload: {
+        orderIndex: null,
+        orderData,
+      },
+    });
+    this.onClose();
+  };
+
   order = () => {
     const {
       dispatch,
@@ -175,66 +203,60 @@ class DolphinIslandOffer extends Component {
         deliverInformation = {},
         attractionProduct = [],
         detail,
-        detail: { dateOfVisit, numOfGuests },
+        detail: { dateOfVisit, numOfGuests, priceRuleId, productGroup = [] },
+        eventSession: sessionTime,
       },
     } = this.props;
-    if (attractionProduct.length === 1) {
-      const { ticketNumber, price } = attractionProduct[0];
-      const themeParkCode = attractionProduct[0].attractionProduct.themePark;
-      const { themeParkName, ageGroup } = attractionProduct[0].attractionProduct;
-      const orderInfo = [];
-      orderInfo.push({
-        ageGroup,
-        quantity: ticketNumber,
-        pricePax: price / ticketNumber,
-        productInfo: attractionProduct[0],
-      });
-      const orderData = {
-        themeParkCode,
-        themeParkName,
-        queryInfo: {
-          dateOfVisit,
-          numOfGuests,
-        },
-        orderInfo,
-        offerInfo: { ...detail },
-        deliveryInfo: deliverInformation,
-      };
-      dispatch({
-        type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
-        payload: {
-          orderIndex: null,
-          orderData,
-        },
-      });
-    } else {
-      const orderInfo = [];
-      attractionProduct.forEach(item => {
-        const { ticketNumber, price } = attractionProduct;
-        orderInfo.push({
-          ageGroup: item.attractionProduct.ageGroup,
-          quantity: ticketNumber,
-          pricePax: price,
-          productInfo: item,
+    let offerConstrain;
+    productGroup.forEach(item => {
+      if (item.productType === 'Attraction') {
+        item.productGroup.forEach(item2 => {
+          if (item2.groupName === 'Attraction') {
+            offerConstrain = item2.choiceConstrain;
+          }
         });
-      });
-      const orderData = {
-        queryInfo: {
-          dateOfVisit,
-          numOfGuests,
-        },
-        orderInfo,
-        offerInfo: { ...detail },
-        deliveryInfo: deliverInformation,
-      };
-      dispatch({
-        type: 'ticketOrderCartMgr/settingPackageTicketOrderData',
-        payload: {
-          orderIndex: null,
-          orderData,
-        },
-      });
+      }
+    });
+    if (offerConstrain === 'Fixed') {
+      this.orderFixedOffer();
+      return true;
     }
+    const orderInfo = [];
+    attractionProduct.forEach(item => {
+      const { ticketNumber } = item;
+      orderInfo.push({
+        sessionTime: isSessionProduct(priceRuleId, item) ? sessionTime : undefined,
+        ageGroup: item.attractionProduct.ageGroup,
+        quantity: ticketNumber || 0,
+        pricePax: calculateProductPrice(item, priceRuleId, sessionTime),
+        productInfo: item,
+      });
+    });
+    const orderData = {
+      sessionTime,
+      themeParkCode: 'DOL',
+      themeParkName: 'Dolphin Island',
+      queryInfo: {
+        dateOfVisit,
+        numOfGuests,
+      },
+      orderType: 'offer',
+      orderInfo,
+      offerInfo: { ...detail },
+      deliveryInfo: deliverInformation,
+    };
+    console.log(orderData);
+    const type =
+      attractionProduct.length === 1
+        ? 'ticketOrderCartMgr/settingGeneralTicketOrderData'
+        : 'ticketOrderCartMgr/settingPackAgeTicketOrderData';
+    dispatch({
+      type,
+      payload: {
+        orderIndex: null,
+        orderData,
+      },
+    });
     this.onClose();
   };
 
@@ -242,15 +264,14 @@ class DolphinIslandOffer extends Component {
     const { clientHeight } = this.state;
     const {
       ticketMgr: {
-        dolphinSessionIndex,
         showDetailModal,
         attractionProduct = [],
         detail,
         showToCartModal,
         dolphinIslandOfferList = [],
-        countrys = [],
         eventSession,
         deliverInformation = {},
+        functionActive,
       },
       global: {
         userCompanyInfo: { companyType },
@@ -268,6 +289,7 @@ class DolphinIslandOffer extends Component {
       {
         title: 'Offer Name',
         key: 'name',
+        width: '30%',
         render: record => {
           const {
             detail: {
@@ -292,23 +314,78 @@ class DolphinIslandOffer extends Component {
           const {
             session: { priceTimeFrom },
           } = record;
-          return <div>{priceTimeFrom}</div>;
+          return <div>{priceTimeFrom || '-'}</div>;
         },
       },
       {
         title: 'Price',
         key: 'Price',
-        width: companyType === '02' ? 0 : null,
+        width: '35%',
         align: 'right',
         render: record => {
           const {
-            session: { discountUnitPrice },
+            detail: { priceRuleId, productGroup },
+            session: { priceTimeFrom },
           } = record;
-          const { ageGroup } = record.attractionProduct[0].attractionProduct;
+          const filterProducts = filterSessionProduct(
+            priceRuleId,
+            priceTimeFrom,
+            record.attractionProduct
+          );
+          let offerConstrain;
+          const ageGroups = [];
+          productGroup.forEach(item => {
+            if (item.productType === 'Attraction') {
+              item.productGroup.forEach(item2 => {
+                if (item2.groupName === 'Attraction') {
+                  offerConstrain = item2.choiceConstrain;
+                }
+              });
+            }
+          });
+          if (offerConstrain === 'Fixed') {
+            record.attractionProduct.forEach(item => {
+              if (item.attractionProduct.ageGroup) {
+                ageGroups.push(`${item.attractionProduct.ageGroup}`);
+              } else {
+                ageGroups.push(`-`);
+              }
+            });
+            return (
+              <div className={styles.productPrice}>
+                <div style={{ marginRight: '10px' }}>{ageGroups.join('; ')}</div>
+                <div>
+                  From ${' '}
+                  {calculateAllProductPrice(
+                    record.attractionProduct,
+                    priceRuleId,
+                    priceTimeFrom,
+                    record.detail
+                  )}
+                </div>
+              </div>
+            );
+          }
           return (
-            <div className={styles.productPrice}>
-              <div>{ageGroup}</div>
-              <div>From ${discountUnitPrice.toFixed(2)}</div>
+            <div>
+              {filterProducts.map(item => {
+                const {
+                  attractionProduct: { ageGroup },
+                } = item;
+                return (
+                  <div className={styles.productPrice}>
+                    <div style={{ marginRight: '10px' }}>{ageGroup || '-'}</div>
+                    <div>
+                      From ${' '}
+                      {calculateProductPrice(
+                        item,
+                        priceRuleId,
+                        isSessionProduct(priceRuleId, item) ? priceTimeFrom : null
+                      ).toFixed(2)}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           );
         },
@@ -316,7 +393,7 @@ class DolphinIslandOffer extends Component {
       {
         title: '',
         key: 'empty',
-        width: '2%',
+        width: '3%',
         render: () => {
           return <div />;
         },
@@ -324,6 +401,7 @@ class DolphinIslandOffer extends Component {
       {
         title: 'Operation',
         key: 'Operation',
+        className: styles.option,
         width: '30%',
         render: (_, record) => {
           return (
@@ -344,6 +422,7 @@ class DolphinIslandOffer extends Component {
                   e.stopPropagation();
                   this.showToCart(record);
                 }}
+                disabled={!functionActive}
               >
                 Add to Cart
               </Button>
@@ -352,77 +431,13 @@ class DolphinIslandOffer extends Component {
         },
       },
     ];
-    const columns2 = [
-      {
-        title: 'Offer Name',
-        key: 'name',
-        render: record => {
-          const {
-            detail: {
-              offerBasicInfo: { offerName },
-            },
-          } = record;
-          return (
-            <Tooltip
-              title={offerName}
-              placement="topLeft"
-              overlayStyle={{ whiteSpace: 'pre-wrap' }}
-            >
-              <span style={{ whiteSpace: 'pre' }}>{offerName}</span>
-            </Tooltip>
-          );
-        },
-      },
-      {
-        title: 'Session',
-        key: 'Session',
-        render: record => {
-          const {
-            session: { priceTimeFrom },
-          } = record;
-          return <div>{priceTimeFrom}</div>;
-        },
-      },
-      {
-        title: 'Operation',
-        key: 'Operation',
-        width: '30%',
-        render: (_, record) => {
-          return (
-            <div className={styles.operation}>
-              <Tooltip title="Detail">
-                <Icon
-                  type="eye"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.viewDetail(record);
-                  }}
-                  style={{ marginRight: '10px' }}
-                />
-              </Tooltip>
-              <Button
-                type="primary"
-                onClick={e => {
-                  e.stopPropagation();
-                  this.showToCart(record);
-                }}
-              >
-                Add to Cart
-              </Button>
-            </div>
-          );
-        },
-      },
-    ];
+    const columns2 = columns.filter(
+      ({ title }) => title === 'Offer Name' || title === 'Operation' || title === 'Session'
+    );
     return (
       <div className={styles.container} style={{ minHeight: clientHeight }}>
         {showDetailModal ? (
-          <Detail
-            attractionProduct={attractionProduct}
-            detail={detail}
-            onClose={this.onClose}
-            showToCart={this.detailToCart}
-          />
+          <Detail attractionProduct={attractionProduct} detail={detail} onClose={this.onClose} />
         ) : null}
         {showToCartModal ? (
           <ToCart
@@ -430,9 +445,6 @@ class DolphinIslandOffer extends Component {
             detail={detail}
             onClose={this.onClose}
             changeTicketNumber={this.changeTicketNumber}
-            formatInputValue={this.formatInputValue}
-            priceRuleIndex={dolphinSessionIndex}
-            countrys={countrys}
             order={this.order}
             ticketType={ticketType}
             description={description}

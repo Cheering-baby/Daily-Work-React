@@ -53,6 +53,13 @@ export async function ticketDownload(params) {
   });
 }
 
+export async function invoiceDownload(params) {
+  return UAAService.request(`${localPath}/b2b/transaction/v1/invoice/download`, {
+    method: 'GET',
+    params,
+  });
+}
+
 export function accountTopUp(params) {
   return UAAService.request(`${uaaPath}/b2b/account/topup`, {
     method: 'POST',

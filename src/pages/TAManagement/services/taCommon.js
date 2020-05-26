@@ -32,9 +32,12 @@ export async function queryInfoWithNoId() {
 }
 
 export async function queryTaInfoWithMask(params) {
-  return UAAService.request(`/b2b/agent/v1/profile/queryTaInfoWithMask?taId=${params.taId}`, {
-    method: 'GET',
-  });
+  return UAAService.request(
+    `/b2b/agent/v1/profile/queryTaInfoWithMask?taId=${params.taId}&signature=${params.signature}`,
+    {
+      method: 'GET',
+    }
+  );
 }
 
 export async function checkCompanyExist(params) {

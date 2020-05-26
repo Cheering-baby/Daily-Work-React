@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Col, Row, List } from 'antd';
+import { Col, Row, List, Spin } from 'antd';
 import CalendarShow from '../CalendarShow';
 import styles from './index.less';
 
 const infoPanelGrid = { xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8 };
-@connect(({ seasonalityCalendarMgr }) => ({
+@connect(({ seasonalityCalendarMgr, loading }) => ({
   seasonalityCalendarMgr,
+  searchLoading: loading.effects['seasonalityCalendarMgr/queryPeakDateList'],
 }))
 class ResultPanel extends Component {
   constructor(props) {
@@ -22,6 +23,7 @@ class ResultPanel extends Component {
   render() {
     const {
       seasonalityCalendarMgr: { peakPeriods = [], showYear },
+      searchLoading,
     } = this.props;
     const { clientHeight } = this.state;
     if (showYear) {
@@ -34,21 +36,29 @@ class ResultPanel extends Component {
         }
       }
       return (
-        <div className={styles.container}>
-          <Row>
-            {month.map(item => (
-              <Col {...infoPanelGrid} style={{ marginBottom: '10px', paddingRight: '10px' }}>
-                <CalendarShow month={item} peakPeriods={peakPeriods} key={item} />
-              </Col>
-            ))}
-          </Row>
-        </div>
+        <Spin spinning={!!searchLoading} style={{ heigth: '100%' }}>
+          <div className={styles.container}>
+            <Row>
+              {month.map(item => (
+                <Col
+                  {...infoPanelGrid}
+                  style={{ marginBottom: '10px', paddingRight: '10px' }}
+                  key={item}
+                >
+                  <CalendarShow month={item} peakPeriods={peakPeriods} key={item} />
+                </Col>
+              ))}
+            </Row>
+          </div>
+        </Spin>
       );
     }
     return (
-      <div className={styles.container} style={{ minHeight: clientHeight }}>
-        <List style={{ marginTop: 100 }} />
-      </div>
+      <Spin spinning={!!searchLoading}>
+        <div className={styles.container} style={{ minHeight: clientHeight }}>
+          <List style={{ marginTop: 100 }} />
+        </div>
+      </Spin>
     );
   }
 }

@@ -5,23 +5,67 @@ import moment from 'moment';
 import styles from '../$mappingDetails/index.less';
 import { isNvl } from '@/utils/utils';
 
+const layoutDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 8,
+  lg: 12,
+  xl: 12,
+  xxl: 12,
+};
+
+const valueDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 16,
+  lg: 12,
+  xl: 12,
+  xxl: 12,
+};
+
 class DetailForMapppingInfor extends React.PureComponent {
+  toThousands = num => {
+    num = (num || 0).toString();
+    let number = 0;
+    let floatNum = '';
+    let intNum = '';
+    if (num.indexOf('.') > 0) {
+      number = num.indexOf('.');
+      floatNum = num.substr(number);
+      intNum = num.substring(0, number);
+    } else {
+      intNum = num;
+    }
+    const result = [];
+    let counter = 0;
+    intNum = intNum.split('');
+    for (let i = intNum.length - 1; i >= 0; i -= 1) {
+      counter += 1;
+      result.unshift(intNum[i]);
+      if (!(counter % 3) && i !== 0) {
+        result.unshift(',');
+      }
+    }
+    return result.join('') + floatNum || '';
+  };
+
   render() {
     const { queryMappingInfo, companyName } = this.props;
+
     return (
       <React.Fragment>
         <div className="title-header">
-          <span>{formatMessage({ id: 'COMMISSION_DETAIL' })}</span>
+          <span>{formatMessage({ id: 'MAPPING_DETAIL' })}</span>
         </div>
         <Row type="flex" justify="space-around">
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_MAIN_TA_PROFILE' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>{!isNvl(companyName) && companyName !== 'null' ? companyName : '-'}</span>
                 </div>
@@ -30,12 +74,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_OPERA_EWALLET' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.operaEwallet) &&
@@ -49,12 +93,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_OPERA_AR_CREDIT' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.operaArCredit) &&
@@ -68,12 +112,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_GALAXY_EWALLET' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.galaxyEwallet) &&
@@ -87,12 +131,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_GALAXY_CREDIT' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.galaxyArCredit) &&
@@ -106,12 +150,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_PEOPLESOFR_EWALLET_ID' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.peoplesoftEwalletId) &&
@@ -125,12 +169,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_PEOPLESOFR_AR_ACCOUNT_ID' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.peoplesoftArAccountId) &&
@@ -144,16 +188,16 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_CREDIT_TERM' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.creditTerm) && queryMappingInfo.creditTerm !== 'null'
-                      ? queryMappingInfo.creditTerm
+                      ? `Net ${queryMappingInfo.creditTerm} days`
                       : '-'}
                   </span>
                 </div>
@@ -162,16 +206,16 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_CREDIT_LIMIT' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.creditLimit) && queryMappingInfo.creditLimit !== 'null'
-                      ? queryMappingInfo.creditLimit
+                      ? `$ ${this.toThousands(+queryMappingInfo.creditLimit)}`
                       : '-'}
                   </span>
                 </div>
@@ -180,17 +224,17 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_EWALLET_FIXED_THRESHOLD' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.ewalletFixedThreshold) &&
                     queryMappingInfo.ewalletFixedThreshold !== 'null'
-                      ? queryMappingInfo.ewalletFixedThreshold
+                      ? `$ ${this.toThousands(+queryMappingInfo.ewalletFixedThreshold)}`
                       : '-'}
                   </span>
                 </div>
@@ -199,17 +243,17 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_AR_FIXED_THRESHOLD' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.arFixedThreshold) &&
                     queryMappingInfo.arFixedThreshold !== 'null'
-                      ? queryMappingInfo.arFixedThreshold
+                      ? `$ ${this.toThousands(+queryMappingInfo.arFixedThreshold)}`
                       : '-'}
                   </span>
                 </div>
@@ -218,19 +262,17 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_ACCOUNT_COMMENCEMENT_DATE' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
-                    {queryMappingInfo && queryMappingInfo.arAccountCommencementDate
-                      ? moment(queryMappingInfo.arAccountCommencementDate).format(
-                          'YYYY-MM-DD hh:mm:ss'
-                        )
-                      : ''}
+                    {queryMappingInfo && !isNvl(queryMappingInfo.arAccountCommencementDate)
+                      ? moment(queryMappingInfo.arAccountCommencementDate).format('YYYY-MM-DD')
+                      : '-'}
                   </span>
                 </div>
               </Col>
@@ -238,18 +280,16 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_AR_ACCOUNT_END_DATE' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.arAccountEndDate)
-                      ? moment(queryMappingInfo.arAccountEndDate, 'YYYY-MM-DD').format(
-                          'YYYY-MM-DD hh:mm:ss'
-                        )
+                      ? moment(queryMappingInfo.arAccountEndDate, 'YYYY-MM-DD').format('YYYY-MM-DD')
                       : '-'}
                   </span>
                 </div>
@@ -258,17 +298,17 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_SECURITY_DEPOSIT_AMOUNT' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.securityDepositAmount) &&
                     queryMappingInfo.securityDepositAmount !== 'null'
-                      ? queryMappingInfo.securityDepositAmount
+                      ? `$ ${this.toThousands(+queryMappingInfo.securityDepositAmount)}`
                       : '-'}
                   </span>
                 </div>
@@ -277,17 +317,17 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_AMOUNT' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.guaranteeAmount) &&
                     queryMappingInfo.guaranteeAmount !== 'null'
-                      ? queryMappingInfo.guaranteeAmount
+                      ? `$ ${this.toThousands(+queryMappingInfo.guaranteeAmount)}`
                       : '-'}
                   </span>
                 </div>
@@ -296,17 +336,17 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_EXPIRY_DATE' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.guaranteeExpiryDate)
                       ? moment(queryMappingInfo.guaranteeExpiryDate, 'YYYY-MM-DD').format(
-                          'YYYY-MM-DD hh:mm:ss'
+                          'YYYY-MM-DD'
                         )
                       : '-'}
                   </span>
@@ -316,12 +356,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_CURRENCY' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.currency) && queryMappingInfo.currency !== 'null'
@@ -334,31 +374,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
-                <div className={styles.detailRightStyle}>
-                  <span>{formatMessage({ id: 'MAPPING_SALES_MANAGER' })}</span>
-                </div>
-              </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
-                <div className={styles.detailLeftStyle}>
-                  <span>
-                    {!isNvl(queryMappingInfo.salesManager) &&
-                    queryMappingInfo.salesManager !== 'null'
-                      ? queryMappingInfo.salesManager
-                      : '-'}
-                  </span>
-                </div>
-              </Col>
-            </Row>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
-            <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col {...layoutDisplay}>
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'MAPPING_PRODUCT' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col {...valueDisplay}>
                 <div className={styles.detailLeftStyle}>
                   <span>
                     {!isNvl(queryMappingInfo.productName) && queryMappingInfo.productName !== 'null'

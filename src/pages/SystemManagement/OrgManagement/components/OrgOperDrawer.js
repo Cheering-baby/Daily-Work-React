@@ -6,6 +6,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../index.less';
 import constants from '../constants';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 const { Panel } = Collapse;
 const { Search } = Input;
@@ -178,12 +179,31 @@ class Index extends React.PureComponent {
       payload,
     }).then(result => {
       if (result) {
-        const { companyId, companyType } = userCompanyInfo;
+        if (
+          PrivilegeUtil.hasAnyPrivilege([
+            PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
+            PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
+          ])
+        ) {
+          payload = {
+            orgCode: constants.RWS_ORG_CODE,
+          };
+        } else if (
+          PrivilegeUtil.hasAnyPrivilege([
+            PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
+            PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE,
+          ])
+        ) {
+          const { companyId, companyType } = userCompanyInfo;
+          payload = {
+            companyId,
+            companyType,
+          };
+        }
         dispatch({
           type: 'orgMgr/queryUserOrgTree',
           payload: {
-            companyId,
-            companyType,
+            ...payload,
             operType: 'ADD_USER_ORG',
           },
         });
@@ -295,21 +315,30 @@ class Index extends React.PureComponent {
 
   getOrgTypes = () => {
     const {
-      global: { currentUser = {} },
       orgMgr: { orgList = [], selectedOrg = {} },
     } = this.props;
-    const { userType = '01' } = currentUser;
     let orgTypes = [];
-    if (userType === '01') {
+    const { code = '', orgType = '' } = selectedOrg;
+    // if rws org  only add ta org
+    if (code === constants.RWS_ORG_CODE) {
       orgTypes = constants.RWS_ORG_TYPES;
-    } else if (userType === '02') {
+    } else if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE])) {
+      if (orgType === '01') {
+        orgTypes = constants.TA_ORG_TYPES;
+      } else if (orgType === '02' || orgType === '03') {
+        orgTypes = constants.SUB_TA_ORG_TYPES;
+      }
+    } else if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE])) {
+      orgTypes = constants.RWS_ORG_TYPES;
+    } else if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE])) {
       orgTypes = constants.TA_ORG_TYPES;
       if (orgList.length > 0 && Object.keys(selectedOrg).length > 0) {
         orgTypes[0].disable = orgList[0].code !== selectedOrg.code;
       }
-    } else if (userType === '03') {
+    } else if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])) {
       orgTypes = constants.SUB_TA_ORG_TYPES;
     }
+
     return orgTypes.map(item => {
       return (
         <Option key={item.key} value={item.value} disabled={item.disable}>
@@ -326,14 +355,8 @@ class Index extends React.PureComponent {
         selectedOrg: { orgType = '' },
       },
     } = this.props;
-    if (operType === 'ADD_USER_ORG') {
-      return undefined;
-    }
     if (operType === 'ADD_MEMBER' || operType === 'MODIFY_USER_ORG') {
       return constants.ORG_TYPE_MAP.get(orgType);
-    }
-    if (operType === 'ADD_TA_COMPANY') {
-      return '01';
     }
     return undefined;
   };
@@ -342,16 +365,7 @@ class Index extends React.PureComponent {
     const {
       orgMgr: { operType = 'ADD_USER_ORG' },
     } = this.props;
-    if (operType === 'ADD_USER_ORG') {
-      return false;
-    }
-    if (operType === 'ADD_MEMBER' || operType === 'MODIFY_USER_ORG') {
-      return true;
-    }
-    if (operType === 'ADD_TA_COMPANY') {
-      return false;
-    }
-    return true;
+    return operType === 'ADD_MEMBER' || operType === 'MODIFY_USER_ORG';
   };
 
   getCompanyOptions = () => {
@@ -373,7 +387,9 @@ class Index extends React.PureComponent {
         selectedOrg: { subOrgs = [] },
       },
     } = this.props;
-    return subOrgs.findIndex(org => String(org.companyId) === String(item.id)) > -1;
+    return subOrgs
+      ? subOrgs.findIndex(org => String(org.companyId) === String(item.id)) > -1
+      : false;
   };
 
   orgTypeChange = value => {
@@ -465,6 +481,7 @@ class Index extends React.PureComponent {
               rules: [
                 {
                   required: true,
+                  message: formatMessage({ id: 'REQUIRED' }),
                 },
               ],
             })(
@@ -478,13 +495,14 @@ class Index extends React.PureComponent {
               </Select>
             )}
           </Form.Item>
-          {operType === 'ADD_TA_COMPANY' || (orgType === '02' && operType === 'ADD_USER_ORG') ? (
+          {orgType === '00' || orgType === '01' || orgType === '02' ? (
             <Form.Item label={formatMessage({ id: 'COMPANY_NAME' })}>
               {getFieldDecorator(`companyId`, {
                 initialValue: undefined,
                 rules: [
                   {
                     required: true,
+                    message: formatMessage({ id: 'REQUIRED' }),
                   },
                 ],
               })(
@@ -505,6 +523,7 @@ class Index extends React.PureComponent {
               rules: [
                 {
                   required: true,
+                  message: formatMessage({ id: 'REQUIRED' }),
                 },
               ],
             })(
@@ -525,6 +544,7 @@ class Index extends React.PureComponent {
               rules: [
                 {
                   required: true,
+                  message: formatMessage({ id: 'REQUIRED' }),
                 },
               ],
             })(
@@ -535,15 +555,14 @@ class Index extends React.PureComponent {
               />
             )}
           </Form.Item>
-          {operType === 'MODIFY_USER_ORG' ||
-          operType === 'ADD_TA_COMPANY' ||
-          orgType === '02' ? null : (
+          {orgType === '03' || operType === 'ADD_MEMBER' ? (
             <Form.Item label={formatMessage({ id: 'MEMBER' })}>
               {getFieldDecorator(`member`, {
                 initialValue: 'initValue',
                 rules: [
                   {
                     required: true,
+                    message: formatMessage({ id: 'REQUIRED' }),
                   },
                 ],
               })(
@@ -584,7 +603,7 @@ class Index extends React.PureComponent {
                 </Panel>
               </Collapse>
             </Form.Item>
-          )}
+          ) : null}
           <div className={styles.drawerBtnWrapper}>
             <Button
               style={{

@@ -414,6 +414,7 @@ class NotificationEdit extends React.PureComponent {
     }
     if (values && values.length > 0) {
       const aaList = [];
+      newTargetList = [];
       getAllTargetList(values, targetTreeData, aaList);
       getAllChildrenTargetList(aaList, newTargetList);
     } else {

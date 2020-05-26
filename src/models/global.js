@@ -96,7 +96,7 @@ export default {
       if (!umiLocale) {
         setLocale('en-US');
       }
-      const data = yield call(UAAService.postLogin);
+      const data = yield call(UAAService.postLogin, { ...payload });
 
       window.g_app.login_data = data;
 
@@ -341,7 +341,7 @@ export default {
     setupHistory({ dispatch, history }) {
       history.listen(localtion => {
         const { pathname } = localtion;
-        if (pathname === '' || notPageUrls.includes(pathname)) {
+        if (pathname === '' || notPageUrls.includes(pathname.trim())) {
           return;
         }
         // 界面刷新 需要延迟调用，等 postLogin 接口调用完成后，请求权限

@@ -7,9 +7,10 @@ import MediaQuery from 'react-responsive';
 import moment from 'moment';
 import detailStyles from './index.less';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '@/components/BreadcrumbComp';
 import Edit from './components/Edit';
 import { isNvl } from '@/utils/utils';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
+import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -24,10 +25,10 @@ const formItemLayout = {
 
 const formItemLayout2 = {
   labelCol: {
-    span: 10,
+    span: 12,
   },
   wrapperCol: {
-    span: 14,
+    span: 12,
   },
   colon: false,
 };
@@ -39,6 +40,11 @@ const ColProps = {
   xl: 6,
 };
 
+const inflate = {
+  position: 'relative',
+  zIndex: 1,
+};
+
 @Form.create()
 @connect(({ offline, loading }) => ({
   offline,
@@ -47,72 +53,147 @@ const ColProps = {
 class Offline extends React.PureComponent {
   columns = [
     {
+      title: formatMessage({ id: 'NUMBER' }),
+      dataIndex: 'no',
+    },
+    {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'commodityCode',
+      dataIndex: 'commoditySpecId',
+      key: 'commoditySpecId',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
       dataIndex: 'commodityDescription',
+      key: 'commodityDescription',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'THEME_PARK' }),
       dataIndex: 'themeParkCode',
+      render: text => this.showThemeParkName(text),
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
-      dataIndex: 'commissionScheme',
+      key: 'commissionScheme',
+      render: (_, record) => this.commissionSchemeValue(record),
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
-      dataIndex: 'createStaff',
-      key: 'createStaff',
-      render: (text, record) => {
-        return (
-          <div>
-            <Popover trigger="click" placement="leftTop" content={this.getContent()}>
-              <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
-                <Icon type="eye" onClick={() => this.detail(record)} />
-              </Tooltip>
-            </Popover>
-            <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
-              <Icon type="edit" onClick={() => this.edit(record)} />
-            </Tooltip>
-          </div>
-        );
-      },
+      key: 'operation',
+      render: (_, record) => this.showOperation(record),
     },
   ];
 
   componentDidMount() {
     const { dispatch } = this.props;
+    dispatch({ type: 'offline/queryThemeParks' });
     dispatch({
       type: 'offline/fetchOfflineList',
-      payload: {},
-    });
-    dispatch({
-      type: 'offline/queryPluAttribute',
       payload: {
-        attributeItem: 'THEME_PARK',
-        attributeType: 'Attraction',
+        usageScope: 'Offline',
       },
     });
   }
 
-  detail = record => {
+  componentWillUnmount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'offline/detail',
-      payload: {
-        commoditySpecType: 'PackagePlu',
-        commoditySpecId: !isNvl(record.commoditySpecId) ? record.commoditySpecId : null,
-      },
+      type: 'offline/clear',
     });
+  }
+
+  commissionSchemeValue = record => {
+    if (!isNvl(record && record.commissionList && record.commissionList.Fixed)) {
+      const { commissionScheme, commissionValue } = record.commissionList.Fixed;
+      if (commissionScheme === 'Amount') {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>${commissionValue} / Ticket</span>}
+          >
+            <span>${commissionValue} / Ticket</span>
+          </Tooltip>
+        );
+      }
+      if (commissionScheme === 'Percentage') {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{commissionValue}%</span>}
+          >
+            <span>{commissionValue}% / Ticket</span>
+          </Tooltip>
+        );
+      }
+    }
+    return null;
   };
 
-  getContent = () => {
+  showOperation = record => {
+    if (record.subCommodityList !== null) {
+      return null;
+    }
+    return (
+      <div>
+        <Popover trigger="click" placement="leftTop" content={this.getContent(record)}>
+          <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
+            <Icon type="eye" />
+          </Tooltip>
+        </Popover>
+        <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
+          <Icon type="edit" onClick={() => this.edit(record)} />
+        </Tooltip>
+      </div>
+    );
+  };
+
+  showThemeParkName = text => {
     const {
-      offline: { commissionList },
+      offline: { themeParkList },
     } = this.props;
+    for (let i = 0; i < themeParkList.length; i += 1) {
+      if (themeParkList[i].itemValue === text) {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+          >
+            <span>{themeParkList[i].itemName}</span>
+          </Tooltip>
+        );
+      }
+    }
+    return null;
+  };
+
+  getContent = record => {
+    let commissionSchemeValue = '-';
+    let createBy = '-';
+    let createTimeValue = '-';
+    if (!isNvl(record && record.commissionList && record.commissionList.Fixed)) {
+      const {
+        commissionScheme,
+        createStaff,
+        createTime,
+        commissionValue,
+      } = record.commissionList.Fixed;
+      if (commissionScheme === 'Amount') {
+        commissionSchemeValue = `$${commissionValue} / Ticket`;
+      } else if (commissionScheme === 'Percentage') {
+        commissionSchemeValue = `${commissionValue}%`;
+      }
+      createBy = createStaff !== null ? createStaff : '-';
+      createTimeValue = createTime !== null ? moment(createTime).format('DD-MMM-YYYY') : '-';
+    }
     return (
       <div className={detailStyles.msgBodyStyle}>
         <div>
@@ -129,11 +210,12 @@ class Offline extends React.PureComponent {
               </span>
             }
           >
-            <span className={detailStyles.infoStyle}>
-              {!isNvl(commissionList.commissionScheme) && commissionList.createStaff !== 'null'
-                ? commissionList.commissionScheme
-                : '-'}
-            </span>
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{commissionSchemeValue}</span>}
+            >
+              <span className={detailStyles.infoStyle}>{commissionSchemeValue}</span>
+            </Tooltip>
           </FormItem>
           <FormItem
             {...formItemLayout2}
@@ -143,11 +225,12 @@ class Offline extends React.PureComponent {
               </span>
             }
           >
-            <span className={detailStyles.infoStyle}>
-              {!isNvl(commissionList.createStaff) && commissionList.createStaff !== 'null'
-                ? commissionList.createStaff
-                : '-'}
-            </span>
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{createBy}</span>}
+            >
+              <span className={detailStyles.infoStyle}>{createBy}</span>
+            </Tooltip>
           </FormItem>
           <FormItem
             {...formItemLayout2}
@@ -157,11 +240,12 @@ class Offline extends React.PureComponent {
               </span>
             }
           >
-            <span className={detailStyles.infoStyle}>
-              {!isNvl(commissionList.createTime)
-                ? moment(commissionList.createTime, 'YYYY-MM-DD').format('YYYY-MM-DD hh:mm:ss')
-                : '-'}
-            </span>
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{createTimeValue}</span>}
+            >
+              <span className={detailStyles.infoStyle}>{createTimeValue}</span>
+            </Tooltip>
           </FormItem>
         </Form>
       </div>
@@ -177,18 +261,37 @@ class Offline extends React.PureComponent {
 
   edit = record => {
     const { dispatch } = this.props;
+    let commissionSchemeValue = 'Amount';
+    let commissionShowValue = null;
+    let tplIdValue = null;
+    let commissionValueAmount = null;
+    let commissionValuePercent = null;
+    if (record && record.commissionList && record.commissionList.Fixed) {
+      const { commissionScheme, commissionValue, tplId } = record.commissionList.Fixed;
+      commissionSchemeValue = commissionScheme;
+      commissionShowValue = commissionValue;
+      tplIdValue = tplId;
+    }
+    if (commissionSchemeValue === 'Amount') {
+      commissionValueAmount = commissionShowValue;
+    }
+    if (commissionSchemeValue === 'Percentage') {
+      commissionValuePercent = commissionShowValue;
+    }
     dispatch({
       type: 'offline/save',
       payload: {
         drawerVisible: true,
-        commoditySpecId: !isNvl(record.commoditySpecId) ? record.commoditySpecId : null,
       },
     });
     dispatch({
-      type: 'offline/detail',
+      type: 'offline/saveModifyParams',
       payload: {
-        commoditySpecType: 'PackagePlu',
-        commoditySpecId: !isNvl(record.commoditySpecId) ? record.commoditySpecId : null,
+        commissionScheme: commissionSchemeValue,
+        commissionValue: commissionShowValue,
+        tplId: tplIdValue,
+        commissionValueAmount,
+        commissionValuePercent,
       },
     });
   };
@@ -198,16 +301,12 @@ class Offline extends React.PureComponent {
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        const likeParam = {
-          commonSearchText: values.commonSearchText || '',
-          themeParkCode: values.themeParkCode || '',
-        };
         dispatch({
           type: 'offline/search',
           payload: {
-            filter: {
-              likeParam,
-            },
+            commonSearchText: values.commonSearchText,
+            themeParkCode: values.themeParkCode,
+            usageScope: 'Offline',
           },
         });
       }
@@ -220,6 +319,9 @@ class Offline extends React.PureComponent {
     dispatch({
       type: 'offline/fetchSelectReset',
       payload: {
+        commonSearchText: null,
+        themeParkCode: null,
+        usageScope: 'Offline',
         currentPage: 1,
         pageSize: 10,
       },
@@ -231,53 +333,44 @@ class Offline extends React.PureComponent {
   };
 
   render() {
-    const breadcrumbArr = [
-      {
-        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
-        url: null,
-      },
-      {
-        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
-        url: null,
-      },
-      {
-        breadcrumbName: formatMessage({ id: 'OFFLINE_FIXED_COMMISSION' }),
-        url: null,
-      },
-    ];
     const {
       form: { getFieldDecorator },
       loading,
-      offline: { offlineList, currentPage, pageSize, totalSize, themeParkList },
+      offline: {
+        offlineList,
+        totalSize,
+        themeParkList,
+        searchCondition: { currentPage, pageSize: nowPageSize },
+      },
     } = this.props;
-    const pagination = {
-      current: currentPage,
-      pageSize,
+
+    const title = [
+      { name: formatMessage({ id: 'PRODUCT_MANAGEMENT' }) },
+      { name: formatMessage({ id: 'COMMISSION_RULE_TITLE' }) },
+      { name: formatMessage({ id: 'OFFLINE_FIXED_COMMISSION' }) },
+    ];
+
+    const pageOpts = {
       total: totalSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSizeOptions: ['20', '50', '100'],
-      showTotal: this.showTotal,
+      current: currentPage,
+      pageSize: nowPageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'offline/search',
+          payload: {
+            currentPage: page,
+            pageSize,
+          },
+        });
+      },
     };
-    const tableOpts = {
-      size: 'small',
-      bordered: false,
-      scroll: { x: 750 },
-    };
+
     return (
-      <Row type="flex" justify="space-around" id="mainTaView">
-        <Col span={24} className={detailStyles.pageHeaderTitle}>
-          <MediaQuery
-            maxWidth={SCREEN.screenMdMax}
-            minWidth={SCREEN.screenSmMin}
-            minHeight={SCREEN.screenSmMin}
-          >
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-          </MediaQuery>
-          <MediaQuery minWidth={SCREEN.screenLgMin}>
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-          </MediaQuery>
-        </Col>
+      <Row>
+        <MediaQuery minWidth={SCREEN.screenSm}>
+          <BreadcrumbCompForPams title={title} />
+        </MediaQuery>
         <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
             <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
@@ -289,6 +382,7 @@ class Offline extends React.PureComponent {
                       {}
                     )(
                       <Input
+                        style={inflate}
                         placeholder={formatMessage({ id: 'PLU_CODE_AND_DESCRIPTION' })}
                         allowClear
                       />
@@ -304,14 +398,15 @@ class Offline extends React.PureComponent {
                       <Select
                         placeholder={formatMessage({ id: 'THEME_PARK' })}
                         optionFilterProp="children"
-                        style={{ width: '100%' }}
+                        style={{ width: '100%', ...inflate }}
                         allowClear
                       >
-                        {themeParkList.map(role => (
-                          <Option key={`roleCode_option_${role}`} value={role}>
-                            {role}
-                          </Option>
-                        ))}
+                        {themeParkList &&
+                          themeParkList.map(item => (
+                            <Option key={item.itemValue} value={item.itemValue}>
+                              {item.itemName}
+                            </Option>
+                          ))}
                       </Select>
                     )}
                   </Form.Item>
@@ -331,22 +426,24 @@ class Offline extends React.PureComponent {
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
             <Row gutter={24}>
-              <Col {...ColProps} style={{ padding: '12px' }}>
+              <Col {...ColProps} style={{ paddingLeft: 12 }}>
                 <Button type="primary" onClick={() => this.new()}>
                   {formatMessage({ id: 'COMMON_NEW' })}
                 </Button>
               </Col>
             </Row>
             <Table
-              {...tableOpts}
-              rowKey="id"
+              style={{ marginTop: 10 }}
+              className="components-table-demo-nested"
+              rowKey={record => record.commoditySpecId}
+              bordered={false}
+              size="small"
               dataSource={offlineList}
-              pagination={pagination}
-              loading={loading}
+              pagination={false}
+              loading={!!loading}
               columns={this.columns}
-              className="table-style"
-              // onChange={this.handleTableChange}
             />
+            <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
           </Card>
         </Col>
         <Edit />

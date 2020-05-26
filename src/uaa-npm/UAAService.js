@@ -87,9 +87,13 @@ class UAAService extends CommonService {
    * @returns {Promise<void>}
    */
   async logout() {
-    const { success, errorMsg, data } = await this.request('/v1/logout', {
+    let result = await this.request('/v1/logout', {
       withCredentials: this.defaults.withCredentials,
     });
+
+    result = result || {};
+
+    const { success = true, errorMsg, data } = result;
 
     if (success) {
       this.axiosConfig.AT = '';

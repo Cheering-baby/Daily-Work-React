@@ -38,7 +38,7 @@ class OnceAPirateCollapse extends Component {
         },
       }).then(resultCode => {
         if (resultCode === '0') {
-          message.success('Delete successfully!');
+          message.success('Deleted successfully.');
         }
       });
     } else if (opType === 'edit') {
@@ -81,7 +81,7 @@ class OnceAPirateCollapse extends Component {
       global: {
         userCompanyInfo: { companyType },
       },
-      ticketOrderCartMgr: { onceAPirateOrderData = [] },
+      ticketOrderCartMgr: { onceAPirateOrderData = [], functionActive },
       form,
     } = this.props;
 
@@ -107,6 +107,7 @@ class OnceAPirateCollapse extends Component {
               <OrderItemCollapse
                 key={`OrderItemCollapse_${Math.random()}`}
                 form={form}
+                functionActive={functionActive}
                 companyType={companyType}
                 orderIndex={orderIndex}
                 onceAPirateOrder={onceAPirateOrder}

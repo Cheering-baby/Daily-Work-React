@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Checkbox, Col, Collapse, Icon, Row } from 'antd';
+import { Col, Collapse, Icon, Row } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
@@ -19,8 +19,8 @@ class OrderItemCollapse extends Component {
   };
 
   getTitleNameByOrderInfo = orderInfo => {
-    if (orderInfo && orderInfo.offerInfo && orderInfo.offerInfo.offerBasicInfo) {
-      return orderInfo.offerInfo.offerBasicInfo.offerName;
+    if (orderInfo && orderInfo.offerInfo && orderInfo.offerInfo.offerBundle) {
+      return orderInfo.offerInfo.offerBundle[0].bundleLabel;
     }
     return '-';
   };
@@ -57,11 +57,30 @@ class OrderItemCollapse extends Component {
   };
 
   getOrderTime = orderOffer => {
+    let titleNameStr = '-';
+    let sessionTime;
+
     if (orderOffer.queryInfo && orderOffer.queryInfo.dateOfVisit) {
-      const titleNameStr = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('DD-MMM-YYYY');
-      return titleNameStr;
+      titleNameStr = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('DD-MMM-YYYY');
     }
-    return '-';
+
+    if (orderOffer.orderInfo) {
+      orderOffer.orderInfo.forEach(orderInfoItem => {
+        // eslint-disable-next-line prefer-destructuring
+        sessionTime = orderInfoItem.sessionTime;
+      });
+    }
+
+    if (orderOffer.orderSummary && orderOffer.orderSummary.sessionTime) {
+      // eslint-disable-next-line prefer-destructuring
+      sessionTime = orderOffer.orderSummary.sessionTime;
+    }
+
+    if (sessionTime) {
+      titleNameStr += ` ${sessionTime}`;
+    }
+
+    return titleNameStr;
   };
 
   getOfferRender = (orderOffer, offerIndex) => {
@@ -136,15 +155,6 @@ class OrderItemCollapse extends Component {
         header={
           <Row gutter={24} className={styles.collapsePanelHeaderRow}>
             <Col span={10}>
-              <Checkbox
-                value="ALL"
-                checked={orderOffer.orderAll}
-                indeterminate={orderOffer.indeterminate}
-                onClick={this.allClickEvent}
-                onChange={e => {
-                  this.checkOrderEvent(e, offerIndex, orderOffer);
-                }}
-              />
               <span className={styles.collapsePanelHeaderTitle}>
                 {this.getTitleNameStr(orderOffer)}
               </span>
@@ -211,8 +221,8 @@ class OrderItemCollapse extends Component {
   getProductTypeByOfferFixed = orderOffer => {
     let productType = '';
     if (orderOffer.orderInfo) {
-      const ageGroups = orderOffer.orderInfo.map(orderInfoItem => orderInfoItem.ageGroup);
-      productType = ageGroups.join(',');
+      const ageGroups = orderOffer.orderInfo.map(orderInfoItem => orderInfoItem.ageGroup || '-');
+      productType = ageGroups.join(';');
     }
     return productType;
   };

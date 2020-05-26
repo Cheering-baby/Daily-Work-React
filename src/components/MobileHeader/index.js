@@ -3,8 +3,9 @@ import { FormattedMessage } from 'umi/locale';
 import { Avatar, Button, Col, Divider, Icon, Popover, Row } from 'antd';
 import BaseMenu, { getMenuMatches } from '../SiderMenu/BaseMenu';
 import Notification from '../Notification';
-import { abbreviateName, urlToList } from '@/utils/utils';
+import { abbreviateName, isNvl, urlToList } from '@/utils/utils';
 import styles from './index.less';
+import PageHeader from '@/components/MobileHeader/PageHeader';
 
 /**
  * 获得菜单子节点
@@ -32,6 +33,39 @@ export const getFlatMenuKeys = menu =>
     return keys;
   }, []);
 
+export const getRelativePages = menuData => {
+  let keys = [];
+  menuData.forEach(({ children, menuName, relativePages }) => {
+    if (children) {
+      keys = keys.concat(getRelativePages(children));
+    }
+    if (relativePages instanceof Array && relativePages.length > 0) {
+      relativePages.forEach(item => {
+        keys.push({ ...item, menuName });
+      });
+    }
+  });
+  return keys;
+};
+
+export const getRelativePage = (menuData, menuPath) => {
+  const relativePages = getRelativePages(menuData);
+  const comparePath = (pathname, pageUrl) => {
+    const pathNames = pathname.split('/');
+    const pageUrls = pageUrl.split('/');
+    if (pathNames.length !== pageUrls.length) {
+      return false;
+    }
+    for (let i = 0; i < pathNames.length; i += 1) {
+      if (!(pageUrls[i] === '*' || pathNames[i].toLowerCase() === pageUrls[i].toLowerCase())) {
+        return false;
+      }
+    }
+    return true;
+  };
+  return relativePages.find(item => comparePath(menuPath, item.pageUrl));
+};
+
 class MobileHeader extends PureComponent {
   constructor(props) {
     super(props);
@@ -42,7 +76,7 @@ class MobileHeader extends PureComponent {
     };
   }
 
-  getAvatar = userName => {
+  getAvatar = (userName, userType) => {
     const { onMenuClick, currentUserRole } = this.props;
     return (
       <div className={styles.avatarContent}>
@@ -65,10 +99,12 @@ class MobileHeader extends PureComponent {
           <Icon type="export" />
           <FormattedMessage id="menu.account.logout" defaultMessage="logout" />
         </div>
-        <div className={styles.logout} onClick={() => onMenuClick({ key: 'changePassword' })}>
-          <Icon type="lock" />
-          <FormattedMessage id="menu.account.changePassword" defaultMessage="Change Password" />
-        </div>
+        {String(userType) !== '01' && (
+          <div className={styles.logout} onClick={() => onMenuClick({ key: 'changePassword' })}>
+            <Icon type="lock" />
+            <FormattedMessage id="menu.account.changePassword" defaultMessage="Change Password" />
+          </div>
+        )}
       </div>
     );
   };
@@ -121,11 +157,21 @@ class MobileHeader extends PureComponent {
   };
 
   render() {
-    const { currentUser = {} } = this.props;
+    const {
+      currentUser = {},
+      menuData = [],
+      location: { pathname },
+    } = this.props;
     const { visibleLeft } = this.state;
-    const { userName } = currentUser;
-    const avatar = this.getAvatar(userName);
+    const { userName, userType } = currentUser;
+    const avatar = this.getAvatar(userName, userType);
     const menu = this.getMenu();
+    const relativePage = getRelativePage(menuData, pathname);
+
+    if (!isNvl(relativePage)) {
+      const { menuName = '' } = relativePage;
+      return <PageHeader rightContent={null}>{menuName.toUpperCase()}</PageHeader>;
+    }
     return (
       <Row type="flex" justify="space-around" className={styles.header}>
         <Col span={6}>

@@ -19,7 +19,7 @@ export default {
     customerInfo: {
       contactInfo: {},
       companyInfo: {
-        isGstRegIndicator: '1',
+        isGstRegIndicator: '0',
       },
     },
     otherInfo: {},
@@ -29,6 +29,7 @@ export default {
     signature: null,
     status: null,
     remark: null,
+    isRegistration: false,
     taInfoLoadingFlag: false,
     taMappingInfoLoadingFlag: false,
     taAccountInfoLoadingFlag: false,
@@ -120,7 +121,6 @@ export default {
           payload: {
             customerInfo: result.customerInfo || {},
             otherInfo: result.otherInfo || {},
-            mappingInfo: result.mappingInfo || {},
             status: result.status,
             remark: result.remark,
           },
@@ -194,7 +194,6 @@ export default {
           payload: {
             customerInfo: result.customerInfo || {},
             otherInfo: result.otherInfo || {},
-            mappingInfo: result.mappingInfo || {},
             status: result.status,
             remark: result.remark,
           },
@@ -268,7 +267,6 @@ export default {
           payload: {
             customerInfo: result.customerInfo || {},
             otherInfo: result.otherInfo || {},
-            mappingInfo: result.mappingInfo || {},
             status: result.status,
             remark: result.remark,
           },
@@ -385,7 +383,7 @@ export default {
           customerInfo: {
             contactInfo: {},
             companyInfo: {
-              isGstRegIndicator: '1',
+              isGstRegIndicator: '0',
             },
           },
           otherInfo: {},
@@ -395,6 +393,7 @@ export default {
           signature: null,
           status: null,
           remark: null,
+          isRegistration: false,
           taInfoLoadingFlag: false,
           taMappingInfoLoadingFlag: false,
           taAccountInfoLoadingFlag: false,

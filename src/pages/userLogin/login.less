@@ -111,8 +111,12 @@ body {
   }
 
   :global {
+    .@{prefix-cls}-tabs-nav {
+      width: 100%;
+    }
+
     .@{prefix-cls}-tabs-tab {
-      width: 80%;
+      width: 50%;
       text-align: center;
       margin: 0;
       @media screen and (max-width: @screenXsMax) {
@@ -153,6 +157,10 @@ body {
       border-color: @input-border-color;
       color: @input-color;
     }
+
+    .@{prefix-cls}-input-password {
+      text-align: left;
+    }
     .has-error .@{prefix-cls}-input,
     .@{prefix-cls}-input:hover,
     .@{prefix-cls}-input:focus {
@@ -187,10 +195,11 @@ body {
 .name {
   padding: @name-padding;
   text-align: center;
+  height: 50px;
 
   img {
-    width: @proj-logo-width;
-    height: @proj-logo-height;
+    width: 55%;
+    height: auto;
     vertical-align: middle;
   }
 }

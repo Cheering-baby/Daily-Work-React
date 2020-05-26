@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Row, Col, Checkbox, Collapse, Tooltip, Modal } from 'antd';
+import { Checkbox, Col, Collapse, Icon, Modal, Row, Tooltip } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 import AccessibleSeat from './assets/accessible_seat.png';
@@ -54,7 +54,7 @@ class OrderItemCollapse extends Component {
   getMealsAmount = orderOffer => {
     let offerMealsAmount = 0;
     if (orderOffer.orderInfo.voucherType && orderOffer.orderInfo.voucherType === '1') {
-      orderOffer.orderInfo.groupSettingList.map(groupSetting => {
+      orderOffer.orderInfo.groupSettingList.forEach(groupSetting => {
         offerMealsAmount += groupSetting.number;
       });
     } else {
@@ -65,6 +65,7 @@ class OrderItemCollapse extends Component {
 
   getOfferSumPrice = orderOffer => {
     let offerSumPrice = 0;
+    // eslint-disable-next-line prefer-destructuring
     offerSumPrice = orderOffer.orderInfo.offerSumPrice;
     return `$${Number(offerSumPrice).toFixed(2)}`;
   };
@@ -122,7 +123,7 @@ class OrderItemCollapse extends Component {
   };
 
   render() {
-    const { companyType, orderIndex, onceAPirateOrder } = this.props;
+    const { companyType, orderIndex, onceAPirateOrder, functionActive } = this.props;
 
     return (
       <Collapse
@@ -149,6 +150,7 @@ class OrderItemCollapse extends Component {
                   indeterminate={onceAPirateOrder.indeterminate}
                   onClick={this.allClickEvent}
                   onChange={this.checkOrderEvent}
+                  disabled={onceAPirateOrder.orderDisabled}
                 />
                 <span className={styles.collapsePanelHeaderTitle}>{this.getTitleNameStr()}</span>
                 {onceAPirateOrder.queryInfo.accessibleSeat && (
@@ -167,20 +169,26 @@ class OrderItemCollapse extends Component {
                 )}
               </Col>
               <Col span={3}>
-                <Tooltip title="Delete">
-                  <Icon
-                    className={styles.collapsePanelHeaderButton}
-                    type="delete"
-                    onClick={this.deleteClickEvent}
-                  />
-                </Tooltip>
-                <Tooltip title="Edit">
-                  <Icon
-                    className={styles.collapsePanelHeaderButton}
-                    type="edit"
-                    onClick={this.editClickEvent}
-                  />
-                </Tooltip>
+                {functionActive && (
+                  <div>
+                    <Tooltip title="Delete">
+                      <Icon
+                        className={styles.collapsePanelHeaderButton}
+                        type="delete"
+                        onClick={this.deleteClickEvent}
+                      />
+                    </Tooltip>
+                    {!onceAPirateOrder.orderDisabled && (
+                      <Tooltip title="Edit">
+                        <Icon
+                          className={styles.collapsePanelHeaderButton}
+                          type="edit"
+                          onClick={this.editClickEvent}
+                        />
+                      </Tooltip>
+                    )}
+                  </div>
+                )}
               </Col>
             </Row>
           }
@@ -188,6 +196,7 @@ class OrderItemCollapse extends Component {
           {onceAPirateOrder &&
             onceAPirateOrder.orderOfferList &&
             onceAPirateOrder.orderOfferList.map((orderOffer, offerIndex) => (
+              // eslint-disable-next-line react/no-array-index-key
               <div key={`order_${orderIndex}_${offerIndex}`}>
                 <Row gutter={24} className={styles.contentRow}>
                   <Col span={10} className={styles.titleCol}>

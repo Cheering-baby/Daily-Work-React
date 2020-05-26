@@ -113,3 +113,9 @@ export async function queryCompanyInfo(params) {
     method: 'GET',
   });
 }
+
+export async function querySalePerson() {
+  return UAAService.request(`/b2b/user/v1/user/querySalePersons`, {
+    method: 'GET',
+  });
+}

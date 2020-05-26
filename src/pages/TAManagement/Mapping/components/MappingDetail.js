@@ -1,16 +1,15 @@
 import React from 'react';
 import {
   Button,
+  Checkbox,
   Col,
+  DatePicker,
   Form,
   Input,
+  InputNumber,
+  Radio,
   Row,
   Select,
-  DatePicker,
-  InputNumber,
-  message,
-  Checkbox,
-  Radio,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import classNames from 'classnames';
@@ -25,7 +24,6 @@ import {
   SALES_SUPPORT_PRIVILEGE,
 } from '@/utils/PrivilegeUtil';
 
-const { Option } = Select;
 const FormItem = Form.Item;
 const formItemLayout = {
   labelCol: {
@@ -66,6 +64,12 @@ class MappingDetailList extends React.PureComponent {
     await dispatch({
       type: 'mappingDetails/fetchqueryDictionary',
     });
+    await dispatch({
+      type: 'mappingDetails/fetchQueryLintNum',
+    });
+    await dispatch({
+      type: 'mappingDetails/fetchQueryCreateTeam',
+    });
   }
 
   cancel = () => {
@@ -77,9 +81,8 @@ class MappingDetailList extends React.PureComponent {
   handleInitVal = key => {
     const {
       mappingDetails: { queryMappingInfo },
-      mapping: { type },
     } = this.props;
-    if (type === 'edit' && queryMappingInfo && Object.keys(queryMappingInfo).length > 0) {
+    if (queryMappingInfo && Object.keys(queryMappingInfo).length > 0) {
       let val = queryMappingInfo[key];
       if (key === 'salesManager') {
         val = typeof val === 'string' ? val.split(',').filter(_ => _) : [];
@@ -89,8 +92,25 @@ class MappingDetailList extends React.PureComponent {
         val = val ? moment(val) : '';
       } else if (key === 'guaranteeExpiryDate') {
         val = val ? moment(val) : '';
+      } else if (
+        key === 'creditLimit' ||
+        key === 'ewalletFixedThreshold' ||
+        key === 'arFixedThreshold'
+      ) {
+        val = val ? Number(val) : '';
+        val = isNaN(val) ? '' : val;
       } else if (key === 'productName') {
         val = typeof val === 'string' ? val.split(',').filter(_ => _) : [];
+        // val = val ? JSON.stringify(val) : {}
+        const toStr = {
+          hotel: '01',
+          attractions: '02',
+        };
+        val = val.map(element => {
+          const a = element;
+          element = toStr[a] ? toStr[a] : element;
+          return element;
+        });
       }
       return val;
     }
@@ -111,11 +131,8 @@ class MappingDetailList extends React.PureComponent {
       taId,
     } = this.props;
     const resCb = response => {
-      this.jumpToMapping();
-      if (response === 'SUCCESS') {
-        message.success(type === 'edit' ? 'Modified successfully.' : 'Mapping successfully.');
-      } else if (response === 'ERROR') {
-        message.error(type === 'edit' ? 'Failed to modify.' : 'Failed to mapping.');
+      if (response === true) {
+        this.jumpToMapping();
       }
     };
     form.validateFields((errors, values) => {
@@ -133,7 +150,9 @@ class MappingDetailList extends React.PureComponent {
               values[k] = value ? value.format('YYYY-MM-DD') : '';
             } else if (k === 'salesManager' && Array.isArray(value)) {
               values[k] = value.join();
-            } else if (k === 'product' && Array.isArray(value)) {
+            } else if (k === 'creditTerm' && Array.isArray(value)) {
+              values[k] = value.join();
+            } else if (k === 'product') {
               values[k] = value.join();
             } else if (k === 'guaranteeExpiryDate' && value) {
               values[k] = value ? value.format('YYYY-MM-DD') : '';
@@ -181,12 +200,15 @@ class MappingDetailList extends React.PureComponent {
       companyName,
       arAllowed,
       form: { getFieldDecorator },
-      mappingDetails: { userProfiles },
+      mappingDetails: { createTeamList, lintNum },
     } = this.props;
     const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
     const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
+    const viewId = 'mappingViewId';
+    const numFormat = formatMessage({ id: 'LIMIT_TEN' });
+    const ruleArr = [{ len: Number(lintNum || '10'), message: numFormat.replace('10', lintNum) }];
     return (
-      <Col lg={24} md={24}>
+      <Col lg={24} md={24} id={`${viewId}`}>
         <div className="has-shadow no-border">
           <div className={classNames(detailStyles.searchDiv, 'has-shadow', 'no-border')}>
             <Form onSubmit={this.handleSubmit}>
@@ -237,7 +259,7 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isSaleSupportRoleFlag !== true || arAllowed === false}
+                        disabled={isSaleSupportRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -269,29 +291,8 @@ class MappingDetailList extends React.PureComponent {
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isSaleSupportRoleFlag !== true || arAllowed === false}
+                        disabled={isSaleSupportRoleFlag !== true || !arAllowed}
                       />
-                    )}
-                  </FormItem>
-                </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_SALES_MANAGER' })}
-                  >
-                    {getFieldDecorator('salesManager', {
-                      initialValue: this.handleInitVal('salesManager'),
-                    })(
-                      <Select
-                        placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                        disabled={isSaleSupportRoleFlag !== true}
-                      >
-                        {userProfiles.map(user => (
-                          <Option key={`option_${user.id}`} value={user.userCode}>
-                            {user.userCode}
-                          </Option>
-                        ))}
-                      </Select>
                     )}
                   </FormItem>
                 </Col>
@@ -301,8 +302,8 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('productName'),
                     })(
                       <Checkbox.Group disabled={isSaleSupportRoleFlag !== true}>
-                        <Checkbox value="attractions">Attractions</Checkbox>
-                        <Checkbox value="hotel">Hotel</Checkbox>
+                        <Checkbox value="02">Attractions</Checkbox>
+                        <Checkbox value="01">Hotel</Checkbox>
                       </Checkbox.Group>
                     )}
                   </FormItem>
@@ -322,8 +323,9 @@ class MappingDetailList extends React.PureComponent {
                       rules: [
                         {
                           required: isAccountingArRoleFlag === true,
-                          msg: 'Required',
+                          message: 'Required',
                         },
+                        ...ruleArr,
                       ],
                     })(
                       <Input
@@ -341,11 +343,12 @@ class MappingDetailList extends React.PureComponent {
                   >
                     {getFieldDecorator('peoplesoftArAccountId', {
                       initialValue: this.handleInitVal('peoplesoftArAccountId'),
+                      rules: [...ruleArr],
                     })(
                       <Input
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -359,16 +362,29 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('creditTerm'),
                       rules: [
                         {
-                          required: isAccountingArRoleFlag === true || arAllowed === true,
-                          msg: 'Required',
+                          required: isAccountingArRoleFlag === true && arAllowed,
+                          message: 'Required',
                         },
                       ],
                     })(
-                      <Input
-                        type="text"
-                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
-                      />
+                      <Select
+                        showSearch
+                        placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                        optionFilterProp="children"
+                        getPopupContainer={() => document.getElementById(`${viewId}`)}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
+                      >
+                        {createTeamList && createTeamList.length > 0
+                          ? createTeamList.map(item => (
+                            <Select.Option
+                              key={`createTeamList{item.dictId}`}
+                              value={`${item.dictId}`}
+                            >
+                              {item.dictName}
+                            </Select.Option>
+                            ))
+                          : null}
+                      </Select>
                     )}
                   </FormItem>
                 </Col>
@@ -381,15 +397,20 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('creditLimit'),
                       rules: [
                         {
-                          required: isAccountingArRoleFlag === true || arAllowed === true,
-                          msg: 'Required',
+                          required: isAccountingArRoleFlag === true && arAllowed,
+                          message: 'Required',
                         },
                       ],
                     })(
-                      <Input
-                        type="text"
+                      <InputNumber
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        style={{ width: '100%' }}
+                        parser={value => {
+                          value = value.replace(/[^\d]/g, '');
+                          return value;
+                        }}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -404,13 +425,19 @@ class MappingDetailList extends React.PureComponent {
                       rules: [
                         {
                           required: isAccountingArRoleFlag === true,
-                          msg: 'Required',
+                          message: 'Required',
                         },
                       ],
                     })(
-                      <Input
+                      <InputNumber
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        style={{ width: '100%' }}
+                        parser={value => {
+                          value = value.replace(/[^\d]/g, '');
+                          return value;
+                        }}
                         disabled={isAccountingArRoleFlag !== true}
                       />
                     )}
@@ -425,15 +452,20 @@ class MappingDetailList extends React.PureComponent {
                       initialValue: this.handleInitVal('arFixedThreshold'),
                       rules: [
                         {
-                          required: isAccountingArRoleFlag === true || arAllowed === true,
-                          msg: 'Required',
+                          required: isAccountingArRoleFlag === true && arAllowed,
+                          message: 'Required',
                         },
                       ],
                     })(
-                      <Input
-                        type="text"
+                      <InputNumber
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        style={{ width: '100%' }}
+                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        parser={value => {
+                          value = value.replace(/[^\d]/g, '');
+                          return value;
+                        }}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -450,7 +482,8 @@ class MappingDetailList extends React.PureComponent {
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
                         style={{ width: '100%' }}
                         onChange={this.changeArAccountDate}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        format="YYYY-MM-DD"
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -465,8 +498,9 @@ class MappingDetailList extends React.PureComponent {
                     })(
                       <DatePicker
                         style={{ width: '100%' }}
+                        format="YYYY-MM-DD"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -488,7 +522,7 @@ class MappingDetailList extends React.PureComponent {
                           value = value.replace(/[^\d]/g, '');
                           return value;
                         }}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -510,8 +544,21 @@ class MappingDetailList extends React.PureComponent {
                           value = value.replace(/[^\d]/g, '');
                           return value;
                         }}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
+                    )}
+                  </FormItem>
+                </Col>
+                <Col {...ColProps}>
+                  <FormItem {...formItemLayout} label={formatMessage({ id: 'MAPPING_CURRENCY' })}>
+                    {getFieldDecorator('currency', {
+                      initialValue: this.handleInitVal('currency'),
+                    })(
+                      <Radio.Group>
+                        <Radio value="SGD" disabled={isAccountingArRoleFlag !== true || !arAllowed}>
+                          SGD
+                        </Radio>
+                      </Radio.Group>
                     )}
                   </FormItem>
                 </Col>
@@ -526,24 +573,9 @@ class MappingDetailList extends React.PureComponent {
                       <DatePicker
                         style={{ width: '100%' }}
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true || arAllowed === false}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
+                        format="YYYY-MM-DD"
                       />
-                    )}
-                  </FormItem>
-                </Col>
-                <Col {...ColProps}>
-                  <FormItem {...formItemLayout} label={formatMessage({ id: 'MAPPING_CURRENCY' })}>
-                    {getFieldDecorator('currency', {
-                      initialValue: this.handleInitVal('currency'),
-                    })(
-                      <Radio.Group>
-                        <Radio
-                          value="SGD"
-                          disabled={isAccountingArRoleFlag !== true || arAllowed === false}
-                        >
-                          SGD
-                        </Radio>
-                      </Radio.Group>
                     )}
                   </FormItem>
                 </Col>

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Col, Row, Icon, Tooltip, Input, Button, Form } from 'antd';
+import { Button, Col, Form, Icon, Input, Row, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from './index.less';
+import { toThousandsByRound } from '@/pages/TicketManagement/utils/orderCartUtil';
 
 @Form.create()
 @connect(({ queryOrderPaymentMgr }) => ({
@@ -70,7 +71,7 @@ class PaymentModel extends Component {
       }
       checkAccountInfo.balanceDesc = 'AR Balance';
     }
-    checkAccountInfo.balance = Number(checkAccountInfo.balance).toFixed(2);
+    checkAccountInfo.balance = toThousandsByRound(Number(checkAccountInfo.balance).toFixed(2));
     return checkAccountInfo;
   };
 
@@ -113,11 +114,11 @@ class PaymentModel extends Component {
     if (accountInfo && !accountInfo.ar) {
       payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'AR_CREDIT');
     }
-    if (accountInfo && !accountInfo.cc) {
-      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'CREDIT_CARD');
-    }
 
     const checkAccountInfo = this.checkAccountInfo();
+
+    const accountTypeColGrid = { xs: 18, sm: 16, md: 12, lg: 12, xl: 12, xxl: 12 };
+    const accountTopupColGrid = { xs: 6, sm: 8, md: 12, lg: 12, xl: 12, xxl: 12 };
 
     return (
       <div>
@@ -189,7 +190,7 @@ class PaymentModel extends Component {
 
         {checkAccountInfo.accountType === 'ew' && checkAccountInfo.tipInfo && (
           <Row className={styles.topUpDiv}>
-            <Col span={4} style={{ maxWidth: '200px' }}>
+            <Col {...accountTypeColGrid} style={{ maxWidth: '200px' }}>
               <Form>
                 <Form.Item label="">
                   {getFieldDecorator(`topupAmount`, {
@@ -207,7 +208,7 @@ class PaymentModel extends Component {
                 </Form.Item>
               </Form>
             </Col>
-            <Col span={20}>
+            <Col {...accountTopupColGrid}>
               <Button className={styles.topUpBtn} onClick={this.accountToUp}>
                 Top Up
               </Button>

@@ -6,6 +6,42 @@ import styles from './SubTaRegistration.less';
 import { isNvl } from '@/utils/utils';
 import { getCountryStr } from '@/pages/SubTAManagement/utils/pubUtils';
 
+const layoutDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 8,
+  lg: 12,
+  xl: 12,
+  xxl: 12,
+};
+
+const valueDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 16,
+  lg: 12,
+  xl: 12,
+  xxl: 12,
+};
+
+const longLayoutDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 8,
+  lg: 6,
+  xl: 6,
+  xxl: 6,
+};
+
+const longValueDisplay = {
+  xs: 24,
+  sm: 12,
+  md: 16,
+  lg: 18,
+  xl: 18,
+  xxl: 18,
+};
+
 @Form.create()
 @connect(({ commonSignUpDetail }) => ({
   commonSignUpDetail,
@@ -39,12 +75,26 @@ class SubTaRegistration extends PureComponent {
         <Row type="flex" justify="space-around">
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col
+                xs={layoutDisplay.xs}
+                sm={layoutDisplay.sm}
+                md={layoutDisplay.md}
+                lg={layoutDisplay.lg}
+                xl={layoutDisplay.xl}
+                xxl={layoutDisplay.xxl}
+              >
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'SUB_TA_FULL_NAME' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col
+                xs={valueDisplay.xs}
+                sm={valueDisplay.sm}
+                md={valueDisplay.md}
+                lg={valueDisplay.lg}
+                xl={valueDisplay.xl}
+                xxl={valueDisplay.xxl}
+              >
                 <div className={styles.detailLeftStyle}>
                   <span>{!isNvl(subTaInfo.fullName) ? subTaInfo.fullName : '-'}</span>
                 </div>
@@ -53,12 +103,26 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
+              <Col
+                xs={layoutDisplay.xs}
+                sm={layoutDisplay.sm}
+                md={layoutDisplay.md}
+                lg={layoutDisplay.lg}
+                xl={layoutDisplay.xl}
+                xxl={layoutDisplay.xxl}
+              >
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'SUB_TA_EMAIL' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
+              <Col
+                xs={valueDisplay.xs}
+                sm={valueDisplay.sm}
+                md={valueDisplay.md}
+                lg={valueDisplay.lg}
+                xl={valueDisplay.xl}
+                xxl={valueDisplay.xxl}
+              >
                 <div className={styles.detailLeftStyle}>
                   <span>{!isNvl(subTaInfo.email) ? subTaInfo.email : '-'}</span>
                 </div>
@@ -67,12 +131,26 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={12} xl={8} xxl={8}>
+              <Col
+                xs={layoutDisplay.xs}
+                sm={layoutDisplay.sm}
+                md={layoutDisplay.md}
+                lg={layoutDisplay.lg}
+                xl={layoutDisplay.xl}
+                xxl={layoutDisplay.xxl}
+              >
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={12} xl={16} xxl={16}>
+              <Col
+                xs={valueDisplay.xs}
+                sm={valueDisplay.sm}
+                md={valueDisplay.md}
+                lg={valueDisplay.lg}
+                xl={valueDisplay.xl}
+                xxl={valueDisplay.xxl}
+              >
                 <div className={styles.detailLeftStyle}>
                   <span>{!isNvl(subTaInfo.companyName) ? subTaInfo.companyName : '-'}</span>
                 </div>
@@ -81,12 +159,26 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
+              <Col
+                xs={layoutDisplay.xs}
+                sm={layoutDisplay.sm}
+                md={layoutDisplay.md}
+                lg={layoutDisplay.lg}
+                xl={layoutDisplay.xl}
+                xxl={layoutDisplay.xxl}
+              >
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
+              <Col
+                xs={valueDisplay.xs}
+                sm={valueDisplay.sm}
+                md={valueDisplay.md}
+                lg={valueDisplay.lg}
+                xl={valueDisplay.xl}
+                xxl={valueDisplay.xxl}
+              >
                 <div className={styles.detailLeftStyle}>
                   <span>{getCountryStr(countryList, subTaInfo.country)}</span>
                 </div>
@@ -95,12 +187,26 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col span={24}>
             <Row type="flex" justify="space-around">
-              <Col xs={12} sm={12} md={10} lg={6} xl={4} xxl={4}>
+              <Col
+                xs={longLayoutDisplay.xs}
+                sm={longLayoutDisplay.sm}
+                md={longLayoutDisplay.md}
+                lg={longLayoutDisplay.lg}
+                xl={longLayoutDisplay.xl}
+                xxl={longLayoutDisplay.xxl}
+              >
                 <div className={styles.detailRightStyle}>
                   <span>{formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}</span>
                 </div>
               </Col>
-              <Col xs={12} sm={12} md={14} lg={18} xl={20} xxl={20}>
+              <Col
+                xs={longValueDisplay.xs}
+                sm={longValueDisplay.sm}
+                md={longValueDisplay.md}
+                lg={longValueDisplay.lg}
+                xl={longValueDisplay.xl}
+                xxl={longValueDisplay.xxl}
+              >
                 <div className={styles.detailLeftStyle}>
                   <span>{!isNvl(subTaInfo.address) ? subTaInfo.address : '-'}</span>
                 </div>

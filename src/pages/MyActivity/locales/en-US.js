@@ -7,7 +7,7 @@ export default {
   TA_SIGNED_UPLOADED_BY: 'Uploaded By',
   TA_SIGNED_UPLOADED_TIME: 'Uploaded Time',
   TA_SIGNED_REGISTERATION_DOCS: 'Registration Docs ',
-  ACTIVITY_ID: 'Activity Id',
+  ACTIVITY_ID: 'Activity ID',
   ACTIVITY_TYPE: 'Type',
   REMARKS: 'Remarks',
   CREATE_DATE: 'Create Date',
@@ -15,10 +15,14 @@ export default {
   APPROVAL_ACCEPT: 'Accepted',
   APPROVAL_REJECT: 'Reject',
   APPROVAL_APPROVER: 'Approver',
+  SALE_MANAGER: 'Sale Manager',
   KEYWORD: 'Agent ID/Company Name',
+  AGENT_ID: 'Agent ID',
+  COMPANY_NAME: 'Company Name',
+  ORDER_INFORMATION: 'ORDER INFORMATION',
   TA_REGISTRATION_INFORMATION: 'REGISTRATION INFORMATION',
   TA_FINANCE_CONTACT: 'TA_FINANCE_CONTACT',
-  TRAVEL_AGENT_REGISTRATION_NO: 'Travel Agent Registration No.',
+  TRAVEL_AGENT_REGISTRATION_NO: 'Travel Agent License No.',
 
   BILLING_COMPANY_NAME: 'Billing Company Name',
   BILLING_COUNTRY_AND_CITY_STATE: 'Billing Country and City/State',
@@ -28,4 +32,6 @@ export default {
 
   COMMON_OPERATION: 'Operation',
   COMMON_REDIRECT_MAPPING: 'Mapping',
+  PARTNERS_TRANSACTION_NO: 'PARTNERS Order No.',
+  ORDER_DETAIL: 'Order Detail',
 };

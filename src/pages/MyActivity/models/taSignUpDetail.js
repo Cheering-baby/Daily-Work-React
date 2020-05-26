@@ -21,7 +21,9 @@ export default {
             otherInfo: result.otherInfo,
           },
         });
-      } else message.warn(resultMsg, 10);
+        return result.customerInfo.companyInfo.country;
+      }
+      message.warn(resultMsg, 10);
     },
   },
   reducers: {

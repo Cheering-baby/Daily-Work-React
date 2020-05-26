@@ -1,16 +1,20 @@
-import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { serialize } from '../utils/utils';
-import { accept, downloadETicket, queryOrder } from '../services/queryOrderService';
-import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
+import { message } from 'antd';
+import serialize from '../utils/utils';
+import {
+  attractionTaConfirm,
+  downloadETicket,
+  downloadInvoice,
+  queryOrder,
+} from '../services/queryOrderService';
 
 export default {
   namespace: 'queryOrderMgr',
   state: {
     transactionList: [],
     searchConditions: {
-      lastName: null,
-      firstName: null,
+      deliveryLastName: null,
+      deliveryFirstName: null,
       confirmationNumber: null,
       bookingId: null,
       taReferenceNo: null,
@@ -18,6 +22,8 @@ export default {
       orderType: null,
       createTimeFrom: null,
       createTimeTo: null,
+      agentType: 'agentId',
+      agentValue: null,
       agentId: null,
       agentName: null,
       currentPage: 1,
@@ -40,17 +46,45 @@ export default {
           searchConditions: params,
         },
       });
-      const paramList = serialize({
+      let paramsStatus = params.status;
+      let paramsOrderType = params.orderType;
+      if (params.status === 'Confirmed') {
+        paramsStatus = 'Complete';
+      }
+      if (
+        params.status === 'PendingOrderNo' &&
+        (params.orderType === null || params.orderType.search('Revalidation') !== -1)
+      ) {
+        paramsOrderType = 'Revalidation';
+        paramsStatus = 'Confirmed';
+      }
+      if (
+        params.status === 'PendingRefund' &&
+        (params.orderType === null || params.orderType.search('Refund') !== -1)
+      ) {
+        paramsOrderType = 'Refund';
+        paramsStatus = 'Confirmed';
+      }
+      if (params.agentValue !== null) {
+        params.agentValue = params.agentValue.trim();
+      }
+      const paramList = {
         ...params,
-        lastName: params.lastName !== null ? params.lastName.trim() : null,
-        firstName: params.firstName !== null ? params.firstName.trim() : null,
+        deliveryLastName: params.deliveryLastName !== null ? params.deliveryLastName.trim() : null,
+        deliveryFirstName:
+          params.deliveryFirstName !== null ? params.deliveryFirstName.trim() : null,
         confirmationNumber:
           params.confirmationNumber !== null ? params.confirmationNumber.trim() : null,
         bookingId: params.bookingId !== null ? params.bookingId.trim() : null,
         taReferenceNo: params.taReferenceNo !== null ? params.taReferenceNo.trim() : null,
-        orderType: params.orderType !== null ? params.orderType.toString() : null,
-      });
-      const response = yield call(queryOrder, paramList);
+        orderType: paramsOrderType,
+        status: paramsStatus,
+        agentId: params.agentType === 'agentId' ? params.agentValue : null,
+        agentName: params.agentType === 'agentName' ? params.agentValue : null,
+      };
+      delete paramList.agentType;
+      delete paramList.agentValue;
+      const response = yield call(queryOrder, serialize(paramList));
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
@@ -72,39 +106,31 @@ export default {
             selectedBookings: [],
           },
         });
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      }
     },
-    *downloadETicket({ payload }, { call }) {
+    *download({ payload }, { call }) {
+      const { ifReprint = false } = payload;
+      delete payload.ifReprint;
       const paramList = serialize(payload);
-      const response = yield call(downloadETicket, paramList);
+      let response = null;
+      if (ifReprint) {
+        response = yield call(downloadInvoice, paramList);
+      } else {
+        response = yield call(downloadETicket, paramList);
+      }
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
         try {
-          new Promise(resolve => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', result, true);
-            xhr.responseType = 'blob';
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                resolve(xhr.response);
-              }
-            };
-            xhr.send();
-          }).then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.id = 'exportFile';
-            a.href = url;
-            a.download = url;
-            document.body.append(a);
-            a.click();
-            document.getElementById('exportFile').remove();
-            window.URL.revokeObjectURL(url);
-          });
+          window.open(result);
         } catch (e) {
+          if (ifReprint) {
+            return formatMessage({ id: 'FAILED_TO_REPRINT' });
+          }
           return formatMessage({ id: 'FAILED_TO_DOWNLOAD' });
         }
       } else {
@@ -112,19 +138,18 @@ export default {
       }
       return resultCode;
     },
-    *approve({ payload }, { call, put }) {
-      const { activityId } = payload;
-      const response = yield call(accept, { activityId });
+    *resubmit({ payload }, { call, put }) {
+      const response = yield call(attractionTaConfirm, payload);
       if (!response) return false;
-      const { data: resultData, success, errorMsg } = response;
-      if (success) {
-        const { resultCode, resultMsg } = resultData;
-        if (resultCode !== ERROR_CODE_SUCCESS) {
-          throw resultMsg;
-        }
-        message.success(resultMsg);
+      const {
+        data: { resultCode, resultMsg },
+      } = response;
+      if (resultCode === '0') {
         yield put({ type: 'queryTransactions' });
-      } else throw errorMsg;
+      } else {
+        message.error(resultMsg);
+      }
+      return resultCode;
     },
   },
 
@@ -182,8 +207,8 @@ export default {
       return {
         transactionList: [],
         searchConditions: {
-          lastName: null,
-          firstName: null,
+          deliveryLastName: null,
+          deliveryFirstName: null,
           confirmationNumber: null,
           bookingId: null,
           taReferenceNo: null,
@@ -191,6 +216,8 @@ export default {
           orderType: null,
           createTimeFrom: null,
           createTimeTo: null,
+          agentType: 'agentId',
+          agentValue: null,
           agentId: null,
           agentName: null,
           currentPage: 1,

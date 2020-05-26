@@ -2,6 +2,22 @@
 
 @prefix-cls: ~'@{ant-prefix}';
 
+.questionsInfo {
+  :global {
+    .ant-checkbox-inner {
+      width: 20px;
+      height: 20px;
+    }
+
+    .ant-checkbox-inner::after {
+      top: 40%;
+      left: 14%;
+      width: 8.71428571px;
+      height: 16.14285714px;
+    }
+  }
+}
+
 .questionsTitle {
   font-size: 14px;
   color: #3B414A;
@@ -114,4 +130,8 @@
   letter-spacing: 0.24px;
   line-height: 18px;
   padding-left: 1.5rem;
+}
+
+.whiteSpacePreWrap {
+  white-space: pre-wrap;
 }

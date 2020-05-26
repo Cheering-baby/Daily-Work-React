@@ -62,6 +62,51 @@ export function getFormLayout() {
   };
 }
 
+export function getDetailLayout() {
+  const layoutDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 8,
+    lg: 12,
+    xl: 12,
+    xxl: 12,
+  };
+
+  const valueDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 16,
+    lg: 12,
+    xl: 12,
+    xxl: 12,
+  };
+
+  const longLayoutDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 8,
+    lg: 6,
+    xl: 6,
+    xxl: 6,
+  };
+
+  const longValueDisplay = {
+    xs: 24,
+    sm: 12,
+    md: 16,
+    lg: 18,
+    xl: 18,
+    xxl: 18,
+  };
+
+  return {
+    layoutDisplay,
+    valueDisplay,
+    longLayoutDisplay,
+    longValueDisplay,
+  };
+}
+
 export function getCountryStr(countryList, country) {
   let countryStr = '';
   if (country && countryList && countryList.length > 0) {

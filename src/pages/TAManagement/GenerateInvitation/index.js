@@ -10,7 +10,6 @@ import InvitationComp from './components/InvitationComp';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
 import { isNvl } from '@/utils/utils';
-import { getRegistionLink } from '../utils/pubUtils';
 
 const mapStateToProps = store => {
   const { taId = null, searchForm, searchList, statusList = [] } = store.generateInvitation;
@@ -56,7 +55,7 @@ class GenerateInvitation extends PureComponent {
           content: {
             companyName: !isNvl(companyInfo.companyName) ? companyInfo.companyName : null,
             companyFullName: !isNvl(companyInfo.companyName) ? companyInfo.companyName : null,
-            registrationLink: getRegistionLink(companyInfo.companyName, taInfo.companyId),
+            registrationLink: '#',
           },
         },
       });

@@ -22,45 +22,40 @@ import Invoice from './components/invoice';
 import Topup from './components/topup';
 import ARApply from './components/ARApply';
 import More from './components/More';
+import Approval from './components/Approval';
 import styles from './index.less';
 
-// eslint-disable-next-line no-unused-vars
-const formItemLayout = {
-  labelCol: {
-    // lg: { span: 6 },
-    // xs: { span: 24 },
-    // sm: { span: 8 },
-  },
-  wrapperCol: {
-    lg: { span: 24 },
-    xs: { span: 24 },
-    sm: { span: 24 },
-  },
+const ACTIVITY_STATUS = {
+  Approved: '00',
+  Rejected: '01',
+  PendingReview: '02',
+  PendingOthersReview: '03',
 };
 
 @Form.create()
-@connect(({ myWallet, loading }) => ({
+@connect(({ global, myWallet, loading }) => ({
+  global,
   myWallet,
-  loading: loading.models.myWallet,
+  loading: loading.effects['myWallet/fetchAccountFlowList'],
 }))
 class MyWallet extends React.PureComponent {
   state = {};
 
   componentDidMount() {
     const { dispatch } = this.props;
+    dispatch({ type: 'myWallet/clear' });
     dispatch({ type: 'myWallet/fetchTransactionTypes' });
     // dispatch({ type: 'myWallet/fetchWalletTypes' });
-    dispatch({ type: 'myWallet/fetchAccountDetail' });
-    dispatch({ type: 'myWallet/fetchAccountFlowList' });
-    dispatch({
-      type: 'myWallet/fetchMyActivityList',
-      payload: {
-        activityTplCode: 'ACCOUNT_AR_APPLY',
-        currentPage: 1,
-        pageSize: 1,
-        queryType: '03',
-      },
+    dispatch({ type: 'myWallet/fetchAccountDetail' }).then(() => {
+      dispatch({ type: 'myWallet/fetchMyActivityList' });
     });
+    dispatch({ type: 'myWallet/fetchAccountFlowList' });
+
+    this.interval = setInterval(() => dispatch({ type: 'myWallet/fetchAccountDetail' }), 1000 * 5);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   handleSearch = ev => {
@@ -120,7 +115,10 @@ class MyWallet extends React.PureComponent {
         pagination = {},
         arActivity = {},
       },
+      global: { userCompanyInfo = {} },
     } = this.props;
+
+    const taUserStatus = userCompanyInfo.status || '-1';
     const { eWallet, ar } = account;
     const transactionTypesMap = {};
     transactionTypes.forEach(item => {
@@ -209,7 +207,7 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'TA Reference No',
+        title: 'Travel Agent Reference No',
         key: 'taReferenceNo',
         dataIndex: 'taReferenceNo',
         render: text => {
@@ -254,11 +252,9 @@ class MyWallet extends React.PureComponent {
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
-        url: '/TAManagement/My Wallet',
       },
       {
         breadcrumbName: formatMessage({ id: 'MENU_WALLET' }),
-        url: null,
       },
     ];
 
@@ -302,9 +298,7 @@ class MyWallet extends React.PureComponent {
                     )}
                   </div>
                 </div>
-                <div style={{ paddingRight: '24px' }}>
-                  <Topup />
-                </div>
+                <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <Topup />}</div>
               </div>
             </Col>
             <Col lg={12} md={12}>
@@ -320,22 +314,30 @@ class MyWallet extends React.PureComponent {
                         <span className={styles.decimalPart}>.{ar.decimal}</span>
                       </div>
                     )}
-                    {!ar &&
-                      (arActivity === '' ? (
-                        <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                          {formatMessage({ id: 'PENDING_OPREATION' })}
-                        </div>
-                      ) : (
-                        <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                          {formatMessage({ id: 'AR_APPLY_STATUS' })}
-                        </div>
-                      ))}
+                    {!ar && !arActivity.status && (
+                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                        {formatMessage({ id: 'No_Account_Ar' })}
+                      </div>
+                    )}
+                    {!ar && arActivity.status === ACTIVITY_STATUS.Rejected && (
+                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                        {formatMessage({ id: 'REJECT' })}
+                      </div>
+                    )}
+                    {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
+                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                        {formatMessage({ id: 'PENDING_OPREATION' })}
+                      </div>
+                    )}
+                    {!ar && arActivity.status === ACTIVITY_STATUS.Approved && <Approval />}
                   </div>
                 </div>
-                {!ar && (
-                  <div style={{ paddingRight: '24px' }}>
-                    {arActivity === '' ? <More /> : <ARApply />}
-                  </div>
+                {!ar && (!arActivity.status || arActivity.status === ACTIVITY_STATUS.Rejected) && (
+                  <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <ARApply />}</div>
+                )}
+
+                {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
+                  <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <More />}</div>
                 )}
               </div>
             </Col>
@@ -353,7 +355,7 @@ class MyWallet extends React.PureComponent {
                         message: '',
                       },
                     ],
-                  })(<Input placeholder="PAMS Transaction No." allowClear />)}
+                  })(<Input placeholder="PARTNERS Transaction No." allowClear />)}
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>

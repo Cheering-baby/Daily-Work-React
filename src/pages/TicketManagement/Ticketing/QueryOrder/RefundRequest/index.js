@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import { Button, Col, Input, message, Row, Table, Upload } from 'antd';
+import { Button, Col, Input, message, Row, Spin, Table, Tooltip, Upload } from 'antd';
+import moment from 'moment';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '../../../components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
 import Card from '../../../components/Card';
 import PaginationComp from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaginationComp';
@@ -15,6 +16,7 @@ const { Search } = Input;
   refundRequestMgr,
   global,
   tableLoading: loading.effects['refundRequestMgr/queryBookingDetail'],
+  pageLoading: loading.effects['refundRequestMgr/refundTicket'],
 }))
 class RefundRequest extends Component {
   columns = [
@@ -22,22 +24,74 @@ class RefundRequest extends Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
       dataIndex: 'vidNo',
       key: 'vidNo',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
       dataIndex: 'vidCode',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
       dataIndex: 'status',
+      render: (text, record) => {
+        let status = text;
+        const { hadRefunded } = record;
+        if (text === 'false' && hadRefunded !== 'Yes') {
+          status = 'ISSUED';
+        } else {
+          status = 'INVALID';
+        }
+        return (
+          <div>
+            <div
+              className={styles.statusRadiusStyle}
+              style={{ background: `${this.setStatusColor(text, hadRefunded)}` }}
+            />
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{status}</span>}
+            >
+              <span className={styles.tableSpan}>{status}</span>
+            </Tooltip>
+          </div>
+        );
+      },
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'EXPIRY_DATE' })}</span>,
       dataIndex: 'expiryDate',
+      render: text => {
+        if (text) {
+          const date = moment(text, 'YYYY-MM-DD');
+          const dateString = moment(date).format('DD-MMM-YYYY');
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{dateString || '-'}</span>}
+            >
+              <span className={styles.tableSpan}>{dateString || '-'}</span>
+            </Tooltip>
+          );
+        }
+      },
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' })}</span>,
       dataIndex: 'offerName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
   ];
 
@@ -49,6 +103,10 @@ class RefundRequest extends Component {
     } = this.props;
     if (bookingNo !== undefined) {
       const { dispatch } = this.props;
+      dispatch({
+        type: 'refundRequestMgr/queryThemeParkRefundList',
+        payload: {},
+      });
       dispatch({
         type: 'refundRequestMgr/queryBookingDetail',
         payload: {
@@ -75,14 +133,11 @@ class RefundRequest extends Component {
     });
   }
 
-  onSelectChange = selectedRowKeys => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'refundRequestMgr/saveSelectVid',
-      payload: {
-        selectedRowKeys,
-      },
-    });
+  setStatusColor = (status, hadRefunded) => {
+    if (status === 'false' && hadRefunded !== 'Yes') {
+      return '#40C940';
+    }
+    return '#C0C0C0';
   };
 
   changeSearchValue = e => {
@@ -108,14 +163,41 @@ class RefundRequest extends Component {
     });
   };
 
-  refundTicket = (selectedVidList, bookingNo) => {
-    const { dispatch } = this.props;
+  refundTicket = (selectedVidList, bookingNo, userType) => {
+    const {
+      dispatch,
+      refundRequestMgr: { bookingDetail },
+    } = this.props;
     if (selectedVidList.length < 1) {
       message.warning('Select at least one VID.');
     } else {
       const visualIds = [];
-      for (let i = 0; i < selectedVidList.length; i += 1) {
-        visualIds.push(selectedVidList[i].vidCode);
+      const selectOfferGroupList = [];
+      selectedVidList.forEach(selectedVid => {
+        const index = selectOfferGroupList.findIndex(
+          selectOfferGroup => selectOfferGroup === selectedVid.offerGroup
+        );
+        if (index < 0) {
+          selectOfferGroupList.push(selectedVid.offerGroup);
+        }
+      });
+      const { offers = [] } = bookingDetail;
+      for (let i = 0; i < offers.length; i += 1) {
+        const index = selectOfferGroupList.findIndex(
+          selectOfferGroup => selectOfferGroup === offers[i].offerGroup
+        );
+        if (index < 0) {
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+        const { attraction = [] } = offers[i];
+        if (attraction) {
+          for (let j = 0; j < attraction.length; j += 1) {
+            if (attraction[j].visualIdStatus === 'false') {
+              visualIds.push(attraction[j].visualID);
+            }
+          }
+        }
       }
       dispatch({
         type: 'refundRequestMgr/refundTicket',
@@ -125,9 +207,12 @@ class RefundRequest extends Component {
         },
       }).then(resultCode => {
         if (resultCode === '0') {
-          message.success('Submit successfully.');
-        } else {
-          message.warning(resultCode);
+          if (userType === '02') {
+            message.success(formatMessage({ id: 'REFUNDED_SUCCESSFULLY' }));
+          }
+          if (userType === '03') {
+            message.success(formatMessage({ id: 'SUB_TA_REQUESTED_SUCCESSFULLY' }));
+          }
         }
       });
     }
@@ -146,9 +231,9 @@ class RefundRequest extends Component {
         },
       }).then(uploadStatus => {
         if (uploadStatus) {
-          message.success('Update successfully.');
+          message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
         } else {
-          message.warning('Failed to update.');
+          message.warning(formatMessage({ id: 'FAILED_TO_UPDATE' }));
         }
       });
     };
@@ -164,9 +249,118 @@ class RefundRequest extends Component {
     }
   };
 
+  getCheckboxProps = record => {
+    const {
+      refundRequestMgr: { disabledKeyList, themeParkRefundList = [], disabledVidList = [] },
+    } = this.props;
+    const index = disabledKeyList.findIndex(disabledKey => disabledKey === record.offerGroup);
+    if (record.themePark && themeParkRefundList.length > 0) {
+      const themeParkRefundIndex = themeParkRefundList.findIndex(
+        themeParkRefund => themeParkRefund === record.themePark
+      );
+      if (themeParkRefundIndex > -1 && index > -1) {
+        return {
+          disabled: false,
+        };
+      }
+    }
+    const vidCodeIndex = disabledVidList.findIndex(
+      disabledVid => disabledVid.vidCode === record.vidCode
+    );
+    let disabledResult = false;
+    if (vidCodeIndex > -1 || index > -1) {
+      disabledResult = true;
+    }
+    return {
+      disabled: disabledResult,
+    };
+  };
+
+  onSelectChange = selectedRowKeys => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'refundRequestMgr/saveSelectVid',
+      payload: {
+        selectedRowKeys,
+      },
+    });
+  };
+
+  onSelectAll = (selected, selectedRows) => {
+    const { dispatch } = this.props;
+    if (selected) {
+      const selectedRowKeys = selectedRows.map(selectedRow => selectedRow.key);
+      dispatch({
+        type: 'refundRequestMgr/saveSelectVid',
+        payload: {
+          selectedRowKeys,
+        },
+      });
+    } else {
+      dispatch({
+        type: 'refundRequestMgr/save',
+        payload: {
+          selectedRowKeys: [],
+          selectedVidList: [],
+        },
+      });
+    }
+  };
+
+  onSelect = (record, selected) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'refundRequestMgr/settingSelectVid',
+      payload: {
+        selected,
+        record,
+      },
+    });
+  };
+
+  refundPay = () => {
+    const {
+      refundRequestMgr: { selectedVidList = [], bookingDetail },
+    } = this.props;
+
+    if (selectedVidList.length === 0) {
+      return '0.00';
+    }
+
+    let refundPay = 0;
+    const selectOfferGroupList = [];
+    selectedVidList.forEach(selectedVid => {
+      const index = selectOfferGroupList.findIndex(
+        selectOfferGroup => selectOfferGroup === selectedVid.offerGroup
+      );
+      if (index < 0) {
+        selectOfferGroupList.push(selectedVid.offerGroup);
+      }
+    });
+    const { offers = [] } = bookingDetail;
+    for (let i = 0; i < offers.length; i += 1) {
+      const index = selectOfferGroupList.findIndex(
+        selectOfferGroup => selectOfferGroup === offers[i].offerGroup
+      );
+      if (index < 0) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      const { attraction = [] } = offers[i];
+      if (attraction) {
+        for (let j = 0; j < attraction.length; j += 1) {
+          refundPay += attraction[j].netAmt;
+        }
+      }
+    }
+
+    return Number(refundPay).toFixed(2);
+  };
+
   render() {
     const {
       tableLoading,
+      pageLoading,
       refundRequestMgr: {
         vidList,
         total,
@@ -206,23 +400,26 @@ class RefundRequest extends Component {
 
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange,
+      onSelectAll: this.onSelectAll,
+      onSelect: this.onSelect,
+      getCheckboxProps: this.getCheckboxProps,
     };
 
     return (
-      <div>
+      <Spin spinning={!!pageLoading}>
         <Row gutter={12}>
           <Col span={12}>
             <MediaQuery minWidth={SCREEN.screenSm}>
-              <BreadcrumbComp title={title} />
+              <BreadcrumbCompForPams title={title} />
             </MediaQuery>
           </Col>
           <Col span={12}>
             <div className={styles.orderTitleStyles}>
               <div className={styles.orderTitleButtonStyles}>
+                {userType !== '03' && <span className={styles.priceFont}>${this.refundPay()}</span>}
                 <Button
                   type="primary"
-                  onClick={() => this.refundTicket(selectedVidList, bookingNo)}
+                  onClick={() => this.refundTicket(selectedVidList, bookingNo, userType)}
                 >
                   {this.showButtonText(userType)}
                 </Button>
@@ -261,6 +458,7 @@ class RefundRequest extends Component {
                     rowSelection={rowSelection}
                     pagination={false}
                     bordered={false}
+                    scroll={{ x: 660 }}
                   />
                   <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
                 </Col>
@@ -268,7 +466,7 @@ class RefundRequest extends Component {
             </Card>
           </Col>
         </Row>
-      </div>
+      </Spin>
     );
   }
 }

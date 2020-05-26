@@ -12,7 +12,8 @@ export default {
       activityTplCode: undefined,
       status: undefined,
       activityId: undefined,
-      keyword: undefined,
+      agentId: undefined,
+      companyName: undefined,
     },
     pagination: {
       currentPage: 1,
@@ -200,6 +201,8 @@ export default {
           status: undefined,
           activityId: undefined,
           businessId: undefined,
+          agentId: undefined,
+          companyName: undefined,
         },
         pagination: {
           currentPage: 1,

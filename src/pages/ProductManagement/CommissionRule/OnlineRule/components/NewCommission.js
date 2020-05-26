@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import {
   Icon,
   Col,
@@ -12,13 +12,17 @@ import {
   InputNumber,
   Tooltip,
   message,
+  Modal,
 } from 'antd';
+import { cloneDeep } from 'lodash';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import styles from '../New/index.less';
-import CommissionSchemaModal from './CommissionSchemeModal';
+import { reBytesStr } from '@/utils/utils';
 
+const { confirm } = Modal;
+const { RangePicker } = DatePicker;
 const InputGroup = Input.Group;
 const formItemLayout = {
   labelCol: {
@@ -49,24 +53,6 @@ const ColProps = {
   fetchLoading: loading.effects['detail/queryDetail'],
 }))
 class NewCommission extends React.PureComponent {
-  columns = [
-    {
-      title: formatMessage({ id: 'TIERED_COMMISSION_TIER' }),
-      dataIndex: 'minimum',
-      render: (text, record, index) => this.showCommission(text, record, index),
-    },
-    {
-      title: formatMessage({ id: 'COMMISSION_SCHEMA' }),
-      dataIndex: 'commissionValue',
-      render: (text, record, index) => this.commissionInput(text, record, index),
-    },
-    {
-      title: formatMessage({ id: 'OPERATION' }),
-      dataIndex: 'operation',
-      render: (text, record, index) => this.operation(text, record, index),
-    },
-  ];
-
   componentDidMount() {
     const { dispatch, tplId, type } = this.props;
     if (type === 'edit') {
@@ -91,21 +77,43 @@ class NewCommission extends React.PureComponent {
         commodityType: 'PackagePlu',
       },
     });
-    dispatch({
-      type: 'detail/offerDetail',
-      payload: {
-        tplId,
-        commodityType: 'Offer',
-      },
-    });
-    dispatch({
-      type: 'detail/pluDetail',
-      payload: {
-        tplId,
-        commodityType: 'PackagePlu',
-      },
-    });
+    // dispatch({
+    //   type: 'detail/pluDetail',
+    //   payload: {
+    //     tplId,
+    //     commodityType: 'PackagePlu',
+    //   },
+    // });
   }
+
+  showCommissionTierTitle = () => {
+    const {
+      form: { getFieldValue },
+    } = this.props;
+    return getFieldValue('commissionType') === 'Attendance'
+      ? formatMessage({ id: 'ATTENDANCE_COMMISSION_TIER' })
+      : formatMessage({ id: 'TIERED_COMMISSION_TIER' });
+  };
+
+  getCommissionColumns = () => {
+    return [
+      {
+        title: this.showCommissionTierTitle(),
+        dataIndex: 'minimum',
+        render: (text, record, index) => this.showCommission(text, record, index),
+      },
+      {
+        title: formatMessage({ id: 'COMMISSION_SCHEMA' }),
+        dataIndex: 'commissionValue',
+        render: (text, record, index) => this.commissionInput(text, record, index),
+      },
+      {
+        title: formatMessage({ id: 'OPERATION' }),
+        dataIndex: 'operation',
+        render: (text, record, index) => this.operation(text, record, index),
+      },
+    ];
+  };
 
   handleInitVal = key => {
     const {
@@ -115,9 +123,9 @@ class NewCommission extends React.PureComponent {
     if (type === 'edit' && commisssionList && Object.keys(commisssionList).length > 0) {
       let val = commisssionList[key];
       if (key === 'effectiveDate') {
-        val = moment(val);
+        val = val ? moment(val) : '';
       } else if (key === 'expiryDate') {
-        val = moment(val);
+        val = val ? moment(val) : '';
       }
       return val;
     }
@@ -125,22 +133,29 @@ class NewCommission extends React.PureComponent {
 
   add = () => {
     const {
-      detail: { tieredList },
+      detail: { tieredList, addInput1Min },
       dispatch,
     } = this.props;
-    let arr = tieredList;
+    let arr = cloneDeep(tieredList);
     const isExist = arr.find(({ type }) => type === 'ADD_ROW');
     const isExist2 = arr.find(item => item.EDIT_ROW === true);
-    if (isExist) {
-      message.warning(formatMessage({ id: 'PLEASE_ADD_THE_CURRENT_EDIT_FIRST' }));
-      return false;
+
+    if (arr.length > 0) {
+      if (arr[arr.length - 1].minimum > 0 && arr[arr.length - 1].maxmum === '') {
+        message.warning(formatMessage({ id: 'Please fill in the maximum value.' }));
+        return false;
+      }
     }
+
     if (isExist2) {
       message.warning(formatMessage({ id: 'PLEASE_END_THE_CURRENT_EDIT_FIRST' }));
       return false;
     }
-    if (!isExist) {
+    if (isExist === undefined) {
       arr = [{ type: 'ADD_ROW' }, ...tieredList];
+    } else {
+      message.warning(formatMessage({ id: 'PLEASE_ADD_THE_CURRENT_EDIT_FIRST' }));
+      return false;
     }
     dispatch({
       type: 'detail/save',
@@ -230,7 +245,7 @@ class NewCommission extends React.PureComponent {
               dispatch({
                 type: 'detail/save',
                 payload: {
-                  addInput1Max: val,
+                  addInput1Max: val || '',
                 },
               });
             }}
@@ -285,7 +300,7 @@ class NewCommission extends React.PureComponent {
         </InputGroup>
       );
     } else {
-      node = record.minimum || record.maxmum ? `${record.minimum}~${record.maxmum}` : '';
+      node = record.minimum || record.maxmum !== null ? `${record.minimum}~${record.maxmum}` : '';
     }
     return node;
   };
@@ -301,15 +316,18 @@ class NewCommission extends React.PureComponent {
     if (record.type === 'ADD_BUTTON') {
       node = null;
     }
-    if (record.type === 'ADD_ROW') {
+    if (record.type === 'ADD_ROW' || record.EDIT_ROW) {
       node =
         commissionSchemeValue === 'Amount' ? (
           <InputNumber
             value={addInput2}
-            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            precision={2}
+            min={0}
+            formatter={value => `$ ${value}`}
             parser={value => {
-              value = value.replace(/[^\d]/g, '');
-              value = +value > 100 ? 100 : value.substr(0, 2);
+              value = value.match(/\d+(\.\d{0,2})?/) ? value.match(/\d+(\.\d{0,2})?/)[0] : '';
+              // value = value.replace(/[^\d]/g, '');
+              // value = +value > 100 ? 100 : value.substr(0, 2);
               return String(value);
             }}
             onChange={value => {
@@ -325,48 +343,11 @@ class NewCommission extends React.PureComponent {
           <InputNumber
             value={addInput2}
             formatter={value => `${value}%`}
+            min={0}
+            max={100}
             parser={value => {
               value = value.replace(/[^\d]/g, '');
-              value = +value > 100 ? 100 : value.substr(0, 2);
-              return String(value);
-            }}
-            onChange={value => {
-              dispatch({
-                type: 'detail/save',
-                payload: {
-                  addInput2: value,
-                },
-              });
-            }}
-          />
-        );
-    } else if (record.EDIT_ROW) {
-      node =
-        commissionSchemeValue === 'Amount' ? (
-          <InputNumber
-            value={addInput2}
-            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={value => {
-              value = value.replace(/[^\d]/g, '');
-              value = +value > 100 ? 100 : value.substr(0, 2);
-              return String(value);
-            }}
-            onChange={value => {
-              dispatch({
-                type: 'detail/save',
-                payload: {
-                  addInput2: value,
-                },
-              });
-            }}
-          />
-        ) : (
-          <InputNumber
-            value={addInput2}
-            formatter={value => `${value}%`}
-            parser={value => {
-              value = value.replace(/[^\d]/g, '');
-              value = +value > 100 ? 100 : value.substr(0, 2);
+              // value = +value > 100 ? 100 : value.substr(0, 2);
               return String(value);
             }}
             onChange={value => {
@@ -384,7 +365,7 @@ class NewCommission extends React.PureComponent {
       if (commissionSchemeValue === 'Amount' && commissionSchemeValue) {
         node = record.commissionValue ? `$ ${record.commissionValue} / Ticket` : '';
       } else {
-        node = record.commissionValue ? `${record.commissionValue}%` : '';
+        node = record.commissionValue ? `${record.commissionValue}% / Ticket` : '';
       }
     }
     return node;
@@ -431,23 +412,64 @@ class NewCommission extends React.PureComponent {
     return node;
   };
 
+  inputJudgmentLogic = (addInput1Max, addInput1Min, addInput2, tieredList) => {
+    // console.log(Number(addInput1Max), addInput1Min, addInput2, tieredList)
+    if (
+      addInput1Min === '' ||
+      addInput1Min === null
+      // addInput1Max === '' ||
+      // addInput1Max === null
+    ) {
+      message.warning('Commission tier is required.');
+      return 0;
+    }
+
+    if (Number(addInput1Max) < Number(addInput1Min) && Number(addInput1Max) > 0) {
+      message.warning(
+        'The min of commission tier cannot be greater than the max of commission tier.'
+      );
+      return 0;
+    }
+    // if (Number(addInput1Max) === 0 && Number(addInput1Min)>addInput2) {
+    //   message.warning(
+    //     'The min of commission tier cannot be greater than the max of commission tier.'
+    //   );
+    //   return 0;
+    // }
+
+    // if (addInput2 <= 0) {
+    //   message.warning('Commission schema cannot be less than or equal to 0.');
+    //   return 0;
+    // }
+    if (tieredList.length > 1) {
+      for (let i = 0; i < tieredList.length; i += 1) {
+        const { EDIT_ROW = false, type = 'JUDGMENT' } = tieredList[i];
+        if (!EDIT_ROW && type !== 'ADD_ROW') {
+          for (let j = parseInt(addInput1Min, 0); j <= parseInt(addInput1Max, 0); j += 1) {
+            if (j >= parseInt(tieredList[i].minimum, 0) && j <= parseInt(tieredList[i].maxmum, 0)) {
+              message.warning('The Commission tiers can not be duplicate.');
+              return 0;
+            }
+          }
+        }
+      }
+    }
+    return 1;
+  };
+
   addRow = () => {
     const {
       detail: { addInput1Max, addInput1Min, addInput2, tieredList },
       dispatch,
     } = this.props;
-
-    if (tieredList.length > 1) {
-      const input1max = tieredList.filter(_ => _.maxmum !== undefined).map(item => item.maxmum);
-      const val1 = Math.max(...input1max);
-      if (val1 > addInput1Min) {
-        message.warning('aaa');
-        return;
-      }
+    if (this.inputJudgmentLogic(addInput1Max, addInput1Min, addInput2, tieredList) === 0) {
+      return null;
     }
-    if (addInput1Max < addInput1Min) {
-      message.warning('bbb');
-      return;
+    if (tieredList.length > 0) {
+      if (Number(tieredList[tieredList.length - 1].maxmum) >= Number(addInput1Min)) {
+        message.warning(formatMessage({ id: 'Please fill in the maximum value.' }));
+        return 0;
+      }
     }
     dispatch({
       type: 'detail/save',
@@ -474,15 +496,29 @@ class NewCommission extends React.PureComponent {
   };
 
   editRow = (record, index) => {
+    // debugger
     const {
       detail: { addInput1Max, addInput1Min, addInput2, tieredList },
       dispatch,
     } = this.props;
-
-    if (addInput1Max < addInput1Min) {
-      message.warning('aaa');
-      return;
+    if (this.inputJudgmentLogic(addInput1Max, addInput1Min, addInput2, tieredList) === 0) {
+      return null;
     }
+    // console.log(record, index, '----')
+    if (tieredList.length > 1) {
+      for (let i = 0; i < tieredList.length; i += 1) {
+        console.log(tieredList, tieredList[i], i);
+        if (tieredList[i].tierOrder < tieredList.length && tieredList[i].maxmum >= addInput1Min) {
+          message.warning(formatMessage({ id: 'Please fill in the maximum value.' }));
+          return false;
+        }
+        // else if (i<tieredList.length-1&&addInput1Max===''){
+        //   message.warning(formatMessage({ id: 'hhhhh.' }));
+        //   return false;
+        // }
+      }
+    }
+
     const arr = tieredList.map((item, idx) =>
       1 + idx === index
         ? {
@@ -529,154 +565,233 @@ class NewCommission extends React.PureComponent {
     });
   };
 
-  radioChange = () => {
+  radioChange = (tplId, value) => {
+    const { form, dispatch } = this.props;
+    if (tplId === null) {
+      dispatch({
+        type: 'detail/clear',
+        payload: {
+          tieredList: [],
+        },
+      });
+    }
+    if (tplId !== null) {
+      confirm({
+        className: styles.confirmStyle,
+        title: 'Change the Commission Schema?',
+        content:
+          value === 'Amount' ? (
+            <span>{formatMessage({ id: 'CHANGE_COMMISSION_AMOUNT' })}</span>
+          ) : (
+            <span>{formatMessage({ id: 'CHANGE_PERCENT_AMOUNT' })}</span>
+          ),
+        icon: <Icon type="exclamation-circle" />,
+        cancelText: 'No',
+        cancelButtonProps: {
+          type: 'default',
+        },
+        okText: 'Yes',
+        okButtonProps: {
+          type: 'primary',
+        },
+        onOk() {
+          form.resetFields(['commissionScheme']);
+          form.setFieldsValue({
+            commissionScheme: value,
+          });
+          dispatch({
+            type: 'detail/save',
+            payload: {
+              tieredList: [],
+            },
+          });
+        },
+        onCancel() {
+          form.resetFields(['commissionScheme']);
+          form.setFieldsValue({
+            commissionScheme: value === 'Amount' ? 'Percentage' : 'Amount',
+          });
+        },
+      });
+    }
+  };
+
+  changeCommissionName = e => {
     const { dispatch, form } = this.props;
-    form.resetFields(['commissionScheme']);
+    let { value } = e.target;
+    if (value && value.replace(/[\u0391-\uFFE5]/g, 'aa').length > 50) {
+      value = reBytesStr(value, 50);
+    }
     dispatch({
-      type: 'commissionNew/save',
+      type: 'detail/save',
       payload: {
-        addCommissionSchema: true,
+        commissionName: value,
       },
     });
+    form.setFieldsValue({
+      commissionName: value,
+    });
+    if (value === '') {
+      form.validateFields(['commissionName']);
+    }
+  };
+
+  showPeriodValue = (effectiveDate, expiryDate) => {
+    if (effectiveDate && expiryDate) {
+      return [effectiveDate, expiryDate];
+    }
+    return null;
+  };
+
+  disabledSelectedDate = current => {
+    return current && current < moment().startOf('day');
   };
 
   render() {
     const {
       form,
-      commissionNew: { addCommissionSchema },
-      detail: { tieredList = [] },
+      detail: { tieredList, commissionName },
       fetchLoading,
+      tplId = null,
     } = this.props;
-    const { getFieldDecorator } = form;
+    const { getFieldDecorator, setFieldsValue } = form;
+
     return (
-      <Fragment>
-        <Form>
-          <Row>
-            <Col className={styles.commissionTitle}>{formatMessage({ id: 'COMMISSION' })}</Col>
-          </Row>
-          <Row>
-            <Col {...ColProps}>
-              <Form.Item
-                {...formItemLayout}
-                label={formatMessage({ id: 'PRODUCT_COMMISSION_NAME' })}
-              >
-                {getFieldDecorator('commissionName', {
-                  initialValue: this.handleInitVal('commissionName'),
-                  rules: [
-                    {
-                      required: true,
-                      msg: 'Required',
+      <Form>
+        <Row>
+          <Col className={styles.commissionTitle}>{formatMessage({ id: 'COMMISSION' })}</Col>
+        </Row>
+        <Row>
+          <Col {...ColProps}>
+            <Form.Item {...formItemLayout} label={formatMessage({ id: 'PRODUCT_COMMISSION_NAME' })}>
+              {getFieldDecorator('commissionName', {
+                initialValue: this.handleInitVal('commissionName'),
+                rules: [
+                  {
+                    required: true,
+                    message: 'Required',
+                  },
+                  {
+                    validator: (rule, value = '', callback) => {
+                      if (value && value.trim().length > 50) {
+                        callback('The maximum character length is 50.');
+                      }
+                      return callback();
                     },
-                  ],
-                })(<Input placeholder={formatMessage({ id: 'PLEASE_ENTER' })} />)}
-              </Form.Item>
-            </Col>
-            <Col {...ColProps}>
-              <Form.Item
-                {...formItemLayout}
-                label={formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' })}
-              >
-                {getFieldDecorator('commissionType', {
-                  initialValue: this.handleInitVal('commissionType'),
-                  rules: [
-                    {
-                      required: true,
-                      msg: 'Required',
-                    },
-                  ],
-                })(
-                  <Select placeholder={formatMessage({ id: 'PLEASE_SELECT' })} allowClear>
-                    <Select.Option value="tiered">
-                      {formatMessage({ id: 'TIERED_COMMISSION' })}
-                    </Select.Option>
-                    <Select.Option value="attendance">
-                      {formatMessage({ id: 'ATTENDANCE_COMMISSION' })}
-                    </Select.Option>
-                  </Select>
-                )}
-              </Form.Item>
-            </Col>
-            <Col {...ColProps}>
-              <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_PERIOD' })}>
-                {getFieldDecorator('effectiveDate', {
-                  initialValue: this.handleInitVal('effectiveDate'),
-                  rules: [{ type: 'object', required: true, message: 'Required' }],
-                })(<DatePicker placeholder="Please select" style={{ width: '100%' }} />)}
-              </Form.Item>
-            </Col>
-            <Col {...ColProps}>
-              <Form.Item {...formItemLayout} label={formatMessage({ id: 'EXPIRY_PERIOD' })}>
-                {getFieldDecorator('expiryDate', {
-                  initialValue: this.handleInitVal('expiryDate'),
-                  rules: [{ type: 'object', required: true, message: 'Required' }],
-                })(<DatePicker placeholder="Please select" style={{ width: '100%' }} />)}
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item {...formItemLayout2} label={formatMessage({ id: 'CALCULATION_CYCLE' })}>
-                {getFieldDecorator('calculationCycle', {
-                  initialValue: this.handleInitVal('caluculateCycle'),
-                  rules: [
-                    {
-                      required: true,
-                      msg: 'Required',
-                    },
-                  ],
-                })(
-                  <Radio.Group style={{ marginTop: '5px' }}>
-                    <div className={styles.commissionSchemeRadioStyle}>
-                      <Radio value="Month">{formatMessage({ id: 'MONTH' })}</Radio>
-                      <span>{formatMessage({ id: 'CALCUATE_MONTH' })}</span>
-                    </div>
-                    <div className={styles.commissionSchemeRadioStyle}>
-                      <Radio value="Quarter">{formatMessage({ id: 'QUARTER' })}</Radio>
-                      <span>{formatMessage({ id: 'CALCUATE_QUARTER' })}</span>
-                    </div>
-                    <div className={styles.commissionSchemeRadioStyle}>
-                      <Radio value="AdHoc">{formatMessage({ id: 'AD_HOC' })}</Radio>
-                      <span>{formatMessage({ id: 'CALCUATE_AD_HOC' })}</span>
-                    </div>
-                  </Radio.Group>
-                )}
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item
-                {...formItemLayout2}
-                label={formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' })}
-              >
-                {getFieldDecorator('commissionScheme', {
-                  initialValue: this.handleInitVal('commissionScheme'),
-                  rules: [
-                    {
-                      required: true,
-                      msg: 'Required',
-                    },
-                  ],
-                })(
-                  <Radio.Group style={{ marginTop: '5px' }} onChange={this.radioChange}>
-                    <Radio value="Amount">{formatMessage({ id: 'COMMISSION_AMOUNT' })}</Radio>
-                    <Radio value="Percentage">
-                      {formatMessage({ id: 'COMMISSION_PERCENTAGE' })}
-                    </Radio>
-                  </Radio.Group>
-                )}
-              </Form.Item>
-            </Col>
-            {addCommissionSchema ? <CommissionSchemaModal onCancel={this.radioChange} /> : null}
-            <Col span={24}>
-              <Table
-                loading={fetchLoading}
-                size="small"
-                columns={this.columns}
-                className={`tabs-no-padding ${styles.searchTitle}`}
-                pagination={false}
-                dataSource={[{ type: 'ADD_BUTTON' }, ...tieredList]}
-              />
-            </Col>
-          </Row>
-        </Form>
-      </Fragment>
+                  },
+                ],
+              })(
+                <Input
+                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                  onChange={this.changeCommissionName}
+                />
+              )}
+            </Form.Item>
+          </Col>
+          <Col {...ColProps}>
+            <Form.Item {...formItemLayout} label={formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' })}>
+              {getFieldDecorator('commissionType', {
+                initialValue: this.handleInitVal('commissionType'),
+                rules: [
+                  {
+                    required: true,
+                    message: 'Required',
+                  },
+                ],
+              })(
+                <Select placeholder={formatMessage({ id: 'PLEASE_SELECT' })} allowClear>
+                  <Select.Option value="Tiered">
+                    {formatMessage({ id: 'TIERED_COMMISSION' })}
+                  </Select.Option>
+                  <Select.Option value="Attendance">
+                    {formatMessage({ id: 'ATTENDANCE_COMMISSION' })}
+                  </Select.Option>
+                </Select>
+              )}
+            </Form.Item>
+          </Col>
+          <Col {...ColProps}>
+            <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_PERIOD' })}>
+              {getFieldDecorator('effectivePeriod', {
+                initialValue: this.showPeriodValue(
+                  this.handleInitVal('effectiveDate'),
+                  this.handleInitVal('expiryDate')
+                ),
+                rules: [{ required: true, message: 'Required' }],
+              })(
+                <RangePicker
+                  // disabledDate={current => this.disabledSelectedDate(current)}
+                  placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                  format="DD-MMM-YYYY"
+                  style={{ width: '100%' }}
+                />
+              )}
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item {...formItemLayout2} label={formatMessage({ id: 'CALCULATION_CYCLE' })}>
+              {getFieldDecorator('caluculateCycle', {
+                initialValue: this.handleInitVal('caluculateCycle') || 'Month',
+                rules: [
+                  {
+                    required: true,
+                    msg: 'Required',
+                  },
+                ],
+              })(
+                <Radio.Group>
+                  <div className={styles.commissionSchemeRadioStyle}>
+                    <Radio value="Month">{formatMessage({ id: 'MONTH' })}</Radio>
+                    <span>{formatMessage({ id: 'CALCUATE_MONTH' })}</span>
+                  </div>
+                  <div className={styles.commissionSchemeRadioStyle}>
+                    <Radio value="Quarter">{formatMessage({ id: 'QUARTER' })}</Radio>
+                    <span>{formatMessage({ id: 'CALCUATE_QUARTER' })}</span>
+                  </div>
+                  <div className={styles.commissionSchemeRadioStyle}>
+                    <Radio value="Ad-hoc">{formatMessage({ id: 'AD_HOC' })}</Radio>
+                    <span>{formatMessage({ id: 'CALCUATE_AD_HOC' })}</span>
+                  </div>
+                </Radio.Group>
+              )}
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item
+              {...formItemLayout2}
+              label={formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' })}
+            >
+              {getFieldDecorator('commissionScheme', {
+                initialValue: this.handleInitVal('commissionScheme') || 'Amount',
+                rules: [
+                  {
+                    required: true,
+                    msg: 'Required',
+                  },
+                ],
+              })(
+                <Radio.Group
+                  className={styles.commissionSchemeRadioStyle}
+                  onChange={e => this.radioChange(tplId, e.target.value)}
+                >
+                  <Radio value="Amount">{formatMessage({ id: 'COMMISSION_AMOUNT' })}</Radio>
+                  <Radio value="Percentage">{formatMessage({ id: 'COMMISSION_PERCENTAGE' })}</Radio>
+                </Radio.Group>
+              )}
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Table
+              loading={!!fetchLoading}
+              size="small"
+              columns={this.getCommissionColumns()}
+              className={`tabs-no-padding ${styles.searchTitle}`}
+              pagination={false}
+              dataSource={[{ type: 'ADD_BUTTON' }, ...tieredList]}
+            />
+          </Col>
+        </Row>
+      </Form>
     );
   }
 }

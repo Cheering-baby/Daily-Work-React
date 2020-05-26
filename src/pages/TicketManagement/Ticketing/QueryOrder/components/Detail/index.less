@@ -1,10 +1,32 @@
+@prefix-cls: ~'@{ant-prefix}';
+@import '../../../../../../theme/screen.less';
 
 .drawerStyle {
   :global {
     .ant-drawer-body {
       padding: 20px !important;
     }
+    .@{prefix-cls}-drawer-content-wrapper {
+      width: 400px !important;
+      @media screen and (max-width: @screenXsMax) {
+        width: 100% !important;
+        .ant-form-item-label, .ant-form-item-control-wrapper{
+          width: 50% !important;
+        }
+      }
+      @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
+        width: 100% !important;
+      }
+    }
   }
+}
+
+.drawerTitle{
+  font-family: calibriBold;
+  font-size: 15px;
+  color: #171B21;
+  letter-spacing: 0.24px;
+  line-height: 22px;
 }
 
 .drawerTitleStyle {

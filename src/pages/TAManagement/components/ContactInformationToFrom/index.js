@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Col, Form, Input, Row, Select } from 'antd';
+import { Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 
@@ -38,7 +38,7 @@ class ContactInformationToFrom extends PureComponent {
                 <Select
                   showSearch
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                  optionFilterProp="children"
+                  optionFilterProp="label"
                   getPopupContainer={() => document.getElementById(`${viewId}`)}
                   onChange={value => onHandleChange('salutation', value, 'salutation')}
                   disabled={isDisabled}
@@ -48,8 +48,14 @@ class ContactInformationToFrom extends PureComponent {
                       <Select.Option
                         key={`salutationList${item.dictId}`}
                         value={`${item.dictId}`}
+                        label={item.dictName}
                       >
-                        {item.dictName}
+                        <Tooltip
+                          placement="topLeft"
+                          title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
+                        >
+                          {item.dictName}
+                        </Tooltip>
                       </Select.Option>
                       ))
                     : null}
@@ -171,7 +177,7 @@ class ContactInformationToFrom extends PureComponent {
                     <Select
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                      optionFilterProp="children"
+                      optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       onChange={value => onHandleChange('country', value, 'phoneCountry')}
                       disabled={isDisabled}
@@ -181,8 +187,18 @@ class ContactInformationToFrom extends PureComponent {
                           <Select.Option
                             key={`countryPhoneList${item.dictId}`}
                             value={`${item.dictId}`}
+                            label={`${item.dictName} +${item.dictId}`}
                           >
-                            {`${item.dictName} +${item.dictId}`}
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName} +${item.dictId}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName} +${item.dictId}`}
+                            </Tooltip>
                           </Select.Option>
                           ))
                         : null}
@@ -206,7 +222,68 @@ class ContactInformationToFrom extends PureComponent {
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-            &nbsp;
+            <Form.Item
+              label={formatMessage({ id: 'MOBILE_NO' })}
+              colon={false}
+              {...formItemLayout}
+              className={styles.telItem}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.phoneCountryItem}>
+                  {getFieldDecorator('phoneMobileCountry', {
+                    initialValue: contactInfo.mobileCountry || [],
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Select
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                      onChange={value =>
+                        onHandleChange('mobileCountry', value, 'phoneMobileCountry')
+                      }
+                      disabled={isDisabled}
+                    >
+                      {countryList && countryList.length > 0
+                        ? countryList.map(item => (
+                          <Select.Option
+                            key={`phoneMobileCountry${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName} +${item.dictId}`}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName} +${item.dictId}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName} +${item.dictId}`}
+                            </Tooltip>
+                          </Select.Option>
+                          ))
+                        : null}
+                    </Select>
+                  )}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.contactPhoneItem}>
+                  {getFieldDecorator('mobileNumber', {
+                    initialValue: contactInfo.mobileNumber || null,
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e => onHandleChange('mobileNumber', e.target.value, 'mobileNumber')}
+                      onPressEnter={e =>
+                        onHandleChange('mobileNumber', e.target.value, 'mobileNumber')
+                      }
+                      disabled={isDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
           </Col>
         </Row>
       </Col>

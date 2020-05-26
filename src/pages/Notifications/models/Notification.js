@@ -21,6 +21,7 @@ export default {
     notificationType: '',
     notificationInfo: {},
     notificationInfoLoadingFlag: false,
+    isAdminRoleFlag: false,
   },
   effects: {
     *queryNotificationTemplateList(_, { call, put, select }) {
@@ -37,7 +38,6 @@ export default {
           templateList,
           pageInfo: { currentPage, pageSize, totalSize },
         } = result;
-        // console.log('templateList: ', templateList);
         yield put({
           type: 'save',
           payload: {
@@ -157,6 +157,7 @@ export default {
           notificationType: '',
           notificationInfo: {},
           notificationInfoLoadingFlag: false,
+          isAdminRoleFlag: false,
         },
         ...payload,
       };

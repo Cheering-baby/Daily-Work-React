@@ -73,3 +73,18 @@ export async function reject(params) {
     },
   });
 }
+
+export async function attractionTaConfirm(params) {
+  return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/attractionTaConfirm`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
+export async function downloadInvoice(params) {
+  return UAAService.request(`${uaaPath}/b2b/transaction/v1/invoice/download${params}`, {
+    method: 'GET',
+  });
+}

@@ -1,9 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Col, DatePicker, Form, Input, Radio, Row, Select } from 'antd';
+import { Col, Form, Icon, Input, Radio, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
+import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 class CompanyInformationToFrom extends PureComponent {
   getTravelAgentNoLabel = country => {
@@ -171,7 +172,7 @@ class CompanyInformationToFrom extends PureComponent {
                     <Select
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                      optionFilterProp="children"
+                      optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       onChange={value => onHandleChange('country', value, 'country')}
                       disabled={isAllDisabled}
@@ -181,8 +182,16 @@ class CompanyInformationToFrom extends PureComponent {
                           <Select.Option
                             key={`countryList${item.dictId}`}
                             value={`${item.dictId}`}
+                            label={item.dictName}
                           >
-                            {item.dictName}
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                                }
+                            >
+                              {item.dictName}
+                            </Tooltip>
                           </Select.Option>
                           ))
                         : null}
@@ -202,7 +211,7 @@ class CompanyInformationToFrom extends PureComponent {
                     <Select
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                      optionFilterProp="children"
+                      optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       onChange={value => onHandleChange('city', value, 'city')}
                       loading={cityLoadingFlag}
@@ -210,8 +219,19 @@ class CompanyInformationToFrom extends PureComponent {
                     >
                       {cityList && cityList.length > 0
                         ? cityList.map(item => (
-                          <Select.Option key={`cityList${item.dictId}`} value={`${item.dictId}`}>
-                            {item.dictName}
+                          <Select.Option
+                            key={`cityList${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={item.dictName}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                                }
+                            >
+                              {item.dictName}
+                            </Tooltip>
                           </Select.Option>
                           ))
                         : null}
@@ -281,8 +301,7 @@ class CompanyInformationToFrom extends PureComponent {
                   : null,
                 rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
               })(
-                <DatePicker
-                  format="DD/MM/YYYY"
+                <FriendlyDatePicker
                   onChange={date =>
                     onHandleChange(
                       'incorporationDate',
@@ -295,6 +314,8 @@ class CompanyInformationToFrom extends PureComponent {
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   style={{ width: '100%' }}
                   disabled={isAllDisabled}
+                  displayFormat="DD/MM/YYYY"
+                  searchFormat="DDMMYYYY"
                 />
               )}
             </Form.Item>
@@ -336,7 +357,7 @@ class CompanyInformationToFrom extends PureComponent {
                   onChange={e =>
                     onHandleChange('isGstRegIndicator', e.target.value, 'isGstRegIndicator')
                   }
-                  disabled={isAllDisabled}
+                  disabled
                 >
                   <Radio value="1">{formatMessage({ id: 'GST_REG_YES' })}</Radio>
                   <Radio value="0">{formatMessage({ id: 'GST_REG_NOT' })}</Radio>
@@ -360,6 +381,14 @@ class CompanyInformationToFrom extends PureComponent {
                     onChange={e => onHandleChange('gstRegNo', e.target.value, 'gstRegNo')}
                     onPressEnter={e => onHandleChange('gstRegNo', e.target.value, 'gstRegNo')}
                     disabled={String(companyInfo.isGstRegIndicator) !== '1' || isAllDisabled}
+                    suffix={
+                      <Tooltip
+                        title={formatMessage({ id: 'APPLICATION_TO_SINGAPORE' })}
+                        placement="topRight"
+                      >
+                        <Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} />
+                      </Tooltip>
+                    }
                   />
                 )}
               </Form.Item>
@@ -380,12 +409,14 @@ class CompanyInformationToFrom extends PureComponent {
               >
                 {getFieldDecorator('gstEffectiveDate', {
                   initialValue: !isNvl(companyInfo.gstEffectiveDate)
-                    ? moment(companyInfo.gstEffectiveDate, 'YYYY-MM-DD')
+                    ? moment(
+                        companyInfo.gstEffectiveDate,
+                        companyInfo.gstEffectiveDate.includes('-') ? 'YYYY-MM-DD' : 'DD/MM/YYYY'
+                      )
                     : null,
                   rules: this.getGstRegNoRules(companyInfo.isGstRegIndicator),
                 })(
-                  <DatePicker
-                    format="DD/MM/YYYY"
+                  <FriendlyDatePicker
                     onChange={date =>
                       onHandleChange(
                         'gstEffectiveDate',
@@ -397,6 +428,8 @@ class CompanyInformationToFrom extends PureComponent {
                     placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                     style={{ width: '100%' }}
                     disabled={String(companyInfo.isGstRegIndicator) !== '1' || isAllDisabled}
+                    displayFormat="DD/MM/YYYY"
+                    searchFormat="DDMMYYYY"
                   />
                 )}
               </Form.Item>

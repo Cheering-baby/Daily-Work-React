@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Badge, Button, Card, Col, DatePicker, Form, Row, Spin, Table } from 'antd';
+import { Badge, Button, Card, Col, Form, Row, Spin, Table } from 'antd';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
-import PaginationComp from '../PaginationComp';
+import PaginationComp from '@/components/PaginationComp';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getKeyValue } from '../../../utils/pubUtils';
+import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 const mapStateToProps = store => {
   const { selectTaId } = store.mainTAManagement;
@@ -95,7 +96,7 @@ class StateChangeHistoryComp extends PureComponent {
       },
     },
     {
-      title: formatMessage({ id: 'TA_TABLE_CONTACT_UPLOADED_BY' }),
+      title: formatMessage({ id: 'TA_TABLE_STATE_UPLOADED_BY' }),
       dataIndex: 'updatedBy',
       width: '20%',
       render: text => {
@@ -103,7 +104,7 @@ class StateChangeHistoryComp extends PureComponent {
       },
     },
     {
-      title: formatMessage({ id: 'TA_TABLE_CONTACT_UPLOADED_TIME' }),
+      title: formatMessage({ id: 'TA_TABLE_STATE_UPLOADED_TIME' }),
       dataIndex: 'updatedTime',
       width: '20%',
       render: text => {
@@ -188,7 +189,8 @@ class StateChangeHistoryComp extends PureComponent {
     const { getFieldDecorator } = form;
     const startDateOpts = {
       placeholder: formatMessage({ id: 'TA_TABLE_Q_START_TIME' }),
-      format: 'DD-MMM-YYYY',
+      displayFormat: 'DD-MMM-YYYY',
+      searchFormat: 'DDMMYYYY',
       disabledDate: this.disabledStartDate,
       getCalendarContainer: () => document.getElementById(`stateCardView`),
       onChange: date =>
@@ -200,7 +202,8 @@ class StateChangeHistoryComp extends PureComponent {
     };
     const endDateOpts = {
       placeholder: formatMessage({ id: 'TA_TABLE_Q_END_TIME' }),
-      format: 'DD-MMM-YYYY',
+      displayFormat: 'DD-MMM-YYYY',
+      searchFormat: 'DDMMYYYY',
       disabledDate: this.disabledEndDate,
       getCalendarContainer: () => document.getElementById(`stateCardView`),
       onChange: date =>
@@ -231,14 +234,14 @@ class StateChangeHistoryComp extends PureComponent {
                 initialValue: !isNvl(searchStateForm.updatedStartTime)
                   ? moment(searchStateForm.updatedStartTime, 'YYYY-MM-DD')
                   : null,
-              })(<DatePicker {...startDateOpts} style={{ width: '100%' }} />)}
+              })(<FriendlyDatePicker {...startDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8} className={styles.stateCompCol}>
               {getFieldDecorator('updatedEndTime', {
                 initialValue: !isNvl(searchStateForm.updatedEndTime)
                   ? moment(searchStateForm.updatedEndTime, 'YYYY-MM-DD')
                   : null,
-              })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
+              })(<FriendlyDatePicker {...endDateOpts} style={{ width: '100%' }} />)}
             </Col>
             <Col xs={24} sm={24} md={24} lg={8} xl={8} xxl={8} className={styles.stateCompBtnCol}>
               <Button

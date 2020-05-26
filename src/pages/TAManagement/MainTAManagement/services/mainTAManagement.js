@@ -1,7 +1,6 @@
 import { stringify } from 'qs';
 import UAAService from '@/uaa-npm';
 
-const rwsUrl = 'http://10.25.159.236:18091/pams';
 export async function queryMainTAList(params) {
   return UAAService.request(`/b2b/agent/v1/profile/queryTaList`, {
     method: 'POST',
@@ -36,19 +35,22 @@ export function offer(params) {
   });
 }
 
-export async function addOfferList(data) {
-  return UAAService.request(
-    `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(data)}`,
-    {
-      method: 'GET',
-    }
-  );
+export async function queryCommodityList(params) {
+  const url = `/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(params)}`;
+  return UAAService.request(url, {
+    method: 'GET',
+  });
+}
+
+export async function queryAgentBindingList(params) {
+  const url = `/b2b/agent/v1/commission/binding/queryAgentBindingList?${stringify(params)}`;
+  return UAAService.request(url, {
+    method: 'GET',
+  });
 }
 
 export async function queryCommodityBindingList(params) {
-  const url = `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/queryCommodityBindingList?${stringify(
-    params
-  )}`;
+  const url = `/b2b/agent/v1/commission/binding/queryCommodityBindingList?${stringify(params)}`;
   return UAAService.request(url, {
     method: 'GET',
   });
@@ -73,7 +75,7 @@ export async function queryProfileStatusHistoryList(params) {
 }
 
 export async function add(params) {
-  const url = `${rwsUrl}/proxy/ali/b2b/agent/v1/commission/binding/saveCommissionBindingList`;
+  const url = `/b2b/agent/v1/commission/binding/batchSaveAgentBindingList`;
   return UAAService.request(url, {
     method: 'POST',
     body: {

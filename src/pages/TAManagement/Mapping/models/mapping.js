@@ -97,7 +97,7 @@ export default {
     *fetchqueryDictionary(_, { call, put }) {
       const params = {
         dictType: '10',
-        dictSubType: '1008',
+        dictSubType: '1009',
       };
       const {
         data: { resultCode, resultMsg, result },

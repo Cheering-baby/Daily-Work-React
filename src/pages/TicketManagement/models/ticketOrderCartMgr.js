@@ -1,7 +1,7 @@
-import {message} from 'antd';
+import { message, Modal } from 'antd';
 import router from 'umi/router';
 import moment from 'moment';
-import {queryCountry} from '@/pages/TicketManagement/services/ticketCommon';
+import { queryAgentOpt, queryCountry } from '@/pages/TicketManagement/services/ticketCommon';
 import {
   addToShoppingCart,
   calculateOrderOfferPrice,
@@ -11,7 +11,7 @@ import {
   queryShoppingCart,
   removeShoppingCart,
 } from '@/pages/TicketManagement/services/orderCart';
-import {createBooking, queryBookingStatus} from '@/pages/TicketManagement/services/bookingAndPay';
+import { createBooking, queryBookingStatus } from '@/pages/TicketManagement/services/bookingAndPay';
 import {
   createOrderItemId,
   demolitionBundleOrder,
@@ -27,9 +27,9 @@ import {
   transOrderToOfferInfos,
   transPackageCommonOffers,
 } from '@/pages/TicketManagement/utils/orderCartUtil';
-import {getAttractionProductList, getVoucherProductList} from '../utils/ticketOfferInfoUtil';
-import {querySubTaInfo, queryTaInfo} from '@/pages/TicketManagement/services/taMgrService';
-import {isNvl} from '@/utils/utils';
+import { getAttractionProductList, getVoucherProductList } from '../utils/ticketOfferInfoUtil';
+import { querySubTaInfo, queryTaInfo } from '@/pages/TicketManagement/services/taMgrService';
+import { isNvl } from '@/utils/utils';
 
 export default {
   namespace: 'ticketOrderCartMgr',
@@ -59,9 +59,49 @@ export default {
     bundleOfferDetail: null,
     orderIndex: null,
     offerIndex: null,
+    functionActive: true,
   },
 
   effects: {
+    *fetchQueryAgentOpt(_, { call, put }) {
+      const param = { queryType: 'signUp' };
+      const response = yield call(queryAgentOpt, param);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        if (result && result.length > 0) {
+          const countryList =
+            (
+              result.find(n => String(n.subDictType) === '1002' && String(n.dictType) === '10') ||
+              {}
+            ).dictionaryList || [];
+          const countryArray = [];
+          countryList.forEach(countryItem => {
+            countryArray.push(
+              Object.assign(
+                {},
+                {
+                  ...countryItem,
+                  value: countryItem.dictName,
+                  lookupName: countryItem.dictName,
+                }
+              )
+            );
+          });
+          yield put({
+            type: 'save',
+            payload: {
+              countrys: countryArray,
+            },
+          });
+        }
+      } else {
+        message.error(resultMsg);
+      }
+    },
+
     *fetchQueryTaDetail(_, { call, put, select }) {
       const {
         userCompanyInfo: { companyId = '' },
@@ -156,12 +196,10 @@ export default {
           checkOutLoading: true,
         },
       });
-      const {
-        userCompanyInfo: { companyId = '' },
-      } = yield select(state => state.global);
+      const { currentUser } = yield select(state => state.global);
       const params = {
         customerType: 'TA',
-        customerId: companyId,
+        customerId: currentUser.userCode,
       };
       const {
         data: { resultCode, resultMsg, result },
@@ -191,12 +229,10 @@ export default {
           checkOutLoading: true,
         },
       });
-      const {
-        userCompanyInfo: { companyId = '' },
-      } = yield select(state => state.global);
+      const { currentUser } = yield select(state => state.global);
       const params = {
         customerType: 'TA',
-        customerId: companyId,
+        customerId: currentUser.userCode,
       };
       const {
         data: { resultCode, resultMsg, result },
@@ -280,6 +316,42 @@ export default {
         payload: {},
       });
       return resultCode;
+    },
+
+    *checkShoppingCart(_, { put, select }) {
+      const { generalTicketOrderData = [] } = yield select(state => state.ticketOrderCartMgr);
+
+      const offerInstances = [];
+      generalTicketOrderData.forEach(generalTicketOrderGroup => {
+        generalTicketOrderGroup.orderOfferList.forEach(orderData => {
+          if (orderData.orderType === 'offerBundle') {
+            let isEmptyOrder = true;
+            orderData.orderInfo.forEach(orderInfoItem => {
+              if (orderInfoItem.quantity > 0) {
+                isEmptyOrder = false;
+              }
+            });
+            if (isEmptyOrder) {
+              orderData.orderInfo.forEach(orderInfoItem => {
+                offerInstances.push({
+                  offerNo: orderInfoItem.offerInfo.offerNo,
+                  offerInstanceId: orderInfoItem.offerInstanceId,
+                });
+              });
+            }
+          }
+        });
+      });
+
+      if (offerInstances.length > 0) {
+        yield put({
+          type: 'removeShoppingCart',
+          payload: {
+            offerInstances,
+            callbackFn: null,
+          },
+        });
+      }
     },
 
     *queryPluAttribute({ payload }, { call, put }) {
@@ -407,7 +479,7 @@ export default {
         onceAPirateOrderData = [],
       } = payload;
 
-      const { cartId, taDetailInfo, subTaDetailInfo } = yield select(
+      const { cartId, taDetailInfo, subTaDetailInfo, countrys } = yield select(
         state => state.ticketOrderCartMgr
       );
 
@@ -421,25 +493,34 @@ export default {
         if (subTaDetailInfo) {
           patronInfo = {
             firstName: subTaDetailInfo.fullName,
-            lastName: subTaDetailInfo.fullName,
+            lastName: null,
             phoneNo: null,
             email: subTaDetailInfo.email,
-            country: subTaDetailInfo.country,
+            countryCode: subTaDetailInfo.country,
           };
         }
       } else if (
         taDetailInfo &&
         taDetailInfo.customerInfo &&
-        taDetailInfo.customerInfo.contactInfo
+        taDetailInfo.customerInfo.companyInfo
       ) {
-        const { contactInfo } = taDetailInfo.customerInfo;
+        const { contactInfo, companyInfo } = taDetailInfo.customerInfo;
         patronInfo = {
           firstName: contactInfo.firstName,
           lastName: contactInfo.lastName,
           phoneNo: contactInfo.phone,
           email: contactInfo.email,
-          country: contactInfo.country,
+          countryCode: companyInfo.country,
         };
+      }
+
+      const countryInfo = countrys.find(
+        countryItem => countryItem.dictId === patronInfo.countryCode
+      );
+      if (countryInfo) {
+        patronInfo.countryCode = countryInfo.dictName;
+      } else {
+        patronInfo.countryCode = 'Singapore';
       }
 
       const bookingParam = {
@@ -450,7 +531,7 @@ export default {
         identificationNo: null,
         identificationType: null,
         voucherNos: [],
-        cardId: cartId,
+        cartId,
       };
 
       const packageCommonOffers = transPackageCommonOffers(
@@ -560,6 +641,15 @@ export default {
         } else {
           status = 'Failed';
         }
+        if (status === 'Creating') {
+          // if status is still Creating, suspend 5 second.
+          yield call(
+            () =>
+              new Promise(resolve => {
+                setTimeout(() => resolve(), 5000);
+              })
+          );
+        }
       }
       yield put({
         type: 'save',
@@ -568,7 +658,7 @@ export default {
         },
       });
       // status: WaitingForPaying
-      if (status === 'WaitingForPaying' || status === 'PendingApproval') {
+      if (status === 'WaitingForPaying' || status === 'PendingApproval' || status === 'Paying') {
         yield put({
           type: 'ticketBookingAndPayMgr/save',
           payload: {
@@ -586,7 +676,7 @@ export default {
             },
           },
         });
-        message.success('Check out successfully!');
+        message.success('Checked out successfully.');
         router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
         return;
       }
@@ -601,7 +691,10 @@ export default {
             resultMsg: failedReason,
           },
         });
-        message.error(failedReason);
+        Modal.error({
+          title: 'Failed to check out.',
+          content: failedReason,
+        });
       } else {
         message.error('Check out error!');
       }
@@ -641,8 +734,8 @@ export default {
       }
     },
 
-    *settingBundleTicketOrderData({ payload }, { put, take }) {
-      const { orderIndex, orderData } = payload;
+    *settingBundleTicketOrderData({ payload }, { put, take, select }) {
+      const { orderIndex, offerIndex, orderData } = payload;
       const { themeParkCode, themeParkName } = orderData;
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
@@ -660,7 +753,9 @@ export default {
         }
       );
       if (!isNvl(orderIndex) && orderIndex > -1) {
-        for (const orderInfo of newOrderItem.orderInfo) {
+        const { generalTicketOrderData = [] } = yield select(state => state.ticketOrderCartMgr);
+        const oldOrderData = generalTicketOrderData[orderIndex].orderOfferList[offerIndex];
+        for (const orderInfo of oldOrderData.orderInfo) {
           const removeShoppingFn = {
             callbackFnCode: 1,
             setFnCode(callbackCode) {
@@ -715,13 +810,12 @@ export default {
       }
 
       if (batchPullResult === 'done') {
-        message.success('Order successfully!');
+        message.success('Order successfully.');
       }
     },
 
-    *settingGeneralTicketOrderData({ payload }, { put, take }) {
-      const { orderIndex, orderData } = payload;
-      console.log(orderData);
+    *settingGeneralTicketOrderData({ payload }, { put, take, select }) {
+      const { orderIndex, offerIndex, orderData } = payload;
       const { themeParkCode, themeParkName } = orderData;
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
@@ -729,9 +823,11 @@ export default {
           ...orderInfo,
         };
       });
+      const packageId = createOrderItemId();
       const newOrderItem = Object.assign(
         {},
         {
+          packageId,
           orderAll: true,
           indeterminate: false,
           ...orderData,
@@ -739,6 +835,8 @@ export default {
         }
       );
       if (!isNvl(orderIndex) && orderIndex > -1) {
+        const { generalTicketOrderData = [] } = yield select(state => state.ticketOrderCartMgr);
+        const oldOrderData = generalTicketOrderData[orderIndex].orderOfferList[offerIndex];
         const removeShoppingFn = {
           callbackFnCode: 1,
           setFnCode(callbackCode) {
@@ -751,7 +849,7 @@ export default {
             offerInstances: [
               {
                 offerNo: newOrderItem.offerInfo.offerNo,
-                offerInstanceId: newOrderItem.offerInstanceId,
+                offerInstanceId: oldOrderData.offerInstanceId,
               },
             ],
             callbackFn: removeShoppingFn,
@@ -783,7 +881,7 @@ export default {
       yield take('addToShoppingCart/@@end');
 
       if (callbackFn.callbackFnCode === '0') {
-        message.success('Order successfully!');
+        message.success('Order successfully.');
       }
     },
 
@@ -967,71 +1065,66 @@ export default {
     },
     changeSelectAllOrder(state, { payload }) {
       const { selectAllOrder, selectAllIndeterminate } = payload;
-      const {
-        generalTicketOrderData = [],
-        packageOrderData = [],
-        onceAPirateOrderData = [],
-      } = state;
+      const { generalTicketOrderData = [], onceAPirateOrderData = [] } = state;
       const newPackageOrderData = [];
       const newGeneralTicketOrderData = [];
       const newOnceAPirateOrderData = [];
-      const orderArray = [packageOrderData, generalTicketOrderData];
-      orderArray.forEach((orderList, listIndex) => {
-        orderList.forEach(orderData => {
-          const newOrderData = Object.assign(
-            {},
-            {
-              ...orderData,
-              orderAll: selectAllOrder,
-              indeterminate: selectAllIndeterminate,
-            }
-          );
-          newOrderData.orderOfferList = orderData.orderOfferList.map(orderOffer => {
-            const newOrderInfo = orderOffer.orderInfo.map(orderInfo => {
-              return Object.assign(
-                {},
-                {
-                  ...orderInfo,
-                  orderCheck: selectAllOrder,
-                }
-              );
-            });
-            return Object.assign(
-              {},
-              {
-                ...orderOffer,
-                orderInfo: newOrderInfo,
-                orderAll: selectAllOrder,
-                indeterminate: selectAllIndeterminate,
-              }
-            );
-          });
-          if (listIndex === 0) {
-            newPackageOrderData.push(newOrderData);
-          } else {
-            newGeneralTicketOrderData.push(newOrderData);
-          }
-        });
-      });
-      onceAPirateOrderData.forEach(orderInfo => {
-        const newOrderInfo = Object.assign(
+
+      generalTicketOrderData.forEach(orderData => {
+        const newOrderData = Object.assign(
           {},
           {
-            ...orderInfo,
+            ...orderData,
             orderAll: selectAllOrder,
             indeterminate: selectAllIndeterminate,
           }
         );
-        newOrderInfo.orderOfferList = orderInfo.orderOfferList.map(offerInfo => {
+        newOrderData.orderOfferList = orderData.orderOfferList.map(orderOffer => {
+          const newOrderInfo = orderOffer.orderInfo.map(orderInfo => {
+            return Object.assign(
+              {},
+              {
+                ...orderInfo,
+                orderCheck: orderOffer.orderDisabled ? false : selectAllOrder,
+              }
+            );
+          });
           return Object.assign(
             {},
             {
-              ...offerInfo,
-              orderCheck: selectAllOrder,
+              ...orderOffer,
+              orderInfo: newOrderInfo,
+              orderAll: orderOffer.orderDisabled ? false : selectAllOrder,
+              indeterminate: selectAllIndeterminate,
             }
           );
         });
-        newOnceAPirateOrderData.push(newOrderInfo);
+        newGeneralTicketOrderData.push(newOrderData);
+      });
+
+      onceAPirateOrderData.forEach(orderInfo => {
+        if (!orderInfo.orderDisabled) {
+          const newOrderInfo = Object.assign(
+            {},
+            {
+              ...orderInfo,
+              orderAll: selectAllOrder,
+              indeterminate: selectAllIndeterminate,
+            }
+          );
+          newOrderInfo.orderOfferList = orderInfo.orderOfferList.map(offerInfo => {
+            return Object.assign(
+              {},
+              {
+                ...offerInfo,
+                orderCheck: selectAllOrder,
+              }
+            );
+          });
+          newOnceAPirateOrderData.push(newOrderInfo);
+        } else {
+          newOnceAPirateOrderData.push({ ...orderInfo });
+        }
       });
       return {
         ...state,
@@ -1068,6 +1161,7 @@ export default {
         bundleOfferDetail: null,
         orderIndex: null,
         offerIndex: null,
+        functionActive: true,
       };
     },
   },

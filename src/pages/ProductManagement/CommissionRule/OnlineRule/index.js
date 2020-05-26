@@ -4,10 +4,10 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
-import { isEqual } from 'lodash';
 import detailStyles from './index.less';
 import SCREEN from '@/utils/screen';
-import BreadcrumbComp from '@/components/BreadcrumbComp';
+import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
+import PaginationComp from '../../components/PaginationComp';
 
 const { Option } = Select;
 
@@ -37,18 +37,37 @@ class CommissionRuleSetup extends React.PureComponent {
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_NAME' }),
       dataIndex: 'commissionName',
+      key: 'commissionName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' }),
       dataIndex: 'commissionType',
+      key: 'commissionType',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
       dataIndex: 'commissionScheme',
+      key: 'commissionScheme',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: formatMessage({ id: 'STATUS' }),
       dataIndex: 'status',
+      key: 'status',
       render: text => {
         let flagClass = '';
         if (text === 'Active') flagClass = detailStyles.flagStyle1;
@@ -67,14 +86,6 @@ class CommissionRuleSetup extends React.PureComponent {
       render: (text, record) => {
         return (
           <div>
-            <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
-              <Icon
-                type="edit"
-                onClick={() => {
-                  this.edit(record);
-                }}
-              />
-            </Tooltip>
             <Tooltip title={formatMessage({ id: 'COMMON_DETAIL' })}>
               <Icon
                 type="eye"
@@ -83,6 +94,16 @@ class CommissionRuleSetup extends React.PureComponent {
                 }}
               />
             </Tooltip>
+            {record && record.status && record.status === 'Active' ? (
+              <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
+                <Icon
+                  type="edit"
+                  onClick={() => {
+                    this.edit(record);
+                  }}
+                />
+              </Tooltip>
+            ) : null}
           </div>
         );
       },
@@ -95,6 +116,13 @@ class CommissionRuleSetup extends React.PureComponent {
       type: 'commissionRuleSetup/fetchCommissionRuleSetupList',
       payload: {},
     });
+  }
+
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({ type: 'commissionRuleSetup/clear' });
+    dispatch({ type: 'commissionNew/clear' });
+    dispatch({ type: 'detail/clear' });
   }
 
   binding = () => {
@@ -118,7 +146,10 @@ class CommissionRuleSetup extends React.PureComponent {
   };
 
   detail = record => {
-    router.push(`/ProductManagement/CommissionRule/OnlineRule/Detail/${record.tplId}`);
+    router.push({
+      pathname: `/ProductManagement/CommissionRule/OnlineRule/Detail/${record.id}`,
+      query: { tplId: record.tplId },
+    });
   };
 
   handleSearch = ev => {
@@ -155,70 +186,42 @@ class CommissionRuleSetup extends React.PureComponent {
     });
   };
 
-  handleTableChange = page => {
-    const {
-      dispatch,
-      commissionRuleSetup: { pagination },
-    } = this.props;
-
-    // If the paging changes, call the query interface again
-    if (!isEqual(page, pagination)) {
-      dispatch({
-        type: 'commissionRuleSetup/tableChanged',
-        payload: {
-          pagination: page,
-        },
-      });
-    }
-  };
-
-  showTotal = total => {
-    return <div>Total {total} items</div>;
-  };
-
   render() {
     const {
       form: { getFieldDecorator },
       loading,
-      commissionRuleSetup: { commissionList, currentPage, pageSize, totalSize },
+      commissionRuleSetup: { commissionList, currentPage, pageSize: nowPageSize, totalSize },
     } = this.props;
-    const pagination = {
-      current: currentPage,
-      pageSize,
-      total: totalSize,
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSizeOptions: ['20', '50', '100'],
-      showTotal: this.showTotal,
-    };
-    const breadcrumbArr = [
-      {
-        breadcrumbName: formatMessage({ id: 'PRODUCT_MANAGEMENT' }),
-        url: null,
-      },
-      {
-        breadcrumbName: formatMessage({ id: 'COMMISSION_RULE_TITLE' }),
-        url: null,
-      },
-      {
-        breadcrumbName: formatMessage({ id: 'ONLINE_FIXED_COMMISSION' }),
-        url: null,
-      },
+
+    const title = [
+      { name: formatMessage({ id: 'PRODUCT_MANAGEMENT' }) },
+      { name: formatMessage({ id: 'COMMISSION_RULE_TITLE' }) },
+      { name: formatMessage({ id: 'ONLINE_FIXED_COMMISSION' }) },
     ];
+
+    const pageOpts = {
+      total: totalSize,
+      current: currentPage,
+      pageSize: nowPageSize,
+      pageChange: (page, pageSize) => {
+        const { dispatch } = this.props;
+        dispatch({
+          type: 'commissionRuleSetup/search',
+          payload: {
+            pagination: {
+              currentPage: page,
+              pageSize,
+            },
+          },
+        });
+      },
+    };
+
     return (
-      <Row type="flex" justify="space-around" id="mainTaView">
-        <Col span={24} className={detailStyles.pageHeaderTitle}>
-          <MediaQuery
-            maxWidth={SCREEN.screenMdMax}
-            minWidth={SCREEN.screenSmMin}
-            minHeight={SCREEN.screenSmMin}
-          >
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-          </MediaQuery>
-          <MediaQuery minWidth={SCREEN.screenLgMin}>
-            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-          </MediaQuery>
-        </Col>
+      <Row id="mainTaView">
+        <MediaQuery minWidth={SCREEN.screenSm}>
+          <BreadcrumbCompForPams title={title} />
+        </MediaQuery>
         <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
             <Form className="ant-advanced-search-form" onSubmit={this.handleSearch}>
@@ -248,11 +251,11 @@ class CommissionRuleSetup extends React.PureComponent {
                         style={{ width: '100%' }}
                         allowClear
                       >
-                        <Option value="Attendance" key="Attendance">
-                          Attendance
+                        <Option value="attendance" key="Attendance">
+                          Attendance Commission
                         </Option>
-                        <Option value="Tiered" key="Tiered">
-                          Tiered
+                        <Option value="tiered" key="Tiered">
+                          Tiered Commission
                         </Option>
                       </Select>
                     )}
@@ -271,10 +274,10 @@ class CommissionRuleSetup extends React.PureComponent {
                         allowClear
                       >
                         <Option value="Active" key="Active">
-                          ACTIVE
+                          Active
                         </Option>
                         <Option value="Inactive" key="Inactive">
-                          INACTIVE
+                          InActive
                         </Option>
                       </Select>
                     )}
@@ -295,26 +298,24 @@ class CommissionRuleSetup extends React.PureComponent {
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
             <Row gutter={24}>
-              <Col {...ColProps} style={{ padding: '12px' }}>
-                <Button type="primary" onClick={this.new}>
+              <Col {...ColProps} style={{ paddingLeft: 12 }}>
+                <Button type="primary" onClick={() => this.new()}>
                   {formatMessage({ id: 'COMMON_NEW' })}
                 </Button>
-                {/* <Button style={{ marginLeft: 8 }} onClick={() => this.binding()}> */}
-                {/* {formatMessage({ id: 'ADD_BINDING' })} */}
-                {/* </Button> */}
               </Col>
             </Row>
             <Table
+              style={{ marginTop: 10 }}
+              className={`components-table-demo-nested ${detailStyles.searchTitle}`}
               rowKey={record => record.commoditySpecId}
               bordered={false}
               size="small"
               dataSource={commissionList}
-              pagination={pagination}
-              loading={loading}
+              pagination={false}
+              loading={!!loading}
               columns={this.columns}
-              className="table-style"
-              onChange={this.handleTableChange}
             />
+            <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
           </Card>
         </Col>
       </Row>
