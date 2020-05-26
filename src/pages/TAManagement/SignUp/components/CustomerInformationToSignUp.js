@@ -533,6 +533,7 @@ class CustomerInformationToSignUp extends PureComponent {
           className={styles.importInformation}
         />
         <ApplyARCreditToFrom {...arCreditProps} />
+        {/* <Form layout="vertical"> */}
         <Row type="flex" justify="space-around">
           <Col span={24}>
             <Card title={formatMessage({ id: 'CONTACT_INFORMATION' })}>
@@ -561,6 +562,7 @@ class CustomerInformationToSignUp extends PureComponent {
             </Card>
           </Col>
         </Row>
+        {/* </Form> */}
       </React.Fragment>
     );
   }

@@ -198,41 +198,33 @@ export function getModifyTYpe() {
   return modifyType;
 }
 
+export const colLayOut = {
+  xs: 24,
+  sm: 24,
+  md: 24,
+  lg: 12,
+  xl: 8,
+  xxl: 8,
+  style: {
+    height: '75px',
+  },
+};
+
 export function getFormLayout() {
   const formItemLayout = {
     labelCol: {
-      xs: { span: 12 },
-      sm: { span: 12 },
-      md: { span: 10 },
-      lg: { span: 12 },
-      xl: { span: 10 },
-      xxl: { span: 10 },
+      span: 24,
     },
     wrapperCol: {
-      xs: { span: 12 },
-      sm: { span: 12 },
-      md: { span: 14 },
-      lg: { span: 12 },
-      xl: { span: 14 },
-      xxl: { span: 14 },
+      span: 24,
     },
   };
   const formItemRowLayout = {
     labelCol: {
-      xs: { span: 12 },
-      sm: { span: 12 },
-      md: { span: 10 },
-      lg: { span: 6 },
-      xl: { span: 5 },
-      xxl: { span: 5 },
+      span: 24,
     },
     wrapperCol: {
-      xs: { span: 12 },
-      sm: { span: 12 },
-      md: { span: 14 },
-      lg: { span: 18 },
-      xl: { span: 19 },
-      xxl: { span: 19 },
+      span: 24,
     },
   };
   const formItemLongLayout = {

@@ -69,11 +69,11 @@
     .@{prefix-cls}-form-item-label {
       display: inline-block;
       overflow: hidden;
-      line-height: 39.9999px;
+      line-height: 25px;
       white-space: nowrap;
-      text-align: right;
       vertical-align: middle;
       text-overflow: ellipsis;
+      padding: 0;
     }
 
     @media screen and (max-width: @screenXsMax) {
@@ -598,9 +598,10 @@
         width: 12.5rem;
         font-size: 14px;
         color: #3b414a;
+        display: block;
         letter-spacing: .23px;
         line-height: 18px;
-        vertical-align: top;
+        margin-bottom: 7px;
       }
 
       .@{prefix-cls}-descriptions-item-content {
@@ -612,6 +613,7 @@
 
         > ol {
           list-style-type: decimal;
+          padding: 0;
         }
       }
     }

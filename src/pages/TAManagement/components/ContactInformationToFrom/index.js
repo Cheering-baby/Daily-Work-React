@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { colLayOut } from '../../utils/pubUtils';
 import styles from './index.less';
 
 class ContactInformationToFrom extends PureComponent {
@@ -24,8 +25,8 @@ class ContactInformationToFrom extends PureComponent {
     }
     return (
       <Col span={24}>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+        <Row type="flex" gutter={15}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'CONTACT_PERSON_SALUTATION' })}
               colon={false}
@@ -63,12 +64,7 @@ class ContactInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-            &nbsp;
-          </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'CONTACT_PERSON_FIRST_NAME' })}
               colon={false}
@@ -90,7 +86,7 @@ class ContactInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'CONTACT_PERSON_LAST_NAME' })}
               colon={false}
@@ -112,9 +108,7 @@ class ContactInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'CHIEF_EXECUTIVE_DIRECTOR_NAME' })}
               colon={false}
@@ -140,7 +134,7 @@ class ContactInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item label={formatMessage({ id: 'EMAIL' })} colon={false} {...formItemLayout}>
               {getFieldDecorator('email', {
                 initialValue: contactInfo.email || null,
@@ -159,9 +153,7 @@ class ContactInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TEL' })}
               colon={false}
@@ -221,7 +213,7 @@ class ContactInformationToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'MOBILE_NO' })}
               colon={false}
@@ -285,6 +277,7 @@ class ContactInformationToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
+          <Col {...colLayOut}>&nbsp;</Col>
         </Row>
       </Col>
     );

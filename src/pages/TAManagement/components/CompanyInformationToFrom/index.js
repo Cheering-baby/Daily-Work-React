@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Col, Form, Icon, Input, Radio, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
+import { colLayOut } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
@@ -73,8 +74,8 @@ class CompanyInformationToFrom extends PureComponent {
     }
     return (
       <Col span={24}>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+        <Row type="flex" gutter={15}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'COMPANY_NAME' })}
               colon={false}
@@ -100,7 +101,7 @@ class CompanyInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'UEN_BUSINESS_REGISTRATION_NUMBER' })}
               colon={false}
@@ -125,9 +126,7 @@ class CompanyInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col span={24}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'ORGANISATION_ROLE' })}
               colon={false}
@@ -137,26 +136,22 @@ class CompanyInformationToFrom extends PureComponent {
                 initialValue: companyInfo.organizationRole || null,
                 rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
               })(
-                <Radio.Group
-                  onChange={e =>
-                    onHandleChange('organizationRole', e.target.value, 'organizationRole')
-                  }
+                <Select
+                  onChange={value => onHandleChange('organizationRole', value, 'organizationRole')}
                   disabled={isRoleDisabled}
                 >
                   {organizationRoleList &&
                     organizationRoleList.length > 0 &&
                     organizationRoleList.map(item => (
-                      <Radio key={`roleList${item.dictId}`} value={`${item.dictId}`}>
+                      <Select.Option key={`roleList${item.dictId}`} value={`${item.dictId}`}>
                         {item.dictName}
-                      </Radio>
+                      </Select.Option>
                     ))}
-                </Radio.Group>
+                </Select>
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'COUNTRY_AND_CITY_STATE' })}
               colon={false}
@@ -241,7 +236,7 @@ class CompanyInformationToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'ZIP_POSTAL_CODE' })}
               colon={false}
@@ -263,9 +258,7 @@ class CompanyInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col span={24}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'COMPANY_ADDRESS' })}
               colon={false}
@@ -287,9 +280,7 @@ class CompanyInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'DATE_OF_INCORPORATION' })}
               colon={false}
@@ -320,7 +311,7 @@ class CompanyInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={this.getTravelAgentNoLabel(companyInfo.country)}
               colon={false}
@@ -341,9 +332,7 @@ class CompanyInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'GST_REG_YES_OR_NO' })}
               colon={false}
@@ -366,7 +355,7 @@ class CompanyInformationToFrom extends PureComponent {
             </Form.Item>
           </Col>
           {!isNvl(companyInfo.isGstRegIndicator) ? (
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+            <Col {...colLayOut}>
               <Form.Item
                 label={formatMessage({ id: 'GST_REG_NO' })}
                 colon={false}
@@ -398,10 +387,8 @@ class CompanyInformationToFrom extends PureComponent {
               &nbsp;
             </Col>
           )}
-        </Row>
-        <Row type="flex" justify="space-around">
           {!isNvl(companyInfo.isGstRegIndicator) ? (
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+            <Col {...colLayOut}>
               <Form.Item
                 label={formatMessage({ id: 'GST_EFFECTIVE_DATE' })}
                 colon={false}
@@ -440,7 +427,7 @@ class CompanyInformationToFrom extends PureComponent {
             </Col>
           )}
           {isSaleSupportRoleFlag || isAccountingArRoleFlag ? (
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+            <Col {...colLayOut}>
               <Form.Item
                 label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}
                 colon={false}
