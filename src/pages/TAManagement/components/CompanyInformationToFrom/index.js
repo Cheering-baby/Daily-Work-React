@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Col, Form, Icon, Input, Radio, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
-import { colLayOut } from '../../utils/pubUtils';
+import { colLayOut, rowLayOut } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
@@ -74,7 +74,7 @@ class CompanyInformationToFrom extends PureComponent {
     }
     return (
       <Col span={24}>
-        <Row type="flex" gutter={15}>
+        <Row {...rowLayOut}>
           <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'COMPANY_NAME' })}
@@ -133,12 +133,14 @@ class CompanyInformationToFrom extends PureComponent {
               {...formItemRowLayout}
             >
               {getFieldDecorator('organizationRole', {
-                initialValue: companyInfo.organizationRole || null,
+                initialValue: companyInfo.organizationRole,
                 rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
               })(
                 <Select
+                  showSearch
                   onChange={value => onHandleChange('organizationRole', value, 'organizationRole')}
                   disabled={isRoleDisabled}
+                  placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                 >
                   {organizationRoleList &&
                     organizationRoleList.length > 0 &&

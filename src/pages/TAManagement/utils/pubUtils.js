@@ -210,6 +210,11 @@ export const colLayOut = {
   },
 };
 
+export const rowLayOut = {
+  type: 'flex',
+  gutter: 15,
+};
+
 export function getFormLayout() {
   const formItemLayout = {
     labelCol: {

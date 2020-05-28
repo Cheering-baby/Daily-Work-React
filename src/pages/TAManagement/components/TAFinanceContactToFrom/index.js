@@ -4,7 +4,7 @@ import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
-import { getFinanceType } from '../../utils/pubUtils';
+import { getFinanceType, colLayOut, rowLayOut } from '../../utils/pubUtils';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 class TAFinanceContactToFrom extends PureComponent {
@@ -55,15 +55,15 @@ class TAFinanceContactToFrom extends PureComponent {
     }
     return (
       <Col span={24}>
-        <Row type="flex" justify="space-around">
+        <Row {...rowLayOut}>
           <Col span={24}>
             <span className={styles.financeConcatTitle}>
               {formatMessage({ id: 'PRIMARY_FINANCE' })}
             </span>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_PERSON' })}
               colon={false}
@@ -99,7 +99,7 @@ class TAFinanceContactToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_MOBILE_NO' })}
               colon={false}
@@ -178,9 +178,7 @@ class TAFinanceContactToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_NO' })}
               colon={false}
@@ -249,7 +247,7 @@ class TAFinanceContactToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_EMAIL' })}
               colon={false}
@@ -287,15 +285,15 @@ class TAFinanceContactToFrom extends PureComponent {
             </Form.Item>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
+        <Row {...rowLayOut}>
           <Col span={24}>
             <span className={styles.financeConcatTitle}>
               {formatMessage({ id: 'SECONDARY_FINANCE' })}
             </span>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_PERSON' })}
               colon={false}
@@ -331,7 +329,7 @@ class TAFinanceContactToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_MOBILE_NO' })}
               colon={false}
@@ -410,9 +408,7 @@ class TAFinanceContactToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_NO' })}
               colon={false}
@@ -481,7 +477,7 @@ class TAFinanceContactToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_EMAIL' })}
               colon={false}
@@ -520,8 +516,8 @@ class TAFinanceContactToFrom extends PureComponent {
           </Col>
         </Row>
         {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
-          <Row type="flex" justify="space-around">
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Row {...rowLayOut}>
+            <Col {...colLayOut}>
               <Form.Item
                 label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_AMOUNT' })}
                 colon={false}
@@ -564,7 +560,7 @@ class TAFinanceContactToFrom extends PureComponent {
                 )}
               </Form.Item>
             </Col>
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+            <Col {...colLayOut}>
               <Form.Item
                 label={formatMessage({ id: 'TA_FINANCE_CURRENCY' })}
                 colon={false}
@@ -606,8 +602,8 @@ class TAFinanceContactToFrom extends PureComponent {
           </Row>
         )}
         {isAccountingArRoleFlag && (
-          <Row type="flex" justify="space-around">
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Row {...rowLayOut}>
+            <Col>
               <Form.Item
                 label={formatMessage({ id: 'TA_FINANCE_E_WALLET_FIXED_THRESHOLD' })}
                 colon={false}
@@ -654,7 +650,7 @@ class TAFinanceContactToFrom extends PureComponent {
                 )}
               </Form.Item>
             </Col>
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+            <Col>
               <Form.Item
                 label={formatMessage({ id: 'TA_FINANCE_AR_FIXED_THRESHOLD' })}
                 colon={false}
@@ -701,8 +697,8 @@ class TAFinanceContactToFrom extends PureComponent {
         )}
         {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
           <React.Fragment>
-            <Row type="flex" justify="space-around">
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+            <Row {...rowLayOut}>
+              <Col>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_AMOUNT' })}
                   colon={false}
@@ -741,7 +737,7 @@ class TAFinanceContactToFrom extends PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+              <Col>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_EXPIRY_DATE' })}
                   colon={false}
@@ -771,8 +767,8 @@ class TAFinanceContactToFrom extends PureComponent {
                 </Form.Item>
               </Col>
             </Row>
-            <Row type="flex" justify="space-around">
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+            <Row {...rowLayOut}>
+              <Col>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_CREDIT_TERM' })}
                   colon={false}
@@ -813,7 +809,7 @@ class TAFinanceContactToFrom extends PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+              <Col>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_CREDIT_LIMIT' })}
                   colon={false}
@@ -854,7 +850,7 @@ class TAFinanceContactToFrom extends PureComponent {
           </React.Fragment>
         )}
         {!(isSaleSupportRoleFlag || isAccountingArRoleFlag) && (
-          <Row type="flex" justify="space-around">
+          <Row {...rowLayOut}>
             <Col span={24} className={styles.isAllInformationToRwsCheckboxCol}>
               <Form.Item colon={false}>
                 {getFieldDecorator('isAllInformationToRws', {

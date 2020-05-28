@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Checkbox, Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
-import { getBillingInfo } from '../../utils/pubUtils';
+import { getBillingInfo, colLayOut, rowLayOut } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 
 class BillingInformationToFrom extends PureComponent {
@@ -92,9 +92,8 @@ class BillingInformationToFrom extends PureComponent {
               <Tooltip
                 placement="topLeft"
                 title={
-                  <span
-                    style={{ whiteSpace: 'pre-wrap' }}
-                  >{`${item.dictName} +${item.dictId}`}
+                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                    {`${item.dictName} +${item.dictId}`}
                   </span>
                   }
               >
@@ -107,7 +106,7 @@ class BillingInformationToFrom extends PureComponent {
     );
     return (
       <Col span={24}>
-        <Row type="flex" justify="space-around">
+        <Row {...rowLayOut}>
           <Col span={24} className={styles.bilCheckBoxItem}>
             <Form.Item label={' '} colon={false} {...formItemRowLayout}>
               {getFieldDecorator('isBilCheckBox', {
@@ -124,8 +123,8 @@ class BillingInformationToFrom extends PureComponent {
             </Form.Item>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut} xs={24} sm={24} md={24} lg={16} xl={16} xxl={16}>
             <Form.Item
               label={formatMessage({ id: 'BIL_COMPANY_NAME' })}
               colon={false}
@@ -153,12 +152,9 @@ class BillingInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-            &nbsp;
-          </Col>
         </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_COUNTRY_AND_CITY_STATE' })}
               colon={false}
@@ -243,7 +239,7 @@ class BillingInformationToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_ZIP_POSTAL_CODE' })}
               colon={false}
@@ -266,8 +262,8 @@ class BillingInformationToFrom extends PureComponent {
             </Form.Item>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
-          <Col span={24}>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut} xs={24} sm={24} md={24} lg={16} xl={16} xxl={16}>
             <Form.Item
               label={formatMessage({ id: 'BIL_ADDRESS' })}
               colon={false}
@@ -287,8 +283,8 @@ class BillingInformationToFrom extends PureComponent {
             </Form.Item>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
             <Form.Item label={formatMessage({ id: 'BIL_EMAIL' })} colon={false} {...formItemLayout}>
               {getFieldDecorator('bilEmail', {
                 initialValue: billingInfo.email || null,
@@ -307,7 +303,7 @@ class BillingInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_TEL' })}
               colon={false}
@@ -337,9 +333,7 @@ class BillingInformationToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_CONTACT_PERSON_SALUTATION' })}
               colon={false}
@@ -377,7 +371,7 @@ class BillingInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_MOBILE_NO' })}
               colon={false}
@@ -411,9 +405,7 @@ class BillingInformationToFrom extends PureComponent {
               </Input.Group>
             </Form.Item>
           </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_CONTACT_PERSON_FIRST_NAME' })}
               colon={false}
@@ -435,7 +427,7 @@ class BillingInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_CONTACT_PERSON_LAST_NAME' })}
               colon={false}

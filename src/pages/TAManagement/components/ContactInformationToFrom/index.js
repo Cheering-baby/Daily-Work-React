@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { colLayOut } from '../../utils/pubUtils';
+import { colLayOut, rowLayOut } from '../../utils/pubUtils';
 import styles from './index.less';
 
 class ContactInformationToFrom extends PureComponent {
@@ -25,7 +25,7 @@ class ContactInformationToFrom extends PureComponent {
     }
     return (
       <Col span={24}>
-        <Row type="flex" gutter={15}>
+        <Row {...rowLayOut}>
           <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'CONTACT_PERSON_SALUTATION' })}

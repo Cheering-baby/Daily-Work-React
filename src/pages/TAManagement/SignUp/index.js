@@ -80,7 +80,6 @@ class SignUp extends PureComponent {
           if (!isNvl(customerInfo) && !isNvl(customerInfo.companyInfo)) {
             newCompanyInfo = { ...customerInfo.companyInfo };
           }
-          newCompanyInfo.organizationRole = `${repInfo.organizationRoleInfo.dictId}`;
           dispatch({
             type: 'taMgr/save',
             payload: {
