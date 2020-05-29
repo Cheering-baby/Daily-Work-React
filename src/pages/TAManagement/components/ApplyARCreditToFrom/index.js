@@ -39,8 +39,14 @@ class ApplyARCreditToFrom extends PureComponent {
                   >
                     <span className={styles.topColCheckBoxMsgTitle}>
                       <ul>
-                        <li>{formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT' })}</li>
-                        <li>{formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT_NOTE' })}</li>
+                        <li
+                          style={{ fontSize: '16px', color: 'rgba(0,0,0, .85)', fontWeight: 600 }}
+                        >
+                          {formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT' })}
+                        </li>
+                        <li style={{ color: 'rgba(0,0,0, .45)' }}>
+                          {formatMessage({ id: 'APPLY_AR_CREDIT_LIMIT_NOTE' })}
+                        </li>
                       </ul>
                     </span>
                   </Checkbox>

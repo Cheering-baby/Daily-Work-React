@@ -3,11 +3,15 @@ import { Col, Descriptions, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
-import { getCountryAndCityStr, getSalutationStr, getTelStr } from '../../utils/pubUtils';
+import {
+  getCountryAndCityStr,
+  getSalutationStr,
+  getTelStr,
+  detailLayOut,
+} from '../../utils/pubUtils';
 
 const DetailForBillingInformation = props => {
   const { billingInfo = {}, countryList = [], bilCityList = [], salutationList = [] } = props;
-  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -17,12 +21,10 @@ const DetailForBillingInformation = props => {
       </Row>
       <Row type="flex" justify="space-around" className={styles.detailContent}>
         <Col span={24}>
-          <Descriptions className={styles.descriptionsStyle} column={1}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'BIL_COMPANY_NAME' })}>
               {!isNvl(billingInfo.companyName) ? billingInfo.companyName : '-'}
             </Descriptions.Item>
-          </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
             <Descriptions.Item label={formatMessage({ id: 'BIL_COUNTRY_AND_CITY_STATE' })}>
               {getCountryAndCityStr(
                 countryList,
@@ -40,7 +42,7 @@ const DetailForBillingInformation = props => {
               {!isNvl(billingInfo.address) ? billingInfo.address : '-'}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'BIL_EMAIL' })}>
               {!isNvl(billingInfo.email) ? billingInfo.email : '-'}
             </Descriptions.Item>

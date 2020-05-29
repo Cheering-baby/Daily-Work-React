@@ -10,6 +10,7 @@ import {
   getOrganizationRoleStr,
   getTravelAgentNoLabel,
   getYesOrNo,
+  detailLayOut,
 } from '../../utils/pubUtils';
 
 const DetailForCompanyInformation = props => {
@@ -23,7 +24,6 @@ const DetailForCompanyInformation = props => {
     isMainTaRoleFlag,
     isSaleSupportRoleFlag,
   } = props;
-  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -33,20 +33,20 @@ const DetailForCompanyInformation = props => {
       </Row>
       <Row type="flex" justify="space-around" className={styles.detailContent}>
         <Col span={24}>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={1}>
             <Descriptions.Item label={formatMessage({ id: 'COMPANY_NAME' })}>
               {!isNvl(companyInfo.companyName) ? companyInfo.companyName : '-'}
             </Descriptions.Item>
+          </Descriptions>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'UEN_BUSINESS_REGISTRATION_NUMBER' })}>
               {!isNvl(companyInfo.registrationNo) ? companyInfo.registrationNo : '-'}
             </Descriptions.Item>
-          </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={1}>
             <Descriptions.Item label={formatMessage({ id: 'ORGANISATION_ROLE' })}>
               {getOrganizationRoleStr(organizationRoleList, companyInfo.organizationRole)}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'COUNTRY_AND_CITY_STATE' })}>
               {getCountryAndCityStr(countryList, companyInfo.country, companyInfo.city, cityList)}
             </Descriptions.Item>
@@ -59,7 +59,7 @@ const DetailForCompanyInformation = props => {
               {!isNvl(companyInfo.address) ? companyInfo.address : '-'}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'DATE_OF_INCORPORATION' })}>
               {!isNvl(companyInfo.incorporationDate)
                 ? moment(companyInfo.incorporationDate, 'YYYY-MM-DD').format('DD-MMM-YYYY')

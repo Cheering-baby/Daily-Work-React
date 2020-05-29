@@ -215,6 +215,8 @@ export const rowLayOut = {
   gutter: 15,
 };
 
+export const detailLayOut = { xs: 1, sm: 1, md: 2, lg: 3, xl: 3, xxl: 3 };
+
 export function getFormLayout() {
   const formItemLayout = {
     labelCol: {

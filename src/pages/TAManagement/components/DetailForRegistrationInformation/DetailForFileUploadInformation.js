@@ -6,7 +6,6 @@ import DetailForFileInfo from '@/components/DetailForFileInfo';
 
 const DetailForFileUploadInformation = props => {
   const { companyInfo = {}, updateDownFileLoading, downFileLoadingFlag = false } = props;
-  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -17,7 +16,7 @@ const DetailForFileUploadInformation = props => {
       <Spin spinning={downFileLoadingFlag}>
         <Row type="flex" justify="space-around" className={styles.detailContent}>
           <Col span={24}>
-            <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions className={styles.descriptionsStyle} column={1}>
               <Descriptions.Item label={formatMessage({ id: 'FILE_REGISTRATION_DOCS' })}>
                 <DetailForFileInfo
                   fileList={companyInfo.fileList || null}

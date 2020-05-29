@@ -3,11 +3,10 @@ import { Col, Descriptions, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
-import { getSalutationStr, getTelStr } from '../../utils/pubUtils';
+import { getSalutationStr, getTelStr, detailLayOut } from '../../utils/pubUtils';
 
 const DetailForContactInformation = props => {
   const { contactInfo = {}, salutationList = [], countryList = [] } = props;
-  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -17,12 +16,10 @@ const DetailForContactInformation = props => {
       </Row>
       <Row type="flex" justify="space-around" className={styles.detailContent}>
         <Col span={24}>
-          <Descriptions className={styles.descriptionsStyle} column={1}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'CONTACT_PERSON_SALUTATION' })}>
               {getSalutationStr(salutationList, contactInfo.salutation)}
             </Descriptions.Item>
-          </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
             <Descriptions.Item label={formatMessage({ id: 'CONTACT_PERSON_FIRST_NAME' })}>
               {!isNvl(contactInfo.firstName) ? contactInfo.firstName : '-'}
             </Descriptions.Item>

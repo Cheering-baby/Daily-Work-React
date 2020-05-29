@@ -62,7 +62,7 @@ class TAFinanceContactToFrom extends PureComponent {
             </span>
           </Col>
         </Row>
-        <Row {...rowLayOut}>
+        <Row {...rowLayOut} style={{ marginBottom: '16px' }}>
           <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'TA_FINANCE_CONTACT_PERSON' })}

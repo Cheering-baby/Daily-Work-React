@@ -9,6 +9,7 @@ import {
   getFinanceType,
   getMoneyStr,
   getTelStr,
+  detailLayOut,
 } from '../../utils/pubUtils';
 import styles from './index.less';
 
@@ -37,7 +38,6 @@ const DetailForTaFinanceContact = props => {
     );
   }
   if (isNvl(financeInfoTwo)) financeInfoTwo = {};
-  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -47,7 +47,7 @@ const DetailForTaFinanceContact = props => {
       </Row>
       <Row type="flex" justify="space-around" className={styles.detailContent}>
         <Col span={24}>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}>
               {!isNvl(financeInfoOne.contactPerson) ? financeInfoOne.contactPerson : '-'}
             </Descriptions.Item>
@@ -57,7 +57,7 @@ const DetailForTaFinanceContact = props => {
               {getTelStr(countryList, financeInfoOne.mobileCountry, financeInfoOne.mobileNumber)}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}>
               {getTelStr(countryList, financeInfoOne.country, financeInfoOne.contactNo)}
             </Descriptions.Item>
@@ -65,7 +65,7 @@ const DetailForTaFinanceContact = props => {
               {!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}>
               {!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}
             </Descriptions.Item>
@@ -75,7 +75,7 @@ const DetailForTaFinanceContact = props => {
               {getTelStr(countryList, financeInfoTwo.mobileCountry, financeInfoTwo.mobileNumber)}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={layout}>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}>
               {getTelStr(countryList, financeInfoTwo.country, financeInfoTwo.contactNo)}
             </Descriptions.Item>
@@ -84,7 +84,7 @@ const DetailForTaFinanceContact = props => {
             </Descriptions.Item>
           </Descriptions>
           {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
-            <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
               <Descriptions.Item
                 label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_AMOUNT' })}
               >
@@ -96,7 +96,7 @@ const DetailForTaFinanceContact = props => {
             </Descriptions>
           )}
           {isAccountingArRoleFlag && (
-            <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
               <Descriptions.Item
                 label={formatMessage({ id: 'TA_FINANCE_E_WALLET_FIXED_THRESHOLD' })}
               >
@@ -108,7 +108,7 @@ const DetailForTaFinanceContact = props => {
             </Descriptions>
           )}
           {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
-            <Descriptions className={styles.descriptionsStyle} column={layout}>
+            <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
               <Descriptions.Item
                 label={formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_AMOUNT' })}
               >
