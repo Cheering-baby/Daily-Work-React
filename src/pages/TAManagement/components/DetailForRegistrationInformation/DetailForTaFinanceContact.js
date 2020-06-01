@@ -40,12 +40,12 @@ const DetailForTaFinanceContact = props => {
   if (isNvl(financeInfoTwo)) financeInfoTwo = {};
   return (
     <React.Fragment>
-      <Row type="flex" justify="space-around">
+      <Row type="flex">
         <Col span={24}>
           <span className={styles.DetailTitle}>{formatMessage({ id: 'PRIMARY_FINANCE' })}</span>
         </Col>
       </Row>
-      <Row type="flex" justify="space-around" className={styles.detailContent}>
+      <Row type="flex" className={styles.detailContent}>
         <Col span={24}>
           <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}>
@@ -56,8 +56,6 @@ const DetailForTaFinanceContact = props => {
             >
               {getTelStr(countryList, financeInfoOne.mobileCountry, financeInfoOne.mobileNumber)}
             </Descriptions.Item>
-          </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}>
               {getTelStr(countryList, financeInfoOne.country, financeInfoOne.contactNo)}
             </Descriptions.Item>
@@ -65,6 +63,15 @@ const DetailForTaFinanceContact = props => {
               {!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}
             </Descriptions.Item>
           </Descriptions>
+        </Col>
+      </Row>
+      <Row type="flex">
+        <Col span={24}>
+          <span className={styles.DetailTitle}>{formatMessage({ id: 'SECONDARY_FINANCE' })}</span>
+        </Col>
+      </Row>
+      <Row type="flex" className={styles.detailContent}>
+        <Col span={24}>
           <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}>
               {!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}
@@ -74,8 +81,6 @@ const DetailForTaFinanceContact = props => {
             >
               {getTelStr(countryList, financeInfoTwo.mobileCountry, financeInfoTwo.mobileNumber)}
             </Descriptions.Item>
-          </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}>
               {getTelStr(countryList, financeInfoTwo.country, financeInfoTwo.contactNo)}
             </Descriptions.Item>

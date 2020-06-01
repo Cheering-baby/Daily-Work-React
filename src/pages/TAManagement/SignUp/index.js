@@ -100,6 +100,16 @@ class SignUp extends PureComponent {
     });
   };
 
+  back = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'signUp/save',
+      payload: {
+        currentStep: 0,
+      },
+    });
+  };
+
   getPageHeader = (currentStep, status) => {
     let pageHeaderTitle = formatMessage({ id: 'WELCOME_TO_SIGN_UP' });
     let pageHeaderSubTitle = formatMessage({ id: 'SUB_WELCOME_TO_SIGN_UP' });
@@ -157,8 +167,20 @@ class SignUp extends PureComponent {
           actions={
             String(currentStep) === '0' || String(currentStep) === '1'
               ? [
-                <Row type="flex" justify="space-around" className={styles.informationButtonRow}>
-                  <Col span={24}>
+                <Row type="flex" justify="space-between" className={styles.informationButtonRow}>
+                  <Col>
+                    {String(currentStep) === '1' ? (
+                      <Button
+                        htmlType="button"
+                        className={styles.informationButton}
+                        style={{ marginLeft: '0.75rem' }}
+                        onClick={this.back}
+                      >
+                        {formatMessage({ id: 'COMMON_BACK' })}
+                      </Button>
+                      ) : null}
+                  </Col>
+                  <Col span={12}>
                     <Button
                       htmlType="button"
                       className={styles.informationButton}
@@ -177,7 +199,9 @@ class SignUp extends PureComponent {
                           (!isAllInformationToRws && String(currentStep) === '1') || isCompanyExist
                         }
                     >
-                      {formatMessage({ id: 'COMMON_OK' })}
+                      {formatMessage({
+                          id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
+                        })}
                     </Button>
                   </Col>
                 </Row>,

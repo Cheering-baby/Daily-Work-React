@@ -124,7 +124,174 @@ class BillingInformationToFrom extends PureComponent {
           </Col>
         </Row>
         <Row {...rowLayOut}>
-          <Col {...colLayOut} xs={24} sm={24} md={24} lg={16} xl={16} xxl={16}>
+          <Col {...colLayOut}>
+            <Form.Item
+              label={formatMessage({ id: 'BIL_CONTACT_PERSON_SALUTATION' })}
+              colon={false}
+              {...formItemLayout}
+            >
+              {getFieldDecorator('bilSalutation', {
+                initialValue: billingInfo.salutation || [],
+                rules: [{ required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) }],
+              })(
+                <Select
+                  showSearch
+                  placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                  optionFilterProp="label"
+                  getPopupContainer={() => document.getElementById(`${viewId}`)}
+                  onChange={value => onHandleChange('salutation', value, 'bilSalutation')}
+                  disabled={isAllDisabled}
+                >
+                  {salutationList && salutationList.length > 0
+                    ? salutationList.map(item => (
+                      <Select.Option
+                        key={`salutationList${item.dictId}`}
+                        value={`${item.dictId}`}
+                        label={item.dictName}
+                      >
+                        <Tooltip
+                          placement="topLeft"
+                          title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
+                        >
+                          {item.dictName}
+                        </Tooltip>
+                      </Select.Option>
+                      ))
+                    : null}
+                </Select>
+              )}
+            </Form.Item>
+          </Col>
+          <Col {...colLayOut}>
+            <Form.Item
+              label={formatMessage({ id: 'BIL_CONTACT_PERSON_FIRST_NAME' })}
+              colon={false}
+              {...formItemLayout}
+            >
+              {getFieldDecorator('bilFirstName', {
+                initialValue: billingInfo.firstName || null,
+                rules: [
+                  { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
+                  { max: 200, message: numFormat },
+                ],
+              })(
+                <Input
+                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                  onChange={e => onHandleChange('firstName', e.target.value, 'bilFirstName')}
+                  onPressEnter={e => onHandleChange('firstName', e.target.value, 'bilFirstName')}
+                  disabled={isAllDisabled}
+                />
+              )}
+            </Form.Item>
+          </Col>
+          <Col {...colLayOut}>
+            <Form.Item
+              label={formatMessage({ id: 'BIL_CONTACT_PERSON_LAST_NAME' })}
+              colon={false}
+              {...formItemLayout}
+            >
+              {getFieldDecorator('bilLastName', {
+                initialValue: billingInfo.lastName || null,
+                rules: [
+                  { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
+                  { max: 200, message: numFormat },
+                ],
+              })(
+                <Input
+                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                  onChange={e => onHandleChange('lastName', e.target.value, 'bilLastName')}
+                  onPressEnter={e => onHandleChange('lastName', e.target.value, 'bilLastName')}
+                  disabled={isAllDisabled}
+                />
+              )}
+            </Form.Item>
+          </Col>
+          <Col {...colLayOut}>
+            <Form.Item label={formatMessage({ id: 'BIL_EMAIL' })} colon={false} {...formItemLayout}>
+              {getFieldDecorator('bilEmail', {
+                initialValue: billingInfo.email || null,
+                rules: [
+                  { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
+                  { type: 'email', message: formatMessage({ id: 'INPUT_EMAIL' }) },
+                  { max: 200, message: numFormat },
+                ],
+              })(
+                <Input
+                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                  onChange={e => onHandleChange('email', e.target.value, 'bilEmail')}
+                  onPressEnter={e => onHandleChange('email', e.target.value, 'bilEmail')}
+                  disabled={isAllDisabled}
+                />
+              )}
+            </Form.Item>
+          </Col>
+          <Col {...colLayOut}>
+            <Form.Item
+              label={formatMessage({ id: 'BIL_TEL' })}
+              colon={false}
+              {...formItemLayout}
+              className={!isBilCheckBox ? styles.bilTelItem : null}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.bilPhoneCountryItem}>
+                  {prefixPhoneSelector}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.bilPhoneItem}>
+                  {getFieldDecorator('bilPhone', {
+                    initialValue: billingInfo.phone || null,
+                    rules: [
+                      { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
+                      { max: 200, message: numFormat },
+                    ],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e => onHandleChange('phone', e.target.value, 'bilPhone')}
+                      onPressEnter={e => onHandleChange('phone', e.target.value, 'bilPhone')}
+                      disabled={isAllDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
+          </Col>
+          <Col {...colLayOut}>
+            <Form.Item
+              label={formatMessage({ id: 'BIL_MOBILE_NO' })}
+              colon={false}
+              {...formItemLayout}
+              className={!isBilCheckBox ? styles.bilTelItem : null}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} className={styles.bilPhoneCountryItem}>
+                  {prefixMobileSelector}
+                </Form.Item>
+                <Form.Item colon={false} className={styles.bilPhoneItem}>
+                  {getFieldDecorator('bilMobileNumber', {
+                    initialValue: billingInfo.mobileNumber || null,
+                    rules: [
+                      { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
+                      { max: 200, message: numFormat },
+                    ],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e =>
+                        onHandleChange('mobileNumber', e.target.value, 'bilMobileNumber')
+                      }
+                      onPressEnter={e =>
+                        onHandleChange('mobileNumber', e.target.value, 'bilMobileNumber')
+                      }
+                      disabled={isAllDisabled}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_COMPANY_NAME' })}
               colon={false}
@@ -152,8 +319,6 @@ class BillingInformationToFrom extends PureComponent {
               )}
             </Form.Item>
           </Col>
-        </Row>
-        <Row {...rowLayOut}>
           <Col {...colLayOut}>
             <Form.Item
               label={formatMessage({ id: 'BIL_COUNTRY_AND_CITY_STATE' })}
@@ -277,173 +442,6 @@ class BillingInformationToFrom extends PureComponent {
                   placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
                   onChange={e => onHandleChange('address', e.target.value, 'bilAddress')}
                   onPressEnter={e => onHandleChange('address', e.target.value, 'bilAddress')}
-                  disabled={isAllDisabled}
-                />
-              )}
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row {...rowLayOut}>
-          <Col {...colLayOut}>
-            <Form.Item label={formatMessage({ id: 'BIL_EMAIL' })} colon={false} {...formItemLayout}>
-              {getFieldDecorator('bilEmail', {
-                initialValue: billingInfo.email || null,
-                rules: [
-                  { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
-                  { type: 'email', message: formatMessage({ id: 'INPUT_EMAIL' }) },
-                  { max: 200, message: numFormat },
-                ],
-              })(
-                <Input
-                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                  onChange={e => onHandleChange('email', e.target.value, 'bilEmail')}
-                  onPressEnter={e => onHandleChange('email', e.target.value, 'bilEmail')}
-                  disabled={isAllDisabled}
-                />
-              )}
-            </Form.Item>
-          </Col>
-          <Col {...colLayOut}>
-            <Form.Item
-              label={formatMessage({ id: 'BIL_TEL' })}
-              colon={false}
-              {...formItemLayout}
-              className={!isBilCheckBox ? styles.bilTelItem : null}
-            >
-              <Input.Group compact>
-                <Form.Item colon={false} className={styles.bilPhoneCountryItem}>
-                  {prefixPhoneSelector}
-                </Form.Item>
-                <Form.Item colon={false} className={styles.bilPhoneItem}>
-                  {getFieldDecorator('bilPhone', {
-                    initialValue: billingInfo.phone || null,
-                    rules: [
-                      { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
-                      { max: 200, message: numFormat },
-                    ],
-                  })(
-                    <Input
-                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      onChange={e => onHandleChange('phone', e.target.value, 'bilPhone')}
-                      onPressEnter={e => onHandleChange('phone', e.target.value, 'bilPhone')}
-                      disabled={isAllDisabled}
-                    />
-                  )}
-                </Form.Item>
-              </Input.Group>
-            </Form.Item>
-          </Col>
-          <Col {...colLayOut}>
-            <Form.Item
-              label={formatMessage({ id: 'BIL_CONTACT_PERSON_SALUTATION' })}
-              colon={false}
-              {...formItemLayout}
-            >
-              {getFieldDecorator('bilSalutation', {
-                initialValue: billingInfo.salutation || [],
-                rules: [{ required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) }],
-              })(
-                <Select
-                  showSearch
-                  placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                  optionFilterProp="label"
-                  getPopupContainer={() => document.getElementById(`${viewId}`)}
-                  onChange={value => onHandleChange('salutation', value, 'bilSalutation')}
-                  disabled={isAllDisabled}
-                >
-                  {salutationList && salutationList.length > 0
-                    ? salutationList.map(item => (
-                      <Select.Option
-                        key={`salutationList${item.dictId}`}
-                        value={`${item.dictId}`}
-                        label={item.dictName}
-                      >
-                        <Tooltip
-                          placement="topLeft"
-                          title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
-                        >
-                          {item.dictName}
-                        </Tooltip>
-                      </Select.Option>
-                      ))
-                    : null}
-                </Select>
-              )}
-            </Form.Item>
-          </Col>
-          <Col {...colLayOut}>
-            <Form.Item
-              label={formatMessage({ id: 'BIL_MOBILE_NO' })}
-              colon={false}
-              {...formItemLayout}
-              className={!isBilCheckBox ? styles.bilTelItem : null}
-            >
-              <Input.Group compact>
-                <Form.Item colon={false} className={styles.bilPhoneCountryItem}>
-                  {prefixMobileSelector}
-                </Form.Item>
-                <Form.Item colon={false} className={styles.bilPhoneItem}>
-                  {getFieldDecorator('bilMobileNumber', {
-                    initialValue: billingInfo.mobileNumber || null,
-                    rules: [
-                      { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
-                      { max: 200, message: numFormat },
-                    ],
-                  })(
-                    <Input
-                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      onChange={e =>
-                        onHandleChange('mobileNumber', e.target.value, 'bilMobileNumber')
-                      }
-                      onPressEnter={e =>
-                        onHandleChange('mobileNumber', e.target.value, 'bilMobileNumber')
-                      }
-                      disabled={isAllDisabled}
-                    />
-                  )}
-                </Form.Item>
-              </Input.Group>
-            </Form.Item>
-          </Col>
-          <Col {...colLayOut}>
-            <Form.Item
-              label={formatMessage({ id: 'BIL_CONTACT_PERSON_FIRST_NAME' })}
-              colon={false}
-              {...formItemLayout}
-            >
-              {getFieldDecorator('bilFirstName', {
-                initialValue: billingInfo.firstName || null,
-                rules: [
-                  { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
-                  { max: 200, message: numFormat },
-                ],
-              })(
-                <Input
-                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                  onChange={e => onHandleChange('firstName', e.target.value, 'bilFirstName')}
-                  onPressEnter={e => onHandleChange('firstName', e.target.value, 'bilFirstName')}
-                  disabled={isAllDisabled}
-                />
-              )}
-            </Form.Item>
-          </Col>
-          <Col {...colLayOut}>
-            <Form.Item
-              label={formatMessage({ id: 'BIL_CONTACT_PERSON_LAST_NAME' })}
-              colon={false}
-              {...formItemLayout}
-            >
-              {getFieldDecorator('bilLastName', {
-                initialValue: billingInfo.lastName || null,
-                rules: [
-                  { required: !isBilCheckBox, message: formatMessage({ id: 'REQUIRED' }) },
-                  { max: 200, message: numFormat },
-                ],
-              })(
-                <Input
-                  placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                  onChange={e => onHandleChange('lastName', e.target.value, 'bilLastName')}
-                  onPressEnter={e => onHandleChange('lastName', e.target.value, 'bilLastName')}
                   disabled={isAllDisabled}
                 />
               )}

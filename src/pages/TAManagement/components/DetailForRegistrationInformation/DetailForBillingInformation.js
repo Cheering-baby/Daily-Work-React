@@ -22,6 +22,27 @@ const DetailForBillingInformation = props => {
       <Row type="flex" justify="space-around" className={styles.detailContent}>
         <Col span={24}>
           <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
+            <Descriptions.Item label={formatMessage({ id: 'BIL_CONTACT_PERSON_SALUTATION' })}>
+              {getSalutationStr(salutationList, billingInfo.salutation)}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'BIL_CONTACT_PERSON_FIRST_NAME' })}>
+              {!isNvl(billingInfo.firstName) ? billingInfo.firstName : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'BIL_CONTACT_PERSON_LAST_NAME' })}>
+              {!isNvl(billingInfo.lastName) ? billingInfo.lastName : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'BIL_EMAIL' })}>
+              {!isNvl(billingInfo.email) ? billingInfo.email : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'BIL_TEL' })}>
+              {getTelStr(countryList, billingInfo.phoneCountry, billingInfo.phone)}
+            </Descriptions.Item>
+
+            <Descriptions.Item label={formatMessage({ id: 'BIL_MOBILE_NO' })}>
+              {getTelStr(countryList, billingInfo.mobileCountry, billingInfo.mobileNumber)}
+            </Descriptions.Item>
+          </Descriptions>
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'BIL_COMPANY_NAME' })}>
               {!isNvl(billingInfo.companyName) ? billingInfo.companyName : '-'}
             </Descriptions.Item>
@@ -40,26 +61,6 @@ const DetailForBillingInformation = props => {
           <Descriptions className={styles.descriptionsStyle} column={1}>
             <Descriptions.Item label={formatMessage({ id: 'BIL_ADDRESS' })}>
               {!isNvl(billingInfo.address) ? billingInfo.address : '-'}
-            </Descriptions.Item>
-          </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
-            <Descriptions.Item label={formatMessage({ id: 'BIL_EMAIL' })}>
-              {!isNvl(billingInfo.email) ? billingInfo.email : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={formatMessage({ id: 'BIL_TEL' })}>
-              {getTelStr(countryList, billingInfo.phoneCountry, billingInfo.phone)}
-            </Descriptions.Item>
-            <Descriptions.Item label={formatMessage({ id: 'BIL_CONTACT_PERSON_SALUTATION' })}>
-              {getSalutationStr(salutationList, billingInfo.salutation)}
-            </Descriptions.Item>
-            <Descriptions.Item label={formatMessage({ id: 'BIL_MOBILE_NO' })}>
-              {getTelStr(countryList, billingInfo.mobileCountry, billingInfo.mobileNumber)}
-            </Descriptions.Item>
-            <Descriptions.Item label={formatMessage({ id: 'BIL_CONTACT_PERSON_FIRST_NAME' })}>
-              {!isNvl(billingInfo.firstName) ? billingInfo.firstName : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={formatMessage({ id: 'BIL_CONTACT_PERSON_LAST_NAME' })}>
-              {!isNvl(billingInfo.lastName) ? billingInfo.lastName : '-'}
             </Descriptions.Item>
           </Descriptions>
         </Col>
