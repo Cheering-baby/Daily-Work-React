@@ -2,7 +2,7 @@ import React from 'react';
 import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import { Form, Card, message, Spin } from 'antd';
+import { Card, Form, message, Spin } from 'antd';
 import SCREEN from '@/utils/screen';
 import NewCommission from '../components/NewCommission';
 import NewBinding from '../components/NewBinding';
@@ -69,9 +69,26 @@ class onlineNew extends React.PureComponent {
           if (values[k] === 'Percentage') {
             if (tieredList && tieredList.length > 0) {
               tieredList.map(v => {
-                Object.assign(v, {
-                  commissionValue: v.commissionValue / 100 || '',
-                });
+                const num = v.commissionValue;
+                const x = String(num).indexOf('.') + 1;
+                const y = String(num).length - x;
+                if (y === 1) {
+                  Object.assign(v, {
+                    commissionValue: parseFloat(v.commissionValue / 100).toFixed(3) || '',
+                  });
+                  return v;
+                }
+                if (y === 2) {
+                  Object.assign(v, {
+                    commissionValue: parseFloat(v.commissionValue / 100).toFixed(4) || '',
+                  });
+                  return v;
+                }
+                if (y <= 0) {
+                  Object.assign(v, {
+                    commissionValue: parseFloat(v.commissionValue / 100) || '',
+                  });
+                }
                 return v;
               });
             }

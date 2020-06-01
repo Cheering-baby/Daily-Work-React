@@ -25,7 +25,7 @@ export async function getSupportLanguage() {
  * @param newPwd
  */
 export async function changePassword(userCode, oldPwd, newPwd) {
-  return UAAService.request('/b2b/user/v1/user/changePassword', {
+  return UAAService.requestByRT('/b2b/user/v1/user/changePassword', {
     method: 'POST',
     body: {
       oldPassword: Base64.encode(oldPwd),
@@ -44,7 +44,7 @@ export async function queryCurrentUserRoles() {
 }
 
 export function queryOrgListByUser(userCode) {
-  return UAAService.request(`/b2b/agent/v1/profile/getSuperTaList?userCode=${userCode}`, {
+  return UAAService.requestByRT(`/b2b/agent/v1/profile/getSuperTaList?userCode=${userCode}`, {
     method: 'GET',
   });
 }

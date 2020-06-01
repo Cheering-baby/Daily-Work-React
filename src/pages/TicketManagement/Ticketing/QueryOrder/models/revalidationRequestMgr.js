@@ -192,7 +192,7 @@ export default {
           const data = {};
           const temp = csvList[i].split(',');
           for (let j = 0; j < temp.length; j += 1) {
-            data[headers[j]] = temp[j];
+            data[headers[j].trim()] = temp[j].trim();
           }
           vidData.push(data);
         }

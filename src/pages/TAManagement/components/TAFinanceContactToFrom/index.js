@@ -13,6 +13,7 @@ class TAFinanceContactToFrom extends PureComponent {
       form,
       formItemLayout,
       viewId,
+      arAllowed,
       isMainTaRoleFlag,
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
@@ -51,6 +52,9 @@ class TAFinanceContactToFrom extends PureComponent {
       isMappingDisabled = true;
     }
     if (isMainTaRoleFlag) {
+      isMappingDisabled = true;
+    }
+    if (!arAllowed) {
       isMappingDisabled = true;
     }
     return (

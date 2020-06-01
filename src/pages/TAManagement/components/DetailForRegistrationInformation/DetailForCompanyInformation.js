@@ -23,7 +23,12 @@ const DetailForCompanyInformation = props => {
     customerGroupList = [],
     isMainTaRoleFlag,
     isSaleSupportRoleFlag,
+    userType,
   } = props;
+
+  const rwsLogin = userType === '01';
+
+  const layout = { xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 };
   return (
     <React.Fragment>
       <Row type="flex" justify="space-around">
@@ -81,7 +86,7 @@ const DetailForCompanyInformation = props => {
                   : '-'}
               </Descriptions.Item>
             )}
-            {(isMainTaRoleFlag || isSaleSupportRoleFlag) && (
+            {(isMainTaRoleFlag || isSaleSupportRoleFlag) && rwsLogin && (
               <Descriptions.Item label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}>
                 {getCategoryAndCustomerGroupStr(
                   categoryList,

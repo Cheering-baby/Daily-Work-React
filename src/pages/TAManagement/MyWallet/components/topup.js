@@ -44,21 +44,21 @@ class Arapply extends React.PureComponent {
           payload: values,
           callback: (result = {}) => {
             if (!result || !result.paymentPageUrl) return;
-            window.open(result.paymentPageUrl);
+            window.location.href = result.paymentPageUrl;
             this.setState({ visible: false });
-            Modal.confirm({
-              content: formatMessage({ id: 'TOPUP_COMPLETED_TIPS' }),
-              cancelText: formatMessage({ id: 'TOPUP_COMPLETED_TIPS_CANCEL_TEXT' }),
-              okText: formatMessage({ id: 'TOPUP_COMPLETED_TIPS_OK_TEXT' }),
-              onCancel: () => {
-                dispatch({ type: 'myWallet/fetchAccountDetail' });
-                dispatch({ type: 'myWallet/fetchAccountFlowList' });
-              },
-              onOk: () => {
-                dispatch({ type: 'myWallet/fetchAccountDetail' });
-                dispatch({ type: 'myWallet/fetchAccountFlowList' });
-              },
-            });
+            // Modal.confirm({
+            //   content: formatMessage({ id: 'TOPUP_COMPLETED_TIPS' }),
+            //   cancelText: formatMessage({ id: 'TOPUP_COMPLETED_TIPS_CANCEL_TEXT' }),
+            //   okText: formatMessage({ id: 'TOPUP_COMPLETED_TIPS_OK_TEXT' }),
+            //   onCancel: () => {
+            //     dispatch({ type: 'myWallet/fetchAccountDetail' });
+            //     dispatch({ type: 'myWallet/fetchAccountFlowList' });
+            //   },
+            //   onOk: () => {
+            //     dispatch({ type: 'myWallet/fetchAccountDetail' });
+            //     dispatch({ type: 'myWallet/fetchAccountFlowList' });
+            //   },
+            // });
           },
         });
       }

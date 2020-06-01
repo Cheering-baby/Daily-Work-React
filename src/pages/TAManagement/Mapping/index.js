@@ -379,6 +379,16 @@ class Index extends React.PureComponent {
     return <div>Total {total} items</div>;
   };
 
+  getTableHeight = () => {
+    const { offsetHeight: layoutHeight } = document.getElementById('layout');
+    if (document.getElementById('pageHeaderTitle') && document.getElementById('pageSearchCard')) {
+      const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
+      const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
+      return layoutHeight - pageHeaderTitleHeight - pageSearchCardHeight - 240;
+    }
+    return layoutHeight;
+  };
+
   render() {
     const {
       form: { getFieldDecorator },
@@ -412,7 +422,7 @@ class Index extends React.PureComponent {
     const { endOpen } = this.state;
     return (
       <Row type="flex" justify="space-around" id="mapping">
-        <Col span={24} className={detailStyles.pageHeaderTitle}>
+        <Col id="pageHeaderTitle" span={24} className={detailStyles.pageHeaderTitle}>
           <MediaQuery
             maxWidth={SCREEN.screenMdMax}
             minWidth={SCREEN.screenSmMin}
@@ -424,7 +434,7 @@ class Index extends React.PureComponent {
             <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
           </MediaQuery>
         </Col>
-        <Col span={24} className={detailStyles.pageSearchCard}>
+        <Col id="pageSearchCard" span={24} className={detailStyles.pageSearchCard}>
           <Card>
             <Form onSubmit={this.handleSubmit}>
               <Row gutter={24}>
@@ -526,6 +536,7 @@ class Index extends React.PureComponent {
               className={`tabs-no-padding ${detailStyles.searchTitle}`}
               onChange={this.handleTableChange}
               rowKey={record => record.taId}
+              scroll={{ x: 660, y: this.getTableHeight() }}
             />
           </Card>
         </Col>

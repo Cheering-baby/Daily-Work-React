@@ -335,6 +335,7 @@ class BasicLayout extends React.PureComponent {
           >
             <PageContainer>{children}</PageContainer>
             <BackTop
+              style={{ bottom: 70 }}
               target={() => document.getElementById('signUpDiv')}
               visibilityHeight={visibilityHeight}
             />
@@ -352,6 +353,7 @@ class BasicLayout extends React.PureComponent {
     if (pathname === '/userLogin') return this.judgeBeforeRenderLogin();
     if (pathname !== '/userLogin' && pathname.indexOf('/userLogin') !== -1)
       return this.judgeBeforeRenderLogin();
+    if (pathname === '/twoFactorAuth') return children;
     const { isMobile } = this.state;
     const isTop = PropsLayout === 'topmenu';
     const hasAuthority = () => {

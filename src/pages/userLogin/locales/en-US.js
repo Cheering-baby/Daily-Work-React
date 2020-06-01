@@ -12,6 +12,7 @@ export default {
   LOGIN: 'LOGIN',
   SIGN_UP: 'Sign up',
   SIGN_UP_CHECK: 'Please select Travel Agent Company Name',
+  LOGIN_TIPS: 'User Login, Password are case sensitive.',
 
   // pwd
   PWD_MOD_PWD: 'Modify Password',

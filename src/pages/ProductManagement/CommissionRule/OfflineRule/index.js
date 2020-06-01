@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Col, Form, Icon, Input, Row, Select, Table, Tooltip, Popover } from 'antd';
+import { Button, Card, Col, Form, Icon, Input, Popover, Row, Select, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -114,6 +114,7 @@ class Offline extends React.PureComponent {
   commissionSchemeValue = record => {
     if (!isNvl(record && record.commissionList && record.commissionList.Fixed)) {
       const { commissionScheme, commissionValue } = record.commissionList.Fixed;
+      const commissionValue2 = parseFloat(commissionValue * 100).toFixed();
       if (commissionScheme === 'Amount') {
         return (
           <Tooltip
@@ -128,9 +129,9 @@ class Offline extends React.PureComponent {
         return (
           <Tooltip
             placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{commissionValue}%</span>}
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>${commissionValue2} % / Ticket</span>}
           >
-            <span>{commissionValue}% / Ticket</span>
+            <span>{commissionValue2}% / Ticket</span>
           </Tooltip>
         );
       }
@@ -189,7 +190,7 @@ class Offline extends React.PureComponent {
       if (commissionScheme === 'Amount') {
         commissionSchemeValue = `$${commissionValue} / Ticket`;
       } else if (commissionScheme === 'Percentage') {
-        commissionSchemeValue = `${commissionValue}%`;
+        commissionSchemeValue = `${parseFloat(commissionValue * 100).toFixed()}%`;
       }
       createBy = createStaff !== null ? createStaff : '-';
       createTimeValue = createTime !== null ? moment(createTime).format('DD-MMM-YYYY') : '-';
@@ -253,9 +254,12 @@ class Offline extends React.PureComponent {
   };
 
   new = () => {
+    const {
+      offline: { offlineList },
+    } = this.props;
     router.push({
       pathname: '/ProductManagement/CommissionRule/OfflineRule/New',
-      query: { type: 'new' },
+      query: { type: 'new', offlineList },
     });
   };
 
@@ -276,7 +280,7 @@ class Offline extends React.PureComponent {
       commissionValueAmount = commissionShowValue;
     }
     if (commissionSchemeValue === 'Percentage') {
-      commissionValuePercent = commissionShowValue;
+      commissionValuePercent = parseFloat(commissionShowValue * 100).toFixed();
     }
     dispatch({
       type: 'offline/save',
@@ -284,6 +288,7 @@ class Offline extends React.PureComponent {
         drawerVisible: true,
       },
     });
+
     dispatch({
       type: 'offline/saveModifyParams',
       payload: {
@@ -434,7 +439,7 @@ class Offline extends React.PureComponent {
             </Row>
             <Table
               style={{ marginTop: 10 }}
-              className="components-table-demo-nested"
+              className={`components-table-demo-nested ${detailStyles.searchTitle}`}
               rowKey={record => record.commoditySpecId}
               bordered={false}
               size="small"

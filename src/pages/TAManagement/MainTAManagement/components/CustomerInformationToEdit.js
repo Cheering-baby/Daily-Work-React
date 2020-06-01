@@ -76,6 +76,31 @@ class CustomerInformationToEdit extends PureComponent {
     });
   };
 
+  getGst = (keyValue, newCompanyInfo) => {
+    const { form } = this.props;
+    if (String(keyValue) !== '1') {
+      form.setFieldsValue({ gstRegNo: null });
+      form.setFieldsValue({ gstEffectiveDate: null });
+      Object.assign(newCompanyInfo, { gstRegNo: null });
+      Object.assign(newCompanyInfo, { gstEffectiveDate: null });
+    } else {
+      form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
+      const gstEffectiveDateObj = {
+        gstEffectiveDate: newCompanyInfo.gstEffectiveDate,
+      };
+      if (newCompanyInfo.gstEffectiveDate) {
+        gstEffectiveDateObj.gstEffectiveDate = moment(
+          newCompanyInfo.gstEffectiveDate,
+          newCompanyInfo.gstEffectiveDate.includes('-') ? 'YYYY-MM-DD' : 'DD/MM/YYYY'
+        );
+      }
+      form.setFieldsValue(gstEffectiveDateObj);
+      Object.assign(newCompanyInfo, { gstRegNo: newCompanyInfo.gstRegNo });
+      Object.assign(newCompanyInfo, gstEffectiveDateObj);
+    }
+    return newCompanyInfo;
+  };
+
   onHandleCompanyEditChange = (key, keyValue, fieldKey) => {
     const { dispatch, form, customerInfo, taId } = this.props;
     let newCompanyInfo = {};
@@ -94,6 +119,8 @@ class CustomerInformationToEdit extends PureComponent {
         if (String(keyValue) === '65') {
           newCompanyInfo.isGstRegIndicator = '1';
         }
+        form.setFieldsValue({ isGstRegIndicator: newCompanyInfo.isGstRegIndicator });
+        this.getGst(newCompanyInfo.isGstRegIndicator, newCompanyInfo);
         Object.assign(newCompanyInfo, sourceOne);
       }
     }
@@ -124,26 +151,7 @@ class CustomerInformationToEdit extends PureComponent {
       }
     }
     if (String(key) === 'isGstRegIndicator') {
-      if (String(keyValue) !== '1') {
-        form.setFieldsValue({ gstRegNo: null });
-        form.setFieldsValue({ gstEffectiveDate: null });
-        Object.assign(newCompanyInfo, { gstRegNo: null });
-        Object.assign(newCompanyInfo, { gstEffectiveDate: null });
-      } else {
-        form.setFieldsValue({ gstRegNo: newCompanyInfo.gstRegNo });
-        const gstEffectiveDateObj = {
-          gstEffectiveDate: newCompanyInfo.gstEffectiveDate,
-        };
-        if (newCompanyInfo.gstEffectiveDate) {
-          gstEffectiveDateObj.gstEffectiveDate = moment(
-            newCompanyInfo.gstEffectiveDate,
-            newCompanyInfo.gstEffectiveDate.includes('-') ? 'YYYY-MM-DD' : 'DD/MM/YYYY'
-          );
-        }
-        form.setFieldsValue(gstEffectiveDateObj);
-        Object.assign(newCompanyInfo, { gstRegNo: newCompanyInfo.gstRegNo });
-        Object.assign(newCompanyInfo, gstEffectiveDateObj);
-      }
+      this.getGst(keyValue, newCompanyInfo);
     }
     const noVal = getFormKeyValue(keyValue);
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));

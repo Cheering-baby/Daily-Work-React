@@ -1,6 +1,7 @@
 export default {
   NAME: 'NAME',
   USER_LOGIN: 'User Login',
+  USER_LOGIN_TIPS: 'User Login is case sensitive.',
   USER_ORG: 'Org',
   EMAIL: 'Email',
   STATUS: 'Status',
@@ -12,7 +13,7 @@ export default {
   SUB_COMPANY_NAME: 'Sub Travel Agent Company Name',
   SYSTEM_MANAGEMENT: 'System Management',
   USER_MANAGEMENT: 'User Management',
-  INFORMATION_FOR_SALES: 'INFORMATION FOR SALES',
+  INFORMATION_FOR_SALES: 'TRAVEL AGENT/SUB AGENT INFORMATION',
   PLEASE_ENTER: 'Please Enter',
   PLEASE_SELECT: 'Please Select',
   REQUIRED: 'Required',
@@ -67,7 +68,6 @@ export default {
   COMMON_EMAIL: 'Send E-mail',
   SEND_SUCCESS: 'Send E-mail Success',
   RESET_PASSWORD_SUCCESS: 'Reset Password Success',
-  SEND_EMAIL_CONTENT:
-    'Do you want to send emails to inform userCode that the registration is successful and account message?',
+  SEND_EMAIL_CONTENT: 'Do you wish to send PARTNERS login invitation to {userName}?',
   RESET_PASSWORD_CONTENT: 'Do you want to reset password of userCode?',
 };

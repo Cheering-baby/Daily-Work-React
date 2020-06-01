@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Table, Row, Col, Button, Input, Form, message, Tooltip } from 'antd';
+import { Button, Col, Form, Input, message, Modal, Row, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './AddOfferModal.less';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
@@ -230,24 +230,7 @@ class AddOfferModal extends React.PureComponent {
         subSubCheckedOnlineList = subCheckedOnlineList[i].subCommodityList;
       }
     }
-    const subRowSelection = {
-      columnWidth: 40,
-      selectedRowKeys: this.getSubRowSelectedRowKeys(record, subCommodityList),
-      onChange: selectedRowKeys =>
-        this.onSubSubSelectChange(
-          selectedRowKeys,
-          commoditySpecId,
-          record.commoditySpecId,
-          addOfferList
-        ),
-      getCheckboxProps: rec => {
-        return {
-          disabled: !!subSubCheckedOnlineList.find(
-            item => item.commoditySpecId === rec.commoditySpecId
-          ),
-        };
-      },
-    };
+
     return (
       <div>
         <Table
@@ -257,7 +240,7 @@ class AddOfferModal extends React.PureComponent {
           pagination={false}
           bordered={false}
           rowKey={rec => rec.commoditySpecId}
-          rowSelection={subRowSelection}
+          // rowSelection={subRowSelection}
         />
       </div>
     );
@@ -283,19 +266,7 @@ class AddOfferModal extends React.PureComponent {
         subCheckedOnlineList = checkedList[i].subCommodityList;
       }
     }
-    const subRowSelection = {
-      columnWidth: 40,
-      selectedRowKeys: this.getSubRowSelectedRowKeys(record, addOfferList),
-      onChange: selectedRowKeys =>
-        this.onSubSelectChange(selectedRowKeys, record.commoditySpecId, addOfferList),
-      getCheckboxProps: rec => {
-        return {
-          disabled: !!subCheckedOnlineList.find(
-            item => item.commoditySpecId === rec.commoditySpecId
-          ),
-        };
-      },
-    };
+
     return (
       <div>
         <Table
@@ -315,7 +286,7 @@ class AddOfferModal extends React.PureComponent {
             )
           }
           rowKey={rec => rec.commoditySpecId}
-          rowSelection={subRowSelection}
+          // rowSelection={subRowSelection}
         />
       </div>
     );

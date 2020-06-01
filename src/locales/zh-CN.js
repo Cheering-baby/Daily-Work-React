@@ -24,6 +24,8 @@ export default {
   COMMON_CONFIRM: '确认',
   COMMON_MODAL: '弹出层',
   COMMON_OK: 'OK',
+  COMMON_NEXT: '下一步',
+  COMMON_SUBMIT: '提交',
   COMMON_CANCEL: '取消',
   COMMON_BACK: '上一步',
   COMMON_NEXT: '下一步',

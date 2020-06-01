@@ -213,7 +213,8 @@ class ToCart extends Component {
           message.warning('Please select one product at least.');
           return false;
         }
-        const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+        // eslint-disable-next-line no-useless-escape
+        const emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
         if (customerEmailAddress && !emailReg.test(customerEmailAddress)) {
           message.warning('Customer email address is invalid.');
           return false;

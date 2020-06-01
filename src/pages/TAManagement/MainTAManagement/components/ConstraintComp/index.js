@@ -385,6 +385,24 @@ class ConstraintComp extends PureComponent {
                   </Form.Item>
                 </Col>
               </Row>
+              <Row type="flex" justify="space-around">
+                <Col span={24}>
+                  <Form.Item
+                    label={formatMessage({ id: 'ADDITIONAL_REMARK' })}
+                    colon={false}
+                    labelCol={{ span: 24 }}
+                    wrapperCol={{ span: 24 }}
+                  >
+                    {getFieldDecorator('remark', {
+                      initialValue: companyInfo.remark || undefined,
+                    })(
+                      <Input
+                        onChange={e => this.onHandleChange('remark', e.target.value, 'remark')}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+              </Row>
             </Card>
           </div>
           <div className={styles.additionalConstraintBtn}>

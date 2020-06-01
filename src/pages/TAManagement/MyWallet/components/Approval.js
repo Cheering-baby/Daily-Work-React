@@ -7,11 +7,11 @@ import styles from '../index.less';
 class Approval extends React.PureComponent {
   showModal = () => {
     Modal.confirm({
-      title: formatMessage({ id: 'PENDING_APPROVAL_MODEL_TITLE' }),
-      content: formatMessage({ id: 'PENDING_APPROVAL_MODEL_CONTENT' }),
+      title: formatMessage({ id: 'APPROVAL_MODEL_TITLE' }),
+      content: formatMessage({ id: 'APPROVAL_MODEL_CONTENT' }),
       icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
-      okText: formatMessage({ id: 'PENDING_APPROVAL_MODEL_okText' }),
-      cancelText: formatMessage({ id: 'PENDING_APPROVAL_MODEL_cancelText' }),
+      okText: formatMessage({ id: 'APPROVAL_MODEL_okText' }),
+      cancelText: formatMessage({ id: 'APPROVAL_MODEL_cancelText' }),
     });
   };
 

@@ -37,6 +37,9 @@ const mapStateToProps = store => {
     taMappingInfoLoadingFlag,
     taAccountInfoLoadingFlag,
   } = store.taMgr;
+  const {
+    currentUser: { userType },
+  } = store.global;
   return {
     otherInfo,
     customerInfo,
@@ -59,6 +62,7 @@ const mapStateToProps = store => {
     marketList,
     createTeamList,
     currentStep,
+    userType,
   };
 };
 
@@ -121,6 +125,7 @@ class MyProfile extends PureComponent {
       taInfoLoadingFlag,
       taMappingInfoLoadingFlag,
       taAccountInfoLoadingFlag,
+      userType,
     } = this.props;
     const detailProps = {
       otherInfo,
@@ -136,6 +141,7 @@ class MyProfile extends PureComponent {
       categoryList,
       customerGroupList,
       createTeamList,
+      userType,
     };
     const breadcrumbArr = [
       {

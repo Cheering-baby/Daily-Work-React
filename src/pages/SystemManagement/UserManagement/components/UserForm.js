@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Button, Col, Form, Input, Row, Select } from 'antd';
+import { Button, Col, Form, Icon, Input, Row, Select, Tooltip } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
@@ -66,6 +66,12 @@ class Index extends React.PureComponent {
         type: 'userMgr/queryAllCompany',
       });
     }
+    dispatch({
+      type: 'userMgr/saveData',
+      payload: {
+        userFormOkDisable: false,
+      },
+    });
   }
 
   getRoleCodes = (currentUserProfile = {}) => {
@@ -261,6 +267,12 @@ class Index extends React.PureComponent {
       });
     }
 
+    setFields({
+      roleCodes: {
+        value: undefined,
+      },
+    });
+
     if (value) {
       if (
         PrivilegeUtil.hasAnyPrivilege([
@@ -355,6 +367,12 @@ class Index extends React.PureComponent {
   getUserRoles = companyType => {
     const { dispatch } = this.props;
     dispatch({
+      type: 'userMgr/saveData',
+      payload: {
+        currentCompanyType: companyType,
+      },
+    });
+    dispatch({
       type: 'userMgr/queryUserRoles',
       payload: {
         roleType: companyType === '01' ? '02' : '03',
@@ -364,13 +382,42 @@ class Index extends React.PureComponent {
 
   getUserRoleOptions = () => {
     const {
-      userMgr: { userRoles = [] },
+      userMgr: { userRoles = [], currentCompanyType = '' },
+      global: { userCompanyInfo = {} },
     } = this.props;
-    return userRoles.map(item => (
-      <Option key={item.roleCode} value={item.roleCode}>
-        {item.roleName}
-      </Option>
-    ));
+
+    const { companyType = '00' } = userCompanyInfo;
+
+    if (
+      currentCompanyType === companyType ||
+      PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.PAMS_ADMIN_PRIVILEGE])
+    ) {
+      return userRoles.map(item => (
+        <Option key={item.roleCode} value={item.roleCode}>
+          {item.roleName}
+        </Option>
+      ));
+    }
+
+    let roleCode = '';
+    if (PrivilegeUtil.hasAnyPrivilege([constants.USER_MGR_MAIN_TA_ADMIN_ROLE_PRIVILEGE])) {
+      roleCode = constants.MAIN_TA_ADMIN_ROLE_CODE;
+    } else if (PrivilegeUtil.hasAnyPrivilege([constants.USER_MGR_SUB_TA_ADMIN_ROLE_PRIVILEGE])) {
+      roleCode = constants.SUB_TA_ADMIN_ROLE_CODE;
+    }
+
+    return userRoles
+      .map(item => {
+        if (item.roleCode === roleCode) {
+          return (
+            <Option key={item.roleCode} value={item.roleCode}>
+              {item.roleName}
+            </Option>
+          );
+        }
+        return null;
+      })
+      .filter(item => item !== null);
   };
 
   getUserInfo = () => {
@@ -517,7 +564,17 @@ class Index extends React.PureComponent {
                 </Col>
               ) : null}
               <Col {...colProps}>
-                <Form.Item {...formItemLayout} label={formatMessage({ id: 'USER_LOGIN' })}>
+                <Form.Item
+                  {...formItemLayout}
+                  label={
+                    <span>
+                      {formatMessage({ id: 'USER_LOGIN' })}&nbsp;
+                      <Tooltip title={formatMessage({ id: 'USER_LOGIN_TIPS' })}>
+                        <Icon type="question-circle-o" />
+                      </Tooltip>
+                    </span>
+                  }
+                >
                   {getFieldDecorator(`userCode`, {
                     initialValue: userCode,
                     rules: [
@@ -668,13 +725,15 @@ class Index extends React.PureComponent {
                     </Col>
                   </Row>
                   <Row>
+                    {loginUserType === constants.RWS_USER_TYPE && (
                     <Col span={24}>
                       <Form.Item {...formItemLayoutFull1} label={formatMessage({ id: 'MARKET' })}>
                         {getFieldDecorator(`market`, {
-                        initialValue: marketName || '',
-                      })(<Input disabled />)}
+                          initialValue: marketName || '',
+                        })(<Input disabled />)}
                       </Form.Item>
                     </Col>
+                  )}
                     <Col {...colProps}>
                       <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
                         {getFieldDecorator(`effectiveDate`, {
@@ -696,16 +755,18 @@ class Index extends React.PureComponent {
                       })(<Input disabled />)}
                       </Form.Item>
                     </Col>
+                    {loginUserType === constants.RWS_USER_TYPE && (
                     <Col {...colProps}>
                       <Form.Item
                         {...formItemLayout}
                         label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}
                       >
                         {getFieldDecorator(`cateAndGroup`, {
-                        initialValue: `${categoryName || ''}/${customerGroupName || ''}`,
-                      })(<Input disabled />)}
+                          initialValue: `${categoryName || ''}/${customerGroupName || ''}`,
+                        })(<Input disabled />)}
                       </Form.Item>
                     </Col>
+                  )}
                   </Row>
                 </React.Fragment>
             ) : null}

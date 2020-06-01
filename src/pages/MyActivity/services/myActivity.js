@@ -51,7 +51,7 @@ export async function registerContractFile(params) {
 }
 
 export async function queryTaInfo(taId) {
-  return UAAService.request(`/b2b/agent/v1/profile/queryTaInfo?taId=${taId}`, {
+  return UAAService.requestByRT(`/b2b/agent/v1/profile/queryTaInfo?taId=${taId}`, {
     method: 'GET',
   });
 }
@@ -93,9 +93,12 @@ export async function queryDictionary(params) {
 }
 
 export async function querySubTaInfo(params) {
-  return UAAService.request(`/b2b/agent/v1/subprofile/querySubTaInfo?subTaId=${params.subTaId}`, {
-    method: 'GET',
-  });
+  return UAAService.requestByRT(
+    `/b2b/agent/v1/subprofile/querySubTaInfo?subTaId=${params.subTaId}`,
+    {
+      method: 'GET',
+    }
+  );
 }
 
 export async function deleteFile(params) {
@@ -108,7 +111,7 @@ export async function deleteFile(params) {
 }
 
 export async function queryCompanyInfo(params) {
-  return UAAService.request(`/b2b/agent/v1/profile/queryCompanyInfo`, {
+  return UAAService.requestByRT(`/b2b/agent/v1/profile/queryCompanyInfo`, {
     params,
     method: 'GET',
   });

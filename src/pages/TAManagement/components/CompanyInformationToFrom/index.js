@@ -348,7 +348,7 @@ class CompanyInformationToFrom extends PureComponent {
                   onChange={e =>
                     onHandleChange('isGstRegIndicator', e.target.value, 'isGstRegIndicator')
                   }
-                  disabled
+                  disabled={String(companyInfo.country).toUpperCase() !== '65'}
                 >
                   <Radio value="1">{formatMessage({ id: 'GST_REG_YES' })}</Radio>
                   <Radio value="0">{formatMessage({ id: 'GST_REG_NOT' })}</Radio>

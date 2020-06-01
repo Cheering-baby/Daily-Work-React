@@ -65,7 +65,7 @@ class PaymentModal extends React.Component {
     } = this.props;
 
     const payMode = payModeList.find(payModeItem => payModeItem.check);
-    if (payMode.label === 'eWallet') {
+    if (payMode.label === 'e-Wallet') {
       if (accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         dispatch({
           type: 'queryOrderPaymentMgr/confirmEvent',
@@ -115,7 +115,7 @@ class PaymentModal extends React.Component {
       return false;
     }
 
-    if (payMode.label === 'eWallet') {
+    if (payMode.label === 'e-Wallet') {
       if (accountInfo.eWallet && accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         active = true;
       }

@@ -70,7 +70,10 @@ class BulletinDetail extends PureComponent {
           </MediaQuery>
         </Col>
         <Col span={24}>
-          <NotificationDetail notificationInfo={notificationInfo} isAdminRoleFlag={isAdminRoleFlag} />
+          <NotificationDetail
+            notificationInfo={notificationInfo}
+            isAdminRoleFlag={isAdminRoleFlag}
+          />
         </Col>
       </Row>
     );

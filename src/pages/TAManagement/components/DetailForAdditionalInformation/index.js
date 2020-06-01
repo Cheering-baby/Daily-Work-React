@@ -55,6 +55,9 @@ class DetailForAdditionalInformation extends PureComponent {
                 companyInfo.customerGroup
               )}
             </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_REMARK' })}>
+              {companyInfo.remark || '-'}
+            </Descriptions.Item>
           </Descriptions>
         </Col>
       </Row>

@@ -50,6 +50,7 @@ export default {
     formSubTaCompanies: [],
     allSubTACompanyMap: new Map([]),
     allSubTACompanies: [],
+    currentCompanyType: '',
   },
   effects: {
     *queryUsersByCondition(_, { call, put, select }) {
@@ -103,6 +104,18 @@ export default {
             },
           });
           const { userType = '', taInfo = {} } = userProfiles[0];
+          let companyType = '00';
+          if (userType === '02') {
+            companyType = '01';
+          } else if (userType === '03') {
+            companyType = '02';
+          }
+          yield put({
+            type: 'saveData',
+            payload: {
+              currentCompanyType: companyType,
+            },
+          });
           yield put({
             type: 'queryUserRoles',
             payload: {

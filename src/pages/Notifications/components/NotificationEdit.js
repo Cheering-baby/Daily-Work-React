@@ -100,6 +100,7 @@ class NotificationEdit extends React.PureComponent {
     this.state = {
       noticeFileLoadingFlag: false,
     };
+    this.commit = this.commit.bind(this);
   }
 
   componentDidMount() {
@@ -132,10 +133,6 @@ class NotificationEdit extends React.PureComponent {
       notification: { notificationInfo },
     } = this.props;
     form.validateFields(err => {
-      if (isNvl(notificationInfo.content)) {
-        message.warn(formatMessage({ id: 'NOTICE_PUBLISH_CONTENT_NULL' }), 10);
-        return;
-      }
       if (!err) {
         let dispatchType;
         if (type === 'NEW') {
@@ -146,7 +143,12 @@ class NotificationEdit extends React.PureComponent {
           dispatchType = 'notification/fetchModifyNotification';
           notificationInfo.notificationId = notificationInfo.id;
         }
-        if (isNvl(notificationInfo.content)) {
+        const editor = this.reactQuillRef.getEditor();
+        const unprivilegedEditor = this.reactQuillRef.makeUnprivilegedEditor(editor);
+
+        const content = unprivilegedEditor.getHTML();
+        notificationInfo.content = content;
+        if (isNvl(content) || content === '<p><br></p>') {
           message.warn(formatMessage({ id: 'NOTICE_PUBLISH_CONTENT_NULL' }), 10);
           return;
         }
@@ -266,9 +268,6 @@ class NotificationEdit extends React.PureComponent {
     if (String(key) === 'saveTemplate') {
       form.setFieldsValue({ saveTemplate: keyValue });
       Object.assign(newNotificationInfo, { saveTemplate: keyValue });
-    } else if (String(key) === 'content') {
-      form.setFieldsValue({ content: keyValue });
-      newNotificationInfo.content = keyValue;
     } else {
       const noVal = !isNvl(keyValue) ? String(keyValue).trim() : '';
       if (String(key) !== 'scheduleDate') {
@@ -437,13 +436,67 @@ class NotificationEdit extends React.PureComponent {
     targetTreeData.forEach(item => {
       const targetObj = `${item.key}`.replace('customerGroup', '').replace('market', '');
       const hasTarget = targetList.findIndex(n => String(n.targetObj) === String(targetObj)) > -1;
-      if (hasTarget) {
+      const existNewTargetList =
+        newTargetList.findIndex(
+          e => `${e.key}`.replace('customerGroup', '').replace('market', '') === targetObj
+        ) > -1;
+      if (hasTarget && !existNewTargetList) {
         newTargetList.push(item);
       } else if (item.children && item.children.length > 0) {
         this.initAllChildrenTargetList(targetList, item.children, newTargetList);
       }
     });
     return newTargetList;
+  };
+
+  // set the node in disable whose value is the same as selected node
+  disableSameNode = (selectedList, allTreeData) => {
+    if (!selectedList || selectedList.length < 1) return allTreeData;
+    const compareList = [];
+    selectedList.forEach(item => {
+      if (item.indexOf('customerGroup') > -1) {
+        compareList.push(item.replace('customerGroup', 'market'));
+      }
+      if (item.indexOf('market') > -1) {
+        compareList.push(item.replace('market', 'customerGroup'));
+      }
+    });
+    const initTreeData = [];
+    const marketTree = allTreeData.find(n => String(n.key) === 'market') || {};
+    const customerGroupTree = allTreeData.find(n => String(n.key) === 'customerGroup') || {};
+
+    if (marketTree && marketTree.children && marketTree.children.length > 0) {
+      marketTree.children.forEach(item => {
+        const onLen = 0;
+        if (item.children && item.children.length > 0) {
+          item.children.forEach(j => {
+            j.disableCheckbox = '';
+            const hasTarget = compareList.findIndex(n => String(n) === String(j.key)) > -1;
+            if (hasTarget) {
+              j.disableCheckbox = true;
+            }
+          });
+        }
+      });
+      initTreeData.push(marketTree);
+    }
+
+    if (customerGroupTree && customerGroupTree.children && customerGroupTree.children.length > 0) {
+      customerGroupTree.children.forEach(item => {
+        if (item.children && item.children.length > 0) {
+          item.children.forEach(j => {
+            j.disableCheckbox = '';
+            const hasTarget = compareList.findIndex(n => String(n) === String(j.key)) > -1;
+            if (hasTarget) {
+              j.disableCheckbox = true;
+            }
+          });
+        }
+      });
+      initTreeData.push(customerGroupTree);
+    }
+
+    return initTreeData;
   };
 
   initAllTargetList = (targetList, targetTreeData) => {
@@ -557,19 +610,23 @@ class NotificationEdit extends React.PureComponent {
     if (!isNvl(notificationInfo.releaseStartDate) && !isNvl(notificationInfo.releaseEndDate)) {
       reasonDuration.push(moment(notificationInfo.releaseEndDate, 'YYYY-MM-DD HH:mm:ss'));
     }
+
     const newTargetList = [];
     this.initAllChildrenTargetList(
       notificationInfo.targetList || [],
       targetTreeData,
       newTargetList
     );
-    const tList = this.initAllTargetList(newTargetList, targetTreeData);
+    const selectedList = form.getFieldValue('targetList');
+
+    const tList = selectedList || this.initAllTargetList(newTargetList, targetTreeData);
+    const initTargetList = this.disableSameNode(tList, targetTreeData);
     const tProps = {
       allowClear: true,
       showSearch: true,
       multiple: true,
       treeDefaultExpandAll: true,
-      treeData: targetTreeData,
+      treeData: initTargetList,
       value: tList || [],
       onChange: value => this.onHandleTreeChange(value),
       treeCheckable: true,
@@ -674,15 +731,11 @@ class NotificationEdit extends React.PureComponent {
                   id="noticeViewEditQuill"
                   bounds="#noticeViewEditQuill"
                   className={styles.reactQuillStyle}
-                  value={notificationInfo.content || null}
+                  defaultValue={notificationInfo.content || null}
                   ref={el => {
                     this.reactQuillRef = el;
                   }}
                   theme="snow"
-                  // onChange={value => this.onHandleChange('content', value, 'content')}
-                  onBlur={(previousRange, source, editor) => {
-                    this.onHandleChange('content', editor.getHTML(), 'content');
-                  }}
                   modules={this.modules}
                 />
               </div>

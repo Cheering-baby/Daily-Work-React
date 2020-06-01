@@ -1,8 +1,21 @@
+
+@prefix-cls: ~'@{ant-prefix}';
+
+.formCardClass {
+
+}
+
 .searchCompCol {
   padding-right: 0.5rem;
   padding-left: 0.5rem;
   margin-top: 4px;
   margin-bottom: 4px;
+  :global {
+    .@{prefix-cls}-select-selection--multiple {
+      max-height: 32px;
+      overflow: auto;
+    }
+  }
 }
 
 .searchCompBtnCol {

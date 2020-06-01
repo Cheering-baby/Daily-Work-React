@@ -193,9 +193,9 @@ class NotificationMgr extends PureComponent {
         width: '10%',
         render: (text, record) => {
           const { currentReceiver } = record;
-          if(currentReceiver){
+          if (currentReceiver) {
             const { status = '01' } = currentReceiver;
-            if(status === '02'){
+            if (status === '02') {
               return (
                 <div>
                   <div className={styles.statusRadiusStyle} style={{ background: '#118AFA' }} />
@@ -204,7 +204,7 @@ class NotificationMgr extends PureComponent {
               );
             }
           }
-          return <span style={{marginLeft:12}}>{text}</span>;
+          return <span style={{ marginLeft: 12 }}>{text}</span>;
         },
       },
       {
@@ -309,9 +309,9 @@ class NotificationMgr extends PureComponent {
 
   showRowClassName = record => {
     const { currentReceiver } = record;
-    if(currentReceiver){
+    if (currentReceiver) {
       const { status = '01' } = currentReceiver;
-      if(status === '02'){
+      if (status === '02') {
         return styles.tableSpanStyle;
       }
     }

@@ -25,7 +25,7 @@ export default {
     payModeList: [
       {
         value: 1,
-        label: 'eWallet',
+        label: 'e-Wallet',
         key: 'eWallet',
         check: true,
       },
@@ -413,7 +413,7 @@ export default {
         payModeList: [
           {
             value: 1,
-            label: 'eWallet',
+            label: 'e-Wallet',
             key: 'eWallet',
             check: true,
           },

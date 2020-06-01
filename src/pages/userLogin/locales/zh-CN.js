@@ -10,6 +10,7 @@ export default {
   PASSWORD_PLACEHOLDER: '请输入',
   REQUIRED: '该字段不能为空',
   LOGIN: '登录',
+  LOGIN_TIPS: '用户登录，密码区分大小写',
   // pwd
   PWD_MOD_PWD: '修改密码',
   PWD_OLD_PWD: '旧密码',

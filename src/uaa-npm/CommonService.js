@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { message } = require('antd');
 const { codeMessage, promptMessage, globalConst } = require('./constant');
 const { parseURL } = require('./utils');
 
@@ -23,6 +24,7 @@ class CommonService {
       refreshTokenLoading: false,
       refreshTokenPromise: null,
       appCode,
+      count: 0,
     };
 
     /* 创建一个新的 AXIOS 对象，确保原有的对象不变 */
@@ -122,9 +124,15 @@ class CommonService {
               })
               .catch(() => {
                 this.axiosConfig.refreshTokenLoading = false;
-                error.response.data.errCode = 'SESSION_TIMEOUT';
-                error.response.data.message = promptMessage.COMMON_SESSION_TIMEOUT;
-                reject(error);
+                if (this.axiosConfig.count === 0) {
+                  this.defaults.doSessionTimeout();
+                  message.warn(promptMessage.COMMON_SESSION_TIMEOUT);
+                  // reject(error);
+                }
+                this.axiosConfig.count += 1;
+                setTimeout(() => {
+                  this.axiosConfig.count = 0;
+                }, 5000);
               });
           });
         }

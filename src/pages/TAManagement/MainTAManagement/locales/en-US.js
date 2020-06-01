@@ -1,5 +1,9 @@
 export default {
   TA_AGENT_ID_COMPANY_NAME: 'Agent ID / Travel Agent Company Name',
+  TA_AGENT_CATEGORY: 'Category',
+  TA_AGENT_MARKET: 'Market',
+  TA_AGENT_CUSTOMER_GROUP: 'Customer Group',
+  TA_AGENT_ID_SALES_PERSON: 'Sales Person',
   TA_AGENT_E_WALLET_ID: 'Search (Peoplesoft e-Wallet ID)',
   TA_AGENT_AR_ACCOUNT_ID: 'Search (Peoplesoft AR Account ID)',
   TA_TABLE_NO: 'No.',

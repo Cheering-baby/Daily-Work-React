@@ -5,7 +5,7 @@ export default {
     isRwsRoom: null,
     isRwsAttraction: null,
     isAllInformationToRws: false,
-    currentStep: 1,
+    currentStep: 0,
     viewId: 'profileEditView',
   },
   effects: {
@@ -30,7 +30,7 @@ export default {
           isRwsRoom: null,
           isRwsAttraction: null,
           isAllInformationToRws: false,
-          currentStep: 1,
+          currentStep: 0,
           viewId: 'profileEditView',
         },
         ...payload,
