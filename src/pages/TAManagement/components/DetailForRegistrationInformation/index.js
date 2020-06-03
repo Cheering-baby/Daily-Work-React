@@ -31,7 +31,6 @@ class DetailForRegistrationInformation extends PureComponent {
       categoryList = [],
       customerGroupList = [],
       createTeamList = [],
-      userType,
     } = this.props;
     const { downFileLoadingFlag = false } = this.state;
     const detailProps = {
@@ -47,7 +46,6 @@ class DetailForRegistrationInformation extends PureComponent {
       isMainTaRoleFlag: hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]),
       isSaleSupportRoleFlag: hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]),
       isAccountingArRoleFlag: hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]),
-      userType,
     };
     return (
       <>

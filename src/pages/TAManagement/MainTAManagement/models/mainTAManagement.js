@@ -1,21 +1,15 @@
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import * as service from '../services/mainTAManagement';
-import { queryDictionary, querySalesPerson } from '@/pages/TAManagement/services/taCommon';
 
 export default {
   namespace: 'mainTAManagement',
   state: {
     selectTaId: null,
-    arAllowed: false,
     searchForm: {
       idOrName: null,
       peoplesoftEwalletId: null,
       peoplesoftArAccountId: null,
-      market: [],
-      customerGroup: [],
-      salesPerson: [],
-      category: null,
     },
     searchList: {
       total: 0,
@@ -44,12 +38,6 @@ export default {
     rowAllSelected: {},
 
     taSelectedRowKeys: [],
-
-    customerGroupList: [],
-    allCustomerGroupList: [],
-    marketList: [],
-    salesPersonList: [],
-    categoryList: [],
   },
   effects: {
     *fetchQryMainTAList({ payload }, { call, put, select }) {
@@ -97,73 +85,6 @@ export default {
       }
       message.warn(resultMsg, 10);
       return false;
-    },
-    *fetchCustomerGroupListByCategory({ payload }, { put, select }) {
-      const { allCustomerGroupList = [] } = yield select(state => state.mainTAManagement);
-      const { category } = payload;
-      const customerGroupList = allCustomerGroupList.filter((item, index, arr) => {
-        return String(item.dictSubType) === String(category);
-      });
-      yield put({
-        type: 'save',
-        payload: {
-          customerGroupList,
-        },
-      });
-    },
-    *fetchAllCustomerGroupList(_, { call, put }) {
-      const params = {
-        dictType: '1004',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...params });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({
-          type: 'save',
-          payload: {
-            allCustomerGroupList: result || [],
-          },
-        });
-      } else message.warn(resultMsg, 10);
-    },
-    *fetchCategoryList(_, { put, call }) {
-      const params = {
-        dictType: '10',
-        dictSubType: '1004',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...params });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { categoryList: result || [] } });
-      } else message.warn(resultMsg, 10);
-    },
-    *fetchMarketList({ payload }, { put, call }) {
-      const params = {
-        dictType: '10',
-        dictSubType: '1006',
-      };
-      const {
-        data: { resultCode, resultMsg, result },
-      } = yield call(queryDictionary, { ...params });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { marketList: result || [] } });
-      } else message.warn(resultMsg, 10);
-    },
-    *fetchSalesPersonList({ payload }, { put, call }) {
-      const reqParam = {
-        market: null,
-      };
-      const {
-        data: { resultCode, resultMsg, resultData },
-      } = yield call(querySalesPerson, { ...reqParam });
-      if (resultCode === '0' || resultCode === 0) {
-        yield put({
-          type: 'save',
-          payload: { salesPersonList: resultData.userProfiles || [] },
-        });
-      } else message.warn(resultMsg, 10);
     },
     *doSaveData({ payload }, { put }) {
       yield put({ type: 'save', payload });
@@ -225,7 +146,6 @@ export default {
         ...state,
         ...{
           selectTaId: null,
-          arAllowed: false,
           searchForm: {
             idOrName: null,
             peoplesoftEwalletId: null,

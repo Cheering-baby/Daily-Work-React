@@ -33,7 +33,7 @@ const mapStateToProps = store => {
     remark,
     taInfoLoadingFlag,
   } = store.taMgr;
-  const { isBilCheckBox, isAllInformationToRws, viewId, arAllowed } = store.mainTAManagement;
+  const { isBilCheckBox, isAllInformationToRws, viewId } = store.mainTAManagement;
   return {
     otherInfo,
     customerInfo,
@@ -53,7 +53,6 @@ const mapStateToProps = store => {
     isBilCheckBox,
     isAllInformationToRws,
     viewId,
-    arAllowed,
   };
 };
 
@@ -188,7 +187,6 @@ class OtherInformationToEdit extends PureComponent {
       isBilCheckBox,
       isAllInformationToRws,
       viewId,
-      arAllowed,
     } = this.props;
     const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
     const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
@@ -218,7 +216,6 @@ class OtherInformationToEdit extends PureComponent {
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
       viewId,
-      arAllowed,
       currencyList: currencyList || [],
       countryList,
       createTeamList,

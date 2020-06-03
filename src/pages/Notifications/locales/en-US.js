@@ -42,8 +42,8 @@ export default {
   READ_STATUS_READ: 'Read',
   READ_STATUS_UNREAD: 'Unread',
 
-  PUBLISH_NEW_BULLETIN: 'Publish New Bulletin/Circular',
-  PUBLISH_EDIT_BULLETIN: 'Edit Bulletin/Circular',
+  PUBLISH_NEW_BULLETIN: 'Publish New Bulletin',
+  PUBLISH_EDIT_BULLETIN: 'Publish Edit Bulletin',
   REASON_DURATION: 'Release Duration',
   REASON_SCOPE_ROLE: 'Release Scope/Role',
   PUBLISH_CONTENT: 'Publish Content',

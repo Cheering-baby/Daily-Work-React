@@ -59,7 +59,6 @@ class NormalLoginForm extends React.Component {
           )}
         </FormItem>
         <FormItem>
-          <span className={loginStyles.tipsAboveBtn}>{formatMessage({ id: 'LOGIN_TIPS' })}</span>
           <Button type="primary" htmlType="submit" className={loginStyles.btn} block>
             {formatMessage({ id: 'LOGIN' })}
           </Button>

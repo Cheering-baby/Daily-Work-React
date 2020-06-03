@@ -335,13 +335,13 @@ class Attraction extends Component {
     } = this.props;
     const orderInfo = offers.map(item => {
       const {
-        ticketNumber,
+        ticketNumber: quantity,
         detail,
         detail: { priceRuleId },
         attractionProduct = [],
       } = item;
       return {
-        quantity: ticketNumber || 0,
+        quantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         offerInfo: {
           ...detail,

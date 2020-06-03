@@ -82,12 +82,12 @@ export default {
   effects: {
     *queryUserOrgTree({ payload }, { call, put, select }) {
       const {
-        data: { resultCode, resultMsg, result },
+        data: { resultCode, resultMsg, resultData },
       } = yield call(queryUserOrgTree, { ...payload });
       if (resultCode === '0') {
         const orgList = [];
-        generateList([result], orgList);
-        const { key = '' } = result;
+        generateList([resultData], orgList);
+        const { key = '' } = resultData;
 
         let { selectedOrg = {} } = yield select(state => state.orgMgr);
         const { expandedKeys = [] } = yield select(state => state.orgMgr);
@@ -104,7 +104,7 @@ export default {
         yield put({
           type: 'save',
           payload: {
-            orgTree: [result],
+            orgTree: [resultData],
             orgList,
             expandedKeys: [...expandedKeys],
             selectedOrg,

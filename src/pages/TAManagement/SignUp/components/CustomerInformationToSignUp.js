@@ -116,7 +116,6 @@ class CustomerInformationToSignUp extends PureComponent {
         if (String(keyValue) === '65') {
           newCompanyInfo.isGstRegIndicator = '1';
         }
-        form.setFieldsValue({ isGstRegIndicator: newCompanyInfo.isGstRegIndicator });
         this.getGst(newCompanyInfo.isGstRegIndicator, newCompanyInfo);
         Object.assign(newCompanyInfo, sourceOne);
       }

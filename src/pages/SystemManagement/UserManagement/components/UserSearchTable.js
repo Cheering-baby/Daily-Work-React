@@ -255,7 +255,7 @@ class Index extends React.PureComponent {
     const { userCode = '' } = record;
     confirm({
       title: formatMessage({ id: 'COMMON_EMAIL' }),
-      content: formatMessage({ id: 'SEND_EMAIL_CONTENT' }, { userName: userCode }),
+      content: formatMessage({ id: 'SEND_EMAIL_CONTENT' }).replace('userCode', userCode),
       okText: formatMessage({ id: 'COMMON_YES' }),
       cancelText: formatMessage({ id: 'COMMON_NO' }),
       onOk() {

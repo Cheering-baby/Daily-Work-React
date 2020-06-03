@@ -1,17 +1,5 @@
 import React from 'react';
-import {
-  Button,
-  Collapse,
-  Drawer,
-  Form,
-  Icon,
-  Input,
-  Select,
-  Spin,
-  Tooltip,
-  Tree,
-  Radio,
-} from 'antd';
+import { Button, Collapse, Drawer, Form, Icon, Input, Select, Spin, Tooltip, Tree } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
@@ -298,13 +286,7 @@ class Index extends React.PureComponent {
       editLoading = false,
     } = this.props;
 
-    const {
-      roleCode = '',
-      roleName = '',
-      roleType = '',
-      twoFactorAuth = 'N',
-      includePerson,
-    } = userRoleDetail;
+    const { roleCode = '', roleName = '', roleType = '', includePerson } = userRoleDetail;
 
     const roleTypeFormItem = (
       <Form.Item label={formatMessage({ id: 'ROLE_TYPE' })}>
@@ -386,28 +368,6 @@ class Index extends React.PureComponent {
             ) : (
               roleTypeFormItem
             )}
-            <Form.Item
-              label={
-                <span>
-                  {formatMessage({ id: 'TWO_FACTOR_AUTH' })}
-                  <Tooltip
-                    title={formatMessage({ id: 'TWO_FACTOR_AUTH_CHOOSE_PROMPT' })}
-                    placement="bottom"
-                  >
-                    <Icon className={styles.questionIconStyle} type="question-circle" />
-                  </Tooltip>
-                </span>
-              }
-            >
-              {getFieldDecorator(`twoFactorAuth`, {
-                initialValue: operType === constants.ADD_USER_ROLE ? 'N' : twoFactorAuth,
-              })(
-                <Radio.Group>
-                  <Radio value="Y">Yes</Radio>
-                  <Radio value="N">No</Radio>
-                </Radio.Group>
-              )}
-            </Form.Item>
             <Form.Item label={formatMessage({ id: 'ROLE_MENU' })}>
               <Collapse defaultActiveKey={['1']} expandIcon={this.expandIcon}>
                 <Panel

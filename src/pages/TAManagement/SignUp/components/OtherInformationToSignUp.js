@@ -162,7 +162,6 @@ class OtherInformationToSignUp extends PureComponent {
       form,
       ...detailOpt,
       viewId,
-      arAllowed: false,
       currencyList,
       countryList,
       createTeamList,

@@ -23,7 +23,6 @@ import BreadcrumbComp from '@/components/BreadcrumbComp';
 import UploadContract from '@/pages/MyActivity/components/UploadContract';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
 import { isNvl } from '@/utils/utils';
-import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -517,16 +516,6 @@ class MyActivity extends React.PureComponent {
     return <div>Total {total} items</div>;
   };
 
-  getTableHeight = () => {
-    const { offsetHeight: layoutHeight } = document.getElementById('layout');
-    if (document.getElementById('pageHeaderTitle') && document.getElementById('pageSearchCard')) {
-      const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
-      const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
-      return layoutHeight - pageHeaderTitleHeight - pageSearchCardHeight - 240;
-    }
-    return layoutHeight;
-  };
-
   render() {
     const {
       form: { getFieldDecorator },
@@ -575,10 +564,10 @@ class MyActivity extends React.PureComponent {
     };
     return (
       <Row type="flex" justify="space-around" id="myActivity">
-        <Col id="pageHeaderTitle" span={24} className={detailStyles.pageHeaderTitle}>
+        <Col span={24} className={detailStyles.pageHeaderTitle}>
           <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
         </Col>
-        <Col id="pageSearchCard" span={24} className={detailStyles.pageSearchCard}>
+        <Col span={24} className={detailStyles.pageSearchCard}>
           <Card>
             <Form onSubmit={this.handleSearch} className={detailStyles.formWrapperClass}>
               <Row gutter={24}>
@@ -738,7 +727,6 @@ class MyActivity extends React.PureComponent {
               columns={this.columns}
               className={detailStyles.tableStyle}
               onChange={this.handleTableChange}
-              scroll={{ x: 660, y: this.getTableHeight() }}
             />
           </Card>
         </Col>

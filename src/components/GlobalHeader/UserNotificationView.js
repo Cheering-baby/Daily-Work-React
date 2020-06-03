@@ -3,7 +3,7 @@ import moment from 'moment';
 import { List, Spin, Tabs, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
-import { hasAnyPrivilege } from '@/utils/PrivilegeUtil';
+import { hasAllPrivilege, SALES_SUPPORT_PRIVILEGE } from '@/utils/PrivilegeUtil';
 
 const { TabPane } = Tabs;
 
@@ -76,31 +76,29 @@ class UserNotificationView extends PureComponent {
             ) : null}
           </Spin>
         </TabPane>
-        {hasAnyPrivilege(['NOTIFICATION_BELL_BULLETIN_PRIVILEGE']) && (
-          <TabPane tab={`${formatMessage({ id: 'NOTICE_BULLETIN' })} (${bulletinCount})`} key="3">
-            <Spin spinning={bellNotificationLoading}>
-              <List
-                itemLayout="horizontal"
-                dataSource={bulletinList}
-                size="small"
-                renderItem={item => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={<Tooltip title={item.title}>{item.title}</Tooltip>}
-                      description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
-                    />
-                  </List.Item>
-                )}
-              />
-              {bulletinCount >= 5 ? (
-                <div className={styles.moreStyle}>
-                  <span onClick={() => routerTo('3')}>{formatMessage({ id: 'NOTICE_MORE' })}</span>
-                </div>
-              ) : null}
-            </Spin>
-          </TabPane>
-        )}
-        {hasAnyPrivilege(['NOTIFICATION_BELL_CIRCULAR_PRIVILEGE']) && (
+        <TabPane tab={`${formatMessage({ id: 'NOTICE_BULLETIN' })} (${bulletinCount})`} key="3">
+          <Spin spinning={bellNotificationLoading}>
+            <List
+              itemLayout="horizontal"
+              dataSource={bulletinList}
+              size="small"
+              renderItem={item => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={<Tooltip title={item.title}>{item.title}</Tooltip>}
+                    description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
+                  />
+                </List.Item>
+              )}
+            />
+            {bulletinCount >= 5 ? (
+              <div className={styles.moreStyle}>
+                <span onClick={() => routerTo('3')}>{formatMessage({ id: 'NOTICE_MORE' })}</span>
+              </div>
+            ) : null}
+          </Spin>
+        </TabPane>
+        {hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]) && (
           <TabPane tab={`${formatMessage({ id: 'NOTICE_CIRCULAR' })} (${circularCount})`} key="4">
             <Spin spinning={bellNotificationLoading}>
               <List

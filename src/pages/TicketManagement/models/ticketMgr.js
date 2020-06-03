@@ -670,7 +670,6 @@ export default {
             }
             resultDetail.offerProfile.dateOfVisit = dateOfVisit;
             resultDetail.offerProfile.priceRuleId = priceRuleId;
-            resultDetail.offerProfile.selectRuleId = priceRuleId;
             resultDetail.offerProfile.numOfGuests = numOfGuests;
             dolphinIslandOfferList.forEach((item2, index) => {
               const { tag } = item2;

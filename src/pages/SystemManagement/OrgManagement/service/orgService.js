@@ -101,7 +101,7 @@ export async function queryRootOrgByCompany(params) {
 }
 
 export async function queryCompanyInfo(params) {
-  return UAAService.requestByRT(`/b2b/agent/v1/profile/queryCompanyInfo`, {
+  return UAAService.request(`/b2b/agent/v1/profile/queryCompanyInfo`, {
     params,
     method: 'GET',
   });

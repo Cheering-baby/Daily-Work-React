@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Button, Drawer, Icon, InputNumber, message, Modal, Radio } from 'antd';
+import { Button, Drawer, Radio, InputNumber, message, Modal, Icon } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { commonConfirm } from '@/components/CommonModal';
@@ -60,22 +60,6 @@ class EditCommission extends React.PureComponent {
       message.warning('Commission percentage is required.');
       return;
     }
-
-    let commissionValue2 = '';
-    if (commissionScheme === 'Percentage') {
-      const point = String(+commissionValuePercent).indexOf('.') + 1;
-      const count = String(+commissionValuePercent).length - point;
-      if (point > 0) {
-        if (count === 1) {
-          commissionValue2 = parseFloat(commissionValuePercent / 100).toFixed(3);
-        } else if (count === 2) {
-          commissionValue2 = parseFloat(commissionValuePercent / 100).toFixed(4);
-        }
-      }
-      if (point === 0) {
-        commissionValue2 = parseFloat(commissionValuePercent / 100);
-      }
-    }
     commonConfirm({
       content: `Confirm to modify?`,
       onOk: () => {
@@ -87,7 +71,7 @@ class EditCommission extends React.PureComponent {
             commissionType,
             commissionScheme,
             commissionValue:
-              commissionScheme === 'Amount' ? commissionValueAmount : commissionValue2,
+              commissionScheme === 'Amount' ? commissionValueAmount : commissionValuePercent,
           },
         }).then(resultCode => {
           if (resultCode === '0') {
@@ -180,7 +164,6 @@ class EditCommission extends React.PureComponent {
         modifyParams: { commissionScheme, commissionValueAmount, commissionValuePercent },
       },
     } = this.props;
-
     return (
       <div>
         <Drawer
@@ -233,7 +216,7 @@ class EditCommission extends React.PureComponent {
                   min={0}
                   max={100}
                   parser={value => {
-                    value = value.match(/\d+(\.\d{0,2})?/) ? value.match(/\d+(\.\d{0,2})?/)[0] : '';
+                    value = value.replace(/[^\d]/g, '');
                     return String(value);
                   }}
                   onChange={value => this.changeInputValue(value, 'Percentage')}

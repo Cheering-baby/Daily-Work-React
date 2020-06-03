@@ -276,16 +276,6 @@ export default {
           pathname: '/ProductManagement/CommissionRule/OnlineRule',
         });
       } else {
-        if (params.commissionScheme === 'Percentage') {
-          if (tieredList && tieredList.length > 0) {
-            tieredList.map(v => {
-              Object.assign(v, {
-                commissionValue: parseFloat(v.commissionValue * 100).toFixed(),
-              });
-              return v;
-            });
-          }
-        }
         message.error(resultMsg);
       }
     },
@@ -302,16 +292,6 @@ export default {
         data: { resultCode, resultMsg },
       } = yield call(service.add, reqParams);
       if (resultCode !== '0') {
-        if (params.commissionScheme === 'Percentage') {
-          if (tieredList && tieredList.length > 0) {
-            tieredList.map(v => {
-              Object.assign(v, {
-                commissionValue: parseFloat(v.commissionValue * 100).toFixed(),
-              });
-              return v;
-            });
-          }
-        }
         message.error(resultMsg);
       }
       return resultCode;

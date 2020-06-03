@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, message, Modal, Row, Select, Table, Tooltip } from 'antd';
+import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './AddOfflinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
@@ -271,19 +271,12 @@ class AddOfflinePLUModal extends React.PureComponent {
     });
   };
 
-  expandedRowRender = (record, PLUList, checkedList, offlineList) => {
+  expandedRowRender = (record, PLUList, checkedList) => {
     const { subCommodityList, commoditySpecId } = record;
     let subCheckedList = [];
     for (let i = 0; i < checkedList.length; i += 1) {
       if (commoditySpecId === checkedList[i].commoditySpecId) {
         subCheckedList = checkedList[i].subCommodityList;
-      }
-    }
-
-    const subChecked = [];
-    for (let i = 0; i < offlineList.length; i += 1) {
-      if (commoditySpecId === offlineList[i].commoditySpecId) {
-        subCheckedList = offlineList[i].subCommodityList;
       }
     }
     const subRowSelection = {
@@ -292,9 +285,7 @@ class AddOfflinePLUModal extends React.PureComponent {
         this.onSubSelectChange(selectedRowKeys, record.commoditySpecId, PLUList),
       getCheckboxProps: rec => {
         return {
-          disabled:
-            !!subCheckedList.find(item => item.commoditySpecId === rec.commoditySpecId) ||
-            !!subChecked.find(item => item.commoditySpecId === rec.commoditySpecId),
+          disabled: !!subCheckedList.find(item => item.commoditySpecId === rec.commoditySpecId),
         };
       },
     };
@@ -330,7 +321,6 @@ class AddOfflinePLUModal extends React.PureComponent {
     const {
       form: { getFieldDecorator },
       loading,
-      offlineList,
       offlineNew: {
         addPLUModal,
         PLUList,
@@ -340,47 +330,13 @@ class AddOfflinePLUModal extends React.PureComponent {
         addOfflinePLUTotalSize,
       },
     } = this.props;
-    const commissionList = [];
-    for (let i = 0; i < offlineList.length; i += 1) {
-      if (offlineList[i].subCommodityList) {
-        for (let j = 0; j < offlineList[i].subCommodityList.length; j += 1) {
-          commissionList.push(offlineList[i].subCommodityList[j]);
-        }
-      }
-    }
-
     const rowSelection = {
       columnWidth: 40,
       selectedRowKeys: this.getSelectedRowKes(PLUList),
       onChange: this.onSelectChange,
       getCheckboxProps: record => {
-        const record2 = [];
-        if (record.subCommodityList) {
-          for (let i = 0; i < record.subCommodityList.length; i += 1) {
-            record2.push(record.subCommodityList[i].commoditySpecId);
-          }
-        }
-
-        let subChecked = [];
-        for (let i = 0; i < offlineList.length; i += 1) {
-          if (offlineList[i].subCommodityList) {
-            subChecked = offlineList[i].subCommodityList;
-          }
-        }
-        let rec = [];
-        if (record.subCommodityList.length > 0) {
-          for (let i = 0; i < record.subCommodityList.length; i += 1) {
-            if (record.subCommodityList) {
-              rec = record.subCommodityList[i].commoditySpecId;
-            }
-          }
-        }
-
         return {
-          disabled:
-            !!checkedList.find(item => item.commoditySpecId === record.commoditySpecId) ||
-            !!offlineList.find(item => item.commoditySpecId === record.commoditySpecId) ||
-            !!subChecked.find(item => item.commoditySpecId === rec),
+          disabled: !!checkedList.find(item => item.commoditySpecId === record.commoditySpecId),
         };
       },
     };
@@ -479,9 +435,7 @@ class AddOfflinePLUModal extends React.PureComponent {
             rowKey={record => record.commoditySpecId}
             size="small"
             loading={!!loading}
-            expandedRowRender={record =>
-              this.expandedRowRender(record, PLUList, checkedList, offlineList)
-            }
+            expandedRowRender={record => this.expandedRowRender(record, PLUList, checkedList)}
             rowSelection={rowSelection}
             rowClassName={record =>
               record.subCommodityList.length === 0 ? styles.hideIcon : undefined

@@ -38,7 +38,6 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_NAME' }),
       dataIndex: 'commissionName',
       key: 'commissionName',
-      width: '35%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -49,7 +48,6 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' }),
       dataIndex: 'commissionType',
       key: 'commissionType',
-      width: '15%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -60,7 +58,6 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
       dataIndex: 'commissionScheme',
       key: 'commissionScheme',
-      width: '15%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -71,7 +68,6 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'STATUS' }),
       dataIndex: 'status',
       key: 'status',
-      width: '8%',
       render: text => {
         let flagClass = '';
         if (text === 'Active') flagClass = detailStyles.flagStyle1;
@@ -87,7 +83,6 @@ class CommissionRuleSetup extends React.PureComponent {
     {
       title: formatMessage({ id: 'OPERATION' }),
       dataIndex: 'tplId',
-      width: '10%',
       render: (text, record) => {
         return (
           <div>
@@ -319,7 +314,6 @@ class CommissionRuleSetup extends React.PureComponent {
               pagination={false}
               loading={!!loading}
               columns={this.columns}
-              scroll={{ x: 660 }}
             />
             <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
           </Card>

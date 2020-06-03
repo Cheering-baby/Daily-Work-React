@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Card, Col, Form, Row } from 'antd';
+import { Card, Col, Form, Row, Button, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
@@ -62,6 +62,7 @@ class CommissionDetail extends React.PureComponent {
 
   render() {
     const {
+      match: { params },
       location: {
         query: { tplId },
       },
@@ -94,13 +95,13 @@ class CommissionDetail extends React.PureComponent {
             </Col>
             <Col span={24}>
               <Card>
-                {/* <Tooltip placement="top" title="Edit"> */}
-                {/* <Button */}
-                {/* icon="edit" */}
-                {/* style={{ marginBottom: 10 }} */}
-                {/* onClick={() => this.toEdit(tplId, params.detail)} */}
-                {/* /> */}
-                {/* </Tooltip> */}
+                <Tooltip placement="top" title="Edit">
+                  <Button
+                    icon="edit"
+                    style={{ marginBottom: 10 }}
+                    onClick={() => this.toEdit(tplId, params.detail)}
+                  />
+                </Tooltip>
                 <DetailForCommission tplId={tplId} />
                 <DetailForBinding tplId={tplId} />
               </Card>

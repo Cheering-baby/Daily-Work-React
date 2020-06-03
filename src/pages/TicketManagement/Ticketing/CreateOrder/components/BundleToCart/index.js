@@ -104,15 +104,10 @@ class ToCart extends Component {
         gender,
         cardDisplayName,
         customerEmailAddress,
-        guestFirstName,
-        guestLastName,
-        customerContactNo,
       },
       modify,
     } = this.props;
-    let allTicketNumbers = 0;
     let data = {};
-    let validFields = ['country'];
     const hasApspTicket = this.hasApspTicket();
     data.country = country;
     if (hasApspTicket) {
@@ -121,41 +116,30 @@ class ToCart extends Component {
         address,
         gender,
         cardDisplayName,
-        guestFirstName,
-        guestLastName,
-        customerContactNo,
       });
-      validFields = validFields.concat([
-        'birth',
-        'address',
-        'gender',
-        'cardDisplayName',
-        'guestFirstName',
-        'guestLastName',
-        'customerContactNo',
-      ]);
     }
     offers.forEach((item, index) => {
       const { ticketNumber } = item;
       const ticketNumberLabel = `offer${index}`;
       data[ticketNumberLabel] = ticketNumber;
-      if (ticketNumber) {
-        allTicketNumbers += ticketNumber;
-      }
     });
-    if (!modify && allTicketNumbers !== numOfGuests) {
-      message.warning(`Total quantity must be ${numOfGuests}.`);
-      return false;
-    }
-    if (allTicketNumbers === 0) {
-      message.warning('Please select one product at least.');
-      return false;
-    }
     form.setFieldsValue(data);
-    form.validateFields(validFields, async err => {
+    form.validateFields(async err => {
       if (!err) {
-        // eslint-disable-next-line no-useless-escape
-        const emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+        let allTicketNumbers = 0;
+        offers.forEach(item => {
+          const { ticketNumber } = item;
+          allTicketNumbers += ticketNumber;
+        });
+        if (!modify && allTicketNumbers !== numOfGuests) {
+          message.warning(`Total quantity must be ${numOfGuests}.`);
+          return false;
+        }
+        if (allTicketNumbers === 0) {
+          message.warning('Please select one product at least.');
+          return false;
+        }
+        const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
         if (customerEmailAddress && !emailReg.test(customerEmailAddress)) {
           message.warning('Customer email address is invalid.');
           return false;

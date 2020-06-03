@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-syntax */
 import { routerRedux } from 'dva/router';
-import router from 'umi/router';
 import { setLocale } from 'umi/locale';
 import { includes } from 'lodash';
 import UAAService from '@/uaa-npm';
@@ -121,69 +120,55 @@ export default {
       }
 
       if (Object.keys(data).length > 0) {
-        const urlParams = new URL(window.location.href);
-        const { hash } = urlParams;
-        const { need2faVerify = false } = data;
-        if (need2faVerify) {
-          if (hash.indexOf('/twoFactorAuth') <= -1) {
-            router.push({
-              pathname: '/twoFactorAuth',
-            });
-          }
-        } else {
-          // 抛出全局对象portal：登录状态logonStatus/获取菜单路由方法collapseMenu/打开菜单方法openMenu
-          window.portal.collapseMenu = collapseMenu;
-          window.portal.openMenu = openMenu;
-          window.portal.logonStatus = true;
-          window.portal.defaultUrl = '/';
+        // 抛出全局对象portal：登录状态logonStatus/获取菜单路由方法collapseMenu/打开菜单方法openMenu
+        window.portal.collapseMenu = collapseMenu;
+        window.portal.openMenu = openMenu;
+        window.portal.logonStatus = true;
+        window.portal.defaultUrl = '/';
 
-          if (!window.AppGlobal) {
-            window.AppGlobal = {};
-          }
-          window.AppGlobal.userCode = data.username;
-          window.AppGlobal.userName = data.username;
-          window.AppGlobal.webroot = getServicePath();
-          window.AppGlobal.version = '0.0.1';
-          const {
-            appInfo: { appComponents = [] },
-          } = data;
-          const appComponentMap = new Map();
-          appComponents.forEach(item => {
-            const { componentCode = '' } = item;
-            appComponentMap.set(componentCode, item);
-          });
-          window.AppGlobal.appPrivilegeMap = appComponentMap;
+        if (!window.AppGlobal) {
+          window.AppGlobal = {};
+        }
+        window.AppGlobal.userCode = data.username;
+        window.AppGlobal.userName = data.username;
+        window.AppGlobal.webroot = getServicePath();
+        window.AppGlobal.version = '0.0.1';
+        const {
+          appInfo: { appComponents = [] },
+        } = data;
+        const appComponentMap = new Map();
+        appComponents.forEach(item => {
+          const { componentCode = '' } = item;
+          appComponentMap.set(componentCode, item);
+        });
+        window.AppGlobal.appPrivilegeMap = appComponentMap;
+        yield put({
+          type: 'notificationMgr/fetchBellNotification',
+          payload: {
+            pageInfo: {
+              currentPage: 1,
+              pageSize: 5,
+            },
+          },
+        });
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentUser: { userName: data.username, ...data },
+            currentUserRole: data.roles || [],
+            userCompanyInfo: data.companyInfo || {},
+            appPrivileges: appComponents,
+          },
+        });
+        // postLogin 接口调用成功，通知 privilege 接口调用
+        watchObj.refreshed = true;
+        if (String(data.needChangePassword) !== '01' && String(data.needChangePassword) !== '02') {
           yield put({
-            type: 'notificationMgr/fetchBellNotification',
+            type: 'fetchCurrentUserMenu',
             payload: {
-              pageInfo: {
-                currentPage: 1,
-                pageSize: 5,
-              },
+              ...payload,
             },
           });
-          yield put({
-            type: 'updateState',
-            payload: {
-              currentUser: { userName: data.username, ...data },
-              currentUserRole: data.roles || [],
-              userCompanyInfo: data.companyInfo || {},
-              appPrivileges: appComponents,
-            },
-          });
-          // postLogin 接口调用成功，通知 privilege 接口调用
-          watchObj.refreshed = true;
-          if (
-            String(data.needChangePassword) !== '01' &&
-            String(data.needChangePassword) !== '02'
-          ) {
-            yield put({
-              type: 'fetchCurrentUserMenu',
-              payload: {
-                ...payload,
-              },
-            });
-          }
         }
       } else {
         watchObj.refreshed = false;

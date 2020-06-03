@@ -1,17 +1,17 @@
 import React from 'react';
 import router from 'umi/router';
 import {
-  Button,
-  Card,
   Col,
   Form,
-  Icon,
-  InputNumber,
-  message,
   Radio,
   Row,
+  Button,
   Table,
+  InputNumber,
+  message,
   Tooltip,
+  Icon,
+  Card,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
@@ -279,27 +279,13 @@ class OfflineNew extends React.PureComponent {
       message.warning('Select at least one PLU.');
       return;
     }
-    let commissionValue2 = '';
-    if (commissionScheme === 'Percentage') {
-      const point = String(+commissionPercentageValue).indexOf('.') + 1;
-      const count = String(+commissionPercentageValue).length - point;
-      if (point > 0) {
-        if (count === 1) {
-          commissionValue2 = parseFloat(commissionPercentageValue / 100).toFixed(3);
-        } else if (count === 2) {
-          commissionValue2 = parseFloat(commissionPercentageValue / 100).toFixed(4);
-        }
-      }
-      if (point === 0) {
-        commissionValue2 = parseFloat(commissionPercentageValue / 100);
-      }
-    }
     dispatch({
       type: 'offlineNew/add',
       payload: {
         commissionType: 'Fixed',
         commissionScheme,
-        commissionValue: commissionScheme === 'Amount' ? commissionAmountValue : commissionValue2,
+        commissionValue:
+          commissionScheme === 'Amount' ? commissionAmountValue : commissionPercentageValue,
         commodityList: checkedList,
         usageScope: 'Offline',
       },
@@ -417,9 +403,6 @@ class OfflineNew extends React.PureComponent {
         offlinePLUPagination,
         displayOfflineList = [],
       },
-      location: {
-        query: { offlineList },
-      },
     } = this.props;
     const { currentPage, pageSize: nowPageSize } = offlinePLUPagination;
     const pageOpts = {
@@ -491,9 +474,7 @@ class OfflineNew extends React.PureComponent {
                       min={0}
                       max={100}
                       parser={value => {
-                        value = value.match(/\d+(\.\d{0,2})?/)
-                          ? value.match(/\d+(\.\d{0,2})?/)[0]
-                          : '';
+                        value = value.replace(/[^\d]/g, '');
                         return String(value);
                       }}
                       onChange={value => this.inputChange(value, 'Percentage')}
@@ -530,7 +511,7 @@ class OfflineNew extends React.PureComponent {
                 </Col>
               </Row>
             </div>
-            {addPLUModal ? <AddOfflinePLUModal offlineList={offlineList} /> : null}
+            {addPLUModal ? <AddOfflinePLUModal /> : null}
             <div className={styles.operateButtonDivStyle}>
               <Button style={{ marginRight: 8 }} onClick={this.cancel}>
                 {formatMessage({ id: 'COMMON_CANCEL' })}

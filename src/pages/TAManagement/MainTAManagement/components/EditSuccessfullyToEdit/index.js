@@ -35,7 +35,7 @@ class EditSuccessfullyToEdit extends PureComponent {
           </Col>
           <Col span={24} className={styles.editSuccessfullyContent}>
             <h3>{formatMessage({ id: 'COMPLETED_EDIT_SUBMITTED_SUCCESS' })}</h3>
-            {/* <p>{formatMessage({ id: 'COMPLETED_SUCCESS_MESSAGE' })}</p> */}
+            <p>{formatMessage({ id: 'COMPLETED_SUCCESS_MESSAGE' })}</p>
           </Col>
           <Col span={24} className={styles.editSuccessfullyBottom}>
             <Button htmlType="button" loading={false} onClick={e => this.closeEdit(e)}>

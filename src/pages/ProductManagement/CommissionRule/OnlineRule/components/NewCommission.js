@@ -1,18 +1,18 @@
 import React from 'react';
 import {
+  Icon,
   Col,
   DatePicker,
   Form,
-  Icon,
   Input,
-  InputNumber,
-  message,
-  Modal,
-  Radio,
   Row,
   Select,
+  Radio,
   Table,
+  InputNumber,
   Tooltip,
+  message,
+  Modal,
 } from 'antd';
 import { cloneDeep } from 'lodash';
 import { formatMessage } from 'umi/locale';
@@ -133,7 +133,7 @@ class NewCommission extends React.PureComponent {
 
   add = () => {
     const {
-      detail: { tieredList },
+      detail: { tieredList, addInput1Min },
       dispatch,
     } = this.props;
     let arr = cloneDeep(tieredList);
@@ -142,7 +142,7 @@ class NewCommission extends React.PureComponent {
 
     if (arr.length > 0) {
       if (arr[arr.length - 1].minimum > 0 && arr[arr.length - 1].maxmum === '') {
-        message.warning('Please fill in the maximum value.');
+        message.warning(formatMessage({ id: 'Please fill in the maximum value.' }));
         return false;
       }
     }
@@ -218,9 +218,6 @@ class NewCommission extends React.PureComponent {
             placeholder="Minimum"
             onChange={ev => {
               const val = ev.target.value.replace(/\D/g, '');
-              if (val && val.trim().length > 12) {
-                return false;
-              }
               dispatch({
                 type: 'detail/save',
                 payload: {
@@ -245,13 +242,10 @@ class NewCommission extends React.PureComponent {
             placeholder="Maxmum"
             onChange={ev => {
               const val = ev.target.value.replace(/\D/g, '');
-              if (val && val.trim().length > 12) {
-                return false;
-              }
               dispatch({
                 type: 'detail/save',
                 payload: {
-                  addInput1Max: val,
+                  addInput1Max: val || '',
                 },
               });
             }}
@@ -271,9 +265,6 @@ class NewCommission extends React.PureComponent {
             placeholder="Minimum"
             onChange={ev => {
               const val = ev.target.value.replace(/\D/g, '');
-              if (val && val.trim().length > 12) {
-                return false;
-              }
               dispatch({
                 type: 'detail/save',
                 payload: {
@@ -298,9 +289,6 @@ class NewCommission extends React.PureComponent {
             placeholder="Maximum"
             onChange={ev => {
               const val = ev.target.value.replace(/\D/g, '');
-              if (val && val.trim().length > 12) {
-                return false;
-              }
               dispatch({
                 type: 'detail/save',
                 payload: {
@@ -338,6 +326,8 @@ class NewCommission extends React.PureComponent {
             formatter={value => `$ ${value}`}
             parser={value => {
               value = value.match(/\d+(\.\d{0,2})?/) ? value.match(/\d+(\.\d{0,2})?/)[0] : '';
+              // value = value.replace(/[^\d]/g, '');
+              // value = +value > 100 ? 100 : value.substr(0, 2);
               return String(value);
             }}
             onChange={value => {
@@ -356,7 +346,8 @@ class NewCommission extends React.PureComponent {
             min={0}
             max={100}
             parser={value => {
-              value = value.match(/\d+(\.\d{0,2})?/) ? value.match(/\d+(\.\d{0,2})?/)[0] : '';
+              value = value.replace(/[^\d]/g, '');
+              // value = +value > 100 ? 100 : value.substr(0, 2);
               return String(value);
             }}
             onChange={value => {
@@ -388,7 +379,7 @@ class NewCommission extends React.PureComponent {
       node = (
         <div>
           <Tooltip title="Confirm">
-            <Icon type="check" onClick={() => this.addRow(record, index)} />
+            <Icon type="check" onClick={this.addRow} />
           </Tooltip>
           <Tooltip title="Cancel">
             <Icon type="close" onClick={() => this.close(record)} />
@@ -421,14 +412,15 @@ class NewCommission extends React.PureComponent {
     return node;
   };
 
-  inputJudgmentLogic = (addInput1Max, addInput1Min, addInput2) => {
-    if (addInput1Min === '' || addInput1Min === null) {
+  inputJudgmentLogic = (addInput1Max, addInput1Min, addInput2, tieredList) => {
+    // console.log(Number(addInput1Max), addInput1Min, addInput2, tieredList)
+    if (
+      addInput1Min === '' ||
+      addInput1Min === null
+      // addInput1Max === '' ||
+      // addInput1Max === null
+    ) {
       message.warning('Commission tier is required.');
-      return 0;
-    }
-
-    if (addInput2 === '' || addInput2 === null) {
-      message.warning('Commission Schema is required.');
       return 0;
     }
 
@@ -438,26 +430,30 @@ class NewCommission extends React.PureComponent {
       );
       return 0;
     }
-
-    if (Number(addInput1Max) === Number(addInput1Min)) {
-      message.warning(
-        'The min of commission tier cannot be as same as the max of commission tier.'
-      );
-      return 0;
-    }
-    // if (tieredList.length > 1) {
-    //   for (let i = 0; i < tieredList.length; i += 1) {
-    //     const { EDIT_ROW = false, type = 'JUDGMENT' } = tieredList[i];
-    //     if (!EDIT_ROW && type !== 'ADD_ROW') {
-    //       for (let j = parseInt(addInput1Min, 0); j <= parseInt(addInput1Max, 0); j += 1) {
-    //         if (j >= parseInt(tieredList[i].minimum, 0) && j <= parseInt(tieredList[i].maxmum, 0)) {
-    //           message.warning('The Commission tiers can not be duplicate.');
-    //           return 0;
-    //         }
-    //       }
-    //     }
-    //   }
+    // if (Number(addInput1Max) === 0 && Number(addInput1Min)>addInput2) {
+    //   message.warning(
+    //     'The min of commission tier cannot be greater than the max of commission tier.'
+    //   );
+    //   return 0;
     // }
+
+    // if (addInput2 <= 0) {
+    //   message.warning('Commission schema cannot be less than or equal to 0.');
+    //   return 0;
+    // }
+    if (tieredList.length > 1) {
+      for (let i = 0; i < tieredList.length; i += 1) {
+        const { EDIT_ROW = false, type = 'JUDGMENT' } = tieredList[i];
+        if (!EDIT_ROW && type !== 'ADD_ROW') {
+          for (let j = parseInt(addInput1Min, 0); j <= parseInt(addInput1Max, 0); j += 1) {
+            if (j >= parseInt(tieredList[i].minimum, 0) && j <= parseInt(tieredList[i].maxmum, 0)) {
+              message.warning('The Commission tiers can not be duplicate.');
+              return 0;
+            }
+          }
+        }
+      }
+    }
     return 1;
   };
 
@@ -469,21 +465,12 @@ class NewCommission extends React.PureComponent {
     if (this.inputJudgmentLogic(addInput1Max, addInput1Min, addInput2, tieredList) === 0) {
       return null;
     }
-
-    if (tieredList.length >= 2) {
-      if (Number(addInput1Min) <= Number(tieredList[tieredList.length - 1].maxmum)) {
-        message.warning('The Commission tiers can not be duplicate.');
+    if (tieredList.length > 0) {
+      if (Number(tieredList[tieredList.length - 1].maxmum) >= Number(addInput1Min)) {
+        message.warning(formatMessage({ id: 'Please fill in the maximum value.' }));
         return 0;
       }
-      if (
-        addInput1Max === '' &&
-        Number(addInput1Min) <= Number(tieredList[tieredList.length - 1].maxmum)
-      ) {
-        message.warning('Please fill in the maximum value.');
-        return false;
-      }
     }
-
     dispatch({
       type: 'detail/save',
       payload: {
@@ -509,6 +496,7 @@ class NewCommission extends React.PureComponent {
   };
 
   editRow = (record, index) => {
+    // debugger
     const {
       detail: { addInput1Max, addInput1Min, addInput2, tieredList },
       dispatch,
@@ -516,34 +504,19 @@ class NewCommission extends React.PureComponent {
     if (this.inputJudgmentLogic(addInput1Max, addInput1Min, addInput2, tieredList) === 0) {
       return null;
     }
-
-    if (tieredList.length > 1 && index < tieredList.length && addInput1Max === '') {
-      message.warning('Commission tier is required.');
-      return 0;
-    }
-    if (index !== 1 && tieredList.length > 1 && index !== tieredList.length) {
-      if (
-        Number(addInput1Min) <= Number(tieredList[index - 2].maxmum) ||
-        Number(addInput1Max) >= Number(tieredList[index].minimum)
-      ) {
-        message.warning('The Commission tiers can not be duplicate.');
-        return 0;
+    // console.log(record, index, '----')
+    if (tieredList.length > 1) {
+      for (let i = 0; i < tieredList.length; i += 1) {
+        console.log(tieredList, tieredList[i], i);
+        if (tieredList[i].tierOrder < tieredList.length && tieredList[i].maxmum >= addInput1Min) {
+          message.warning(formatMessage({ id: 'Please fill in the maximum value.' }));
+          return false;
+        }
+        // else if (i<tieredList.length-1&&addInput1Max===''){
+        //   message.warning(formatMessage({ id: 'hhhhh.' }));
+        //   return false;
+        // }
       }
-    } else if (
-      +index !== 1 &&
-      Number(tieredList.length) === +index &&
-      Number(addInput1Min) <= Number(tieredList[index - 2].maxmum) &&
-      addInput1Max === ''
-    ) {
-      message.warning('Please fill in the maximum value.');
-      return 0;
-    } else if (
-      tieredList.length >= 2 &&
-      +index === 1 &&
-      Number(addInput1Max) >= Number(tieredList[index].minimum)
-    ) {
-      message.warning('The Commission tiers can not be duplicate.');
-      return 0;
     }
 
     const arr = tieredList.map((item, idx) =>
@@ -677,11 +650,11 @@ class NewCommission extends React.PureComponent {
   render() {
     const {
       form,
-      detail: { tieredList },
+      detail: { tieredList, commissionName },
       fetchLoading,
       tplId = null,
     } = this.props;
-    const { getFieldDecorator } = form;
+    const { getFieldDecorator, setFieldsValue } = form;
 
     return (
       <Form>

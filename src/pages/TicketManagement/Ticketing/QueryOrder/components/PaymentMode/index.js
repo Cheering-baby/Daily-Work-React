@@ -53,13 +53,13 @@ class PaymentModel extends Component {
     }
 
     const payMode = payModeList.find(payModeItem => payModeItem.check);
-    if (payMode.label === 'e-Wallet' && accountInfo.eWallet) {
+    if (payMode.label === 'eWallet' && accountInfo.eWallet) {
       checkAccountInfo.accountType = 'ew';
       checkAccountInfo.balance = accountInfo.eWallet.balance;
       if (accountInfo.eWallet.balance < bookDetail.totalPrice) {
-        checkAccountInfo.tipInfo = 'e-Wallet balance is insufficient.';
+        checkAccountInfo.tipInfo = 'eWallet balance is insufficient.';
       }
-      checkAccountInfo.balanceDesc = 'e-Wallet Balance';
+      checkAccountInfo.balanceDesc = 'eWallet Balance';
     } else if (payMode.label === 'Credit Card') {
       checkAccountInfo.accountType = 'cc';
     } else if (payMode.label === 'AR' && accountInfo.ar) {
@@ -67,7 +67,7 @@ class PaymentModel extends Component {
       checkAccountInfo.balance = accountInfo.ar.balance;
       if (accountInfo.ar.balance < bookDetail.totalPrice) {
         checkAccountInfo.tipInfo =
-          "You don't have enough balance, Please change another payment mode.";
+          "You don't have enough balance,Please change another payment mode.";
       }
       checkAccountInfo.balanceDesc = 'AR Balance';
     }
@@ -108,15 +108,11 @@ class PaymentModel extends Component {
     } = this.props;
 
     let payModeListNew = [...payModeList];
-    if (
-      !accountInfo ||
-      !accountInfo.eWallet ||
-      (accountInfo.eWallet && accountInfo.eWallet.status !== 'A')
-    ) {
-      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'eWallet');
+    if (accountInfo && !accountInfo.eWallet) {
+      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'E_WALLET');
     }
-    if (!accountInfo || !accountInfo.ar || (accountInfo.ar && accountInfo.ar.status !== 'A')) {
-      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'AR');
+    if (accountInfo && !accountInfo.ar) {
+      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'AR_CREDIT');
     }
 
     const checkAccountInfo = this.checkAccountInfo();

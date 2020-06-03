@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Col, Collapse, Drawer, Form, Icon, Input, Row, Select, Table } from 'antd';
+import { Button, Collapse, Drawer, Form, Icon, Input, Select, Table } from 'antd';
 // import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen';
@@ -454,7 +454,7 @@ class Index extends React.PureComponent {
         canAddUsers = [],
         filteredCanAddUsers = [],
         selectedUserKeys = [],
-        selectedOrg: { code = '', orgName = '', companyName = '' },
+        selectedOrg: { code = '', orgName = '' },
       },
       addOrgLoading = false,
       addMemberLoading = false,
@@ -474,15 +474,7 @@ class Index extends React.PureComponent {
         onClose={this.closeDetailDrawer}
         visible
       >
-        <Row className={styles.companyNameDiv}>
-          <Col className={styles.companyNameLabel} sm={24} md={12}>
-            Company Name
-          </Col>
-          <Col sm={24} md={12}>
-            {companyName || '-'}
-          </Col>
-        </Row>
-        <Form onSubmit={e => this.commit(e)} layout="vertical" style={{ paddingTop: '8px' }}>
+        <Form onSubmit={e => this.commit(e)} layout="vertical" style={{ paddingTop: '15px' }}>
           <Form.Item label={formatMessage({ id: 'ORG_TYPE' })}>
             {getFieldDecorator(`orgType`, {
               initialValue: orgTypeValue,

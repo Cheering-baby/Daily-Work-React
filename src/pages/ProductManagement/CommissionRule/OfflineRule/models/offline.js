@@ -166,7 +166,7 @@ export default {
           pageSize: 10,
         },
         totalSize: 0,
-        // offlineList: [],
+        offlineList: [],
 
         modifyParams: {
           tplId: null,

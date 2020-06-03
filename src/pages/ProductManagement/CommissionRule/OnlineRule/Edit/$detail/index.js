@@ -2,13 +2,12 @@ import React from 'react';
 import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import { Card, Form, message, Spin } from 'antd';
+import { Form, Card, message, Spin } from 'antd';
 import { router } from 'umi';
 import SCREEN from '@/utils/screen';
 import NewCommission from '../../components/NewCommission';
 import NewBinding from '../../components/NewBinding';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
-import { commonConfirm } from '@/components/CommonModal';
 
 @Form.create()
 @connect(({ commissionNew, detail, loading }) => ({
@@ -65,74 +64,52 @@ class onlineEdit extends React.PureComponent {
       }
       let effectiveDate = null;
       let expiryDate = null;
-      commonConfirm({
-        content: 'Confirm to Modify ?',
-        onOk: () => {
-          Object.keys(values).forEach(k => {
-            const value = values[k];
-            if (k === 'commissionType' && Array.isArray(value)) {
-              values[k] = value.join();
-            } else if (k === 'effectiveDate' && value) {
-              values[k] = value ? value.format('YYYY-MM-DD') : '';
-            } else if (k === 'expiryDate' && value) {
-              values[k] = value ? value.format('YYYY-MM-DD') : '';
-            } else if (k === 'effectivePeriod' && value) {
-              effectiveDate = value[0].format('YYYY-MM-DD');
-              expiryDate = value[1].format('YYYY-MM-DD');
-            } else if (k === 'commissionScheme') {
-              if (values[k] === 'Percentage') {
-                if (tieredList && tieredList.length > 0) {
-                  tieredList.map(v => {
-                    const num = v.commissionValue;
-                    const x = String(num).indexOf('.') + 1;
-                    const y = String(num).length - x;
-                    if (y === 1) {
-                      Object.assign(v, {
-                        commissionValue: parseFloat(v.commissionValue / 100).toFixed(3) || '',
-                      });
-                      return v;
-                    }
-                    if (y === 2) {
-                      Object.assign(v, {
-                        commissionValue: parseFloat(v.commissionValue / 100).toFixed(4) || '',
-                      });
-                      return v;
-                    }
-                    if (y <= 0) {
-                      Object.assign(v, {
-                        commissionValue: parseFloat(v.commissionValue / 100) || '',
-                      });
-                    }
-                    return v;
-                  });
-                }
-              }
+      Object.keys(values).forEach(k => {
+        const value = values[k];
+        if (k === 'commissionType' && Array.isArray(value)) {
+          values[k] = value.join();
+        } else if (k === 'effectiveDate' && value) {
+          values[k] = value ? value.format('YYYY-MM-DD') : '';
+        } else if (k === 'expiryDate' && value) {
+          values[k] = value ? value.format('YYYY-MM-DD') : '';
+        } else if (k === 'effectivePeriod' && value) {
+          effectiveDate = value[0].format('YYYY-MM-DD');
+          expiryDate = value[1].format('YYYY-MM-DD');
+        } else if (k === 'commissionScheme') {
+          if (values[k] === 'Percentage') {
+            if (tieredList && tieredList.length > 0) {
+              tieredList.map(v => {
+                Object.assign(v, {
+                  commissionValue: v.commissionValue / 100 || '',
+                });
+                return v;
+              });
             }
-          });
-          const params = {
-            ...values,
-            effectiveDate,
-            expiryDate,
-          };
-          for (let i = 0; i < tieredList.length; i += 1) {
-            tieredList[i].tplId = tplId;
           }
-          dispatch({
-            type: 'commissionNew/edit',
-            payload: {
-              params,
-              tieredList,
-              commodityList: [...checkedList, ...checkedOnlineList],
-              tplId,
-              usageScope: 'Common',
-            },
-          }).then(resultCode => {
-            if (resultCode === '0') {
-              message.success('Modified successfully.');
-              this.onClose();
-            }
-          });
+        }
+      });
+      const params = {
+        ...values,
+        effectiveDate,
+        expiryDate,
+      };
+      for (let i = 0; i < tieredList.length; i += 1) {
+        tieredList[i].tplId = tplId;
+      }
+      dispatch({
+        type: 'commissionNew/edit',
+        payload: {
+          params,
+          tieredList,
+          commodityList: [...checkedList, ...checkedOnlineList],
+          tplId,
+          usageScope: 'Common',
         },
+      }).then(resultCode => {
+        if (resultCode === '0') {
+          message.success('Modified successfully.');
+          this.onClose();
+        }
       });
     });
   };

@@ -37,18 +37,6 @@ class UserCode extends React.PureComponent {
       }
     } else {
       const { userType = '', taInfo = {} } = currentUserProfile;
-      let companyType = '00';
-      if (userType === '02') {
-        companyType = '01';
-      } else if (userType === '03') {
-        companyType = '02';
-      }
-      dispatch({
-        type: 'userMgr/saveData',
-        payload: {
-          currentCompanyType: companyType,
-        },
-      });
       dispatch({
         type: 'userMgr/queryUserRoles',
         payload: {

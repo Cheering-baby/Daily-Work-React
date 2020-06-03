@@ -180,11 +180,7 @@ class InvitationComp extends PureComponent {
           <Row type="flex" justify="space-around">
             <Col span={24}>
               <Card
-                title={
-                  <span className={styles.userPerspectiveTitle}>
-                    {formatMessage({ id: 'GI_USER_PERSPECTIVE' })}
-                  </span>
-                }
+                title={formatMessage({ id: 'GI_USER_PERSPECTIVE' })}
                 className={styles.userPerspectiveCard}
               >
                 <div className={styles.userPerspectiveContent}>

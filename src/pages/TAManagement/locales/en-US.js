@@ -1,6 +1,6 @@
 export default {
   MENU_TA_MANAGEMENT: 'Travel Agent Management',
-  MENU_TA_PROFILE: 'Travel Agent Company Profile',
+  MENU_TA_PROFILE: 'My Profile',
   MENU_TA_MAIN_MANAGEMENT: 'Main Travel Agent Management',
   MENU_WALLET: 'My Wallet',
   MENU_GENERATE_INVITATION: 'Generate Invitation',
@@ -50,7 +50,7 @@ export default {
   SUPPORTING_DOCUMENTS_CONTENT_TWO: 'Recent 2 years Audited Financial Statements',
   SUPPORTING_DOCUMENTS_CONTENT_THREE: 'Travel Agent License',
   PLEASE_ALSO_NOTE_TITLE:
-    'Please also note that upon successful application, official partner will be issued an e-Wallet as default mode of payment.',
+    'Please also note that upon successful sign up, official partner will be issue an e-Wallet as default mode of payment.',
 
   STATUS_COMPLETED: 'COMPLETED',
   STATUS_PENDING: 'PENDING',
@@ -95,7 +95,6 @@ export default {
   ADDITIONAL_END_DATE: 'End Date',
   ADDITIONAL_SALES_MANAGER: 'Sales Manager',
   ADDITIONAL_CATEGORY_AND_CUSTOMER_GROUP: 'Category And Customer Group',
-  ADDITIONAL_REMARK: 'Remark',
   ADDITIONAL_EDIT_SUBMITTED_SUCCESS: 'Additional information submitted successfully.',
 
   CONTACT_INFORMATION: 'CONTACT INFORMATION',
@@ -119,14 +118,14 @@ export default {
   ZIP_POSTAL_CODE: 'Zip/Postal Code',
   STB_TRAVEL_AGENT_LICENSE_NUMBER: 'STB Travel Agent License No.',
   TRAVEL_AGENT_REGISTRATION_NUMBER: 'Travel Agent License No. (If any)',
-  GST_REG_YES_OR_NO: 'GST Registered Yes Or No',
+  GST_REG_YES_OR_NO: 'GST Reg Yes Or No',
   GST_REGISTERED_INDICATOR: 'GST Registered Indicator',
   GST_REG_YES: 'Yes',
   GST_REG_NOT: 'No',
-  GST_REG_NO: 'GST Registration No.',
+  GST_REG_NO: 'GST Reg No.',
   GST_EFFECTIVE_DATE: 'GST Effective Date',
   CATEGORY_AND_CUSTOMER_GROUP: 'Category and Customer Group',
-  COMPANY_REGISTRATION_NUMBER: 'GST Registration No.',
+  COMPANY_REGISTRATION_NUMBER: 'Company Registration No.',
   COMPANY_MARKET: 'Market',
   COMPANY_SALES_PERSON: 'Sales Person',
   GST_REG_NO_NOTE: 'Note:Applicable for SG companies only',
@@ -172,7 +171,7 @@ export default {
 
   FILE_UPLOAD: 'FILE UPLOAD',
   FILE_REGISTRATION_DOCS: 'Registration Docs',
-  FILE_AR_CREDIT_LIMIT: 'Credit Facility (AR) Application',
+  FILE_AR_CREDIT_LIMIT: 'AR Credit Limit',
   FILE_CLICK_TO_UPLOAD: 'Click to Upload',
   FILE_CLICK_TO_VIEW_THE_FILE: 'Upload The Prompt',
   FILE_MAX_SIZE_CHECK: 'File must smaller than 10MB!',
@@ -245,9 +244,9 @@ export default {
   TA_FINANCE_CREDIT_TERM: 'Credit Term',
   TA_FINANCE_CREDIT_LIMIT: 'Credit Limit',
   TA_IS_ALL_INFORMATION_TO_RWS:
-    'I declare that the information provided is true and complete. I have read and confirm that I fully understand and hereby agree to be bound by the Terms and Conditions and any updated versions of the Terms and Conditions as may be issued from time to time, such version which will be available at <a href="//www.partners.rwsentosa.com/">www.partners.rwsentosa.com</a>. I hereby authorise Resorts World Sentosa to use my personal data disclosed in this portal to process my application and all things ancillary to this application.',
+    'I declare that the information provided is true and complete. I have read and confirm that I fully understand and hereby agree to be bound by the Terms and Conditions and any updated versions of the Terms and Conditions as may be issued from time to time, such version which will be available at <a href="//www.partners.rwsentosa.com/">www.partners.rwsentosa.com</a> (PAMS Official Domain URL). I hereby authorise Resorts World Sentosa to use my personal data disclosed in this portal to process my application and all things ancillary to this application.',
   COMPLETED_REGISTRATION_SUBMITTED_SUCCESS: 'Application submitted successfully!',
-  COMPLETED_EDIT_SUBMITTED_SUCCESS: 'Changes have been saved successfully!',
+  COMPLETED_EDIT_SUBMITTED_SUCCESS: 'Edit submitted successfully!',
   COMPLETED_SUCCESS_MESSAGE:
     'Your application has been submitted. It will take 5 working days to process your application. An email will be sent to you shortly to confirm that we have received your application.',
   COMPLETED_CLOSE: 'Close',
@@ -289,6 +288,6 @@ export default {
   ADD_ADDRESS: 'Address',
   ADD_REMARKS: 'Remarks',
   AR_CREDIT_BALANCE: 'AR Credit',
-  EWALLET_BALANCE: 'e-Wallet',
+  EWALLET_BALANCE: 'eWallet',
   MYACTIVITY_REGISTRATION_DOCS: ' Registration Docs',
 };

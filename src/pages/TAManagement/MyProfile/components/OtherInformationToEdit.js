@@ -216,7 +216,6 @@ class OtherInformationToEdit extends PureComponent {
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
       viewId,
-      arAllowed: false,
       currencyList: currencyList || [],
       countryList,
       createTeamList,

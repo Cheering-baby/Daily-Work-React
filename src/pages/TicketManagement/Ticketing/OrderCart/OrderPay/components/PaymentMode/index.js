@@ -109,15 +109,11 @@ class PaymentModel extends Component {
     } = this.props;
 
     let payModeListNew = [...payModeList];
-    if (
-      !accountInfo ||
-      !accountInfo.eWallet ||
-      (accountInfo.eWallet && accountInfo.eWallet.status !== 'A')
-    ) {
-      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'eWallet');
+    if (accountInfo && !accountInfo.eWallet) {
+      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'E_WALLET');
     }
-    if (!accountInfo || !accountInfo.ar || (accountInfo.ar && accountInfo.ar.status !== 'A')) {
-      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'AR');
+    if (accountInfo && !accountInfo.ar) {
+      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'AR_CREDIT');
     }
 
     const checkAccountInfo = this.checkAccountInfo();

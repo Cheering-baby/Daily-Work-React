@@ -12,7 +12,7 @@ export default {
   REMARKS: 'Remarks',
   CREATE_DATE: 'Create Date',
   APPROVAL_RESULT: 'APPROVAL RESULT',
-  APPROVAL_ACCEPT: 'Accept',
+  APPROVAL_ACCEPT: 'Accepted',
   APPROVAL_REJECT: 'Reject',
   APPROVAL_APPROVER: 'Approver',
   SALE_MANAGER: 'Sale Manager',

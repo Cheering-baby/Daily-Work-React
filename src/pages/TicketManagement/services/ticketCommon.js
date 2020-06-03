@@ -1,7 +1,5 @@
 import UAAService from '@/uaa-npm';
 
-const mock =
-  'http://easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e854bf1f8436f0020822df9/PAMS';
 const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export async function queryAgentOpt(params) {
@@ -11,7 +9,7 @@ export async function queryAgentOpt(params) {
 }
 
 export async function queryCountry(params) {
-  return UAAService.request(`${mock}/b2c/customer/v1/domain/query`, {
+  return UAAService.request(`${localPath}/b2c/customer/v1/domain/query`, {
     method: 'GET',
     params,
     body: {
@@ -21,7 +19,7 @@ export async function queryCountry(params) {
 }
 
 export async function queryPluAttribute(params) {
-  return UAAService.request(`${''}/b2c/product/v1/dictionary/attraction/list`, {
+  return UAAService.request(`${localPath}/b2c/product/v1/dictionary/attraction/list`, {
     method: 'POST',
     body: {
       ...params,
@@ -30,7 +28,7 @@ export async function queryPluAttribute(params) {
 }
 
 export async function queryOfferList(params) {
-  return UAAService.request(`${''}/b2b/product/v1/offer/list`, {
+  return UAAService.request(`${localPath}/b2b/product/v1/offer/list`, {
     method: 'POST',
     body: {
       ...params,
@@ -39,7 +37,7 @@ export async function queryOfferList(params) {
 }
 
 export async function queryOfferDetail(params) {
-  return UAAService.request(`${''}/b2b/product/v1/offer/detail`, {
+  return UAAService.request(`${localPath}/b2b/product/v1/offer/detail`, {
     method: 'GET',
     params,
     body: {
