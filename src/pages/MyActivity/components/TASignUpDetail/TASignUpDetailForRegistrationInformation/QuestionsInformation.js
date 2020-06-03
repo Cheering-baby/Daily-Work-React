@@ -4,14 +4,10 @@ import { formatMessage } from 'umi/locale';
 import styles from './TaRegistration.less';
 import { isNvl } from '@/utils/utils';
 import { getProductType, getTopNationalitiesStr } from '@/pages/TAManagement/utils/pubUtils';
+import { rowLayOut } from '@/pages/MyActivity/components/constants';
 
 const QuestionsInformation = props => {
-  const {
-    companyInfo = {},
-    countryList = [],
-    longLayoutDisplay = {},
-    longValueDisplay = {},
-  } = props;
+  const { companyInfo = {}, countryList = [] } = props;
   const { productTypeRoom, productTypeAttractions } = getProductType() || {};
   let productInfoOne = {};
   if (companyInfo && companyInfo.productList && companyInfo.productList.length > 0) {
@@ -49,84 +45,33 @@ const QuestionsInformation = props => {
   const volumeTwo = !isNvl(otherVolumeTwo) ? otherVolumeTwo : rwsVolumeTwo;
   return (
     <React.Fragment>
-      <Row type="flex" justify="space-around">
+      <Row {...rowLayOut}>
         <Col span={24}>
           <span className={styles.detailTitle}>{formatMessage({ id: 'QUESTIONS' })}</span>
         </Col>
       </Row>
-      <Row type="flex" justify="space-around">
-        <Col
-          xs={longLayoutDisplay.xs}
-          sm={longLayoutDisplay.sm}
-          md={longLayoutDisplay.md}
-          lg={longLayoutDisplay.lg}
-          xl={longLayoutDisplay.xl}
-          xxl={longLayoutDisplay.xxl}
-        >
-          <div className={styles.detailRightStyle}>
+      <Row {...rowLayOut} className={styles.contentDetail}>
+        <Col span={24}>
+          <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'CUSTOMER_NATIONALITY' })}</span>
           </div>
-        </Col>
-        <Col
-          xs={longValueDisplay.xs}
-          sm={longValueDisplay.sm}
-          md={longValueDisplay.md}
-          lg={longValueDisplay.lg}
-          xl={longValueDisplay.xl}
-          xxl={longValueDisplay.xxl}
-        >
+
           <div className={styles.detailLeftStyle}>
             <span>{getTopNationalitiesStr(countryList, companyInfo.topNationalities)}</span>
           </div>
         </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
-        <Col
-          xs={longLayoutDisplay.xs}
-          sm={longLayoutDisplay.sm}
-          md={longLayoutDisplay.md}
-          lg={longLayoutDisplay.lg}
-          xl={longLayoutDisplay.xl}
-          xxl={longLayoutDisplay.xxl}
-        >
-          <div className={styles.detailRightStyle}>
+        <Col span={24}>
+          <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'QUESTIONS_Q_ONE' })}</span>
           </div>
-        </Col>
-        <Col
-          xs={longValueDisplay.xs}
-          sm={longValueDisplay.sm}
-          md={longValueDisplay.md}
-          lg={longValueDisplay.lg}
-          xl={longValueDisplay.xl}
-          xxl={longValueDisplay.xxl}
-        >
           <div className={styles.detailLeftStyle}>
             <span>{volumeOne}</span>
           </div>
         </Col>
-      </Row>
-      <Row type="flex" justify="space-around">
-        <Col
-          xs={longLayoutDisplay.xs}
-          sm={longLayoutDisplay.sm}
-          md={longLayoutDisplay.md}
-          lg={longLayoutDisplay.lg}
-          xl={longLayoutDisplay.xl}
-          xxl={longLayoutDisplay.xxl}
-        >
-          <div className={styles.detailRightStyle}>
+        <Col span={24}>
+          <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'QUESTIONS_Q_TWO' })}</span>
           </div>
-        </Col>
-        <Col
-          xs={longValueDisplay.xs}
-          sm={longValueDisplay.sm}
-          md={longValueDisplay.md}
-          lg={longValueDisplay.lg}
-          xl={longValueDisplay.xl}
-          xxl={longValueDisplay.xxl}
-        >
           <div className={styles.detailLeftStyle}>
             <span>{volumeTwo}</span>
           </div>

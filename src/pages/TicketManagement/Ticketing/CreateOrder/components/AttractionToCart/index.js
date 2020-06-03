@@ -132,6 +132,7 @@ class ToCart extends Component {
       guestLastName,
       guestFirstName,
     };
+    let allTicketNumbers = 0;
     let validFields = ['country'];
     const hasApspTicket = this.hasApspTicket(offerConstrain);
     if (hasApspTicket) {
@@ -194,25 +195,21 @@ class ToCart extends Component {
       } else {
         ageGroups.push('-');
       }
+      if (ticketNumber) {
+        allTicketNumbers += ticketNumber;
+      }
     });
+    if (!modify && allTicketNumbers !== numOfGuests && offerConstrain !== 'Fixed') {
+      message.warning(`Total quantity must be ${numOfGuests}.`);
+      return false;
+    }
+    if (offerConstrain !== 'Fixed' && allTicketNumbers === 0) {
+      message.warning('Please select one product at least.');
+      return false;
+    }
     form.setFieldsValue(data);
     form.validateFields(validFields, err => {
       if (!err) {
-        let allTicketNumbers = 0;
-        attractionProduct.forEach(item => {
-          const { ticketNumber } = item;
-          if (ticketNumber) {
-            allTicketNumbers += ticketNumber;
-          }
-        });
-        if (!modify && allTicketNumbers !== numOfGuests && offerConstrain !== 'Fixed') {
-          message.warning(`Total quantity must be ${numOfGuests}.`);
-          return false;
-        }
-        if (offerConstrain !== 'Fixed' && allTicketNumbers === 0) {
-          message.warning('Please select one product at least.');
-          return false;
-        }
         // eslint-disable-next-line no-useless-escape
         const emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
         if (customerEmailAddress && !emailReg.test(customerEmailAddress)) {

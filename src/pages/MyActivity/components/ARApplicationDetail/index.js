@@ -43,7 +43,7 @@ class ARApplicationDetail extends React.PureComponent {
     const contentObj = content ? JSON.parse(content) : [];
     return (
       <React.Fragment>
-        <Col lg={24} md={24}>
+        <Col lg={24} md={24} className={styles.container}>
           <Col span={24}>
             <Card>
               <Row type="flex" justify="space-around">

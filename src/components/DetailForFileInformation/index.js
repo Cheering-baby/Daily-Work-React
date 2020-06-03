@@ -4,53 +4,17 @@ import { getUrl, handleDownFile } from '../../utils/utils';
 import styles from './index.less';
 
 const DetailForFileInformation = props => {
-  const {
-    fileList = [],
-    fileKeys = {},
-    fileTxt = null,
-    afterDown,
-    beforeDown,
-    ifLongLayout = false,
-  } = props;
+  const { fileList = [], fileKeys = {}, fileTxt = null, afterDown, beforeDown } = props;
   const downUrl = `${getUrl()}/common/downloadFile`;
-  const layoutDisplay = {
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: ifLongLayout ? 6 : 12,
-    xl: ifLongLayout ? 6 : 12,
-    xxl: ifLongLayout ? 6 : 12,
-  };
-  const valueDisplay = {
-    xs: 24,
-    sm: 12,
-    md: 16,
-    lg: ifLongLayout ? 18 : 12,
-    xl: ifLongLayout ? 18 : 12,
-    xxl: ifLongLayout ? 18 : 12,
-  };
+
   return (
     <Row type="flex" justify="space-around">
-      <Col
-        xs={layoutDisplay.xs}
-        sm={layoutDisplay.sm}
-        md={layoutDisplay.md}
-        lg={layoutDisplay.lg}
-        xl={layoutDisplay.xl}
-        xxl={layoutDisplay.xxl}
-      >
-        <div className={styles.fileRightStyle}>
+      <Col span={24}>
+        <div className={styles.fileLabelStyle}>
           <span>{fileTxt || null}</span>
         </div>
       </Col>
-      <Col
-        xs={valueDisplay.xs}
-        sm={valueDisplay.sm}
-        md={valueDisplay.md}
-        lg={valueDisplay.lg}
-        xl={valueDisplay.xl}
-        xxl={valueDisplay.xxl}
-      >
+      <Col span={24}>
         <div className={styles.fileLeftStyle}>
           {fileList && fileList.length > 0
             ? fileList.map(item => (

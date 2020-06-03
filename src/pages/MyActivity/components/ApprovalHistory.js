@@ -97,7 +97,7 @@ class ApprovalHistory extends PureComponent {
               </Col>
               <Col className={styles.detailTitle}>
                 <Row>
-                  <Col span={14} offset={4}>
+                  <Col xs={24} sm={24} md={24} lg={18} xl={18} xxl={18}>
                     <Steps current={1} direction="vertical" size="small">
                       {steps.map(step => (
                         <Step

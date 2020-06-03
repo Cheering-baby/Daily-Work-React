@@ -2,21 +2,14 @@
 
 @prefix-cls: ~'@{ant-prefix}';
 
-.fileRightStyle {
-  font-size: 15px;
-  color: #858585;
+.fileLabelStyle {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.85);
   letter-spacing: 0.24px;
-  text-align: right;
   line-height: 12px;
   position: relative;
   padding-right: 5px;
   margin-top: 15px;
-  @media screen and (max-width: @screenXsMax) {
-    text-align: left;
-  }
-  @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
-    text-align: left;
-  }
 }
 
 .fileListItem {
@@ -28,7 +21,7 @@
 
 .fileListItemInfo {
   height: 100%;
-  padding: 0 12px 0 4px;
+  padding: 0 12px 0 0;
   -webkit-transition: background-color 0.3s;
   transition: background-color 0.3s;
 
@@ -61,12 +54,11 @@
 
 .fileLeftStyle {
   font-size: 14px;
-  color: #3B414A;
+  color: #3b414a;
   letter-spacing: 0.24px;
   line-height: 18px;
   position: relative;
   text-align: left;
-  padding-left: 5px;
   margin-top: 14px;
   word-break: break-all;
   word-wrap: break-word;

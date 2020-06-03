@@ -1,5 +1,5 @@
 import React from 'react';
-import { Breadcrumb, Col, Form } from 'antd';
+import { Breadcrumb, Col, Form, Row } from 'antd';
 import { connect } from 'dva';
 import { router, withRouter } from 'umi';
 import detailStyles from './index.less';
@@ -119,7 +119,7 @@ class ActivityDetail extends React.PureComponent {
       pendStepTplCode = stepCode;
     }
     return (
-      <React.Fragment>
+      <Row className={detailStyles.container}>
         <Col lg={24} md={24} id="myActivityDetail">
           <Breadcrumb separator=" > " style={{ marginBottom: '10px' }}>
             <Breadcrumb.Item className={detailStyles.BreadcrumbStyle}>
@@ -155,7 +155,7 @@ class ActivityDetail extends React.PureComponent {
             pendStepTplCode={pendStepTplCode}
           />
         )}
-      </React.Fragment>
+      </Row>
     );
   }
 }

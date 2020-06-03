@@ -1,7 +1,7 @@
 .titleHeader {
   font-family: CalibriBold;
-  font-size: 14px;
-  color: #3B414A;
+  font-size: 17px;
+  color: #3b414a;
   letter-spacing: 0.23px;
   line-height: 26px;
   :global {
@@ -11,38 +11,58 @@
   }
 }
 
-.activityCard {
+.contentDetail {
+  padding: 0 24px;
+}
+
+.activity {
   :global {
     .ant-card-bordered {
       border: 0 !important;
     }
 
-    .ant-card div.ant-card-body {
-      padding: 10px 0 !important;
-    }
+    // .ant-card div.ant-card-body {
+    //   padding: 24px !important;
+    // }
   }
 }
 
+.activityCard {
+  margin-top: 8px;
+}
+
 .detailTitle {
-  border-left: 3px solid #118AFA;
+  display: inline-block;
+  border-left: 3px solid #118afa;
   padding-left: 10px;
   font-weight: normal;
-  margin: 0.5rem 0 0.5rem 0;
-  line-height: 1.75rem;
+  margin: 0.5rem 0 8px 0;
   font-size: 15px;
-  color: #171B21;
+  color: #171b21;
   letter-spacing: 0;
 }
 
-.detailRightStyle {
-  font-size: 15px;
-  color: #858585;
+.detailLabelStyle {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.85);
   letter-spacing: 0.24px;
-  text-align: right;
+  text-align: left;
   line-height: 12px;
   position: relative;
   padding-right: 5px;
   margin-top: 15px;
+}
+
+.detailLeftStyle {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.65);
+  letter-spacing: 0.24px;
+  line-height: 18px;
+  position: relative;
+  text-align: left;
+  margin-top: 14px;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 .uploadListItem {
@@ -83,17 +103,4 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-.detailLeftStyle {
-  font-size: 14px;
-  color: #3B414A;
-  letter-spacing: 0.24px;
-  line-height: 18px;
-  position: relative;
-  text-align: left;
-  padding-left: 5px;
-  margin-top: 14px;
-  word-break: break-all;
-  word-wrap: break-word;
 }

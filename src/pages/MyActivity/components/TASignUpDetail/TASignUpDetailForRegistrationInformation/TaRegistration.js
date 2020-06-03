@@ -78,7 +78,7 @@ class TaRegistration extends React.PureComponent {
     return (
       <Col span={24}>
         <Row type="flex" justify="space-around">
-          <Col span={24} className={detailStyles.activityCard}>
+          <Col span={24} className={detailStyles.activity}>
             <Card>
               <Row type="flex" justify="space-around">
                 <Col span={24}>
@@ -89,79 +89,37 @@ class TaRegistration extends React.PureComponent {
                   </div>
 
                   <Col span={24} className={detailStyles.activityCard}>
-                    <Card>
-                      <Row type="flex" justify="space-around">
-                        <Col span={24}>
-                          {customerInfo && customerInfo.contactInfo && (
-                            <ContactInformation
-                              contactInfo={customerInfo.contactInfo}
-                              {...detailProps}
-                            />
-                          )}
-                        </Col>
-                      </Row>
-                    </Card>
+                    {customerInfo && customerInfo.contactInfo && (
+                      <ContactInformation contactInfo={customerInfo.contactInfo} {...detailProps} />
+                    )}
                   </Col>
 
                   <Col span={24} className={detailStyles.activityCard}>
-                    <Card>
-                      <Row type="flex" justify="space-around">
-                        <Col span={24}>
-                          {customerInfo && customerInfo.companyInfo && (
-                            <CompanyInformation
-                              companyInfo={customerInfo.companyInfo}
-                              {...detailProps}
-                            />
-                          )}
-                        </Col>
-                      </Row>
-                    </Card>
+                    {customerInfo && customerInfo.companyInfo && (
+                      <CompanyInformation companyInfo={customerInfo.companyInfo} {...detailProps} />
+                    )}
                   </Col>
+                </Col>
 
-                  <Col span={24} className={detailStyles.activityCard}>
-                    <Card>
-                      <Row type="flex" justify="space-around">
-                        <Col span={24}>
-                          {customerInfo && customerInfo.companyInfo && (
-                            <QuestionsInformation
-                              companyInfo={customerInfo.companyInfo}
-                              {...detailProps}
-                            />
-                          )}
-                        </Col>
-                      </Row>
-                    </Card>
-                  </Col>
+                <Col span={24} className={detailStyles.activityCard}>
+                  {customerInfo && customerInfo.companyInfo && (
+                    <QuestionsInformation companyInfo={customerInfo.companyInfo} {...detailProps} />
+                  )}
+                </Col>
 
-                  <Col span={24} className={detailStyles.activityCard}>
-                    <Card>
-                      <Row type="flex" justify="space-around">
-                        <Col span={24}>
-                          {otherInfo && otherInfo.billingInfo && (
-                            <BillingInformation
-                              billingInfo={otherInfo.billingInfo}
-                              {...detailProps}
-                            />
-                          )}
-                        </Col>
-                      </Row>
-                    </Card>
-                  </Col>
+                <Col span={24} className={detailStyles.activityCard}>
+                  {otherInfo && otherInfo.billingInfo && (
+                    <BillingInformation billingInfo={otherInfo.billingInfo} {...detailProps} />
+                  )}
+                </Col>
 
-                  <Col span={24} className={detailStyles.activityCard}>
-                    <Card>
-                      <Row type="flex" justify="space-around">
-                        <Col span={24}>
-                          {otherInfo && otherInfo.financeContactList && (
-                            <TaFinanceContact
-                              financeContactList={otherInfo.financeContactList}
-                              {...detailProps}
-                            />
-                          )}
-                        </Col>
-                      </Row>
-                    </Card>
-                  </Col>
+                <Col span={24} className={detailStyles.activityCard}>
+                  {otherInfo && otherInfo.financeContactList && (
+                    <TaFinanceContact
+                      financeContactList={otherInfo.financeContactList}
+                      {...detailProps}
+                    />
+                  )}
                 </Col>
               </Row>
             </Card>
