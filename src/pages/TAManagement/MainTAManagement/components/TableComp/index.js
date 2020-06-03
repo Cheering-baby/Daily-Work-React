@@ -109,8 +109,8 @@ class TableComp extends PureComponent {
         },
       },
       {
-        title: formatMessage({ id: 'TA_TABLE_AR_CREDIT_BALANCE' }),
-        dataIndex: 'arCreditBalance',
+        title: formatMessage({ id: 'TA_TABLE_E_WALLET_BALANCE' }),
+        dataIndex: 'eWalletIdBalance',
         width: '200px',
         render: text => {
           return !isNvl(text)
@@ -121,8 +121,8 @@ class TableComp extends PureComponent {
         },
       },
       {
-        title: formatMessage({ id: 'TA_TABLE_E_WALLET_BALANCE' }),
-        dataIndex: 'eWalletIdBalance',
+        title: formatMessage({ id: 'TA_TABLE_AR_CREDIT_BALANCE' }),
+        dataIndex: 'arCreditBalance',
         width: '200px',
         render: text => {
           return !isNvl(text)
@@ -175,7 +175,10 @@ class TableComp extends PureComponent {
           const showEdit =
             isAccountingArRoleFlag && !isSaleSupportRoleFlag ? (
               <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}>
-                <Icon type="edit" onClick={e => this.goEditInformation(e, record.taId)} />
+                <Icon
+                  type="edit"
+                  onClick={e => this.goEditInformation(e, record.taId, record.arAllowed)}
+                />
               </Tooltip>
             ) : null;
           const showMore =
@@ -187,7 +190,9 @@ class TableComp extends PureComponent {
                     ? taMoreVisible
                     : false
                 }
-                onVisibleChange={visible => this.onMoreVisibleChange(record.taId, visible)}
+                onVisibleChange={visible =>
+                  this.onMoreVisibleChange(record.taId, record.arAllowed, visible)
+                }
                 content={this.getAccountingArRoleMoreContent(record)}
                 overlayClassName={styles.popClassName}
                 getPopupContainer={() => document.getElementById(`mainTaView`)}
@@ -198,11 +203,17 @@ class TableComp extends PureComponent {
           return (
             <div>
               <Tooltip placement="top" title={formatMessage({ id: 'COMMON_DETAIL' })}>
-                <Icon type="eye" onClick={e => this.goDetailInformation(e, record.taId)} />
+                <Icon
+                  type="eye"
+                  onClick={e => this.goDetailInformation(e, record.taId, record.arAllowed)}
+                />
               </Tooltip>
               {isSaleSupportRoleFlag ? (
                 <Tooltip placement="top" title={formatMessage({ id: 'TA_TABLE_ADDITIONAL' })}>
-                  <Icon type="plus" onClick={e => this.goAdditionalInformation(e, record.taId)} />
+                  <Icon
+                    type="plus"
+                    onClick={e => this.goAdditionalInformation(e, record.taId, record.arAllowed)}
+                  />
                 </Tooltip>
               ) : (
                 showEdit
@@ -215,7 +226,9 @@ class TableComp extends PureComponent {
                       ? taMoreVisible
                       : false
                   }
-                  onVisibleChange={visible => this.onMoreVisibleChange(record.taId, visible)}
+                  onVisibleChange={visible =>
+                    this.onMoreVisibleChange(record.taId, record.arAllowed, visible)
+                  }
                   content={this.getMoreContent(record, isSaleSupportRoleFlag)}
                   overlayClassName={styles.popClassName}
                   getPopupContainer={() => document.getElementById(`mainTaView`)}
@@ -239,7 +252,7 @@ class TableComp extends PureComponent {
           <Col span={24}>
             <div
               className={styles.contentCol}
-              onClick={e => this.goEditInformation(e, record.taId)}
+              onClick={e => this.goEditInformation(e, record.taId, record.arAllowed)}
             >
               {formatMessage({ id: 'COMMON_EDIT' })}
             </div>
@@ -265,7 +278,7 @@ class TableComp extends PureComponent {
           {String(record.statusName).toLowerCase() === 'active' && (
             <div
               className={styles.contentCol}
-              onClick={() => this.modifyStatus(record.taId, 'inactive')}
+              onClick={() => this.modifyStatus(record.taId, record.arAllowed, 'inactive')}
             >
               {formatMessage({ id: 'TA_TABLE_PROHIBIT' })}
             </div>
@@ -273,7 +286,7 @@ class TableComp extends PureComponent {
           {String(record.statusName).toLowerCase() === 'inactive' && (
             <div
               className={styles.contentCol}
-              onClick={() => this.modifyStatus(record.taId, 'active')}
+              onClick={() => this.modifyStatus(record.taId, record.arAllowed, 'active')}
             >
               {formatMessage({ id: 'TA_TABLE_ENABLE' })}
             </div>
@@ -298,20 +311,21 @@ class TableComp extends PureComponent {
     );
   };
 
-  onMoreVisibleChange = (taId, visible) => {
+  onMoreVisibleChange = (taId, arAllowed, visible) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'mainTAManagement/save',
       payload: {
         selectMoreTaId: taId,
         taMoreVisible: visible,
+        arAllowed,
       },
     });
   };
 
-  modifyStatus = (taId, status) => {
+  modifyStatus = (taId, arAllowed, status) => {
     const { dispatch, searchList } = this.props;
-    this.onMoreVisibleChange(taId, false);
+    this.onMoreVisibleChange(taId, arAllowed, false);
     dispatch({
       type: 'mainTAManagement/fetchUpdateProfileStatus',
       payload: {
@@ -326,12 +340,15 @@ class TableComp extends PureComponent {
     });
   };
 
-  goAdditionalInformation = (e, taId) => {
+  goAdditionalInformation = (e, taId, arAllowed) => {
     e.preventDefault();
     const { dispatch } = this.props;
     dispatch({
       type: 'mainTAManagement/doCleanCommonData',
-      payload: { taId: !isNvl(taId) ? taId : null },
+      payload: {
+        taId: !isNvl(taId) ? taId : null,
+        arAllowed,
+      },
     }).then(() => {
       dispatch({
         type: 'mainTAManagement/save',
@@ -361,15 +378,15 @@ class TableComp extends PureComponent {
     });
   };
 
-  goEditInformation = (e, taId) => {
+  goEditInformation = (e, taId, arAllowed) => {
     e.preventDefault();
-    this.onMoreVisibleChange(taId, false);
+    this.onMoreVisibleChange(taId, arAllowed, false);
     router.push(`/TAManagement/MainTAManagement/Edit?taId=${taId}`);
   };
 
-  goDetailInformation = (e, taId) => {
+  goDetailInformation = (e, taId, arAllowed) => {
     e.preventDefault();
-    this.onMoreVisibleChange(taId, false);
+    this.onMoreVisibleChange(taId, arAllowed, false);
     router.push(`/TAManagement/MainTAManagement/Detail?taId=${taId}`);
   };
 
@@ -424,9 +441,9 @@ class TableComp extends PureComponent {
     });
   };
 
-  onShowContractFileModal = taId => {
+  onShowContractFileModal = (taId, arAllowed) => {
     const { dispatch } = this.props;
-    this.onMoreVisibleChange(taId, false);
+    this.onMoreVisibleChange(taId, arAllowed, false);
     dispatch({
       type: 'mainTAManagement/save',
       payload: {
@@ -493,9 +510,9 @@ class TableComp extends PureComponent {
     });
   };
 
-  onShowContractFileHisModal = taId => {
+  onShowContractFileHisModal = (taId, arAllowed) => {
     const { dispatch } = this.props;
-    this.onMoreVisibleChange(taId, false);
+    this.onMoreVisibleChange(taId, arAllowed, false);
     dispatch({
       type: 'mainTAManagement/save',
       payload: {
@@ -585,6 +602,7 @@ class TableComp extends PureComponent {
       contractHisModalVisible = false,
       hisActiveKey,
       taSelectedRowKeys = [],
+      height = 660,
     } = this.props;
     const pageOpts = {
       total: searchList.total,
@@ -663,7 +681,7 @@ class TableComp extends PureComponent {
           rowKey={record => record.taId}
           dataSource={mainTAList}
           loading={qryTaTableLoading}
-          scroll={{ x: 660 }}
+          scroll={{ x: 660, y: height }}
           rowSelection={taRowSelection}
           {...tableOpts}
         />

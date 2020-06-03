@@ -69,16 +69,18 @@ export default {
 
         if (commissionScheme === 'Percentage') {
           if (tieredList && tieredList.length > 0) {
-            tieredList.map((v, index) => {
+            tieredList.map(v => {
               Object.assign(v, {
-                commissionValue: v.commissionValue ? Math.round(v.commissionValue * 100) : '',
+                commissionValue: v.commissionValue
+                  ? parseFloat(v.commissionValue * 100).toFixed()
+                  : '',
                 maxmum: v.maxmum === null ? '' : v.maxmum,
               });
               return v;
             });
           }
         } else if (tieredList && tieredList.length > 0) {
-          tieredList.map((v, index) => {
+          tieredList.map(v => {
             Object.assign(v, {
               maxmum: v.maxmum === null ? '' : v.maxmum,
             });

@@ -2,44 +2,60 @@ import moment from 'moment';
 import { message } from 'antd';
 import * as service from '../services/myWallet';
 
+const DEFAULT_PROFILE = {
+  name: 'NaN',
+  address: 'NaN',
+  postalCode: 'NaN',
+  primaryFinanceContactName: 'NaN',
+};
+
+const DEFAULT_DESCRIPTIONS_DATA = {
+  AR_NO: 'NaN',
+  Tax_Invoice: 'NaN',
+  Date: 'NaN',
+  GST_Reg_No: 'M90364180J',
+  Co_Reg_No: '200502573D',
+  Payment_Term: 'Due 30 Days upon\n invoice date',
+  Page: '1 of 1',
+};
+
+const DEFAULT_DETAILS = {
+  Date: 'NaN',
+  Line_Description: '',
+  Total_Amount: 'NaN',
+  internal: {
+    befGstAmount: 'NaN',
+    gstAmount: 'NaN',
+    totalAmount: 'NaN',
+  },
+  taxRatio: 'NaN',
+};
+const DEFAULT_PAYMENT_INSTRUCTIONS = {
+  content:
+    'Payment should be made by cheque, GLRO or T/T quoting invoice numbers being paid to "Resorts World at Sentosa Pte Ltd"; \n' +
+    'Bank: DBS Bank Ltd, Address: 12 Marina Boulevard, Marina Bay Financial Centre Tower 3, Singapore 018982\n' +
+    'Bank Code: 7171, Branch Code: 003, Account No: 003-910526-6, Swift Code: DBSSSGSG',
+  party: 'Resorts World at Sentosa Pte Ltd.',
+  address: '3, Lim Teck Kim Road #10-01, Genting Centre, Singapore 088934',
+  footer: 'This is a system generated invoice. No signature is required',
+};
+
 const InvoiceModel = {
   namespace: 'invoice',
   state: {
-    profile: {
-      name: 'NaN',
-      address: 'NaN',
-    },
+    profile: DEFAULT_PROFILE,
     descriptions: [
       { label: 'AR NO:', dataKey: 'AR_NO' },
       { label: 'Tax Invoice:', dataKey: 'Tax_Invoice' },
       { label: 'Date:', dataKey: 'Date' },
       { label: 'GST Reg No:', dataKey: 'GST_Reg_No' },
       { label: 'Co. Reg No:', dataKey: 'Co_Reg_No' },
-      { label: 'Payment Term:', dataKey: 'Payment_Term' },
+      // { label: 'Payment Term:', dataKey: 'Payment_Term' },
       { label: 'Page:', dataKey: 'Page' },
     ],
-    descriptionsData: {
-      AR_NO: 'NaN',
-      Tax_Invoice: 'NaN',
-      Date: 'NaN',
-      GST_Reg_No: 'M90364180J',
-      Co_Reg_No: '200502573D',
-      Payment_Term: 'Due 30 Days upon\n invoice date',
-      Page: '1 of 1',
-    },
-    details: {
-      Date: 'NaN',
-      Line_Description: '',
-      Total_Amount: 'NaN',
-      internal: {
-        befGstAmount: 'NaN',
-        gstAmount: 'NaN',
-        totalAmount: 'NaN',
-      },
-      taxRatio: 'NaN',
-    },
-    paymentInstructions:
-      'Payment should be made by cheque, GLRO or T/T quoting invoice numbers being paid to"Resorts World at Sentosa Pte LtdBank: DBS Bank Ltd, Address: 12 Marina Boulevard, Marina Bay Financial Centre Tower 3, Singapore 018982Bank Code: 7171. Branch Code: 003 Account No: 003-910526-6. Swift Code: DBSSSGSG',
+    descriptionsData: DEFAULT_DESCRIPTIONS_DATA,
+    details: DEFAULT_DETAILS,
+    paymentInstructions: DEFAULT_PAYMENT_INSTRUCTIONS,
   },
   subscriptions: {},
   effects: {
@@ -49,27 +65,25 @@ const InvoiceModel = {
       const {
         data: { resultCode, resultMsg, result = {} },
       } = yield call(service.invoiceDetail, params);
-      const { companyInfo = {}, mappingInfo = {}, flow = {} } = result;
+      const { companyInfo = {}, mappingInfo = {}, flow = {}, primaryFinanceContact = {} } = result;
       if (resultCode === '0') {
         yield put({
           type: 'save',
           payload: {
-            profile: {
+            profile: Object.assign(DEFAULT_PROFILE, {
               name: companyInfo.companyName,
               address: companyInfo.address,
-            },
-            descriptionsData: {
+              postalCode: companyInfo.postalCode,
+              primaryFinanceContactName: primaryFinanceContact.contactPerson,
+            }),
+            descriptionsData: Object.assign(DEFAULT_DESCRIPTIONS_DATA, {
               AR_NO: mappingInfo.peoplesoftEwalletId,
               Tax_Invoice: flow.invoiceNo || flow.sourceInvoiceNo,
               Date: moment(flow.createTime)
                 .format('DD/MM/YYYY')
                 .toString(),
-              GST_Reg_No: 'M90364180J',
-              Co_Reg_No: '200502573D',
-              Payment_Term: 'Due 30 Days upon\n invoice date',
-              Page: '1 of 1',
-            },
-            details: {
+            }),
+            details: Object.assign(DEFAULT_DETAILS, {
               id: flow.accountBookFlowId,
               Date: moment(flow.createTime)
                 .format('DD/MM/YYYY')
@@ -86,7 +100,7 @@ const InvoiceModel = {
                 totalAmount: flow.charge.toFixed(2),
               },
               taxRatio: `${(flow.taxRatio * 100).toFixed(2)} %`,
-            },
+            }),
           },
         });
       } else message.warn(resultMsg, 10);

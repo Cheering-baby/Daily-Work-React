@@ -49,7 +49,7 @@ export default {
   REVALIDATION: 'Revalidation',
   REFUND: 'Refund',
   APPROVE: 'Approve',
-  AUDIT: 'Audit',
+  AUDIT: 'Approve',
   EXPORT_VID: 'Export VID',
   DOWNLOAD_ETICKET: 'Download e-Ticket',
   SEND_ETICKET: 'Send e-Ticket',

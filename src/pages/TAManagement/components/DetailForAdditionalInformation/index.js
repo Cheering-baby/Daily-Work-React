@@ -7,6 +7,8 @@ import {
   getCategoryAndCustomerGroupStr,
   getMarketStr,
   getSalesPersonStr,
+  getSalesPersonEmailStr,
+  getSalesPersonContactNumberStr,
 } from '../../utils/pubUtils';
 import styles from './index.less';
 
@@ -45,6 +47,14 @@ class DetailForAdditionalInformation extends PureComponent {
             <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER' })}>
               {getSalesPersonStr(salesPersonList, companyInfo.salesPerson)}
             </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER_EMAIL' })}>
+              {getSalesPersonEmailStr(salesPersonList, companyInfo.salesPerson)}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER_CONTACT_NUMBER' })}
+            >
+              {getSalesPersonContactNumberStr(salesPersonList, companyInfo.salesPerson)}
+            </Descriptions.Item>
             <Descriptions.Item
               label={formatMessage({ id: 'ADDITIONAL_CATEGORY_AND_CUSTOMER_GROUP' })}
             >
@@ -54,6 +64,9 @@ class DetailForAdditionalInformation extends PureComponent {
                 companyInfo.category,
                 companyInfo.customerGroup
               )}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_REMARK' })}>
+              {companyInfo.remark || '-'}
             </Descriptions.Item>
           </Descriptions>
         </Col>

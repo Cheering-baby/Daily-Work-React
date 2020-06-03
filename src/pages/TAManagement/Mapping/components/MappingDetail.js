@@ -377,7 +377,7 @@ class MappingDetailList extends React.PureComponent {
                         {createTeamList && createTeamList.length > 0
                           ? createTeamList.map(item => (
                             <Select.Option
-                              key={`createTeamList{item.dictId}`}
+                              key={`createTeamList${item.dictId}`}
                               value={`${item.dictId}`}
                             >
                               {item.dictName}

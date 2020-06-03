@@ -8,7 +8,7 @@ export default {
   MAPPING_PEOPLESOFR_AR_ACCOUNT_ID: 'Peoplesoft AR Account ID',
   MAPPING_CREDIT_TERM: 'Credit Term',
   MAPPING_CREDIT_LIMIT: 'Credit Limit',
-  MAPPING_EWALLET_FIXED_THRESHOLD: 'E-wallet Fixed Threshold',
+  MAPPING_EWALLET_FIXED_THRESHOLD: 'e-Wallet Fixed Threshold',
   MAPPING_AR_FIXED_THRESHOLD: 'AR Fixed Threshold',
   MAPPING_ACCOUNT_COMMENCEMENT_DATE: 'AR Account Commencement Date ',
   MAPPING_AR_ACCOUNT_END_DATE: 'AR Account End Date',

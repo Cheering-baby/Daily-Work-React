@@ -229,3 +229,26 @@ export function changeVoucherToAttraction(offerProfile) {
   }
   return newOfferProfile;
 }
+
+export function sortAttractionByAgeGroup(offerProfile) {
+  const newOfferProfile = {
+    ...offerProfile,
+  };
+  if (newOfferProfile && newOfferProfile.productGroup) {
+    newOfferProfile.productGroup.forEach(productGroupInfo => {
+      if (productGroupInfo.productType === PRODUCT_TYPE_ATTRACTION) {
+        productGroupInfo.productGroup = productGroupInfo.productGroup || [];
+        productGroupInfo.productGroup.forEach(productGroupItem => {
+          if (productGroupItem.groupName === PRODUCT_TYPE_ATTRACTION) {
+            productGroupItem.products.sort((a, b) => {
+              const aName = a.attractionProduct.ageGroup || '';
+              const bName = b.attractionProduct.ageGroup || '';
+              return aName.charCodeAt(0) - bName.charCodeAt(0);
+            });
+          }
+        });
+      }
+    });
+  }
+  return newOfferProfile;
+}

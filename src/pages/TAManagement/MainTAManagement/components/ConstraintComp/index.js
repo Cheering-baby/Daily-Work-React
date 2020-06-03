@@ -82,6 +82,16 @@ class ConstraintComp extends PureComponent {
     });
   };
 
+  getSearchListFromSelect = value => {
+    if (value === '') {
+      return [];
+    }
+    if (value && value.length > 0) {
+      return value.split(',');
+    }
+    return value;
+  };
+
   onClose = () => {
     const { dispatch, taId, searchForm, searchList } = this.props;
     dispatch({
@@ -94,6 +104,10 @@ class ConstraintComp extends PureComponent {
           idOrName: searchForm.idOrName,
           peoplesoftEwalletId: searchForm.peoplesoftEwalletId,
           peoplesoftArAccountId: searchForm.peoplesoftArAccountId,
+          marketList: this.getSearchListFromSelect(searchForm.market),
+          customerGroupList: this.getSearchListFromSelect(searchForm.customerGroup),
+          salesPersonList: this.getSearchListFromSelect(searchForm.salesPerson),
+          category: isNvl(searchForm.category) ? null : searchForm.category,
           pageInfo: {
             totalSize: searchList.total,
             currentPage: searchList.currentPage,
@@ -382,6 +396,24 @@ class ConstraintComp extends PureComponent {
                         )}
                       </Form.Item>
                     </Input.Group>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row type="flex" justify="space-around">
+                <Col span={24}>
+                  <Form.Item
+                    label={formatMessage({ id: 'ADDITIONAL_REMARK' })}
+                    colon={false}
+                    labelCol={{ span: 24 }}
+                    wrapperCol={{ span: 24 }}
+                  >
+                    {getFieldDecorator('remark', {
+                      initialValue: companyInfo.remark || undefined,
+                    })(
+                      <Input
+                        onChange={e => this.onHandleChange('remark', e.target.value, 'remark')}
+                      />
+                    )}
                   </Form.Item>
                 </Col>
               </Row>

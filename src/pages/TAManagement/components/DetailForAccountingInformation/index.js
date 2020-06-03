@@ -28,6 +28,20 @@ class DetailForAccountingInformation extends PureComponent {
             >
               {!isNvl(accountInfo.peoplesoftArAccountId) ? accountInfo.peoplesoftArAccountId : '-'}
             </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_E_WALLET_BALANCE' })}>
+              {!isNvl(accountInfo.ewalletIdBalance)
+                ? `$${Number(accountInfo.ewalletIdBalance)
+                    .toFixed(2)
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_AR_CREDIT_BALANCE' })}>
+              {!isNvl(accountInfo.arCreditBalance)
+                ? `$${Number(accountInfo.arCreditBalance)
+                    .toFixed(2)
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+                : '-'}
+            </Descriptions.Item>
             <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_EFFECTIVE_DATE' })}>
               {!isNvl(mappingInfo.effectiveDate)
                 ? moment(mappingInfo.effectiveDate, 'YYYY-MM-DD').format('DD-MMM-YYYY')
@@ -45,20 +59,6 @@ class DetailForAccountingInformation extends PureComponent {
             </Descriptions.Item>
             <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_MODIFIED_BY' })}>
               {!isNvl(accountInfo.modifiedBy) ? accountInfo.modifiedBy : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_E_WALLET_BALANCE' })}>
-              {!isNvl(accountInfo.ewalletIdBalance)
-                ? `$${Number(accountInfo.ewalletIdBalance)
-                    .toFixed(2)
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
-                : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_AR_CREDIT_BALANCE' })}>
-              {!isNvl(accountInfo.arCreditBalance)
-                ? `$${Number(accountInfo.arCreditBalance)
-                    .toFixed(2)
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
-                : '-'}
             </Descriptions.Item>
           </Descriptions>
         </Col>

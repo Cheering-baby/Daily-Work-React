@@ -141,7 +141,6 @@ class ActivityDetail extends React.PureComponent {
           {activityTplCode && activityTplCode === 'TA-SIGN-UP' ? <TASignUpDetail /> : null}
 
           {activityTplCode && activityTplCode === 'SUB-TA-SIGN-UP' ? <SubTASignUpDetail /> : null}
-
           {activityTplCode && activityTplCode === 'ACCOUNT_AR_APPLY' ? (
             <ARApplicationDetail activityDetail={activityDetail} />
           ) : null}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Col, Form, Row } from 'antd';
+import { Col, Form, Row } from 'antd';
 import { connect } from 'dva';
 import TaRegistration from './TASignUpDetailForRegistrationInformation/TaRegistration';
 import FileUpload from '@/pages/MyActivity/components/TASignUpDetail/TASignUpDetailForRegistrationInformation/FileUpload';
@@ -24,20 +24,18 @@ class TASignUpDetail extends Component {
     return (
       <Col lg={24} md={24} id="SubTASignUpDetail">
         <Col span={24} className={styles.activityCard}>
-          <Card>
-            <Row type="flex" justify="space-around">
-              <Col span={24}>
-                {customerInfo && customerInfo.companyInfo && (
-                  <FileUpload
-                    companyInfo={customerInfo.companyInfo}
-                    downFileLoadingFlag={downFileLoadingFlag}
-                    updateDownFileLoading={val => this.setState(val)}
-                  />
-                )}
-                <TaRegistration otherInfo={otherInfo} customerInfo={customerInfo} />
-              </Col>
-            </Row>
-          </Card>
+          <Row type="flex" justify="space-around">
+            <Col span={24}>
+              {customerInfo && customerInfo.companyInfo && (
+                <FileUpload
+                  companyInfo={customerInfo.companyInfo}
+                  downFileLoadingFlag={downFileLoadingFlag}
+                  updateDownFileLoading={val => this.setState(val)}
+                />
+              )}
+              <TaRegistration otherInfo={otherInfo} customerInfo={customerInfo} />
+            </Col>
+          </Row>
         </Col>
       </Col>
     );

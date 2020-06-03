@@ -8,11 +8,16 @@ import {
   queryOfferList,
   queryPluAttribute,
 } from '../services/ticketCommon';
-import { changeVoucherToAttraction, getSessionTimeList } from '../utils/ticketOfferInfoUtil';
+import {
+  changeVoucherToAttraction,
+  getSessionTimeList,
+  sortAttractionByAgeGroup,
+} from '../utils/ticketOfferInfoUtil';
 import {
   checkInventory,
   checkNumOfGuestsAvailable,
   checkSessionProductInventory,
+  multiplePromise,
 } from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
@@ -247,52 +252,66 @@ export default {
       } = response;
       if (resultCode === '0') {
         const { offerList = [] } = result;
+        const requestPromiseList = [];
+        const offerDetailList = [];
         for (let i = 0; i < offerList.length; i += 1) {
-          const queryOfferDetailReqParam = {
-            offerNo: offerList[i].offerNo,
+          const { offerNo } = offerList[i];
+          const params = {
+            offerNo,
             validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
           };
-          const responseDetail = yield call(queryOfferDetail, queryOfferDetailReqParam);
-          if (responseDetail && responseDetail.success) {
-            const {
-              data: {
-                resultCode: queryOfferDetailResultCode,
-                resultMsg: queryOfferDetailResultMsg,
-              },
-            } = responseDetail;
-            if (queryOfferDetailResultCode !== '0') {
-              message.error(queryOfferDetailResultMsg);
-            } else {
+          const requestFn = () => {
+            return queryOfferDetail(params).then(responseDetail => {
+              if (!responseDetail) {
+                return;
+              }
               const {
                 data: {
-                  result: { offerProfile },
+                  resultCode: queryOfferDetailResultCode,
+                  resultMsg: queryOfferDetailResultMsg,
+                  result: resultDetail,
                 },
               } = responseDetail;
-              offerList[i].offerProfile = offerProfile;
-              const sessionTimeListNew = getSessionTimeList(
-                offerProfile,
-                requestParam.validTimeFrom
-              );
-              if (sessionTimeListNew && sessionTimeListNew.length > 0) {
-                sessionTimeListNew.forEach(sessionTimeItem => {
-                  const existSession = sessionTimeList.find(
-                    item => item.value === sessionTimeItem.value
-                  );
-                  if (!existSession) {
-                    sessionTimeList.push(
-                      Object.assign(
-                        {},
-                        {
-                          ...sessionTimeItem,
-                        }
-                      )
-                    );
-                  }
-                });
+              if (queryOfferDetailResultCode !== '0') {
+                message.error(queryOfferDetailResultMsg);
               }
-            }
-          } else {
-            message.error(responseDetail.errorMsg);
+              offerDetailList.push(Object.assign({}, resultDetail));
+            });
+          };
+          requestPromiseList.push(requestFn);
+        }
+
+        const queryOfferDetailPromise = new Promise(resolve => {
+          multiplePromise(requestPromiseList, 20, () => {
+            resolve();
+          });
+        });
+        //  wait for query offer detail
+        yield call(() => queryOfferDetailPromise);
+
+        for (let i = 0; i < offerDetailList.length; i += 1) {
+          const resultDetail = offerDetailList[i];
+          const { offerProfile } = resultDetail;
+          const { offerNo } = offerProfile;
+          const findIndex = offerList.findIndex(item => item.offerNo === offerNo);
+          offerList[findIndex].offerProfile = offerProfile;
+          const sessionTimeListNew = getSessionTimeList(offerProfile, requestParam.validTimeFrom);
+          if (sessionTimeListNew && sessionTimeListNew.length > 0) {
+            sessionTimeListNew.forEach(sessionTimeItem => {
+              const existSession = sessionTimeList.find(
+                item => item.value === sessionTimeItem.value
+              );
+              if (!existSession) {
+                sessionTimeList.push(
+                  Object.assign(
+                    {},
+                    {
+                      ...sessionTimeItem,
+                    }
+                  )
+                );
+              }
+            });
           }
         }
         sessionTimeList.sort();
@@ -347,33 +366,52 @@ export default {
       } = response;
       if (resultCode === '0') {
         const { offerList = [] } = result;
+
+        const requestPromiseList = [];
+        const offerDetailList = [];
         for (let i = 0; i < offerList.length; i += 1) {
-          const queryOfferDetailReqParam = {
-            offerNo: offerList[i].offerNo,
+          const { offerNo } = offerList[i];
+          const params = {
+            offerNo,
             validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
           };
-          const responseDetail = yield call(queryOfferDetail, queryOfferDetailReqParam);
-          if (responseDetail && responseDetail.success) {
-            const {
-              data: {
-                resultCode: queryOfferDetailResultCode,
-                resultMsg: queryOfferDetailResultMsg,
-              },
-            } = responseDetail;
-            if (queryOfferDetailResultCode !== '0') {
-              message.error(queryOfferDetailResultMsg);
-            } else {
+          const requestFn = () => {
+            return queryOfferDetail(params).then(responseDetail => {
+              if (!responseDetail) {
+                return;
+              }
               const {
                 data: {
-                  result: { offerProfile },
+                  resultCode: queryOfferDetailResultCode,
+                  resultMsg: queryOfferDetailResultMsg,
+                  result: resultDetail,
                 },
               } = responseDetail;
-              offerList[i].offerProfile = offerProfile;
-            }
-          } else {
-            message.error(responseDetail.errorMsg);
-          }
+              if (queryOfferDetailResultCode !== '0') {
+                message.error(queryOfferDetailResultMsg);
+              }
+              offerDetailList.push(Object.assign({}, resultDetail));
+            });
+          };
+          requestPromiseList.push(requestFn);
         }
+
+        const queryOfferDetailPromise = new Promise(resolve => {
+          multiplePromise(requestPromiseList, 20, () => {
+            resolve();
+          });
+        });
+        //  wait for query offer detail
+        yield call(() => queryOfferDetailPromise);
+
+        for (let i = 0; i < offerDetailList.length; i += 1) {
+          const resultDetail = offerDetailList[i];
+          const { offerProfile } = resultDetail;
+          const { offerNo } = offerProfile;
+          const findIndex = offerList.findIndex(item => item.offerNo === offerNo);
+          offerList[findIndex].offerProfile = offerProfile;
+        }
+
         yield put({
           type: 'save',
           payload: {
@@ -420,7 +458,12 @@ export default {
         if (resultCode === '0') {
           const themeParkList = [];
           const tags = ['Admission', 'VIP Tour', 'Express', 'Promo', 'Group'];
-          const categories = tags.map(item => ({ tag: item, products: [], bundleNames: [] }));
+          const categories = tags.map(item => ({
+            tag: item,
+            products: [],
+            bundleNames: [],
+            showDetail: true,
+          }));
           const themeParkChooseListCodes = [];
           attractionList.forEach(item => {
             if (themeParkChooseList.indexOf(item.value) !== -1) {
@@ -441,31 +484,47 @@ export default {
             });
           });
           const { offerList = [] } = result;
+
+          const requestPromiseList = [];
+          const offerDetailList = [];
           for (let i = 0; i < offerList.length; i += 1) {
             const { offerNo } = offerList[i];
             const params = {
               offerNo,
               validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
             };
-            const responseDetail = yield call(queryOfferDetail, params);
-            if (!responseDetail) {
-              // eslint-disable-next-line no-continue
-              continue;
-            }
-            const {
-              data: { result: resultDetail },
-            } = responseDetail;
-            const {
-              data: {
-                resultCode: queryOfferDetailResultCode,
-                resultMsg: queryOfferDetailResultMsg,
-              },
-            } = responseDetail;
-            if (queryOfferDetailResultCode !== '0') {
-              message.error(queryOfferDetailResultMsg);
-              // eslint-disable-next-line no-continue
-              continue;
-            }
+            const requestFn = () => {
+              return queryOfferDetail(params).then(responseDetail => {
+                if (!responseDetail) {
+                  return;
+                }
+                const {
+                  data: {
+                    resultCode: queryOfferDetailResultCode,
+                    resultMsg: queryOfferDetailResultMsg,
+                    result: resultDetail,
+                  },
+                } = responseDetail;
+                if (queryOfferDetailResultCode !== '0') {
+                  message.error(queryOfferDetailResultMsg);
+                }
+                offerDetailList.push(Object.assign({}, resultDetail));
+              });
+            };
+            requestPromiseList.push(requestFn);
+          }
+
+          const queryOfferDetailPromise = new Promise(resolve => {
+            multiplePromise(requestPromiseList, 20, () => {
+              resolve();
+            });
+          });
+          //  wait for query offer detail
+          yield call(() => queryOfferDetailPromise);
+
+          for (let i = 0; i < offerDetailList.length; i += 1) {
+            const resultDetail = offerDetailList[i];
+            const { offerNo } = resultDetail.offerProfile;
             let attractionProduct;
             let noMatchPriceRule = false;
             let priceRuleId;
@@ -473,10 +532,12 @@ export default {
               offerProfile: { bookingCategory = [] },
             } = resultDetail;
             resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
+            resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
             if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
               // eslint-disable-next-line no-continue
               continue;
             }
+            // eslint-disable-next-line no-loop-func
             resultDetail.offerProfile.productGroup.forEach(item => {
               const { productType } = item;
               if (productType === 'Attraction') {
@@ -513,6 +574,7 @@ export default {
               }
             });
           }
+
           const themeParkList2 = JSON.parse(JSON.stringify(themeParkList));
           themeParkList.forEach((item, index) => {
             const {
@@ -575,6 +637,11 @@ export default {
               });
             });
           });
+          themeParkList2.forEach((itemThemePark, index) => {
+            themeParkList2[index].categories = itemThemePark.categories.filter(
+              ({ products }) => products.length > 0
+            );
+          });
           yield put({
             type: 'save',
             payload: {
@@ -603,31 +670,51 @@ export default {
           dolphinIslandOfferList.push({
             tag: item,
             offer: [],
+            showDetail: true,
           });
         });
+
+        const requestPromiseList = [];
+        const offerDetailList = [];
         for (let i = 0; i < offerList.length; i += 1) {
           const { offerNo } = offerList[i];
           const params = {
             offerNo,
             validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
           };
-          const responseDetail = yield call(queryOfferDetail, params);
-          if (!responseDetail) {
-            // eslint-disable-next-line no-continue
-            continue;
-          }
-          const {
-            data: { result: resultDetail },
-          } = responseDetail;
-          const {
-            data: { resultCode, resultMsg },
-          } = responseDetail;
-          if (resultCode !== '0') {
-            message.error(resultMsg);
-            // eslint-disable-next-line no-continue
-            continue;
-          }
+          const requestFn = () => {
+            return queryOfferDetail(params).then(responseDetail => {
+              if (!responseDetail) {
+                return;
+              }
+              const {
+                data: {
+                  resultCode: queryOfferDetailResultCode,
+                  resultMsg: queryOfferDetailResultMsg,
+                  result: resultDetail,
+                },
+              } = responseDetail;
+              if (queryOfferDetailResultCode !== '0') {
+                message.error(queryOfferDetailResultMsg);
+              }
+              offerDetailList.push(Object.assign({}, resultDetail));
+            });
+          };
+          requestPromiseList.push(requestFn);
+        }
+
+        const queryOfferDetailPromise = new Promise(resolve => {
+          multiplePromise(requestPromiseList, 20, () => {
+            resolve();
+          });
+        });
+        //  wait for query offer detail
+        yield call(() => queryOfferDetailPromise);
+
+        for (let i = 0; i < offerDetailList.length; i += 1) {
+          const resultDetail = offerDetailList[i];
           resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
+          resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
           if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
             // eslint-disable-next-line no-continue
             continue;
@@ -670,6 +757,7 @@ export default {
             }
             resultDetail.offerProfile.dateOfVisit = dateOfVisit;
             resultDetail.offerProfile.priceRuleId = priceRuleId;
+            resultDetail.offerProfile.selectRuleId = priceRuleId;
             resultDetail.offerProfile.numOfGuests = numOfGuests;
             dolphinIslandOfferList.forEach((item2, index) => {
               const { tag } = item2;
@@ -690,10 +778,13 @@ export default {
             });
           });
         }
+        const dolphinIslandOfferListFilter = dolphinIslandOfferList.filter(
+          ({ offer }) => offer.length > 0
+        );
         yield put({
           type: 'save',
           payload: {
-            dolphinIslandOfferList,
+            dolphinIslandOfferList: dolphinIslandOfferListFilter,
           },
         });
       },

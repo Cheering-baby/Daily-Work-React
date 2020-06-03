@@ -20,7 +20,7 @@ export async function modifyTaInfo(params) {
 }
 
 export async function queryTaInfo(params) {
-  return UAAService.request(`/b2b/agent/v1/profile/queryTaInfo?taId=${params.taId}`, {
+  return UAAService.requestByRT(`/b2b/agent/v1/profile/queryTaInfo?taId=${params.taId}`, {
     method: 'GET',
   });
 }
@@ -45,7 +45,7 @@ export async function checkCompanyExist(params) {
   if (!isNvl(params.taId)) {
     exitUrl += `&taId=${params.taId}`;
   }
-  return UAAService.request(exitUrl, { method: 'GET' });
+  return UAAService.requestByRT(exitUrl, { method: 'GET' });
 }
 
 export async function queryTaMappingInfo(params) {

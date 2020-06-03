@@ -108,7 +108,7 @@ class UAAService extends CommonService {
    * @returns {Promise<void>}
    */
   async menus() {
-    const { success, errorMsg, data } = await this.request(`/v1/current/menus`, {});
+    const { success, errorMsg, data } = await this.requestByRT(`/v1/current/menus`, {});
     if (!success) {
       throw errorMsg;
     }

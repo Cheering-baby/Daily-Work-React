@@ -28,7 +28,7 @@ const reportListData = {
       updateTime: 1586758387760,
     },
     {
-      reportName: 'TA account balance summary report for eWallet',
+      reportName: 'TA account balance summary report for e-Wallet',
       reportType: 'TaEwalletAccountBalanceSummaryReport',
       updateTime: 1586758387760,
     },
@@ -38,7 +38,7 @@ const reportListData = {
       updateTime: 1586758387760,
     },
     {
-      reportName: 'TA account balance detail report for eWallet',
+      reportName: 'TA account balance detail report for e-Wallet',
       reportType: 'TaEwalletAccountBalanceDetailReport',
       updateTime: 1586758387760,
     },

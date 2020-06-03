@@ -49,6 +49,16 @@ class MainTAManagement extends PureComponent {
     });
   }
 
+  getTableHeight = () => {
+    const { offsetHeight: layoutHeight } = document.getElementById('layout');
+    if (document.getElementById('pageHeaderTitle') && document.getElementById('pageSearchCard')) {
+      const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
+      const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
+      return layoutHeight - pageHeaderTitleHeight - pageSearchCardHeight - 280;
+    }
+    return layoutHeight;
+  };
+
   render() {
     const breadcrumbArr = [
       {
@@ -63,7 +73,7 @@ class MainTAManagement extends PureComponent {
     return (
       <React.Fragment>
         <Row type="flex" justify="space-around" id="mainTaView">
-          <Col span={24} className={styles.pageHeaderTitle}>
+          <Col id="pageHeaderTitle" span={24} className={styles.pageHeaderTitle}>
             <MediaQuery
               maxWidth={SCREEN.screenMdMax}
               minWidth={SCREEN.screenSmMin}
@@ -75,14 +85,14 @@ class MainTAManagement extends PureComponent {
               <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
             </MediaQuery>
           </Col>
-          <Col span={24} className={styles.pageSearchCard}>
+          <Col id="pageSearchCard" span={24} className={styles.pageSearchCard}>
             <Card>
               <SearchComp />
             </Card>
           </Col>
           <Col span={24} className={styles.pageTableCard}>
             <Card>
-              <TableComp />
+              <TableComp height={this.getTableHeight()} />
             </Card>
           </Col>
           <Col span={24}>

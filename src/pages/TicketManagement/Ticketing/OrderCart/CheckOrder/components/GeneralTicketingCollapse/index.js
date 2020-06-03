@@ -160,8 +160,8 @@ class GeneralTicketingCollapse extends Component {
     const {
       ticketOrderCartMgr: { generalTicketOrderData = [] },
     } = this.props;
-    const activeKeyList = generalTicketOrderData.map((orderData, orderIndex) => {
-      return `${orderData.themeParkCode}_${orderIndex}`;
+    const activeKeyList = generalTicketOrderData.map(orderData => {
+      return orderData.themeParkCode;
     });
     return activeKeyList;
   };
@@ -607,11 +607,10 @@ class GeneralTicketingCollapse extends Component {
         )}
       >
         {generalTicketOrderData.map((orderData, orderIndex) => {
-          const keyV = `${orderData.themeParkCode}_${orderIndex}`;
           return (
             <Collapse.Panel
               className={styles.collapsePanelStyles}
-              key={keyV}
+              key={orderData.themeParkCode}
               header={
                 <span className={styles.collapsePanelHeaderStyles}>{orderData.themeParkName}</span>
               }

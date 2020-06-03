@@ -58,9 +58,9 @@ class PaymentModel extends Component {
       checkAccountInfo.accountType = 'ew';
       checkAccountInfo.balance = accountInfo.eWallet.balance;
       if (accountInfo.eWallet.balance < bookDetail.totalPrice) {
-        checkAccountInfo.tipInfo = 'eWallet balance is insufficient.';
+        checkAccountInfo.tipInfo = 'e-Wallet balance is insufficient.';
       }
-      checkAccountInfo.balanceDesc = 'eWallet Balance';
+      checkAccountInfo.balanceDesc = 'e-Wallet Balance';
     } else if (payMode.label === 'Credit Card') {
       checkAccountInfo.accountType = 'cc';
     } else if (payMode.label === 'AR' && accountInfo.ar) {
@@ -109,11 +109,15 @@ class PaymentModel extends Component {
     } = this.props;
 
     let payModeListNew = [...payModeList];
-    if (accountInfo && !accountInfo.eWallet) {
-      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'E_WALLET');
+    if (
+      !accountInfo ||
+      !accountInfo.eWallet ||
+      (accountInfo.eWallet && accountInfo.eWallet.status !== 'A')
+    ) {
+      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'eWallet');
     }
-    if (accountInfo && !accountInfo.ar) {
-      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'AR_CREDIT');
+    if (!accountInfo || !accountInfo.ar || (accountInfo.ar && accountInfo.ar.status !== 'A')) {
+      payModeListNew = payModeListNew.filter(payMode => payMode.key !== 'AR');
     }
 
     const checkAccountInfo = this.checkAccountInfo();

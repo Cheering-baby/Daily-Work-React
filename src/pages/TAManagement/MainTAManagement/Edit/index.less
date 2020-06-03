@@ -91,23 +91,12 @@
     .@{prefix-cls}-form-item-label {
       display: inline-block;
       overflow: hidden;
-      line-height: 39.9999px;
+      line-height: 25px;
+      font-size: 16px;
       white-space: nowrap;
-      text-align: right;
       vertical-align: middle;
       text-overflow: ellipsis;
-    }
-
-    @media screen and (max-width: @screenXsMax) {
-      .@{prefix-cls}-form-item-label {
-        text-align: left;
-      }
-    }
-
-    @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {
-      .@{prefix-cls}-form-item-label {
-        text-align: left;
-      }
+      padding: 0;
     }
 
     .@{prefix-cls}-select {

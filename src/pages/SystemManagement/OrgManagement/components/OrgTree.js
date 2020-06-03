@@ -24,6 +24,25 @@ const getParentKey = (key, tree) => {
   return parentKey;
 };
 
+const filterTree = (trees = [], value = '') => {
+  const newTrees = [];
+  for (let i = 0; i < trees.length; i += 1) {
+    const { companyId, companyName = '', orgName = '' } = trees[i];
+    let { subOrgs } = trees[i];
+    subOrgs = subOrgs || [];
+    const indexOfOrg = orgName.toLowerCase().indexOf(value.toLowerCase());
+    const indexOfComp = companyName ? companyName.toLowerCase().indexOf(value.toLowerCase()) : -1;
+    const newSubOrgs = filterTree(subOrgs, value);
+    if (companyId === -1 || indexOfOrg > -1 || indexOfComp > -1 || newSubOrgs.length > 0) {
+      newTrees.push({
+        ...trees[i],
+        subOrgs: newSubOrgs,
+      });
+    }
+  }
+  return newTrees;
+};
+
 @connect(({ orgMgr, global, loading }) => ({
   orgMgr,
   global,
@@ -83,20 +102,30 @@ class OrgTree extends React.Component {
     const {
       orgMgr: { searchValue = '' },
     } = this.props;
-    return data.map(item => {
-      const index = item.orgName.indexOf(searchValue);
-      const beforeStr = item.orgName.substr(0, index);
-      const afterStr = item.orgName.substr(index + searchValue.length);
-      const title =
-        index > -1 ? (
+
+    const newTree = filterTree(data, searchValue);
+
+    return newTree.map(item => {
+      const { companyName = '', orgName } = item;
+      const index = orgName.toLowerCase().indexOf(searchValue.toLowerCase());
+      const indexOfComp = companyName
+        ? companyName.toLowerCase().indexOf(searchValue.toLowerCase())
+        : -1;
+      const beforeStr = orgName.substr(0, index);
+      const value = orgName.substr(index, searchValue.length);
+      const afterStr = orgName.substr(index + searchValue.length);
+      let title = <span>{orgName}</span>;
+      if (indexOfComp > -1 && searchValue) {
+        title = <span style={{ color: '#f50' }}>{orgName}</span>;
+      } else if (index > -1) {
+        title = (
           <span>
             {beforeStr}
-            <span style={{ color: '#f50' }}>{searchValue}</span>
+            <span style={{ color: '#f50' }}>{value}</span>
             {afterStr}
           </span>
-        ) : (
-          <span>{item.orgName}</span>
         );
+      }
       if (item.subOrgs) {
         return (
           <TreeNode title={this.getTreeNodeTitle(title, item)} key={item.key} dataRef={item}>
@@ -160,7 +189,14 @@ class OrgTree extends React.Component {
 
     const expandedKeys = orgList
       .map(item => {
-        if (item.title.indexOf(value) > -1) {
+        const { title, companyName } = item;
+        const lowerValue = value.toLowerCase();
+        const lowerTitle = title ? title.toLowerCase() : '';
+        const lowerCompanyName = companyName ? companyName.toLowerCase() : '';
+        if (
+          (title && lowerTitle.indexOf(lowerValue) > -1) ||
+          (companyName && lowerCompanyName.indexOf(lowerValue) > -1)
+        ) {
           return getParentKey(item.key, orgTree);
         }
         return null;
@@ -193,7 +229,11 @@ class OrgTree extends React.Component {
         extra={this.getAddOrgBtn()}
       >
         <Spin spinning={loadTreeFlag}>
-          <Search style={{ marginBottom: 8 }} placeholder="Search" onChange={this.onChange} />
+          <Search
+            style={{ marginBottom: 8 }}
+            placeholder="Organisation Name/Company Name"
+            onChange={this.onChange}
+          />
           <Tree
             showLine
             showIcon

@@ -35,6 +35,7 @@ export default {
   namespace: 'ticketOrderCartMgr',
 
   state: {
+    bookingNo: undefined,
     deliveryMode: undefined,
     collectionDate: null,
     bocaFeePax: 0.0,
@@ -233,6 +234,7 @@ export default {
       const params = {
         customerType: 'TA',
         customerId: currentUser.userCode,
+        status: 'valid',
       };
       const {
         data: { resultCode, resultMsg, result },
@@ -616,7 +618,7 @@ export default {
       }
     },
 
-    *queryBookingStatus({ payload }, { call, put }) {
+    *queryBookingStatus({ payload }, { call, put, select }) {
       const {
         bookingNo,
         deliveryMode,
@@ -631,8 +633,18 @@ export default {
 
       let status = 'Creating';
       let statusResult = {};
+      yield put({
+        type: 'save',
+        payload: {
+          bookingNo,
+        },
+      });
       while (status === 'Creating') {
         const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
+        const { bookingNo: bookingNoNew } = yield select(state => state.ticketOrderCartMgr);
+        if (!bookingNoNew || bookingNo !== bookingNoNew) {
+          return;
+        }
         const { resultCode: statusResultCode, result: newResult = {} } = statusData;
         if (statusResultCode === '0') {
           const { transStatus } = newResult;
@@ -1137,6 +1149,7 @@ export default {
     },
     resetData() {
       return {
+        bookingNo: undefined,
         deliveryMode: undefined,
         collectionDate: null,
         bocaFeePax: 0.0,

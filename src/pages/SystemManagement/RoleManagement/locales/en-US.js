@@ -2,6 +2,7 @@ export default {
   ROLE_INCLUDE: 'Include (person)',
   ROLE_NAME: 'Role Name',
   ROLE_TYPE: 'Role Type',
+  TWO_FACTOR_AUTH: 'Two Factor Authentication',
   STATUS: 'Status',
   ROLE: 'Role',
   OPERATION: 'Operation',
@@ -27,4 +28,5 @@ export default {
   GRANT_PRIVILEGES: 'Grant Privileges',
   BTN_CANCEL: 'Cancel',
   BTN_OK: 'Ok',
+  TWO_FACTOR_AUTH_CHOOSE_PROMPT: 'If yes, the verification code is needed when login PARTNERS.',
 };

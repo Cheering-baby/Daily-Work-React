@@ -115,6 +115,10 @@ export default {
       if (resultCode === '0') {
         return result;
       }
+      if (resultCode === 'AppTransaction-120042') {
+        message.warn(resultMsg);
+        return result;
+      }
       message.error(resultMsg);
     },
 

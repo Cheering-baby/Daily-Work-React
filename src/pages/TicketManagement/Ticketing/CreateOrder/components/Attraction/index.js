@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, Table, Tabs, Tooltip } from 'antd';
+import { Button, Icon, Table, Tabs, Tooltip, List } from 'antd';
 import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import Detail from '../Detail';
@@ -308,7 +309,6 @@ class Attraction extends Component {
       offerInfo: { ...detail, selectRuleId: priceRuleId },
       deliveryInfo: deliverInformation,
     };
-    console.log(orderData);
     const type =
       attractionProduct.length === 1
         ? 'ticketOrderCartMgr/settingGeneralTicketOrderData'
@@ -335,13 +335,13 @@ class Attraction extends Component {
     } = this.props;
     const orderInfo = offers.map(item => {
       const {
-        ticketNumber: quantity,
+        ticketNumber,
         detail,
         detail: { priceRuleId },
         attractionProduct = [],
       } = item;
       return {
-        quantity,
+        quantity: ticketNumber || 0,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         offerInfo: {
           ...detail,
@@ -361,7 +361,6 @@ class Attraction extends Component {
       orderInfo,
       deliveryInfo: deliverInformation,
     };
-    console.log(orderData);
     dispatch({
       type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
       payload: {
@@ -415,40 +414,28 @@ class Attraction extends Component {
         },
       },
       {
-        title: 'Price',
-        key: 'Price',
-        align: 'right',
-        width: '35%',
+        title: 'Category',
+        key: 'Category',
+        width: '20%',
         render: record => {
           const {
             bundleName,
             offers = [],
-            detail: { priceRuleId, productGroup = [] },
+            detail: { productGroup = [] },
           } = record;
           if (!isNullOrUndefined(bundleName)) {
             return (
               <div>
                 {offers.map(offerItem => {
                   const {
-                    attractionProduct: attractionProductItems = [],
                     detail: {
                       offerBasicInfo: { offerNo },
-                      priceRuleId: offerPriceRuleId,
                       offerBundle = [{}],
                     },
                   } = offerItem;
                   return (
                     <div key={offerNo} className={styles.productPrice}>
                       <div style={{ marginRight: '10px' }}>{offerBundle[0].bundleLabel}</div>
-                      <div>
-                        From ${' '}
-                        {calculateAllProductPrice(
-                          attractionProductItems,
-                          offerPriceRuleId,
-                          null,
-                          offerItem.detail
-                        )}
-                      </div>
                     </div>
                   );
                 })}
@@ -477,8 +464,80 @@ class Attraction extends Component {
             return (
               <div className={styles.productPrice}>
                 <div style={{ marginRight: '10px' }}>{ageGroups.join('; ')}</div>
+              </div>
+            );
+          }
+          return (
+            <div>
+              {record.attractionProduct.map(item => {
+                const { productNo } = item;
+                const { ageGroup } = item.attractionProduct;
+                return (
+                  <div key={productNo} className={styles.productPrice}>
+                    <div style={{ marginRight: '10px' }}>{ageGroup || '-'}</div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        },
+      },
+      {
+        title: 'Price',
+        key: 'Price',
+        align: 'right',
+        width: '15%',
+        render: record => {
+          const {
+            bundleName,
+            offers = [],
+            detail: { priceRuleId, productGroup = [] },
+          } = record;
+          if (!isNullOrUndefined(bundleName)) {
+            return (
+              <div>
+                {offers.map(offerItem => {
+                  const {
+                    attractionProduct: attractionProductItems = [],
+                    detail: {
+                      offerBasicInfo: { offerNo },
+                      priceRuleId: offerPriceRuleId,
+                    },
+                  } = offerItem;
+                  return (
+                    <div key={offerNo} className={styles.productPrice}>
+                      <div style={{ marginRight: '10px' }}> </div>
+                      <div>
+                        ${' '}
+                        {calculateAllProductPrice(
+                          attractionProductItems,
+                          offerPriceRuleId,
+                          null,
+                          offerItem.detail
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
+          let offerConstrain;
+          productGroup.forEach(item => {
+            if (item.productType === 'Attraction') {
+              item.productGroup.forEach(item2 => {
+                if (item2.groupName === 'Attraction') {
+                  offerConstrain = item2.choiceConstrain;
+                }
+              });
+            }
+          });
+          if (offerConstrain === 'Fixed') {
+            return (
+              <div className={styles.productPrice}>
+                <div style={{ marginRight: '10px' }}> </div>
                 <div>
-                  From ${' '}
+                  ${' '}
                   {calculateAllProductPrice(
                     record.attractionProduct,
                     priceRuleId,
@@ -493,11 +552,10 @@ class Attraction extends Component {
             <div>
               {record.attractionProduct.map(item => {
                 const { productNo } = item;
-                const { ageGroup } = item.attractionProduct;
                 return (
                   <div key={productNo} className={styles.productPrice}>
-                    <div style={{ marginRight: '10px' }}>{ageGroup || '-'}</div>
-                    <div>From ${` ${calculateProductPrice(item, priceRuleId).toFixed(2)}`}</div>
+                    <div style={{ marginRight: '10px' }}> </div>
+                    <div>${` ${calculateProductPrice(item, priceRuleId).toFixed(2)}`}</div>
                   </div>
                 );
               })}
@@ -584,6 +642,14 @@ class Attraction extends Component {
             const { themeparkName, themeparkCode, categories = [] } = item;
             return (
               <TabPane tab={themeparkName} key={themeparkCode} style={{ color: '#171b21' }}>
+                {categories.length === 0 ? (
+                  <div style={{ minHeight: 500 }}>
+                    <List style={{ marginTop: 100 }} />
+                    <div className={styles.emptyListFont}>
+                      {formatMessage({ id: 'EMPTY_PRODUCT_TIP' })}
+                    </div>
+                  </div>
+                ) : null}
                 {categories.map((item2, index2) => {
                   const { tag, showDetail, products = [] } = item2;
                   return (

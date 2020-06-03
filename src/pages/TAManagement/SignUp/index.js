@@ -305,22 +305,22 @@ class SignUp extends PureComponent {
             </Col>
           </Row>
           <Row type="flex" justify="space-around">
-            <Col span={24}>
-              {String(currentStep) === '0' && (
-                <CustomerInformationToSignUp
-                  wrappedComponentRef={ref => {
-                    this.customerRef = ref;
-                  }}
-                />
-              )}
-              {String(currentStep) === '1' && (
-                <OtherInformationToSignUp
-                  wrappedComponentRef={inst => {
-                    this.otherRef = inst;
-                  }}
-                />
-              )}
-              {String(currentStep) === '2' && <RegistrationSuccessfullyToSignUp />}
+            <Col span={24} style={{ display: String(currentStep) === '0' ? null : 'none' }}>
+              <CustomerInformationToSignUp
+                wrappedComponentRef={ref => {
+                  this.customerRef = ref;
+                }}
+              />
+            </Col>
+            <Col span={24} style={{ display: String(currentStep) === '1' ? null : 'none' }}>
+              <OtherInformationToSignUp
+                wrappedComponentRef={inst => {
+                  this.otherRef = inst;
+                }}
+              />
+            </Col>
+            <Col span={24} style={{ display: String(currentStep) === '2' ? null : 'none' }}>
+              <RegistrationSuccessfullyToSignUp />
             </Col>
           </Row>
         </Card>

@@ -13,6 +13,7 @@ class TAFinanceContactToFrom extends PureComponent {
       form,
       formItemLayout,
       viewId,
+      arAllowed,
       isMainTaRoleFlag,
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
@@ -51,6 +52,9 @@ class TAFinanceContactToFrom extends PureComponent {
       isMappingDisabled = true;
     }
     if (isMainTaRoleFlag) {
+      isMappingDisabled = true;
+    }
+    if (!arAllowed) {
       isMappingDisabled = true;
     }
     return (
@@ -603,7 +607,7 @@ class TAFinanceContactToFrom extends PureComponent {
         )}
         {isAccountingArRoleFlag && (
           <Row {...rowLayOut}>
-            <Col>
+            <Col {...colLayOut}>
               <Form.Item
                 label={formatMessage({ id: 'TA_FINANCE_E_WALLET_FIXED_THRESHOLD' })}
                 colon={false}
@@ -650,7 +654,7 @@ class TAFinanceContactToFrom extends PureComponent {
                 )}
               </Form.Item>
             </Col>
-            <Col>
+            <Col {...colLayOut}>
               <Form.Item
                 label={formatMessage({ id: 'TA_FINANCE_AR_FIXED_THRESHOLD' })}
                 colon={false}
@@ -698,7 +702,7 @@ class TAFinanceContactToFrom extends PureComponent {
         {(isMainTaRoleFlag || isAccountingArRoleFlag) && (
           <React.Fragment>
             <Row {...rowLayOut}>
-              <Col>
+              <Col {...colLayOut}>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_AMOUNT' })}
                   colon={false}
@@ -737,7 +741,7 @@ class TAFinanceContactToFrom extends PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col>
+              <Col {...colLayOut}>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_BANKER_GUARANTEE_EXPIRY_DATE' })}
                   colon={false}
@@ -768,7 +772,7 @@ class TAFinanceContactToFrom extends PureComponent {
               </Col>
             </Row>
             <Row {...rowLayOut}>
-              <Col>
+              <Col {...colLayOut}>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_CREDIT_TERM' })}
                   colon={false}
@@ -809,7 +813,7 @@ class TAFinanceContactToFrom extends PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col>
+              <Col {...colLayOut}>
                 <Form.Item
                   label={formatMessage({ id: 'TA_FINANCE_CREDIT_LIMIT' })}
                   colon={false}

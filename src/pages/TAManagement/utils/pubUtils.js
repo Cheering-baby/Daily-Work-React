@@ -153,6 +153,40 @@ export function getSalesPersonStr(salesPersonList, salesPerson) {
   return '-';
 }
 
+export function getSalesPersonEmailStr(salesPersonList, salesPerson) {
+  let salesPersonEmailStr = '';
+  if (salesPerson && salesPersonList && salesPersonList.length) {
+    const salesPersonInfo =
+      salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
+    if (
+      !isNvl(salesPersonInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo.email)
+    ) {
+      salesPersonEmailStr += `${salesPersonInfo.rwsInfo.email}`;
+      return salesPersonEmailStr;
+    }
+  }
+  return '-';
+}
+
+export function getSalesPersonContactNumberStr(salesPersonList, salesPerson) {
+  let salesPersonContactNumberStr = '';
+  if (salesPerson && salesPersonList && salesPersonList.length) {
+    const salesPersonInfo =
+      salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
+    if (
+      !isNvl(salesPersonInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo.phone)
+    ) {
+      salesPersonContactNumberStr += `${salesPersonInfo.rwsInfo.phone}`;
+      return salesPersonContactNumberStr;
+    }
+  }
+  return '-';
+}
+
 export function getSettlementCycleStr(settlementCycleList, settlementCycle, settlementValue) {
   let settlementCycleStr = `The ${settlementValue} th day of the`;
   if (settlementCycle && settlementCycleList && settlementCycleList.length) {

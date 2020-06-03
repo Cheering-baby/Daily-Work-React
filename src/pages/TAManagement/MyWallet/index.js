@@ -15,6 +15,7 @@ import {
   Spin,
   Table,
   Tooltip,
+  Modal,
 } from 'antd';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
@@ -42,7 +43,9 @@ class MyWallet extends React.PureComponent {
   state = {};
 
   componentDidMount() {
-    const { dispatch } = this.props;
+    const { dispatch, location } = this.props;
+
+    this.handleTopupCompleted(location.search);
     dispatch({ type: 'myWallet/clear' });
     dispatch({ type: 'myWallet/fetchTransactionTypes' });
     // dispatch({ type: 'myWallet/fetchWalletTypes' });
@@ -57,6 +60,48 @@ class MyWallet extends React.PureComponent {
   componentWillUnmount() {
     clearInterval(this.interval);
   }
+
+  handleTopupCompleted = search => {
+    if (!search) return;
+    const arrs = search.split('?');
+    const result = {};
+    if (arrs[1]) {
+      const arr = arrs[1].split('&');
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0, j = arr.length; i < j; i++) {
+        const _r = arr[i].split('=');
+        // eslint-disable-next-line prefer-destructuring
+        result[_r[0]] = _r[1];
+      }
+    }
+    if (result.paymentOrderId) {
+      if (result.errorCode) {
+        Modal.warning({
+          width: 430,
+          content: (
+            <div style={{ padding: '0 38px' }}>
+              The payment order No. [
+              <span style={{ 'font-weight': 'bold' }}>{result.paymentOrderId}</span>] failed to top
+              up.
+              <br />
+              For assistance, please contact your sales manager with payment order No.
+            </div>
+          ),
+        });
+      } else {
+        Modal.success({
+          width: 450,
+          content: (
+            <div style={{ padding: '0 38px' }}>
+              The payment order No. [
+              <span style={{ 'font-weight': 'bold' }}>{result.paymentOrderId}</span>] top up
+              successfully!
+            </div>
+          ),
+        });
+      }
+    }
+  };
 
   handleSearch = ev => {
     ev.preventDefault();

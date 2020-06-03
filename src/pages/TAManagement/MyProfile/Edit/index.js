@@ -195,6 +195,16 @@ class Edit extends PureComponent {
     return null;
   };
 
+  back = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'myProfile/save',
+      payload: {
+        currentStep: 0,
+      },
+    });
+  };
+
   render() {
     const {
       currentStep,
@@ -242,12 +252,20 @@ class Edit extends PureComponent {
               actions={
                 String(currentStep) === '0' || String(currentStep) === '1'
                   ? [
-                    <Row
-                      type="flex"
-                      justify="space-around"
-                      className={styles.editInformationButtonRow}
-                    >
-                      <Col span={24}>
+                    <Row type="flex" justify="space-between">
+                      <Col>
+                        {String(currentStep) === '1' ? (
+                          <Button
+                            htmlType="button"
+                            className={styles.informationButton}
+                            style={{ marginLeft: '0.75rem' }}
+                            onClick={this.back}
+                          >
+                            {formatMessage({ id: 'COMMON_BACK' })}
+                          </Button>
+                          ) : null}
+                      </Col>
+                      <Col span={12}>
                         <Button
                           htmlType="button"
                           className={styles.editInformationButton}
@@ -275,7 +293,9 @@ class Edit extends PureComponent {
                               isCompanyExist
                             }
                         >
-                          {formatMessage({ id: 'COMMON_OK' })}
+                          {formatMessage({
+                              id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
+                            })}
                         </Button>
                       </Col>
                     </Row>,

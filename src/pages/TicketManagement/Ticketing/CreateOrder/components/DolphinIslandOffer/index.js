@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
 import { Button, Icon, List, Table, Tooltip } from 'antd';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
@@ -185,7 +186,6 @@ class DolphinIslandOffer extends Component {
       offerInfo: { ...detail, selectRuleId: priceRuleId },
       deliveryInfo: deliverInformation,
     };
-    console.log(orderData);
     dispatch({
       type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
       payload: {
@@ -245,7 +245,6 @@ class DolphinIslandOffer extends Component {
       offerInfo: { ...detail },
       deliveryInfo: deliverInformation,
     };
-    console.log(orderData);
     const type =
       attractionProduct.length === 1
         ? 'ticketOrderCartMgr/settingGeneralTicketOrderData'
@@ -289,7 +288,7 @@ class DolphinIslandOffer extends Component {
       {
         title: 'Offer Name',
         key: 'name',
-        width: '30%',
+        width: '25%',
         render: record => {
           const {
             detail: {
@@ -310,6 +309,7 @@ class DolphinIslandOffer extends Component {
       {
         title: 'Session',
         key: 'Session',
+        width: '15%',
         render: record => {
           const {
             session: { priceTimeFrom },
@@ -318,10 +318,9 @@ class DolphinIslandOffer extends Component {
         },
       },
       {
-        title: 'Price',
-        key: 'Price',
-        width: '35%',
-        align: 'right',
+        title: 'Category',
+        key: 'Category',
+        width: '15%',
         render: record => {
           const {
             detail: { priceRuleId, productGroup },
@@ -354,8 +353,56 @@ class DolphinIslandOffer extends Component {
             return (
               <div className={styles.productPrice}>
                 <div style={{ marginRight: '10px' }}>{ageGroups.join('; ')}</div>
+              </div>
+            );
+          }
+          return (
+            <div>
+              {filterProducts.map(item => {
+                const {
+                  attractionProduct: { ageGroup },
+                } = item;
+                return (
+                  <div className={styles.productPrice}>
+                    <div style={{ marginRight: '10px' }}>{ageGroup || '-'}</div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        },
+      },
+      {
+        title: 'Price',
+        key: 'Price',
+        width: '15%',
+        align: 'right',
+        render: record => {
+          const {
+            detail: { priceRuleId, productGroup },
+            session: { priceTimeFrom },
+          } = record;
+          const filterProducts = filterSessionProduct(
+            priceRuleId,
+            priceTimeFrom,
+            record.attractionProduct
+          );
+          let offerConstrain;
+          productGroup.forEach(item => {
+            if (item.productType === 'Attraction') {
+              item.productGroup.forEach(item2 => {
+                if (item2.groupName === 'Attraction') {
+                  offerConstrain = item2.choiceConstrain;
+                }
+              });
+            }
+          });
+          if (offerConstrain === 'Fixed') {
+            return (
+              <div className={styles.productPrice}>
+                <div style={{ marginRight: '10px' }}> </div>
                 <div>
-                  From ${' '}
+                  ${' '}
                   {calculateAllProductPrice(
                     record.attractionProduct,
                     priceRuleId,
@@ -369,14 +416,11 @@ class DolphinIslandOffer extends Component {
           return (
             <div>
               {filterProducts.map(item => {
-                const {
-                  attractionProduct: { ageGroup },
-                } = item;
                 return (
                   <div className={styles.productPrice}>
-                    <div style={{ marginRight: '10px' }}>{ageGroup || '-'}</div>
+                    <div style={{ marginRight: '10px' }}> </div>
                     <div>
-                      From ${' '}
+                      ${' '}
                       {calculateProductPrice(
                         item,
                         priceRuleId,
@@ -456,6 +500,7 @@ class DolphinIslandOffer extends Component {
         {dolphinIslandOfferList.length === 0 ? (
           <div style={{ minHeight: 500 }}>
             <List style={{ marginTop: 100 }} />
+            <div className={styles.emptyListFont}>{formatMessage({ id: 'EMPTY_PRODUCT_TIP' })}</div>
           </div>
         ) : (
           <div>

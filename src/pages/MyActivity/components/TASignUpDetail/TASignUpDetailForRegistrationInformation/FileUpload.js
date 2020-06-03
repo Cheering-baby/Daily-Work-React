@@ -23,7 +23,7 @@ const FileUpload = props => {
                 </Row>
                 <Spin spinning={downFileLoadingFlag}>
                   <Row type="flex" justify="space-around">
-                    <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+                    <Col span={24}>
                       <DetailForFileInformation
                         fileTxt={formatMessage({ id: 'FILE_REGISTRATION_DOCS' })}
                         fileList={companyInfo.fileList || null}
@@ -36,7 +36,7 @@ const FileUpload = props => {
                         afterDown={() => updateDownFileLoading({ downFileLoadingFlag: false })}
                       />
                     </Col>
-                    <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+                    <Col span={24}>
                       <DetailForFileInformation
                         fileTxt={formatMessage({ id: 'FILE_AR_CREDIT_LIMIT' })}
                         fileList={companyInfo.arAccountFileList || null}

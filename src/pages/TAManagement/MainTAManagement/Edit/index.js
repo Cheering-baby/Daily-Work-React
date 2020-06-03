@@ -189,6 +189,16 @@ class EditToTa extends PureComponent {
     );
   };
 
+  back = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'mainTAManagement/save',
+      payload: {
+        currentStep: 0,
+      },
+    });
+  };
+
   render() {
     const {
       currentStep,
@@ -229,7 +239,7 @@ class EditToTa extends PureComponent {
             </MediaQuery>
           </Col>
         </Row>
-        <Row type="flex" justify="space-around">
+        <Row type="flex" justify="space-between">
           <Col span={24}>
             <Card
               className={styles.editInformation}
@@ -238,10 +248,22 @@ class EditToTa extends PureComponent {
                   ? [
                     <Row
                       type="flex"
-                      justify="space-around"
+                      justify="space-between"
                       className={styles.editInformationButtonRow}
                     >
-                      <Col span={24}>
+                      <Col>
+                        {String(currentStep) === '1' ? (
+                          <Button
+                            htmlType="button"
+                            className={styles.informationButton}
+                            style={{ marginLeft: '0.75rem' }}
+                            onClick={this.back}
+                          >
+                            {formatMessage({ id: 'COMMON_BACK' })}
+                          </Button>
+                          ) : null}
+                      </Col>
+                      <Col span={12}>
                         <Button
                           htmlType="button"
                           className={styles.editInformationButton}
@@ -269,7 +291,9 @@ class EditToTa extends PureComponent {
                               isCompanyExist
                             }
                         >
-                          {formatMessage({ id: 'COMMON_OK' })}
+                          {formatMessage({
+                              id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
+                            })}
                         </Button>
                       </Col>
                     </Row>,

@@ -314,3 +314,48 @@ export function checkSessionProductInventory(numOfGuests, session, product = {})
   });
   return enough;
 }
+
+export function multiplePromise(arr, max, callback) {
+  const maxParallelTime = max || 20;
+  const handleQueue = [];
+  const parallelArr = arr || [];
+  let handleIndex = 0;
+  let result = 0;
+
+  function toHandle() {
+    if (handleIndex === parallelArr.length) {
+      return Promise.resolve();
+    }
+    // eslint-disable-next-line no-plusplus
+    const one = parallelArr[handleIndex++];
+    const oneP = one();
+    oneP.id = `${Math.ceil(Math.random() * 1000)}X${Math.ceil(Math.random() * 1000)}`;
+    oneP.then(() => {
+      const testArr = [...handleQueue];
+      let index = 0;
+      testArr.forEach((item, indexItem) => {
+        if (item.id === oneP.id) {
+          index = indexItem;
+        }
+      });
+      handleQueue.splice(index, 1);
+      // eslint-disable-next-line no-plusplus
+      result++;
+      if (result === parallelArr.length) {
+        Promise.all(handleQueue).then(() => {
+          callback();
+        });
+      }
+    });
+    handleQueue.push(oneP);
+    let p = Promise.resolve();
+    if (handleQueue.length >= maxParallelTime) {
+      p = Promise.race(handleQueue);
+    }
+    return p.then(() => {
+      toHandle();
+    });
+  }
+
+  toHandle();
+}

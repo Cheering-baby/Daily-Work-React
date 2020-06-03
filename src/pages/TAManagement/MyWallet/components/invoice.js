@@ -91,7 +91,7 @@ class Invoice extends React.PureComponent {
     const modelProps = {
       title: formatMessage({ id: 'INVOICE_TITLE' }),
       visible,
-      width: 595,
+      width: 740,
       onCancel: this.handleCancel,
       footer: [
         <Button
@@ -129,8 +129,13 @@ class Invoice extends React.PureComponent {
                   <div className={styles['invoice-logo']}>
                     <img src={logoImage} alt="logo" width="100%" height="auto" />
                   </div>
-                  <div className={styles['invoice-name']}>{profile.name}</div>
-                  <div className={styles['invoice-content']}>{profile.address}</div>
+                  <div className={styles['company-name']}>{profile.name}</div>
+                  <div className={styles['company-address']}>
+                    {profile.address} {profile.postalCode}
+                  </div>
+                  <div className={styles['company-address']}>
+                    Attn: {profile.primaryFinanceContactName}{' '}
+                  </div>
                 </div>
                 <div
                   style={{
@@ -228,7 +233,7 @@ class Invoice extends React.PureComponent {
                             Total Amount Before GST
                           </div>
                           <div className={styles['descriptions-item-content-internal-label']}>
-                            GST({details.taxRatio})
+                            GST ({details.taxRatio})
                           </div>
                           <div className={styles['descriptions-item-content-internal-label']}>
                             Total Amount Inclusive GST
@@ -263,7 +268,15 @@ class Invoice extends React.PureComponent {
                 <div className={styles['instructions-title']}>
                   <div className={styles['instructions-title-label']}>Payment Instructions</div>
                 </div>
-                <div className={styles['instructions-content']}>{paymentInstructions}</div>
+                <div className={styles['instructions-content']}>{paymentInstructions.content}</div>
+                <div className={styles['instructions-signature-line']}>
+                  <div className={styles['instructions-signature']}>
+                    {paymentInstructions.party}
+                    <br />
+                    {paymentInstructions.address}
+                  </div>
+                </div>
+                <div className={styles['instructions-footer']}>{paymentInstructions.footer}</div>
               </div>
             </div>
           </Spin>
