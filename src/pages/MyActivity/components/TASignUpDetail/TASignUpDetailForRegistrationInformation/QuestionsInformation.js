@@ -51,16 +51,15 @@ const QuestionsInformation = props => {
         </Col>
       </Row>
       <Row {...rowLayOut} className={styles.contentDetail}>
-        <Col span={24}>
+        <Col span={24} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'CUSTOMER_NATIONALITY' })}</span>
           </div>
-
           <div className={styles.detailLeftStyle}>
             <span>{getTopNationalitiesStr(countryList, companyInfo.topNationalities)}</span>
           </div>
         </Col>
-        <Col span={24}>
+        <Col span={24} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'QUESTIONS_Q_ONE' })}</span>
           </div>
@@ -68,7 +67,7 @@ const QuestionsInformation = props => {
             <span>{volumeOne}</span>
           </div>
         </Col>
-        <Col span={24}>
+        <Col span={24} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'QUESTIONS_Q_TWO' })}</span>
           </div>

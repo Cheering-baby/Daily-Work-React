@@ -15,6 +15,7 @@ import {
   getSalesPersonContactNumberStr,
   getSalesPersonEmailStr,
   getSalesPersonStr,
+  detailLayOut,
 } from '@/pages/TAManagement/utils/pubUtils';
 
 const mapStateToProps = store => {
@@ -200,10 +201,7 @@ class MyProfile extends PureComponent {
                   >
                     <Row type="flex" justify="space-around">
                       <Col span={24}>
-                        <Descriptions
-                          className={styles.descriptionsStyle}
-                          column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 }}
-                        >
+                        <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
                           <Descriptions.Item
                             label={formatMessage({ id: 'ADDITIONAL_EFFECTIVE_DATE' })}
                           >

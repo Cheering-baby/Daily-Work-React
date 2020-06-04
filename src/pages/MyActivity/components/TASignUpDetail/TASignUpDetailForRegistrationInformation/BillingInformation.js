@@ -20,7 +20,7 @@ const BillingInformation = props => {
         </Col>
       </Row>
       <Row {...rowLayOut} className={styles.contentDetail}>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BIL_CONTACT_PERSON_SALUTATION' })}</span>
           </div>
@@ -28,7 +28,7 @@ const BillingInformation = props => {
             <span>{getSalutationStr(salutationList, billingInfo.salutation)}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BIL_CONTACT_PERSON_FIRST_NAME' })}</span>
           </div>
@@ -36,7 +36,7 @@ const BillingInformation = props => {
             <span>{!isNvl(billingInfo.firstName) ? billingInfo.firstName : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BIL_CONTACT_PERSON_LAST_NAME' })}</span>
           </div>
@@ -44,7 +44,7 @@ const BillingInformation = props => {
             <span>{!isNvl(billingInfo.lastName) ? billingInfo.lastName : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BILLING_EMAIL' })}</span>
           </div>
@@ -52,7 +52,7 @@ const BillingInformation = props => {
             <span>{!isNvl(billingInfo.email) ? billingInfo.email : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BILLING_TEL' })}</span>
           </div>
@@ -60,7 +60,7 @@ const BillingInformation = props => {
             <span>{getTelStr(countryList, billingInfo.country, billingInfo.phone)}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BIL_MOBILE_NO' })}</span>
           </div>
@@ -70,7 +70,7 @@ const BillingInformation = props => {
             </span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BILLING_COMPANY_NAME' })}</span>
           </div>
@@ -78,7 +78,7 @@ const BillingInformation = props => {
             <span>{!isNvl(billingInfo.companyName) ? billingInfo.companyName : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BILLING_COUNTRY_AND_CITY_STATE' })}</span>
           </div>
@@ -93,7 +93,7 @@ const BillingInformation = props => {
             </span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BILLING_ZIP_POSTAL_CODE' })}</span>
           </div>
@@ -101,7 +101,7 @@ const BillingInformation = props => {
             <span>{!isNvl(billingInfo.postalCode) ? billingInfo.postalCode : '-'}</span>
           </div>
         </Col>
-        <Col span={24}>
+        <Col span={24} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'BIL_ADDRESS' })}</span>
           </div>

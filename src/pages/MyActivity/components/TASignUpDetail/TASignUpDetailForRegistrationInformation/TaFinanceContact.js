@@ -31,7 +31,7 @@ const TaFinanceContact = props => {
         </Col>
       </Row>
       <Row {...rowLayOut} className={styles.contentDetail}>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}</span>
           </div>
@@ -39,7 +39,7 @@ const TaFinanceContact = props => {
             <span>{!isNvl(financeInfoOne.contactPerson) ? financeInfoOne.contactPerson : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_MOBILE_NO' })}</span>
           </div>
@@ -49,7 +49,7 @@ const TaFinanceContact = props => {
             </span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}</span>
           </div>
@@ -57,7 +57,7 @@ const TaFinanceContact = props => {
             <span>{getTelStr(countryList, financeInfoOne.country, financeInfoOne.contactNo)}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_EMAIL' })}</span>
           </div>
@@ -67,7 +67,7 @@ const TaFinanceContact = props => {
         </Col>
       </Row>
       <Row {...rowLayOut} className={styles.contentDetail}>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}</span>
           </div>
@@ -75,7 +75,7 @@ const TaFinanceContact = props => {
             <span>{!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_MOBILE_NO' })}</span>
           </div>
@@ -85,7 +85,7 @@ const TaFinanceContact = props => {
             </span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}</span>
           </div>
@@ -93,7 +93,7 @@ const TaFinanceContact = props => {
             <span>{getTelStr(countryList, financeInfoTwo.country, financeInfoTwo.contactNo)}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_EMAIL' })}</span>
           </div>

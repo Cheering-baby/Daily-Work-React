@@ -9,6 +9,7 @@ import {
   getSalesPersonStr,
   getSalesPersonEmailStr,
   getSalesPersonContactNumberStr,
+  detailLayOut,
 } from '../../utils/pubUtils';
 import styles from './index.less';
 
@@ -30,10 +31,7 @@ class DetailForAdditionalInformation extends PureComponent {
               {getMarketStr(marketList, companyInfo.market)}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions
-            className={styles.descriptionsStyle}
-            column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 }}
-          >
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_EFFECTIVE_DATE' })}>
               {!isNvl(companyInfo.effectiveDate)
                 ? moment(companyInfo.effectiveDate, 'YYYY-MM-DD').format('DD-MMM-YYYY')

@@ -3,6 +3,7 @@ import { Col, Descriptions, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from './index.less';
+import { detailLayOut } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 
 class DetailForAccountingInformation extends PureComponent {
@@ -16,10 +17,7 @@ class DetailForAccountingInformation extends PureComponent {
               {!isNvl(taId) ? taId : '-'}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions
-            className={styles.descriptionsStyle}
-            column={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 2 }}
-          >
+          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
             <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_PEOPLE_SOFT_E_WALLET_ID' })}>
               {!isNvl(accountInfo.peoplesoftEwalletId) ? accountInfo.peoplesoftEwalletId : '-'}
             </Descriptions.Item>

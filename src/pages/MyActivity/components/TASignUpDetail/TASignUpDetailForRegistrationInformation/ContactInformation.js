@@ -16,7 +16,7 @@ const ContactInformation = props => {
         </Col>
       </Row>
       <Row {...rowLayOut} className={styles.contentDetail}>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'CONTACT_PERSON_SALUTATION' })}</span>
           </div>
@@ -24,7 +24,7 @@ const ContactInformation = props => {
             <span>{getSalutationStr(salutationList, contactInfo.salutation)}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'CONTACT_PERSON_FIRST_NAME' })}</span>
           </div>
@@ -32,7 +32,7 @@ const ContactInformation = props => {
             <span>{!isNvl(contactInfo.firstName) ? contactInfo.firstName : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'CONTACT_PERSON_LAST_NAME' })}</span>
           </div>
@@ -40,7 +40,7 @@ const ContactInformation = props => {
             <span>{!isNvl(contactInfo.lastName) ? contactInfo.lastName : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'CHIEF_EXECUTIVE_DIRECTOR_NAME' })}</span>
           </div>
@@ -50,7 +50,7 @@ const ContactInformation = props => {
             </span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'EMAIL' })}</span>
           </div>
@@ -58,7 +58,7 @@ const ContactInformation = props => {
             <span>{!isNvl(contactInfo.email) ? contactInfo.email : '-'}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'TEL' })}</span>
           </div>
@@ -66,7 +66,7 @@ const ContactInformation = props => {
             <span>{getTelStr(countryList, contactInfo.country, contactInfo.phone)}</span>
           </div>
         </Col>
-        <Col {...colLayOut}>
+        <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
             <span>{formatMessage({ id: 'MOBILE_NO' })}</span>
           </div>
