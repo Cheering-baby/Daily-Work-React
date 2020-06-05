@@ -17,6 +17,7 @@ import { connect } from 'dva';
 import { router } from 'umi';
 import moment from 'moment';
 import detailStyles from './MappingDetail.less';
+import { colLayOut, rowLayOut, getFormLayout } from '../../utils/pubUtils';
 import { commonConfirm } from '@/components/CommonModal';
 import {
   AR_ACCOUNT_PRIVILEGE,
@@ -24,6 +25,7 @@ import {
   SALES_SUPPORT_PRIVILEGE,
 } from '@/utils/PrivilegeUtil';
 
+const detailOpt = getFormLayout();
 const FormItem = Form.Item;
 const formItemLayout = {
   labelCol: {
@@ -209,34 +211,33 @@ class MappingDetailList extends React.PureComponent {
     const ruleArr = [{ len: Number(lintNum || '10'), message: numFormat.replace('10', lintNum) }];
     return (
       <Col lg={24} md={24} id={`${viewId}`}>
-        <div className="has-shadow no-border">
-          <div className={classNames(detailStyles.searchDiv, 'has-shadow', 'no-border')}>
+        <div
+          className="has-shadow no-border"
+          style={{ padding: '15px 24px', backgroundColor: '#fff' }}
+        >
+          <div>
             <Form onSubmit={this.handleSubmit}>
-              <div className={detailStyles.titleHeader}>
+              <div
+                className={detailStyles.titleHeader}
+                style={{ padding: '0', marginBottom: '8px' }}
+              >
                 <span>{formatMessage({ id: 'MAPPING' })}</span>
               </div>
-              <Row gutter={24}>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_MAIN_TA_PROFILE' })}
-                  >
+              <Row style={{ marginBottom: '8px' }} gutter={16}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_MAIN_TA_PROFILE' })}>
                     {getFieldDecorator('idOrName', {
                       initialValue: companyName || '',
                     })(<Input placeholder={formatMessage({ id: 'PLEASE_ENTER' })} disabled />)}
                   </FormItem>
                 </Col>
-                <Col span={24}> </Col>
               </Row>
               <div className={detailStyles.DetailTitle}>
                 <span>{formatMessage({ id: 'BY_SALES_SUPPORT' })}</span>
               </div>
-              <Row gutter={24}>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_OPERA_EWALLET' })}
-                  >
+              <Row style={{ marginBottom: '8px' }} gutter={16}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_OPERA_EWALLET' })}>
                     {getFieldDecorator('operaEwallet', {
                       initialValue: this.handleInitVal('operaEwallet'),
                     })(
@@ -248,11 +249,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_OPERA_AR_CREDIT' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_OPERA_AR_CREDIT' })}>
                     {getFieldDecorator('operaArCredit', {
                       initialValue: this.handleInitVal('operaArCredit'),
                     })(
@@ -264,11 +262,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_GALAXY_EWALLET' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_GALAXY_EWALLET' })}>
                     {getFieldDecorator('galaxyEwallet', {
                       initialValue: this.handleInitVal('galaxyEwallet'),
                     })(
@@ -280,11 +275,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_GALAXY_CREDIT' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_GALAXY_CREDIT' })}>
                     {getFieldDecorator('galaxyArCredit', {
                       initialValue: this.handleInitVal('galaxyArCredit'),
                     })(
@@ -296,8 +288,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem {...formItemLayout} label={formatMessage({ id: 'MAPPING_PRODUCT' })}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_PRODUCT' })}>
                     {getFieldDecorator('product', {
                       initialValue: this.handleInitVal('productName'),
                     })(
@@ -312,12 +304,9 @@ class MappingDetailList extends React.PureComponent {
               <div className={detailStyles.DetailTitle}>
                 <span>{formatMessage({ id: 'BY_ACCOUNTING_AR' })}</span>
               </div>
-              <Row gutter={24}>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_PEOPLESOFR_EWALLET_ID' })}
-                  >
+              <Row gutter={16}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_PEOPLESOFR_EWALLET_ID' })}>
                     {getFieldDecorator('peoplesoftEwalletId', {
                       initialValue: this.handleInitVal('peoplesoftEwalletId'),
                       rules: [
@@ -336,11 +325,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_PEOPLESOFR_AR_ACCOUNT_ID' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_PEOPLESOFR_AR_ACCOUNT_ID' })}>
                     {getFieldDecorator('peoplesoftArAccountId', {
                       initialValue: this.handleInitVal('peoplesoftArAccountId'),
                       rules: [...ruleArr],
@@ -353,11 +339,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_CREDIT_TERM' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_CREDIT_TERM' })}>
                     {getFieldDecorator('creditTerm', {
                       initialValue: this.handleInitVal('creditTerm'),
                       rules: [
@@ -388,11 +371,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_CREDIT_LIMIT' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_CREDIT_LIMIT' })}>
                     {getFieldDecorator('creditLimit', {
                       initialValue: this.handleInitVal('creditLimit'),
                       rules: [
@@ -415,11 +395,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_EWALLET_FIXED_THRESHOLD' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_EWALLET_FIXED_THRESHOLD' })}>
                     {getFieldDecorator('ewalletFixedThreshold', {
                       initialValue: this.handleInitVal('ewalletFixedThreshold'),
                       rules: [
@@ -443,11 +420,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_AR_FIXED_THRESHOLD' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_AR_FIXED_THRESHOLD' })}>
                     {getFieldDecorator('arFixedThreshold', {
                       initialValue: this.handleInitVal('arFixedThreshold'),
                       rules: [
@@ -470,11 +444,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_ACCOUNT_COMMENCEMENT_DATE' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_ACCOUNT_COMMENCEMENT_DATE' })}>
                     {getFieldDecorator('arAccountCommencementDate', {
                       initialValue: this.handleInitVal('arAccountCommencementDate'),
                     })(
@@ -488,11 +459,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_AR_ACCOUNT_END_DATE' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_AR_ACCOUNT_END_DATE' })}>
                     {getFieldDecorator('arAccountEndDate', {
                       initialValue: this.handleInitVal('arAccountEndDate'),
                     })(
@@ -505,11 +473,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_SECURITY_DEPOSIT_AMOUNT' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_SECURITY_DEPOSIT_AMOUNT' })}>
                     {getFieldDecorator('securityDepositAmount', {
                       initialValue: this.handleInitVal('securityDepositAmount'),
                     })(
@@ -527,11 +492,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_AMOUNT' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_AMOUNT' })}>
                     {getFieldDecorator('guaranteeAmount', {
                       initialValue: this.handleInitVal('guaranteeAmount'),
                     })(
@@ -549,8 +511,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem {...formItemLayout} label={formatMessage({ id: 'MAPPING_CURRENCY' })}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_CURRENCY' })}>
                     {getFieldDecorator('currency', {
                       initialValue: this.handleInitVal('currency'),
                     })(
@@ -562,11 +524,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
-                <Col {...ColProps}>
-                  <FormItem
-                    {...formItemLayout}
-                    label={formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_EXPIRY_DATE' })}
-                  >
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_EXPIRY_DATE' })}>
                     {getFieldDecorator('guaranteeExpiryDate', {
                       initialValue: this.handleInitVal('guaranteeExpiryDate'),
                     })(
