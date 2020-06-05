@@ -18,7 +18,7 @@ const ContactInformation = props => {
       <Row {...rowLayOut} className={styles.contentDetail}>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'CONTACT_PERSON_SALUTATION' })}</span>
+            <span>{formatMessage({ id: 'CONTACT_PERSON_SALUTATION' })}:</span>
           </div>
           <div className={styles.detailLeftStyle} style={{ marginBottom: '8px' }}>
             <span>{getSalutationStr(salutationList, contactInfo.salutation)}</span>
@@ -26,7 +26,7 @@ const ContactInformation = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'CONTACT_PERSON_FIRST_NAME' })}</span>
+            <span>{formatMessage({ id: 'CONTACT_PERSON_FIRST_NAME' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{!isNvl(contactInfo.firstName) ? contactInfo.firstName : '-'}</span>
@@ -34,7 +34,7 @@ const ContactInformation = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'CONTACT_PERSON_LAST_NAME' })}</span>
+            <span>{formatMessage({ id: 'CONTACT_PERSON_LAST_NAME' })}:</span>
           </div>
           <div className={styles.detailLeftStyle} style={{ marginBottom: '8px' }}>
             <span>{!isNvl(contactInfo.lastName) ? contactInfo.lastName : '-'}</span>
@@ -42,7 +42,7 @@ const ContactInformation = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'CHIEF_EXECUTIVE_DIRECTOR_NAME' })}</span>
+            <span>{formatMessage({ id: 'CHIEF_EXECUTIVE_DIRECTOR_NAME' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>
@@ -52,7 +52,7 @@ const ContactInformation = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'EMAIL' })}</span>
+            <span>{formatMessage({ id: 'EMAIL' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{!isNvl(contactInfo.email) ? contactInfo.email : '-'}</span>
@@ -60,7 +60,7 @@ const ContactInformation = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TEL' })}</span>
+            <span>{formatMessage({ id: 'TEL' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{getTelStr(countryList, contactInfo.country, contactInfo.phone)}</span>
@@ -68,7 +68,7 @@ const ContactInformation = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'MOBILE_NO' })}</span>
+            <span>{formatMessage({ id: 'MOBILE_NO' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{getTelStr(countryList, contactInfo.country, contactInfo.phone)}</span>

@@ -18,6 +18,11 @@
   @media screen and (max-width: @screenXsMax) {
     .stepsInformationSteps {
       width: 100%;
+      :global {
+        .@{prefix-cls}-steps-item-content {
+          overflow: visible;
+        }
+      }
     }
   }
   @media screen and (max-width: @screenMdMax) and (min-width: @screenSmMin) {

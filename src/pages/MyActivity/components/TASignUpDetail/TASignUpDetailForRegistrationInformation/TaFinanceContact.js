@@ -33,7 +33,7 @@ const TaFinanceContact = props => {
       <Row {...rowLayOut} className={styles.contentDetail}>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_PERSON' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{!isNvl(financeInfoOne.contactPerson) ? financeInfoOne.contactPerson : '-'}</span>
@@ -41,7 +41,7 @@ const TaFinanceContact = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_MOBILE_NO' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_MOBILE_NO' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>
@@ -51,7 +51,7 @@ const TaFinanceContact = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_NO' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{getTelStr(countryList, financeInfoOne.country, financeInfoOne.contactNo)}</span>
@@ -59,7 +59,7 @@ const TaFinanceContact = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_EMAIL' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_EMAIL' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{!isNvl(financeInfoOne.contactEmail) ? financeInfoOne.contactEmail : '-'}</span>
@@ -69,7 +69,7 @@ const TaFinanceContact = props => {
       <Row {...rowLayOut} className={styles.contentDetail}>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_PERSON' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{!isNvl(financeInfoTwo.contactPerson) ? financeInfoTwo.contactPerson : '-'}</span>
@@ -77,7 +77,7 @@ const TaFinanceContact = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_MOBILE_NO' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_MOBILE_NO' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>
@@ -87,7 +87,7 @@ const TaFinanceContact = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_NO' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{getTelStr(countryList, financeInfoTwo.country, financeInfoTwo.contactNo)}</span>
@@ -95,7 +95,7 @@ const TaFinanceContact = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_EMAIL' })}</span>
+            <span>{formatMessage({ id: 'TA_FINANCE_SECONDARY_CONTACT_EMAIL' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}</span>

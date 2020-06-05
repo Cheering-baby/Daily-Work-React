@@ -76,7 +76,7 @@ class SubTaRegistration extends PureComponent {
         <Row {...rowLayOut}>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_FULL_NAME' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_FULL_NAME' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.fullName) ? subTaInfo.fullName : '-'}</span>
@@ -84,7 +84,7 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_EMAIL' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_EMAIL' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.email) ? subTaInfo.email : '-'}</span>
@@ -92,7 +92,7 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.companyName) ? subTaInfo.companyName : '-'}</span>
@@ -100,7 +100,7 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{getCountryStr(countryList, subTaInfo.country)}</span>
@@ -108,7 +108,7 @@ class SubTaRegistration extends PureComponent {
           </Col>
           <Col span={24}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.address) ? subTaInfo.address : '-'}</span>

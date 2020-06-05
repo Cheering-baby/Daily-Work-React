@@ -25,7 +25,7 @@ const FileUpload = props => {
                   <Row type="flex" justify="space-around">
                     <Col span={24}>
                       <DetailForFileInformation
-                        fileTxt={formatMessage({ id: 'FILE_REGISTRATION_DOCS' })}
+                        fileTxt={`${formatMessage({ id: 'FILE_REGISTRATION_DOCS' })}:`}
                         fileList={companyInfo.fileList || null}
                         fileKeys={{
                           labelName: 'name',
@@ -38,7 +38,7 @@ const FileUpload = props => {
                     </Col>
                     <Col span={24}>
                       <DetailForFileInformation
-                        fileTxt={formatMessage({ id: 'FILE_AR_CREDIT_LIMIT' })}
+                        fileTxt={`${formatMessage({ id: 'FILE_AR_CREDIT_LIMIT' })}:`}
                         fileList={companyInfo.arAccountFileList || null}
                         fileKeys={{
                           labelName: 'name',

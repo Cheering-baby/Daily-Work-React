@@ -3,9 +3,9 @@
 @prefix-cls: ~'@{ant-prefix}';
 
 .downFileInformation {
-  background: #FFF;
-  border-bottom: 1px solid #D9D9D9;
-  box-shadow: 0 1px 0 0 #D9D9D9;
+  background: #fff;
+  border-bottom: 1px solid #d9d9d9;
+  box-shadow: 0 1px 0 0 #d9d9d9;
 
   .topCol {
     text-align: left;
@@ -17,6 +17,12 @@
         :global {
           .@{prefix-cls}-form-item-control {
             line-height: 22px;
+          }
+          .@{prefix-cls}-checkbox-wrapper {
+            display: flex;
+          }
+          .@{prefix-cls}-checkbox {
+            height: 20px;
           }
         }
       }
@@ -68,7 +74,7 @@
 
     .topColCheckBoxMsgNote {
       font-size: 15px;
-      color: #C0C0C0;
+      color: #c0c0c0;
       letter-spacing: 0.24px;
       line-height: 22px;
     }
