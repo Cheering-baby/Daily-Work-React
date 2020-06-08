@@ -88,7 +88,7 @@ const CompanyInformation = props => {
         </Col>
         <Col {...colLayOut} className={styles.colStyle}>
           <div className={styles.detailLabelStyle}>
-            <span>{getTravelAgentNoLabel(companyInfo.country)}</span>
+            <span>{getTravelAgentNoLabel(companyInfo.country)}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
             <span>{!isNvl(companyInfo.travelAgentNo) ? companyInfo.travelAgentNo : '-'}</span>

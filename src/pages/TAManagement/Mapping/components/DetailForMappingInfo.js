@@ -41,17 +41,22 @@ class DetailForMapppingInfor extends React.PureComponent {
           <span>{formatMessage({ id: 'MAPPING_DETAIL' })}</span>
         </div>
         <Row {...rowLayOut}>
-          <Col {...colLayOut}>
+          <Col span={24}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_MAIN_TA_PROFILE' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_MAIN_TA_PROFILE' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(companyName) && companyName !== 'null' ? companyName : '-'}</span>
             </div>
           </Col>
+        </Row>
+        <div className={styles.DetailTitle} style={{ marginTop: '16px' }}>
+          <span>{formatMessage({ id: 'BY_SALES_SUPPORT' })}</span>
+        </div>
+        <Row {...rowLayOut}>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_OPERA_EWALLET' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_OPERA_EWALLET' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -63,7 +68,21 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_OPERA_AR_CREDIT' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_GALAXY_EWALLET' })}:</span>
+            </div>
+            <div className={styles.detailLeftStyle}>
+              <span>
+                {!isNvl(queryMappingInfo.galaxyEwallet) && queryMappingInfo.galaxyEwallet !== 'null'
+                  ? queryMappingInfo.galaxyEwallet
+                  : '-'}
+              </span>
+            </div>
+          </Col>
+        </Row>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
+            <div className={styles.detailLabelStyle}>
+              <span>{formatMessage({ id: 'MAPPING_OPERA_AR_CREDIT' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -75,19 +94,7 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_GALAXY_EWALLET' })}</span>
-            </div>
-            <div className={styles.detailLeftStyle}>
-              <span>
-                {!isNvl(queryMappingInfo.galaxyEwallet) && queryMappingInfo.galaxyEwallet !== 'null'
-                  ? queryMappingInfo.galaxyEwallet
-                  : '-'}
-              </span>
-            </div>
-          </Col>
-          <Col {...colLayOut}>
-            <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_GALAXY_CREDIT' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_GALAXY_CREDIT' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -98,9 +105,28 @@ class DetailForMapppingInfor extends React.PureComponent {
               </span>
             </div>
           </Col>
+        </Row>
+        <Row {...rowLayOut}>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_PEOPLESOFR_EWALLET_ID' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_PRODUCT' })}:</span>
+            </div>
+            <div className={styles.detailLeftStyle}>
+              <span>
+                {!isNvl(queryMappingInfo.productName) && queryMappingInfo.productName !== 'null'
+                  ? queryMappingInfo.productName
+                  : '-'}
+              </span>
+            </div>
+          </Col>
+        </Row>
+        <div className={styles.DetailTitle}>
+          <span>{formatMessage({ id: 'BY_ACCOUNTING_AR' })}</span>
+        </div>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
+            <div className={styles.detailLabelStyle}>
+              <span>{formatMessage({ id: 'MAPPING_PEOPLESOFR_EWALLET_ID' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -113,7 +139,22 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_PEOPLESOFR_AR_ACCOUNT_ID' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_EWALLET_FIXED_THRESHOLD' })}:</span>
+            </div>
+            <div className={styles.detailLeftStyle}>
+              <span>
+                {!isNvl(queryMappingInfo.ewalletFixedThreshold) &&
+                queryMappingInfo.ewalletFixedThreshold !== 'null'
+                  ? `$ ${this.toThousands(+queryMappingInfo.ewalletFixedThreshold)}`
+                  : '-'}
+              </span>
+            </div>
+          </Col>
+        </Row>
+        <Row {...rowLayOut}>
+          <Col {...colLayOut}>
+            <div className={styles.detailLabelStyle}>
+              <span>{formatMessage({ id: 'MAPPING_PEOPLESOFR_AR_ACCOUNT_ID' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -126,44 +167,7 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_CREDIT_TERM' })}</span>
-            </div>
-            <div className={styles.detailLeftStyle}>
-              <span>
-                {!isNvl(queryMappingInfo.creditTerm) && queryMappingInfo.creditTerm !== 'null'
-                  ? `Net ${queryMappingInfo.creditTerm} days`
-                  : '-'}
-              </span>
-            </div>
-          </Col>
-          <Col {...colLayOut}>
-            <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_CREDIT_LIMIT' })}</span>
-            </div>
-            <div className={styles.detailLeftStyle}>
-              <span>
-                {!isNvl(queryMappingInfo.creditLimit) && queryMappingInfo.creditLimit !== 'null'
-                  ? `$ ${this.toThousands(+queryMappingInfo.creditLimit)}`
-                  : '-'}
-              </span>
-            </div>
-          </Col>
-          <Col {...colLayOut}>
-            <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_EWALLET_FIXED_THRESHOLD' })}</span>
-            </div>
-            <div className={styles.detailLeftStyle}>
-              <span>
-                {!isNvl(queryMappingInfo.ewalletFixedThreshold) &&
-                queryMappingInfo.ewalletFixedThreshold !== 'null'
-                  ? `$ ${this.toThousands(+queryMappingInfo.ewalletFixedThreshold)}`
-                  : '-'}
-              </span>
-            </div>
-          </Col>
-          <Col {...colLayOut}>
-            <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_AR_FIXED_THRESHOLD' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_AR_FIXED_THRESHOLD' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -176,7 +180,7 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_ACCOUNT_COMMENCEMENT_DATE' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_ACCOUNT_COMMENCEMENT_DATE' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -188,7 +192,7 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_AR_ACCOUNT_END_DATE' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_AR_ACCOUNT_END_DATE' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -198,9 +202,36 @@ class DetailForMapppingInfor extends React.PureComponent {
               </span>
             </div>
           </Col>
+        </Row>
+        <Row {...rowLayOut}>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_SECURITY_DEPOSIT_AMOUNT' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_CREDIT_TERM' })}:</span>
+            </div>
+            <div className={styles.detailLeftStyle}>
+              <span>
+                {!isNvl(queryMappingInfo.creditTerm) && queryMappingInfo.creditTerm !== 'null'
+                  ? `Net ${queryMappingInfo.creditTerm} days`
+                  : '-'}
+              </span>
+            </div>
+          </Col>
+          <Col {...colLayOut}>
+            <div className={styles.detailLabelStyle}>
+              <span>{formatMessage({ id: 'MAPPING_CREDIT_LIMIT' })}:</span>
+            </div>
+            <div className={styles.detailLeftStyle}>
+              <span>
+                {!isNvl(queryMappingInfo.creditLimit) && queryMappingInfo.creditLimit !== 'null'
+                  ? `$ ${this.toThousands(+queryMappingInfo.creditLimit)}`
+                  : '-'}
+              </span>
+            </div>
+          </Col>
+
+          <Col {...colLayOut}>
+            <div className={styles.detailLabelStyle}>
+              <span>{formatMessage({ id: 'MAPPING_SECURITY_DEPOSIT_AMOUNT' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -213,7 +244,7 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_AMOUNT' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_AMOUNT' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -226,7 +257,7 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_EXPIRY_DATE' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_BANKER_GUARANTEE_EXPIRY_DATE' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
@@ -238,24 +269,12 @@ class DetailForMapppingInfor extends React.PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_CURRENCY' })}</span>
+              <span>{formatMessage({ id: 'MAPPING_CURRENCY' })}:</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.currency) && queryMappingInfo.currency !== 'null'
                   ? queryMappingInfo.currency
-                  : '-'}
-              </span>
-            </div>
-          </Col>
-          <Col {...colLayOut}>
-            <div className={styles.detailLabelStyle}>
-              <span>{formatMessage({ id: 'MAPPING_PRODUCT' })}</span>
-            </div>
-            <div className={styles.detailLeftStyle}>
-              <span>
-                {!isNvl(queryMappingInfo.productName) && queryMappingInfo.productName !== 'null'
-                  ? queryMappingInfo.productName
                   : '-'}
               </span>
             </div>

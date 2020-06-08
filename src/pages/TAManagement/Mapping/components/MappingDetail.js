@@ -210,7 +210,7 @@ class MappingDetailList extends React.PureComponent {
     const numFormat = formatMessage({ id: 'LIMIT_TEN' });
     const ruleArr = [{ len: Number(lintNum || '10'), message: numFormat.replace('10', lintNum) }];
     return (
-      <Col lg={24} md={24} id={`${viewId}`}>
+      <Col lg={24} md={24} id={`${viewId}`} className={detailStyles.detailContainer}>
         <div
           className="has-shadow no-border"
           style={{ padding: '15px 24px', backgroundColor: '#fff' }}
@@ -235,7 +235,7 @@ class MappingDetailList extends React.PureComponent {
               <div className={detailStyles.DetailTitle}>
                 <span>{formatMessage({ id: 'BY_SALES_SUPPORT' })}</span>
               </div>
-              <Row style={{ marginBottom: '8px' }} gutter={16}>
+              <Row gutter={16}>
                 <Col {...colLayOut}>
                   <FormItem label={formatMessage({ id: 'MAPPING_OPERA_EWALLET' })}>
                     {getFieldDecorator('operaEwallet', {
@@ -245,19 +245,6 @@ class MappingDetailList extends React.PureComponent {
                         type="text"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
                         disabled={isSaleSupportRoleFlag !== true}
-                      />
-                    )}
-                  </FormItem>
-                </Col>
-                <Col {...colLayOut}>
-                  <FormItem label={formatMessage({ id: 'MAPPING_OPERA_AR_CREDIT' })}>
-                    {getFieldDecorator('operaArCredit', {
-                      initialValue: this.handleInitVal('operaArCredit'),
-                    })(
-                      <Input
-                        type="text"
-                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isSaleSupportRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -275,6 +262,21 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_OPERA_AR_CREDIT' })}>
+                    {getFieldDecorator('operaArCredit', {
+                      initialValue: this.handleInitVal('operaArCredit'),
+                    })(
+                      <Input
+                        type="text"
+                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        disabled={isSaleSupportRoleFlag !== true || !arAllowed}
+                      />
+                    )}
+                  </FormItem>
+                </Col>
                 <Col {...colLayOut}>
                   <FormItem label={formatMessage({ id: 'MAPPING_GALAXY_CREDIT' })}>
                     {getFieldDecorator('galaxyArCredit', {
@@ -288,6 +290,8 @@ class MappingDetailList extends React.PureComponent {
                     )}
                   </FormItem>
                 </Col>
+              </Row>
+              <Row gutter={16}>
                 <Col {...colLayOut}>
                   <FormItem label={formatMessage({ id: 'MAPPING_PRODUCT' })}>
                     {getFieldDecorator('product', {
@@ -326,76 +330,6 @@ class MappingDetailList extends React.PureComponent {
                   </FormItem>
                 </Col>
                 <Col {...colLayOut}>
-                  <FormItem label={formatMessage({ id: 'MAPPING_PEOPLESOFR_AR_ACCOUNT_ID' })}>
-                    {getFieldDecorator('peoplesoftArAccountId', {
-                      initialValue: this.handleInitVal('peoplesoftArAccountId'),
-                      rules: [...ruleArr],
-                    })(
-                      <Input
-                        type="text"
-                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
-                      />
-                    )}
-                  </FormItem>
-                </Col>
-                <Col {...colLayOut}>
-                  <FormItem label={formatMessage({ id: 'MAPPING_CREDIT_TERM' })}>
-                    {getFieldDecorator('creditTerm', {
-                      initialValue: this.handleInitVal('creditTerm'),
-                      rules: [
-                        {
-                          required: isAccountingArRoleFlag === true && arAllowed,
-                          message: 'Required',
-                        },
-                      ],
-                    })(
-                      <Select
-                        showSearch
-                        placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                        optionFilterProp="children"
-                        getPopupContainer={() => document.getElementById(`${viewId}`)}
-                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
-                      >
-                        {createTeamList && createTeamList.length > 0
-                          ? createTeamList.map(item => (
-                            <Select.Option
-                              key={`createTeamList${item.dictId}`}
-                              value={`${item.dictId}`}
-                            >
-                              {item.dictName}
-                            </Select.Option>
-                            ))
-                          : null}
-                      </Select>
-                    )}
-                  </FormItem>
-                </Col>
-                <Col {...colLayOut}>
-                  <FormItem label={formatMessage({ id: 'MAPPING_CREDIT_LIMIT' })}>
-                    {getFieldDecorator('creditLimit', {
-                      initialValue: this.handleInitVal('creditLimit'),
-                      rules: [
-                        {
-                          required: isAccountingArRoleFlag === true && arAllowed,
-                          message: 'Required',
-                        },
-                      ],
-                    })(
-                      <InputNumber
-                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        style={{ width: '100%' }}
-                        parser={value => {
-                          value = value.replace(/[^\d]/g, '');
-                          return value;
-                        }}
-                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
-                      />
-                    )}
-                  </FormItem>
-                </Col>
-                <Col {...colLayOut}>
                   <FormItem label={formatMessage({ id: 'MAPPING_EWALLET_FIXED_THRESHOLD' })}>
                     {getFieldDecorator('ewalletFixedThreshold', {
                       initialValue: this.handleInitVal('ewalletFixedThreshold'),
@@ -416,6 +350,22 @@ class MappingDetailList extends React.PureComponent {
                           return value;
                         }}
                         disabled={isAccountingArRoleFlag !== true}
+                      />
+                    )}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_PEOPLESOFR_AR_ACCOUNT_ID' })}>
+                    {getFieldDecorator('peoplesoftArAccountId', {
+                      initialValue: this.handleInitVal('peoplesoftArAccountId'),
+                      rules: [...ruleArr],
+                    })(
+                      <Input
+                        type="text"
+                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
                   </FormItem>
@@ -468,6 +418,64 @@ class MappingDetailList extends React.PureComponent {
                         style={{ width: '100%' }}
                         format="YYYY-MM-DD"
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
+                      />
+                    )}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_CREDIT_TERM' })}>
+                    {getFieldDecorator('creditTerm', {
+                      initialValue: this.handleInitVal('creditTerm'),
+                      rules: [
+                        {
+                          required: isAccountingArRoleFlag === true && arAllowed,
+                          message: 'Required',
+                        },
+                      ],
+                    })(
+                      <Select
+                        showSearch
+                        placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                        optionFilterProp="children"
+                        getPopupContainer={() => document.getElementById(`${viewId}`)}
+                        disabled={isAccountingArRoleFlag !== true || !arAllowed}
+                      >
+                        {createTeamList && createTeamList.length > 0
+                          ? createTeamList.map(item => (
+                            <Select.Option
+                              key={`createTeamList${item.dictId}`}
+                              value={`${item.dictId}`}
+                            >
+                              {item.dictName}
+                            </Select.Option>
+                            ))
+                          : null}
+                      </Select>
+                    )}
+                  </FormItem>
+                </Col>
+                <Col {...colLayOut}>
+                  <FormItem label={formatMessage({ id: 'MAPPING_CREDIT_LIMIT' })}>
+                    {getFieldDecorator('creditLimit', {
+                      initialValue: this.handleInitVal('creditLimit'),
+                      rules: [
+                        {
+                          required: isAccountingArRoleFlag === true && arAllowed,
+                          message: 'Required',
+                        },
+                      ],
+                    })(
+                      <InputNumber
+                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        style={{ width: '100%' }}
+                        parser={value => {
+                          value = value.replace(/[^\d]/g, '');
+                          return value;
+                        }}
                         disabled={isAccountingArRoleFlag !== true || !arAllowed}
                       />
                     )}
