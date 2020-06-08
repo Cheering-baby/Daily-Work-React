@@ -37,7 +37,7 @@ export default {
   PUBLISHED_DATE: 'Published Date',
   FILE: 'File',
   OPERATION: 'operation',
-  CATEGORISED: 'Categorised',
+  CATEGORY: 'Category',
   READ_STATUS: 'Read Status',
   READ_STATUS_READ: 'Read',
   READ_STATUS_UNREAD: 'Unread',

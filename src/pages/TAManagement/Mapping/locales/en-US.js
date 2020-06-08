@@ -1,5 +1,5 @@
 export default {
-  MAPPING_MAIN_TA_PROFILE: 'Main TA Profile',
+  MAPPING_MAIN_TA_PROFILE: 'Main Travel Agent Profile',
   MAPPING_OPERA_EWALLET: 'Opera e-Wallet',
   MAPPING_OPERA_AR_CREDIT: ' Opera AR Credit',
   MAPPING_GALAXY_EWALLET: 'Galaxy e-Wallet',

@@ -29,26 +29,12 @@ import SCREEN from '@/utils/screen';
 import { getUrl, handleDownFile, isNvl } from '@/utils/utils';
 import { getAllChildrenTargetList, getAllTargetList } from '../utils/pubUtils';
 
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 4 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
-  },
-  colon: false,
-};
-
 const formItemHalfLayout = {
   labelCol: {
-    xs: { span: 24 },
-    sm: { span: 4 },
+    span: 24,
   },
   wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 18 },
+    span: 20,
   },
   colon: false,
 };
@@ -652,7 +638,7 @@ class NotificationEdit extends React.PureComponent {
               <p className={styles.title}>{formatMessage({ id: 'PUBLISH_EDIT_BULLETIN' })}</p>
             )}
             <Form.Item
-              {...formItemLayout}
+              {...formItemHalfLayout}
               label={formatMessage({ id: 'TITLE' })}
               className={styles.titleLabelItem}
             >
@@ -678,28 +664,28 @@ class NotificationEdit extends React.PureComponent {
                 </a>
               </Input.Group>
             </Form.Item>
-            {notificationInfo.saveTemplate === true && (
-              <Form.Item {...formItemLayout} label={formatMessage({ id: 'REASON_DURATION' })}>
-                {getFieldDecorator(`reasonDuration`, {
-                  initialValue: reasonDuration || [],
-                  rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
-                })(
-                  <DatePicker.RangePicker
-                    placeholder={formatMessage({ id: 'NOTICE_PLEASE_SELECT' })}
-                    style={{ width: '100%' }}
-                    format="DD/MM/YYYY"
-                    onChange={dates => this.onHandleRangeChange(dates)}
-                  />
-                )}
-              </Form.Item>
-            )}
-            <Form.Item {...formItemHalfLayout} label={formatMessage({ id: 'REASON_SCOPE_ROLE' })}>
+            {/* {notificationInfo.saveTemplate === true && ( */}
+            <Form.Item label={formatMessage({ id: 'REASON_DURATION' })}>
+              {getFieldDecorator(`reasonDuration`, {
+                initialValue: reasonDuration || [],
+                rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
+              })(
+                <DatePicker.RangePicker
+                  placeholder={formatMessage({ id: 'NOTICE_PLEASE_SELECT' })}
+                  style={{ width: '350px' }}
+                  format="DD/MM/YYYY"
+                  onChange={dates => this.onHandleRangeChange(dates)}
+                />
+              )}
+            </Form.Item>
+            {/* )} */}
+            <Form.Item label={formatMessage({ id: 'REASON_SCOPE_ROLE' })} {...formItemHalfLayout}>
               {getFieldDecorator(`targetList`, {
                 initialValue: tList || [],
                 rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
               })(<TreeSelect {...tProps} />)}
             </Form.Item>
-            <Form.Item {...formItemLayout} label={formatMessage({ id: 'COMMUNICATION_TYPE' })}>
+            <Form.Item label={formatMessage({ id: 'COMMUNICATION_TYPE' })}>
               {getFieldDecorator(`type`, {
                 initialValue: notificationInfo.type || null,
                 rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
@@ -741,7 +727,6 @@ class NotificationEdit extends React.PureComponent {
               </div>
             </Form.Item>
             <Form.Item
-              {...formItemHalfLayout}
               label={formatMessage({ id: 'FILE' })}
               extra={formatMessage({ id: 'FILE_SUPPORT_EXTENSION' })}
             >
@@ -765,7 +750,7 @@ class NotificationEdit extends React.PureComponent {
                 )}
               </Spin>
             </Form.Item>
-            <Form.Item {...formItemHalfLayout} label={formatMessage({ id: 'STATE' })}>
+            <Form.Item label={formatMessage({ id: 'STATE' })}>
               {getFieldDecorator(`status`, {
                 initialValue: notificationInfo.status || null,
                 rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
@@ -812,12 +797,7 @@ class NotificationEdit extends React.PureComponent {
                 </Radio.Group>
               )}
             </Form.Item>
-            <Form.Item
-              {...formItemHalfLayout}
-              className={styles.saveTemplateItem}
-              label={' '}
-              extra={formatMessage({ id: 'NOTE' })}
-            >
+            <Form.Item className={styles.saveTemplateItem} extra={formatMessage({ id: 'NOTE' })}>
               {getFieldDecorator(`saveTemplate`, {
                 valuePropName: 'checked',
                 initialValue: notificationInfo.saveTemplate || false,

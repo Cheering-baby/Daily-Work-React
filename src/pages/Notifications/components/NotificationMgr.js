@@ -143,7 +143,7 @@ class NotificationMgr extends PureComponent {
           width: '12%',
           render: (text, record) => (
             <div>
-              <Tooltip title="detail">
+              <Tooltip title="Detail">
                 <Icon
                   type="eye"
                   className={styles.iconClass}
@@ -156,7 +156,7 @@ class NotificationMgr extends PureComponent {
               (record.status === '01' ||
                 (record.status === '03' &&
                   moment(record.scheduleDate, 'YYYY-MM-DD HH:mm:ss') >= moment())) ? (
-                    <Tooltip title="edit">
+                    <Tooltip title="Edit">
                       <Icon
                         type="edit"
                         className={styles.iconClass}
@@ -170,7 +170,7 @@ class NotificationMgr extends PureComponent {
               (record.status === '01' ||
                 (record.status === '03' &&
                   moment(record.scheduleDate, 'YYYY-MM-DD HH:mm:ss') >= moment())) ? (
-                    <Tooltip title="delete">
+                    <Tooltip title="Delete">
                       <Icon
                         type="delete"
                         className={styles.iconClass}

@@ -29,7 +29,7 @@ class NotificationTemplate extends PureComponent {
         width: '50%',
       },
       {
-        title: showTableTitle(formatMessage({ id: 'CATEGORISED' })),
+        title: showTableTitle(formatMessage({ id: 'CATEGORY' })),
         dataIndex: 'Categorised',
         key: 'View',
         width: '25%',

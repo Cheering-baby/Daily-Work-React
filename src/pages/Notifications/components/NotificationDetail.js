@@ -70,7 +70,11 @@ class NotificationDetail extends PureComponent {
         return target;
       });
     }
-    return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
+    return !isNvl(text) ? (
+      <span>
+        <Tooltip title={text}>{text}</Tooltip>
+      </span>
+    ) : null;
   };
 
   getStatus = status => {
@@ -120,14 +124,12 @@ class NotificationDetail extends PureComponent {
       >
         <Row type="flex" justify="space-around">
           <Col span={24} className={styles.detailCardContentTop}>
-            <span>
-              {!isNvl(notificationInfo.scheduleDate)
-                ? moment(notificationInfo.scheduleDate).format('DD-MMM-YYYY HH:mm:ss')
-                : '-'}
-            </span>
-            {notificationInfo.subType === '01' ? (
-              <span>{this.getReceiverArray(notificationInfo.targetList)}</span>
+            {!isNvl(notificationInfo.scheduleDate) ? (
+              <span>{moment(notificationInfo.scheduleDate).format('DD-MMM-YYYY HH:mm:ss')}</span>
             ) : null}
+            {notificationInfo.subType === '01'
+              ? this.getReceiverArray(notificationInfo.targetList)
+              : null}
             {isAdminRoleFlag ? <span>{notificationInfo.createBy}</span> : null}
           </Col>
           <Col span={24}>
