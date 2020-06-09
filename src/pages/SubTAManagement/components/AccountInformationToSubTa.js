@@ -1,6 +1,19 @@
 import React, { PureComponent } from 'react';
 import { Card, Col, Form, Input, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
+import { colLayOut, rowLayOut } from '../utils/pubUtils';
+
+const addressLayOut = {
+  xs: 24,
+  sm: 24,
+  md: 24,
+  lg: 24,
+  xl: 16,
+  xxl: 16,
+  style: {
+    height: '75px',
+  },
+};
 
 @Form.create()
 class AccountInformationToSubTa extends PureComponent {
@@ -25,12 +38,10 @@ class AccountInformationToSubTa extends PureComponent {
         <Row type="flex" justify="space-around">
           <Col span={24}>
             <Card title={formatMessage({ id: 'SUB_TA_ACCOUNT_INFORMATION' })}>
-              <Row type="flex" justify="space-around">
-                <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+              <Row {...rowLayOut}>
+                <Col {...colLayOut}>
                   <Form.Item
                     label={formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })}
-                    colon={false}
-                    {...detailOpt.formItemLayout}
                   >
                     {getFieldDecorator('mainCompanyName', {
                       initialValue: subTaInfo.mainCompanyName || null,
@@ -51,16 +62,11 @@ class AccountInformationToSubTa extends PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-                  &nbsp;
-                </Col>
               </Row>
-              <Row type="flex" justify="space-around">
-                <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+              <Row {...rowLayOut}>
+                <Col {...colLayOut}>
                   <Form.Item
                     label={formatMessage({ id: 'SUB_TA_FULL_NAME' })}
-                    colon={false}
-                    {...detailOpt.formItemLayout}
                   >
                     {getFieldDecorator('fullName', {
                       initialValue: subTaInfo.fullName || null,
@@ -78,11 +84,9 @@ class AccountInformationToSubTa extends PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+                <Col {...colLayOut}>
                   <Form.Item
                     label={formatMessage({ id: 'SUB_TA_EMAIL' })}
-                    colon={false}
-                    {...detailOpt.formItemLayout}
                   >
                     {getFieldDecorator('email', {
                       initialValue: subTaInfo.email || null,
@@ -100,13 +104,9 @@ class AccountInformationToSubTa extends PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row type="flex" justify="space-around">
-                <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+                <Col {...colLayOut}>
                   <Form.Item
                     label={formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}
-                    colon={false}
-                    {...detailOpt.formItemLayout}
                   >
                     {getFieldDecorator('companyName', {
                       initialValue: subTaInfo.companyName || null,
@@ -130,11 +130,10 @@ class AccountInformationToSubTa extends PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12}>
+                <Col {...colLayOut}>
                   <Form.Item
                     label={formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}
-                    colon={false}
-                    {...detailOpt.formItemLayout}
+
                   >
                     {getFieldDecorator('country', {
                       initialValue: subTaInfo.country || [],
@@ -159,19 +158,15 @@ class AccountInformationToSubTa extends PureComponent {
                             >
                               {item.dictName}
                             </Select.Option>
-                            ))
+                          ))
                           : null}
                       </Select>
                     )}
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row type="flex" justify="space-around">
-                <Col span={24}>
+                <Col {...addressLayOut}>
                   <Form.Item
                     label={formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}
-                    colon={false}
-                    {...detailOpt.formItemRowLayout}
                   >
                     {getFieldDecorator('address', {
                       initialValue: subTaInfo.address || null,

@@ -1,5 +1,22 @@
 import { isNvl } from '@/utils/utils';
 
+export const colLayOut = {
+  xs: 24,
+  sm: 24,
+  md: 24,
+  lg: 12,
+  xl: 8,
+  xxl: 8,
+  style: {
+    height: '75px',
+  },
+};
+
+export const rowLayOut = {
+  type: 'flex',
+  gutter: 15,
+};
+
 export function getFormLayout() {
   const formItemLayout = {
     labelCol: {
