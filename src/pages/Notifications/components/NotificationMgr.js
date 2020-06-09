@@ -259,7 +259,7 @@ class NotificationMgr extends PureComponent {
         width: '10%',
         render: (text, record) => (
           <div>
-            <Tooltip title="detail">
+            <Tooltip title="Detail">
               <Icon
                 type="eye"
                 className={styles.iconClass}

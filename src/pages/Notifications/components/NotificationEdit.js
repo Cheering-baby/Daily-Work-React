@@ -638,9 +638,9 @@ class NotificationEdit extends React.PureComponent {
               <p className={styles.title}>{formatMessage({ id: 'PUBLISH_EDIT_BULLETIN' })}</p>
             )}
             <Form.Item
-              {...formItemHalfLayout}
-              label={formatMessage({ id: 'TITLE' })}
+              label={`${formatMessage({ id: 'TITLE' })} :`}
               className={styles.titleLabelItem}
+              {...formItemHalfLayout}
             >
               <Input.Group compact={'compact' ? 1 : 0}>
                 <div className={styles.titleItem}>
@@ -664,22 +664,25 @@ class NotificationEdit extends React.PureComponent {
                 </a>
               </Input.Group>
             </Form.Item>
-            {/* {notificationInfo.saveTemplate === true && ( */}
-            <Form.Item label={formatMessage({ id: 'REASON_DURATION' })}>
-              {getFieldDecorator(`reasonDuration`, {
-                initialValue: reasonDuration || [],
-                rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
-              })(
-                <DatePicker.RangePicker
-                  placeholder={formatMessage({ id: 'NOTICE_PLEASE_SELECT' })}
-                  style={{ width: '350px' }}
-                  format="DD/MM/YYYY"
-                  onChange={dates => this.onHandleRangeChange(dates)}
-                />
-              )}
-            </Form.Item>
-            {/* )} */}
-            <Form.Item label={formatMessage({ id: 'REASON_SCOPE_ROLE' })} {...formItemHalfLayout}>
+            {notificationInfo.saveTemplate === true && (
+              <Form.Item label={formatMessage({ id: 'REASON_DURATION' })}>
+                {getFieldDecorator(`reasonDuration`, {
+                  initialValue: reasonDuration || [],
+                  rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
+                })(
+                  <DatePicker.RangePicker
+                    placeholder={formatMessage({ id: 'NOTICE_PLEASE_SELECT' })}
+                    style={{ width: '350px' }}
+                    format="DD/MM/YYYY"
+                    onChange={dates => this.onHandleRangeChange(dates)}
+                  />
+                )}
+              </Form.Item>
+            )}
+            <Form.Item
+              label={`${formatMessage({ id: 'REASON_SCOPE_ROLE' })} :`}
+              {...formItemHalfLayout}
+            >
               {getFieldDecorator(`targetList`, {
                 initialValue: tList || [],
                 rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
@@ -708,7 +711,7 @@ class NotificationEdit extends React.PureComponent {
             </Form.Item>
             <Form.Item
               {...formItemHalfLayout}
-              label={formatMessage({ id: 'PUBLISH_CONTENT' })}
+              label={`${formatMessage({ id: 'PUBLISH_CONTENT' })} :`}
               className={styles.notificationEditCardQuill}
             >
               <div>

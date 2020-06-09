@@ -127,11 +127,16 @@ class NotificationDetail extends PureComponent {
             {!isNvl(notificationInfo.scheduleDate) ? (
               <span>{moment(notificationInfo.scheduleDate).format('DD-MMM-YYYY HH:mm:ss')}</span>
             ) : null}
-            {notificationInfo.subType === '01'
-              ? this.getReceiverArray(notificationInfo.targetList)
-              : null}
             {isAdminRoleFlag ? <span>{notificationInfo.createBy}</span> : null}
           </Col>
+          {notificationInfo.subType === '01' ? (
+            <Col span={24} className={styles.detailCardContentTop}>
+              <span style={{ marginRight: '10px' }}>
+                {formatMessage({ id: 'REASON_SCOPE_ROLE' })} :{' '}
+              </span>
+              {this.getReceiverArray(notificationInfo.targetList)}
+            </Col>
+          ) : null}
           <Col span={24}>
             <div className={styles.detailCardContent}>
               {this.showHtml(notificationInfo.content)}
