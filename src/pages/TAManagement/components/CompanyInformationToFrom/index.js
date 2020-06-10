@@ -6,6 +6,7 @@ import { colLayOut, rowLayOut } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
+import SortSelect from '@/components/SortSelect';
 
 class CompanyInformationToFrom extends PureComponent {
   getTravelAgentNoLabel = country => {
@@ -60,6 +61,7 @@ class CompanyInformationToFrom extends PureComponent {
       cityLoadingFlag = false,
       customerGroupLoadingFlag = false,
       onHandleChange,
+      isTaDeActivationFlag,
     } = this.props;
     const { getFieldDecorator } = form;
     const companyInfo = (customerInfo || {}).companyInfo || {};
@@ -69,7 +71,7 @@ class CompanyInformationToFrom extends PureComponent {
     if (isMainTaRoleFlag || isAccountingArRoleFlag) {
       isAllDisabled = true;
     }
-    if (isAccountingArRoleFlag) {
+    if (isAccountingArRoleFlag || isTaDeActivationFlag) {
       isRoleDisabled = true;
     }
     return (
@@ -166,33 +168,34 @@ class CompanyInformationToFrom extends PureComponent {
                     initialValue: companyInfo.country || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       onChange={value => onHandleChange('country', value, 'country')}
                       disabled={isAllDisabled}
-                    >
-                      {countryList && countryList.length > 0
-                        ? countryList.map(item => (
-                          <Select.Option
-                            key={`countryList${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={item.dictName}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
-                                }
+                      options={
+                        countryList && countryList.length > 0
+                          ? countryList.map(item => (
+                            <Select.Option
+                              key={`countryList${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={item.dictName}
                             >
-                              {item.dictName}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                                  }
+                              >
+                                {item.dictName}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
                 <Form.Item colon={false} className={styles.cityItem}>
@@ -205,7 +208,7 @@ class CompanyInformationToFrom extends PureComponent {
                       },
                     ],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
@@ -213,26 +216,27 @@ class CompanyInformationToFrom extends PureComponent {
                       onChange={value => onHandleChange('city', value, 'city')}
                       loading={cityLoadingFlag}
                       disabled={isAllDisabled}
-                    >
-                      {cityList && cityList.length > 0
-                        ? cityList.map(item => (
-                          <Select.Option
-                            key={`cityList${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={item.dictName}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
-                                }
+                      options={
+                        cityList && cityList.length > 0
+                          ? cityList.map(item => (
+                            <Select.Option
+                              key={`cityList${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={item.dictName}
                             >
-                              {item.dictName}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                                  }
+                              >
+                                {item.dictName}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
               </Input.Group>
@@ -440,7 +444,7 @@ class CompanyInformationToFrom extends PureComponent {
                     initialValue: companyInfo.category || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="children"
@@ -448,18 +452,19 @@ class CompanyInformationToFrom extends PureComponent {
                       onChange={value => onHandleChange('category', value, 'category')}
                       style={{ width: '50%', marginTop: '4px' }}
                       disabled={isAllDisabled}
-                    >
-                      {categoryList && categoryList.length > 0
-                        ? categoryList.map(item => (
-                          <Select.Option
-                            key={`categoryList${item.dictId}`}
-                            value={`${item.dictId}`}
-                          >
-                            {item.dictName}
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                      options={
+                        categoryList && categoryList.length > 0
+                          ? categoryList.map(item => (
+                            <Select.Option
+                              key={`categoryList${item.dictId}`}
+                              value={`${item.dictId}`}
+                            >
+                              {item.dictName}
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                   {getFieldDecorator('customerGroup', {
                     initialValue: !isNvl(companyInfo.customerGroup)
@@ -467,7 +472,7 @@ class CompanyInformationToFrom extends PureComponent {
                       : [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="children"
@@ -476,18 +481,19 @@ class CompanyInformationToFrom extends PureComponent {
                       style={{ width: '50%', marginTop: '4px' }}
                       loading={customerGroupLoadingFlag}
                       disabled={isAllDisabled}
-                    >
-                      {customerGroupList && customerGroupList.length > 0
-                        ? customerGroupList.map(item => (
-                          <Select.Option
-                            key={`customerGroupList${item.dictId}`}
-                            value={`${item.dictId}`}
-                          >
-                            {item.dictName}
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                      options={
+                        customerGroupList && customerGroupList.length > 0
+                          ? customerGroupList.map(item => (
+                            <Select.Option
+                              key={`customerGroupList${item.dictId}`}
+                              value={`${item.dictId}`}
+                            >
+                              {item.dictName}
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Input.Group>
               </Form.Item>

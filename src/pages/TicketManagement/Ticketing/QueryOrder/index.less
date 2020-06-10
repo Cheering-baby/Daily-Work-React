@@ -25,6 +25,32 @@
   line-height: 15px;
 }
 
+.searchTitle {
+  :global {
+    div.ant-table > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th, div.ant-table > .ant-table-content > .ant-table-scroll > .ant-table-body > table > .ant-table-thead > tr > th {
+      background: #fafafa;
+      height: 44px;
+    }
+
+    .ant-table-footer{
+      padding: 0 !important;
+    }
+  }
+}
+
+.tableRowStyle {
+  height: 44px;
+}
+
+.hideIcon{
+  height: 44px;
+  :global {
+    .ant-table-row-expand-icon{
+      display: none;
+    }
+  }
+}
+
 .operateButtonDivStyle {
   position: absolute;
   right: 0;
@@ -37,10 +63,10 @@
 }
 
 .bocaRow {
-  height: 36px;
-  line-height: 36px;
+  height: 44px;
+  line-height: 44px;
   background-color: #fff;
-  margin-top: 4px;
+  //margin: 9px -24px -9px 24px;
   border: 1px solid #f3f3f3;
 }
 
@@ -55,4 +81,26 @@
 .bocaValueCol {
   padding-right: 10px;
   text-align: center;
+}
+
+.tableFooterDiv {
+  height: 44px;
+  line-height: 44px;
+
+  .tableFooterSpan {
+    font-family: calibriBold;
+    font-size: 15px;
+    color: #565656;
+    letter-spacing: 0;
+    line-height: 15px;
+    margin-right: 10px;
+  }
+
+  .tableTotalPrice {
+    font-family: calibriBold;
+    font-size: 15px;
+    color: #565656;
+    letter-spacing: 0;
+    line-height: 15px;
+  }
 }

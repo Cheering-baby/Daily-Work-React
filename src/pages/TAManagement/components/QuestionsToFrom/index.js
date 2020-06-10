@@ -4,6 +4,7 @@ import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { getProductType } from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
+import SortSelect from '@/components/SortSelect';
 
 class QuestionsToFrom extends PureComponent {
   getRwsRoomVolumeRules = (productInfoOne, isRwsNewRoom, productTypeRoom) => {
@@ -123,31 +124,34 @@ class QuestionsToFrom extends PureComponent {
                   { validator: this.compareToNationalities },
                 ],
               })(
-                <Select
+                <SortSelect
                   mode="multiple"
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   optionFilterProp="label"
                   onChange={value => onHandleNationChange('topNationalities', value)}
                   getPopupContainer={() => document.getElementById(`${viewId}`)}
                   disabled={isDisable}
-                >
-                  {countryList && countryList.length > 0
-                    ? countryList.map(item => (
-                      <Select.Option
-                        key={`topNationalities${item.dictId}`}
-                        value={`${item.dictId}`}
-                        label={item.dictName}
-                      >
-                        <Tooltip
-                          placement="topLeft"
-                          title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
+                  options={
+                    countryList && countryList.length > 0
+                      ? countryList.map(item => (
+                        <Select.Option
+                          key={`topNationalities${item.dictId}`}
+                          value={`${item.dictId}`}
+                          label={item.dictName}
                         >
-                          {item.dictName}
-                        </Tooltip>
-                      </Select.Option>
-                      ))
-                    : null}
-                </Select>
+                          <Tooltip
+                            placement="topLeft"
+                            title={
+                              <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                              }
+                          >
+                            {item.dictName}
+                          </Tooltip>
+                        </Select.Option>
+                        ))
+                      : null
+                  }
+                />
               )}
             </Form.Item>
           </Col>

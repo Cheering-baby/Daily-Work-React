@@ -1,5 +1,7 @@
-import { accept, reject } from '../services/queryOrderService';
+import { message } from 'antd';
+import { accept, queryOrder, reject } from '../services/queryOrderService';
 import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
+import serialize from '@/pages/TicketManagement/Ticketing/QueryOrder/utils/utils';
 
 export default {
   namespace: 'auditOrderMgr',
@@ -16,6 +18,21 @@ export default {
         type: 'save',
         payload,
       });
+    },
+    *queryAuditStatus({ payload }, { call }) {
+      const response = yield call(queryOrder, serialize(payload));
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        const { bookings = [] } = result;
+        if (bookings.length === 1) {
+          return bookings[0].status;
+        }
+      } else {
+        message.error(resultMsg);
+      }
     },
     *audit(_, { call, select }) {
       const { activityId, auditSelect, rejectReason } = yield select(state => state.auditOrderMgr);

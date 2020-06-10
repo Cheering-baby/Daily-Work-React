@@ -25,6 +25,7 @@ import ARApply from './components/ARApply';
 import More from './components/More';
 import Approval from './components/Approval';
 import styles from './index.less';
+import SortSelect from '@/components/SortSelect';
 
 const ACTIVITY_STATUS = {
   Approved: '00',
@@ -408,8 +409,10 @@ class MyWallet extends React.PureComponent {
                   {getFieldDecorator(`transactionType`, {
                     rules: [{ required: false, message: '' }],
                   })(
-                    <Select placeholder="Transaction Type" allowClear>
-                      {transactionTypes.map((item, index) => {
+                    <SortSelect
+                      placeholder="Transaction Type"
+                      allowClear
+                      options={transactionTypes.map((item, index) => {
                         return (
                           // eslint-disable-next-line react/no-array-index-key
                           <Select.Option value={item.value} key={`tr_options_${index}`}>
@@ -417,7 +420,7 @@ class MyWallet extends React.PureComponent {
                           </Select.Option>
                         );
                       })}
-                    </Select>
+                    />
                   )}
                 </Form.Item>
               </Col>

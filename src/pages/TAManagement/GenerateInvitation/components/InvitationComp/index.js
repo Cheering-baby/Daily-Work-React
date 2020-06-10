@@ -4,6 +4,7 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
+import SortSelect from '@/components/SortSelect';
 
 const mapStateToProps = store => {
   const {
@@ -157,21 +158,22 @@ class InvitationComp extends PureComponent {
                       { validator: this.compareToEmailList },
                     ],
                   })(
-                    <Select
+                    <SortSelect
                       mode="tags"
                       maxTagCount={999}
                       onChange={this.sendToChange}
                       open={false}
                       style={{ width: '100%' }}
-                    >
-                      {emailList && emailList.length > 0
-                        ? emailList.map(item => (
-                          <Select.Option key={`${item.key}`} value={`${item.email}`}>
-                            {`${item.email}`}
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                      options={
+                        emailList && emailList.length > 0
+                          ? emailList.map(item => (
+                            <Select.Option key={`${item.key}`} value={`${item.email}`}>
+                              {`${item.email}`}
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
               </Spin>

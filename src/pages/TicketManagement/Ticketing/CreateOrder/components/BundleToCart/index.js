@@ -20,6 +20,7 @@ import { isNullOrUndefined } from 'util';
 import { reBytesStr } from '@/utils/utils';
 import { calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
+import SortSelect from '@/components/SortSelect';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -622,7 +623,7 @@ class ToCart extends Component {
                       ],
                     })(
                       <div>
-                        <Select
+                        <SortSelect
                           value={country}
                           showSearch
                           allowClear
@@ -632,8 +633,7 @@ class ToCart extends Component {
                           filterOption={(input, option) =>
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
-                        >
-                          {countrys.map((item, index) => {
+                          options={countrys.map((item, index) => {
                             const key = `country_${index}`;
                             const { lookupName } = item;
                             return (
@@ -642,7 +642,7 @@ class ToCart extends Component {
                               </Option>
                             );
                           })}
-                        </Select>
+                        />
                       </div>
                     )}
                   </FormItem>

@@ -8,7 +8,8 @@ import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 const FormItem = Form.Item;
 
 @Form.create()
-@connect(({ auditOrderMgr, loading }) => ({
+@connect(({ queryOrderMgr, auditOrderMgr, loading }) => ({
+  queryOrderMgr,
   auditOrderMgr,
   pageLoading: loading.effects['auditOrderMgr/audit'],
 }))
@@ -21,7 +22,12 @@ class Audit extends React.Component {
   }
 
   handleOk = () => {
-    const { dispatch, form } = this.props;
+    const {
+      dispatch,
+      form,
+      queryOrderMgr: { selectedBookings, transactionList },
+      auditOrderMgr: { auditSelect },
+    } = this.props;
     form.validateFields(err => {
       if (!err) {
         dispatch({
@@ -30,9 +36,46 @@ class Audit extends React.Component {
           if (resultCode === ERROR_CODE_SUCCESS) {
             this.handleCancel();
             message.success(formatMessage({ id: 'AUDIT_SUCCESSFULLY' }));
-            dispatch({
-              type: 'queryOrderMgr/queryTransactions',
-            });
+            const selectedBooking = selectedBookings[0];
+            const { transType } = selectedBooking;
+            if (transType === 'booking' && auditSelect === 'Approve') {
+              dispatch({
+                type: 'auditOrderMgr/queryAuditStatus',
+                payload: {
+                  bookingId: selectedBooking.bookingNo,
+                  currentPage: 1,
+                  pageSize: 10,
+                },
+              }).then(status => {
+                if (status && status === 'WaitingForPaying') {
+                  for (let i = 0; i < transactionList.length; i += 1) {
+                    if (transactionList[i].bookingNo === selectedBooking.bookingNo) {
+                      transactionList[i].status = status;
+                      dispatch({
+                        type: 'queryOrderMgr/save',
+                        payload: {
+                          transactionList,
+                        },
+                      });
+                      dispatch({
+                        type: 'queryOrderPaymentMgr/save',
+                        payload: {
+                          paymentModalVisible: true,
+                          selectedBooking,
+                          bookDetail: selectedBooking,
+                          bookingNo: selectedBooking.bookingNo,
+                        },
+                      });
+                      break;
+                    }
+                  }
+                }
+              });
+            } else {
+              dispatch({
+                type: 'queryOrderMgr/queryTransactions',
+              });
+            }
           }
         });
       }

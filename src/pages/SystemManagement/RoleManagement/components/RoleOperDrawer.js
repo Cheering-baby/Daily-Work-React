@@ -18,6 +18,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../index.less';
 import constants from '../constants';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 const { Search } = Input;
@@ -317,13 +318,12 @@ class Index extends React.PureComponent {
             },
           ],
         })(
-          <Select
+          <SortSelect
             allowClear
             disabled={operType !== constants.ADD_USER_ROLE && includePerson > 0}
             placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-          >
-            {this.getRoleTypeOptions()}
-          </Select>
+            options={this.getRoleTypeOptions()}
+          />
         )}
       </Form.Item>
     );

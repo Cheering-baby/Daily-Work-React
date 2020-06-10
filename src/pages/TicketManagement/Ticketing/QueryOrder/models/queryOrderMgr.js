@@ -6,6 +6,7 @@ import {
   downloadETicket,
   downloadInvoice,
   queryOrder,
+  queryTask,
 } from '../services/queryOrderService';
 
 export default {
@@ -34,6 +35,8 @@ export default {
     selectedBookings: [],
     subSelectedRowKeys: [],
     subSelectedBookings: [],
+    downloadFileLoading: false,
+    expandTableKeys: [],
   },
 
   effects: {
@@ -81,6 +84,7 @@ export default {
         status: paramsStatus,
         agentId: params.agentType === 'agentId' ? params.agentValue : null,
         agentName: params.agentType === 'agentName' ? params.agentValue : null,
+        sortType: 1,
       };
       delete paramList.agentType;
       delete paramList.agentValue;
@@ -104,15 +108,22 @@ export default {
             totalSize,
             selectedRowKeys: [],
             selectedBookings: [],
+            expandTableKeys: [],
           },
         });
       } else {
         message.error(resultMsg);
       }
     },
-    *download({ payload }, { call }) {
+    *download({ payload }, { call, put, select }) {
       const { ifReprint = false } = payload;
       delete payload.ifReprint;
+      yield put({
+        type: 'save',
+        payload: {
+          downloadFileLoading: true,
+        },
+      });
       const paramList = serialize(payload);
       let response = null;
       if (ifReprint) {
@@ -124,18 +135,88 @@ export default {
       const {
         data: { resultCode, resultMsg, result },
       } = response;
-      if (resultCode === '0') {
-        try {
-          window.open(result);
-        } catch (e) {
-          if (ifReprint) {
-            return formatMessage({ id: 'FAILED_TO_REPRINT' });
+      if (resultCode === '0' || resultCode === 'AppTransaction-120042') {
+        if (resultCode === 'AppTransaction-120042') {
+          message.warn(resultMsg);
+        }
+        if (!ifReprint) {
+          let taskStatus = 'processing';
+          while (taskStatus === 'processing') {
+            const { downloadFileLoading } = yield select(state => state.queryOrderMgr);
+            if (!downloadFileLoading) {
+              return;
+            }
+            const queryTaskParams = {
+              taskId: result,
+            };
+            const responseDetail = yield call(queryTask, queryTaskParams);
+            const {
+              data: {
+                resultCode: queryTaskResultCode,
+                resultMsg: queryTaskResultMsg,
+                result: queryTaskResult,
+              },
+            } = responseDetail;
+            if (!responseDetail || !responseDetail.success) {
+              message.error('queryTask error.');
+              return;
+            }
+            if (queryTaskResultCode === '0') {
+              if (queryTaskResult && queryTaskResult.status === 'success') {
+                taskStatus = 'success';
+                try {
+                  window.open(queryTaskResult.result);
+                  message.success(formatMessage({ id: 'DOWNLOADED_SUCCESSFULLY' }));
+                } catch (e) {
+                  message.error(formatMessage({ id: 'FAILED_TO_DOWNLOAD' }));
+                }
+              }
+              if (queryTaskResult && queryTaskResult.status === 'failed') {
+                taskStatus = 'failed';
+              }
+              if (queryTaskResult && queryTaskResult.reason) {
+                message.warn(queryTaskResult.reason);
+              }
+            } else {
+              taskStatus = 'failed';
+              message.error(queryTaskResultMsg);
+            }
+            yield call(
+              () =>
+                new Promise(resolve => {
+                  setTimeout(() => resolve(), 5000);
+                })
+            );
           }
-          return formatMessage({ id: 'FAILED_TO_DOWNLOAD' });
+          if (resultCode === 'AppTransaction-120042') {
+            message.warn(resultMsg);
+          }
+          yield put({
+            type: 'save',
+            payload: {
+              downloadFileLoading: false,
+            },
+          });
+        } else {
+          try {
+            window.open(result);
+            message.success(formatMessage({ id: 'DOWNLOADED_SUCCESSFULLY' }));
+          } catch (e) {
+            if (ifReprint) {
+              message.error(formatMessage({ id: 'FAILED_TO_REPRINT' }));
+            }
+            message.error(formatMessage({ id: 'FAILED_TO_DOWNLOAD' }));
+          }
         }
       } else {
         return resultMsg;
       }
+      yield put({
+        type: 'save',
+        payload: {
+          downloadFileLoading: false,
+        },
+      });
       return resultCode;
     },
     *resubmit({ payload }, { call, put }) {
@@ -228,6 +309,8 @@ export default {
         selectedBookings: [],
         subSelectedRowKeys: [],
         subSelectedBookings: [],
+        downloadFileLoading: false,
+        expandTableKeys: [],
       };
     },
   },

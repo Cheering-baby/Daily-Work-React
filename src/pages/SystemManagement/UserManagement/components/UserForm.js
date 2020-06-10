@@ -10,6 +10,7 @@ import moment from 'moment';
 import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -523,7 +524,7 @@ class Index extends React.PureComponent {
                       },
                     ],
                   })(
-                    <Select
+                    <SortSelect
                       onChange={this.companyChange}
                       disabled={type === 'DETAIL' || type === 'EDIT'}
                       allowClear
@@ -532,9 +533,8 @@ class Index extends React.PureComponent {
                       filterOption={(input, option) =>
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
-                    >
-                      {this.getCompanyOptions()}
-                    </Select>
+                      options={this.getCompanyOptions()}
+                    />
                   )}
                 </Form.Item>
               </Col>
@@ -547,7 +547,7 @@ class Index extends React.PureComponent {
                     {getFieldDecorator(`subCompanyId`, {
                       initialValue: type === 'NEW' ? undefined : String(subCompanyId),
                     })(
-                      <Select
+                      <SortSelect
                         onChange={this.subCompanyChange}
                         disabled={type === 'DETAIL' || type === 'EDIT'}
                         allowClear
@@ -556,9 +556,8 @@ class Index extends React.PureComponent {
                         filterOption={(input, option) =>
                           option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         }
-                      >
-                        {this.getSubCompanyOptions()}
-                      </Select>
+                        options={this.getSubCompanyOptions()}
+                      />
                     )}
                   </Form.Item>
                 </Col>
@@ -626,15 +625,14 @@ class Index extends React.PureComponent {
                       },
                     ],
                   })(
-                    <Select
+                    <SortSelect
                       allowClear
                       showArrow
                       mode="multiple"
                       disabled={type === 'DETAIL'}
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                    >
-                      {this.getUserRoleOptions()}
-                    </Select>
+                      options={this.getUserRoleOptions()}
+                    />
                   )}
                 </Form.Item>
               </Col>

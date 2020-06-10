@@ -15,7 +15,7 @@ const DEFAULT_DESCRIPTIONS_DATA = {
   Date: 'NaN',
   GST_Reg_No: 'M90364180J',
   Co_Reg_No: '200502573D',
-  Payment_Term: 'Due 30 Days upon\n invoice date',
+  Payment_Term: 'Due Immediately',
   Page: '1 of 1',
 };
 
@@ -37,7 +37,7 @@ const DEFAULT_PAYMENT_INSTRUCTIONS = {
     'Bank Code: 7171, Branch Code: 003, Account No: 003-910526-6, Swift Code: DBSSSGSG',
   party: 'Resorts World at Sentosa Pte Ltd.',
   address: '3, Lim Teck Kim Road #10-01, Genting Centre, Singapore 088934',
-  footer: 'This is a system generated invoice. No signature is required',
+  footer: 'This is a system generated invoice. No signature is required.',
 };
 
 const InvoiceModel = {
@@ -50,7 +50,7 @@ const InvoiceModel = {
       { label: 'Date:', dataKey: 'Date' },
       { label: 'GST Reg No:', dataKey: 'GST_Reg_No' },
       { label: 'Co. Reg No:', dataKey: 'Co_Reg_No' },
-      // { label: 'Payment Term:', dataKey: 'Payment_Term' },
+      { label: 'Payment Term:', dataKey: 'Payment_Term' },
       { label: 'Page:', dataKey: 'Page' },
     ],
     descriptionsData: DEFAULT_DESCRIPTIONS_DATA,
@@ -74,6 +74,7 @@ const InvoiceModel = {
               name: companyInfo.companyName,
               address: companyInfo.address,
               postalCode: companyInfo.postalCode,
+              countryName: companyInfo.countryName,
               primaryFinanceContactName: primaryFinanceContact.contactPerson,
             }),
             descriptionsData: Object.assign(DEFAULT_DESCRIPTIONS_DATA, {
@@ -92,7 +93,7 @@ const InvoiceModel = {
               Line_Description: `${
                 mappingInfo.peoplesoftEwalletId
               }-Top up prepayment \nfor ${moment(flow.createTime)
-                .format('MMMDD')
+                .format('MMM YYYY')
                 .toString()}`,
               internal: {
                 befGstAmount: Number(flow.befGstAmount.toFixed(2)),
@@ -132,26 +133,8 @@ const InvoiceModel = {
           name: 'NaN',
           address: 'NaN',
         },
-        descriptionsData: {
-          AR_NO: 'NaN',
-          Tax_Invoice: 'NaN',
-          Date: 'NaN',
-          GST_Reg_No: 'M90364180J',
-          Co_Reg_No: '200502573D',
-          Payment_Term: 'Due 30 Days upon\n invoice date',
-          Page: '1 of 1',
-        },
-        details: {
-          Date: 'NaN',
-          Line_Description: '',
-          Total_Amount: 'NaN',
-          internal: {
-            befGstAmount: 'NaN',
-            gstAmount: 'NaN',
-            totalAmount: 'NaN',
-          },
-          taxRatio: 'NaN',
-        },
+        descriptionsData: DEFAULT_DESCRIPTIONS_DATA,
+        details: DEFAULT_DETAILS,
       };
     },
     toggleModal(state, { payload }) {

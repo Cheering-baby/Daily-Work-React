@@ -145,14 +145,19 @@ class OrderItemCollapse extends Component {
 
   getOfferRender = (orderOffer, offerIndex) => {
     const { orderIndex, companyType, functionActive } = this.props;
-
+    const offerNameColGrid = { xs: 9, sm: 9, md: 9, lg: 10, xl: 10, xxl: 10 };
+    const sessionColGrid = { xs: 5, sm: 5, md: 5, lg: 8, xl: 8, xxl: 8 };
+    const priceColGrid = { xs: 6, sm: 6, md: 6, lg: 3, xl: 3, xxl: 3 };
+    const operationColGrid = { xs: 4, sm: 4, md: 4, lg: 3, xl: 3, xxl: 3 };
+    const totalAColGrid = { xs: 14, sm: 14, md: 14, lg: 11, xl: 11, xxl: 11 };
+    const totalBColGrid = { xs: 7, sm: 7, md: 7, lg: 10, xl: 10, xxl: 10 };
     return (
       <Collapse.Panel
         key={`package_${orderIndex}_${offerIndex}`}
         className={styles.collapsePanelStyles}
         header={
           <Row gutter={24} className={styles.collapsePanelHeaderRow}>
-            <Col span={10}>
+            <Col {...offerNameColGrid}>
               <Checkbox
                 value="ALL"
                 checked={orderOffer.orderAll}
@@ -167,17 +172,17 @@ class OrderItemCollapse extends Component {
                 {this.getTitleNameStr(orderOffer)}
               </span>
             </Col>
-            <Col span={8}>
+            <Col {...sessionColGrid}>
               <span className={styles.collapsePanelHeaderStyles}>
                 {this.getOrderTime(orderOffer)}
               </span>
             </Col>
-            <Col span={3} className={styles.sumPriceCol}>
+            <Col {...priceColGrid} className={styles.sumPriceCol}>
               {companyType === '01' && (
                 <span className={styles.sumPriceSpan}>{this.getOfferSumPrice(orderOffer)}</span>
               )}
             </Col>
-            <Col span={3}>
+            <Col {...operationColGrid}>
               {functionActive && (
                 <div>
                   <Tooltip title="Delete">
@@ -206,38 +211,36 @@ class OrderItemCollapse extends Component {
           </Row>
         }
       >
-        {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
-            <Col span={10} className={styles.titleCol}>
-              {/* <Checkbox
-                    value={1}
-                    checked={orderInfo.orderCheck}
-                    onClick={this.allClickEvent}
-                    onChange={e => {
-                      this.checkOfferEvent(e, offerIndex, orderOffer, infoIndex, orderInfo);
-                    }}
-                  /> */}
-              <span className={styles.titleSpan}> </span>
-            </Col>
-            <Col span={8} className={styles.dataCol}>
-              <span className={styles.dataSpan}>
-                {orderInfo.ageGroup} x {orderInfo.quantity}
-              </span>
-            </Col>
-            <Col span={3} className={styles.priceCol}>
-              {companyType === '01' && (
-                <span className={styles.priceSpan}>
-                  ${Number(orderInfo.pricePax).toFixed(2)}/pax
-                </span>
-              )}
-            </Col>
-          </Row>
-        ))}
+        {orderOffer.orderInfo.map((orderInfo, infoIndex) => {
+          if (orderInfo.quantity > 0) {
+            return (
+              // eslint-disable-next-line react/no-array-index-key
+              <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
+                <Col {...offerNameColGrid} className={styles.titleCol}>
+                  <span className={styles.titleSpan}> </span>
+                </Col>
+                <Col {...sessionColGrid} className={styles.dataCol}>
+                  <span className={styles.dataSpan}>
+                    {orderInfo.ageGroup} x {orderInfo.quantity}
+                  </span>
+                </Col>
+                <Col {...priceColGrid} className={styles.priceCol}>
+                  {companyType === '01' && (
+                    <span className={styles.priceSpan}>
+                      ${Number(orderInfo.pricePax).toFixed(2)}/pax
+                    </span>
+                  )}
+                </Col>
+              </Row>
+            );
+          }
+
+          return null;
+        })}
         {companyType === '01' && (
           <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
-            <Col span={11} className={styles.titleCol} />
-            <Col span={10} className={styles.totalPriceCol}>
+            <Col {...totalAColGrid} className={styles.titleCol} />
+            <Col {...totalBColGrid} className={styles.totalPriceCol}>
               <span className={styles.totalPriceSpan}>
                 TOTAL: {this.getOfferSumPrice(orderOffer)}
               </span>
@@ -250,14 +253,19 @@ class OrderItemCollapse extends Component {
 
   getOfferFixedRender = (orderOffer, offerIndex) => {
     const { orderIndex, companyType, functionActive } = this.props;
-
+    const offerNameColGrid = { xs: 9, sm: 9, md: 9, lg: 10, xl: 10, xxl: 10 };
+    const sessionColGrid = { xs: 5, sm: 5, md: 5, lg: 8, xl: 8, xxl: 8 };
+    const priceColGrid = { xs: 6, sm: 6, md: 6, lg: 3, xl: 3, xxl: 3 };
+    const operationColGrid = { xs: 4, sm: 4, md: 4, lg: 3, xl: 3, xxl: 3 };
+    const totalAColGrid = { xs: 14, sm: 14, md: 14, lg: 11, xl: 11, xxl: 11 };
+    const totalBColGrid = { xs: 7, sm: 7, md: 7, lg: 10, xl: 10, xxl: 10 };
     return (
       <Collapse.Panel
         key={`package_${orderIndex}_${offerIndex}`}
         className={styles.collapsePanelStyles}
         header={
           <Row gutter={24} className={styles.collapsePanelHeaderRow}>
-            <Col span={10}>
+            <Col {...offerNameColGrid}>
               <Checkbox
                 value="ALL"
                 checked={orderOffer.orderAll}
@@ -272,19 +280,19 @@ class OrderItemCollapse extends Component {
                 {this.getTitleNameStr(orderOffer)}
               </span>
             </Col>
-            <Col span={8}>
+            <Col {...sessionColGrid}>
               <span className={styles.collapsePanelHeaderStyles}>
                 {this.getOrderTime(orderOffer)}
               </span>
             </Col>
-            <Col span={3} className={styles.sumPriceCol}>
+            <Col {...priceColGrid} className={styles.sumPriceCol}>
               {companyType === '01' && (
                 <span className={styles.sumPriceSpan}>
                   {this.getOfferFixedSumPrice(orderOffer)}
                 </span>
               )}
             </Col>
-            <Col span={3}>
+            <Col {...operationColGrid}>
               {functionActive && (
                 <div>
                   <Tooltip title="Delete">
@@ -314,13 +322,13 @@ class OrderItemCollapse extends Component {
         }
       >
         <Row gutter={24} className={styles.contentRow}>
-          <Col span={10} className={styles.titleCol}>
+          <Col {...offerNameColGrid} className={styles.titleCol}>
             <span className={styles.titleSpan}>{this.getProductTypeByOfferFixed(orderOffer)}</span>
           </Col>
-          <Col span={8} className={styles.dataCol}>
+          <Col {...sessionColGrid} className={styles.dataCol}>
             <span className={styles.dataSpan}>Quantity x {orderOffer.orderSummary.quantity}</span>
           </Col>
-          <Col span={3} className={styles.priceCol}>
+          <Col {...priceColGrid} className={styles.priceCol}>
             {companyType === '01' && (
               <span className={styles.priceSpan}>{this.getOfferFixedPricePax(orderOffer)}/pax</span>
             )}
@@ -328,8 +336,8 @@ class OrderItemCollapse extends Component {
         </Row>
         {companyType === '01' && (
           <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
-            <Col span={11} className={styles.titleCol} />
-            <Col span={10} className={styles.totalPriceCol}>
+            <Col {...totalAColGrid} className={styles.titleCol} />
+            <Col {...totalBColGrid} className={styles.totalPriceCol}>
               <span className={styles.totalPriceSpan}>
                 TOTAL: {this.getOfferFixedSumPrice(orderOffer)}
               </span>
@@ -383,14 +391,19 @@ class OrderItemCollapse extends Component {
 
   getOfferBundleRender = (orderOffer, offerIndex) => {
     const { orderIndex, companyType, functionActive } = this.props;
-
+    const offerNameColGrid = { xs: 9, sm: 9, md: 9, lg: 10, xl: 10, xxl: 10 };
+    const sessionColGrid = { xs: 5, sm: 5, md: 5, lg: 8, xl: 8, xxl: 8 };
+    const priceColGrid = { xs: 6, sm: 6, md: 6, lg: 3, xl: 3, xxl: 3 };
+    const operationColGrid = { xs: 4, sm: 4, md: 4, lg: 3, xl: 3, xxl: 3 };
+    const totalAColGrid = { xs: 14, sm: 14, md: 14, lg: 11, xl: 11, xxl: 11 };
+    const totalBColGrid = { xs: 7, sm: 7, md: 7, lg: 10, xl: 10, xxl: 10 };
     return (
       <Collapse.Panel
         key={`package_${orderIndex}_${offerIndex}`}
         className={styles.collapsePanelStyles}
         header={
           <Row gutter={24} className={styles.collapsePanelHeaderRow}>
-            <Col span={10}>
+            <Col {...offerNameColGrid}>
               <Checkbox
                 value="ALL"
                 checked={orderOffer.orderAll}
@@ -405,19 +418,19 @@ class OrderItemCollapse extends Component {
                 {this.getBundleTitleNameStr(orderOffer)}
               </span>
             </Col>
-            <Col span={8}>
+            <Col {...sessionColGrid}>
               <span className={styles.collapsePanelHeaderStyles}>
                 {this.getOrderTime(orderOffer)}
               </span>
             </Col>
-            <Col span={3} className={styles.sumPriceCol}>
+            <Col {...priceColGrid} className={styles.sumPriceCol}>
               {companyType === '01' && (
                 <span className={styles.sumPriceSpan}>
                   {this.getOfferBundleSumPrice(orderOffer)}
                 </span>
               )}
             </Col>
-            <Col span={3}>
+            <Col {...operationColGrid}>
               {functionActive && (
                 <div>
                   <Tooltip title="Delete">
@@ -446,28 +459,35 @@ class OrderItemCollapse extends Component {
           </Row>
         }
       >
-        {orderOffer.orderInfo.map((orderInfo, infoIndex) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
-            <Col span={10} className={styles.titleCol}>
-              <span className={styles.titleSpan}>{this.getTitleNameByOrderInfo(orderInfo)}</span>
-            </Col>
-            <Col span={8} className={styles.dataCol}>
-              <span className={styles.dataSpan}>Quantity x {orderInfo.quantity}</span>
-            </Col>
-            <Col span={3} className={styles.priceCol}>
-              {companyType === '01' && (
-                <span className={styles.priceSpan}>
-                  ${Number(orderInfo.pricePax).toFixed(2)}/pax
-                </span>
-              )}
-            </Col>
-          </Row>
-        ))}
+        {orderOffer.orderInfo.map((orderInfo, infoIndex) => {
+          if (orderInfo.quantity > 0) {
+            return (
+              // eslint-disable-next-line react/no-array-index-key
+              <Row key={`package_orderInfo_${infoIndex}`} gutter={24} className={styles.contentRow}>
+                <Col {...offerNameColGrid} className={styles.titleCol}>
+                  <span className={styles.titleSpan}>
+                    {this.getTitleNameByOrderInfo(orderInfo)}
+                  </span>
+                </Col>
+                <Col {...sessionColGrid} className={styles.dataCol}>
+                  <span className={styles.dataSpan}>Quantity x {orderInfo.quantity}</span>
+                </Col>
+                <Col {...priceColGrid} className={styles.priceCol}>
+                  {companyType === '01' && (
+                    <span className={styles.priceSpan}>
+                      ${Number(orderInfo.pricePax).toFixed(2)}/pax
+                    </span>
+                  )}
+                </Col>
+              </Row>
+            );
+          }
+          return null;
+        })}
         {companyType === '01' && (
           <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
-            <Col span={11} className={styles.titleCol} />
-            <Col span={10} className={styles.totalPriceCol}>
+            <Col {...totalAColGrid} className={styles.titleCol} />
+            <Col {...totalBColGrid} className={styles.totalPriceCol}>
               <span className={styles.totalPriceSpan}>
                 TOTAL: {this.getOfferSumPrice(orderOffer)}
               </span>

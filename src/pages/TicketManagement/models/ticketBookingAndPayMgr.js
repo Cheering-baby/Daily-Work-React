@@ -5,6 +5,7 @@ import {
   invoiceDownload,
   paymentOrder,
   queryBookingStatus,
+  queryTask,
   sendTransactionPaymentOrder,
   ticketDownload,
 } from '@/pages/TicketManagement/services/bookingAndPay';
@@ -25,7 +26,7 @@ export default {
     payModeList: [
       {
         value: 1,
-        label: 'eWallet',
+        label: 'e-Wallet',
         key: 'eWallet',
         check: true,
       },
@@ -106,20 +107,76 @@ export default {
       const {
         data: { resultCode, resultMsg, result = {} },
       } = yield call(ticketDownload, params);
+
+      if (resultCode === '0' || resultCode === 'AppTransaction-120042') {
+        if (resultCode === 'AppTransaction-120042') {
+          message.warn(resultMsg);
+        }
+        let taskStatus = 'processing';
+        while (taskStatus === 'processing') {
+          const { downloadFileLoading } = yield select(state => state.ticketBookingAndPayMgr);
+          if (!downloadFileLoading) {
+            return;
+          }
+          const queryTaskParams = {
+            taskId: result,
+          };
+          const responseDetail = yield call(queryTask, queryTaskParams);
+          const {
+            data: {
+              resultCode: queryTaskResultCode,
+              resultMsg: queryTaskResultMsg,
+              result: queryTaskResult,
+            },
+          } = responseDetail;
+          if (!responseDetail || !responseDetail.success) {
+            message.error('queryTask error.');
+            return;
+          }
+          if (queryTaskResultCode === '0') {
+            if (queryTaskResult && queryTaskResult.status === 'success') {
+              taskStatus = 'success';
+              yield put({
+                type: 'save',
+                payload: {
+                  downloadFileLoading: false,
+                },
+              });
+              return queryTaskResult.result;
+            }
+            if (queryTaskResult && queryTaskResult.status === 'failed') {
+              taskStatus = 'failed';
+            }
+            if (queryTaskResult && queryTaskResult.reason) {
+              message.warn(queryTaskResult.reason);
+            }
+          } else {
+            taskStatus = 'failed';
+            message.error(queryTaskResultMsg);
+          }
+          yield call(
+            () =>
+              new Promise(resolve => {
+                setTimeout(() => resolve(), 5000);
+              })
+          );
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            downloadFileLoading: false,
+          },
+        });
+        return null;
+      }
       yield put({
         type: 'save',
         payload: {
           downloadFileLoading: false,
         },
       });
-      if (resultCode === '0') {
-        return result;
-      }
-      if (resultCode === 'AppTransaction-120042') {
-        message.warn(resultMsg);
-        return result;
-      }
       message.error(resultMsg);
+      return null;
     },
 
     *fetchInvoiceDownload(_, { call, select }) {
@@ -478,7 +535,7 @@ export default {
         payModeList: [
           {
             value: 1,
-            label: 'eWallet',
+            label: 'e-Wallet',
             key: 'eWallet',
             check: true,
           },

@@ -20,6 +20,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import styles from '../New/index.less';
 import { reBytesStr } from '@/utils/utils';
+import SortSelect from '@/components/SortSelect';
 
 const { confirm } = Modal;
 const { RangePicker } = DatePicker;
@@ -726,14 +727,18 @@ class NewCommission extends React.PureComponent {
                   },
                 ],
               })(
-                <Select placeholder={formatMessage({ id: 'PLEASE_SELECT' })} allowClear>
-                  <Select.Option value="Tiered">
-                    {formatMessage({ id: 'TIERED_COMMISSION' })}
-                  </Select.Option>
-                  <Select.Option value="Attendance">
-                    {formatMessage({ id: 'ATTENDANCE_COMMISSION' })}
-                  </Select.Option>
-                </Select>
+                <SortSelect
+                  placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                  allowClear
+                  options={[
+                    <Select.Option value="Tiered">
+                      {formatMessage({ id: 'TIERED_COMMISSION' })}
+                    </Select.Option>,
+                    <Select.Option value="Attendance">
+                      {formatMessage({ id: 'ATTENDANCE_COMMISSION' })}
+                    </Select.Option>,
+                  ]}
+                />
               )}
             </Form.Item>
           </Col>

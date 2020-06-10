@@ -4,6 +4,7 @@ import { formatMessage } from 'umi/locale';
 import FilterBanner from '@/pages/ReportCenter/PamsReport/components/FilterBanner';
 import SelectReceiverModal from '@/pages/ReportCenter/PamsReport/ScheduledTasks/components/SelectReceiverModal';
 import styles from './index.less';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -30,7 +31,7 @@ const ScheduledTasksFilterBanner = props => {
 
     return (
       <div onClick={() => setReceiverModalVisible(true)}>
-        <Select
+        <SortSelect
           allowClear
           placeholder={formatMessage({ id: 'RECEIVER' })}
           mode="multiple"
@@ -38,13 +39,12 @@ const ScheduledTasksFilterBanner = props => {
           onChange={handleChange}
           value={selectedItems}
           className={styles.multipleSelect}
-        >
-          {selectedReceivers.map(item => (
+          options={selectedReceivers.map(item => (
             <Option key={item.userCode} value={item.userCode}>
               {item.userCode}
             </Option>
           ))}
-        </Select>
+        />
       </div>
     );
   };

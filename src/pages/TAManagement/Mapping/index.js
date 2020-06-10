@@ -21,6 +21,7 @@ import MediaQuery from 'react-responsive';
 import detailStyles from './index.less';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
+import SortSelect from '@/components/SortSelect';
 
 const formItemLayout = {
   labelCol: {
@@ -498,18 +499,17 @@ class Index extends React.PureComponent {
                     {getFieldDecorator('status', {
                       // initialValue: this.handleInitVal('status'),
                     })(
-                      <Select
+                      <SortSelect
                         placeholder={formatMessage({ id: 'STATUS' })}
                         optionFilterProp="children"
                         style={{ width: '100%' }}
                         allowClear
-                      >
-                        {salutationList.map(status => (
+                        options={salutationList.map(status => (
                           <Select.Option key={`option_${status.dictId}`} value={status.dictId}>
                             {status.dictName}
                           </Select.Option>
                         ))}
-                      </Select>
+                      />
                     )}
                   </Form.Item>
                 </Col>

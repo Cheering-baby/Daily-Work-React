@@ -124,7 +124,11 @@ class OrderItemCollapse extends Component {
 
   render() {
     const { companyType, orderIndex, onceAPirateOrder, functionActive } = this.props;
-
+    const offerNameColGrid = { xs: 14, sm: 14, md: 14, lg: 18, xl: 18, xxl: 18 };
+    const priceColGrid = { xs: 6, sm: 6, md: 6, lg: 3, xl: 3, xxl: 3 };
+    const operationColGrid = { xs: 4, sm: 4, md: 4, lg: 3, xl: 3, xxl: 3 };
+    const totalAColGrid = { xs: 14, sm: 14, md: 14, lg: 11, xl: 11, xxl: 11 };
+    const totalBColGrid = { xs: 7, sm: 7, md: 7, lg: 10, xl: 10, xxl: 10 };
     return (
       <Collapse
         bordered={false}
@@ -143,7 +147,7 @@ class OrderItemCollapse extends Component {
           key="OrderPanel"
           header={
             <Row gutter={24} className={styles.collapsePanelHeaderRow}>
-              <Col span={18}>
+              <Col {...offerNameColGrid}>
                 <Checkbox
                   value="ALL"
                   checked={onceAPirateOrder.orderAll}
@@ -163,12 +167,12 @@ class OrderItemCollapse extends Component {
                   </Tooltip>
                 )}
               </Col>
-              <Col span={3} className={styles.sumPriceCol}>
+              <Col {...priceColGrid} className={styles.sumPriceCol}>
                 {companyType === '01' && (
                   <span className={styles.sumPriceSpan}>{this.getOrderSumPrice()}</span>
                 )}
               </Col>
-              <Col span={3}>
+              <Col {...operationColGrid}>
                 {functionActive && (
                   <div>
                     <Tooltip title="Delete">
@@ -232,8 +236,8 @@ class OrderItemCollapse extends Component {
             ))}
           {companyType === '01' && (
             <Row gutter={24} className={styles.contentRowTwo} style={{ margin: '0' }}>
-              <Col span={11} className={styles.titleCol} />
-              <Col span={10} className={styles.totalPriceCol}>
+              <Col {...totalAColGrid} className={styles.titleCol} />
+              <Col {...totalBColGrid} className={styles.totalPriceCol}>
                 <span className={styles.totalPriceSpan}>TOTAL: {this.getOrderSumPrice()}</span>
               </Col>
             </Row>

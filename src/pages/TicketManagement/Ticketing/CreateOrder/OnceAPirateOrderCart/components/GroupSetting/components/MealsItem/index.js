@@ -3,6 +3,7 @@ import { Button, Col, Form, InputNumber, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from '../../index.less';
+import SortSelect from '@/components/SortSelect';
 
 class MealsItem extends Component {
   mealsChangeEvent = value => {
@@ -198,13 +199,13 @@ class MealsItem extends Component {
                 rules: [{ required: true, message: 'Required' }],
                 initialValue: mealItem.meals === null ? undefined : mealItem.meals,
               })(
-                <Select
+                <SortSelect
                   showSearch
                   allowClear
                   placeholder="Please Select"
                   onChange={this.mealsChangeEvent}
-                >
-                  {voucherProductList &&
+                  options={
+                    voucherProductList &&
                     voucherProductList.map(item => (
                       <Select.Option
                         key={`${offerDetail.offerInfo.offerNo}_${mealItemIndex}_meals`}
@@ -213,8 +214,9 @@ class MealsItem extends Component {
                       >
                         {item.productName}
                       </Select.Option>
-                    ))}
-                </Select>
+                    ))
+                  }
+                />
               )}
             </Form.Item>
           </Col>

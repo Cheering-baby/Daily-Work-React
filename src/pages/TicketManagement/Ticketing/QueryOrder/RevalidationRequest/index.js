@@ -23,6 +23,7 @@ import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompFor
 import styles from './index.less';
 import Card from '../../../components/Card';
 import PaginationComp from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaginationComp';
+import SortSelect from '@/components/SortSelect';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -344,23 +345,34 @@ class RevalidationRequest extends Component {
 
   getUploadProps = (file, nowPageSize) => {
     const { dispatch } = this.props;
-    const reader = new FileReader();
-    reader.readAsText(file);
-    reader.onload = function() {
-      dispatch({
-        type: 'revalidationRequestMgr/uploadFile',
-        payload: {
-          uploadVidList: this.result,
-          pageSize: nowPageSize,
-        },
-      }).then(uploadStatus => {
-        if (uploadStatus) {
-          message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
-        } else {
-          message.warning(formatMessage({ id: 'FAILED_TO_UPDATE' }));
-        }
-      });
-    };
+    const { name } = file;
+    if (
+      name &&
+      name
+        .toString()
+        .substring(name.toString().length - 3, name.toString().length)
+        .toLowerCase() === 'csv'
+    ) {
+      const reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = function() {
+        dispatch({
+          type: 'revalidationRequestMgr/uploadFile',
+          payload: {
+            uploadVidList: this.result,
+            pageSize: nowPageSize,
+          },
+        }).then(uploadStatus => {
+          if (uploadStatus) {
+            message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
+          } else {
+            message.warning(formatMessage({ id: 'FAILED_TO_UPDATE' }));
+          }
+        });
+      };
+    } else {
+      message.warning('Please upload the file in CSV format.');
+    }
     return false;
   };
 
@@ -525,17 +537,18 @@ class RevalidationRequest extends Component {
                         initialValue: deliveryMode !== null ? deliveryMode : undefined,
                       })(
                         <div>
-                          <Select
+                          <SortSelect
                             allowClear
                             placeholder="Please Select"
                             className={styles.selectStyle}
                             value={deliveryMode !== null ? deliveryMode : undefined}
                             onChange={value => this.changeDeliveryMode(value)}
-                          >
-                            <Option value="BOCA">BOCA</Option>
-                            <Option value="VID">VID</Option>
-                            <Option value="e-Ticket">e-Ticket</Option>
-                          </Select>
+                            options={[
+                              <Option value="BOCA">BOCA</Option>,
+                              <Option value="VID">VID</Option>,
+                              <Option value="e-Ticket">e-Ticket</Option>,
+                            ]}
+                          />
                         </div>
                       )}
                     </FormItem>

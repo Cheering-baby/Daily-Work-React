@@ -5,8 +5,6 @@ import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getCountryStr, colLayOut, rowLayOut } from '../../utils/pubUtils';
 
-
-
 class RegistrationInformationToSubTa extends PureComponent {
   render() {
     const { subTaInfo = {}, countryList = [], isProfile } = this.props;
@@ -17,18 +15,16 @@ class RegistrationInformationToSubTa extends PureComponent {
           {!isProfile && (
             <Col span={24}>
               <div className={styles.detailLeftStyle}>
-                <span>{formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })}</span>
+                <span>{formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })} :</span>
               </div>
               <div className={styles.detailLeftStyle}>
-                <span>
-                  {!isNvl(subTaInfo.mainCompanyName) ? subTaInfo.mainCompanyName : '-'}
-                </span>
+                <span>{!isNvl(subTaInfo.mainCompanyName) ? subTaInfo.mainCompanyName : '-'}</span>
               </div>
             </Col>
           )}
           <Col {...colLayOut}>
             <div className={styles.detailLeftStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_FULL_NAME' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_FULL_NAME' })} :</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.fullName) ? subTaInfo.fullName : '-'}</span>
@@ -36,7 +32,7 @@ class RegistrationInformationToSubTa extends PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLeftStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_EMAIL' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_EMAIL' })} :</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.email) ? subTaInfo.email : '-'}</span>
@@ -44,7 +40,7 @@ class RegistrationInformationToSubTa extends PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLeftStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_COMPANY_NAME' })} :</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.companyName) ? subTaInfo.companyName : '-'}</span>
@@ -52,7 +48,7 @@ class RegistrationInformationToSubTa extends PureComponent {
           </Col>
           <Col {...colLayOut}>
             <div className={styles.detailLeftStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })} :</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{getCountryStr(countryList, subTaInfo.country)}</span>
@@ -60,7 +56,7 @@ class RegistrationInformationToSubTa extends PureComponent {
           </Col>
           <Col span={24}>
             <div className={styles.detailLeftStyle}>
-              <span>{formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}</span>
+              <span>{formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })} :</span>
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{!isNvl(subTaInfo.address) ? subTaInfo.address : '-'}</span>

@@ -30,12 +30,13 @@ class SendETicket extends React.Component {
             email,
             busiType: 'e-Ticket',
           },
-        }).then(resultCode => {
+        }).then(data => {
+          const { resultCode, resultMsg } = data;
           if (resultCode === '0') {
             message.success(formatMessage({ id: 'SENT_SUCCESSFULLY' }));
             this.handleCancel();
           } else {
-            message.warning(resultCode);
+            message.warn(resultMsg);
           }
         });
       }

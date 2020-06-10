@@ -3,6 +3,7 @@ import { Button, Col, Form, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from '../../index.less';
+import SortSelect from '@/components/SortSelect';
 
 class CustomerMeal extends Component {
   componentDidMount() {}
@@ -182,14 +183,14 @@ class CustomerMeal extends Component {
                   initialValue: customerItem.meals === null ? undefined : customerItem.meals,
                 }
               )(
-                <Select
+                <SortSelect
                   key={`customerMeal_${customerItemIndex}`}
                   showSearch
                   allowClear
                   placeholder="Please Select"
                   onChange={this.mealsChangeEvent}
-                >
-                  {voucherProductList &&
+                  options={
+                    voucherProductList &&
                     voucherProductList.map(item => (
                       <Select.Option
                         key={`customer_${offerDetail.offerInfo.offerNo}_meals_${Math.random()}`}
@@ -198,8 +199,9 @@ class CustomerMeal extends Component {
                       >
                         {item.productName}
                       </Select.Option>
-                    ))}
-                </Select>
+                    ))
+                  }
+                />
               )}
             </Form.Item>
           </Col>

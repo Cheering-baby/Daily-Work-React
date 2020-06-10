@@ -27,7 +27,7 @@ class OrderPay extends Component {
     super(props);
     const clientHeight =
       document.getElementsByClassName('main-layout-content ant-layout-content')[0].clientHeight -
-      50 -
+      200 -
       70 -
       97;
     this.state = {
@@ -92,13 +92,13 @@ class OrderPay extends Component {
 
     if (companyType === '02') {
       message.success('Your request has been submitted.');
-      router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
+      router.push(`/TicketManagement/Ticketing/CreateOrder?operateType=goBack`);
       return;
     }
 
     confirmEventSubmitTime = 1;
     const payMode = payModeList.find(payModeItem => payModeItem.check);
-    if (payMode.label === 'eWallet') {
+    if (payMode.label === 'e-Wallet') {
       if (accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         dispatch({
           type: 'ticketBookingAndPayMgr/confirmEvent',
@@ -161,7 +161,7 @@ class OrderPay extends Component {
       return false;
     }
 
-    if (payMode.label === 'eWallet') {
+    if (payMode.label === 'e-Wallet') {
       if (accountInfo.eWallet && accountInfo.eWallet.balance >= bookDetail.totalPrice) {
         active = true;
       }
@@ -296,6 +296,15 @@ class OrderPay extends Component {
           <BreadcrumbCompForPams title={title} />
         </MediaQuery>
 
+        <Card
+          className={styles.orderCardStyles}
+          style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
+        >
+          {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
+          {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
+          {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
+        </Card>
+
         {companyType && (
           <Card className={styles.cardDeliverStyles}>
             <Row style={{ padding: '15px' }}>
@@ -327,24 +336,25 @@ class OrderPay extends Component {
                 </Row>
               </Col>
             </Row>
+            {deliveryMode === 'BOCA' && companyType !== '02' && (
+              <Row>
+                <Col style={{ padding: '15px 15px 0px 15px' }}>
+                  <BOCAOfferCollapse
+                    form={form}
+                    companyType={companyType}
+                    quantity={ticketAmount}
+                    pricePax={bocaFeePax}
+                  />
+                </Col>
+              </Row>
+            )}
+            <Row>
+              <Col style={{ padding: '15px' }}>
+                {companyType !== '02' && this.payTotal() > 0 && <PaymentMode form={form} />}
+              </Col>
+            </Row>
           </Card>
         )}
-
-        <Card style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}>
-          {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
-          {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
-          {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
-          {deliveryMode === 'BOCA' && companyType !== '02' && (
-            <BOCAOfferCollapse
-              form={form}
-              companyType={companyType}
-              quantity={ticketAmount}
-              pricePax={bocaFeePax}
-            />
-          )}
-          {companyType !== '02' && this.payTotal() > 0 && <PaymentMode form={form} />}
-        </Card>
-
         <Card
           className={styles.cardStyles}
           style={{
@@ -354,7 +364,7 @@ class OrderPay extends Component {
           }}
         >
           <Row className={styles.checkOut}>
-            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox} />
+            <Col xs={0} md={8} lg={4} className={styles.checkOutCheckBox} />
             <Col xs={24} md={16} lg={20} className={styles.checkOutBtn}>
               {companyType === '01' && (
                 <div className={styles.checkOutPayDiv}>

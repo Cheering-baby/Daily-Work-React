@@ -24,6 +24,7 @@ import {
   hasAllPrivilege,
   SALES_SUPPORT_PRIVILEGE,
 } from '@/utils/PrivilegeUtil';
+import SortSelect from '@/components/SortSelect';
 
 const detailOpt = getFormLayout();
 const FormItem = Form.Item;
@@ -436,24 +437,25 @@ class MappingDetailList extends React.PureComponent {
                         },
                       ],
                     })(
-                      <Select
+                      <SortSelect
                         showSearch
                         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                         optionFilterProp="children"
                         getPopupContainer={() => document.getElementById(`${viewId}`)}
                         disabled={isAccountingArRoleFlag !== true || !arAllowed}
-                      >
-                        {createTeamList && createTeamList.length > 0
-                          ? createTeamList.map(item => (
-                            <Select.Option
-                              key={`createTeamList${item.dictId}`}
-                              value={`${item.dictId}`}
-                            >
-                              {item.dictName}
-                            </Select.Option>
-                            ))
-                          : null}
-                      </Select>
+                        options={
+                          createTeamList && createTeamList.length > 0
+                            ? createTeamList.map(item => (
+                              <Select.Option
+                                key={`createTeamList${item.dictId}`}
+                                value={`${item.dictId}`}
+                              >
+                                {item.dictName}
+                              </Select.Option>
+                              ))
+                            : null
+                        }
+                      />
                     )}
                   </FormItem>
                 </Col>

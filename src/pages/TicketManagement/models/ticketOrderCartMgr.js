@@ -40,7 +40,7 @@ export default {
     collectionDate: null,
     bocaFeePax: 0.0,
     offerOrderData: [],
-    selectAllOrder: true,
+    selectAllOrder: false,
     selectAllIndeterminate: false,
     orderCartDataAmount: 0,
     packageOrderData: [],
@@ -732,7 +732,6 @@ export default {
 
     *settingPackAgeTicketOrderData({ payload }, { put }) {
       const { orderData } = payload;
-      console.log(orderData);
       if (orderData.orderType === 'offerBundle') {
         yield put({
           type: 'settingBundleTicketOrderData',
@@ -751,14 +750,14 @@ export default {
       const { themeParkCode, themeParkName } = orderData;
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
-          orderCheck: true,
+          orderCheck: false,
           ...orderInfo,
         };
       });
       const newOrderItem = Object.assign(
         {},
         {
-          orderAll: true,
+          orderAll: false,
           indeterminate: false,
           ...orderData,
           orderInfo: newOrderInfo,
@@ -831,7 +830,7 @@ export default {
       const { themeParkCode, themeParkName } = orderData;
       const newOrderInfo = orderData.orderInfo.map(orderInfo => {
         return {
-          orderCheck: true,
+          orderCheck: false,
           ...orderInfo,
         };
       });
@@ -840,7 +839,7 @@ export default {
         {},
         {
           packageId,
-          orderAll: true,
+          orderAll: false,
           indeterminate: false,
           ...orderData,
           orderInfo: newOrderInfo,
@@ -938,7 +937,7 @@ export default {
       // new data setting
       const orderOfferList = orderData.orderOfferList.map(orderOffer => {
         return {
-          orderCheck: true,
+          orderCheck: false,
           ...orderOffer,
           orderInfo: {
             ...orderOffer.orderInfo,
@@ -949,7 +948,7 @@ export default {
       const addOrderItem = Object.assign(
         {},
         {
-          orderAll: true,
+          orderAll: false,
           indeterminate: false,
           voucherType: orderData.voucherType,
           ...orderData,
@@ -1154,7 +1153,7 @@ export default {
         collectionDate: null,
         bocaFeePax: 0.0,
         offerOrderData: [],
-        selectAllOrder: true,
+        selectAllOrder: false,
         selectAllIndeterminate: false,
         orderCartDataAmount: 0,
         packageOrderData: [],

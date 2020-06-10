@@ -7,6 +7,7 @@ import { connect } from 'dva';
 import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
+import SortSelect from '@/components/SortSelect';
 
 const { Panel } = Collapse;
 const { Search } = Input;
@@ -493,14 +494,13 @@ class Index extends React.PureComponent {
                 },
               ],
             })(
-              <Select
+              <SortSelect
                 allowClear
                 disabled={this.getOrgTypeDisable()}
                 onChange={this.orgTypeChange}
                 placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-              >
-                {this.getOrgTypes()}
-              </Select>
+                options={this.getOrgTypes()}
+              />
             )}
           </Form.Item>
           {orgType === '00' || orgType === '01' || orgType === '02' ? (
@@ -514,13 +514,12 @@ class Index extends React.PureComponent {
                   },
                 ],
               })(
-                <Select
+                <SortSelect
                   allowClear
                   onChange={this.onCompanyChange}
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                >
-                  {this.getCompanyOptions()}
-                </Select>
+                  options={this.getCompanyOptions()}
+                />
               )}
             </Form.Item>
           ) : null}

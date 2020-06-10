@@ -11,6 +11,7 @@ import Edit from './components/Edit';
 import { isNvl } from '@/utils/utils';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -400,19 +401,20 @@ class Offline extends React.PureComponent {
                       `themeParkCode`,
                       {}
                     )(
-                      <Select
+                      <SortSelect
                         placeholder={formatMessage({ id: 'THEME_PARK' })}
                         optionFilterProp="children"
                         style={{ width: '100%', ...inflate }}
                         allowClear
-                      >
-                        {themeParkList &&
+                        options={
+                          themeParkList &&
                           themeParkList.map(item => (
                             <Option key={item.itemValue} value={item.itemValue}>
                               {item.itemName}
                             </Option>
-                          ))}
-                      </Select>
+                          ))
+                        }
+                      />
                     )}
                   </Form.Item>
                 </Col>

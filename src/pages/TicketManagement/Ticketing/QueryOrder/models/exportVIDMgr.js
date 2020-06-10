@@ -1,8 +1,10 @@
 import { formatMessage } from 'umi/locale';
+import { message } from 'antd';
 import serialize from '../utils/utils';
 import {
   downloadETicket,
   queryBookingDetail,
+  queryTask,
 } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
 export default {
@@ -14,6 +16,7 @@ export default {
       isSubOrder: null,
     },
     vidList: [],
+    downloadFileLoading: false,
   },
 
   effects: {
@@ -48,19 +51,77 @@ export default {
         });
       } else throw resultMsg;
     },
-    *downloadETicket({ payload }, { call }) {
+    *downloadETicket({ payload }, { call, put, select }) {
       const paramList = serialize(payload);
+      yield put({
+        type: 'save',
+        payload: {
+          downloadFileLoading: true,
+        },
+      });
       const response = yield call(downloadETicket, paramList);
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        try {
-          window.open(result);
-        } catch (e) {
-          return formatMessage({ id: 'FAILED_TO_DOWNLOAD' });
+        let taskStatus = 'processing';
+        while (taskStatus === 'processing') {
+          const { downloadFileLoading } = yield select(state => state.exportVIDMgr);
+          if (!downloadFileLoading) {
+            return;
+          }
+          const queryTaskParams = {
+            taskId: result,
+          };
+          const responseDetail = yield call(queryTask, queryTaskParams);
+          const {
+            data: {
+              resultCode: queryTaskResultCode,
+              resultMsg: queryTaskResultMsg,
+              result: queryTaskResult,
+            },
+          } = responseDetail;
+          if (!responseDetail || !responseDetail.success) {
+            message.error('queryTask error.');
+            return;
+          }
+          if (queryTaskResultCode === '0') {
+            if (queryTaskResult && queryTaskResult.status === 'success') {
+              taskStatus = 'success';
+              try {
+                message.success(formatMessage({ id: 'EXPORTED_SUCCESSFULLY' }));
+                window.open(queryTaskResult.result);
+              } catch (e) {
+                return formatMessage({ id: 'FAILED_TO_DOWNLOAD' });
+              }
+            }
+            if (queryTaskResult && queryTaskResult.status === 'failed') {
+              taskStatus = 'failed';
+            }
+            if (queryTaskResult && queryTaskResult.reason) {
+              message.warn(queryTaskResult.reason);
+            }
+          } else {
+            taskStatus = 'failed';
+            message.error(queryTaskResultMsg);
+          }
+          yield call(
+            () =>
+              new Promise(resolve => {
+                setTimeout(() => resolve(), 5000);
+              })
+          );
         }
+        if (resultCode === 'AppTransaction-120042') {
+          message.warn(resultMsg);
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            downloadFileLoading: false,
+          },
+        });
       } else {
         return resultMsg;
       }
@@ -165,6 +226,7 @@ export default {
           isSubOrder: null,
         },
         vidList: [],
+        downloadFileLoading: false,
       };
     },
   },

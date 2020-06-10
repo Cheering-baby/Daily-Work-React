@@ -3,6 +3,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import { Button, Form, Input, Select } from 'antd';
 import loginStyles from '../login.less';
+import SortSelect from '@/components/SortSelect';
 
 const FormItem = Form.Item;
 
@@ -66,22 +67,23 @@ class SubLoginForm extends Component {
             rules: [{ required: true, message: requiredMsg }],
             initialValue: agentId || [],
           })(
-            <Select
+            <SortSelect
               getPopupContainer={() => document.getElementById(`pams`)}
               placeholder={formatMessage({ id: 'TA_COMPANY_NAME_PLACEHOLDER' })}
               disabled={!userCode}
               filterOption={(input, option) =>
                 option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
-            >
-              {companyList && companyList.length > 0
-                ? companyList.map(item => (
-                  <Select.Option key={`companyList${item.taId}`} value={`${item.taId}`}>
-                    {item.companyName}
-                  </Select.Option>
-                  ))
-                : null}
-            </Select>
+              options={
+                companyList && companyList.length > 0
+                  ? companyList.map(item => (
+                    <Select.Option key={`companyList${item.taId}`} value={`${item.taId}`}>
+                      {item.companyName}
+                    </Select.Option>
+                    ))
+                  : null
+              }
+            />
           )}
         </FormItem>
         <FormItem label={formatMessage({ id: 'PASSWORD' })}>

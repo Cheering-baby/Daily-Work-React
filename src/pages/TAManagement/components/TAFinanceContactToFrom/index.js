@@ -6,6 +6,7 @@ import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getFinanceType, colLayOut, rowLayOut } from '../../utils/pubUtils';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
+import SortSelect from '@/components/SortSelect';
 
 class TAFinanceContactToFrom extends PureComponent {
   render() {
@@ -116,7 +117,7 @@ class TAFinanceContactToFrom extends PureComponent {
                     initialValue: financeInfoOne.mobileCountry || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
@@ -125,28 +126,29 @@ class TAFinanceContactToFrom extends PureComponent {
                         onHandleChange('mobileCountry', value, 'mobileCountryOne', financeTypeOne)
                       }
                       disabled={isAllDisabled}
-                    >
-                      {countryList && countryList.length > 0
-                        ? countryList.map(item => (
-                          <Select.Option
-                            key={`mobileCountryListOne${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={`${item.dictName} +${item.dictId}`}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName} +${item.dictId}`}
-                                </span>
-                                }
+                      options={
+                        countryList && countryList.length > 0
+                          ? countryList.map(item => (
+                            <Select.Option
+                              key={`mobileCountryListOne${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
                             >
-                              {`${item.dictName} +${item.dictId}`}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
                 <Form.Item colon={false} className={styles.taPhoneItem}>
@@ -195,7 +197,7 @@ class TAFinanceContactToFrom extends PureComponent {
                     initialValue: financeInfoOne.country || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
@@ -204,28 +206,29 @@ class TAFinanceContactToFrom extends PureComponent {
                         onHandleChange('country', value, 'countryOne', financeTypeOne)
                       }
                       disabled={isAllDisabled}
-                    >
-                      {countryList && countryList.length > 0
-                        ? countryList.map(item => (
-                          <Select.Option
-                            key={`countryListOne${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={`${item.dictName} +${item.dictId}`}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName} +${item.dictId}`}
-                                </span>
-                                }
+                      options={
+                        countryList && countryList.length > 0
+                          ? countryList.map(item => (
+                            <Select.Option
+                              key={`countryListOne${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
                             >
-                              {`${item.dictName} +${item.dictId}`}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
                 <Form.Item colon={false} className={styles.taPhoneItem}>
@@ -346,7 +349,7 @@ class TAFinanceContactToFrom extends PureComponent {
                     initialValue: financeInfoTwo.mobileCountry || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
@@ -355,28 +358,29 @@ class TAFinanceContactToFrom extends PureComponent {
                         onHandleChange('mobileCountry', value, 'mobileCountryTwo', financeTypeTwo)
                       }
                       disabled={isAllDisabled}
-                    >
-                      {countryList && countryList.length > 0
-                        ? countryList.map(item => (
-                          <Select.Option
-                            key={`mobileCountryListTwo${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={`${item.dictName} +${item.dictId}`}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName} +${item.dictId}`}
-                                </span>
-                                }
+                      options={
+                        countryList && countryList.length > 0
+                          ? countryList.map(item => (
+                            <Select.Option
+                              key={`mobileCountryListTwo${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
                             >
-                              {`${item.dictName} +${item.dictId}`}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
                 <Form.Item colon={false} className={styles.taPhoneItem}>
@@ -425,7 +429,7 @@ class TAFinanceContactToFrom extends PureComponent {
                     initialValue: financeInfoTwo.country || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
@@ -434,28 +438,29 @@ class TAFinanceContactToFrom extends PureComponent {
                         onHandleChange('country', value, 'countryTwo', financeTypeTwo)
                       }
                       disabled={isAllDisabled}
-                    >
-                      {countryList && countryList.length > 0
-                        ? countryList.map(item => (
-                          <Select.Option
-                            key={`countryListTwo${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={`${item.dictName} +${item.dictId}`}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName} +${item.dictId}`}
-                                </span>
-                                }
+                      options={
+                        countryList && countryList.length > 0
+                          ? countryList.map(item => (
+                            <Select.Option
+                              key={`countryListTwo${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
                             >
-                              {`${item.dictName} +${item.dictId}`}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
                 <Form.Item colon={false} className={styles.taPhoneItem}>
@@ -573,33 +578,36 @@ class TAFinanceContactToFrom extends PureComponent {
                 {getFieldDecorator('currency', {
                   initialValue: mappingInfo.currency || [],
                 })(
-                  <Select
+                  <SortSelect
                     showSearch
                     placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                     optionFilterProp="label"
                     getPopupContainer={() => document.getElementById(`${viewId}`)}
                     onChange={value => onMappingHandleChange('currency', value, 'currency')}
                     disabled={isMappingDisabled}
-                  >
-                    {currencyList && currencyList.length > 0
-                      ? currencyList.map(item => (
-                        <Select.Option
-                          key={`currencyList${item.dictId}`}
-                          value={`${item.dictId}`}
-                          label={`${item.dictName}`}
-                        >
-                          <Tooltip
-                            placement="topLeft"
-                            title={
-                              <span style={{ whiteSpace: 'pre-wrap' }}>{`${item.dictName}`}</span>
-                              }
+                    options={
+                      currencyList && currencyList.length > 0
+                        ? currencyList.map(item => (
+                          <Select.Option
+                            key={`currencyList${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName}`}
                           >
-                            {`${item.dictName}`}
-                          </Tooltip>
-                        </Select.Option>
-                        ))
-                      : null}
-                  </Select>
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName}`}
+                                </span>
+                                }
+                            >
+                              {`${item.dictName}`}
+                            </Tooltip>
+                          </Select.Option>
+                          ))
+                        : null
+                    }
+                  />
                 )}
               </Form.Item>
             </Col>
@@ -781,35 +789,36 @@ class TAFinanceContactToFrom extends PureComponent {
                   {getFieldDecorator('creditTerm', {
                     initialValue: mappingInfo.creditTerm || [],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       disabled={isMappingDisabled}
                       onChange={value => onMappingHandleChange('creditTerm', value, 'creditTerm')}
-                    >
-                      {createTeamList && createTeamList.length > 0
-                        ? createTeamList.map(item => (
-                          <Select.Option
-                            key={`createTeamList${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={`${item.dictName}`}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName}`}
-                                </span>
-                                }
+                      options={
+                        createTeamList && createTeamList.length > 0
+                          ? createTeamList.map(item => (
+                            <Select.Option
+                              key={`createTeamList${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName}`}
                             >
-                              {`${item.dictName}`}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
               </Col>

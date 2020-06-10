@@ -6,6 +6,7 @@ import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
+import SortSelect from '@/components/SortSelect';
 
 const mapStateToProps = store => {
   const {
@@ -186,7 +187,7 @@ class SearchComp extends Component {
             {getFieldDecorator('status', {
               initialValue: searchForm.status || [],
             })(
-              <Select
+              <SortSelect
                 allowClear
                 showSearch
                 placeholder={formatMessage({ id: 'GI_Q_STATUS' })}
@@ -194,15 +195,16 @@ class SearchComp extends Component {
                 getPopupContainer={() => document.getElementById(`${viewId}`)}
                 onChange={value => this.onHandleChange('status', value, 'status')}
                 style={{ width: '100%' }}
-              >
-                {statusList && statusList.length > 0
-                  ? statusList.map(item => (
-                    <Select.Option key={`statusList${item.dictId}`} value={`${item.dictId}`}>
-                      {item.dictName}
-                    </Select.Option>
-                    ))
-                  : null}
-              </Select>
+                options={
+                  statusList && statusList.length > 0
+                    ? statusList.map(item => (
+                      <Select.Option key={`statusList${item.dictId}`} value={`${item.dictId}`}>
+                        {item.dictName}
+                      </Select.Option>
+                      ))
+                    : null
+                }
+              />
             )}
           </Col>
         </Row>

@@ -54,7 +54,7 @@ class PaymentModel extends Component {
     }
 
     const payMode = payModeList.find(payModeItem => payModeItem.check);
-    if (payMode.label === 'eWallet' && accountInfo.eWallet) {
+    if (payMode.label === 'e-Wallet' && accountInfo.eWallet) {
       checkAccountInfo.accountType = 'ew';
       checkAccountInfo.balance = accountInfo.eWallet.balance;
       if (accountInfo.eWallet.balance < bookDetail.totalPrice) {

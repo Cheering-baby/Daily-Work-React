@@ -7,7 +7,7 @@
       padding: 20px !important;
     }
     .@{prefix-cls}-drawer-content-wrapper {
-      width: 400px !important;
+      width: 600px !important;
       @media screen and (max-width: @screenXsMax) {
         width: 100% !important;
         .ant-form-item-label, .ant-form-item-control-wrapper{
@@ -73,3 +73,27 @@
   }
 }
 
+.quantityFormStyle{
+  :global {
+    .ant-form-item-children {
+      line-height: 32px !important;
+    }
+
+    .ant-form-explain-holder {
+      line-height: 0 !important;
+    }
+
+    .ant-form-item-control-wrapper{
+      text-align: right;
+    }
+
+    .ant-form-item {
+      margin-bottom: 0 !important;
+    }
+  }
+}
+
+.dividerStyle {
+  border-color: #3B414A;
+  margin: 2px 0;
+}

@@ -4,6 +4,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import { getAllChildrenTargetList, getAllTargetList } from '../utils/pubUtils';
 import styles from '../index.less';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -174,20 +175,19 @@ class NotificationSearchForm extends PureComponent {
                 {getFieldDecorator(`readStatus`, {
                   rules: [],
                 })(
-                  <Select
+                  <SortSelect
                     allowClear
                     placeholder={formatMessage({ id: 'READ_STATUS' })}
                     getPopupContainer={() => document.getElementById(`${viewId}`)}
-                  >
-                    <Option key={`readStatusList01}`} value="01">
-                      {formatMessage({ id: 'READ_STATUS_READ' })}
-                    </Option>
-                    <Option key={`readStatusList02}`} value="02">
-                      {formatMessage({ id: 'READ_STATUS_UNREAD' })}
-                    </Option>
-                    {/* 01: read */}
-                    {/* 02: unread */}
-                  </Select>
+                    options={[
+                      <Option key={`readStatusList01}`} value="01">
+                        {formatMessage({ id: 'READ_STATUS_READ' })}
+                      </Option>,
+                      <Option key={`readStatusList02}`} value="02">
+                        {formatMessage({ id: 'READ_STATUS_UNREAD' })}
+                      </Option>,
+                    ]}
+                  />
                 )}
               </Form.Item>
             </Col>
@@ -208,17 +208,16 @@ class NotificationSearchForm extends PureComponent {
                   {getFieldDecorator(`status`, {
                     rules: [],
                   })(
-                    <Select
+                    <SortSelect
                       allowClear
                       placeholder={formatMessage({ id: 'STATUS' })}
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
-                    >
-                      {statusList.map(item => (
+                      options={statusList.map(item => (
                         <Option key={`statusList${item.id}`} value={item.dicValue}>
                           {this.getStatusTitle(item.dicValue)}
                         </Option>
                       ))}
-                    </Select>
+                    />
                   )}
                 </Form.Item>
               </Col>

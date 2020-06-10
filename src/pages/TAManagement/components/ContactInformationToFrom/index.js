@@ -3,6 +3,7 @@ import { Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { colLayOut, rowLayOut } from '../../utils/pubUtils';
 import styles from './index.less';
+import SortSelect from '@/components/SortSelect';
 
 class ContactInformationToFrom extends PureComponent {
   render() {
@@ -15,12 +16,13 @@ class ContactInformationToFrom extends PureComponent {
       countryList = [],
       customerInfo = {},
       onHandleChange,
+      isTaDeActivationFlag,
     } = this.props;
     const { getFieldDecorator } = form;
     const contactInfo = (customerInfo || {}).contactInfo || {};
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });
     let isDisabled = false;
-    if (isAccountingArRoleFlag) {
+    if (isAccountingArRoleFlag || isTaDeActivationFlag) {
       isDisabled = true;
     }
     return (
@@ -36,31 +38,34 @@ class ContactInformationToFrom extends PureComponent {
                 initialValue: contactInfo.salutation || [],
                 rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
               })(
-                <Select
+                <SortSelect
                   showSearch
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   optionFilterProp="label"
                   getPopupContainer={() => document.getElementById(`${viewId}`)}
                   onChange={value => onHandleChange('salutation', value, 'salutation')}
                   disabled={isDisabled}
-                >
-                  {salutationList && salutationList.length > 0
-                    ? salutationList.map(item => (
-                      <Select.Option
-                        key={`salutationList${item.dictId}`}
-                        value={`${item.dictId}`}
-                        label={item.dictName}
-                      >
-                        <Tooltip
-                          placement="topLeft"
-                          title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
+                  options={
+                    salutationList && salutationList.length > 0
+                      ? salutationList.map(item => (
+                        <Select.Option
+                          key={`salutationList${item.dictId}`}
+                          value={`${item.dictId}`}
+                          label={item.dictName}
                         >
-                          {item.dictName}
-                        </Tooltip>
-                      </Select.Option>
-                      ))
-                    : null}
-                </Select>
+                          <Tooltip
+                            placement="topLeft"
+                            title={
+                              <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                              }
+                          >
+                            {item.dictName}
+                          </Tooltip>
+                        </Select.Option>
+                        ))
+                      : null
+                  }
+                />
               )}
             </Form.Item>
           </Col>
@@ -166,35 +171,36 @@ class ContactInformationToFrom extends PureComponent {
                     initialValue: contactInfo.country || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
                       getPopupContainer={() => document.getElementById(`${viewId}`)}
                       onChange={value => onHandleChange('country', value, 'phoneCountry')}
                       disabled={isDisabled}
-                    >
-                      {countryList && countryList.length > 0
-                        ? countryList.map(item => (
-                          <Select.Option
-                            key={`countryPhoneList${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={`${item.dictName} +${item.dictId}`}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName} +${item.dictId}`}
-                                </span>
-                                }
+                      options={
+                        countryList && countryList.length > 0
+                          ? countryList.map(item => (
+                            <Select.Option
+                              key={`countryPhoneList${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
                             >
-                              {`${item.dictName} +${item.dictId}`}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
                 <Form.Item colon={false} className={styles.contactPhoneItem}>
@@ -226,7 +232,7 @@ class ContactInformationToFrom extends PureComponent {
                     initialValue: contactInfo.mobileCountry || [],
                     rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                       optionFilterProp="label"
@@ -235,28 +241,29 @@ class ContactInformationToFrom extends PureComponent {
                         onHandleChange('mobileCountry', value, 'phoneMobileCountry')
                       }
                       disabled={isDisabled}
-                    >
-                      {countryList && countryList.length > 0
-                        ? countryList.map(item => (
-                          <Select.Option
-                            key={`phoneMobileCountry${item.dictId}`}
-                            value={`${item.dictId}`}
-                            label={`${item.dictName} +${item.dictId}`}
-                          >
-                            <Tooltip
-                              placement="topLeft"
-                              title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName} +${item.dictId}`}
-                                </span>
-                                }
+                      options={
+                        countryList && countryList.length > 0
+                          ? countryList.map(item => (
+                            <Select.Option
+                              key={`phoneMobileCountry${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
                             >
-                              {`${item.dictName} +${item.dictId}`}
-                            </Tooltip>
-                          </Select.Option>
-                          ))
-                        : null}
-                    </Select>
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
                   )}
                 </Form.Item>
                 <Form.Item colon={false} className={styles.contactPhoneItem}>

@@ -8,6 +8,7 @@ import detailStyles from './index.less';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '../../components/PaginationComp';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -250,19 +251,20 @@ class CommissionRuleSetup extends React.PureComponent {
                       `commissionType`,
                       {}
                     )(
-                      <Select
+                      <SortSelect
                         placeholder={formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' })}
                         optionFilterProp="children"
                         style={{ width: '100%' }}
                         allowClear
-                      >
-                        <Option value="attendance" key="Attendance">
-                          Attendance Commission
-                        </Option>
-                        <Option value="tiered" key="Tiered">
-                          Tiered Commission
-                        </Option>
-                      </Select>
+                        options={[
+                          <Option value="attendance" key="Attendance">
+                            Attendance Commission
+                          </Option>,
+                          <Option value="tiered" key="Tiered">
+                            Tiered Commission
+                          </Option>,
+                        ]}
+                      />
                     )}
                   </Form.Item>
                 </Col>
@@ -272,19 +274,20 @@ class CommissionRuleSetup extends React.PureComponent {
                       `status`,
                       {}
                     )(
-                      <Select
+                      <SortSelect
                         placeholder={formatMessage({ id: 'STATUS' })}
                         optionFilterProp="children"
                         style={{ width: '100%' }}
                         allowClear
-                      >
-                        <Option value="Active" key="Active">
-                          Active
-                        </Option>
-                        <Option value="Inactive" key="Inactive">
-                          InActive
-                        </Option>
-                      </Select>
+                        options={[
+                          <Option value="Active" key="Active">
+                            Active
+                          </Option>,
+                          <Option value="Inactive" key="Inactive">
+                            InActive
+                          </Option>,
+                        ]}
+                      />
                     )}
                   </Form.Item>
                 </Col>

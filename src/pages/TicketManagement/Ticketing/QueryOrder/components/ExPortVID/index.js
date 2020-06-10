@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
-import { Button, Drawer, message, Table, Tooltip } from 'antd';
+import { Button, Drawer, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import styles from './index.less';
 
@@ -112,13 +112,8 @@ class ExportVID extends React.Component {
       payload: {
         forderNo: bookingNo,
       },
-    }).then(resultCode => {
-      if (resultCode === '0') {
-        message.success(formatMessage({ id: 'EXPORTED_SUCCESSFULLY' }));
-        this.onClose();
-      } else {
-        message.warning(resultCode);
-      }
+    }).then(() => {
+      this.onClose();
     });
   };
 

@@ -1,5 +1,8 @@
 import serialize from '../utils/utils';
-import { queryBookingDetail } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
+import {
+  queryBookingDetail,
+  queryPluAttribute,
+} from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
 export default {
   namespace: 'orderDetailMgr',
@@ -12,6 +15,10 @@ export default {
     },
     detailList: [],
     vidResultList: [],
+    patronInfo: {},
+    themeParkList: [],
+    netAmt: 0,
+    refundSuccessFlag: false,
   },
 
   effects: {
@@ -46,6 +53,16 @@ export default {
         });
       } else throw resultMsg;
     },
+    *queryThemePark(_, { call, put }) {
+      const response = yield call(queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        yield put({ type: 'save', payload: { themeParkList: result.items } });
+      } else throw resultMsg;
+    },
   },
 
   reducers: {
@@ -59,7 +76,7 @@ export default {
       const { bookingDetail = {} } = payload;
       const detailList = [];
       const vidResultList = [];
-      const { offers = [] } = bookingDetail;
+      const { offers = [], patronInfo = {}, netAmt, refundSuccessFlag = false } = bookingDetail;
       for (let i = 0; i < offers.length; i += 1) {
         const vidList = [];
         const { attraction = [] } = offers[i];
@@ -100,22 +117,34 @@ export default {
                 vidList.push({
                   vidNo: null,
                   vidCode: attraction[j].visualID,
+                  themePark: attraction[j].themePark,
+                  ticketGroup: attraction[j].ticketGroup,
+                  ticketType: attraction[j].ticketType,
                 });
                 vidResultList.push({
                   vidNo: null,
                   vidCode: attraction[j].visualID,
+                  themePark: attraction[j].themePark,
                   offerName: offers[i].offerName,
+                  ticketGroup: attraction[j].ticketGroup,
+                  ticketType: attraction[j].ticketType,
                 });
               }
             } else {
               vidList.push({
                 vidNo: null,
                 vidCode: attraction[j].visualID,
+                themePark: attraction[j].themePark,
+                ticketGroup: attraction[j].ticketGroup,
+                ticketType: attraction[j].ticketType,
               });
               vidResultList.push({
                 vidNo: null,
                 vidCode: attraction[j].visualID,
+                themePark: attraction[j].themePark,
                 offerName: offers[i].offerName,
+                ticketGroup: attraction[j].ticketGroup,
+                ticketType: attraction[j].ticketType,
               });
             }
           }
@@ -135,6 +164,9 @@ export default {
         ...state,
         detailList,
         vidResultList,
+        patronInfo,
+        netAmt,
+        refundSuccessFlag,
       };
     },
     resetData(state) {
@@ -148,6 +180,10 @@ export default {
         },
         detailList: [],
         vidResultList: [],
+        patronInfo: {},
+        themeParkList: [],
+        netAmt: 0,
+        refundSuccessFlag: false,
       };
     },
   },

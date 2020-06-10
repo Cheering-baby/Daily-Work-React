@@ -184,7 +184,7 @@ class MyActivity extends React.PureComponent {
                     />
                   </Tooltip>
               ) : null}
-              {record.status === '02' ? (
+              {record.status === '02' && !this.checkIsTransactionType(record) ? (
                 <Tooltip title={formatMessage({ id: 'COMMON_OPERATION' })}>
                   <Icon
                     type="audit"
@@ -239,6 +239,29 @@ class MyActivity extends React.PureComponent {
       payload: {},
     });
   }
+
+  checkIsTransactionType = record => {
+    if (!record) {
+      return false;
+    }
+    let result = false;
+    if (record.activityTplCode === 'TRANSACTION_PAMS_BOOKING') {
+      result = true;
+    } else if (record.activityTplCode === 'TRANSACTION_PAMS_MAIN_BOOKING') {
+      result = true;
+    } else if (record.activityTplCode === 'TRANSACTION_PAMS_BOOKING_AUDIT') {
+      result = true;
+    } else if (record.activityTplCode === 'TRANSACTION_PAMS_REFUND') {
+      result = true;
+    } else if (record.activityTplCode === 'TRANSACTION_PAMS_MAIN_REVALIDATION') {
+      result = true;
+    } else if (record.activityTplCode === 'TRANSACTION_PAMS_MAIN_REFUND') {
+      result = true;
+    } else if (record.activityTplCode === 'TRANSACTION_PAMS_REVALIDATION') {
+      result = true;
+    }
+    return result;
+  };
 
   handleReset = () => {
     const { dispatch, form } = this.props;
@@ -592,13 +615,12 @@ class MyActivity extends React.PureComponent {
                         },
                       ],
                     })(
-                      <Select
+                      <SortSelect
                         placeholder={formatMessage({ id: 'ACTIVITY_TYPE' })}
                         optionFilterProp="children"
                         style={{ width: '100%' }}
                         allowClear
-                      >
-                        {templateList.map(record => (
+                        options={templateList.map(record => (
                           <Option
                             key={`status_option_${record.templateCode}`}
                             value={record.templateCode}
@@ -606,7 +628,7 @@ class MyActivity extends React.PureComponent {
                             {record.templateName}
                           </Option>
                         ))}
-                      </Select>
+                      />
                     )}
                   </Form.Item>
                 </Col>
@@ -634,18 +656,17 @@ class MyActivity extends React.PureComponent {
                       'status',
                       {}
                     )(
-                      <Select
+                      <SortSelect
                         placeholder={formatMessage({ id: 'STATUS' })}
                         optionFilterProp="children"
                         style={{ width: '100%' }}
                         allowClear
-                      >
-                        {statusList.map(record => (
+                        options={statusList.map(record => (
                           <Option key={`status_option_${record.code}`} value={record.code}>
                             {record.value}
                           </Option>
                         ))}
-                      </Select>
+                      />
                     )}
                   </Form.Item>
                 </Col>

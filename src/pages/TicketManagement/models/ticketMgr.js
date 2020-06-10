@@ -262,7 +262,8 @@ export default {
           };
           const requestFn = () => {
             return queryOfferDetail(params).then(responseDetail => {
-              if (!responseDetail) {
+              if (!responseDetail || !responseDetail.success) {
+                message.error(`The offer ${offerNo} query detail failed.`);
                 return;
               }
               const {
@@ -281,13 +282,15 @@ export default {
           requestPromiseList.push(requestFn);
         }
 
-        const queryOfferDetailPromise = new Promise(resolve => {
-          multiplePromise(requestPromiseList, 20, () => {
-            resolve();
+        if (offerList && offerList.length > 0) {
+          const queryOfferDetailPromise = new Promise(resolve => {
+            multiplePromise(requestPromiseList, 20, () => {
+              resolve();
+            });
           });
-        });
-        //  wait for query offer detail
-        yield call(() => queryOfferDetailPromise);
+          //  wait for query offer detail
+          yield call(() => queryOfferDetailPromise);
+        }
 
         for (let i = 0; i < offerDetailList.length; i += 1) {
           const resultDetail = offerDetailList[i];
@@ -377,7 +380,8 @@ export default {
           };
           const requestFn = () => {
             return queryOfferDetail(params).then(responseDetail => {
-              if (!responseDetail) {
+              if (!responseDetail || !responseDetail.success) {
+                message.error(`The offer ${offerNo} query detail failed.`);
                 return;
               }
               const {
@@ -396,13 +400,15 @@ export default {
           requestPromiseList.push(requestFn);
         }
 
-        const queryOfferDetailPromise = new Promise(resolve => {
-          multiplePromise(requestPromiseList, 20, () => {
-            resolve();
+        if (offerList && offerList.length > 0) {
+          const queryOfferDetailPromise = new Promise(resolve => {
+            multiplePromise(requestPromiseList, 20, () => {
+              resolve();
+            });
           });
-        });
-        //  wait for query offer detail
-        yield call(() => queryOfferDetailPromise);
+          //  wait for query offer detail
+          yield call(() => queryOfferDetailPromise);
+        }
 
         for (let i = 0; i < offerDetailList.length; i += 1) {
           const resultDetail = offerDetailList[i];
@@ -495,7 +501,8 @@ export default {
             };
             const requestFn = () => {
               return queryOfferDetail(params).then(responseDetail => {
-                if (!responseDetail) {
+                if (!responseDetail || !responseDetail.success) {
+                  message.error(`The offer ${offerNo} query detail failed.`);
                   return;
                 }
                 const {
@@ -514,13 +521,15 @@ export default {
             requestPromiseList.push(requestFn);
           }
 
-          const queryOfferDetailPromise = new Promise(resolve => {
-            multiplePromise(requestPromiseList, 20, () => {
-              resolve();
+          if (offerList && offerList.length > 0) {
+            const queryOfferDetailPromise = new Promise(resolve => {
+              multiplePromise(requestPromiseList, 20, () => {
+                resolve();
+              });
             });
-          });
-          //  wait for query offer detail
-          yield call(() => queryOfferDetailPromise);
+            //  wait for query offer detail
+            yield call(() => queryOfferDetailPromise);
+          }
 
           for (let i = 0; i < offerDetailList.length; i += 1) {
             const resultDetail = offerDetailList[i];
@@ -641,6 +650,19 @@ export default {
             themeParkList2[index].categories = itemThemePark.categories.filter(
               ({ products }) => products.length > 0
             );
+            itemThemePark.categories.forEach(categorie => {
+              if (categorie.products) {
+                categorie.products.forEach(product => {
+                  if (product.bundleName && product.bundleName !== '') {
+                    product.offers.sort((a, b) => {
+                      const aName = a.detail.offerBundle[0].bundleLabel || '';
+                      const bName = b.detail.offerBundle[0].bundleLabel || '';
+                      return aName.charCodeAt(0) - bName.charCodeAt(0);
+                    });
+                  }
+                });
+              }
+            });
           });
           yield put({
             type: 'save',
@@ -684,7 +706,8 @@ export default {
           };
           const requestFn = () => {
             return queryOfferDetail(params).then(responseDetail => {
-              if (!responseDetail) {
+              if (!responseDetail || !responseDetail.success) {
+                message.error(`The offer ${offerNo} query detail failed.`);
                 return;
               }
               const {
@@ -703,13 +726,15 @@ export default {
           requestPromiseList.push(requestFn);
         }
 
-        const queryOfferDetailPromise = new Promise(resolve => {
-          multiplePromise(requestPromiseList, 20, () => {
-            resolve();
+        if (offerList && offerList.length > 0) {
+          const queryOfferDetailPromise = new Promise(resolve => {
+            multiplePromise(requestPromiseList, 20, () => {
+              resolve();
+            });
           });
-        });
-        //  wait for query offer detail
-        yield call(() => queryOfferDetailPromise);
+          //  wait for query offer detail
+          yield call(() => queryOfferDetailPromise);
+        }
 
         for (let i = 0; i < offerDetailList.length; i += 1) {
           const resultDetail = offerDetailList[i];

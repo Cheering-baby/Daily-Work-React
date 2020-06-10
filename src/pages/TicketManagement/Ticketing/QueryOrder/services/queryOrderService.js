@@ -17,6 +17,13 @@ export async function queryBookingDetail(params) {
   });
 }
 
+export async function queryPluAttribute(params) {
+  return UAAService.request(`${uaaPath}/b2c/product/v1/dictionary/attraction/list`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
 export async function revalidationTicket(params) {
   return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/revalidationticket`, {
     method: 'POST',
@@ -86,5 +93,12 @@ export async function attractionTaConfirm(params) {
 export async function downloadInvoice(params) {
   return UAAService.request(`${uaaPath}/b2b/transaction/v1/invoice/download${params}`, {
     method: 'GET',
+  });
+}
+
+export async function queryTask(params) {
+  return UAAService.request(`${uaaPath}/b2c/transaction/v1/task/query`, {
+    method: 'GET',
+    params,
   });
 }

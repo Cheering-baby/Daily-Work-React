@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Col, Form, Input, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
 import IconTab from '@/components/IconTab';
+import SortSelect from '@/components/SortSelect';
 
 @Form.create()
 class MenuForm extends PureComponent {
@@ -108,7 +109,7 @@ class MenuForm extends PureComponent {
                 initialValue: menuInfo.menuType || [],
                 rules: [{ required: true, message: formatMessage({ id: 'MENU_FORM_REQUIRED' }) }],
               })(
-                <Select
+                <SortSelect
                   showSearch
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   optionFilterProp="children"
@@ -116,18 +117,19 @@ class MenuForm extends PureComponent {
                   onChange={value => onHandleChange('menuType', value, 'menuType')}
                   disabled={isDisabled}
                   style={{ width: '100%' }}
-                >
-                  {menuTypeList && menuTypeList.length > 0
-                    ? menuTypeList.map(item => (
-                      <Select.Option
-                        key={`menuTypeList${item.dicValue}`}
-                        value={`${item.dicValue}`}
-                      >
-                        {item.dicName}
-                      </Select.Option>
-                      ))
-                    : null}
-                </Select>
+                  options={
+                    menuTypeList && menuTypeList.length > 0
+                      ? menuTypeList.map(item => (
+                        <Select.Option
+                          key={`menuTypeList${item.dicValue}`}
+                          value={`${item.dicValue}`}
+                        >
+                          {item.dicName}
+                        </Select.Option>
+                        ))
+                      : null
+                  }
+                />
               )}
             </Form.Item>
           </Col>

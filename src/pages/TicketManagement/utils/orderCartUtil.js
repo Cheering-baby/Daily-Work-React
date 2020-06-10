@@ -130,10 +130,11 @@ export function mergeBundleOrder(offerInstanceId, generalTicketOrderData, orderO
         {
           offerInstanceId,
           ...orderOfferItem.orderDetail,
+          orderCheck: false,
         },
       ],
     };
-    newOrderItem.orderAll = !outTimeOffer;
+    newOrderItem.orderAll = false;
     newOrderItem.orderDisabled = outTimeOffer;
     const newTicketOrderGroup = {
       themeParkCode: orderOfferItem.packageInfo.themeParkCode,
@@ -149,18 +150,20 @@ export function mergeBundleOrder(offerInstanceId, generalTicketOrderData, orderO
         {
           offerInstanceId,
           ...orderOfferItem.orderDetail,
+          orderCheck: false,
         },
       ],
     };
-    newOrderItem.orderAll = !outTimeOffer;
+    newOrderItem.orderAll = false;
     newOrderItem.orderDisabled = outTimeOffer;
     existTicketOrderGroup.orderOfferList.push(newOrderItem);
   } else {
-    existOrderData.orderAll = !outTimeOffer;
+    existOrderData.orderAll = false;
     existOrderData.orderDisabled = outTimeOffer;
     existOrderData.orderInfo.push({
       offerInstanceId,
       ...orderOfferItem.orderDetail,
+      orderCheck: false,
     });
   }
 }
@@ -211,7 +214,7 @@ export function mergeOapOrder(offerInstanceId, onceAPirateOrderData, orderInfo) 
         },
       ],
     };
-    newOrderItem.orderAll = !outTimeOffer;
+    newOrderItem.orderAll = false;
     newOrderItem.orderDisabled = outTimeOffer;
     onceAPirateOrderData.push(newOrderItem);
   } else {
@@ -219,7 +222,7 @@ export function mergeOapOrder(offerInstanceId, onceAPirateOrderData, orderInfo) 
       offerInstanceId,
       ...orderInfo.orderDetail,
     });
-    existOrderData.orderAll = !outTimeOffer;
+    existOrderData.orderAll = false;
     existOrderData.orderDisabled = outTimeOffer;
   }
 }
@@ -257,10 +260,10 @@ export function transGetOrderList(offerInstanceList) {
       const orderInfo = JSON.parse(offerInstance.offerInstanceAttribute.orderInfo);
       const { queryInfo } = orderInfo;
       const outTimeOffer = checkDateOfVisitForOutTime(queryInfo.dateOfVisit);
-      orderInfo.orderAll = !outTimeOffer;
+      orderInfo.orderAll = false;
       orderInfo.orderDisabled = outTimeOffer;
       orderInfo.orderInfo.forEach(orderInfoItem => {
-        orderInfoItem.orderCheck = !outTimeOffer;
+        orderInfoItem.orderCheck = false;
       });
       resultData.generalTicketOrderData.forEach(orderDataItem => {
         if (offerInstance.offerInstanceAttribute.themeParkCode === orderDataItem.themeParkCode) {

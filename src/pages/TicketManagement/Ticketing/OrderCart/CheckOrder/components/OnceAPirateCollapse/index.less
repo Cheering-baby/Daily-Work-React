@@ -1,3 +1,5 @@
+@import '../../../../../../../theme/screen.less';
+
 .titleFont {
   font-family: calibriBold;
   font-size: 15px;
@@ -39,7 +41,12 @@
 
     .ant-collapse-content-box {
       padding: 0 !important;
-      min-width: 800px;
+      @media screen and (max-width: @screenXsMax) {
+        min-width: 600px;
+      }
+      @media screen and (min-width: @screenSmMin) {
+        min-width: 800px;
+      }
     }
   }
 

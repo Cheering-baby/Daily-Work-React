@@ -247,7 +247,14 @@ class FileUploadToFrom extends PureComponent {
   );
 
   render() {
-    const { form, viewId, formItemRowLayout, applyArAccount, onHandleDelTaFile } = this.props;
+    const {
+      form,
+      viewId,
+      formItemRowLayout,
+      applyArAccount,
+      onHandleDelTaFile,
+      isTaDeActivationFlag,
+    } = this.props;
     const {
       newTaFileList = [],
       newArAccountFileList = [],
@@ -269,6 +276,7 @@ class FileUploadToFrom extends PureComponent {
     const fileProps = {
       ...comProps,
       data: { type: 'taFile' },
+      disabled: isTaDeActivationFlag,
       onPreview: () => {},
       onChange: changeValue => this.onHandleChange(changeValue, 'taFile'),
       onRemove: file => {
@@ -302,6 +310,7 @@ class FileUploadToFrom extends PureComponent {
     };
     const arFileProps = {
       ...comProps,
+      disabled: isTaDeActivationFlag,
       data: { type: 'arAccountFile' }, // taFile arAccountFile contractFile
       onPreview: () => {},
       onChange: changeValue => this.onHandleChange(changeValue, 'arAccountFile'),

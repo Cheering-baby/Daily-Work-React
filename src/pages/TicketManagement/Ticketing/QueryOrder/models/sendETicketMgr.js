@@ -19,13 +19,8 @@ export default {
     *sendEmail({ payload }, { call }) {
       const response = yield call(sendEmail, payload);
       if (!response) return false;
-      const {
-        data: { resultCode, resultMsg },
-      } = response;
-      if (resultCode !== '0') {
-        return resultMsg;
-      }
-      return resultCode;
+      const { data } = response;
+      return data;
     },
   },
 

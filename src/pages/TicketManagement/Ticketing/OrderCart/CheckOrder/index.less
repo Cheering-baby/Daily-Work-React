@@ -1,5 +1,12 @@
 @import '../../../../../theme/screen.less';
 
+
+:global {
+  .confirmClassName .ant-modal-confirm-btns button, .confirmClassName .ant-modal-footer button {
+    float: left;
+  }
+}
+
 .titleFont {
   font-family: calibriBold;
   font-size: 15px;
@@ -13,6 +20,23 @@
   font-family: Calibri;
   font-size: 15px;
   color: #858585;
+}
+
+.bocaFont {
+  width: 100%;
+  text-align: left;
+  font-family: Calibri;
+  font-size: 14px;
+  color: #F98C02;
+
+  .bocaStar {
+    color: #F98C02;
+    padding-right: 4px;
+  }
+
+  min-height: 32px;
+  padding-top: 6px;
+  padding-left: 12px;
 }
 
 .formatTime {
@@ -70,6 +94,19 @@
   }
 }
 
+.orderCardStyles {
+  @media screen and (max-width: @screenXsMax) {
+    :global {
+      .ant-card-body {
+        padding: 0 !important;
+      }
+    }
+  }
+  @media screen and (min-width: @screenSmMin) {
+
+  }
+}
+
 .collapsePanelStyles {
   margin-bottom: 24px;
   border: 0 !important;
@@ -87,7 +124,12 @@
 
     .ant-collapse-content-box {
       padding: 0 !important;
-      min-width: 800px;
+      @media screen and (max-width: @screenXsMax) {
+        min-width: 600px;
+      }
+      @media screen and (min-width: @screenSmMin) {
+        min-width: 800px;
+      }
     }
   }
 
@@ -174,13 +216,32 @@
   border-bottom: 1px solid #E5E5E5;
 }
 
+.selectAll {
+  min-height: 50px;
+
+  .checkOutCheckBox {
+    min-height: 50px;
+    line-height: 50px;
+
+    .checkOutCheckStyle {
+      @media screen and (max-width: @screenXsMax) {
+        margin-left: 10px;
+      }
+      @media screen and (min-width: @screenSmMin) {
+        margin-left: 34px;
+      }
+    }
+
+  }
+}
+
 .checkOut {
 
   min-height: 70px;
 
   .checkOutCheckBox {
-    min-height: 70px;
-    line-height: 70px;
+    min-height: 50px;
+    line-height: 50px;
   }
 
   .checkOutBtn {

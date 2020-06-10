@@ -2,12 +2,10 @@ import { Select } from 'antd';
 import React from 'react';
 import { EXTRA_FILTER_TYPE } from '@/pages/ReportCenter/PamsReport/consts/filterType';
 import styles from './RenderFilterProcessor.less';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
-const {
-  SELECT_CATEGORY_TYPE,
-  MULTIPLE_SELECT_CUSTOMER_GROUP,
-} = EXTRA_FILTER_TYPE;
+const { SELECT_CATEGORY_TYPE, MULTIPLE_SELECT_CUSTOMER_GROUP } = EXTRA_FILTER_TYPE;
 
 const renderCategoryTypeSelect = (store, filter) => {
   const { filterName } = filter;
@@ -16,7 +14,7 @@ const renderCategoryTypeSelect = (store, filter) => {
     categoryType: { categoryTypeList = [], setCustomerGroupListByCategoryType },
   } = store;
   return (
-    <Select
+    <SortSelect
       optionFilterProp="children"
       showSearch
       allowClear
@@ -25,13 +23,12 @@ const renderCategoryTypeSelect = (store, filter) => {
         setCustomerGroupListByCategoryType(val);
         setFieldsValue({ customerGroup: undefined });
       }}
-    >
-      {categoryTypeList.map(({ value, text }) => (
+      options={categoryTypeList.map(({ value, text }) => (
         <Option key={value} value={value}>
           {text}
         </Option>
       ))}
-    </Select>
+    />
   );
 };
 
@@ -41,19 +38,18 @@ const renderCustomerGroupMultipleSelect = (store, filter) => {
     customerGroup: { customerGroupList = [] },
   } = store;
   return (
-    <Select
+    <SortSelect
       optionFilterProp="children"
       allowClear
       mode="multiple"
       className={styles.multipleSelect}
       placeholder={`${filterName}`}
-    >
-      {customerGroupList.map(({ value, text }) => (
+      options={customerGroupList.map(({ value, text }) => (
         <Option key={value} value={value}>
           {text}
         </Option>
       ))}
-    </Select>
+    />
   );
 };
 

@@ -7,6 +7,7 @@ import AccountInformationToSubTaWithDrawer from '../../components/AccountInforma
 import styles from '../index.less';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue } from '../../utils/pubUtils';
+import { hasAllPrivilege, SUB_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const {
@@ -17,6 +18,7 @@ const mapStateToProps = store => {
     hasSubTaWithEmail,
   } = store.subTaMgr;
   const { editVisible } = store.subTaProfile;
+  const { userCompanyInfo } = store.global;
   return {
     subTaId,
     subTaInfo,
@@ -24,6 +26,7 @@ const mapStateToProps = store => {
     countryList,
     editVisible,
     hasSubTaWithEmail,
+    userCompanyInfo,
   };
 };
 
@@ -121,7 +124,15 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
   };
 
   render() {
-    const { countryList, editVisible, subTaInfoLoadingFlag, hasSubTaWithEmail } = this.props;
+    const {
+      countryList,
+      editVisible,
+      subTaInfoLoadingFlag,
+      hasSubTaWithEmail,
+      userCompanyInfo,
+    } = this.props;
+    const taUserStatus = userCompanyInfo.status || '-1';
+    const isTaDeActivationFlag = hasAllPrivilege([SUB_TA_ADMIN_PRIVILEGE]) && taUserStatus !== '0';
     return (
       <div>
         <Drawer
@@ -157,6 +168,7 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
                     },
                   }}
                   viewId="subTaEditDrawerView"
+                  isTaDeActivationFlag={isTaDeActivationFlag}
                 />
               </Spin>
             </Col>
@@ -169,7 +181,7 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
               onClick={this.onOk}
               type="primary"
               loading={subTaInfoLoadingFlag}
-              disabled={hasSubTaWithEmail}
+              disabled={hasSubTaWithEmail || isTaDeActivationFlag}
             >
               {formatMessage({ id: 'COMMON_OK' })}
             </Button>

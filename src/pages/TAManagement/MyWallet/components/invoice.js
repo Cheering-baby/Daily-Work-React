@@ -131,10 +131,12 @@ class Invoice extends React.PureComponent {
                   </div>
                   <div className={styles['company-name']}>{profile.name}</div>
                   <div className={styles['company-address']}>
-                    {profile.address} {profile.postalCode}
+                    {profile.address} <br />
+                    {profile.countryName} {profile.postalCode}
                   </div>
+                  <br />
                   <div className={styles['company-address']}>
-                    Attn: {profile.primaryFinanceContactName}{' '}
+                    <b>Attn:</b> {profile.primaryFinanceContactName}{' '}
                   </div>
                 </div>
                 <div
@@ -274,9 +276,11 @@ class Invoice extends React.PureComponent {
                     {paymentInstructions.party}
                     <br />
                     {paymentInstructions.address}
+                    <div className={styles['instructions-footer']}>
+                      {paymentInstructions.footer}
+                    </div>
                   </div>
                 </div>
-                <div className={styles['instructions-footer']}>{paymentInstructions.footer}</div>
               </div>
             </div>
           </Spin>

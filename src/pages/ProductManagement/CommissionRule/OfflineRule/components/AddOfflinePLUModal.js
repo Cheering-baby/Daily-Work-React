@@ -5,6 +5,7 @@ import { formatMessage } from 'umi/locale';
 import styles from './AddOfflinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
 import { objDeepCopy } from '@/pages/ProductManagement/utils/tools';
+import SortSelect from '@/components/SortSelect';
 
 const drawWidth = 700;
 const { Option } = Select;
@@ -453,14 +454,20 @@ class AddOfflinePLUModal extends React.PureComponent {
                     },
                   ],
                 })(
-                  <Select showSearch placeholder="Theme Park" allowClear style={{ width: '100%' }}>
-                    {themeParkList &&
+                  <SortSelect
+                    showSearch
+                    placeholder="Theme Park"
+                    allowClear
+                    style={{ width: '100%' }}
+                    options={
+                      themeParkList &&
                       themeParkList.map(item => (
                         <Option key={item.itemValue} value={item.itemValue}>
                           {item.itemName}
                         </Option>
-                      ))}
-                  </Select>
+                      ))
+                    }
+                  />
                 )}
               </Col>
               <Col xs={12} sm={12} md={6} className={styles.searchReset}>

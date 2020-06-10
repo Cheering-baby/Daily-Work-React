@@ -62,7 +62,7 @@ class QueryOrder extends Component {
       ),
       dataIndex: 'originalOrderNo',
       key: 'originalOrderNo',
-      width: '160px',
+      width: '220px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span className={styles.tableSpan}>{text}</span>
@@ -75,6 +75,26 @@ class QueryOrder extends Component {
       key: 'transType',
       width: '100px',
       render: text => this.showOrderType(text),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
+      dataIndex: 'status',
+      key: 'status',
+      width: '100px',
+      render: (_, record) => this.showStatus(record),
+    },
+    {
+      title: (
+        <span className={styles.tableTitle}>{formatMessage({ id: 'AR_PAYMENT_STATUS' })}</span>
+      ),
+      dataIndex: 'arPaymentStatus',
+      key: 'arPaymentStatus',
+      width: '170px',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span className={styles.tableSpan}>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'SALES_CHANNEL' })}</span>,
@@ -105,26 +125,6 @@ class QueryOrder extends Component {
       key: 'lastName',
       width: '110px',
       render: (_, record) => this.showOrderDeliveryName(record, 'lastName'),
-    },
-    {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
-      dataIndex: 'status',
-      key: 'status',
-      width: '100px',
-      render: (_, record) => this.showStatus(record),
-    },
-    {
-      title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'AR_PAYMENT_STATUS' })}</span>
-      ),
-      dataIndex: 'arPaymentStatus',
-      key: 'arPaymentStatus',
-      width: '170px',
-      render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span className={styles.tableSpan}>{text}</span>
-        </Tooltip>
-      ),
     },
   ];
 
@@ -284,6 +284,9 @@ class QueryOrder extends Component {
 
   expandedRowRender = (record, userType) => {
     const { offInstances, productInstances } = record;
+    if (productInstances.length === 0) {
+      return null;
+    }
     productInstances.map(e => {
       Object.assign(e, {
         key: e.confirmationNo,
@@ -328,19 +331,19 @@ class QueryOrder extends Component {
         ),
       },
       {
+        title: <span className={styles.tableTitle}>{formatMessage({ id: 'DATE_OF_VISIT' })}</span>,
+        dataIndex: 'visitDate',
+        render: text => this.showVisitDate(text),
+      },
+      {
         title: <span className={styles.tableTitle}>{formatMessage({ id: 'TOTAL_AMOUNT' })}</span>,
         dataIndex: 'totalAmount',
         render: text => {
           if (text !== null) {
-            return `${text}(SGD)`;
+            return `${Number(text).toFixed(2)}(SGD)`;
           }
           return '';
         },
-      },
-      {
-        title: <span className={styles.tableTitle}>{formatMessage({ id: 'DATE_OF_VISIT' })}</span>,
-        dataIndex: 'visitDate',
-        render: text => this.showVisitDate(text),
       },
     ];
 
@@ -350,26 +353,47 @@ class QueryOrder extends Component {
     }
 
     return (
-      <div>
+      <div style={{ margin: '-9px -9px -9px 24px' }}>
         <Table
           size="small"
           columns={detailColumns}
           dataSource={productInstances}
           pagination={false}
           bordered={false}
+          rowClassName={styles.tableRowStyle}
+          footer={() => {
+            if (deliveryMode === 'BOCA' && userType !== '03') {
+              return (
+                <div className={styles.tableFooterDiv}>
+                  <div style={{ width: '25%', float: 'right' }}>
+                    <span className={styles.tableFooterSpan}>BOCA FEE:</span>
+                    <span className={styles.tableTotalPrice}>${deliveryFee}</span>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          }}
         />
-        {deliveryMode === 'BOCA' && userType !== '03' && (
-          <Row className={styles.bocaRow}>
-            <Col span={12} className={styles.bocaTitleCol}>
-              <span>BOCA FEE</span>
-            </Col>
-            <Col span={12} className={styles.bocaValueCol}>
-              <span>${deliveryFee}</span>
-            </Col>
-          </Row>
-        )}
       </div>
     );
+  };
+
+  expandTable = (expanded, record, expandTableKeys) => {
+    if (expanded) {
+      expandTableKeys.push(record.key);
+    } else {
+      expandTableKeys = expandTableKeys.filter(item => {
+        return item !== record.key;
+      });
+    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'queryOrderMgr/save',
+      payload: {
+        expandTableKeys,
+      },
+    });
   };
 
   jumpToOperation = (bookingNo, isSubOrder, flag) => {
@@ -491,12 +515,6 @@ class QueryOrder extends Component {
         payload: {
           forderNo: bookingNo,
         },
-      }).then(resultCode => {
-        if (resultCode === '0') {
-          message.success(formatMessage({ id: 'DOWNLOADED_SUCCESSFULLY' }));
-        } else {
-          message.warning(resultCode);
-        }
       });
     }
   };
@@ -574,6 +592,7 @@ class QueryOrder extends Component {
           bookingNo,
         },
       });
+      dispatch({ type: 'orderDetailMgr/queryThemePark' });
     }
   };
 
@@ -815,6 +834,8 @@ class QueryOrder extends Component {
         totalSize: total,
         selectedRowKeys,
         selectedBookings,
+        expandTableKeys,
+        downloadFileLoading = false,
       },
       global: {
         currentUser: { userType },
@@ -923,6 +944,7 @@ class QueryOrder extends Component {
                       disabled={this.ifCanOperateETicket(selectedBookings)}
                       className={styles.buttonStyle}
                       onClick={() => this.downloadETicket(selectedBookings)}
+                      loading={downloadFileLoading}
                     >
                       {formatMessage({ id: 'DOWNLOAD_ETICKET' })}
                     </Button>
@@ -982,9 +1004,18 @@ class QueryOrder extends Component {
                   <Col span={24}>
                     <Table
                       size="small"
-                      className="components-table-demo-nested"
+                      className={`components-table-demo-nested ${styles.searchTitle}`}
                       columns={this.columns}
                       rowSelection={rowSelection}
+                      rowClassName={record =>
+                        record.productInstances === null || record.productInstances.length === 0
+                          ? styles.hideIcon
+                          : styles.tableRowStyle
+                      }
+                      expandedRowKeys={expandTableKeys}
+                      onExpand={(expanded, record) =>
+                        this.expandTable(expanded, record, expandTableKeys)
+                      }
                       loading={!!tableLoading}
                       expandedRowRender={record => this.expandedRowRender(record, userType)}
                       dataSource={dataSource}

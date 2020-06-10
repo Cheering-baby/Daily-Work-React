@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Col, Form, Input, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
+import SortSelect from '@/components/SortSelect';
+import { isNvl } from '@/utils/utils';
 
 @Form.create()
 class AccountInformationToSubTaWithDrawer extends PureComponent {
@@ -12,6 +14,7 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
       onHandleChange,
       detailOpt,
       viewId,
+      isTaDeActivationFlag,
     } = this.props;
     const { getFieldDecorator } = form;
     const numFormat = formatMessage({ id: 'SUB_TA_INPUT_MAX_NUM' });
@@ -25,19 +28,22 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
               {...detailOpt.formItemLayout}
             >
               {getFieldDecorator('mainCompanyName', {
-                initialValue: subTaInfo.mainCompanyName || null,
+                initialValue: subTaInfo.mainCompanyNameList || [],
                 rules: [{ required: true, message: formatMessage({ id: 'SUB_TA_REQUIRED' }) }],
               })(
-                <Input
-                  placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
-                  onChange={e =>
-                    onHandleChange('mainCompanyName', e.target.value, 'mainCompanyName')
-                  }
-                  onPressEnter={e =>
-                    onHandleChange('mainCompanyName', e.target.value, 'mainCompanyName')
-                  }
-                  disabled
-                />
+                <div>
+                  {!isNvl(subTaInfo.mainCompanyNameList) &&
+                    subTaInfo.mainCompanyNameList.length > 0 &&
+                    subTaInfo.mainCompanyNameList.map(name => {
+                      return (
+                        <Input
+                          placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
+                          value={name}
+                          disabled
+                        />
+                      );
+                    })}
+                </div>
               )}
             </Form.Item>
           </Col>
@@ -58,6 +64,7 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                   onChange={e => onHandleChange('fullName', e.target.value, 'fullName')}
                   onPressEnter={e => onHandleChange('fullName', e.target.value, 'fullName')}
+                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>
@@ -80,6 +87,7 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
                   onChange={e => onHandleChange('email', e.target.value, 'email')}
                   onPressEnter={e => onHandleChange('email', e.target.value, 'email')}
+                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>
@@ -105,6 +113,7 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                   onChange={e => onHandleChange('companyName', e.target.value, 'companyName')}
                   onPressEnter={e => onHandleChange('companyName', e.target.value, 'companyName')}
+                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>
@@ -119,22 +128,24 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                 initialValue: subTaInfo.country || [],
                 rules: [{ required: true, message: formatMessage({ id: 'SUB_TA_REQUIRED' }) }],
               })(
-                <Select
+                <SortSelect
                   showSearch
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   optionFilterProp="children"
                   getPopupContainer={() => document.getElementById(`${viewId}`)}
                   onChange={value => onHandleChange('country', value, 'country')}
                   style={{ width: '100%' }}
-                >
-                  {countryList && countryList.length > 0
-                    ? countryList.map(item => (
-                      <Select.Option key={`countryList${item.dictId}`} value={`${item.dictId}`}>
-                        {item.dictName}
-                      </Select.Option>
-                      ))
-                    : null}
-                </Select>
+                  disabled={isTaDeActivationFlag}
+                  options={
+                    countryList && countryList.length > 0
+                      ? countryList.map(item => (
+                        <Select.Option key={`countryList${item.dictId}`} value={`${item.dictId}`}>
+                          {item.dictName}
+                        </Select.Option>
+                        ))
+                      : null
+                  }
+                />
               )}
             </Form.Item>
           </Col>
@@ -155,6 +166,7 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                   onChange={e => onHandleChange('address', e.target.value, 'address')}
                   onPressEnter={e => onHandleChange('address', e.target.value, 'address')}
+                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>

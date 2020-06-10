@@ -19,6 +19,7 @@ import { connect } from 'dva';
 import detailStyles from './OperationApproval.less';
 import OperationApprovalHistory from '@/pages/MyActivity/components/OperationApprovalHistory';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 const ColProps = {
@@ -237,9 +238,11 @@ class OperationApproval extends React.PureComponent {
                                     },
                                   ],
                                 })(
-                                  <Select placeholder="Please Select" mode="multiple">
-                                    {rerouteSelectList}
-                                  </Select>
+                                  <SortSelect
+                                    placeholder="Please Select"
+                                    mode="multiple"
+                                    options={rerouteSelectList}
+                                  />
                                 )}
                               </Form.Item>
                             </Col>
@@ -257,14 +260,16 @@ class OperationApproval extends React.PureComponent {
                                   `saleManager`,
                                   {}
                                 )(
-                                  <Select
+                                  <SortSelect
                                     showSearch
                                     placeholder="Please Select"
                                     filterOption={(input, option) =>
-                                      option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                    }>
-                                    {saleManagerSelectList}
-                                  </Select>
+                                      option.props.children
+                                        .toLowerCase()
+                                        .indexOf(input.toLowerCase()) >= 0
+                                    }
+                                    options={saleManagerSelectList}
+                                  />
                                 )}
                               </Form.Item>
                             </Col>

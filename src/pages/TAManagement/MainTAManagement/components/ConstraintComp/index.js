@@ -7,6 +7,7 @@ import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue } from '../../../utils/pubUtils';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
+import SortSelect from '@/components/SortSelect';
 
 const mapStateToProps = store => {
   const {
@@ -205,25 +206,26 @@ class ConstraintComp extends PureComponent {
                       initialValue: companyInfo.market || [],
                       rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                     })(
-                      <Select
+                      <SortSelect
                         showSearch
                         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                         optionFilterProp="children"
                         getPopupContainer={() => document.getElementById(`${viewId}`)}
                         onChange={value => this.onHandleChange('market', value, 'market')}
                         style={{ width: '100%' }}
-                      >
-                        {marketList && marketList.length > 0
-                          ? marketList.map(item => (
-                            <Select.Option
-                              key={`marketList${item.dictId}`}
-                              value={`${item.dictId}`}
-                            >
-                              {item.dictName}
-                            </Select.Option>
-                            ))
-                          : null}
-                      </Select>
+                        options={
+                          marketList && marketList.length > 0
+                            ? marketList.map(item => (
+                              <Select.Option
+                                key={`marketList${item.dictId}`}
+                                value={`${item.dictId}`}
+                              >
+                                {item.dictName}
+                              </Select.Option>
+                              ))
+                            : null
+                        }
+                      />
                     )}
                   </Form.Item>
                 </Col>
@@ -306,25 +308,26 @@ class ConstraintComp extends PureComponent {
                       initialValue: companyInfo.salesPerson || [],
                       rules: [],
                     })(
-                      <Select
+                      <SortSelect
                         showSearch
                         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                         optionFilterProp="children"
                         getPopupContainer={() => document.getElementById(`${viewId}`)}
                         onChange={value => this.onHandleChange('salesPerson', value, 'salesPerson')}
                         style={{ width: '100%' }}
-                      >
-                        {salesPersonList && salesPersonList.length > 0
-                          ? salesPersonList.map(item => (
-                            <Select.Option
-                              key={`salesPersonList${item.userCode}`}
-                              value={`${item.userCode}`}
-                            >
-                              {item.userCode}
-                            </Select.Option>
-                            ))
-                          : null}
-                      </Select>
+                        options={
+                          salesPersonList && salesPersonList.length > 0
+                            ? salesPersonList.map(item => (
+                              <Select.Option
+                                key={`salesPersonList${item.userCode}`}
+                                value={`${item.userCode}`}
+                              >
+                                {item.userCode}
+                              </Select.Option>
+                              ))
+                            : null
+                        }
+                      />
                     )}
                   </Form.Item>
                 </Col>
@@ -343,25 +346,26 @@ class ConstraintComp extends PureComponent {
                           initialValue: companyInfo.category || [],
                           rules: [],
                         })(
-                          <Select
+                          <SortSelect
                             showSearch
                             placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                             optionFilterProp="children"
                             getPopupContainer={() => document.getElementById(`${viewId}`)}
                             onChange={value => this.onHandleChange('category', value, 'category')}
                             style={{ width: '100%' }}
-                          >
-                            {categoryList && categoryList.length > 0
-                              ? categoryList.map(item => (
-                                <Select.Option
-                                  key={`categoryList${item.dictId}`}
-                                  value={`${item.dictId}`}
-                                >
-                                  {item.dictName}
-                                </Select.Option>
-                                ))
-                              : null}
-                          </Select>
+                            options={
+                              categoryList && categoryList.length > 0
+                                ? categoryList.map(item => (
+                                  <Select.Option
+                                    key={`categoryList${item.dictId}`}
+                                    value={`${item.dictId}`}
+                                  >
+                                    {item.dictName}
+                                  </Select.Option>
+                                  ))
+                                : null
+                            }
+                          />
                         )}
                       </Form.Item>
                       <Form.Item colon={false} className={styles.customerGroupItem}>
@@ -371,7 +375,7 @@ class ConstraintComp extends PureComponent {
                             : [],
                           rules: [],
                         })(
-                          <Select
+                          <SortSelect
                             showSearch
                             placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                             optionFilterProp="children"
@@ -381,18 +385,19 @@ class ConstraintComp extends PureComponent {
                             }
                             loading={customerGroupLoadingFlag}
                             style={{ width: '100%' }}
-                          >
-                            {customerGroupList && customerGroupList.length > 0
-                              ? customerGroupList.map(item => (
-                                <Select.Option
-                                  key={`customerGroupList${item.dictId}`}
-                                  value={`${item.dictId}`}
-                                >
-                                  {item.dictName}
-                                </Select.Option>
-                                ))
-                              : null}
-                          </Select>
+                            options={
+                              customerGroupList && customerGroupList.length > 0
+                                ? customerGroupList.map(item => (
+                                  <Select.Option
+                                    key={`customerGroupList${item.dictId}`}
+                                    value={`${item.dictId}`}
+                                  >
+                                    {item.dictName}
+                                  </Select.Option>
+                                  ))
+                                : null
+                            }
+                          />
                         )}
                       </Form.Item>
                     </Input.Group>

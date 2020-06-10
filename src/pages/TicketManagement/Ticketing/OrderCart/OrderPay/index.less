@@ -1,3 +1,5 @@
+@import '../../../../../theme/screen.less';
+
 .titleFont {
   font-family: calibriBold;
   font-size: 15px;
@@ -85,6 +87,19 @@
   }
 }
 
+.orderCardStyles {
+  @media screen and (max-width: @screenXsMax) {
+    :global {
+      .ant-card-body {
+        padding: 0 !important;
+      }
+    }
+  }
+  @media screen and (min-width: @screenSmMin) {
+
+  }
+}
+
 .collapsePanelStyles {
   margin-bottom: 24px;
   border: 0 !important;
@@ -102,7 +117,12 @@
 
     .ant-collapse-content-box {
       padding: 0 !important;
-      min-width: 800px;
+      @media screen and (max-width: @screenXsMax) {
+        min-width: 600px;
+      }
+      @media screen and (min-width: @screenSmMin) {
+        min-width: 800px;
+      }
     }
   }
 

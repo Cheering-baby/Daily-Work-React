@@ -73,3 +73,10 @@ export function sendTransactionPaymentOrder(params) {
     body: params,
   });
 }
+
+export async function queryTask(params) {
+  return UAAService.request(`${localPath}/b2c/transaction/v1/task/query`, {
+    method: 'GET',
+    params,
+  });
+}

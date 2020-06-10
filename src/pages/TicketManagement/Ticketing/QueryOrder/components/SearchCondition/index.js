@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import Card from '../../../../components/Card';
 import styles from './index.less';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -253,40 +254,42 @@ class SearchCondition extends Component {
             />
           </Col>
           <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <Select
+            <SortSelect
               allowClear
               mode="multiple"
               placeholder={formatMessage({ id: 'ORDER_TYPE' })}
               className={styles.inputStyle}
               onChange={value => this.selectChange(value, 'orderType')}
               value={orderType === null ? [] : orderType.split(',')}
-            >
-              <Option value="Booking">Booking</Option>
-              <Option value="Revalidation">Revalidation</Option>
-              <Option value="Refund">Refund</Option>
-            </Select>
+              options={[
+                <Option value="Booking">Booking</Option>,
+                <Option value="Revalidation">Revalidation</Option>,
+                <Option value="Refund">Refund</Option>,
+              ]}
+            />
           </Col>
           <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <Select
+            <SortSelect
               allowClear
               showSearch
               placeholder={formatMessage({ id: 'STATUS' })}
               className={styles.inputStyle}
               onChange={value => this.selectChange(value, 'status')}
               value={status === null ? undefined : status}
-            >
-              <Option value="Confirmed">Confirmed</Option>
-              <Option value="WaitingForPaying">Pending Payment</Option>
-              <Option value="PendingApproval">Pending Approval</Option>
-              <Option value="PendingOrderNo">Pending order No.</Option>
-              <Option value="PendingRefund">Pending Refund</Option>
-              <Option value="Reject">Reject</Option>
-              <Option value="PendingTopup">Pending Topup</Option>
-              <Option value="Cancelled">Cancelled</Option>
-              <Option value="Failed">Failed</Option>
-              <Option value="ArchiveFailed">ArchiveFailed</Option>
-              <Option value="CommissionFail">CommissionFail</Option>
-            </Select>
+              options={[
+                <Option value="Confirmed">Confirmed</Option>,
+                <Option value="WaitingForPaying">Pending Payment</Option>,
+                <Option value="PendingApproval">Pending Approval</Option>,
+                <Option value="PendingOrderNo">Pending order No.</Option>,
+                <Option value="PendingRefund">Pending Refund</Option>,
+                <Option value="Reject">Reject</Option>,
+                <Option value="PendingTopup">Pending Topup</Option>,
+                <Option value="Cancelled">Cancelled</Option>,
+                <Option value="Failed">Failed</Option>,
+                <Option value="ArchiveFailed">ArchiveFailed</Option>,
+                <Option value="CommissionFail">CommissionFail</Option>,
+              ]}
+            />
           </Col>
           {rwsLogin && (
             <Col className={styles.radioColStyle} xs={24} sm={12} md={8} lg={6}>

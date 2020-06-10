@@ -6,6 +6,7 @@ import { isEqual } from 'lodash';
 import BasicTable from '@/components/BasicTable';
 import ExportFileButton from '@/components/FileOperation/ExportFileButton';
 import styles from './index.less';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -294,14 +295,13 @@ class logMgr extends PureComponent {
                 'logType',
                 {}
               )(
-                <Select
+                <SortSelect
                   id="logMgr-index-logTypeSelect"
                   placeholder={formatMessage({ id: 'LOG_LOGTYPE' })}
                   optionFilterProp="children"
                   style={{ width: '100%' }}
                   allowClear="true"
-                >
-                  {queryLogTypeList.map(logType => (
+                  options={queryLogTypeList.map(logType => (
                     <Option
                       id="logMgr-index-logTypeSelectOption"
                       key={`logType_option_${logType.paramCode}`}
@@ -310,7 +310,7 @@ class logMgr extends PureComponent {
                       {logType.paramValue}
                     </Option>
                   ))}
-                </Select>
+                />
               )}
             </FormItem>
           </Col>
@@ -334,16 +334,14 @@ class logMgr extends PureComponent {
                 'state',
                 {}
               )(
-                <Select
+                <SortSelect
                   id="logMgr-index-stateSelect"
                   allowClear="true"
                   optionFilterProp="children"
                   placeholder={formatMessage({ id: 'LOG_STATE' })}
                   style={{ width: '100%' }}
-                >
-                  <Option value="S">Success</Option>
-                  <Option value="F">Failure</Option>
-                </Select>
+                  options={[<Option value="S">Success</Option>, <Option value="F">Failure</Option>]}
+                />
               )}
             </FormItem>
           </Col>

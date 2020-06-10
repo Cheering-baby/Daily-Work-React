@@ -3,6 +3,7 @@ import { DatePicker, Input, Select, Spin } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { DATE_FORMAT } from '@/pages/TAManagement/BuyerCreatedInvoice/consts/buyerCreatedInvoice';
 import FilterBanner from '@/pages/TAManagement/BuyerCreatedInvoice/components/FilterBanner';
+import SortSelect from '@/components/SortSelect';
 
 const InvoiceFilterBanner = ({
   handleSearch,
@@ -20,7 +21,7 @@ const InvoiceFilterBanner = ({
       name: 'taName',
       text: formatMessage({ id: 'TA_NAME' }),
       WrappedComponent: (
-        <Select
+        <SortSelect
           showSearch
           allowClear
           placeholder={formatMessage({ id: 'TA_NAME' })}
@@ -29,13 +30,12 @@ const InvoiceFilterBanner = ({
           }
           defaultActiveFirstOption={false}
           notFoundContent={fetchTaNameListLoadingFlag && <Spin size="small" />}
-        >
-          {taNameList.map(item => (
+          options={taNameList.map(item => (
             <Select.Option key={item} value={item}>
               {item}
             </Select.Option>
           ))}
-        </Select>
+        />
       ),
     },
     {

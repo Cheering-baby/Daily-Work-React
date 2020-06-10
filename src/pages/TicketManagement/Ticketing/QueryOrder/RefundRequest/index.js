@@ -220,23 +220,34 @@ class RefundRequest extends Component {
 
   getRefundUploadProps = (file, nowPageSize) => {
     const { dispatch } = this.props;
-    const reader = new FileReader();
-    reader.readAsText(file);
-    reader.onload = function() {
-      dispatch({
-        type: 'refundRequestMgr/uploadFile',
-        payload: {
-          uploadVidList: this.result,
-          pageSize: nowPageSize,
-        },
-      }).then(uploadStatus => {
-        if (uploadStatus) {
-          message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
-        } else {
-          message.warning(formatMessage({ id: 'FAILED_TO_UPDATE' }));
-        }
-      });
-    };
+    const { name } = file;
+    if (
+      name &&
+      name
+        .toString()
+        .substring(name.toString().length - 3, name.toString().length)
+        .toLowerCase() === 'csv'
+    ) {
+      const reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = function() {
+        dispatch({
+          type: 'refundRequestMgr/uploadFile',
+          payload: {
+            uploadVidList: this.result,
+            pageSize: nowPageSize,
+          },
+        }).then(uploadStatus => {
+          if (uploadStatus) {
+            message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
+          } else {
+            message.warning(formatMessage({ id: 'FAILED_TO_UPDATE' }));
+          }
+        });
+      };
+    } else {
+      message.warning('Please upload the file in CSV format.');
+    }
     return false;
   };
 

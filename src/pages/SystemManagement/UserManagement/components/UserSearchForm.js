@@ -7,6 +7,7 @@ import { connect } from 'dva';
 import constants from '../constants';
 import styles from '../index.less';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -303,7 +304,7 @@ class Index extends React.PureComponent {
                   {getFieldDecorator(`companyIds`, {
                     initialValue: searchCompanyId,
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       onChange={this.companyChange}
                       placeholder={formatMessage({ id: 'COMPANY_NAME' })}
@@ -312,9 +313,8 @@ class Index extends React.PureComponent {
                       filterOption={(input, option) =>
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
-                    >
-                      {this.getCompanyOptions()}
-                    </Select>
+                      options={this.getCompanyOptions()}
+                    />
                   )}
                 </Form.Item>
               ) : null}
@@ -328,7 +328,7 @@ class Index extends React.PureComponent {
                   {getFieldDecorator(`subCompanyIds`, {
                     initialValue: searchSubCompanyId,
                   })(
-                    <Select
+                    <SortSelect
                       showSearch
                       onChange={this.subCompanyChange}
                       placeholder={formatMessage({ id: 'SUB_COMPANY_NAME' })}
@@ -337,9 +337,8 @@ class Index extends React.PureComponent {
                       filterOption={(input, option) =>
                         option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       }
-                    >
-                      {this.getSubCompanyOptions()}
-                    </Select>
+                      options={this.getSubCompanyOptions()}
+                    />
                   )}
                 </Form.Item>
               </Col>
@@ -352,14 +351,13 @@ class Index extends React.PureComponent {
                   {getFieldDecorator(`categoryId`, {
                     initialValue: searchCategoryId,
                   })(
-                    <Select
+                    <SortSelect
                       onChange={this.categoryChange}
                       placeholder={formatMessage({ id: 'CATEGORY' })}
                       style={{ width: '100%' }}
                       allowClear
-                    >
-                      {this.getCategoryOptions()}
-                    </Select>
+                      options={this.getCategoryOptions()}
+                    />
                   )}
                 </Form.Item>
               )}
@@ -370,14 +368,13 @@ class Index extends React.PureComponent {
                   {getFieldDecorator(`customerGroupId`, {
                     initialValue: searchCustomerGroupId,
                   })(
-                    <Select
+                    <SortSelect
                       onChange={this.customerGroupChange}
                       placeholder={formatMessage({ id: 'CUSTOMER_GROUP' })}
                       style={{ width: '100%' }}
                       allowClear
-                    >
-                      {this.getCustomerGroupOptions()}
-                    </Select>
+                      options={this.getCustomerGroupOptions()}
+                    />
                   )}
                 </Form.Item>
               )}

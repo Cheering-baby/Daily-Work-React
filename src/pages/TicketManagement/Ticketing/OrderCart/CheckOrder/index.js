@@ -7,8 +7,10 @@ import {
   Col,
   DatePicker,
   Form,
+  Icon,
   List,
   message,
+  Modal,
   Row,
   Select,
   Spin,
@@ -35,6 +37,8 @@ const FormItem = Form.Item;
 
 let checkOutSubmitTime = 0;
 
+const { confirm } = Modal;
+
 @Form.create()
 @connect(({ global, ticketOrderCartMgr }) => ({
   global,
@@ -45,9 +49,10 @@ class CheckOrder extends Component {
     super(props);
     const clientHeight =
       document.getElementsByClassName('main-layout-content ant-layout-content')[0].clientHeight -
-      50 -
+      100 -
       80 -
-      97;
+      97 -
+      20;
     this.state = {
       clientHeight,
     };
@@ -211,7 +216,45 @@ class CheckOrder extends Component {
     if (checkOutSubmitTime !== 0) {
       return;
     }
+    const {
+      global: {
+        userCompanyInfo: { companyType },
+      },
+      form,
+    } = this.props;
+    form.validateFields((err, values) => {
+      if (!err) {
+        if (values && values.deliveryMode === 'BOCA' && values.collectionDate) {
+          const disabledCollectionDate = this.checkCollectionWithVisitOfDate(values.collectionDate);
+          if (disabledCollectionDate) {
+            message.warn('The collection date is later than date of visit!');
+            return;
+          }
+        }
+        if (companyType === '01') {
+          confirm({
+            title:
+              'Please note that system will help to hold the order for 30 minutes, make sure to do payment within 30 minutes, otherwise you might need to re-submit a new order.',
+            content: '',
+            className: 'confirmClassName',
+            icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
+            okText: 'Confirm',
+            onOk: this.orderCheckOutSubmit,
+            onCancel() {},
+          });
+        } else {
+          this.orderCheckOutSubmit();
+        }
+      }
+    });
+  };
+
+  orderCheckOutSubmit = () => {
+    if (checkOutSubmitTime !== 0) {
+      return;
+    }
     const { dispatch, form } = this.props;
+
     form.validateFields((err, values) => {
       if (values && !values.deliveryMode) {
         message.warn('Delivery mode is required!');
@@ -267,7 +310,7 @@ class CheckOrder extends Component {
     form.setFieldsValue(data);
     form.validateFields(['collectionDate']);
 
-    this.checkCollectionWithVisitOfDate(collectionDate);
+    // this.checkCollectionWithVisitOfDate(collectionDate);
   };
 
   checkCollectionWithVisitOfDate = collectionDate => {
@@ -286,21 +329,25 @@ class CheckOrder extends Component {
         if (dateOfVisitNum < collectionDateNum) {
           if (!isMoreThan && orderOffer.orderAll) {
             isMoreThan = true;
-            message.warn('The collection date is later than date of visit!');
+            // message.warn('The collection date is later than date of visit!');
           }
         }
       });
     });
-    onceAPirateOrderData.forEach(orderData => {
-      const dateOfVisitMoment = moment(orderData.queryInfo.dateOfVisit, 'x');
-      const dateOfVisitNum = Number.parseInt(dateOfVisitMoment.format('YYYYMMDD'), 10);
-      if (dateOfVisitNum < collectionDateNum) {
-        if (!isMoreThan && orderData.orderAll) {
-          isMoreThan = true;
-          message.warn('The collection date is later than date of visit!');
+    if (!isMoreThan) {
+      onceAPirateOrderData.forEach(orderData => {
+        const dateOfVisitMoment = moment(orderData.queryInfo.dateOfVisit, 'x');
+        const dateOfVisitNum = Number.parseInt(dateOfVisitMoment.format('YYYYMMDD'), 10);
+        if (dateOfVisitNum < collectionDateNum) {
+          if (!isMoreThan && orderData.orderAll) {
+            isMoreThan = true;
+            // message.warn('The collection date is later than date of visit!');
+          }
         }
-      }
-    });
+      });
+    }
+
+    return isMoreThan;
   };
 
   disabledCollectionDate = current => {
@@ -356,6 +403,43 @@ class CheckOrder extends Component {
     return disabled;
   };
 
+  deliveryModeDisabled = () => {
+    let disabled = true;
+    const ticketAmount = this.getTicketAmount();
+    if (ticketAmount > 0) {
+      disabled = false;
+    }
+    return disabled;
+  };
+
+  bocaOptionDisabled = () => {
+    // eslint-disable-next-line new-cap
+    return this.checkCollectionWithVisitOfDate(new moment().add(3, 'days').format('x'));
+  };
+
+  pageDataCheck = () => {
+    const {
+      dispatch,
+      form,
+      ticketOrderCartMgr: { deliveryMode },
+    } = this.props;
+    const ticketAmount = this.getTicketAmount();
+    const bocaOptionDisabled = this.checkCollectionWithVisitOfDate(
+      // eslint-disable-next-line new-cap
+      new moment().add(3, 'days').format('x')
+    );
+    if ((ticketAmount === 0 && deliveryMode) || (bocaOptionDisabled && deliveryMode === 'BOCA')) {
+      dispatch({
+        type: 'ticketOrderCartMgr/save',
+        payload: {
+          collectionDate: undefined,
+          deliveryMode: undefined,
+        },
+      });
+      form.resetFields(['collectionDate', 'deliveryMode']);
+    }
+  };
+
   render() {
     const {
       global: {
@@ -404,11 +488,50 @@ class CheckOrder extends Component {
       colon: false,
     };
 
+    this.pageDataCheck();
+
     return (
       <Spin spinning={checkOutLoading}>
         <MediaQuery minWidth={SCREEN.screenSm}>
           <BreadcrumbCompForPams title={title} />
         </MediaQuery>
+        <Card className={styles.cardStyles} style={{ marginTop: '0' }}>
+          <Row className={styles.selectAll}>
+            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
+              <Checkbox
+                value="SelectAll"
+                onChange={this.clickSelectAll}
+                checked={selectAllOrder}
+                indeterminate={selectAllIndeterminate}
+                className={styles.checkOutCheckStyle}
+              >
+                Select All
+              </Checkbox>
+            </Col>
+          </Row>
+        </Card>
+        <Card
+          className={styles.orderCardStyles}
+          style={{
+            minHeight: clientHeight,
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)',
+            marginTop: '0',
+          }}
+        >
+          {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
+          {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
+          {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
+          {this.getOrderAmount() === 0 && (
+            <div>
+              <List style={{ marginTop: 100 }} />
+              <div className={styles.emptyListFont}>{formatMessage({ id: 'EMPTY_ORDER_TIP' })}</div>
+            </div>
+          )}
+        </Card>
+        <div className={styles.bocaFont}>
+          <span className={styles.bocaStar}>*</span>
+          {formatMessage({ id: 'BOCA_ORDER_TIP' })}
+        </div>
         <Card className={styles.cardDeliverStyles}>
           <Row style={{ padding: '15px' }}>
             <Col span={24}>
@@ -435,10 +558,13 @@ class CheckOrder extends Component {
                         showSearch
                         style={{ width: '100%' }}
                         onChange={this.changeDeliveryMode}
+                        disabled={this.deliveryModeDisabled()}
                       >
-                        <Select.Option value="BOCA">BOCA</Select.Option>
-                        <Select.Option value="VID">VID</Select.Option>
+                        <Select.Option value="BOCA" disabled={this.bocaOptionDisabled()}>
+                          BOCA
+                        </Select.Option>
                         <Select.Option value="e-Ticket">e-Ticket</Select.Option>
+                        <Select.Option value="VID">VID</Select.Option>
                       </Select>
                     )}
                   </FormItem>
@@ -478,40 +604,23 @@ class CheckOrder extends Component {
               </Row>
             </Col>
           </Row>
-        </Card>
-        <Card style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}>
-          {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
-          {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
-          {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
           {companyType !== '02' && deliveryMode === 'BOCA' && this.getOrderAmount() !== 0 && (
-            <BOCAOfferCollapse
-              form={form}
-              companyType={companyType}
-              quantity={this.getTicketAmount()}
-              pricePax={bocaFeePax}
-            />
-          )}
-          {this.getOrderAmount() === 0 && (
-            <div>
-              <List style={{ marginTop: 100 }} />
-              <div className={styles.emptyListFont}>{formatMessage({ id: 'EMPTY_ORDER_TIP' })}</div>
-            </div>
+            <Row>
+              <Col style={{ padding: '15px' }}>
+                <BOCAOfferCollapse
+                  form={form}
+                  companyType={companyType}
+                  quantity={this.getTicketAmount()}
+                  pricePax={bocaFeePax}
+                />
+              </Col>
+            </Row>
           )}
         </Card>
         <Card className={styles.cardStyles} style={{ marginTop: '0', marginBottom: '20px' }}>
           <Row className={styles.checkOut}>
-            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
-              <Checkbox
-                value="SelectAll"
-                style={{ marginLeft: 34 }}
-                onChange={this.clickSelectAll}
-                checked={selectAllOrder}
-                indeterminate={selectAllIndeterminate}
-              >
-                Select All
-              </Checkbox>
-            </Col>
-            <Col xs={24} md={16} lg={20} className={styles.checkOutBtn}>
+            <Col xs={0} md={8} lg={1} className={styles.checkOutCheckBox} />
+            <Col xs={24} md={16} lg={23} className={styles.checkOutBtn}>
               {companyType === '01' && (
                 <div className={styles.checkOutPayDiv}>
                   <div className={styles.payFont}>
