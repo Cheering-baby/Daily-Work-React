@@ -347,9 +347,9 @@ class SearchPanel extends Component {
           bodyStyle={{ padding: 0 }}
         >
           <div style={{ minHeight: clientHeight }} className={styles.bodyContainer}>
-            <div className={styles.titleFontBlackWeight}>Custom filter</div>
+            <div className={styles.titleFontBlackWeight}>{formatMessage({ id: 'FILTER' })}</div>
             <Form>
-              <FormItem {...formItemLayout} label={formatMessage({ id: 'Ticketing' })}>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'PRODUCT_CATEGORIES' })}>
                 {getFieldDecorator('themePark', {
                   initialValue: themeParkChooseList,
                   rules: [

@@ -1,6 +1,8 @@
 import React, { Fragment } from 'react';
 import { Button, Col, Form, Icon, Input, Row, Select, Tooltip } from 'antd';
+// import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
+// import { SCREEN } from '../../../../utils/screen';
 import { connect } from 'dva';
 import TextArea from 'antd/es/input/TextArea';
 import router from 'umi/router';
@@ -9,9 +11,42 @@ import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
 import SortSelect from '@/components/SortSelect';
-import { colLayOut, rowLayOut } from '@/utils/utils';
 
 const { Option } = Select;
+
+const formItemLayout = {
+  labelCol: {
+    span: 10,
+  },
+  wrapperCol: {
+    span: 14,
+  },
+};
+
+const formItemLayoutFull = {
+  labelCol: {
+    span: 5,
+  },
+  wrapperCol: {
+    span: 19,
+  },
+};
+
+const formItemLayoutFull1 = {
+  labelCol: {
+    sm: 10,
+    md: 5,
+  },
+  wrapperCol: {
+    sm: 14,
+    md: 7,
+  },
+};
+
+const colProps = {
+  sm: 24,
+  md: 12,
+};
 
 @Form.create()
 @connect(({ userMgr, global, loading }) => ({
@@ -468,9 +503,10 @@ class Index extends React.PureComponent {
                 {formatMessage({ id: 'INFORMATION_FOR_SALES' })}
               </Col>
             </Row>
-            <Row {...rowLayOut}>
-              <Col {...colLayOut}>
+            <Row>
+              <Col {...colProps}>
                 <Form.Item
+                  {...formItemLayout}
                   label={
                     PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) ||
                     type === 'EDIT' ||
@@ -506,8 +542,8 @@ class Index extends React.PureComponent {
                 PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
                 PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
               ]) && type === 'NEW' ? (
-                <Col {...colLayOut}>
-                  <Form.Item label={formatMessage({ id: 'SUB_COMPANY_NAME' })}>
+                <Col {...colProps}>
+                  <Form.Item {...formItemLayout} label={formatMessage({ id: 'SUB_COMPANY_NAME' })}>
                     {getFieldDecorator(`subCompanyId`, {
                       initialValue: type === 'NEW' ? undefined : String(subCompanyId),
                     })(
@@ -526,8 +562,9 @@ class Index extends React.PureComponent {
                   </Form.Item>
                 </Col>
               ) : null}
-              <Col {...colLayOut}>
+              <Col {...colProps}>
                 <Form.Item
+                  {...formItemLayout}
                   label={
                     <span>
                       {formatMessage({ id: 'USER_LOGIN' })}&nbsp;
@@ -556,8 +593,8 @@ class Index extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col {...colLayOut}>
-                <Form.Item label={formatMessage({ id: 'FULL_NAME' })}>
+              <Col {...colProps}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'FULL_NAME' })}>
                   {getFieldDecorator(`userName`, {
                     initialValue: userName,
                     rules: [
@@ -577,8 +614,8 @@ class Index extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col {...colLayOut}>
-                <Form.Item label={formatMessage({ id: 'ROLE' })}>
+              <Col {...colProps}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'ROLE' })}>
                   {getFieldDecorator(`roleCodes`, {
                     initialValue: this.getRoleCodes(currentUserProfile),
                     rules: [
@@ -599,8 +636,8 @@ class Index extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col {...colLayOut}>
-                <Form.Item label={formatMessage({ id: 'PHONE' })}>
+              <Col {...colProps}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'PHONE' })}>
                   {getFieldDecorator(`phone`, {
                     initialValue: phone,
                   })(
@@ -615,8 +652,8 @@ class Index extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
-              <Col {...colLayOut}>
-                <Form.Item label={formatMessage({ id: 'EMAIL' })}>
+              <Col {...colProps}>
+                <Form.Item {...formItemLayout} label={formatMessage({ id: 'EMAIL' })}>
                   {getFieldDecorator(`email`, {
                     initialValue: email,
                     rules: [
@@ -641,7 +678,7 @@ class Index extends React.PureComponent {
                 </Form.Item>
               </Col>
               <Col span={24}>
-                <Form.Item label={formatMessage({ id: 'ADDRESS' })}>
+                <Form.Item {...formItemLayoutFull} label={formatMessage({ id: 'ADDRESS' })}>
                   {getFieldDecorator(`address`, {
                     initialValue: address,
                   })(
@@ -657,7 +694,7 @@ class Index extends React.PureComponent {
               </Col>
               {loginUserType === constants.RWS_USER_TYPE ? (
                 <Col span={24}>
-                  <Form.Item label={formatMessage({ id: 'REMARKS' })}>
+                  <Form.Item {...formItemLayoutFull} label={formatMessage({ id: 'REMARKS' })}>
                     {getFieldDecorator(`remarks`, {
                       initialValue: remarks,
                     })(
@@ -681,44 +718,47 @@ class Index extends React.PureComponent {
               ])) ? (
                 <React.Fragment>
                   <Row>
-                    <Col className={styles.headerClass} style={{ marginTop: '16px' }}>
+                    <Col className={styles.headerClass}>
                       {formatMessage({ id: 'TA_SUPPLEMENTARY_INFORMATION' })}
                     </Col>
                   </Row>
-                  <Row {...rowLayOut}>
+                  <Row>
                     {loginUserType === constants.RWS_USER_TYPE && (
-                    <Col {...colLayOut}>
-                      <Form.Item label={formatMessage({ id: 'MARKET' })}>
+                    <Col span={24}>
+                      <Form.Item {...formItemLayoutFull1} label={formatMessage({ id: 'MARKET' })}>
                         {getFieldDecorator(`market`, {
                           initialValue: marketName || '',
                         })(<Input disabled />)}
                       </Form.Item>
                     </Col>
                   )}
-                    <Col {...colLayOut}>
-                      <Form.Item label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
+                    <Col {...colProps}>
+                      <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
                         {getFieldDecorator(`effectiveDate`, {
                         initialValue: this.toDateTime(effectiveDate),
                       })(<Input disabled />)}
                       </Form.Item>
                     </Col>
-                    <Col {...colLayOut}>
-                      <Form.Item label={formatMessage({ id: 'END_DATE' })}>
+                    <Col {...colProps}>
+                      <Form.Item {...formItemLayout} label={formatMessage({ id: 'END_DATE' })}>
                         {getFieldDecorator(`endDate`, {
                         initialValue: this.toDateTime(endDate),
                       })(<Input disabled />)}
                       </Form.Item>
                     </Col>
-                    <Col {...colLayOut}>
-                      <Form.Item label={formatMessage({ id: 'SALES_PERSON' })}>
+                    <Col {...colProps}>
+                      <Form.Item {...formItemLayout} label={formatMessage({ id: 'SALES_PERSON' })}>
                         {getFieldDecorator(`salesPerson`, {
                         initialValue: salesPerson || '',
                       })(<Input disabled />)}
                       </Form.Item>
                     </Col>
                     {loginUserType === constants.RWS_USER_TYPE && (
-                    <Col {...colLayOut}>
-                      <Form.Item label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}>
+                    <Col {...colProps}>
+                      <Form.Item
+                        {...formItemLayout}
+                        label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}
+                      >
                         {getFieldDecorator(`cateAndGroup`, {
                           initialValue: `${categoryName || ''}/${customerGroupName || ''}`,
                         })(<Input disabled />)}

@@ -133,7 +133,10 @@ class CreateOrder extends PureComponent {
 
     const { clientHeight } = this.state;
 
-    const title = [{ name: 'Ticketing' }, { name: 'Create Order' }];
+    const title = [
+      { name: formatMessage({ id: 'TICKETING' }) },
+      { name: formatMessage({ id: 'ORDER_CREATION' }) },
+    ];
     const searchPanelGrid = { xs: 24, sm: 24, md: 9, lg: 8, xl: 6, xxl: 6 };
     const infoPanelGrid = { xs: 24, sm: 24, md: 15, lg: 16, xl: 18, xxl: 18 };
 

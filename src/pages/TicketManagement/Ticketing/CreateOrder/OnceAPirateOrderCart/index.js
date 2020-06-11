@@ -129,9 +129,12 @@ class OnceAPirateOrderCart extends Component {
     const { clientHeight } = this.state;
 
     const title = [
-      { name: 'Ticketing' },
-      { name: 'Create Order', href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack' },
-      { name: 'Add to Cart' },
+      { name: formatMessage({ id: 'TICKETING' }) },
+      {
+        name: formatMessage({ id: 'ORDER_CREATION' }),
+        href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack',
+      },
+      { name: formatMessage({ id: 'ADD_TO_CART' }) },
     ];
     const gridOpts = { xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 };
     const gridOpts2 = { xs: 8, sm: 8, md: 4, lg: 4, xl: 4, xxl: 4 };

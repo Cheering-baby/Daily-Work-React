@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
+import { formatMessage } from 'umi/locale';
 import {
   Button,
   Checkbox,
@@ -7,6 +8,7 @@ import {
   DatePicker,
   Drawer,
   Form,
+  Icon,
   Input,
   InputNumber,
   message,
@@ -919,6 +921,10 @@ class ToCart extends Component {
                   checked={checkTermsAndCondition}
                   onChange={this.changeCheckTermsAndCondition}
                 />
+                <span>
+                  {' '}
+                  *Please tick (<Icon type="check" />) to accept
+                </span>
                 <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
                   Terms and Conditions &gt;
                 </span>
@@ -935,7 +941,7 @@ class ToCart extends Component {
               style={{ minWidth: 60 }}
               loading={loading}
             >
-              Order
+              {formatMessage({ id: 'ADD_TO_MY_SHOPPING_CART' })}
             </Button>
           </div>
         </Drawer>

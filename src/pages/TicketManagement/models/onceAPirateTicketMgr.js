@@ -421,7 +421,7 @@ export default {
               selectRuleId,
               offerPricePax,
               offerSumPrice: offerPricePax * orderQuantity,
-              showPrice: `$${Number(offerPricePax).toFixed(2)}`,
+              showPrice: `$${Number(offerPricePax).toFixed(2)}/package`,
               orderQuantity,
               offerMaxAvailable,
               offerInventoryByDateOfVisit,

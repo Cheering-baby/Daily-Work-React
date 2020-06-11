@@ -8,23 +8,6 @@ import loginSession from './loginSession';
 import 'isomorphic-fetch';
 import defaultSettings from '@/defaultSettings';
 
-export const colLayOut = {
-  xs: 24,
-  sm: 24,
-  md: 24,
-  lg: 12,
-  xl: 8,
-  xxl: 8,
-  style: {
-    height: '75px',
-  },
-};
-
-export const rowLayOut = {
-  type: 'flex',
-  gutter: 15,
-};
-
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
 }

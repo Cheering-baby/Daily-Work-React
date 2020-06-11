@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, Table, Tabs, Tooltip, List } from 'antd';
+import { Button, Icon, List, Table, Tabs, Tooltip } from 'antd';
 import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import Detail from '../Detail';
@@ -508,13 +508,14 @@ class Attraction extends Component {
                     <div key={offerNo} className={styles.productPrice}>
                       <div style={{ marginRight: '10px' }}> </div>
                       <div>
-                        ${' '}
+                        ${''}
                         {calculateAllProductPrice(
                           attractionProductItems,
                           offerPriceRuleId,
                           null,
                           offerItem.detail
                         )}
+                        {'/package'}
                       </div>
                     </div>
                   );
@@ -537,13 +538,14 @@ class Attraction extends Component {
               <div className={styles.productPrice}>
                 <div style={{ marginRight: '10px' }}> </div>
                 <div>
-                  ${' '}
+                  ${''}
                   {calculateAllProductPrice(
                     record.attractionProduct,
                     priceRuleId,
                     null,
                     record.detail
                   )}
+                  {'/package'}
                 </div>
               </div>
             );
@@ -555,7 +557,7 @@ class Attraction extends Component {
                 return (
                   <div key={productNo} className={styles.productPrice}>
                     <div style={{ marginRight: '10px' }}> </div>
-                    <div>${` ${calculateProductPrice(item, priceRuleId).toFixed(2)}`}</div>
+                    <div>${`${calculateProductPrice(item, priceRuleId).toFixed(2)}/ticket`}</div>
                   </div>
                 );
               })}

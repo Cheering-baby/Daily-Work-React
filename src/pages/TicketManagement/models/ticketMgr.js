@@ -10,6 +10,7 @@ import {
 } from '../services/ticketCommon';
 import {
   changeVoucherToAttraction,
+  getOfferCategory,
   getSessionTimeList,
   sortAttractionByAgeGroup,
 } from '../utils/ticketOfferInfoUtil';
@@ -463,13 +464,6 @@ export default {
         } = response;
         if (resultCode === '0') {
           const themeParkList = [];
-          const tags = ['Admission', 'VIP Tour', 'Express', 'Promo', 'Group'];
-          const categories = tags.map(item => ({
-            tag: item,
-            products: [],
-            bundleNames: [],
-            showDetail: true,
-          }));
           const themeParkChooseListCodes = [];
           attractionList.forEach(item => {
             if (themeParkChooseList.indexOf(item.value) !== -1) {
@@ -484,7 +478,7 @@ export default {
                   themeparkName: item2.label,
                   offerNos: [],
                   products: [],
-                  categories,
+                  categories: getOfferCategory(item),
                 });
               }
             });

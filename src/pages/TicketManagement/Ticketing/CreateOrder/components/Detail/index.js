@@ -1,5 +1,6 @@
-import React, {Component} from 'react';
-import {Col, Drawer, Row} from 'antd';
+import React, { Component } from 'react';
+import { Col, Drawer, Row } from 'antd';
+import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -8,7 +9,10 @@ class Detail extends Component {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
     const {
       onClose,
-      detail: { offerContentList = [], offerBasicInfo: { offerName } },
+      detail: {
+        offerContentList = [],
+        offerBasicInfo: { offerName },
+      },
     } = this.props;
     let longDescription;
     let offerIncludes;
@@ -35,7 +39,7 @@ class Detail extends Component {
       <div>
         <Drawer
           visible
-          title={<div className={styles.title}>DETAIL</div>}
+          title={<div className={styles.title}>{formatMessage({ id: 'DETAILS' })}</div>}
           placement="right"
           destroyOnClose
           maskClosable={false}
@@ -52,7 +56,7 @@ class Detail extends Component {
             <div>
               <Row>
                 <Col style={{ height: '35px' }} className={styles.title}>
-                  BASIC INFORMATION
+                  {formatMessage({ id: 'OFFER_INFORMATION' })}
                 </Col>
                 <Col span={24} style={{ marginBottom: '5px' }}>
                   <Col span={9} style={{ height: '30px' }}>
@@ -64,7 +68,9 @@ class Detail extends Component {
                 </Col>
                 <Col span={24} style={{ marginBottom: '5px' }}>
                   <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Long Description</span>
+                    <span className={styles.detailLabel}>
+                      {formatMessage({ id: 'DESCRIPTION' })}
+                    </span>
                   </Col>
                   <Col span={15}>
                     <span className={styles.detailText}>{longDescription || '-'}</span>

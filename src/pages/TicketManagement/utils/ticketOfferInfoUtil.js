@@ -252,3 +252,68 @@ export function sortAttractionByAgeGroup(offerProfile) {
   }
   return newOfferProfile;
 }
+
+export function getOfferCategory(themeparkCode) {
+  const USS_SEAA_ACW_TAGS = [
+    'Admissions',
+    'VIP Experiences',
+    'Express',
+    'Promotions',
+    'Group Ticketings',
+    'Vouchers',
+  ];
+  const DOL_TAGS = [
+    'Dolphin Adventure',
+    'Dolphin Discovery',
+    'Dolphin Encounter',
+    'Dolphin Observer',
+    'Dolphin Trek',
+    'Dolphin VIP',
+    'Dolphin Trainer For A Day',
+  ];
+  const OM_TAGS = ['Ocean Dream', 'Ocean Dream Glamping', 'Ocean Dream Group'];
+  const VOUCHERS_TAGS = ['Meal Vouchers', 'Retail Vouchers', 'Others'];
+  const HHN_TAGS = [
+    'Admissions',
+    'Express',
+    'Frequent Fear Pass',
+    'Rest In Peace (R.I.P) Experience',
+    'Vouchers',
+    'Others',
+  ];
+  let resultTags = [];
+  switch (themeparkCode) {
+    case 'USS':
+    case 'SEAA':
+    case 'ACW': {
+      resultTags = [...USS_SEAA_ACW_TAGS];
+      break;
+    }
+    case 'DOL': {
+      resultTags = [...DOL_TAGS];
+      break;
+    }
+    case 'OM': {
+      resultTags = [...OM_TAGS];
+      break;
+    }
+    case 'VOUCHER': {
+      resultTags = [...VOUCHERS_TAGS];
+      break;
+    }
+    case 'HHN': {
+      resultTags = [...HHN_TAGS];
+      break;
+    }
+    default: {
+      resultTags = [...USS_SEAA_ACW_TAGS];
+    }
+  }
+  const categories = resultTags.map(item => ({
+    tag: item,
+    products: [],
+    bundleNames: [],
+    showDetail: true,
+  }));
+  return categories;
+}
