@@ -103,12 +103,12 @@ class MenuForm extends PureComponent {
                     options={
                       menuTypeList && menuTypeList.length > 0
                         ? menuTypeList.map(item => (
-                            <Select.Option
-                              key={`menuTypeList${item.dicValue}`}
-                              value={`${item.dicValue}`}
-                            >
-                              {item.dicName}
-                            </Select.Option>
+                          <Select.Option
+                            key={`menuTypeList${item.dicValue}`}
+                            value={`${item.dicValue}`}
+                          >
+                            {item.dicName}
+                          </Select.Option>
                           ))
                         : null
                     }

@@ -129,22 +129,22 @@ class TAFinanceContactToFrom extends PureComponent {
                       options={
                         countryList && countryList.length > 0
                           ? countryList.map(item => (
-                              <Select.Option
-                                key={`mobileCountryListOne${item.dictId}`}
-                                value={`${item.dictId}`}
-                                label={`${item.dictName} +${item.dictId}`}
-                              >
-                                <Tooltip
-                                  placement="topLeft"
-                                  title={
-                                    <span style={{ whiteSpace: 'pre-wrap' }}>
-                                      {`${item.dictName} +${item.dictId}`}
-                                    </span>
+                            <Select.Option
+                              key={`mobileCountryListOne${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
+                            >
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
                                   }
-                                >
-                                  {`${item.dictName} +${item.dictId}`}
-                                </Tooltip>
-                              </Select.Option>
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
                             ))
                           : null
                       }
@@ -209,22 +209,22 @@ class TAFinanceContactToFrom extends PureComponent {
                       options={
                         countryList && countryList.length > 0
                           ? countryList.map(item => (
-                              <Select.Option
-                                key={`countryListOne${item.dictId}`}
-                                value={`${item.dictId}`}
-                                label={`${item.dictName} +${item.dictId}`}
-                              >
-                                <Tooltip
-                                  placement="topLeft"
-                                  title={
-                                    <span style={{ whiteSpace: 'pre-wrap' }}>
-                                      {`${item.dictName} +${item.dictId}`}
-                                    </span>
+                            <Select.Option
+                              key={`countryListOne${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
+                            >
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
                                   }
-                                >
-                                  {`${item.dictName} +${item.dictId}`}
-                                </Tooltip>
-                              </Select.Option>
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
                             ))
                           : null
                       }
@@ -361,22 +361,22 @@ class TAFinanceContactToFrom extends PureComponent {
                       options={
                         countryList && countryList.length > 0
                           ? countryList.map(item => (
-                              <Select.Option
-                                key={`mobileCountryListTwo${item.dictId}`}
-                                value={`${item.dictId}`}
-                                label={`${item.dictName} +${item.dictId}`}
-                              >
-                                <Tooltip
-                                  placement="topLeft"
-                                  title={
-                                    <span style={{ whiteSpace: 'pre-wrap' }}>
-                                      {`${item.dictName} +${item.dictId}`}
-                                    </span>
+                            <Select.Option
+                              key={`mobileCountryListTwo${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
+                            >
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
                                   }
-                                >
-                                  {`${item.dictName} +${item.dictId}`}
-                                </Tooltip>
-                              </Select.Option>
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
                             ))
                           : null
                       }
@@ -441,22 +441,22 @@ class TAFinanceContactToFrom extends PureComponent {
                       options={
                         countryList && countryList.length > 0
                           ? countryList.map(item => (
-                              <Select.Option
-                                key={`countryListTwo${item.dictId}`}
-                                value={`${item.dictId}`}
-                                label={`${item.dictName} +${item.dictId}`}
-                              >
-                                <Tooltip
-                                  placement="topLeft"
-                                  title={
-                                    <span style={{ whiteSpace: 'pre-wrap' }}>
-                                      {`${item.dictName} +${item.dictId}`}
-                                    </span>
+                            <Select.Option
+                              key={`countryListTwo${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
+                            >
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
                                   }
-                                >
-                                  {`${item.dictName} +${item.dictId}`}
-                                </Tooltip>
-                              </Select.Option>
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
                             ))
                           : null
                       }
@@ -588,22 +588,22 @@ class TAFinanceContactToFrom extends PureComponent {
                     options={
                       currencyList && currencyList.length > 0
                         ? currencyList.map(item => (
-                            <Select.Option
-                              key={`currencyList${item.dictId}`}
-                              value={`${item.dictId}`}
-                              label={`${item.dictName}`}
-                            >
-                              <Tooltip
-                                placement="topLeft"
-                                title={
-                                  <span style={{ whiteSpace: 'pre-wrap' }}>
-                                    {`${item.dictName}`}
-                                  </span>
+                          <Select.Option
+                            key={`currencyList${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={`${item.dictName}`}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>
+                                  {`${item.dictName}`}
+                                </span>
                                 }
-                              >
-                                {`${item.dictName}`}
-                              </Tooltip>
-                            </Select.Option>
+                            >
+                              {`${item.dictName}`}
+                            </Tooltip>
+                          </Select.Option>
                           ))
                         : null
                     }
@@ -799,22 +799,22 @@ class TAFinanceContactToFrom extends PureComponent {
                       options={
                         createTeamList && createTeamList.length > 0
                           ? createTeamList.map(item => (
-                              <Select.Option
-                                key={`createTeamList${item.dictId}`}
-                                value={`${item.dictId}`}
-                                label={`${item.dictName}`}
-                              >
-                                <Tooltip
-                                  placement="topLeft"
-                                  title={
-                                    <span style={{ whiteSpace: 'pre-wrap' }}>
-                                      {`${item.dictName}`}
-                                    </span>
+                            <Select.Option
+                              key={`createTeamList${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName}`}
+                            >
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName}`}
+                                  </span>
                                   }
-                                >
-                                  {`${item.dictName}`}
-                                </Tooltip>
-                              </Select.Option>
+                              >
+                                {`${item.dictName}`}
+                              </Tooltip>
+                            </Select.Option>
                             ))
                           : null
                       }

@@ -175,14 +175,14 @@ class MyActivity extends React.PureComponent {
               record.status === '00' &&
               (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ||
                 PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.AR_ACCOUNT_PRIVILEGE])) ? (
-                <Tooltip title={formatMessage({ id: 'COMMON_REDIRECT_MAPPING' })}>
-                  <Icon
-                    type="block"
-                    onClick={() => {
+                  <Tooltip title={formatMessage({ id: 'COMMON_REDIRECT_MAPPING' })}>
+                    <Icon
+                      type="block"
+                      onClick={() => {
                       this.detail('block', record);
                     }}
-                  />
-                </Tooltip>
+                    />
+                  </Tooltip>
               ) : null}
               {record.status === '02' && !this.checkIsTransactionType(record) ? (
                 <Tooltip title={formatMessage({ id: 'COMMON_OPERATION' })}>

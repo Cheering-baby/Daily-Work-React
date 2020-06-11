@@ -167,44 +167,44 @@ class SignUp extends PureComponent {
           actions={
             String(currentStep) === '0' || String(currentStep) === '1'
               ? [
-                  <Row type="flex" justify="space-between" className={styles.informationButtonRow}>
-                    <Col>
-                      {String(currentStep) === '1' ? (
-                        <Button
-                          htmlType="button"
-                          className={styles.informationButton}
-                          style={{ marginLeft: '0.75rem' }}
-                          onClick={this.back}
-                        >
-                          {formatMessage({ id: 'COMMON_BACK' })}
-                        </Button>
-                      ) : null}
-                    </Col>
-                    <Col span={12}>
+                <Row type="flex" justify="space-between" className={styles.informationButtonRow}>
+                  <Col>
+                    {String(currentStep) === '1' ? (
                       <Button
                         htmlType="button"
                         className={styles.informationButton}
-                        loading={taInfoLoadingFlag}
-                        onClick={e => this.giveUpRegister(e)}
+                        style={{ marginLeft: '0.75rem' }}
+                        onClick={this.back}
                       >
-                        {formatMessage({ id: 'COMMON_CANCEL' })}
+                        {formatMessage({ id: 'COMMON_BACK' })}
                       </Button>
-                      <Button
-                        htmlType="button"
-                        type="primary"
-                        className={styles.informationButton}
-                        loading={taInfoLoadingFlag}
-                        onClick={this.onHandleSubmit}
-                        disabled={
+                      ) : null}
+                  </Col>
+                  <Col span={12}>
+                    <Button
+                      htmlType="button"
+                      className={styles.informationButton}
+                      loading={taInfoLoadingFlag}
+                      onClick={e => this.giveUpRegister(e)}
+                    >
+                      {formatMessage({ id: 'COMMON_CANCEL' })}
+                    </Button>
+                    <Button
+                      htmlType="button"
+                      type="primary"
+                      className={styles.informationButton}
+                      loading={taInfoLoadingFlag}
+                      onClick={this.onHandleSubmit}
+                      disabled={
                           (!isAllInformationToRws && String(currentStep) === '1') || isCompanyExist
                         }
-                      >
-                        {formatMessage({
+                    >
+                      {formatMessage({
                           id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
                         })}
-                      </Button>
-                    </Col>
-                  </Row>,
+                    </Button>
+                  </Col>
+                </Row>,
                 ]
               : []
           }

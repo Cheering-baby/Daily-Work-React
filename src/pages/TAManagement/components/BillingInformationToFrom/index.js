@@ -50,22 +50,22 @@ class BillingInformationToFrom extends PureComponent {
       >
         {countryList && countryList.length > 0
           ? countryList.map(item => (
-              <Select.Option
-                key={`bilCountryPhoneList${item.dictId}`}
-                value={`${item.dictId}`}
-                label={`${item.dictName} +${item.dictId}`}
-              >
-                <Tooltip
-                  placement="topLeft"
-                  title={
-                    <span style={{ whiteSpace: 'pre-wrap' }}>
-                      {`${item.dictName} +${item.dictId}`}
-                    </span>
+            <Select.Option
+              key={`bilCountryPhoneList${item.dictId}`}
+              value={`${item.dictId}`}
+              label={`${item.dictName} +${item.dictId}`}
+            >
+              <Tooltip
+                placement="topLeft"
+                title={
+                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                    {`${item.dictName} +${item.dictId}`}
+                  </span>
                   }
-                >
-                  {`${item.dictName} +${item.dictId}`}
-                </Tooltip>
-              </Select.Option>
+              >
+                {`${item.dictName} +${item.dictId}`}
+              </Tooltip>
+            </Select.Option>
             ))
           : null}
       </Select>
@@ -84,22 +84,22 @@ class BillingInformationToFrom extends PureComponent {
       >
         {countryList && countryList.length > 0
           ? countryList.map(item => (
-              <Select.Option
-                key={`bilMobileCountryList${item.dictId}`}
-                value={`${item.dictId}`}
-                label={`${item.dictName} +${item.dictId}`}
-              >
-                <Tooltip
-                  placement="topLeft"
-                  title={
-                    <span style={{ whiteSpace: 'pre-wrap' }}>
-                      {`${item.dictName} +${item.dictId}`}
-                    </span>
+            <Select.Option
+              key={`bilMobileCountryList${item.dictId}`}
+              value={`${item.dictId}`}
+              label={`${item.dictName} +${item.dictId}`}
+            >
+              <Tooltip
+                placement="topLeft"
+                title={
+                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                    {`${item.dictName} +${item.dictId}`}
+                  </span>
                   }
-                >
-                  {`${item.dictName} +${item.dictId}`}
-                </Tooltip>
-              </Select.Option>
+              >
+                {`${item.dictName} +${item.dictId}`}
+              </Tooltip>
+            </Select.Option>
             ))
           : null}
       </Select>
@@ -144,18 +144,18 @@ class BillingInformationToFrom extends PureComponent {
                 >
                   {salutationList && salutationList.length > 0
                     ? salutationList.map(item => (
-                        <Select.Option
-                          key={`salutationList${item.dictId}`}
-                          value={`${item.dictId}`}
-                          label={item.dictName}
+                      <Select.Option
+                        key={`salutationList${item.dictId}`}
+                        value={`${item.dictId}`}
+                        label={item.dictName}
+                      >
+                        <Tooltip
+                          placement="topLeft"
+                          title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
                         >
-                          <Tooltip
-                            placement="topLeft"
-                            title={<span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>}
-                          >
-                            {item.dictName}
-                          </Tooltip>
-                        </Select.Option>
+                          {item.dictName}
+                        </Tooltip>
+                      </Select.Option>
                       ))
                     : null}
                 </Select>
@@ -344,20 +344,20 @@ class BillingInformationToFrom extends PureComponent {
                     >
                       {countryList && countryList.length > 0
                         ? countryList.map(item => (
-                            <Select.Option
-                              key={`bilCountryList${item.dictId}`}
-                              value={`${item.dictId}`}
-                              label={item.dictName}
-                            >
-                              <Tooltip
-                                placement="topLeft"
-                                title={
-                                  <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                          <Select.Option
+                            key={`bilCountryList${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={item.dictName}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
                                 }
-                              >
-                                {item.dictName}
-                              </Tooltip>
-                            </Select.Option>
+                            >
+                              {item.dictName}
+                            </Tooltip>
+                          </Select.Option>
                           ))
                         : null}
                     </Select>
@@ -382,20 +382,20 @@ class BillingInformationToFrom extends PureComponent {
                     >
                       {bilCityList && bilCityList.length > 0
                         ? bilCityList.map(item => (
-                            <Select.Option
-                              key={`bilCityList${item.dictId}`}
-                              value={`${item.dictId}`}
-                              label={item.dictName}
-                            >
-                              <Tooltip
-                                placement="topLeft"
-                                title={
-                                  <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
+                          <Select.Option
+                            key={`bilCityList${item.dictId}`}
+                            value={`${item.dictId}`}
+                            label={item.dictName}
+                          >
+                            <Tooltip
+                              placement="topLeft"
+                              title={
+                                <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
                                 }
-                              >
-                                {item.dictName}
-                              </Tooltip>
-                            </Select.Option>
+                            >
+                              {item.dictName}
+                            </Tooltip>
+                          </Select.Option>
                           ))
                         : null}
                     </Select>

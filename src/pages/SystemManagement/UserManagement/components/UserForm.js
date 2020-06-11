@@ -679,14 +679,14 @@ class Index extends React.PureComponent {
                 PrivilegeUtil.SALES_SUPPORT_PRIVILEGE,
                 PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
               ])) ? (
-              <React.Fragment>
-                <Row>
-                  <Col className={styles.headerClass} style={{ marginTop: '16px' }}>
-                    {formatMessage({ id: 'TA_SUPPLEMENTARY_INFORMATION' })}
-                  </Col>
-                </Row>
-                <Row {...rowLayOut}>
-                  {loginUserType === constants.RWS_USER_TYPE && (
+                <React.Fragment>
+                  <Row>
+                    <Col className={styles.headerClass} style={{ marginTop: '16px' }}>
+                      {formatMessage({ id: 'TA_SUPPLEMENTARY_INFORMATION' })}
+                    </Col>
+                  </Row>
+                  <Row {...rowLayOut}>
+                    {loginUserType === constants.RWS_USER_TYPE && (
                     <Col {...colLayOut}>
                       <Form.Item label={formatMessage({ id: 'MARKET' })}>
                         {getFieldDecorator(`market`, {
@@ -695,28 +695,28 @@ class Index extends React.PureComponent {
                       </Form.Item>
                     </Col>
                   )}
-                  <Col {...colLayOut}>
-                    <Form.Item label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
-                      {getFieldDecorator(`effectiveDate`, {
+                    <Col {...colLayOut}>
+                      <Form.Item label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
+                        {getFieldDecorator(`effectiveDate`, {
                         initialValue: this.toDateTime(effectiveDate),
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                  <Col {...colLayOut}>
-                    <Form.Item label={formatMessage({ id: 'END_DATE' })}>
-                      {getFieldDecorator(`endDate`, {
+                      </Form.Item>
+                    </Col>
+                    <Col {...colLayOut}>
+                      <Form.Item label={formatMessage({ id: 'END_DATE' })}>
+                        {getFieldDecorator(`endDate`, {
                         initialValue: this.toDateTime(endDate),
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                  <Col {...colLayOut}>
-                    <Form.Item label={formatMessage({ id: 'SALES_PERSON' })}>
-                      {getFieldDecorator(`salesPerson`, {
+                      </Form.Item>
+                    </Col>
+                    <Col {...colLayOut}>
+                      <Form.Item label={formatMessage({ id: 'SALES_PERSON' })}>
+                        {getFieldDecorator(`salesPerson`, {
                         initialValue: salesPerson || '',
                       })(<Input disabled />)}
-                    </Form.Item>
-                  </Col>
-                  {loginUserType === constants.RWS_USER_TYPE && (
+                      </Form.Item>
+                    </Col>
+                    {loginUserType === constants.RWS_USER_TYPE && (
                     <Col {...colLayOut}>
                       <Form.Item label={formatMessage({ id: 'CATEGORY_AND_CUSTOMER_GROUP' })}>
                         {getFieldDecorator(`cateAndGroup`, {
@@ -725,8 +725,8 @@ class Index extends React.PureComponent {
                       </Form.Item>
                     </Col>
                   )}
-                </Row>
-              </React.Fragment>
+                  </Row>
+                </React.Fragment>
             ) : null}
           </div>
           <Row>

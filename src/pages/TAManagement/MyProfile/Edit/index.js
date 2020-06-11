@@ -259,54 +259,54 @@ class Edit extends PureComponent {
               actions={
                 String(currentStep) === '0' || String(currentStep) === '1'
                   ? [
-                      <Row type="flex" justify="space-between">
-                        <Col>
-                          {String(currentStep) === '1' ? (
-                            <Button
-                              htmlType="button"
-                              className={styles.informationButton}
-                              style={{ marginLeft: '0.75rem' }}
-                              onClick={this.back}
-                            >
-                              {formatMessage({ id: 'COMMON_BACK' })}
-                            </Button>
-                          ) : null}
-                        </Col>
-                        <Col span={12}>
+                    <Row type="flex" justify="space-between">
+                      <Col>
+                        {String(currentStep) === '1' ? (
                           <Button
                             htmlType="button"
-                            className={styles.editInformationButton}
-                            loading={
-                              taInfoLoadingFlag ||
-                              taMappingInfoLoadingFlag ||
-                              taAccountInfoLoadingFlag
-                            }
-                            onClick={e => this.giveUpEdit(e)}
+                            className={styles.informationButton}
+                            style={{ marginLeft: '0.75rem' }}
+                            onClick={this.back}
                           >
-                            {formatMessage({ id: 'COMMON_CANCEL' })}
+                            {formatMessage({ id: 'COMMON_BACK' })}
                           </Button>
-                          <Button
-                            htmlType="button"
-                            type="primary"
-                            className={styles.editInformationButton}
-                            onClick={this.onHandleSubmit}
-                            loading={
+                          ) : null}
+                      </Col>
+                      <Col span={12}>
+                        <Button
+                          htmlType="button"
+                          className={styles.editInformationButton}
+                          loading={
                               taInfoLoadingFlag ||
                               taMappingInfoLoadingFlag ||
                               taAccountInfoLoadingFlag
                             }
-                            disabled={
+                          onClick={e => this.giveUpEdit(e)}
+                        >
+                          {formatMessage({ id: 'COMMON_CANCEL' })}
+                        </Button>
+                        <Button
+                          htmlType="button"
+                          type="primary"
+                          className={styles.editInformationButton}
+                          onClick={this.onHandleSubmit}
+                          loading={
+                              taInfoLoadingFlag ||
+                              taMappingInfoLoadingFlag ||
+                              taAccountInfoLoadingFlag
+                            }
+                          disabled={
                               (!isAllInformationToRws && String(currentStep) === '1') ||
                               isCompanyExist ||
                               isTaDeActivationFlag
                             }
-                          >
-                            {formatMessage({
+                        >
+                          {formatMessage({
                               id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
                             })}
-                          </Button>
-                        </Col>
-                      </Row>,
+                        </Button>
+                      </Col>
+                    </Row>,
                     ]
                   : []
               }
