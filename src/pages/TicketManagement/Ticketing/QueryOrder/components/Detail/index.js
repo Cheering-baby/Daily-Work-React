@@ -403,14 +403,12 @@ class Detail extends React.Component {
                   title={
                     <span style={{ whiteSpace: 'pre-wrap' }}>{`$ ${Number(netAmt).toFixed(
                       2
-                    )}`}
-                    </span>
+                    )}`}</span>
                   }
                 >
                   <span className={styles.drawerTitleStyle}>{`$ ${Number(netAmt).toFixed(
                     2
-                  )}`}
-                  </span>
+                  )}`}</span>
                 </Tooltip>
               </FormItem>
             )}
@@ -428,14 +426,12 @@ class Detail extends React.Component {
                   title={
                     <span style={{ whiteSpace: 'pre-wrap' }}>{`$ ${Number(netAmt).toFixed(
                       2
-                    )}`}
-                    </span>
+                    )}`}</span>
                   }
                 >
                   <span className={styles.drawerTitleStyle}>{`$ ${Number(netAmt).toFixed(
                     2
-                  )}`}
-                  </span>
+                  )}`}</span>
                 </Tooltip>
               </FormItem>
             )}

@@ -139,9 +139,9 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   options={
                     countryList && countryList.length > 0
                       ? countryList.map(item => (
-                        <Select.Option key={`countryList${item.dictId}`} value={`${item.dictId}`}>
-                          {item.dictName}
-                        </Select.Option>
+                          <Select.Option key={`countryList${item.dictId}`} value={`${item.dictId}`}>
+                            {item.dictName}
+                          </Select.Option>
                         ))
                       : null
                   }

@@ -101,7 +101,7 @@ export default {
     *fetchCustomerGroupListByCategory({ payload }, { put, select }) {
       const { allCustomerGroupList = [] } = yield select(state => state.mainTAManagement);
       const { category } = payload;
-      const customerGroupList = allCustomerGroupList.filter((item, index, arr) => {
+      let customerGroupList = allCustomerGroupList.filter((item, index, arr) => {
         return String(item.dictSubType) === String(category);
       });
       yield put({

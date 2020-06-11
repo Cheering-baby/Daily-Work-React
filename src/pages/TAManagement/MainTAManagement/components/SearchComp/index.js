@@ -184,9 +184,9 @@ class SearchComp extends PureComponent {
               >
                 {marketList && marketList.length > 0
                   ? marketList.map(item => (
-                    <Select.Option key={`marketList${item.dictId}`} value={`${item.dictId}`}>
-                      {item.dictName}
-                    </Select.Option>
+                      <Select.Option key={`marketList${item.dictId}`} value={`${item.dictId}`}>
+                        {item.dictName}
+                      </Select.Option>
                     ))
                   : null}
               </Select>
@@ -208,9 +208,9 @@ class SearchComp extends PureComponent {
                 >
                   {categoryList && categoryList.length > 0
                     ? categoryList.map(item => (
-                      <Select.Option key={`categoryList${item.dictId}`} value={`${item.dictId}`}>
-                        {item.dictName}
-                      </Select.Option>
+                        <Select.Option key={`categoryList${item.dictId}`} value={`${item.dictId}`}>
+                          {item.dictName}
+                        </Select.Option>
                       ))
                     : null}
                 </Select>
@@ -230,12 +230,12 @@ class SearchComp extends PureComponent {
                 >
                   {customerGroupList && customerGroupList.length > 0
                     ? customerGroupList.map(item => (
-                      <Select.Option
-                        key={`customerGroupList${item.dictId}`}
-                        value={`${item.dictId}`}
-                      >
-                        {item.dictName}
-                      </Select.Option>
+                        <Select.Option
+                          key={`customerGroupList${item.dictId}`}
+                          value={`${item.dictId}`}
+                        >
+                          {item.dictName}
+                        </Select.Option>
                       ))
                     : null}
                 </Select>
@@ -258,12 +258,12 @@ class SearchComp extends PureComponent {
               >
                 {salesPersonList && salesPersonList.length > 0
                   ? salesPersonList.map(item => (
-                    <Select.Option
-                      key={`salesPersonList${item.userCode}`}
-                      value={`${item.userCode}`}
-                    >
-                      {item.userCode}
-                    </Select.Option>
+                      <Select.Option
+                        key={`salesPersonList${item.userCode}`}
+                        value={`${item.userCode}`}
+                      >
+                        {item.userCode}
+                      </Select.Option>
                     ))
                   : null}
               </Select>

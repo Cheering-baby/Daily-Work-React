@@ -65,16 +65,22 @@ const InvoiceModel = {
       const {
         data: { resultCode, resultMsg, result = {} },
       } = yield call(service.invoiceDetail, params);
-      const { companyInfo = {}, mappingInfo = {}, flow = {}, primaryFinanceContact = {} } = result;
+      const {
+        companyInfo = {},
+        billingInfo = {},
+        mappingInfo = {},
+        flow = {},
+        primaryFinanceContact = {},
+      } = result;
       if (resultCode === '0') {
         yield put({
           type: 'save',
           payload: {
             profile: Object.assign(DEFAULT_PROFILE, {
               name: companyInfo.companyName,
-              address: companyInfo.address,
-              postalCode: companyInfo.postalCode,
-              countryName: companyInfo.countryName,
+              address: billingInfo.address,
+              postalCode: billingInfo.postalCode,
+              countryName: billingInfo.countryName,
               primaryFinanceContactName: primaryFinanceContact.contactPerson,
             }),
             descriptionsData: Object.assign(DEFAULT_DESCRIPTIONS_DATA, {

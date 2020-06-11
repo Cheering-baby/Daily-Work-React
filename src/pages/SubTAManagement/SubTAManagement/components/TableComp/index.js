@@ -114,14 +114,14 @@ class TableComp extends PureComponent {
                   onClick={e => this.goOperationInformation(e, record.subTaId, true, false)}
                 />
               </Tooltip>
-              {/* {isMainTaRoleFlag && ( */}
-              {/*  <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}> */}
-              {/*    <Icon */}
-              {/*      type="edit" */}
-              {/*      onClick={e => this.goOperationInformation(e, record.subTaId, false, true)} */}
-              {/*    /> */}
-              {/*  </Tooltip> */}
-              {/* )} */}
+              {/*{isMainTaRoleFlag && (*/}
+              {/*  <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}>*/}
+              {/*    <Icon*/}
+              {/*      type="edit"*/}
+              {/*      onClick={e => this.goOperationInformation(e, record.subTaId, false, true)}*/}
+              {/*    />*/}
+              {/*  </Tooltip>*/}
+              {/*)}*/}
               <Tooltip placement="top" title={formatMessage({ id: 'SUB_TA_TABLE_HISTORY' })}>
                 <Icon type="file-text" onClick={e => this.onShowHisModal(e, record.subTaId)} />
               </Tooltip>

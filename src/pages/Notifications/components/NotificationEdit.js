@@ -275,39 +275,6 @@ class NotificationEdit extends React.PureComponent {
     });
   };
 
-  onHandleRangeChange = dates => {
-    const {
-      dispatch,
-      form,
-      notification: { notificationInfo },
-    } = this.props;
-    let newNotificationInfo = {};
-    if (!isNvl(notificationInfo)) {
-      newNotificationInfo = { ...notificationInfo };
-    }
-    let releaseStartDate = '';
-    let releaseEndDate = '';
-    if (dates && dates.length > 1) {
-      releaseStartDate = isNvl(dates[0]) ? '' : dates[0].format('YYYY-MM-DD');
-      releaseEndDate = isNvl(dates[1]) ? '' : dates[1].format('YYYY-MM-DD');
-    } else if (dates && dates.length === 1) {
-      releaseStartDate = isNvl(dates[0]) ? '' : dates[0].format('YYYY-MM-DD');
-    }
-    form.setFieldsValue({ reasonDuration: dates });
-    Object.assign(newNotificationInfo, {
-      releaseStartDate,
-      releaseEndDate,
-    });
-    dispatch({
-      type: 'notification/saveData',
-      payload: {
-        notificationInfo: {
-          ...newNotificationInfo,
-        },
-      },
-    });
-  };
-
   normFile = fileList => {
     const newFileList = [];
     if (fileList && fileList.length > 0) {
@@ -589,13 +556,6 @@ class NotificationEdit extends React.PureComponent {
         );
       },
     };
-    const reasonDuration = [];
-    if (!isNvl(notificationInfo.releaseStartDate)) {
-      reasonDuration.push(moment(notificationInfo.releaseStartDate, 'YYYY-MM-DD HH:mm:ss'));
-    }
-    if (!isNvl(notificationInfo.releaseStartDate) && !isNvl(notificationInfo.releaseEndDate)) {
-      reasonDuration.push(moment(notificationInfo.releaseEndDate, 'YYYY-MM-DD HH:mm:ss'));
-    }
 
     const newTargetList = [];
     this.initAllChildrenTargetList(
