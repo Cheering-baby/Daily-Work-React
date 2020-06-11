@@ -18,21 +18,21 @@ const DetailForFileInformation = props => {
         <div className={styles.fileLeftStyle}>
           {fileList && fileList.length > 0
             ? fileList.map(item => (
-              <div key={item.field + Math.random()} className={styles.fileListItem}>
-                <div className={styles.fileListItemInfo}>
-                  <Tooltip
-                    placement="topLeft"
-                    title={
-                      <span style={{ whiteSpace: 'pre-wrap' }}>
-                        {item[`${fileKeys.labelSourceName || 'sourceName'}`]}
-                      </span>
+                <div key={item.field + Math.random()} className={styles.fileListItem}>
+                  <div className={styles.fileListItemInfo}>
+                    <Tooltip
+                      placement="topLeft"
+                      title={
+                        <span style={{ whiteSpace: 'pre-wrap' }}>
+                          {item[`${fileKeys.labelSourceName || 'sourceName'}`]}
+                        </span>
                       }
-                  >
-                    <span>
-                      <Icon type="paper-clip" className={styles.fileListItemInfoPaperClip} />
-                      <a
-                        className={styles.fileListItemName}
-                        onClick={() =>
+                    >
+                      <span>
+                        <Icon type="paper-clip" className={styles.fileListItemInfoPaperClip} />
+                        <a
+                          className={styles.fileListItemName}
+                          onClick={() =>
                             handleDownFile(
                               downUrl,
                               {
@@ -48,13 +48,13 @@ const DetailForFileInformation = props => {
                               }
                             )
                           }
-                      >
-                        {item[`${fileKeys.labelSourceName || 'sourceName'}`]}
-                      </a>
-                    </span>
-                  </Tooltip>
+                        >
+                          {item[`${fileKeys.labelSourceName || 'sourceName'}`]}
+                        </a>
+                      </span>
+                    </Tooltip>
+                  </div>
                 </div>
-              </div>
               ))
             : '-'}
         </div>

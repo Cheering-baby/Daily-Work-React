@@ -99,7 +99,7 @@ class DetailForMapppingInfor extends React.PureComponent {
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.galaxyArCredit) &&
-                queryMappingInfo.galaxyArCredit !== 'null'
+                  queryMappingInfo.galaxyArCredit !== 'null'
                   ? queryMappingInfo.galaxyArCredit
                   : '-'}
               </span>
@@ -131,7 +131,7 @@ class DetailForMapppingInfor extends React.PureComponent {
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.peoplesoftEwalletId) &&
-                queryMappingInfo.peoplesoftEwalletId !== 'null'
+                  queryMappingInfo.peoplesoftEwalletId !== 'null'
                   ? queryMappingInfo.peoplesoftEwalletId
                   : '-'}
               </span>
@@ -144,7 +144,7 @@ class DetailForMapppingInfor extends React.PureComponent {
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.ewalletFixedThreshold) &&
-                queryMappingInfo.ewalletFixedThreshold !== 'null'
+                  queryMappingInfo.ewalletFixedThreshold !== 'null'
                   ? `$ ${this.toThousands(+queryMappingInfo.ewalletFixedThreshold)}`
                   : '-'}
               </span>
@@ -159,7 +159,7 @@ class DetailForMapppingInfor extends React.PureComponent {
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.peoplesoftArAccountId) &&
-                queryMappingInfo.peoplesoftArAccountId !== 'null'
+                  queryMappingInfo.peoplesoftArAccountId !== 'null'
                   ? queryMappingInfo.peoplesoftArAccountId
                   : '-'}
               </span>
@@ -172,7 +172,7 @@ class DetailForMapppingInfor extends React.PureComponent {
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.arFixedThreshold) &&
-                queryMappingInfo.arFixedThreshold !== 'null'
+                  queryMappingInfo.arFixedThreshold !== 'null'
                   ? `$ ${this.toThousands(+queryMappingInfo.arFixedThreshold)}`
                   : '-'}
               </span>
@@ -236,7 +236,7 @@ class DetailForMapppingInfor extends React.PureComponent {
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.securityDepositAmount) &&
-                queryMappingInfo.securityDepositAmount !== 'null'
+                  queryMappingInfo.securityDepositAmount !== 'null'
                   ? `$ ${this.toThousands(+queryMappingInfo.securityDepositAmount)}`
                   : '-'}
               </span>
@@ -249,7 +249,7 @@ class DetailForMapppingInfor extends React.PureComponent {
             <div className={styles.detailLeftStyle}>
               <span>
                 {!isNvl(queryMappingInfo.guaranteeAmount) &&
-                queryMappingInfo.guaranteeAmount !== 'null'
+                  queryMappingInfo.guaranteeAmount !== 'null'
                   ? `$ ${this.toThousands(+queryMappingInfo.guaranteeAmount)}`
                   : '-'}
               </span>

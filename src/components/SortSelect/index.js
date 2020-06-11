@@ -11,8 +11,8 @@ export default class SortSelect extends PureComponent {
     function sortData(a, b) {
       let val1 = '0';
       let val2 = '0';
-      if (a && b) {
-        if (typeof a.props.children === 'string') {
+      if(a && b){
+        if(typeof(a.props.children) === 'string'){
           val1 = a.props.children.toLowerCase();
           val2 = b.props.children.toLowerCase();
         } else {

@@ -7,7 +7,8 @@ import BaseMenu, {getItemPath, getMenuMatches} from './BaseMenu';
 import {urlToList} from '@/utils/utils';
 
 const { Sider } = Layout;
-const pamsImage = require('../../assets/image/PAMS-white.png');
+const pamsLogo = require('../../assets/image/PARTNERS-LOGO.png');
+const pamsImage = require('../../assets/image/PARTNERS-white.png');
 /**
  * 获得菜单子节点
  * @memberof SiderMenu
@@ -106,7 +107,10 @@ export default class SiderMenu extends PureComponent {
         className={siderClassName}
       >
         <div className={styles.logoCard} id="logo">
-          <img src={pamsImage} alt="logo"/>
+          {collapsed ?
+            <img className={styles.foldImg} src={pamsLogo} alt="logo" />
+            : <img className={styles.unfoldImg} src={pamsImage} alt="logo" />
+          }
         </div>
         <BaseMenu
           {...this.props}

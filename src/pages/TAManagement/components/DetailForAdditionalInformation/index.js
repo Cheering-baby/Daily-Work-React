@@ -31,7 +31,10 @@ class DetailForAdditionalInformation extends PureComponent {
               {getMarketStr(marketList, companyInfo.market)}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
+          <Descriptions
+            className={styles.descriptionsStyle}
+            column={detailLayOut}
+          >
             <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_EFFECTIVE_DATE' })}>
               {!isNvl(companyInfo.effectiveDate)
                 ? moment(companyInfo.effectiveDate, 'YYYY-MM-DD').format('DD-MMM-YYYY')

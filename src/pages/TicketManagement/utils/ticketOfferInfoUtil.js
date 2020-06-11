@@ -210,8 +210,23 @@ export function changeVoucherToAttraction(offerProfile) {
             haveAttraction = true;
           } else if (productGroupItem.groupName === PRODUCT_TYPE_VOUCHER) {
             haveVoucher = true;
-            productGroupNew.push({
+            const productGroupItemNew = {
               ...productGroupItem,
+            };
+            productGroupItemNew.products = productGroupItem.products.map(item => {
+              const itemNew = {
+                ...item,
+              };
+              if (itemNew.attractionProduct.themeParkName) {
+                // No. of Vouchers
+                itemNew.attractionProduct.ageGroup = itemNew.attractionProduct.themeParkName;
+              } else {
+                itemNew.attractionProduct.ageGroup = 'No. of Vouchers';
+              }
+              return itemNew;
+            });
+            productGroupNew.push({
+              ...productGroupItemNew,
               groupName: PRODUCT_TYPE_ATTRACTION,
             });
           }
@@ -224,6 +239,7 @@ export function changeVoucherToAttraction(offerProfile) {
       }
     });
     if (changeNew) {
+      newOfferProfile.isVoucher = true;
       newOfferProfile.productGroup = newProductGroupInfo;
     }
   }
@@ -262,15 +278,16 @@ export function getOfferCategory(themeparkCode) {
     'Group Ticketings',
     'Vouchers',
   ];
-  const DOL_TAGS = [
-    'Dolphin Adventure',
-    'Dolphin Discovery',
-    'Dolphin Encounter',
-    'Dolphin Observer',
-    'Dolphin Trek',
-    'Dolphin VIP',
-    'Dolphin Trainer For A Day',
-  ];
+  // const DOL_TAGS = [
+  //   'Dolphin Adventure',
+  //   'Dolphin Discovery',
+  //   'Dolphin Encounter',
+  //   'Dolphin Observer',
+  //   'Dolphin Trek',
+  //   'Dolphin VIP',
+  //   'Dolphin Trainer For A Day',
+  // ];
+  const DOL_TAGS = ['DIA', 'DID', 'DIE', 'DIO', 'DIV'];
   const OM_TAGS = ['Ocean Dream', 'Ocean Dream Glamping', 'Ocean Dream Group'];
   const VOUCHERS_TAGS = ['Meal Vouchers', 'Retail Vouchers', 'Others'];
   const HHN_TAGS = [

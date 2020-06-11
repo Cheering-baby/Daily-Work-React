@@ -62,6 +62,7 @@ export default {
   PARTNERS_TRANSACTION_NO: 'PARTNERS Order No.',
   QUANTITY: 'QUANTITY',
   RESET: 'Reset',
+  REVIEW_ORDER: 'Review Order',
   REGULAR_ADULT_TITLE: 'Zone A Regular Adult',
   REGULAR_CHILD_TITLE: 'Zone A Regular Child',
   REVALIDATION: 'Revalidation',

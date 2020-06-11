@@ -293,4 +293,6 @@ export default {
   AR_CREDIT_BALANCE: 'AR Credit',
   EWALLET_BALANCE: 'e-Wallet',
   MYACTIVITY_REGISTRATION_DOCS: ' Registration Docs',
+
+
 };

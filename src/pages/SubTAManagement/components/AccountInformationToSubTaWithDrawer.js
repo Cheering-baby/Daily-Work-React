@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Col, Form, Input, Row, Select } from 'antd';
 import { formatMessage } from 'umi/locale';
 import SortSelect from '@/components/SortSelect';
-import { isNvl } from '@/utils/utils';
+import {isNvl} from "@/utils/utils";
 
 @Form.create()
 class AccountInformationToSubTaWithDrawer extends PureComponent {
@@ -32,17 +32,17 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                 rules: [{ required: true, message: formatMessage({ id: 'SUB_TA_REQUIRED' }) }],
               })(
                 <div>
-                  {!isNvl(subTaInfo.mainCompanyNameList) &&
-                    subTaInfo.mainCompanyNameList.length > 0 &&
-                    subTaInfo.mainCompanyNameList.map(name => {
-                      return (
-                        <Input
-                          placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
-                          value={name}
-                          disabled
-                        />
-                      );
-                    })}
+                  {!isNvl(subTaInfo.mainCompanyNameList) && subTaInfo.mainCompanyNameList.length > 0 &&
+                  subTaInfo.mainCompanyNameList.map(name => {
+                    return(
+                      <Input
+                        placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
+                        value={name}
+                        disabled
+                      />
+                    );
+                  })
+                  }
                 </div>
               )}
             </Form.Item>

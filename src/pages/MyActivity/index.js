@@ -23,7 +23,7 @@ import BreadcrumbComp from '@/components/BreadcrumbComp';
 import UploadContract from '@/pages/MyActivity/components/UploadContract';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
 import { isNvl } from '@/utils/utils';
-import SortSelect from '@/components/SortSelect';
+import SortSelect from "@/components/SortSelect";
 
 const { Option } = Select;
 

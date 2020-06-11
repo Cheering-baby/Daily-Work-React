@@ -178,7 +178,7 @@ class SignUp extends PureComponent {
                       >
                         {formatMessage({ id: 'COMMON_BACK' })}
                       </Button>
-                      ) : null}
+                    ) : null}
                   </Col>
                   <Col span={12}>
                     <Button
@@ -196,16 +196,16 @@ class SignUp extends PureComponent {
                       loading={taInfoLoadingFlag}
                       onClick={this.onHandleSubmit}
                       disabled={
-                          (!isAllInformationToRws && String(currentStep) === '1') || isCompanyExist
-                        }
+                        (!isAllInformationToRws && String(currentStep) === '1') || isCompanyExist
+                      }
                     >
                       {formatMessage({
-                          id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
-                        })}
+                        id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
+                      })}
                     </Button>
                   </Col>
                 </Row>,
-                ]
+              ]
               : []
           }
           loading={taInfoLoadingFlag}

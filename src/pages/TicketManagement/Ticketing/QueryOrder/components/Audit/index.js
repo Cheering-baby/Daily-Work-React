@@ -26,7 +26,7 @@ class Audit extends React.Component {
       dispatch,
       form,
       queryOrderMgr: { selectedBookings, transactionList },
-      auditOrderMgr: { auditSelect },
+      auditOrderMgr: { auditSelect }
     } = this.props;
     form.validateFields(err => {
       if (!err) {
@@ -38,7 +38,7 @@ class Audit extends React.Component {
             message.success(formatMessage({ id: 'AUDIT_SUCCESSFULLY' }));
             const selectedBooking = selectedBookings[0];
             const { transType } = selectedBooking;
-            if (transType === 'booking' && auditSelect === 'Approve') {
+            if(transType === 'booking' && auditSelect === 'Approve'){
               dispatch({
                 type: 'auditOrderMgr/queryAuditStatus',
                 payload: {

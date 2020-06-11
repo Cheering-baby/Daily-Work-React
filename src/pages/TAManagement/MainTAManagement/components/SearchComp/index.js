@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Button, Col, Form, Input, Row, Select, Spin } from 'antd';
+import {Button, Col, Form, Input, Row, Select, Spin} from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { getKeyValue } from '../../../utils/pubUtils';
 import { AR_ACCOUNT_PRIVILEGE, hasAllPrivilege } from '@/utils/PrivilegeUtil';
-import { isNvl } from '@/utils/utils';
+import {isNvl} from "@/utils/utils";
 
 const mapStateToProps = store => {
   const {
@@ -16,8 +16,7 @@ const mapStateToProps = store => {
     marketList,
     salesPersonList,
     customerGroupList,
-    categoryList,
-  } = store.mainTAManagement;
+    categoryList, } = store.mainTAManagement;
 
   return {
     selectTaId,
@@ -37,7 +36,7 @@ class SearchComp extends PureComponent {
   componentDidMount() {
     const { form, dispatch } = this.props;
     dispatch({
-      type: 'mainTAManagement/fetchMarketList',
+      type: 'mainTAManagement/fetchMarketList'
     });
     dispatch({ type: 'mainTAManagement/fetchCategoryList' });
     dispatch({ type: 'mainTAManagement/fetchAllCustomerGroupList' });
@@ -46,10 +45,10 @@ class SearchComp extends PureComponent {
   }
 
   getSearchListFromSelect = value => {
-    if (value === '') {
+    if(value === '') {
       return [];
     }
-    if (value && value.length > 0) {
+    if(value && value.length > 0) {
       return value.split(',');
     }
     return value;
@@ -105,7 +104,7 @@ class SearchComp extends PureComponent {
     const noVal = getKeyValue(keyValue);
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));
     const source = JSON.parse(`{"${key}":"${noVal}"}`);
-    if (key === 'category') {
+    if(key === 'category') {
       const emptySource = JSON.parse(`{"customerGroup":""}`);
       Object.assign(queryInfo, emptySource);
     }
@@ -116,21 +115,21 @@ class SearchComp extends PureComponent {
         searchForm: queryInfo,
       },
     });
-    if (key === 'category') {
+    if(key === 'category') {
       const sourceOne = { customerGroup: [] };
       form.setFieldsValue(sourceOne);
       dispatch({
         type: 'mainTAManagement/fetchCustomerGroupListByCategory',
         payload: {
           category: noVal,
-        },
+        }
       });
     }
   };
 
   render() {
     const {
-      form: { getFieldDecorator },
+      form: {getFieldDecorator},
       idOrName,
       searchForm: {
         market,
@@ -184,10 +183,13 @@ class SearchComp extends PureComponent {
               >
                 {marketList && marketList.length > 0
                   ? marketList.map(item => (
-                    <Select.Option key={`marketList${item.dictId}`} value={`${item.dictId}`}>
+                    <Select.Option
+                      key={`marketList${item.dictId}`}
+                      value={`${item.dictId}`}
+                    >
                       {item.dictName}
                     </Select.Option>
-                    ))
+                  ))
                   : null}
               </Select>
             )}
@@ -208,10 +210,13 @@ class SearchComp extends PureComponent {
                 >
                   {categoryList && categoryList.length > 0
                     ? categoryList.map(item => (
-                      <Select.Option key={`categoryList${item.dictId}`} value={`${item.dictId}`}>
+                      <Select.Option
+                        key={`categoryList${item.dictId}`}
+                        value={`${item.dictId}`}
+                      >
                         {item.dictName}
                       </Select.Option>
-                      ))
+                    ))
                     : null}
                 </Select>
               )}
@@ -223,7 +228,9 @@ class SearchComp extends PureComponent {
                   mode="multiple"
                   placeholder={formatMessage({ id: 'TA_AGENT_CUSTOMER_GROUP' })}
                   optionFilterProp="children"
-                  onChange={value => this.onHandleChange('customerGroup', value, 'customerGroup')}
+                  onChange={value =>
+                    this.onHandleChange('customerGroup', value, 'customerGroup')
+                  }
                   style={{ width: '50%' }}
                   showArrow
                   allowClear
@@ -236,7 +243,7 @@ class SearchComp extends PureComponent {
                       >
                         {item.dictName}
                       </Select.Option>
-                      ))
+                    ))
                     : null}
                 </Select>
               )}
@@ -264,7 +271,7 @@ class SearchComp extends PureComponent {
                     >
                       {item.userCode}
                     </Select.Option>
-                    ))
+                  ))
                   : null}
               </Select>
             )}

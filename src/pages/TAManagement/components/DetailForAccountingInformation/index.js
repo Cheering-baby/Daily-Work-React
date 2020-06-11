@@ -3,7 +3,9 @@ import { Col, Descriptions, Row } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from './index.less';
-import { detailLayOut } from '../../utils/pubUtils';
+import {
+  detailLayOut,
+} from '../../utils/pubUtils';
 import { isNvl } from '@/utils/utils';
 
 class DetailForAccountingInformation extends PureComponent {
@@ -17,7 +19,10 @@ class DetailForAccountingInformation extends PureComponent {
               {!isNvl(taId) ? taId : '-'}
             </Descriptions.Item>
           </Descriptions>
-          <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
+          <Descriptions
+            className={styles.descriptionsStyle}
+            column={detailLayOut}
+          >
             <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_PEOPLE_SOFT_E_WALLET_ID' })}>
               {!isNvl(accountInfo.peoplesoftEwalletId) ? accountInfo.peoplesoftEwalletId : '-'}
             </Descriptions.Item>
@@ -29,15 +34,15 @@ class DetailForAccountingInformation extends PureComponent {
             <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_E_WALLET_BALANCE' })}>
               {!isNvl(accountInfo.ewalletIdBalance)
                 ? `$${Number(accountInfo.ewalletIdBalance)
-                    .toFixed(2)
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+                  .toFixed(2)
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_AR_CREDIT_BALANCE' })}>
               {!isNvl(accountInfo.arCreditBalance)
                 ? `$${Number(accountInfo.arCreditBalance)
-                    .toFixed(2)
-                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+                  .toFixed(2)
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={formatMessage({ id: 'ACCOUNTING_EFFECTIVE_DATE' })}>

@@ -220,14 +220,8 @@ class RefundRequest extends Component {
 
   getRefundUploadProps = (file, nowPageSize) => {
     const { dispatch } = this.props;
-    const { name } = file;
-    if (
-      name &&
-      name
-        .toString()
-        .substring(name.toString().length - 3, name.toString().length)
-        .toLowerCase() === 'csv'
-    ) {
+    const {name} = file;
+    if(name &&  name.toString().substring(name.toString().length-3, name.toString().length).toLowerCase() === 'csv'){
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = function() {
@@ -245,7 +239,8 @@ class RefundRequest extends Component {
           }
         });
       };
-    } else {
+    }
+    else{
       message.warning('Please upload the file in CSV format.');
     }
     return false;

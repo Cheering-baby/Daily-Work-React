@@ -681,7 +681,7 @@ class TableComp extends PureComponent {
           rowKey={record => record.taId}
           dataSource={mainTAList}
           loading={qryTaTableLoading}
-          scroll={{ x: 660, y: height }}
+          scroll={{ x: 660, y:height }}
           rowSelection={taRowSelection}
           {...tableOpts}
         />

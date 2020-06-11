@@ -596,8 +596,9 @@ class TAFinanceContactToFrom extends PureComponent {
                             <Tooltip
                               placement="topLeft"
                               title={
-                                <span style={{ whiteSpace: 'pre-wrap' }}>
-                                  {`${item.dictName}`}
+                                <span
+                                  style={{ whiteSpace: 'pre-wrap' }}
+                                >{`${item.dictName}`}
                                 </span>
                                 }
                             >

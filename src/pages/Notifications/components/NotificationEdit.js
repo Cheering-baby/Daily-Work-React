@@ -36,7 +36,7 @@ const formItemHalfLayout = {
   wrapperCol: {
     span: 20,
   },
-  colon: false,
+  colon: false
 };
 
 const Link = Quill.import('formats/link');
@@ -531,7 +531,7 @@ class NotificationEdit extends React.PureComponent {
     const fileProps = {
       ...comProps,
       data: { type: 'noticeFile' },
-      onPreview: () => {},
+      onPreview: () => { },
       onChange: changeValue => this.onHandleFileChange(changeValue),
       onRemove: file => {
         const { status, response: { result: { filePath, fileName } = '' } = '' } = file;
@@ -639,10 +639,7 @@ class NotificationEdit extends React.PureComponent {
                 )}
               </Form.Item>
             )}
-            <Form.Item
-              label={`${formatMessage({ id: 'REASON_SCOPE_ROLE' })} :`}
-              {...formItemHalfLayout}
-            >
+            <Form.Item label={`${formatMessage({ id: 'REASON_SCOPE_ROLE' })} :`} {...formItemHalfLayout}>
               {getFieldDecorator(`targetList`, {
                 initialValue: tList || [],
                 rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],

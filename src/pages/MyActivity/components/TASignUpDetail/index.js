@@ -14,7 +14,7 @@ class TASignUpDetail extends Component {
     downFileLoadingFlag: false,
   };
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   render() {
     const {

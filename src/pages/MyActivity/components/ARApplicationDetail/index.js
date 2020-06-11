@@ -55,7 +55,7 @@ class ARApplicationDetail extends React.PureComponent {
               </Row>
               <DetailForFileInformation
                 ifLongLayout
-                fileTxt={`${formatMessage({ id: 'AR_CREDIT_LIMIT' })}:`}
+                fileTxt={`${formatMessage({ id: 'AR_CREDIT_LIMIT' })  }:`}
                 fileKeys={{
                   labelName: 'fileName',
                   labelPath: 'filePath',

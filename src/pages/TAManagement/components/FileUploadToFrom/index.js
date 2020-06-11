@@ -247,14 +247,7 @@ class FileUploadToFrom extends PureComponent {
   );
 
   render() {
-    const {
-      form,
-      viewId,
-      formItemRowLayout,
-      applyArAccount,
-      onHandleDelTaFile,
-      isTaDeActivationFlag,
-    } = this.props;
+    const { form, viewId, formItemRowLayout, applyArAccount, onHandleDelTaFile, isTaDeActivationFlag } = this.props;
     const {
       newTaFileList = [],
       newArAccountFileList = [],

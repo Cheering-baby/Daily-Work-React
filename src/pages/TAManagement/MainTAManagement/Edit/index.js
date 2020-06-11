@@ -261,17 +261,17 @@ class EditToTa extends PureComponent {
                           >
                             {formatMessage({ id: 'COMMON_BACK' })}
                           </Button>
-                          ) : null}
+                        ) : null}
                       </Col>
                       <Col span={12}>
                         <Button
                           htmlType="button"
                           className={styles.editInformationButton}
                           loading={
-                              taInfoLoadingFlag ||
-                              taMappingInfoLoadingFlag ||
-                              taAccountInfoLoadingFlag
-                            }
+                            taInfoLoadingFlag ||
+                            taMappingInfoLoadingFlag ||
+                            taAccountInfoLoadingFlag
+                          }
                           onClick={e => this.giveUpEdit(e)}
                         >
                           {formatMessage({ id: 'COMMON_CANCEL' })}
@@ -281,23 +281,23 @@ class EditToTa extends PureComponent {
                           type="primary"
                           className={styles.editInformationButton}
                           loading={
-                              taInfoLoadingFlag ||
-                              taMappingInfoLoadingFlag ||
-                              taAccountInfoLoadingFlag
-                            }
+                            taInfoLoadingFlag ||
+                            taMappingInfoLoadingFlag ||
+                            taAccountInfoLoadingFlag
+                          }
                           onClick={this.onHandleSubmit}
                           disabled={
-                              (!isAllInformationToRws && String(currentStep) === '1') ||
-                              isCompanyExist
-                            }
+                            (!isAllInformationToRws && String(currentStep) === '1') ||
+                            isCompanyExist
+                          }
                         >
                           {formatMessage({
-                              id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
-                            })}
+                            id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
+                          })}
                         </Button>
                       </Col>
                     </Row>,
-                    ]
+                  ]
                   : []
               }
               loading={taInfoLoadingFlag || taMappingInfoLoadingFlag || taAccountInfoLoadingFlag}

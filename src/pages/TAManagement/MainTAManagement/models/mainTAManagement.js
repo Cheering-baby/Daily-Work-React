@@ -1,7 +1,7 @@
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import * as service from '../services/mainTAManagement';
-import { queryDictionary, querySalesPerson } from '@/pages/TAManagement/services/taCommon';
+import {queryDictionary, querySalesPerson} from "@/pages/TAManagement/services/taCommon";
 
 export default {
   namespace: 'mainTAManagement',
@@ -101,14 +101,15 @@ export default {
     *fetchCustomerGroupListByCategory({ payload }, { put, select }) {
       const { allCustomerGroupList = [] } = yield select(state => state.mainTAManagement);
       const { category } = payload;
-      const customerGroupList = allCustomerGroupList.filter((item, index, arr) => {
-        return String(item.dictSubType) === String(category);
-      });
+      let customerGroupList = allCustomerGroupList.filter(
+        (item, index, arr) => {
+          return String(item.dictSubType) === String(category)
+        });
       yield put({
         type: 'save',
         payload: {
           customerGroupList,
-        },
+        }
       });
     },
     *fetchAllCustomerGroupList(_, { call, put }) {
@@ -123,7 +124,7 @@ export default {
           type: 'save',
           payload: {
             allCustomerGroupList: result || [],
-          },
+          }
         });
       } else message.warn(resultMsg, 10);
     },

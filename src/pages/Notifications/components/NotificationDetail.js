@@ -131,9 +131,7 @@ class NotificationDetail extends PureComponent {
           </Col>
           {notificationInfo.subType === '01' ? (
             <Col span={24} className={styles.detailCardContentTop}>
-              <span style={{ marginRight: '10px' }}>
-                {formatMessage({ id: 'REASON_SCOPE_ROLE' })} :{' '}
-              </span>
+              <span style={{ marginRight: '10px' }}>{formatMessage({ id: 'REASON_SCOPE_ROLE' })} : </span>
               {this.getReceiverArray(notificationInfo.targetList)}
             </Col>
           ) : null}

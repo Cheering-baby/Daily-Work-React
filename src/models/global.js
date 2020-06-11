@@ -124,10 +124,10 @@ export default {
         const urlParams = new URL(window.location.href);
         const { hash } = urlParams;
         const { need2faVerify = false } = data;
-        if (need2faVerify) {
-          if (hash.indexOf('/twoFactorAuth') <= -1) {
+        if(need2faVerify){
+          if(hash.indexOf('/twoFactorAuth') <= -1) {
             router.push({
-              pathname: '/twoFactorAuth',
+              pathname: '/twoFactorAuth'
             });
           }
         } else {
@@ -173,10 +173,7 @@ export default {
           });
           // postLogin 接口调用成功，通知 privilege 接口调用
           watchObj.refreshed = true;
-          if (
-            String(data.needChangePassword) !== '01' &&
-            String(data.needChangePassword) !== '02'
-          ) {
+          if (String(data.needChangePassword) !== '01' && String(data.needChangePassword) !== '02') {
             yield put({
               type: 'fetchCurrentUserMenu',
               payload: {

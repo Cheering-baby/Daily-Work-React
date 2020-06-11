@@ -13,46 +13,40 @@ const projImg = require('../../../assets/image/PAMS-black.png');
   twoFactorAuth,
 }))
 class NormalLoginForm extends Component {
+
   componentDidMount() {
-    const { dispatch } = this.props;
+    const {dispatch} = this.props;
     dispatch({
       type: 'twoFactorAuth/sendCode',
-    }).then(res => {
-      const { countDown = 0 } = res;
+    }).then((res) => {
+      const {countDown = 0} = res;
       if (countDown > 0) {
-        const {
-          twoFactorAuth: { timeChange = 0 },
-        } = this.props;
+        const {twoFactorAuth: {timeChange = 0}} = this.props;
         clearInterval(timeChange);
         this.beginCountDown();
       }
-    });
+    })
   }
 
   componentWillUnmount() {
-    const {
-      dispatch,
-      twoFactorAuth: { timeChange = 0 },
-    } = this.props;
+    const { dispatch, twoFactorAuth: {timeChange = 0} } = this.props;
     clearInterval(timeChange);
     dispatch({
       type: 'twoFactorAuth/resetData',
     });
+
   }
 
   beginCountDown = () => {
-    const {
-      dispatch,
-      twoFactorAuth: { timeChange = 0 },
-    } = this.props;
+    const { dispatch,  twoFactorAuth :{ timeChange = 0 } } = this.props;
     clearInterval(timeChange);
     const newTimeChange = setInterval(this.countClock, 1000);
     dispatch({
       type: 'twoFactorAuth/saveData',
       payload: {
         timeChange: newTimeChange,
-      },
-    });
+      }
+    })
   };
 
   handleSubmit = e => {
@@ -73,7 +67,7 @@ class NormalLoginForm extends Component {
     });
   };
 
-  updateCountDown = (countDown, retrieveCaptchaAvailable) => {
+  updateCountDown =( countDown, retrieveCaptchaAvailable) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'twoFactorAuth/updateCountDown',
@@ -84,17 +78,15 @@ class NormalLoginForm extends Component {
     });
   };
 
-  backToLogin = () => {
+  backToLogin =() => {
     const { dispatch } = this.props;
     dispatch({
       type: 'login/logout',
     });
   };
 
-  countClock = () => {
-    const {
-      twoFactorAuth: { countDown = 0, timeChange = 0 },
-    } = this.props;
+  countClock =()=> {
+    const { twoFactorAuth :{ countDown = 0, timeChange = 0 } } = this.props;
     let leftTime = countDown;
     if (leftTime > 0) {
       leftTime -= 1;
@@ -109,16 +101,16 @@ class NormalLoginForm extends Component {
     const { dispatch } = this.props;
     dispatch({
       type: 'twoFactorAuth/sendCode',
-    }).then(res => {
-      const { reSend = false } = res;
-      if (reSend) {
+    }).then((res) => {
+      const { reSend=false } = res;
+      if(reSend) {
         this.beginCountDown();
       }
-    });
+    })
   };
 
   checkValidationCode = (rule, value, callback) => {
-    if (!value || value.length !== 6 || Number.isFinite(value)) {
+    if(!value || value.length !== 6 || Number.isFinite(value)) {
       callback(formatMessage({ id: 'VALIDATION_CODE_CHECK_MESSAGE' }));
     }
     return callback();
@@ -127,7 +119,10 @@ class NormalLoginForm extends Component {
   render() {
     const {
       form: { getFieldDecorator },
-      twoFactorAuth: { countDown = 0, retrieveCaptchaAvailable = false },
+      twoFactorAuth: {
+        countDown = 0,
+        retrieveCaptchaAvailable = false,
+      }
     } = this.props;
 
     return (
@@ -139,16 +134,11 @@ class NormalLoginForm extends Component {
               <img src={projImg} alt="logo" />
             </div>
           </div>
-          <div
-            className={`${styles.loginBoxTitle} ${styles['js-can-choose']} ${styles.validationTitle}`}
-          >
+          <div className={`${styles.loginBoxTitle} ${styles['js-can-choose']} ${styles.validationTitle}`}>
             {formatMessage({ id: 'TWO_FACTOR_VALIDATION_SENT' })}
           </div>
           <Form onSubmit={this.handleSubmit}>
-            <FormItem
-              label={formatMessage({ id: 'TWO_FACTOR_VALIDATION_CODE' })}
-              style={{ minHeight: 82 }}
-            >
+            <FormItem label={formatMessage({ id: 'TWO_FACTOR_VALIDATION_CODE' })} style={{minHeight:82}}>
               {getFieldDecorator('validationCode', {
                 rules: [{ validator: this.checkValidationCode }],
               })(
@@ -156,24 +146,13 @@ class NormalLoginForm extends Component {
                   size="default"
                   autoComplete="off"
                   maxLength={6}
-                  onChange={e => {
-                    e.target.value = e.target.value.replace(/[^\d]/g, '');
-                  }}
+                  onChange={(e) => {e.target.value=e.target.value.replace(/[^\d]/g,'')}}
                 />
               )}
-              <a
-                disabled={!retrieveCaptchaAvailable}
-                onClick={this.sendCode}
-                className={styles.validationButton}
-              >
-                {retrieveCaptchaAvailable ? (
-                  <span>{formatMessage({ id: 'RETRIEVE_VALIDATION_CODE' })}</span>
-                ) : (
-                  <span>
-                    {formatMessage({ id: 'DISABLED_RETRIEVE_VALIDATION_CODE' })}
-                    <span className={styles.countNum}>{countDown}s</span>
-                  </span>
-                )}
+              <a disabled={!retrieveCaptchaAvailable} onClick={this.sendCode} className={styles.validationButton}>
+                { retrieveCaptchaAvailable ? <span>{formatMessage({ id: 'RETRIEVE_VALIDATION_CODE' })}</span>
+                  : <span>{formatMessage({ id: 'DISABLED_RETRIEVE_VALIDATION_CODE' })}<span className={styles.countNum}>{countDown}s</span></span>
+                }
               </a>
             </FormItem>
             <FormItem>

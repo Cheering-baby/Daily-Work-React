@@ -288,7 +288,8 @@ class OrderPay extends Component {
         name: formatMessage({ id: 'ORDER_CREATION' }),
         href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack',
       },
-      { name: 'Order' },
+      { name: formatMessage({ id: 'MY_ORDER' }) },
+      { name: formatMessage({ id: 'REVIEW_ORDER' }) },
     ];
 
     const gridOpts = { xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 };

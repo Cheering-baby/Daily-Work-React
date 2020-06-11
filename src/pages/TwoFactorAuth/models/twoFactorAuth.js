@@ -1,4 +1,4 @@
-import { message } from 'antd';
+import {message} from 'antd';
 import { generateCode, validateCode } from '../services/twoFactorAuthServices';
 
 export default {
@@ -13,33 +13,27 @@ export default {
 
   effects: {
     *sendCode(_, { call, put, select }) {
-      const {
-        data: { resultCode, resultMessage },
-      } = yield call(generateCode);
-      if (resultCode === '0') {
-        yield put({
+      const { data: { resultCode, resultMessage }, } = yield call(generateCode);
+      if(resultCode === '0') {
+        yield put ({
           type: 'save',
           payload: {
             countDown: 60,
             retrieveCaptchaAvailable: true,
-          },
+          }
         });
         message.success(resultMessage);
       } else {
         message.error(resultMessage);
       }
-      const { retrieveCaptchaAvailable = false, countDown = 0 } = yield select(
-        states => states.twoFactorAuth
-      );
+      const { retrieveCaptchaAvailable = false, countDown = 0 } = yield select(states => states.twoFactorAuth);
       return { reSend: retrieveCaptchaAvailable, countDown };
     },
 
     *validation({ payload }, { call, put }) {
       const { validationCode } = payload;
-      const {
-        data: { resultCode, resultMessage },
-      } = yield call(validateCode, validationCode);
-      if (resultCode === '0') {
+      const { data: { resultCode, resultMessage }, } = yield call(validateCode, validationCode);
+      if(resultCode === '0') {
         yield put({
           type: 'global/logged',
           payload: {
@@ -53,23 +47,23 @@ export default {
 
     *updateCountDown({ payload }, { put }) {
       const { countDown, retrieveCaptchaAvailable } = payload;
-      yield put({
+      yield put ({
         type: 'save',
         payload: {
           countDown,
           retrieveCaptchaAvailable,
-        },
-      });
+        }
+      })
     },
 
     *saveData({ payload }, { put }) {
-      yield put({
+      yield put ({
         type: 'save',
         payload: {
-          ...payload,
-        },
-      });
-    },
+          ...payload
+        }
+      })
+    }
   },
 
   reducers: {

@@ -158,11 +158,7 @@ export function getSalesPersonEmailStr(salesPersonList, salesPerson) {
   if (salesPerson && salesPersonList && salesPersonList.length) {
     const salesPersonInfo =
       salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
-    if (
-      !isNvl(salesPersonInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo.email)
-    ) {
+    if (!isNvl(salesPersonInfo) && !isNvl(salesPersonInfo.rwsInfo) && !isNvl(salesPersonInfo.rwsInfo.email)) {
       salesPersonEmailStr += `${salesPersonInfo.rwsInfo.email}`;
       return salesPersonEmailStr;
     }
@@ -175,11 +171,7 @@ export function getSalesPersonContactNumberStr(salesPersonList, salesPerson) {
   if (salesPerson && salesPersonList && salesPersonList.length) {
     const salesPersonInfo =
       salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
-    if (
-      !isNvl(salesPersonInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo.phone)
-    ) {
+    if (!isNvl(salesPersonInfo) && !isNvl(salesPersonInfo.rwsInfo) && !isNvl(salesPersonInfo.rwsInfo.phone)) {
       salesPersonContactNumberStr += `${salesPersonInfo.rwsInfo.phone}`;
       return salesPersonContactNumberStr;
     }

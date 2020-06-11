@@ -50,10 +50,10 @@ class MainTAManagement extends PureComponent {
   }
 
   getTableHeight = () => {
-    const { offsetHeight: layoutHeight } = document.getElementById('layout');
+    const {offsetHeight: layoutHeight} = document.getElementById('layout');
     if (document.getElementById('pageHeaderTitle') && document.getElementById('pageSearchCard')) {
-      const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
-      const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
+      const {offsetHeight: pageHeaderTitleHeight} = document.getElementById('pageHeaderTitle');
+      const {offsetHeight: pageSearchCardHeight} = document.getElementById('pageSearchCard');
       return layoutHeight - pageHeaderTitleHeight - pageSearchCardHeight - 280;
     }
     return layoutHeight;
@@ -73,7 +73,7 @@ class MainTAManagement extends PureComponent {
     return (
       <React.Fragment>
         <Row type="flex" justify="space-around" id="mainTaView">
-          <Col id="pageHeaderTitle" span={24} className={styles.pageHeaderTitle}>
+          <Col id='pageHeaderTitle' span={24} className={styles.pageHeaderTitle}>
             <MediaQuery
               maxWidth={SCREEN.screenMdMax}
               minWidth={SCREEN.screenSmMin}
@@ -85,7 +85,7 @@ class MainTAManagement extends PureComponent {
               <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
             </MediaQuery>
           </Col>
-          <Col id="pageSearchCard" span={24} className={styles.pageSearchCard}>
+          <Col id='pageSearchCard' span={24} className={styles.pageSearchCard}>
             <Card>
               <SearchComp />
             </Card>

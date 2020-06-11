@@ -3,7 +3,7 @@ import moment from 'moment';
 import { List, Spin, Tabs, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
-import { hasAnyPrivilege } from '@/utils/PrivilegeUtil';
+import {  hasAnyPrivilege } from '@/utils/PrivilegeUtil';
 
 const { TabPane } = Tabs;
 
@@ -76,7 +76,7 @@ class UserNotificationView extends PureComponent {
             ) : null}
           </Spin>
         </TabPane>
-        {hasAnyPrivilege(['NOTIFICATION_BELL_BULLETIN_PRIVILEGE']) && (
+        {hasAnyPrivilege(["NOTIFICATION_BELL_BULLETIN_PRIVILEGE"]) && (
           <TabPane tab={`${formatMessage({ id: 'NOTICE_BULLETIN' })} (${bulletinCount})`} key="3">
             <Spin spinning={bellNotificationLoading}>
               <List
@@ -100,7 +100,7 @@ class UserNotificationView extends PureComponent {
             </Spin>
           </TabPane>
         )}
-        {hasAnyPrivilege(['NOTIFICATION_BELL_CIRCULAR_PRIVILEGE']) && (
+        {hasAnyPrivilege(["NOTIFICATION_BELL_CIRCULAR_PRIVILEGE"]) && (
           <TabPane tab={`${formatMessage({ id: 'NOTICE_CIRCULAR' })} (${circularCount})`} key="4">
             <Spin spinning={bellNotificationLoading}>
               <List

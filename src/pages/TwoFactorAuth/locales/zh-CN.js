@@ -6,5 +6,5 @@ export default {
   RETRIEVE_VALIDATION_CODE: '重新发送验证码',
   DISABLED_RETRIEVE_VALIDATION_CODE: '重新发送验证码还需等待',
   VALIDATION_CODE_CHECK_MESSAGE: '请输入6位数字验证码',
-  VALIDATION_CODE_INVALID: '验证码错误, 请重新输入',
-};
+  VALIDATION_CODE_INVALID:'验证码错误, 请重新输入',
+  };

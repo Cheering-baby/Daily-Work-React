@@ -1,7 +1,7 @@
 import serialize from '../utils/utils';
 import {
   queryBookingDetail,
-  queryPluAttribute,
+  queryPluAttribute
 } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
 export default {
@@ -16,7 +16,7 @@ export default {
     detailList: [],
     vidResultList: [],
     patronInfo: {},
-    themeParkList: [],
+    themeParkList:[],
     netAmt: 0,
     refundSuccessFlag: false,
   },
@@ -53,14 +53,14 @@ export default {
         });
       } else throw resultMsg;
     },
-    *queryThemePark(_, { call, put }) {
-      const response = yield call(queryPluAttribute, { attributeItem: 'THEME_PARK' });
+    * queryThemePark(_, {call, put}) {
+      const response = yield call(queryPluAttribute, {attributeItem: 'THEME_PARK'});
       if (!response) return false;
       const {
-        data: { resultCode, resultMsg, result },
+        data: {resultCode, resultMsg, result},
       } = response;
       if (resultCode === '0') {
-        yield put({ type: 'save', payload: { themeParkList: result.items } });
+        yield put({type: 'save', payload: {themeParkList: result.items}});
       } else throw resultMsg;
     },
   },
@@ -166,7 +166,7 @@ export default {
         vidResultList,
         patronInfo,
         netAmt,
-        refundSuccessFlag,
+        refundSuccessFlag
       };
     },
     resetData(state) {
@@ -181,7 +181,7 @@ export default {
         detailList: [],
         vidResultList: [],
         patronInfo: {},
-        themeParkList: [],
+        themeParkList:[],
         netAmt: 0,
         refundSuccessFlag: false,
       };

@@ -5,6 +5,8 @@ import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getCountryStr, colLayOut, rowLayOut } from '../../utils/pubUtils';
 
+
+
 class RegistrationInformationToSubTa extends PureComponent {
   render() {
     const { subTaInfo = {}, countryList = [], isProfile } = this.props;
@@ -18,7 +20,9 @@ class RegistrationInformationToSubTa extends PureComponent {
                 <span>{formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })} :</span>
               </div>
               <div className={styles.detailLeftStyle}>
-                <span>{!isNvl(subTaInfo.mainCompanyName) ? subTaInfo.mainCompanyName : '-'}</span>
+                <span>
+                  {!isNvl(subTaInfo.mainCompanyName) ? subTaInfo.mainCompanyName : '-'}
+                </span>
               </div>
             </Col>
           )}

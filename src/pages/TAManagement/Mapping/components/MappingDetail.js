@@ -452,7 +452,7 @@ class MappingDetailList extends React.PureComponent {
                               >
                                 {item.dictName}
                               </Select.Option>
-                              ))
+                            ))
                             : null
                         }
                       />

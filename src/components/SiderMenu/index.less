@@ -19,8 +19,13 @@
     color: @text-color-white;
   }
 
-  img {
-    width: 165px;
+  .foldImg {
+    width: 32px;
+    height: auto;
+  }
+
+  .unfoldImg {
+    width: 200px;
     height: auto;
   }
 }
@@ -130,5 +135,10 @@
       height: calc(~'100% - 64px');
       overflow-y: auto;
     }
+  }
+
+  .ant-layout-sider-collapsed + .ant-layout .ant-layout-header {
+    position: fixed;
+    left: 64px;
   }
 }

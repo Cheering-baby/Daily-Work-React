@@ -7,6 +7,7 @@ const logoImg = require('../../assets/image/login-logo.png');
 
 @connect()
 class TwoFactorAuth extends Component {
+
   render() {
     return (
       <div id="app" className={styles.containerMain}>

@@ -7,7 +7,7 @@ import AccountInformationToSubTaWithDrawer from '../../components/AccountInforma
 import styles from '../index.less';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue } from '../../utils/pubUtils';
-import { hasAllPrivilege, SUB_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
+import {hasAllPrivilege, SUB_TA_ADMIN_PRIVILEGE} from "@/utils/PrivilegeUtil";
 
 const mapStateToProps = store => {
   const {
@@ -26,7 +26,7 @@ const mapStateToProps = store => {
     countryList,
     editVisible,
     hasSubTaWithEmail,
-    userCompanyInfo,
+    userCompanyInfo
   };
 };
 
@@ -124,15 +124,10 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
   };
 
   render() {
-    const {
-      countryList,
-      editVisible,
-      subTaInfoLoadingFlag,
-      hasSubTaWithEmail,
-      userCompanyInfo,
-    } = this.props;
+    const { countryList, editVisible, subTaInfoLoadingFlag, hasSubTaWithEmail, userCompanyInfo } = this.props;
     const taUserStatus = userCompanyInfo.status || '-1';
-    const isTaDeActivationFlag = hasAllPrivilege([SUB_TA_ADMIN_PRIVILEGE]) && taUserStatus !== '0';
+    const isTaDeActivationFlag =
+      hasAllPrivilege([SUB_TA_ADMIN_PRIVILEGE]) && taUserStatus !== '0';
     return (
       <div>
         <Drawer

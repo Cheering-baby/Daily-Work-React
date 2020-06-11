@@ -16,6 +16,8 @@ import {
   Row,
   Select,
   Spin,
+  Table,
+  Tooltip,
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
@@ -323,6 +325,129 @@ class ToCart extends Component {
     }
   };
 
+  bookingInformationColumns = (offerConstrain, modify, numOfGuests, getFieldDecorator) => {
+    return [
+      {
+        title: 'Ticket Type',
+        dataIndex: 'ticketType',
+        key: 'ticketType',
+        render: text => (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span>{text}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: 'Price',
+        dataIndex: 'price',
+        key: 'price',
+        render: text => (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span>{text}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: 'Quantity',
+        dataIndex: 'quantity',
+        key: 'quantity',
+        render: (text, record) => {
+          return (
+            <FormItem>
+              {getFieldDecorator(record.ticketNumberLabel, {
+                validateTrigger: '',
+                initialValue: text,
+                rules: [
+                  {
+                    required: true,
+                    message: 'Required',
+                  },
+                ],
+              })(
+                <div>
+                  <InputNumber
+                    min={offerConstrain === 'Single' && !modify ? numOfGuests : 0}
+                    disabled={this.disabledProduct(record.index, offerConstrain)}
+                    value={text}
+                    onChange={value => this.changeTicketNumber(record.index, value, record.price)}
+                    parser={value => this.formatInputValue(record.index, value)}
+                  />
+                </div>
+              )}
+            </FormItem>
+          );
+        },
+      },
+    ];
+  };
+
+  packageBookingInfoColumns = (getFieldDecorator, modify) => {
+    return [
+      {
+        title: 'Ticket Type',
+        dataIndex: 'ticketType',
+        key: 'ticketType',
+        render: text => (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span>{text}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: 'Price',
+        dataIndex: 'price',
+        key: 'price',
+        render: text => (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span>{text}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: 'Quantity',
+        dataIndex: 'quantity',
+        key: 'quantity',
+        render: text => {
+          return (
+            <FormItem>
+              {getFieldDecorator('offerNumbers', {
+                initialValue: text,
+                validateTrigger: '',
+                rules: [
+                  {
+                    required: true,
+                    message: 'Required',
+                  },
+                ],
+              })(
+                <div>
+                  <InputNumber
+                    min={1}
+                    value={text}
+                    disabled={!modify}
+                    onChange={value => this.changeFixedOfferNumbers(value)}
+                  />
+                </div>
+              )}
+            </FormItem>
+          );
+        },
+      },
+    ];
+  };
+
   render() {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
     const { showTermsAndCondition, checkTermsAndCondition, loading } = this.state;
@@ -338,6 +463,7 @@ class ToCart extends Component {
         offerContentList = [],
         productGroup = [],
         offerQuantity,
+        offerBasicInfo: { offerName },
       },
       onClose,
       countrys = [],
@@ -404,6 +530,42 @@ class ToCart extends Component {
         ticketType.push(`-`);
       }
     });
+
+    const bookingInformation = [];
+    attractionProduct.forEach((item, index) => {
+      const priceShow = calculateProductPrice(
+        item,
+        priceRuleId,
+        isSessionProduct(priceRuleId, item) ? eventSession : null
+      );
+      bookingInformation.push({
+        index,
+        ticketType: item.attractionProduct.ageGroup || '-',
+        price: companyType === '02' ? null : `$ ${priceShow.toFixed(2)}/ticket`,
+        quantity: item.ticketNumber,
+        ticketNumberLabel: `attractionProduct${index}`,
+      });
+    });
+
+    const packageBookingInfo =
+      offerConstrain === 'Fixed'
+        ? [
+            {
+              ticketType: ageGroups.join('; '),
+              price:
+                companyType === '02'
+                  ? null
+                  : `$ ${calculateAllProductPrice(
+                      attractionProduct,
+                      priceRuleId,
+                      eventSession,
+                      detail
+                    )}/package`,
+              quantity: offerQuantity,
+            },
+          ]
+        : [];
+
     return (
       <div>
         <Drawer
@@ -426,7 +588,7 @@ class ToCart extends Component {
         </Drawer>
         <Drawer
           visible={!showTermsAndCondition}
-          title={<div className={styles.title}>ADD TO CART</div>}
+          title={<div className={styles.title}>ADD TO MY SHOPPING CART</div>}
           placement="right"
           destroyOnClose
           maskClosable={false}
@@ -444,31 +606,31 @@ class ToCart extends Component {
               <div>
                 <Row>
                   <Col style={{ height: '35px' }} className={styles.title}>
-                    TICKET INFORMATION
+                    ORDER INFORMATION
                   </Col>
                   <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={9} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Ticket Type</span>
+                    <Col span={12} style={{ height: '30px' }}>
+                      <span className={styles.detailLabel}>Offer Name</span>
                     </Col>
-                    <Col span={15}>
-                      {ticketType.map(e => (
-                        <div style={{ color: '#3b414a' }}>{e}</div>
-                      ))}
+                    <Col span={12}>
+                      <span className={styles.detailText}>{offerName || '-'}</span>
                     </Col>
                   </Col>
                   <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={9} style={{ height: '30px' }}>
+                    <Col span={12} style={{ height: '30px' }}>
                       <span className={styles.detailLabel}>Description</span>
                     </Col>
-                    <Col span={15}>
+                    <Col span={12}>
                       <span className={styles.detailText}>{description || '-'}</span>
                     </Col>
                   </Col>
                   <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={9} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Date of Visit</span>
+                    <Col span={12} style={{ height: '30px' }}>
+                      <span className={styles.detailLabel}>
+                        Visit Date (Ticket Validity Start Date)
+                      </span>
                     </Col>
-                    <Col span={15}>
+                    <Col span={12}>
                       <span className={styles.detailText}>
                         {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
                       </span>
@@ -476,152 +638,93 @@ class ToCart extends Component {
                   </Col>
                   {eventSession ? (
                     <Col span={24} style={{ marginBottom: '10px' }}>
-                      <Col span={9} style={{ height: '30px' }}>
+                      <Col span={12} style={{ height: '30px' }}>
                         <span className={styles.detailLabel}>Event Session</span>
                       </Col>
-                      <Col span={15}>
+                      <Col span={12}>
                         <span className={styles.detailText}>{eventSession}</span>
                       </Col>
                     </Col>
                   ) : null}
-                  <Col span={24} style={{ marginTop: '15px' }} className={styles.title}>
+                  <Col
+                    span={24}
+                    style={{ marginTop: 15, marginBottom: 10 }}
+                    className={styles.title}
+                  >
                     BOOKING INFORMATION
                   </Col>
                   {offerConstrain === 'Fixed' ? (
-                    <Form className={styles.product} hideRequiredMark colon={false} layout="inline">
-                      <Col span={24} style={{ marginTop: '10px' }}>
-                        <div>
-                          <div className={styles.productDes}>
-                            <div>{ageGroups.join('; ')}</div>
-                            <div>
-                              <FormItem className={styles.label}>
-                                {getFieldDecorator('offerNumbers', {
-                                  initialValue: offerQuantity,
-                                  validateTrigger: '',
-                                  rules: [
-                                    {
-                                      required: true,
-                                      message: 'Required',
-                                    },
-                                  ],
-                                })(
-                                  <div>
-                                    <InputNumber
-                                      min={1}
-                                      value={offerQuantity}
-                                      disabled={!modify}
-                                      onChange={value => this.changeFixedOfferNumbers(value)}
-                                    />
-                                  </div>
-                                )}
-                              </FormItem>
-                            </div>
-                            {companyType === '02' ? null : (
-                              <div>
-                                ${' '}
-                                {calculateAllProductPrice(
-                                  attractionProduct,
-                                  priceRuleId,
-                                  eventSession,
-                                  detail
-                                )}
+                    <div className={styles.tableFormStyle}>
+                      <Form hideRequiredMark colon={false}>
+                        <Table
+                          size="small"
+                          className={`tabs-no-padding ${styles.searchTitle}`}
+                          columns={this.packageBookingInfoColumns(getFieldDecorator, modify)}
+                          dataSource={packageBookingInfo}
+                          pagination={false}
+                          scroll={{ x: 400 }}
+                          footer={() => {
+                            if (companyType === '02') {
+                              return null;
+                            }
+                            return (
+                              <div className={styles.tableFooterDiv}>
+                                <div style={{ width: '60%', float: 'right' }}>
+                                  <span className={styles.tableFooterSpan}>
+                                    Total Amount Payable:
+                                  </span>
+                                  <span className={styles.tableTotalPrice}>{`$ ${(
+                                    offerQuantity *
+                                    calculateAllProductPrice(
+                                      attractionProduct,
+                                      priceRuleId,
+                                      eventSession,
+                                      detail
+                                    )
+                                  ).toFixed(2)}`}
+                                  </span>
+                                </div>
                               </div>
-                            )}
-                          </div>
-                          {companyType === '02' ? null : (
-                            <Col span={24} className={styles.totalMoney}>
-                              <Col style={{ textAlign: 'right', paddingRight: '10px' }}>Total:</Col>
-                              <Col style={{ textAlign: 'right', minWidth: '135px' }}>
-                                ${' '}
-                                {(
-                                  offerQuantity *
-                                  calculateAllProductPrice(
-                                    attractionProduct,
-                                    priceRuleId,
-                                    eventSession,
-                                    detail
-                                  )
-                                ).toFixed(2)}
-                              </Col>
-                            </Col>
-                          )}
-                        </div>
-                      </Col>
-                    </Form>
+                            );
+                          }}
+                        />
+                      </Form>
+                    </div>
                   ) : (
-                    <Form className={styles.product} hideRequiredMark colon={false} layout="inline">
-                      {attractionProduct.map((item, index) => {
-                        const { productName, ticketNumber } = item;
-                        const ticketNumberLabel = `attractionProduct${index}`;
-                        const priceShow = calculateProductPrice(
-                          item,
-                          priceRuleId,
-                          isSessionProduct(priceRuleId, item) ? eventSession : null
-                        );
-                        return (
-                          <Col span={24} className={styles.ageItem} key={productName}>
-                            <Col
-                              xs={8}
-                              sm={12}
-                              md={12}
-                              lg={12}
-                              xl={12}
-                              xxl={12}
-                              className={styles.age}
-                            >
-                              <span style={{ color: '#565656' }}>
-                                {item.attractionProduct.ageGroup || '-'}
-                              </span>
-                              <span>
-                                {companyType === '02' ? null : `$ ${priceShow.toFixed(2)}`}
-                              </span>
-                            </Col>
-                            <Col
-                              xs={16}
-                              sm={12}
-                              md={12}
-                              lg={12}
-                              xl={12}
-                              xxl={12}
-                              style={{ paddingBottom: '5px' }}
-                            >
-                              <FormItem className={styles.label}>
-                                {getFieldDecorator(ticketNumberLabel, {
-                                  validateTrigger: '',
-                                  initialValue: ticketNumber,
-                                  rules: [
-                                    {
-                                      required: true,
-                                      message: 'Required',
-                                    },
-                                  ],
-                                })(
-                                  <div>
-                                    <InputNumber
-                                      min={offerConstrain === 'Single' && !modify ? numOfGuests : 0}
-                                      disabled={this.disabledProduct(index, offerConstrain)}
-                                      value={ticketNumber}
-                                      onChange={value =>
-                                        this.changeTicketNumber(index, value, priceShow)
-                                      }
-                                      parser={value => this.formatInputValue(index, value)}
-                                    />
-                                  </div>
-                                )}
-                              </FormItem>
-                            </Col>
-                          </Col>
-                        );
-                      })}
-                      {companyType === '02' ? null : (
-                        <Col span={24} className={styles.totalMoney}>
-                          <Col style={{ textAlign: 'right', paddingRight: '10px' }}>Total:</Col>
-                          <Col style={{ textAlign: 'right', minWidth: '135px' }}>
-                            {this.calculateTotalPrice()}
-                          </Col>
-                        </Col>
-                      )}
-                    </Form>
+                    <div className={styles.tableFormStyle}>
+                      <Form hideRequiredMark colon={false}>
+                        <Table
+                          size="small"
+                          className={`tabs-no-padding ${styles.searchTitle}`}
+                          columns={this.bookingInformationColumns(
+                            offerConstrain,
+                            modify,
+                            numOfGuests,
+                            getFieldDecorator
+                          )}
+                          dataSource={bookingInformation}
+                          pagination={false}
+                          scroll={{ x: 400 }}
+                          footer={() => {
+                            if (companyType === '02') {
+                              return null;
+                            }
+                            return (
+                              <div className={styles.tableFooterDiv}>
+                                <div style={{ width: '60%', float: 'right' }}>
+                                  <span className={styles.tableFooterSpan}>
+                                    Total Amount Payable:
+                                  </span>
+                                  <span className={styles.tableTotalPrice}>
+                                    {this.calculateTotalPrice()}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          }}
+                        />
+                      </Form>
+                    </div>
                   )}
                 </Row>
               </div>
@@ -630,12 +733,13 @@ class ToCart extends Component {
                 style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
                 className={styles.title}
               >
-                DELIVERY INFORMATION
+                GUEST INFORMATION
               </Col>
               <Col span={24} style={{ marginTop: '5px', paddingLeft: '0' }}>
                 <div style={{ color: '#171b21' }}>
-                  Kindly provide guest name and contact number / email address REQUIRED for all USS
-                  and SEAA VIP Experience Booking.
+                  Kindly ensure that all COMPULSORY fields (guest name, contact number and email
+                  address) are completed below for VIP Experiences, Dolphin Island, Special
+                  Experiences at ACW and Ocean Dreams.
                 </div>
               </Col>
               {hasApspTicket ? (
@@ -920,10 +1024,10 @@ class ToCart extends Component {
                 <Checkbox
                   checked={checkTermsAndCondition}
                   onChange={this.changeCheckTermsAndCondition}
-                />
+                />{' '}
+                <span className={styles.termsAndConditionIconText}>*</span>
                 <span>
-                  {' '}
-                  *Please tick (<Icon type="check" />) to accept
+                  Please tick (<Icon type="check" />) to accept
                 </span>
                 <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
                   Terms and Conditions &gt;

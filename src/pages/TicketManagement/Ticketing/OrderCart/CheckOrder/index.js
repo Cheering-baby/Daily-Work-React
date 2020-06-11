@@ -468,7 +468,7 @@ class CheckOrder extends Component {
         name: formatMessage({ id: 'ORDER_CREATION' }),
         href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack',
       },
-      { name: 'Check Order' },
+      { name: formatMessage({ id: 'MY_ORDER' }) },
     ];
 
     const formItemLayout = {

@@ -221,7 +221,8 @@ class Edit extends PureComponent {
       userCompanyInfo,
     } = this.props;
     const taUserStatus = userCompanyInfo.status || '-1';
-    const isTaDeActivationFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]) && taUserStatus !== '0';
+    const isTaDeActivationFlag =
+      hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]) && taUserStatus !== '0';
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
@@ -259,7 +260,11 @@ class Edit extends PureComponent {
               actions={
                 String(currentStep) === '0' || String(currentStep) === '1'
                   ? [
-                    <Row type="flex" justify="space-between">
+                    <Row
+                      type="flex"
+                      justify="space-between"
+
+                    >
                       <Col>
                         {String(currentStep) === '1' ? (
                           <Button
@@ -270,17 +275,17 @@ class Edit extends PureComponent {
                           >
                             {formatMessage({ id: 'COMMON_BACK' })}
                           </Button>
-                          ) : null}
+                        ) : null}
                       </Col>
                       <Col span={12}>
                         <Button
                           htmlType="button"
                           className={styles.editInformationButton}
                           loading={
-                              taInfoLoadingFlag ||
-                              taMappingInfoLoadingFlag ||
-                              taAccountInfoLoadingFlag
-                            }
+                            taInfoLoadingFlag ||
+                            taMappingInfoLoadingFlag ||
+                            taAccountInfoLoadingFlag
+                          }
                           onClick={e => this.giveUpEdit(e)}
                         >
                           {formatMessage({ id: 'COMMON_CANCEL' })}
@@ -291,23 +296,22 @@ class Edit extends PureComponent {
                           className={styles.editInformationButton}
                           onClick={this.onHandleSubmit}
                           loading={
-                              taInfoLoadingFlag ||
-                              taMappingInfoLoadingFlag ||
-                              taAccountInfoLoadingFlag
-                            }
+                            taInfoLoadingFlag ||
+                            taMappingInfoLoadingFlag ||
+                            taAccountInfoLoadingFlag
+                          }
                           disabled={
-                              (!isAllInformationToRws && String(currentStep) === '1') ||
-                              isCompanyExist ||
-                              isTaDeActivationFlag
-                            }
+                            (!isAllInformationToRws && String(currentStep) === '1') ||
+                            isCompanyExist || isTaDeActivationFlag
+                          }
                         >
                           {formatMessage({
-                              id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
-                            })}
+                            id: String(currentStep) === '0' ? 'COMMON_NEXT' : 'COMMON_SUBMIT',
+                          })}
                         </Button>
                       </Col>
                     </Row>,
-                    ]
+                  ]
                   : []
               }
               loading={taInfoLoadingFlag || taMappingInfoLoadingFlag || taAccountInfoLoadingFlag}

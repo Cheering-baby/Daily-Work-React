@@ -217,7 +217,7 @@ export default {
 
       yield take('ticketOrderCartMgr/settingOnceAPirateOrderData/@@end');
       if (settingOnceAPirateOrderDataCallbackFn.callbackFnCode === 'done') {
-        message.success('Order successfully.');
+        message.success('Add to cart successfully.');
         router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
       }
       yield put({
