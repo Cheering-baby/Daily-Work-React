@@ -10,7 +10,6 @@ import {
 } from '../services/ticketCommon';
 import {
   changeVoucherToAttraction,
-  getOfferCategory,
   getSessionTimeList,
   sortAttractionByAgeGroup,
 } from '../utils/ticketOfferInfoUtil';
@@ -19,7 +18,6 @@ import {
   checkNumOfGuestsAvailable,
   checkSessionProductInventory,
   multiplePromise,
-  dealSessionArr,
 } from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
@@ -277,9 +275,8 @@ export default {
               } = responseDetail;
               if (queryOfferDetailResultCode !== '0') {
                 message.error(queryOfferDetailResultMsg);
-              } else {
-                offerDetailList.push(Object.assign({}, resultDetail));
               }
+              offerDetailList.push(Object.assign({}, resultDetail));
             });
           };
           requestPromiseList.push(requestFn);
@@ -396,9 +393,8 @@ export default {
               } = responseDetail;
               if (queryOfferDetailResultCode !== '0') {
                 message.error(queryOfferDetailResultMsg);
-              } else {
-                offerDetailList.push(Object.assign({}, resultDetail));
               }
+              offerDetailList.push(Object.assign({}, resultDetail));
             });
           };
           requestPromiseList.push(requestFn);
@@ -467,6 +463,13 @@ export default {
         } = response;
         if (resultCode === '0') {
           const themeParkList = [];
+          const tags = ['Admission', 'VIP Tour', 'Express', 'Promo', 'Group'];
+          const categories = tags.map(item => ({
+            tag: item,
+            products: [],
+            bundleNames: [],
+            showDetail: true,
+          }));
           const themeParkChooseListCodes = [];
           attractionList.forEach(item => {
             if (themeParkChooseList.indexOf(item.value) !== -1) {
@@ -481,7 +484,7 @@ export default {
                   themeparkName: item2.label,
                   offerNos: [],
                   products: [],
-                  categories: getOfferCategory(item),
+                  categories,
                 });
               }
             });
@@ -511,9 +514,8 @@ export default {
                 } = responseDetail;
                 if (queryOfferDetailResultCode !== '0') {
                   message.error(queryOfferDetailResultMsg);
-                } else {
-                  offerDetailList.push(Object.assign({}, resultDetail));
                 }
+                offerDetailList.push(Object.assign({}, resultDetail));
               });
             };
             requestPromiseList.push(requestFn);
@@ -557,21 +559,6 @@ export default {
                       // eslint-disable-next-line prefer-destructuring
                       priceRuleId = attractionProduct[0].priceRule[1].priceRuleId;
                     }
-                    const productSessions = [];
-                    attractionProduct.forEach(itemProduct => {
-                      const { priceRule } = itemProduct;
-                      const sessions = [];
-                      priceRule[0].productPrice.forEach(({ priceTimeFrom }) => {
-                        if (sessions.indexOf(priceTimeFrom) === -1) {
-                          sessions.push(priceTimeFrom);
-                        }
-                      });
-                      if (sessions.length === 0) {
-                        sessions.push(null);
-                      }
-                      productSessions.push(sessions);
-                    });
-                    const sessionArr = dealSessionArr(productSessions);
                     if (noMatchPriceRule) return false;
                     bookingCategory.forEach(item3 => {
                       themeParkList.forEach((item4, index4) => {
@@ -580,21 +567,14 @@ export default {
                           item4.offerNos.indexOf(offerNo) === -1
                         ) {
                           const data = {};
+                          data.attractionProduct = attractionProduct;
                           data.detail = resultDetail.offerProfile;
                           data.detail.priceRuleId = priceRuleId;
                           data.detail.offerPrice = offerList[i].offerPrice;
                           data.detail.dateOfVisit = dateOfVisit;
                           data.detail.numOfGuests = numOfGuests;
+                          themeParkList[index4].products.push(data);
                           themeParkList[index4].offerNos.push(offerNo);
-                          sessionArr.forEach(itemSession => {
-                            data.attractionProduct = attractionProduct.map(
-                              (itemProduct, itemProductIndex) => ({
-                                ...itemProduct,
-                                sessionTime: itemSession[itemProductIndex],
-                              })
-                            );
-                            themeParkList[index4].products.push(data);
-                          });
                         }
                       });
                     });
@@ -706,7 +686,15 @@ export default {
           data: { result },
         } = response;
         const { offerList = [] } = result;
-        const dolphinIslandOfferList = getOfferCategory('DOL');
+        const dolphinIslandOfferList = [];
+        const tags = ['DIA', 'DID', 'DIE', 'DIO', 'DIV'];
+        tags.forEach(item => {
+          dolphinIslandOfferList.push({
+            tag: item,
+            offer: [],
+            showDetail: true,
+          });
+        });
 
         const requestPromiseList = [];
         const offerDetailList = [];
@@ -731,9 +719,8 @@ export default {
               } = responseDetail;
               if (queryOfferDetailResultCode !== '0') {
                 message.error(queryOfferDetailResultMsg);
-              } else {
-                offerDetailList.push(Object.assign({}, resultDetail));
               }
+              offerDetailList.push(Object.assign({}, resultDetail));
             });
           };
           requestPromiseList.push(requestFn);

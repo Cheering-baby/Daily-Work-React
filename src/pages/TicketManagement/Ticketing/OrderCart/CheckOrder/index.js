@@ -463,12 +463,9 @@ class CheckOrder extends Component {
     const { clientHeight } = this.state;
 
     const title = [
-      { name: formatMessage({ id: 'TICKETING' }) },
-      {
-        name: formatMessage({ id: 'ORDER_CREATION' }),
-        href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack',
-      },
-      { name: formatMessage({ id: 'MY_ORDER' }) },
+      { name: 'Ticketing' },
+      { name: 'Create Order', href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack' },
+      { name: 'Check Order' },
     ];
 
     const formItemLayout = {

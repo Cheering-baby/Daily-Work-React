@@ -476,14 +476,12 @@ class Index extends React.PureComponent {
         visible
       >
         <Row className={styles.companyNameDiv}>
-          <Col className={styles.companyNameLabel} sm={24} md={12}>
-            Company Name
+          <Col className={styles.companyNameLabel} span={24}>
+            Company Name :
           </Col>
-          <Col sm={24} md={12}>
-            {companyName || '-'}
-          </Col>
+          <Col span={24}>{companyName || '-'}</Col>
         </Row>
-        <Form onSubmit={e => this.commit(e)} layout="vertical" style={{ paddingTop: '8px' }}>
+        <Form onSubmit={e => this.commit(e)} style={{ paddingTop: '8px' }}>
           <Form.Item label={formatMessage({ id: 'ORG_TYPE' })}>
             {getFieldDecorator(`orgType`, {
               initialValue: orgTypeValue,

@@ -892,7 +892,7 @@ export default {
       yield take('addToShoppingCart/@@end');
 
       if (callbackFn.callbackFnCode === '0') {
-        message.success('Add to cart successfully.');
+        message.success('Order successfully.');
       }
     },
 

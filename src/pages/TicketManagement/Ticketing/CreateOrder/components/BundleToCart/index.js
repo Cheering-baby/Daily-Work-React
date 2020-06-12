@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import {
   Button,
@@ -8,7 +7,6 @@ import {
   DatePicker,
   Drawer,
   Form,
-  Icon,
   Input,
   InputNumber,
   message,
@@ -16,8 +14,6 @@ import {
   Row,
   Select,
   Spin,
-  Table,
-  Tooltip,
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
@@ -269,70 +265,6 @@ class ToCart extends Component {
     });
   };
 
-  bookingInfoColumns = getFieldDecorator => {
-    return [
-      {
-        title: 'Ticket Type',
-        dataIndex: 'ticketType',
-        key: 'ticketType',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
-      },
-      {
-        title: 'Price',
-        dataIndex: 'price',
-        key: 'price',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
-      },
-      {
-        title: 'Quantity',
-        dataIndex: 'quantity',
-        key: 'quantity',
-        render: (text, record) => {
-          return (
-            <FormItem>
-              {getFieldDecorator(record.ticketNumberLabel, {
-                initialValue: text,
-                validateTrigger: '',
-                rules: [
-                  {
-                    required: true,
-                    message: 'Required',
-                  },
-                ],
-              })(
-                <div>
-                  <InputNumber
-                    max={record.offerMaxQuantity}
-                    min={record.offerMinQuantity}
-                    value={text}
-                    onChange={value =>
-                      this.changeTicketNumber(record.index, value, record.priceShow)
-                    }
-                    parser={value => this.formatInputValue(record.index, value)}
-                  />
-                </div>
-              )}
-            </FormItem>
-          );
-        },
-      },
-    ];
-  };
-
   render() {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
     const { showTermsAndCondition, checkTermsAndCondition, loading } = this.state;
@@ -343,7 +275,6 @@ class ToCart extends Component {
       ticketTypesEnums = [],
       countrys = [],
       offers,
-      bundleName,
       deliverInformation: {
         country,
         taNo,
@@ -360,7 +291,6 @@ class ToCart extends Component {
         userCompanyInfo: { companyType },
       },
     } = this.props;
-    console.log(bundleName);
     const description = [];
     const hasApspTicket = this.hasApspTicket();
     const termsAndConditionItems = [];
@@ -400,33 +330,6 @@ class ToCart extends Component {
         }
       });
     });
-
-    const bookingInfo = [];
-    offers.forEach((item, index) => {
-      const {
-        ticketNumber,
-        attractionProduct = [],
-        detail,
-        detail: {
-          priceRuleId,
-          offerBasicInfo: { offerMinQuantity, offerMaxQuantity },
-          offerBundle = [{}],
-        },
-      } = item;
-      const priceShow = calculateAllProductPrice(attractionProduct, priceRuleId, null, detail);
-      const ticketNumberLabel = `offer${index}`;
-      bookingInfo.push({
-        ticketType: offerBundle[0].bundleLabel,
-        price: companyType === '02' ? null : `$ ${priceShow}/ticket`,
-        quantity: ticketNumber,
-        ticketNumberLabel,
-        priceShow,
-        offerMinQuantity,
-        offerMaxQuantity,
-        index,
-      });
-    });
-
     return (
       <div>
         <Drawer
@@ -452,7 +355,7 @@ class ToCart extends Component {
         </Drawer>
         <Drawer
           visible={!showTermsAndCondition}
-          title={<div className={styles.title}>ADD TO MY SHOPPING CART</div>}
+          title={<div className={styles.title}>ADD TO CART</div>}
           placement="right"
           destroyOnClose
           maskClosable={false}
@@ -470,21 +373,23 @@ class ToCart extends Component {
               <div>
                 <Row>
                   <Col style={{ height: '35px' }} className={styles.title}>
-                    ORDER INFORMATION
+                    TICKET INFORMATION
                   </Col>
                   <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Offer Name</span>
+                    <Col span={9} style={{ height: '30px' }}>
+                      <span className={styles.detailLabel}>Ticket Type</span>
                     </Col>
-                    <Col span={12}>
-                      <span className={styles.detailText}>{bundleName || '-'}</span>
+                    <Col span={15}>
+                      {ticketType.map(e => (
+                        <div style={{ color: '#3b414a' }}>{e}</div>
+                      ))}
                     </Col>
                   </Col>
                   <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
+                    <Col span={9} style={{ height: '30px' }}>
                       <span className={styles.detailLabel}>Description</span>
                     </Col>
-                    <Col span={12}>
+                    <Col span={15}>
                       <span className={styles.detailText}>
                         {description.length > 0
                           ? description.map(item => <div>{item || '-'}</div>)
@@ -493,54 +398,99 @@ class ToCart extends Component {
                     </Col>
                   </Col>
                   <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>
-                        Visit Date (Ticket Validity Start Date)
-                      </span>
+                    <Col span={9} style={{ height: '30px' }}>
+                      <span className={styles.detailLabel}>Date of Visit</span>
                     </Col>
-                    <Col span={12}>
+                    <Col span={15}>
                       <span className={styles.detailText}>
                         {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
                       </span>
                     </Col>
                   </Col>
-                  <Col
-                    span={24}
-                    style={{ marginTop: 15, marginBottom: 10 }}
-                    className={styles.title}
-                  >
+                  <Col span={24} style={{ marginTop: '15px' }} className={styles.title}>
                     BOOKING INFORMATION
                   </Col>
-                  <div className={styles.tableFormStyle}>
-                    <Form hideRequiredMark colon={false}>
-                      <Table
-                        size="small"
-                        className={`tabs-no-padding ${styles.searchTitle}`}
-                        columns={this.bookingInfoColumns(getFieldDecorator)}
-                        dataSource={bookingInfo}
-                        pagination={false}
-                        scroll={{ x: 400 }}
-                        rowKey={record => record.index}
-                        footer={() => {
-                          if (companyType === '02') {
-                            return null;
-                          }
-                          return (
-                            <div className={styles.tableFooterDiv}>
-                              <div style={{ width: '60%', float: 'right' }}>
-                                <span className={styles.tableFooterSpan}>
-                                  Total Amount Payable:
-                                </span>
-                                <span className={styles.tableTotalPrice}>
-                                  {this.calculateTotalPrice()}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        }}
-                      />
-                    </Form>
-                  </div>
+                  <Form className={styles.product} hideRequiredMark layout="inline" colon={false}>
+                    {offers.map((item, index) => {
+                      const {
+                        ticketNumber,
+                        attractionProduct = [],
+                        detail,
+                        detail: {
+                          priceRuleId,
+                          offerBasicInfo: { offerMinQuantity, offerMaxQuantity },
+                          offerBundle = [{}],
+                        },
+                      } = item;
+                      const priceShow = calculateAllProductPrice(
+                        attractionProduct,
+                        priceRuleId,
+                        null,
+                        detail
+                      );
+                      const ticketNumberLabel = `offer${index}`;
+                      return (
+                        <Col span={24} className={styles.ageItem} key={ticketNumberLabel}>
+                          <Col
+                            xs={8}
+                            sm={12}
+                            md={12}
+                            lg={12}
+                            xl={12}
+                            xxl={12}
+                            className={styles.age}
+                          >
+                            <span style={{ color: '#565656' }}>{offerBundle[0].bundleLabel}</span>
+                            {companyType === '02' ? null : (
+                              <span style={{ color: '#171B21' }}>$ {priceShow}</span>
+                            )}
+                          </Col>
+                          <Col
+                            xs={16}
+                            sm={12}
+                            md={12}
+                            lg={12}
+                            xl={12}
+                            xxl={12}
+                            style={{ paddingBottom: '5px' }}
+                          >
+                            <FormItem className={styles.label}>
+                              {getFieldDecorator(ticketNumberLabel, {
+                                initialValue: ticketNumber,
+                                validateTrigger: '',
+                                rules: [
+                                  {
+                                    required: true,
+                                    message: 'Required',
+                                  },
+                                ],
+                              })(
+                                <div>
+                                  <InputNumber
+                                    max={offerMaxQuantity}
+                                    min={offerMinQuantity}
+                                    value={ticketNumber}
+                                    onChange={value =>
+                                      this.changeTicketNumber(index, value, priceShow)
+                                    }
+                                    parser={value => this.formatInputValue(index, value)}
+                                  />
+                                </div>
+                              )}
+                            </FormItem>
+                          </Col>
+                        </Col>
+                      );
+                    })}
+                    {companyType === '02' ? null : (
+                      <Col span={24} className={styles.totalMoney}>
+                        <Col style={{ textAlign: 'right', paddingRight: '10px' }}>Total:</Col>
+                        <Col style={{ textAlign: 'right', minWidth: '135px' }}>
+                          {this.calculateTotalPrice()}
+                        </Col>
+                      </Col>
+                    )}
+                  </Form>
                 </Row>
               </div>
               <Col
@@ -548,13 +498,12 @@ class ToCart extends Component {
                 style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
                 className={styles.title}
               >
-                GUEST INFORMATION
+                DELIVERY INFORMATION
               </Col>
               <Col span={24} style={{ marginTop: '5px', paddingLeft: '0' }}>
                 <div style={{ color: '#171b21' }}>
-                  Kindly ensure that all COMPULSORY fields (guest name, contact number and email
-                  address) are completed below for VIP Experiences, Dolphin Island, Special
-                  Experiences at ACW and Ocean Dreams.
+                  Kindly provide guest name and contact number / email address REQUIRED for all USS
+                  and SEAA VIP Experience Booking.
                 </div>
               </Col>
               {hasApspTicket ? (
@@ -839,11 +788,7 @@ class ToCart extends Component {
                 <Checkbox
                   checked={checkTermsAndCondition}
                   onChange={this.changeCheckTermsAndCondition}
-                />{' '}
-                <span className={styles.termsAndConditionIconText}>*</span>
-                <span>
-                  Please tick (<Icon type="check" />) to accept
-                </span>
+                />
                 <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
                   Terms and Conditions &gt;
                 </span>
@@ -855,7 +800,7 @@ class ToCart extends Component {
               Cancel
             </Button>
             <Button onClick={this.order} type="primary" style={{ minWidth: 60 }} loading={loading}>
-              {formatMessage({ id: 'ADD_TO_MY_SHOPPING_CART' })}
+              Order
             </Button>
           </div>
         </Drawer>
