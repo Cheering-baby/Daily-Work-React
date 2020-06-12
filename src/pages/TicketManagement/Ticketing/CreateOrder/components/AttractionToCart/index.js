@@ -22,11 +22,7 @@ import {
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
 import { reBytesStr } from '@/utils/utils';
-import {
-  calculateAllProductPrice,
-  calculateProductPrice,
-  isSessionProduct,
-} from '../../../../utils/utils';
+import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
 
@@ -84,18 +80,12 @@ class ToCart extends Component {
     const {
       attractionProduct = [],
       detail: { priceRuleId },
-      eventSession,
     } = this.props;
     let totalPrice = 0;
     attractionProduct.forEach(item => {
       const { ticketNumber } = item;
       if (!isNullOrUndefined(ticketNumber) && ticketNumber !== '') {
-        totalPrice +=
-          calculateProductPrice(
-            item,
-            priceRuleId,
-            isSessionProduct(priceRuleId, item) ? eventSession : null
-          ) * ticketNumber;
+        totalPrice += calculateProductPrice(item, priceRuleId, item.sessionTime) * ticketNumber;
       }
     });
     return `$ ${Number(totalPrice).toFixed(2)}`;
@@ -109,9 +99,7 @@ class ToCart extends Component {
       order,
       modify,
       attractionProduct = [],
-      eventSession,
       detail: {
-        priceRuleId,
         offerQuantity,
         dateOfVisit,
         numOfGuests,
@@ -187,13 +175,13 @@ class ToCart extends Component {
       }
     });
     attractionProduct.forEach((item, index) => {
-      const { ticketNumber, productNo } = item;
+      const { ticketNumber, productNo, sessionTime: session } = item;
       const ticketNumberLabel = `attractionProduct${index}`;
       data[ticketNumberLabel] = ticketNumber;
       orderProducts.push({
         ticketNumber: offerConstrain === 'Fixed' ? offerQuantity : ticketNumber || 0,
         productNo,
-        session: isSessionProduct(priceRuleId, item) ? eventSession : null,
+        session,
       });
       if (item.attractionProduct.ageGroup) {
         ageGroups.push(item.attractionProduct.ageGroup);
@@ -468,7 +456,6 @@ class ToCart extends Component {
       onClose,
       countrys = [],
       ticketTypesEnums = [],
-      eventSession,
       deliverInformation: {
         country,
         taNo,
@@ -533,11 +520,7 @@ class ToCart extends Component {
 
     const bookingInformation = [];
     attractionProduct.forEach((item, index) => {
-      const priceShow = calculateProductPrice(
-        item,
-        priceRuleId,
-        isSessionProduct(priceRuleId, item) ? eventSession : null
-      );
+      const priceShow = calculateProductPrice(item, priceRuleId, item.sessionTime);
       bookingInformation.push({
         index,
         ticketType: item.attractionProduct.ageGroup || '-',
@@ -551,6 +534,7 @@ class ToCart extends Component {
       offerConstrain === 'Fixed'
         ? [
             {
+              id:1,
               ticketType: ageGroups.join('; '),
               price:
                 companyType === '02'
@@ -558,7 +542,7 @@ class ToCart extends Component {
                   : `$ ${calculateAllProductPrice(
                       attractionProduct,
                       priceRuleId,
-                      eventSession,
+                      null,
                       detail
                     )}/package`,
               quantity: offerQuantity,
@@ -636,16 +620,6 @@ class ToCart extends Component {
                       </span>
                     </Col>
                   </Col>
-                  {eventSession ? (
-                    <Col span={24} style={{ marginBottom: '10px' }}>
-                      <Col span={12} style={{ height: '30px' }}>
-                        <span className={styles.detailLabel}>Event Session</span>
-                      </Col>
-                      <Col span={12}>
-                        <span className={styles.detailText}>{eventSession}</span>
-                      </Col>
-                    </Col>
-                  ) : null}
                   <Col
                     span={24}
                     style={{ marginTop: 15, marginBottom: 10 }}
@@ -663,6 +637,7 @@ class ToCart extends Component {
                           dataSource={packageBookingInfo}
                           pagination={false}
                           scroll={{ x: 400 }}
+                          rowKey={record => record.id}
                           footer={() => {
                             if (companyType === '02') {
                               return null;
@@ -673,15 +648,16 @@ class ToCart extends Component {
                                   <span className={styles.tableFooterSpan}>
                                     Total Amount Payable:
                                   </span>
-                                  <span className={styles.tableTotalPrice}>{`$ ${(
-                                    offerQuantity *
-                                    calculateAllProductPrice(
-                                      attractionProduct,
-                                      priceRuleId,
-                                      eventSession,
-                                      detail
-                                    )
-                                  ).toFixed(2)}`}
+                                  <span className={styles.tableTotalPrice}>
+                                    {`$ ${(
+                                      offerQuantity *
+                                      calculateAllProductPrice(
+                                        attractionProduct,
+                                        priceRuleId,
+                                        null,
+                                        detail
+                                      )
+                                    ).toFixed(2)}`}
                                   </span>
                                 </div>
                               </div>
@@ -702,6 +678,7 @@ class ToCart extends Component {
                             numOfGuests,
                             getFieldDecorator
                           )}
+                          rowKey={record => record.index}
                           dataSource={bookingInformation}
                           pagination={false}
                           scroll={{ x: 400 }}

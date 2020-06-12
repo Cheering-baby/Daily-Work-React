@@ -12,6 +12,16 @@ export default {
   history: 'hash',
   devtool: 'source-map', // add for transfer to umi
   treeShaking: true,
+  proxy:  {
+    '/b2b':  {
+      target:  'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams',
+      changeOrigin:  true,
+    },
+    '/b2c':  {
+      target:  'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams',
+      changeOrigin:  true,
+    },
+  },
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
     [

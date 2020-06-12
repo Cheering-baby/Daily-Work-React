@@ -226,6 +226,7 @@ class Attraction extends Component {
     const orderInfo = [];
     attractionProduct.forEach(item => {
       orderInfo.push({
+        sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: offerQuantity,
         pricePax: calculateProductPrice(item, priceRuleId),
@@ -258,6 +259,7 @@ class Attraction extends Component {
         orderData,
       },
     });
+    console.log(orderData)
     this.onClose();
   };
 
@@ -291,6 +293,7 @@ class Attraction extends Component {
     attractionProduct.forEach(item => {
       const { ticketNumber } = item;
       orderInfo.push({
+        sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
@@ -320,6 +323,7 @@ class Attraction extends Component {
         orderData,
       },
     });
+    console.log(orderData)
     this.onClose();
   };
 

@@ -706,15 +706,7 @@ export default {
           data: { result },
         } = response;
         const { offerList = [] } = result;
-        const dolphinIslandOfferList = [];
-        const tags = ['DIA', 'DID', 'DIE', 'DIO', 'DIV'];
-        tags.forEach(item => {
-          dolphinIslandOfferList.push({
-            tag: item,
-            offer: [],
-            showDetail: true,
-          });
-        });
+        const dolphinIslandOfferList = getOfferCategory('DOL');
 
         const requestPromiseList = [];
         const offerDetailList = [];

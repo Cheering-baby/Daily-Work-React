@@ -328,6 +328,7 @@ export function getOfferCategory(themeparkCode) {
   }
   const categories = resultTags.map(item => ({
     tag: item,
+    offer: [],
     products: [],
     bundleNames: [],
     showDetail: true,

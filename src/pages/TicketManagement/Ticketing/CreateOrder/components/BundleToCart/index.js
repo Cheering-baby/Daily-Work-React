@@ -520,6 +520,7 @@ class ToCart extends Component {
                         dataSource={bookingInfo}
                         pagination={false}
                         scroll={{ x: 400 }}
+                        rowKey={record => record.index}
                         footer={() => {
                           if (companyType === '02') {
                             return null;
