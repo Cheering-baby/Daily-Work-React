@@ -1,4 +1,5 @@
 import { stringify } from 'qs';
+import axios from 'axios';
 import UAAService from '@/uaa-npm';
 
 export async function queryActivityList(data) {
@@ -52,6 +53,19 @@ export async function registerContractFile(params) {
 
 export async function queryTaInfo(taId) {
   return UAAService.requestByRT(`/b2b/agent/v1/profile/queryTaInfo?taId=${taId}`, {
+    method: 'GET',
+  });
+}
+
+// export function queryCommission(taId) {
+//   return axios({
+//     url: `/pams/api/v1/agent/commission/activity/queryFeeDetail`,
+//     method: 'GET',
+//   });
+// }
+
+export async function queryCommission(taId) {
+  return UAAService.request(`/b2b/agent/v1/commission/activity/queryFeeDetail?feeId=${taId}`, {
     method: 'GET',
   });
 }

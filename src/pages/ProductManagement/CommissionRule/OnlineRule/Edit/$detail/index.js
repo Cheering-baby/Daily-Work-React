@@ -32,6 +32,31 @@ class onlineEdit extends React.PureComponent {
     });
   };
 
+  add = () => {
+    const { dispatch } = this.props;
+    this.refForm.validateFields((err, values) => {
+      if (
+        values.commissionName === undefined ||
+        values.commissionName === '' ||
+        values.effectiveDate === undefined ||
+        values.effectiveDate === null ||
+        values.expiryDate === undefined ||
+        values.expiryDate === null
+      ) {
+        message.warning(
+          'Please fill in basic commission rule information, such as name, effective period, commission type.'
+        );
+      } else {
+        dispatch({
+          type: 'commissionNew/save',
+          payload: {
+            addBindingModal: true,
+          },
+        });
+      }
+    });
+  };
+
   handleOk = async () => {
     const {
       dispatch,
@@ -63,8 +88,8 @@ class onlineEdit extends React.PureComponent {
         message.warning('Select at least one online offer or one offline plu.');
         return false;
       }
-      let effectiveDate = null;
-      let expiryDate = null;
+      // const effectiveDate = null;
+      // const expiryDate = null;
       commonConfirm({
         content: 'Confirm to Modify ?',
         onOk: () => {
@@ -76,9 +101,6 @@ class onlineEdit extends React.PureComponent {
               values[k] = value ? value.format('YYYY-MM-DD') : '';
             } else if (k === 'expiryDate' && value) {
               values[k] = value ? value.format('YYYY-MM-DD') : '';
-            } else if (k === 'effectivePeriod' && value) {
-              effectiveDate = value[0].format('YYYY-MM-DD');
-              expiryDate = value[1].format('YYYY-MM-DD');
             } else if (k === 'commissionScheme') {
               if (values[k] === 'Percentage') {
                 if (tieredList && tieredList.length > 0) {
@@ -111,8 +133,6 @@ class onlineEdit extends React.PureComponent {
           });
           const params = {
             ...values,
-            effectiveDate,
-            expiryDate,
           };
           for (let i = 0; i < tieredList.length; i += 1) {
             tieredList[i].tplId = tplId;
@@ -177,7 +197,7 @@ class onlineEdit extends React.PureComponent {
               this.refForm = el;
             }}
           />
-          <NewBinding tplId={tplId} type={type} handleOk={this.handleOk} />
+          <NewBinding tplId={tplId} type={type} handleOk={this.handleOk} add={this.add} />
         </Card>
       </Spin>
     );

@@ -50,7 +50,7 @@ export default {
     },
     *fetchPLUList({ payload }, { call, put, select }) {
       const { offlineSearchCondition, checkedList } = yield select(state => state.offlineNew);
-      const params = { ...offlineSearchCondition, ...payload };
+      const params = { ...offlineSearchCondition, ...payload, commissionType: 'Fixed' };
       yield put({
         type: 'save',
         payload: {
@@ -186,9 +186,11 @@ export default {
             }
             if (unSelected) {
               PLUList[i].subCommodityList.map(e => {
-                Object.assign(e, {
-                  isSelected: true,
-                });
+                if (e.bindingOtherFlg !== 'Y') {
+                  Object.assign(e, {
+                    isSelected: true,
+                  });
+                }
                 return e;
               });
             }
@@ -214,7 +216,9 @@ export default {
             PLUList[i].subCommodityList[j].isSelected = false;
             for (let k = 0; k < subSelectedRowKeys.length; k += 1) {
               if (PLUList[i].subCommodityList[j].commoditySpecId === subSelectedRowKeys[k]) {
-                PLUList[i].subCommodityList[j].isSelected = true;
+                if (PLUList[i].subCommodityList[j].bindingOtherFlg !== 'Y') {
+                  PLUList[i].subCommodityList[j].isSelected = true;
+                }
               }
             }
           }

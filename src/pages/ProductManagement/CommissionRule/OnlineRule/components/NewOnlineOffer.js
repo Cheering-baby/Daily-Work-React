@@ -7,8 +7,9 @@ import AddOnlinePLUModal from './AddOnlinePLUModal';
 import PaginationComp from '../../../components/PaginationComp';
 
 @Form.create()
-@connect(({ commissionNew }) => ({
+@connect(({ commissionNew, detail }) => ({
   commissionNew,
+  detail,
 }))
 class NewOnlineOffer extends React.PureComponent {
   columns = [
@@ -234,12 +235,27 @@ class NewOnlineOffer extends React.PureComponent {
       commissionNew: { checkedOnlineList },
       dispatch,
     } = this.props;
+    // const fd = checkedOnlineList.find(item => item.commoditySpecId === record.proProCommoditySpecId)
+    // // console.log(fd, record.proProCommoditySpecId)
+    // if(fd){
+    //   const fd2 = fd.subCommodityList.find(item => item.commoditySpecId === record.proCommoditySpecId)
+    //   if(fd2) {
+    //     const fd3 = fd2.subCommodityList.find(item => item.commoditySpecId === record.commoditySpecId)
+    //     if(fd3) {
+    //       // fd2.splice(item, 1)
+    //       console.log(fd3)
+    //     }
+    //   }
+    //   return checkedOnlineList
+    // }
     for (let i = 0; i < checkedOnlineList.length; i += 1) {
       if (record.proProCommoditySpecId === checkedOnlineList[i].commoditySpecId) {
         for (let j = 0; j < checkedOnlineList[i].subCommodityList.length; j += 1) {
           if (
             record.proCommoditySpecId === checkedOnlineList[i].subCommodityList[j].commoditySpecId
           ) {
+            // console.log(checkedOnlineList[i].subCommodityList[j].commoditySpecId)
+
             for (
               let k = 0;
               k < checkedOnlineList[i].subCommodityList[j].subCommodityList.length;
@@ -273,55 +289,54 @@ class NewOnlineOffer extends React.PureComponent {
   };
 
   add = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'commissionNew/save',
-      payload: {
-        addBindingModal: true,
-      },
-    });
+    const { add } = this.props;
+    add();
   };
 
   subExpandedRowRender = record => {
     const { subCommodityList } = record;
-    return (
-      <div>
-        <Table
-          size="small"
-          columns={this.subDetailColumns}
-          dataSource={subCommodityList}
-          expandedRowRender={rec => this.subExpandedRowRender(rec)}
-          rowClassName={rec =>
-            rec.subCommodityList === null || rec.subCommodityList.length === 0
-              ? styles.hideIcon
-              : undefined
-          }
-          pagination={false}
-          bordered={false}
-        />
-      </div>
-    );
+    if(subCommodityList.length > 0) {
+      return (
+        <div>
+          <Table
+            size="small"
+            columns={this.subDetailColumns}
+            dataSource={subCommodityList}
+            expandedRowRender={rec => this.subExpandedRowRender(rec)}
+            rowClassName={rec =>
+              rec.subCommodityList === null || rec.subCommodityList.length === 0
+                ? styles.hideIcon
+                : undefined
+            }
+            pagination={false}
+            bordered={false}
+          />
+        </div>
+      );
+    }
   };
 
   expandedRowRender = record => {
     const { subCommodityList } = record;
-    return (
-      <div>
-        <Table
-          size="small"
-          columns={this.detailColumns}
-          dataSource={subCommodityList}
-          expandedRowRender={rec => this.subExpandedRowRender(rec)}
-          rowClassName={rec =>
-            rec.subCommodityList === null || rec.subCommodityList.length === 0
-              ? styles.hideIcon
-              : undefined
-          }
-          pagination={false}
-          bordered={false}
-        />
-      </div>
-    );
+    if(subCommodityList.length > 0) {
+      return (
+        <div>
+          <Table
+            size="small"
+            columns={this.detailColumns}
+            dataSource={subCommodityList}
+            expandedRowRender={rec => this.subExpandedRowRender(rec)}
+            rowClassName={rec =>
+              rec.subCommodityList === null || rec.subCommodityList.length === 0
+                ? styles.hideIcon
+                : undefined
+            }
+            pagination={false}
+            bordered={false}
+          />
+        </div>
+      );
+    }
   };
 
   render() {
@@ -384,7 +399,7 @@ class NewOnlineOffer extends React.PureComponent {
                 dataSource={[
                   {
                     key: 'addOption',
-                    commodityName: <a onClick={() => this.add()}>+ Add</a>,
+                    commodityName: <a onClick={this.add}>+ Add</a>,
                     commodityIdentifier: '',
                     operation: '',
                   },

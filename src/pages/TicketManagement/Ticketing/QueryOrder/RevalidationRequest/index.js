@@ -457,7 +457,7 @@ class RevalidationRequest extends Component {
 
     const title = [
       { name: 'Ticketing' },
-      { name: 'Query Order', href: '#/TicketManagement/Ticketing/QueryOrder' },
+      { name: 'Order Query', href: '#/TicketManagement/Ticketing/QueryOrder' },
       { name: 'Revalidation Request' },
     ];
 

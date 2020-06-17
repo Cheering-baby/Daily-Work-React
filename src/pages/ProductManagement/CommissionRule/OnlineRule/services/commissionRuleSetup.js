@@ -73,3 +73,12 @@ export async function add(params) {
     body: params,
   });
 }
+
+export async function remove(params) {
+  return UAAService.request(`/b2b/agent/v1/commission/template/trashCommissionTpl`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}

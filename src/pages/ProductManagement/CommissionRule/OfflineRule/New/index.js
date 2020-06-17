@@ -1,17 +1,17 @@
 import React from 'react';
 import router from 'umi/router';
 import {
-  Button,
-  Card,
   Col,
   Form,
-  Icon,
-  InputNumber,
-  message,
   Radio,
   Row,
+  Button,
   Table,
+  InputNumber,
+  message,
   Tooltip,
+  Icon,
+  Card,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
@@ -21,6 +21,7 @@ import styles from '../../OnlineRule/New/index.less';
 import AddOfflinePLUModal from '../components/AddOfflinePLUModal';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
+import {formatPrice} from "../../../utils/tools";
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -65,6 +66,20 @@ class OfflineNew extends React.PureComponent {
       dataIndex: 'themeParkCode',
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
@@ -112,6 +127,20 @@ class OfflineNew extends React.PureComponent {
       dataIndex: 'themeParkCode',
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
     {
       title: formatMessage({ id: 'OPERATION' }),

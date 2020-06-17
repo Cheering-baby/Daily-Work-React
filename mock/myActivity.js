@@ -157,9 +157,60 @@ const statusDetail = id => {
   };
 };
 
+const feeDetail = {
+  resultCode: 0,
+  resultMsg: 'success',
+  result: {
+    feeDetailList: {
+      commissionType: 'Tiered Commission Verfication',
+      amountFee: 0.11,
+      befGstFee: '1.12',
+      tax: '0.02',
+      feeStartDate: '1589876101000',
+      feeEndDate: '1753891200000',
+      calculationCycle: 'Month',
+      reportFile: [
+        {
+          field: 'taFile',
+          name: 'taFile_e5576ffd84934936bb84b99d5a1cdbda_1591241276043_adasda.txt',
+          path: 'agent/taFile/202006/',
+          sourceName: 'adasda.txt',
+        },
+      ],
+      tieredList: [
+        {
+          commissionValue: '1',
+          createStaff: null,
+          createTime: null,
+          maxmum: '2',
+          minimum: '1',
+          status: null,
+          statusTime: null,
+          tierOrder: 1,
+          tieredId: null,
+          tplId: '200515171955618383',
+        },
+        {
+          commissionValue: '10',
+          createStaff: null,
+          createTime: null,
+          maxmum: '5',
+          minimum: '2',
+          status: null,
+          statusTime: null,
+          tierOrder: 1,
+          tieredId: null,
+          tplId: '200515171955618300',
+        },
+      ],
+    },
+  },
+};
+
 const statusApi = 'POST /pams/api/status';
 const detail = 'POST /pams/api/statusDetail';
 const templateApi = 'POST /pams/api/templateList';
+const commissionApi = 'GET /pams/api/v1/agent/commission/activity/queryFeeDetail';
 module.exports = {
   [api](req, res) {
     res.json({ list: myActivityResult });
@@ -172,5 +223,8 @@ module.exports = {
   },
   [detail](req, res) {
     res.json(statusDetail(req.body.id));
+  },
+  [commissionApi](req, res) {
+    res.json(feeDetail);
   },
 };

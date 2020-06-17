@@ -32,7 +32,6 @@ const mapStateToProps = store => {
     taAccountInfoLoadingFlag,
     isCompanyExist,
   } = store.taMgr;
-  const { userCompanyInfo } = store.global;
   return {
     otherInfo,
     customerInfo,
@@ -48,7 +47,6 @@ const mapStateToProps = store => {
     currentStep,
     isAllInformationToRws,
     viewId,
-    userCompanyInfo,
   };
 };
 
@@ -218,11 +216,7 @@ class Edit extends PureComponent {
       isAllInformationToRws,
       viewId,
       isCompanyExist,
-      userCompanyInfo,
     } = this.props;
-    const taUserStatus = userCompanyInfo.status || '-1';
-    const isTaDeActivationFlag =
-      hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]) && taUserStatus !== '0';
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
@@ -302,7 +296,7 @@ class Edit extends PureComponent {
                           }
                           disabled={
                             (!isAllInformationToRws && String(currentStep) === '1') ||
-                            isCompanyExist || isTaDeActivationFlag
+                            isCompanyExist
                           }
                         >
                           {formatMessage({

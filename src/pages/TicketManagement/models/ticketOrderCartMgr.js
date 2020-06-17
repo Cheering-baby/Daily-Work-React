@@ -688,7 +688,7 @@ export default {
             },
           },
         });
-        message.success('Checked out successfully.');
+        message.success('Please review order details and apply payment to confirm order.');
         router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
         return;
       }
@@ -892,7 +892,7 @@ export default {
       yield take('addToShoppingCart/@@end');
 
       if (callbackFn.callbackFnCode === '0') {
-        message.success('Order successfully.');
+        message.success('Add to Orders Cart successfully.');
       }
     },
 

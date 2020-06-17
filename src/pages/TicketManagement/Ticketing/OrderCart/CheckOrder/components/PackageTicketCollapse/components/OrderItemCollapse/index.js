@@ -20,7 +20,7 @@ class OrderItemCollapse extends Component {
     e.stopPropagation();
     const { orderIndex, operateButtonEvent } = this.props;
     confirm({
-      title: 'Are you sure to delete the item?',
+      title: 'Are you sure you want to delete this item?',
       content: '',
       onOk() {
         operateButtonEvent('delete', orderIndex, offerIndex);

@@ -1,5 +1,16 @@
 import { stringify } from 'qs';
+import axios from 'axios';
 import UAAService from '@/uaa-npm';
+
+// export async function queryGrantOffer(params) {
+//   const url = `/b2b/agent/v1/commission/binding/queryGrantBindingList`;
+//   return UAAService.request(url, {
+//     method: 'POST',
+//     body: {
+//       ...params,
+//     },
+//   });
+// }
 
 export async function queryMainTAList(params) {
   return UAAService.request(`/b2b/agent/v1/profile/queryTaList`, {
@@ -81,5 +92,12 @@ export async function add(params) {
     body: {
       ...params,
     },
+  });
+}
+export function queryGrantOffer(params) {
+  return axios({
+    url: `/b2b/agent/v1/commission/binding/queryGrantBindingList`,
+    method: 'POST',
+    data: params,
   });
 }

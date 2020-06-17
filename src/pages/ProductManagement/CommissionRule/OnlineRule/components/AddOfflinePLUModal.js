@@ -4,10 +4,10 @@ import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip }
 import { formatMessage } from 'umi/locale';
 import styles from './AddOnlinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
-import { objDeepCopy } from '@/pages/ProductManagement/utils/tools';
 import SortSelect from '@/components/SortSelect';
+import { objDeepCopy, formatPrice } from '../../../utils/tools';
 
-const drawWidth = 800;
+const drawWidth = 900;
 const { Option } = Select;
 @Form.create()
 @connect(({ commissionNew, loading }) => ({
@@ -42,6 +42,20 @@ class AddOfflinePLUModal extends React.PureComponent {
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
     },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
+    },
   ];
 
   detailColumns = [
@@ -70,6 +84,20 @@ class AddOfflinePLUModal extends React.PureComponent {
       dataIndex: 'themeParkCode',
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
   ];
 
@@ -276,7 +304,9 @@ class AddOfflinePLUModal extends React.PureComponent {
         this.onSubSelectChange(selectedRowKeys, record.commoditySpecId, PLUList),
       getCheckboxProps: rec => {
         return {
-          disabled: !!subCheckedList.find(item => item.commoditySpecId === rec.commoditySpecId),
+          disabled:
+            rec.bindingOtherFlg === 'Y' ||
+            !!subCheckedList.find(item => item.commoditySpecId === rec.commoditySpecId),
         };
       },
     };
@@ -326,8 +356,20 @@ class AddOfflinePLUModal extends React.PureComponent {
       selectedRowKeys: this.getSelectedRowKes(PLUList),
       onChange: this.onSelectChange,
       getCheckboxProps: record => {
+        const { subCommodityList = [] } = record;
+        const isDisabled =
+          subCommodityList.length > 0 &&
+          !subCommodityList.find(rec => {
+            // const fd = checkedOnlineList.find(item => rec.commoditySpecId === item.commoditySpecId);
+            // const subCheckedOnlineList = fd? fd.subCommodityList : [];
+
+            return rec.bindingOtherFlg !== 'Y';
+          });
         return {
-          disabled: !!checkedList.find(item => item.commoditySpecId === record.commoditySpecId),
+          disabled:
+            isDisabled ||
+            record.bindingOtherFlg === 'Y' ||
+            !!checkedList.find(item => item.commoditySpecId === record.commoditySpecId),
         };
       },
     };

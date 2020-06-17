@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, message, Modal, Row, Select, Table, Tooltip } from 'antd';
+import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './AddOfflinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
 import { objDeepCopy } from '@/pages/ProductManagement/utils/tools';
+import { formatPrice } from '../../../utils/tools';
 import SortSelect from '@/components/SortSelect';
 
-const drawWidth = 700;
+const drawWidth = 900;
 const { Option } = Select;
 @Form.create()
 @connect(({ offlineNew, loading }) => ({
@@ -42,6 +43,20 @@ class AddOfflinePLUModal extends React.PureComponent {
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
     },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
+    },
   ];
 
   detailColumns = [
@@ -70,6 +85,20 @@ class AddOfflinePLUModal extends React.PureComponent {
       dataIndex: 'themeParkCode',
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
   ];
 
@@ -294,6 +323,7 @@ class AddOfflinePLUModal extends React.PureComponent {
       getCheckboxProps: rec => {
         return {
           disabled:
+            rec.bindingOtherFlg === 'Y' ||
             !!subCheckedList.find(item => item.commoditySpecId === rec.commoditySpecId) ||
             !!subChecked.find(item => item.commoditySpecId === rec.commoditySpecId),
         };
@@ -342,10 +372,13 @@ class AddOfflinePLUModal extends React.PureComponent {
       },
     } = this.props;
     const commissionList = [];
-    for (let i = 0; i < offlineList.length; i += 1) {
-      if (offlineList[i].subCommodityList) {
-        for (let j = 0; j < offlineList[i].subCommodityList.length; j += 1) {
-          commissionList.push(offlineList[i].subCommodityList[j]);
+
+    if (offlineList.length > 0) {
+      for (let i = 0; i < offlineList.length; i += 1) {
+        if (offlineList[i].subCommodityList) {
+          for (let j = 0; j < offlineList[i].subCommodityList.length; j += 1) {
+            commissionList.push(offlineList[i].subCommodityList[j]);
+          }
         }
       }
     }
@@ -355,6 +388,13 @@ class AddOfflinePLUModal extends React.PureComponent {
       selectedRowKeys: this.getSelectedRowKes(PLUList),
       onChange: this.onSelectChange,
       getCheckboxProps: record => {
+        // const { subCommodityList = [] } = record;
+        // const isDisabled = subCommodityList.length>0 && !subCommodityList.find(rec => {
+        //   // const fd = checkedOnlineList.find(item => rec.commoditySpecId === item.commoditySpecId);
+        //   // const subCheckedOnlineList = fd? fd.subCommodityList : [];
+
+        //  return rec.bindingOtherFlg !== 'Y'
+        // });
         const record2 = [];
         if (record.subCommodityList) {
           for (let i = 0; i < record.subCommodityList.length; i += 1) {
@@ -379,6 +419,8 @@ class AddOfflinePLUModal extends React.PureComponent {
 
         return {
           disabled:
+            // isDisabled ||
+            record.bindingOtherFlg === 'Y' ||
             !!checkedList.find(item => item.commoditySpecId === record.commoditySpecId) ||
             !!offlineList.find(item => item.commoditySpecId === record.commoditySpecId) ||
             !!subChecked.find(item => item.commoditySpecId === rec),

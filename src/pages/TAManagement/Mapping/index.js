@@ -115,7 +115,7 @@ class Index extends React.PureComponent {
         title: formatMessage({ id: 'ADD_USER_EFFECTIVE_DATE' }),
         dataIndex: 'effectiveDate',
         key: 'effectiveDate',
-        width: 160,
+        width: 80,
         render: text => {
           const timeText = text ? moment(text).format('YYYY-MM-DD') : '';
           return timeText ? (
@@ -135,7 +135,7 @@ class Index extends React.PureComponent {
         title: formatMessage({ id: 'AR_CREDIT_BALANCE' }),
         dataIndex: 'arCredit',
         key: 'AR',
-        width: 100,
+        width: 120,
         render: text =>
           text ? (
             <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
@@ -149,7 +149,7 @@ class Index extends React.PureComponent {
         title: formatMessage({ id: 'EWALLET_BALANCE' }),
         dataIndex: 'eWallet',
         key: 'eWallet',
-        width: 100,
+        width: 160,
         render: text =>
           text ? (
             <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>

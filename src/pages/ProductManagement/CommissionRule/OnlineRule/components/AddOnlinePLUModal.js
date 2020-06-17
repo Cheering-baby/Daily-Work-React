@@ -10,8 +10,9 @@ import SortSelect from '@/components/SortSelect';
 const drawWidth = 800;
 const { Option } = Select;
 @Form.create()
-@connect(({ commissionNew, loading }) => ({
+@connect(({ commissionNew, detail, loading }) => ({
   commissionNew,
+  detail,
   loading: loading.effects['commissionNew/fetchOfferList'],
 }))
 class AddOnlinePLUModal extends React.PureComponent {
@@ -254,9 +255,9 @@ class AddOnlinePLUModal extends React.PureComponent {
         this.onSubSelectChange(selectedRowKeys, record.commoditySpecId, offerList),
       getCheckboxProps: rec => {
         return {
-          disabled: !!subCheckedOnlineList.find(
-            item => item.commoditySpecId === rec.commoditySpecId
-          ),
+          disabled:
+            rec.bindingOtherFlg === 'Y' ||
+            !!subCheckedOnlineList.find(item => item.commoditySpecId === rec.commoditySpecId),
         };
       },
     };
@@ -373,15 +374,15 @@ class AddOnlinePLUModal extends React.PureComponent {
       if (offerList[i].isSelected) {
         selectedRowKeys.push(offerList[i].commoditySpecId);
       }
-      for (let j = 0; j < offerList[i].subCommodityList.length; j += 1) {
-        if (offerList[i].subCommodityList[j].isSelected) {
-          if (offerList[i].subCommodityList[j].bindingFlg === 'Y') {
-            message.warning(
-              'The system check selected product under this offer is tagged to any commission rule.'
-            );
-          }
-        }
-      }
+      // for (let j = 0; j < offerList[i].subCommodityList.length; j += 1) {
+      //   if (offerList[i].subCommodityList[j].isSelected) {
+      //     if (offerList[i].subCommodityList[j].bindingFlg === 'Y') {
+      //       message.warning(
+      //         'The system check selected product under this offer is tagged to any commission rule.'
+      //       );
+      //     }
+      //   }
+      // }
     }
     return selectedRowKeys;
   };
@@ -419,10 +420,21 @@ class AddOnlinePLUModal extends React.PureComponent {
       selectedRowKeys: this.getSelectedRowKes(offerList),
       onChange: selectedRowKey => this.onSelectChange(selectedRowKey, offerList),
       getCheckboxProps: record => {
+        const { subCommodityList = [] } = record;
+
+        const isDisabled =
+          subCommodityList.length > 0 &&
+          !subCommodityList.find(rec => {
+            // const fd = checkedOnlineList.find(item => rec.commoditySpecId === item.commoditySpecId);
+            // const subCheckedOnlineList = fd? fd.subCommodityList : [];
+
+            return !(rec.bindingOtherFlg === 'Y');
+          });
         return {
-          disabled: !!checkedOnlineList.find(
-            item => item.commoditySpecId === record.commoditySpecId
-          ),
+          disabled:
+            isDisabled ||
+            record.bindingOtherFlg === 'Y' ||
+            !!checkedOnlineList.find(item => item.commoditySpecId === record.commoditySpecId),
         };
       },
     };

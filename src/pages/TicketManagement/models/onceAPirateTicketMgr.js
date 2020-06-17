@@ -217,7 +217,7 @@ export default {
 
       yield take('ticketOrderCartMgr/settingOnceAPirateOrderData/@@end');
       if (settingOnceAPirateOrderDataCallbackFn.callbackFnCode === 'done') {
-        message.success('Order successfully.');
+        message.success('Add to Orders Cart successfully.');
         router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
       }
       yield put({
@@ -421,7 +421,7 @@ export default {
               selectRuleId,
               offerPricePax,
               offerSumPrice: offerPricePax * orderQuantity,
-              showPrice: `$${Number(offerPricePax).toFixed(2)}`,
+              showPrice: `$${Number(offerPricePax).toFixed(2)}/package`,
               orderQuantity,
               offerMaxAvailable,
               offerInventoryByDateOfVisit,

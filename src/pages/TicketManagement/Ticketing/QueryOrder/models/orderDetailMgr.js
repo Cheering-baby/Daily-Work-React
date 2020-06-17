@@ -19,6 +19,7 @@ export default {
     themeParkList:[],
     netAmt: 0,
     refundSuccessFlag: false,
+    status: null,
   },
 
   effects: {
@@ -76,7 +77,7 @@ export default {
       const { bookingDetail = {} } = payload;
       const detailList = [];
       const vidResultList = [];
-      const { offers = [], patronInfo = {}, netAmt, refundSuccessFlag = false } = bookingDetail;
+      const { offers = [], patronInfo = {}, netAmt, refundSuccessFlag = false, status } = bookingDetail;
       for (let i = 0; i < offers.length; i += 1) {
         const vidList = [];
         const { attraction = [] } = offers[i];
@@ -105,11 +106,17 @@ export default {
                   vidList.push({
                     vidNo: null,
                     vidCode: itemPlu.visualId,
+                    themePark: itemPlu.themeParkCode,
+                    ticketGroup: itemPlu.ageGroup,
+                    ticketType: itemPlu.ticketType,
                   });
                   vidResultList.push({
                     vidNo: null,
                     vidCode: itemPlu.visualId,
                     offerName: offers[i].offerName,
+                    themePark: itemPlu.themeParkCode,
+                    ticketGroup: itemPlu.ageGroup,
+                    ticketType: itemPlu.ticketType,
                   });
                 }
               });
@@ -166,7 +173,8 @@ export default {
         vidResultList,
         patronInfo,
         netAmt,
-        refundSuccessFlag
+        refundSuccessFlag,
+        status
       };
     },
     resetData(state) {
@@ -184,6 +192,7 @@ export default {
         themeParkList:[],
         netAmt: 0,
         refundSuccessFlag: false,
+        status: null,
       };
     },
   },

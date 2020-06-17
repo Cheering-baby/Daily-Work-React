@@ -1,11 +1,12 @@
 @prefix-cls: ~'@{ant-prefix}';
-@import '../../../theme/screen.less';
+@import "../../../theme/screen.less";
 
 .searchDiv {
   padding: 14px;
   color: red;
 
   :global {
+
     .ant-advanced-search-form .ant-form-item {
       margin-bottom: 0;
     }
@@ -18,23 +19,23 @@
       font-size: 12px;
     }
 
-    .ant-form-item-children,
-    .ant-calendar-picker {
+    .ant-form-item-children, .ant-calendar-picker {
       display: block;
     }
+
   }
 }
 
 .breadCrumbStyle {
   font-family: Calibri;
   font-size: 20px;
-  color: #3b414a;
+  color: #3B414A;
 }
 
 .breadCrumbBold {
   font-family: calibriBold;
   font-size: 20px;
-  color: #001d00;
+  color: #001D00;;
 }
 
 .tableWrapper {
@@ -55,7 +56,9 @@
 }
 
 .tableClass {
+
   :global {
+
     .ant-card-body {
       padding-top: 0 !important;
     }
@@ -68,9 +71,8 @@
       padding: 0 !important;
     }
 
-    .ant-table-expanded-row td,
-    th {
-      background-color: #f2f2f2 !important;
+    .ant-table-expanded-row td, th {
+      background-color: #F2F2F2 !important;
       font-size: 15px !important;
       color: #565656 !important;
       letter-spacing: 0 !important;
@@ -89,10 +91,9 @@
 .headerClass {
   font-family: Calibri;
   font-size: 17px;
-  color: #171b21;
-  font-weight: 600;
+  color: #171B21;
   letter-spacing: 0.27px;
-  margin-bottom: 3px;
+  margin-bottom: 10px;
 }
 
 .cardClass {
@@ -127,6 +128,7 @@
   font-size: 15px;
 }
 
+
 .formWrapperClass {
   :global {
     .ant-form-item-control-wrapper {
@@ -156,7 +158,7 @@
     padding-bottom: 6px;
     cursor: pointer;
     font-size: 15px;
-    color: #171b21;
+    color: #171B21;
     letter-spacing: 0.24px;
     line-height: 22px;
 

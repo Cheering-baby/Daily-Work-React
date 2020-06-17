@@ -125,6 +125,7 @@ class ExportVID extends React.Component {
         exportVIDVisible,
         vidList,
         searchList: { bookingNo },
+        downloadFileLoading = false,
       },
     } = this.props;
 
@@ -159,7 +160,7 @@ class ExportVID extends React.Component {
           </Button>
           <Button
             style={{ width: 70 }}
-            loading={!!pageLoading}
+            loading={downloadFileLoading}
             onClick={() => this.exportVid(bookingNo)}
             type="primary"
           >

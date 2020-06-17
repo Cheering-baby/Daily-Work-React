@@ -40,12 +40,12 @@ export function calculateTicketPrice(ticketNumber, productPrice = []) {
         price =
           calculatePerPiecePrice(index, productPrice) +
           (ticketNumberC - calculatePerPiece(index, productPrice)) *
-            productPrice[index].discountUnitPrice;
+          productPrice[index].discountUnitPrice;
       } else if (index > 0) {
         price =
           calculatePerPiecePrice(index - 1, productPrice) +
           (ticketNumberC - calculatePerPiece(index - 1, productPrice)) *
-            productPrice[index - 1].discountUnitPrice;
+          productPrice[index - 1].discountUnitPrice;
       } else {
         price = productPrice[0].discountUnitPrice * ticketNumberC;
       }
@@ -101,8 +101,9 @@ export function calculateProductPrice(product, selectRuleId, session) {
 export function calculateAllProductPrice(products = [], selectRuleId, session, detail) {
   let price = 0;
   products.forEach(item => {
-    if (session && isSessionProduct(selectRuleId, item)) {
-      price += calculateProductPrice(item, selectRuleId, session);
+    const { sessionTime } = item;
+    if (isSessionProduct(selectRuleId, item)) {
+      price += calculateProductPrice(item, selectRuleId, sessionTime);
     } else if (isSessionProduct(selectRuleId, item)) {
       const { priceRule, needChoiceCount } = item;
       const filterPriceRule = priceRule.filter(({ priceRuleId }) => priceRuleId === selectRuleId);
@@ -358,4 +359,21 @@ export function multiplePromise(arr, max, callback) {
   }
 
   toHandle();
+}
+
+export function dealSessionArr(target = []) {
+  const sessionArr = [];
+  const resultSession = [];
+  const doExchange = function doExchangeFunc(arr, index) {
+    for (let j = 0; j < arr[index].length; j += 1) {
+      resultSession[index] = arr[index][j];
+      if (index !== arr.length - 1) {
+        doExchange(arr, index + 1)
+      } else {
+        sessionArr.push([...resultSession]);
+      }
+    }
+  }
+  doExchange(target, 0);
+  return sessionArr;
 }

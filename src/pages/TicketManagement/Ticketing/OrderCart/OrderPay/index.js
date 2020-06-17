@@ -283,9 +283,13 @@ class OrderPay extends Component {
     const { clientHeight } = this.state;
 
     const title = [
-      { name: 'Ticketing' },
-      { name: 'Create Order', href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack' },
-      { name: 'Order' },
+      { name: formatMessage({ id: 'TICKETING' }) },
+      {
+        name: formatMessage({ id: 'ORDER_CREATION' }),
+        href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack',
+      },
+      { name: formatMessage({ id: 'MY_ORDER' }) },
+      { name: formatMessage({ id: 'REVIEW_ORDER' }) },
     ];
 
     const gridOpts = { xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 };

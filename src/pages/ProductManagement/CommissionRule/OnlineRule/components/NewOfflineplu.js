@@ -1,15 +1,17 @@
 import React from 'react';
-import { Button, Col, Form, Row, Table, Tooltip, Icon } from 'antd';
+import { Button, Col, Form, Row, Table, Tooltip, Icon, message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import { router } from 'umi';
 import styles from '../New/index.less';
 import AddOfflinePLUModal from './AddOfflinePLUModal';
 import PaginationComp from '../../../components/PaginationComp';
+import { formatPrice } from '../../../utils/tools';
 
 @Form.create()
-@connect(({ commissionNew }) => ({
+@connect(({ commissionNew, detail }) => ({
   commissionNew,
+  detail,
 }))
 class NewOfflineplu extends React.PureComponent {
   columns = [
@@ -38,6 +40,20 @@ class NewOfflineplu extends React.PureComponent {
       dataIndex: 'themeParkCode',
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
@@ -85,6 +101,20 @@ class NewOfflineplu extends React.PureComponent {
       dataIndex: 'themeParkCode',
       key: 'themeParkCode',
       render: text => this.showThemeParkName(text),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
@@ -210,13 +240,21 @@ class NewOfflineplu extends React.PureComponent {
   };
 
   add = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'commissionNew/save',
-      payload: {
-        addPLUModal: true,
-      },
-    });
+    const { dispatch, detail } = this.props;
+    const { effectiveStartDate, effectiveEndDate, commissionType } = detail;
+
+    if (effectiveStartDate && effectiveEndDate && commissionType) {
+      dispatch({
+        type: 'commissionNew/save',
+        payload: {
+          addPLUModal: true,
+        },
+      });
+    } else {
+      message.warning(
+        'Please fill in basic commission rule information, such as name, effective period, commission type.'
+      );
+    }
   };
 
   handleOk = () => {

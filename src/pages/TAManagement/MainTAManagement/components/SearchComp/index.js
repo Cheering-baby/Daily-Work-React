@@ -6,6 +6,7 @@ import styles from './index.less';
 import { getKeyValue } from '../../../utils/pubUtils';
 import { AR_ACCOUNT_PRIVILEGE, hasAllPrivilege } from '@/utils/PrivilegeUtil';
 import {isNvl} from "@/utils/utils";
+import SortSelect from "@/components/SortSelect";
 
 const mapStateToProps = store => {
   const {
@@ -169,7 +170,7 @@ class SearchComp extends PureComponent {
             {getFieldDecorator('market', {
               initialValue: market || [],
             })(
-              <Select
+              <SortSelect
                 showSearch
                 mode="multiple"
                 placeholder={formatMessage({ id: 'TA_AGENT_MARKET' })}
@@ -180,8 +181,7 @@ class SearchComp extends PureComponent {
                 style={{ width: '100%' }}
                 showArrow
                 allowClear
-              >
-                {marketList && marketList.length > 0
+                options={marketList && marketList.length > 0
                   ? marketList.map(item => (
                     <Select.Option
                       key={`marketList${item.dictId}`}
@@ -191,7 +191,7 @@ class SearchComp extends PureComponent {
                     </Select.Option>
                   ))
                   : null}
-              </Select>
+              />
             )}
           </Col>
           <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} className={styles.searchCompCol}>
@@ -200,15 +200,14 @@ class SearchComp extends PureComponent {
                 initialValue: category || [],
                 rules: [],
               })(
-                <Select
+                <SortSelect
                   showSearch
                   placeholder={formatMessage({ id: 'TA_AGENT_CATEGORY' })}
                   optionFilterProp="children"
                   onChange={value => this.onHandleChange('category', value, 'category')}
                   style={{ width: '50%' }}
                   allowClear
-                >
-                  {categoryList && categoryList.length > 0
+                  options={categoryList && categoryList.length > 0
                     ? categoryList.map(item => (
                       <Select.Option
                         key={`categoryList${item.dictId}`}
@@ -218,12 +217,12 @@ class SearchComp extends PureComponent {
                       </Select.Option>
                     ))
                     : null}
-                </Select>
+                />
               )}
               {getFieldDecorator('customerGroup', {
                 initialValue: customerGroup || [],
               })(
-                <Select
+                <SortSelect
                   showSearch
                   mode="multiple"
                   placeholder={formatMessage({ id: 'TA_AGENT_CUSTOMER_GROUP' })}
@@ -234,8 +233,7 @@ class SearchComp extends PureComponent {
                   style={{ width: '50%' }}
                   showArrow
                   allowClear
-                >
-                  {customerGroupList && customerGroupList.length > 0
+                  options={customerGroupList && customerGroupList.length > 0
                     ? customerGroupList.map(item => (
                       <Select.Option
                         key={`customerGroupList${item.dictId}`}
@@ -245,7 +243,7 @@ class SearchComp extends PureComponent {
                       </Select.Option>
                     ))
                     : null}
-                </Select>
+                />
               )}
             </Input.Group>
           </Col>
@@ -253,7 +251,7 @@ class SearchComp extends PureComponent {
             {getFieldDecorator('salesPerson', {
               initialValue: salesPerson || [],
             })(
-              <Select
+              <SortSelect
                 showSearch
                 mode="multiple"
                 placeholder={formatMessage({ id: 'TA_AGENT_ID_SALES_PERSON' })}
@@ -262,8 +260,7 @@ class SearchComp extends PureComponent {
                 style={{ width: '100%' }}
                 showArrow
                 allowClear
-              >
-                {salesPersonList && salesPersonList.length > 0
+                options={salesPersonList && salesPersonList.length > 0
                   ? salesPersonList.map(item => (
                     <Select.Option
                       key={`salesPersonList${item.userCode}`}
@@ -273,7 +270,7 @@ class SearchComp extends PureComponent {
                     </Select.Option>
                   ))
                   : null}
-              </Select>
+              />
             )}
           </Col>
           {isAccountingArRoleFlag && (

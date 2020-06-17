@@ -545,9 +545,10 @@ class QueryOrder extends Component {
             updateType: 'Refund',
             bookingNo,
             activityId,
+            status,
           },
         });
-      } else if (transType === 'revalidation' && status === 'Confirmed') {
+      } else if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
         dispatch({
           type: 'updateOrderMgr/save',
           payload: {
@@ -555,6 +556,7 @@ class QueryOrder extends Component {
             updateType: 'Revalidation',
             bookingNo,
             activityId,
+            status,
           },
         });
       }
@@ -670,7 +672,7 @@ class QueryOrder extends Component {
       if (transType === 'refund' && status === 'Confirmed') {
         return false;
       }
-      if (transType === 'revalidation' && status === 'Confirmed') {
+      if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
         return false;
       }
     }
@@ -846,7 +848,7 @@ class QueryOrder extends Component {
 
     const dataSource = [...transactionList];
 
-    const title = [{ name: 'Ticketing' }, { name: 'Query Order' }];
+    const title = [{ name: 'Ticketing' }, { name: 'Order Query' }];
 
     const pageOpts = {
       total,

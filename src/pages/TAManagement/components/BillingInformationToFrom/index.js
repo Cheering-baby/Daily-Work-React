@@ -12,7 +12,6 @@ class BillingInformationToFrom extends PureComponent {
       formItemLayout,
       formItemRowLayout,
       viewId,
-      isMainTaRoleFlag,
       isAccountingArRoleFlag,
       salutationList = [],
       countryList = [],
@@ -30,9 +29,6 @@ class BillingInformationToFrom extends PureComponent {
     let isCountryDisabled = false;
     if (isAccountingArRoleFlag) {
       isAllDisabled = true;
-      isCountryDisabled = true;
-    }
-    if (isMainTaRoleFlag) {
       isCountryDisabled = true;
     }
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });

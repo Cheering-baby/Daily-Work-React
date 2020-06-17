@@ -14,6 +14,7 @@ export default {
     },
     totalSize: 0,
     offlineList: [],
+    recordList: [],
 
     modifyParams: {
       tplId: null,
@@ -23,6 +24,7 @@ export default {
       commissionValue: null,
       commissionValueAmount: null,
       commissionValuePercent: null,
+      commodityList: []
     },
 
     detailVisible: false,
@@ -81,6 +83,7 @@ export default {
       } else throw resultMsg;
     },
     *edit({ payload }, { call }) {
+      console.log(payload)
       const res = yield call(service.edit, payload);
       if (!res) return false;
       const {
@@ -176,13 +179,15 @@ export default {
           commissionValue: null,
           commissionValueAmount: null,
           commissionValuePercent: null,
+          commodityList: []
         },
 
         detailVisible: false,
         type: '',
         drawerVisible: false,
-        themeParkList: [],
+        // themeParkList: [],
         commissionList: [],
+        recordList: []
       };
     },
   },

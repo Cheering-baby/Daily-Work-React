@@ -14,7 +14,6 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
       onHandleChange,
       detailOpt,
       viewId,
-      isTaDeActivationFlag,
     } = this.props;
     const { getFieldDecorator } = form;
     const numFormat = formatMessage({ id: 'SUB_TA_INPUT_MAX_NUM' });
@@ -28,16 +27,16 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
               {...detailOpt.formItemLayout}
             >
               {getFieldDecorator('mainCompanyName', {
-                initialValue: subTaInfo.mainCompanyNameList || [],
+                initialValue: subTaInfo.relativeTaList || [],
                 rules: [{ required: true, message: formatMessage({ id: 'SUB_TA_REQUIRED' }) }],
               })(
                 <div>
-                  {!isNvl(subTaInfo.mainCompanyNameList) && subTaInfo.mainCompanyNameList.length > 0 &&
-                  subTaInfo.mainCompanyNameList.map(name => {
+                  {!isNvl(subTaInfo.relativeTaList) && subTaInfo.relativeTaList.length > 0 &&
+                  subTaInfo.relativeTaList.map(name => {
                     return(
                       <Input
                         placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
-                        value={name}
+                        value={!isNvl(name) ? name.mainCompanyName : null}
                         disabled
                       />
                     );
@@ -64,7 +63,6 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                   onChange={e => onHandleChange('fullName', e.target.value, 'fullName')}
                   onPressEnter={e => onHandleChange('fullName', e.target.value, 'fullName')}
-                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>
@@ -87,7 +85,6 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
                   onChange={e => onHandleChange('email', e.target.value, 'email')}
                   onPressEnter={e => onHandleChange('email', e.target.value, 'email')}
-                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>
@@ -113,7 +110,6 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                   onChange={e => onHandleChange('companyName', e.target.value, 'companyName')}
                   onPressEnter={e => onHandleChange('companyName', e.target.value, 'companyName')}
-                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>
@@ -135,7 +131,6 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   getPopupContainer={() => document.getElementById(`${viewId}`)}
                   onChange={value => onHandleChange('country', value, 'country')}
                   style={{ width: '100%' }}
-                  disabled={isTaDeActivationFlag}
                   options={
                     countryList && countryList.length > 0
                       ? countryList.map(item => (
@@ -166,7 +161,6 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
                   onChange={e => onHandleChange('address', e.target.value, 'address')}
                   onPressEnter={e => onHandleChange('address', e.target.value, 'address')}
-                  disabled={isTaDeActivationFlag}
                 />
               )}
             </Form.Item>

@@ -23,7 +23,6 @@ import { reBytesStr } from '@/utils/utils';
 import SortSelect from '@/components/SortSelect';
 
 const { confirm } = Modal;
-const { RangePicker } = DatePicker;
 const InputGroup = Input.Group;
 const formItemLayout = {
   labelCol: {
@@ -38,7 +37,7 @@ const formItemLayout2 = {
     span: 4,
   },
   wrapperCol: {
-    span: 14,
+    span: 20,
   },
 };
 
@@ -312,8 +311,10 @@ class NewCommission extends React.PureComponent {
           />
         </InputGroup>
       );
-    } else {
-      node = record.minimum || record.maxmum !== null ? `${record.minimum}~${record.maxmum}` : '';
+    } else if (record.minimum && +record.maxmum !== 0) {
+      node = `${record.minimum}~${record.maxmum}`;
+    } else if (record.minimum && +record.maxmum === 0) {
+      node = `${record.minimum}-`;
     }
     return node;
   };
@@ -671,8 +672,68 @@ class NewCommission extends React.PureComponent {
     return null;
   };
 
-  disabledSelectedDate = current => {
-    return current && current < moment().startOf('day');
+  disableEndDate = current => {
+    const {
+      type,
+      detail: { effectiveStartDate },
+      form: { getFieldValue },
+    } = this.props;
+    let code = getFieldValue('effectiveDate');
+    const start = code ? code.valueOf() : ''
+    const data = current ? current.valueOf() : '';
+    if (type === 'edit') {
+      return data && data < start;
+    } else {
+      if(!current || !effectiveStartDate) {
+        return false
+      }
+      return data && data <= effectiveStartDate;
+    }
+  };
+
+  disableStartDate = current => {
+    const {
+      detail: { effectiveEndDate },
+      type,
+    } = this.props;
+    const data = current ? current.valueOf() : '';
+    if (type === 'new') {
+      if(!current || !effectiveEndDate) {
+        return false
+      }
+      return data && data > effectiveEndDate;
+    }
+  };
+
+  dateTimeChange = selectDate => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'detail/save',
+      payload: {
+        effectiveStartDate: selectDate ? selectDate.valueOf() : '',
+      },
+    });
+  };
+
+  endTimeChange = selectDate => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'detail/save',
+      payload: {
+        effectiveEndDate: selectDate ? selectDate.valueOf() : '',
+      },
+    });
+  };
+
+  commissionTypeChange = values => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'detail/save',
+      payload: {
+        commissionType: values,
+      },
+    });
   };
 
   render() {
@@ -681,8 +742,19 @@ class NewCommission extends React.PureComponent {
       detail: { tieredList },
       fetchLoading,
       tplId = null,
+      type,
     } = this.props;
     const { getFieldDecorator } = form;
+
+    const renderContent = () => {
+      return (
+        <div>
+          <div>{formatMessage({ id: 'MONTHLY_COMMISSION' })}</div>
+          <div>{formatMessage({ id: 'QUARTERLY_COMMISSION' })}</div>
+          <div>{formatMessage({ id: 'ADHOC_COMMISSION' })}</div>
+        </div>
+      );
+    };
 
     return (
       <Form>
@@ -722,7 +794,7 @@ class NewCommission extends React.PureComponent {
                 initialValue: this.handleInitVal('commissionType'),
                 rules: [
                   {
-                    required: true,
+                    required: type !== 'edit',
                     message: 'Required',
                   },
                 ],
@@ -730,6 +802,8 @@ class NewCommission extends React.PureComponent {
                 <SortSelect
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   allowClear
+                  onChange={this.commissionTypeChange}
+                  disabled={type === 'edit'}
                   options={[
                     <Select.Option value="Tiered">
                       {formatMessage({ id: 'TIERED_COMMISSION' })}
@@ -743,47 +817,76 @@ class NewCommission extends React.PureComponent {
             </Form.Item>
           </Col>
           <Col {...ColProps}>
-            <Form.Item {...formItemLayout} label={formatMessage({ id: 'EFFECTIVE_PERIOD' })}>
-              {getFieldDecorator('effectivePeriod', {
-                initialValue: this.showPeriodValue(
-                  this.handleInitVal('effectiveDate'),
-                  this.handleInitVal('expiryDate')
-                ),
+            <Form.Item {...formItemLayout} label="Effective Start Date">
+              {getFieldDecorator('effectiveDate', {
+                initialValue: this.handleInitVal('effectiveDate'),
                 rules: [{ required: true, message: 'Required' }],
               })(
-                <RangePicker
-                  // disabledDate={current => this.disabledSelectedDate(current)}
+                <DatePicker
+                  onChange={this.dateTimeChange}
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                   format="DD-MMM-YYYY"
                   style={{ width: '100%' }}
+                  disabledDate={this.disableStartDate}
+                  disabled={type === 'edit'}
                 />
               )}
             </Form.Item>
           </Col>
-          <Col span={24}>
+          <Col {...ColProps}>
+            <Form.Item {...formItemLayout} label="Effective End Date">
+              {getFieldDecorator('expiryDate', {
+                initialValue: this.handleInitVal('expiryDate'),
+                rules: [{ required: type !== 'edit', message: 'Required' }],
+              })(
+                <DatePicker
+                  placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                  format="DD-MMM-YYYY"
+                  style={{ width: '100%' }}
+                  disabledDate={this.disableEndDate}
+                  onChange={this.endTimeChange}
+                />
+              )}
+            </Form.Item>
+          </Col>
+          <Col span={24} className={styles.caluculateCycleStyle}>
             <Form.Item {...formItemLayout2} label={formatMessage({ id: 'CALCULATION_CYCLE' })}>
               {getFieldDecorator('caluculateCycle', {
                 initialValue: this.handleInitVal('caluculateCycle') || 'Month',
                 rules: [
                   {
-                    required: true,
+                    required: type !== 'edit',
                     msg: 'Required',
                   },
                 ],
               })(
-                <Radio.Group>
-                  <div className={styles.commissionSchemeRadioStyle}>
-                    <Radio value="Month">{formatMessage({ id: 'MONTH' })}</Radio>
-                    <span>{formatMessage({ id: 'CALCUATE_MONTH' })}</span>
-                  </div>
-                  <div className={styles.commissionSchemeRadioStyle}>
-                    <Radio value="Quarter">{formatMessage({ id: 'QUARTER' })}</Radio>
-                    <span>{formatMessage({ id: 'CALCUATE_QUARTER' })}</span>
-                  </div>
-                  <div className={styles.commissionSchemeRadioStyle}>
-                    <Radio value="Ad-hoc">{formatMessage({ id: 'AD_HOC' })}</Radio>
-                    <span>{formatMessage({ id: 'CALCUATE_AD_HOC' })}</span>
-                  </div>
+                <Radio.Group disabled={type === 'edit'}>
+                  <Row span={24}>
+                    <Col span={2}>
+                      <Tooltip placement="top" overlayClassName="searchTip" title={renderContent}>
+                        <Icon
+                          style={{ paddingRight: 10 }}
+                          type="question-circle"
+                          theme="outlined"
+                          className={styles.iconPosition}
+                        />
+                      </Tooltip>
+                    </Col>
+                    <Col span={22}>
+                      <div className={styles.commissionSchemeRadioStyle}>
+                        <Radio value="Month">{formatMessage({ id: 'MONTH' })}</Radio>
+                        <span>{formatMessage({ id: 'CALCUATE_MONTH' })}</span>
+                      </div>
+                      <div className={styles.commissionSchemeRadioStyle}>
+                        <Radio value="Quarter">{formatMessage({ id: 'QUARTER' })}</Radio>
+                        <span>{formatMessage({ id: 'CALCUATE_QUARTER' })}</span>
+                      </div>
+                      <div className={styles.commissionSchemeRadioStyle}>
+                        <Radio value="Ad-hoc">{formatMessage({ id: 'AD_HOC' })}</Radio>
+                        <span>{formatMessage({ id: 'CALCUATE_AD_HOC' })}</span>
+                      </div>
+                    </Col>
+                  </Row>
                 </Radio.Group>
               )}
             </Form.Item>
@@ -807,6 +910,18 @@ class NewCommission extends React.PureComponent {
                   onChange={e => this.radioChange(tplId, e.target.value)}
                 >
                   <Radio value="Amount">{formatMessage({ id: 'COMMISSION_AMOUNT' })}</Radio>
+                  <Tooltip
+                    placement="top"
+                    overlayClassName="searchTip"
+                    title={formatMessage({ id: 'COMMISSION_PERCENTAGE_CONTENT' })}
+                  >
+                    <Icon
+                      style={{ paddingRight: 10 }}
+                      type="question-circle"
+                      theme="outlined"
+                      // className={styles.iconPosition}
+                    />
+                  </Tooltip>
                   <Radio value="Percentage">{formatMessage({ id: 'COMMISSION_PERCENTAGE' })}</Radio>
                 </Radio.Group>
               )}

@@ -6,7 +6,7 @@ import styles from './AddOfferModal.less';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
 import { objDeepCopy } from '@/pages/ProductManagement/utils/tools';
 
-const drawWidth = 700;
+const drawWidth = 900;
 @Form.create()
 @connect(({ grant, loading }) => ({
   grant,
@@ -18,6 +18,7 @@ class AddOfferModal extends React.PureComponent {
       title: formatMessage({ id: 'OFFER_NAME' }),
       dataIndex: 'commodityName',
       key: 'commodityName',
+      width: '20%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -28,6 +29,7 @@ class AddOfferModal extends React.PureComponent {
       title: formatMessage({ id: 'OFFER_IDENTIFIER' }),
       dataIndex: 'commodityIdentifier',
       key: 'commodityIdentifier',
+      width: '40%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -38,6 +40,7 @@ class AddOfferModal extends React.PureComponent {
       title: formatMessage({ id: 'OFFER_DESCRIPTION' }),
       dataIndex: 'commodityDescription',
       key: 'commodityDescription',
+      width: '40%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>

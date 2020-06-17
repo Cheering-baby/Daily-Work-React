@@ -126,6 +126,28 @@ class NotificationSearchForm extends PureComponent {
     return statusTxt;
   };
 
+  onLoadData = treeNode  => {
+    return new Promise(resolve => {
+      const { children, value } = treeNode.props;
+      if(children && children.length > 0) {
+        resolve();
+        return;
+      }
+      const{ dispatch } = this.props;
+      if(value.indexOf('role') === 0) {
+        setTimeout(() => {
+          dispatch({
+            type: 'notificationSearchForm/queryAllUserByRole',
+            payload: {
+              roleCode: value.replace('role', ''),
+            },
+          });
+          resolve();
+        }, 300);
+      }
+    });
+  };
+
   render() {
     const {
       form,
@@ -138,12 +160,12 @@ class NotificationSearchForm extends PureComponent {
       allowClear: true,
       showSearch: true,
       multiple: true,
-      treeDefaultExpandAll: true,
       treeData: targetTreeData,
       treeCheckable: true,
       treeNodeFilterProp: 'title',
       showCheckedStrategy: TreeSelect.SHOW_PARENT,
       searchPlaceholder: formatMessage({ id: 'NOTICE_PLEASE_SELECT' }),
+      loadData: treeNode => this.onLoadData(treeNode),
       getPopupContainer: () => document.getElementById(`${viewId}`),
       style: {
         width: '100%',

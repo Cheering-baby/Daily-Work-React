@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Col, Form, Icon, Input, Popover, Row, Select, Table, Tooltip } from 'antd';
+import { Button, Card, Col, Form, Icon, Input, Row, Select, Table, Tooltip, Popover } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -11,7 +11,7 @@ import Edit from './components/Edit';
 import { isNvl } from '@/utils/utils';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
-import SortSelect from '@/components/SortSelect';
+import { formatPrice } from '../../utils/tools';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -86,6 +86,20 @@ class Offline extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
       key: 'commissionScheme',
       render: (_, record) => this.commissionSchemeValue(record),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'commodityPrice',
+      render: text => {
+        const timeText = text ? formatPrice(text) : '';
+        return timeText ? (
+          <div>
+            <Tooltip title={timeText} placement="topLeft">
+              {timeText}
+            </Tooltip>
+          </div>
+        ) : null;
+      },
     },
     {
       title: formatMessage({ id: 'OPERATION' }),
@@ -290,6 +304,12 @@ class Offline extends React.PureComponent {
       },
     });
 
+    Object.entries(record).map(([key, value]) => {
+      if(key === 'commissionList') {
+        delete record[key];
+      }
+    });
+
     dispatch({
       type: 'offline/saveModifyParams',
       payload: {
@@ -298,6 +318,7 @@ class Offline extends React.PureComponent {
         tplId: tplIdValue,
         commissionValueAmount,
         commissionValuePercent,
+        commodityList: record
       },
     });
   };
@@ -401,20 +422,19 @@ class Offline extends React.PureComponent {
                       `themeParkCode`,
                       {}
                     )(
-                      <SortSelect
+                      <Select
                         placeholder={formatMessage({ id: 'THEME_PARK' })}
                         optionFilterProp="children"
                         style={{ width: '100%', ...inflate }}
                         allowClear
-                        options={
-                          themeParkList &&
+                      >
+                        {themeParkList &&
                           themeParkList.map(item => (
                             <Option key={item.itemValue} value={item.itemValue}>
                               {item.itemName}
                             </Option>
-                          ))
-                        }
-                      />
+                          ))}
+                      </Select>
                     )}
                   </Form.Item>
                 </Col>

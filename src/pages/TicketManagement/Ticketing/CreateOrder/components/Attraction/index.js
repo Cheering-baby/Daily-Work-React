@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, Table, Tabs, Tooltip, List } from 'antd';
+import { Button, Icon, List, Table, Tabs, Tooltip } from 'antd';
 import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import Detail from '../Detail';
@@ -226,6 +226,7 @@ class Attraction extends Component {
     const orderInfo = [];
     attractionProduct.forEach(item => {
       orderInfo.push({
+        sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: offerQuantity,
         pricePax: calculateProductPrice(item, priceRuleId),
@@ -258,6 +259,7 @@ class Attraction extends Component {
         orderData,
       },
     });
+    console.log(orderData)
     this.onClose();
   };
 
@@ -291,6 +293,7 @@ class Attraction extends Component {
     attractionProduct.forEach(item => {
       const { ticketNumber } = item;
       orderInfo.push({
+        sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
@@ -320,6 +323,7 @@ class Attraction extends Component {
         orderData,
       },
     });
+    console.log(orderData)
     this.onClose();
   };
 
@@ -394,7 +398,7 @@ class Attraction extends Component {
       {
         title: 'Offer Name',
         key: 'name',
-        width: '30%',
+        width: '20%',
         render: record => {
           const {
             bundleName,
@@ -414,14 +418,54 @@ class Attraction extends Component {
         },
       },
       {
-        title: 'Category',
+        title: 'Session',
+        key: 'Session',
+        width: '10%',
+        render: record => {
+          const {
+            bundleName,
+            offers = [],
+          } = record;
+          if (isNullOrUndefined(bundleName)) {
+            return (
+              <div className={styles.sessionContainer}>
+                {record.attractionProduct.map(item => {
+                  const { sessionTime, productNo } = item;
+                  return (
+                    <div key={productNo} className={styles.productPrice}>
+                      <div>{sessionTime || '-'}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
+          return (
+            <div>
+              {offers.map(offerItem => {
+                const {
+                  detail: {
+                    offerBasicInfo: { offerNo },
+                  },
+                } = offerItem;
+                return (
+                  <div key={offerNo} className={styles.productPrice}>
+                    <div >-</div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        },
+      },
+      {
+        title: 'Ticket Type',
         key: 'Category',
         width: '20%',
         render: record => {
           const {
             bundleName,
             offers = [],
-            detail: { productGroup = [] },
           } = record;
           if (!isNullOrUndefined(bundleName)) {
             return (
@@ -434,36 +478,17 @@ class Attraction extends Component {
                     },
                   } = offerItem;
                   return (
-                    <div key={offerNo} className={styles.productPrice}>
-                      <div style={{ marginRight: '10px' }}>{offerBundle[0].bundleLabel}</div>
-                    </div>
+                    <Tooltip
+                      title={offerBundle[0].bundleLabel}
+                      placement="topLeft"
+                      overlayStyle={{ whiteSpace: 'pre-wrap' }}
+                      key={offerNo}
+                    >
+                      <span className={styles.categoryShow}>{offerBundle[0].bundleLabel}</span>
+                    </Tooltip>
+
                   );
                 })}
-              </div>
-            );
-          }
-          let offerConstrain;
-          const ageGroups = [];
-          productGroup.forEach(item => {
-            if (item.productType === 'Attraction') {
-              item.productGroup.forEach(item2 => {
-                if (item2.groupName === 'Attraction') {
-                  offerConstrain = item2.choiceConstrain;
-                }
-              });
-            }
-          });
-          if (offerConstrain === 'Fixed') {
-            record.attractionProduct.forEach(item => {
-              if (item.attractionProduct.ageGroup) {
-                ageGroups.push(`${item.attractionProduct.ageGroup}`);
-              } else {
-                ageGroups.push(`-`);
-              }
-            });
-            return (
-              <div className={styles.productPrice}>
-                <div style={{ marginRight: '10px' }}>{ageGroups.join('; ')}</div>
               </div>
             );
           }
@@ -473,8 +498,8 @@ class Attraction extends Component {
                 const { productNo } = item;
                 const { ageGroup } = item.attractionProduct;
                 return (
-                  <div key={productNo} className={styles.productPrice}>
-                    <div style={{ marginRight: '10px' }}>{ageGroup || '-'}</div>
+                  <div key={productNo} className={styles.categoryShow}>
+                    {ageGroup || '-'}
                   </div>
                 );
               })}
@@ -508,13 +533,14 @@ class Attraction extends Component {
                     <div key={offerNo} className={styles.productPrice}>
                       <div style={{ marginRight: '10px' }}> </div>
                       <div>
-                        ${' '}
+                        ${''}
                         {calculateAllProductPrice(
                           attractionProductItems,
                           offerPriceRuleId,
                           null,
                           offerItem.detail
                         )}
+                        {'/package'}
                       </div>
                     </div>
                   );
@@ -537,13 +563,14 @@ class Attraction extends Component {
               <div className={styles.productPrice}>
                 <div style={{ marginRight: '10px' }}> </div>
                 <div>
-                  ${' '}
+                  ${''}
                   {calculateAllProductPrice(
                     record.attractionProduct,
                     priceRuleId,
                     null,
                     record.detail
                   )}
+                  {'/package'}
                 </div>
               </div>
             );
@@ -551,11 +578,11 @@ class Attraction extends Component {
           return (
             <div>
               {record.attractionProduct.map(item => {
-                const { productNo } = item;
+                const { productNo, sessionTime } = item;
                 return (
                   <div key={productNo} className={styles.productPrice}>
                     <div style={{ marginRight: '10px' }}> </div>
-                    <div>${` ${calculateProductPrice(item, priceRuleId).toFixed(2)}`}</div>
+                    <div>${`${calculateProductPrice(item, priceRuleId, sessionTime).toFixed(2)}/ticket`}</div>
                   </div>
                 );
               })}
@@ -662,12 +689,12 @@ class Attraction extends Component {
                             onClick={() => this.showDetail(index, index2, showDetail)}
                           />
                         ) : (
-                          <Icon
-                            type="caret-right"
-                            style={{ color: '#666666', fontSize: '16px', margin: '0 8px 0 12px' }}
-                            onClick={() => this.showDetail(index, index2, showDetail)}
-                          />
-                        )}
+                            <Icon
+                              type="caret-right"
+                              style={{ color: '#666666', fontSize: '16px', margin: '0 8px 0 12px' }}
+                              onClick={() => this.showDetail(index, index2, showDetail)}
+                            />
+                          )}
                         <span>{tag}</span>
                       </div>
                       {showDetail ? (

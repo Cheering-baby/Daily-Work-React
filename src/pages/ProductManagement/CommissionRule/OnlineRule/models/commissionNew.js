@@ -1,6 +1,7 @@
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { router } from 'umi';
+import moment from 'moment';
 import * as service from '../services/commissionRuleSetup';
 import { objDeepCopy, setSelected } from '../../../utils/tools';
 
@@ -144,7 +145,19 @@ export default {
       const { onlineSearchCondition, checkedOnlineList } = yield select(
         state => state.commissionNew
       );
-      const params = { ...onlineSearchCondition, ...payload };
+      const { effectiveStartDate, effectiveEndDate, commissionType } = yield select(
+        state => state.detail
+      );
+      const effectiveDate = effectiveStartDate && moment(effectiveStartDate).format('YYYY-MM-DD');
+      const expiryDate = effectiveEndDate && moment(effectiveEndDate).format('YYYY-MM-DD');
+
+      const params = {
+        ...onlineSearchCondition,
+        ...payload,
+        effectiveDate,
+        expiryDate,
+        commissionType,
+      };
       yield put({
         type: 'save',
         payload: {
@@ -198,7 +211,19 @@ export default {
     },
     *fetchPLUList({ payload }, { call, put, select }) {
       const { offlineSearchCondition, checkedList } = yield select(state => state.commissionNew);
-      const params = { ...offlineSearchCondition, ...payload };
+      const { effectiveStartDate, effectiveEndDate, commissionType } = yield select(
+        state => state.detail
+      );
+      const effectiveDate = effectiveStartDate && moment(effectiveStartDate).format('YYYY-MM-DD');
+      const expiryDate = effectiveEndDate && moment(effectiveEndDate).format('YYYY-MM-DD');
+
+      const params = {
+        ...offlineSearchCondition,
+        ...payload,
+        effectiveDate,
+        expiryDate,
+        commissionType,
+      };
       yield put({
         type: 'save',
         payload: {
@@ -489,21 +514,28 @@ export default {
             }
             if (unSelected) {
               for (let k = 0; k < offerList[i].subCommodityList.length; k += 1) {
-                offerList[i].subCommodityList[k].isSelected = true;
+                if (offerList[i].subCommodityList[k].bindingOtherFlg !== 'Y') {
+                  offerList[i].subCommodityList[k].isSelected = true;
+                }
+
                 for (
                   let l = 0;
                   l < offerList[i].subCommodityList[k].subCommodityList.length;
                   l += 1
                 ) {
-                  offerList[i].subCommodityList[k].subCommodityList[l].isSelected = true;
+                  if (
+                    offerList[i].subCommodityList[k].subCommodityList[l].bindingOtherFlg !== 'Y'
+                  ) {
+                    offerList[i].subCommodityList[k].subCommodityList[l].isSelected = true;
+                  }
                 }
               }
-              offerList[i].subCommodityList.map(e => {
-                Object.assign(e, {
-                  isSelected: true,
-                });
-                return e;
-              });
+              // offerList[i].subCommodityList.map(e => {
+              //   Object.assign(e, {
+              //     isSelected: true,
+              //   });
+              //   return e;
+              // });
             }
           }
         }
@@ -532,7 +564,10 @@ export default {
             for (let k = 0; k < subSelectedRowKeys.length; k += 1) {
               if (offerList[i].subCommodityList[j].commoditySpecId === subSelectedRowKeys[k]) {
                 flag = false;
-                offerList[i].subCommodityList[j].isSelected = true;
+                if (offerList[i].subCommodityList[j].bindingOtherFlg !== 'Y') {
+                  offerList[i].subCommodityList[j].isSelected = true;
+                }
+
                 let unSelected = true;
                 for (
                   let l = 0;
@@ -549,7 +584,11 @@ export default {
                     l < offerList[i].subCommodityList[j].subCommodityList.length;
                     l += 1
                   ) {
-                    offerList[i].subCommodityList[j].subCommodityList[l].isSelected = true;
+                    if (
+                      offerList[i].subCommodityList[j].subCommodityList[l].bindingOtherFlg !== 'Y'
+                    ) {
+                      offerList[i].subCommodityList[j].subCommodityList[l].isSelected = true;
+                    }
                   }
                 }
               }
@@ -656,9 +695,12 @@ export default {
             }
             if (unSelected) {
               PLUList[i].subCommodityList.map(e => {
-                Object.assign(e, {
-                  isSelected: true,
-                });
+                if (e.bindingOtherFlg !== 'Y') {
+                  Object.assign(e, {
+                    isSelected: true,
+                  });
+                }
+
                 return e;
               });
             }

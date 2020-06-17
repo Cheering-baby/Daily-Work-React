@@ -32,6 +32,7 @@ import {
   getCheckTicketAmount,
   transBookingToPayTotalPrice,
 } from '@/pages/TicketManagement/utils/orderCartUtil';
+import SortSelect from "@/components/SortSelect";
 
 const FormItem = Form.Item;
 
@@ -463,9 +464,12 @@ class CheckOrder extends Component {
     const { clientHeight } = this.state;
 
     const title = [
-      { name: 'Ticketing' },
-      { name: 'Create Order', href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack' },
-      { name: 'Check Order' },
+      { name: formatMessage({ id: 'TICKETING' }) },
+      {
+        name: formatMessage({ id: 'ORDER_CREATION' }),
+        href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack',
+      },
+      { name: formatMessage({ id: 'MY_ORDER' }) },
     ];
 
     const formItemLayout = {
@@ -552,20 +556,21 @@ class CheckOrder extends Component {
                         },
                       ],
                     })(
-                      <Select
+                      <SortSelect
                         placeholder="Please Select"
                         allowClear
                         showSearch
                         style={{ width: '100%' }}
                         onChange={this.changeDeliveryMode}
                         disabled={this.deliveryModeDisabled()}
-                      >
-                        <Select.Option value="BOCA" disabled={this.bocaOptionDisabled()}>
-                          BOCA
-                        </Select.Option>
-                        <Select.Option value="e-Ticket">e-Ticket</Select.Option>
-                        <Select.Option value="VID">VID</Select.Option>
-                      </Select>
+                        options={[
+                          <Select.Option value="BOCA" disabled={this.bocaOptionDisabled()}>
+                            BOCA
+                          </Select.Option>,
+                          <Select.Option value="e-Ticket">e-Ticket</Select.Option>,
+                          <Select.Option value="VID">VID</Select.Option>
+                        ]}
+                      />
                     )}
                   </FormItem>
                 </Col>

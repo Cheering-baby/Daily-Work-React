@@ -56,4 +56,13 @@ export default {
   PLEASE_END_THE_CURRENT_EDIT_FIRST: 'Please end the current edit first.',
   PLEASE_ADD_THE_CURRENT_EDIT_FIRST: 'Please add the current edit first.',
   MAX_FIFTY_CHARACTERS: 'Max 50 characters',
+  MONTHLY_COMMISSION:
+    '1. Monthly commission – Previous month’s calculation on every 1st day of the following month (e.g. 1 June 2020/1 July 2020/1 Aug 2020).',
+  QUARTERLY_COMMISSION:
+    '2. Quarterly commission - Calculation on every 1st day of the following quarter (i.e. only on every 1 Apr, 1 Jul, 1 Oct and 1 Jan).',
+  ADHOC_COMMISSION:
+    '3. Ad-Hoc commission - Calculation on the following day after the end of commission effective period (e.g. calculation on 16 June 2020 if commission if effective until 15 June 2020).',
+  COMMISSION_PERCENTAGE_CONTENT:
+    'Percentage is based on the price after fixed commission rates. (e.g. based on SGD71, if ticket price is SGD 81 and fixed commission rate is SGD10.)',
+  CONFIRM_TO_DELETE: 'Are you sure to delete it?',
 };

@@ -47,6 +47,7 @@ const mapStateToProps = store => {
   } = store.taMgr;
   const {
     currentUser: { userType },
+    userCompanyInfo,
   } = store.global;
   return {
     otherInfo,
@@ -72,6 +73,7 @@ const mapStateToProps = store => {
     currentStep,
     userType,
     salesPersonList,
+    userCompanyInfo,
   };
 };
 
@@ -136,6 +138,7 @@ class MyProfile extends PureComponent {
       taAccountInfoLoadingFlag,
       userType,
       salesPersonList,
+      userCompanyInfo,
     } = this.props;
     const detailProps = {
       otherInfo,
@@ -165,6 +168,8 @@ class MyProfile extends PureComponent {
     ];
     const isEdit = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
     const { companyInfo = {} } = customerInfo || {};
+    const taUserStatus = userCompanyInfo.status || '-1';
+    const isTaDeActivationFlag = taUserStatus !== '0';
     return (
       <Col span={24}>
         <Row type="flex" justify="space-around">
@@ -194,7 +199,7 @@ class MyProfile extends PureComponent {
                     extra={
                       isEdit ? (
                         <Tooltip title={formatMessage({ id: 'TA_EDIT' })}>
-                          <Button icon="edit" onClick={e => this.goEditRegistration(e)} />
+                          <Button disabled={isTaDeActivationFlag} icon="edit" onClick={e => this.goEditRegistration(e)} />
                         </Tooltip>
                       ) : null
                     }

@@ -45,6 +45,7 @@ class CompanyInformationToFrom extends PureComponent {
 
   render() {
     const {
+      editCondition,
       form,
       formItemLayout,
       formItemRowLayout,
@@ -187,12 +188,12 @@ class CompanyInformationToFrom extends PureComponent {
                                 placement="topLeft"
                                 title={
                                   <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
-                                  }
+                                }
                               >
                                 {item.dictName}
                               </Tooltip>
                             </Select.Option>
-                            ))
+                          ))
                           : null
                       }
                     />
@@ -228,12 +229,12 @@ class CompanyInformationToFrom extends PureComponent {
                                 placement="topLeft"
                                 title={
                                   <span style={{ whiteSpace: 'pre-wrap' }}>{item.dictName}</span>
-                                  }
+                                }
                               >
                                 {item.dictName}
                               </Tooltip>
                             </Select.Option>
-                            ))
+                          ))
                           : null
                       }
                     />
@@ -352,7 +353,7 @@ class CompanyInformationToFrom extends PureComponent {
                   onChange={e =>
                     onHandleChange('isGstRegIndicator', e.target.value, 'isGstRegIndicator')
                   }
-                  disabled={isAllDisabled}
+                  disabled={editCondition && String(companyInfo.country).toUpperCase() !== '65'}
                 >
                   <Radio value="1">{formatMessage({ id: 'GST_REG_YES' })}</Radio>
                   <Radio value="0">{formatMessage({ id: 'GST_REG_NOT' })}</Radio>
@@ -375,7 +376,7 @@ class CompanyInformationToFrom extends PureComponent {
                     placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
                     onChange={e => onHandleChange('gstRegNo', e.target.value, 'gstRegNo')}
                     onPressEnter={e => onHandleChange('gstRegNo', e.target.value, 'gstRegNo')}
-                    disabled={String(companyInfo.isGstRegIndicator) !== '1' || isAllDisabled}
+                    disabled={String(companyInfo.isGstRegIndicator) !== '1' || (editCondition && String(companyInfo.country).toUpperCase() !== '65')}
                     suffix={
                       <Tooltip
                         title={formatMessage({ id: 'APPLICATION_TO_SINGAPORE' })}
@@ -389,10 +390,10 @@ class CompanyInformationToFrom extends PureComponent {
               </Form.Item>
             </Col>
           ) : (
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-              &nbsp;
-            </Col>
-          )}
+              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+                &nbsp;
+              </Col>
+            )}
           {!isNvl(companyInfo.isGstRegIndicator) ? (
             <Col {...colLayOut}>
               <Form.Item
@@ -403,9 +404,9 @@ class CompanyInformationToFrom extends PureComponent {
                 {getFieldDecorator('gstEffectiveDate', {
                   initialValue: !isNvl(companyInfo.gstEffectiveDate)
                     ? moment(
-                        companyInfo.gstEffectiveDate,
-                        companyInfo.gstEffectiveDate.includes('-') ? 'YYYY-MM-DD' : 'DD/MM/YYYY'
-                      )
+                      companyInfo.gstEffectiveDate,
+                      companyInfo.gstEffectiveDate.includes('-') ? 'YYYY-MM-DD' : 'DD/MM/YYYY'
+                    )
                     : null,
                   rules: this.getGstRegNoRules(companyInfo.isGstRegIndicator),
                 })(
@@ -420,7 +421,7 @@ class CompanyInformationToFrom extends PureComponent {
                     getCalendarContainer={() => document.getElementById(`${viewId}`)}
                     placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                     style={{ width: '100%' }}
-                    disabled={String(companyInfo.isGstRegIndicator) !== '1' || isAllDisabled}
+                    disabled={String(companyInfo.isGstRegIndicator) !== '1' || (editCondition && String(companyInfo.country).toUpperCase() !== '65')}
                     displayFormat="DD/MM/YYYY"
                     searchFormat="DDMMYYYY"
                   />
@@ -428,10 +429,10 @@ class CompanyInformationToFrom extends PureComponent {
               </Form.Item>
             </Col>
           ) : (
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-              &nbsp;
-            </Col>
-          )}
+              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+                &nbsp;
+              </Col>
+            )}
           {isSaleSupportRoleFlag || isAccountingArRoleFlag ? (
             <Col {...colLayOut}>
               <Form.Item
@@ -461,7 +462,7 @@ class CompanyInformationToFrom extends PureComponent {
                             >
                               {item.dictName}
                             </Select.Option>
-                            ))
+                          ))
                           : null
                       }
                     />
@@ -490,7 +491,7 @@ class CompanyInformationToFrom extends PureComponent {
                             >
                               {item.dictName}
                             </Select.Option>
-                            ))
+                          ))
                           : null
                       }
                     />
@@ -499,10 +500,10 @@ class CompanyInformationToFrom extends PureComponent {
               </Form.Item>
             </Col>
           ) : (
-            <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
-              &nbsp;
-            </Col>
-          )}
+              <Col xs={24} sm={24} md={24} lg={12} xl={12} xxl={12} style={{ height: 0 }}>
+                &nbsp;
+              </Col>
+            )}
         </Row>
       </Col>
     );

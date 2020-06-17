@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, Card, Col, Form, Icon, Input, Row, Select, Table, Tooltip } from 'antd';
+import { Button, Card, Col, Form, Icon, Input, Row, Select, Table, Tooltip, DatePicker, Popconfirm, message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
+import moment from 'moment';
 import detailStyles from './index.less';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
@@ -11,19 +12,21 @@ import PaginationComp from '../../components/PaginationComp';
 import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 const formItemLayout = {
   labelCol: {
-    span: 6,
+    span: 0,
   },
   wrapperCol: {
-    span: 23,
+    span: 24,
   },
+  colon: false,
 };
 
 const ColProps = {
-  xs: 4,
-  sm: 4,
+  xs: 24,
+  sm: 12,
   md: 6,
   xl: 6,
 };
@@ -39,7 +42,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_NAME' }),
       dataIndex: 'commissionName',
       key: 'commissionName',
-      width: '35%',
+      width: '38%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -61,12 +64,30 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
       dataIndex: 'commissionScheme',
       key: 'commissionScheme',
-      width: '15%',
+      width: '13%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
         </Tooltip>
       ),
+    },
+    {
+      title: formatMessage({ id: 'EFFECTIVE_PERIOD' }),
+      dataIndex: 'effectiveDate',
+      key: 'effectiveDate',
+      width: '22%',
+      render: (text, record) => {
+        const timeText = text ? moment(text).format('DD-MMM-YYYY') : '';
+        const end = record && record.expiryDate ? moment(record.expiryDate).format('DD-MMM-YYYY') : '';
+        return timeText ? (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{`${timeText} ~ ${end}`}</span>}
+          >
+            <span>{`${timeText} ~ ${end}`}</span>
+          </Tooltip>
+        ) : null;
+      },
     },
     {
       title: formatMessage({ id: 'STATUS' }),
@@ -77,6 +98,7 @@ class CommissionRuleSetup extends React.PureComponent {
         let flagClass = '';
         if (text === 'Active') flagClass = detailStyles.flagStyle1;
         if (text === 'Inactive') flagClass = detailStyles.flagStyle2;
+        if (text === 'Invalid') flagClass = detailStyles.flagStyle3;
         return (
           <div>
             <span className={flagClass} />
@@ -110,6 +132,18 @@ class CommissionRuleSetup extends React.PureComponent {
                 />
               </Tooltip>
             ) : null}
+            <Popconfirm
+              id="userMgr-index-delPopconfirm"
+              placement="top"
+              title={formatMessage({ id: 'CONFIRM_TO_DELETE' })}
+              onConfirm={e => this.remove(e, record)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
+                <Icon type="delete" />
+              </Tooltip>
+            </Popconfirm>
           </div>
         );
       },
@@ -144,6 +178,24 @@ class CommissionRuleSetup extends React.PureComponent {
     });
   };
 
+  remove = (e, record) => {
+    const { dispatch } = this.props;
+    e.persist();
+    if (record.status === 'Invalid') {
+      message.warning('Calculation has been initiated based on commission rule cycle setup, hence cannot be discarded/deleted.');
+      return false;
+    } else {
+      dispatch({
+        type: 'commissionRuleSetup/remove',
+        payload: {
+          param: {
+            tplId: record.tplId,
+          },
+        },
+      });
+    }
+  };
+
   new = () => {
     router.push({
       pathname: '/ProductManagement/CommissionRule/OnlineRule/New',
@@ -163,6 +215,7 @@ class CommissionRuleSetup extends React.PureComponent {
     const { form } = this.props;
     const { dispatch } = this.props;
     form.validateFields((err, values) => {
+      console.log(values)
       if (!err) {
         dispatch({
           type: 'commissionRuleSetup/search',
@@ -172,6 +225,8 @@ class CommissionRuleSetup extends React.PureComponent {
                 commissionName: values.commissionName,
                 commissionType: values.commissionType,
                 status: values.status,
+                effectiveDate: values.effectiveDate ? values.effectiveDate[0].format('YYYY-MM-DD') : '',
+                expiryDate: values.effectiveDate ? values.effectiveDate[1].format('YYYY-MM-DD'): '',
               },
             },
           },
@@ -284,14 +339,31 @@ class CommissionRuleSetup extends React.PureComponent {
                             Active
                           </Option>,
                           <Option value="Inactive" key="Inactive">
-                            InActive
+                            Inactive
                           </Option>,
+                          <Option value="Invalid" key="Invalid">
+                            Invalid
+                          </Option>
                         ]}
                       />
                     )}
                   </Form.Item>
                 </Col>
-                <Col {...ColProps} style={{ textAlign: 'right' }}>
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator(
+                      `effectiveDate`,
+                      {}
+                    )(
+                      <RangePicker
+                        placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                        format="DD-MMM-YYYY"
+                        style={{ width: '100%' }}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col span={24} className={detailStyles.searchStyle}>
                   <Button type="primary" htmlType="submit">
                     {formatMessage({ id: 'BTN_SEARCH' })}
                   </Button>

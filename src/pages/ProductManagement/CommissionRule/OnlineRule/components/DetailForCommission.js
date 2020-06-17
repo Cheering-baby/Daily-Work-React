@@ -18,7 +18,7 @@ class DetailForCommission extends React.PureComponent {
       dataIndex: 'minimum',
       render: (text, record) => (
         <span>
-          {record.minimum}~{record.maxmum}
+          {+record.maxmum === 0 ? `${record.minimum}-` : `${record.minimum}~${record.maxmum}`}
         </span>
       ),
     },

@@ -87,7 +87,7 @@ export default {
             return;
           }
           if (queryTaskResultCode === '0') {
-            if (queryTaskResult && queryTaskResult.status === 'success') {
+            if (queryTaskResult && queryTaskResult.status === 2) {
               taskStatus = 'success';
               try {
                 message.success(formatMessage({ id: 'EXPORTED_SUCCESSFULLY' }));
@@ -96,7 +96,7 @@ export default {
                 return formatMessage({ id: 'FAILED_TO_DOWNLOAD' });
               }
             }
-            if (queryTaskResult && queryTaskResult.status === 'failed') {
+            if (queryTaskResult && queryTaskResult.status === 3) {
               taskStatus = 'failed';
             }
             if (queryTaskResult && queryTaskResult.reason) {

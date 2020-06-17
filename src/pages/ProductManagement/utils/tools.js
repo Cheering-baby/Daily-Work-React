@@ -27,3 +27,14 @@ export function setSelected(arrayList, selectedList) {
     }
   }
 }
+
+export function formatPrice(text) {
+  text += '';
+  text = text.replace(/[^0-9|\.]/g, '');
+  if (/^0+/) text = text.replace(/^0+/, '');
+  if (!/\./.test(text)) text += '.00';
+  if (/^\./.test(text)) text = `0${text}`;
+  text += '00';
+  text = text.match(/\d+\.\d{2}/)[0];
+  return `$ ${text}`;
+}

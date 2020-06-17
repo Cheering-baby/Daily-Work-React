@@ -189,7 +189,7 @@ class Detail extends React.Component {
     );
   };
 
-  showQuantity = vidList => {
+  showQuantity = (vidList) => {
     let adult = 0;
     let senior = 0;
     let child = 0;
@@ -276,7 +276,7 @@ class Detail extends React.Component {
       detailList = newDetailList;
       for (let i = 0; i < detailList.length; i += 1) {
         const filterVidList = detailList[i].vidList.filter((item) => {
-          return item.vidCode !== null && item.vidCode !== '';
+          return item.vidCode !== undefined && item.vidCode !== null && item.vidCode !== '';
         });
         for (let j = 0; j < filterVidList.length; j += 1) {
           filterVidList[j].vidNo = (Array(3).join('0') + (j + 1)).slice(-3);
@@ -294,6 +294,7 @@ class Detail extends React.Component {
         }
         child.push(
           <div key={`offer_${i}`}>
+            <Divider className={styles.dividerStyle} dashed />
             <Form className={styles.formStyle}>
               <FormItem
                 label={
@@ -318,7 +319,7 @@ class Detail extends React.Component {
                 }
                 {...formLayout}
               >
-                {this.showQuantity(filterVidList)}
+                {this.showQuantity(detailList[i].vidList)}
               </FormItem>
             </Form>
             <div>
@@ -417,7 +418,6 @@ class Detail extends React.Component {
             </FormItem>
             }
           </Form>
-          <Divider className={styles.dividerStyle} dashed />
           {child}
         </Spin>
       );
@@ -474,7 +474,7 @@ class Detail extends React.Component {
         vidResultList,
         patronInfo,
         netAmt,
-        refundSuccessFlag
+        refundSuccessFlag,
       },
       global: {
         currentUser: { userType },

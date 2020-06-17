@@ -9,6 +9,7 @@ import ApprovalHistory from '@/pages/MyActivity/components/ApprovalHistory';
 import OperationApprovalDrawer from '@/pages/MyActivity/components/OperationApprovalDrawer';
 import ARApplicationDetail from '@/pages/MyActivity/components/ARApplicationDetail';
 import TransactionBookingDetail from '@/pages/MyActivity/components/TransactionBookingDetail';
+import CommissionDetail from '../components/CommissionDetail';
 
 @withRouter
 @Form.create()
@@ -25,6 +26,7 @@ class ActivityDetail extends React.PureComponent {
         query: { operation },
       },
     } = this.props;
+
     dispatch({
       type: 'activityDetail/doCleanAllData',
     });
@@ -112,7 +114,12 @@ class ActivityDetail extends React.PureComponent {
         pendingHandlers,
         isOperationApproval,
       },
+      match: { params },
+      location: {
+        query: { activityTypeName, feeId },
+      },
     } = this.props;
+
     let pendStepTplCode = '';
     if (pendingHandlers.length > 0) {
       const { stepCode } = pendingHandlers[0];
@@ -143,6 +150,11 @@ class ActivityDetail extends React.PureComponent {
           {activityTplCode && activityTplCode === 'SUB-TA-SIGN-UP' ? <SubTASignUpDetail /> : null}
           {activityTplCode && activityTplCode === 'ACCOUNT_AR_APPLY' ? (
             <ARApplicationDetail activityDetail={activityDetail} />
+          ) : null}
+
+          {(activityTplCode && activityTplCode === 'AGENT_COMMISSION_ATTENDANCE') ||
+          activityTplCode === 'AGENT_COMMISSION_TIERED' ? (
+            <CommissionDetail activityId={params.activityId} activityTypeName={activityTypeName} feeId={feeId} />
           ) : null}
 
           {this.checkTransactionBookingTplCode(activityTplCode) && <TransactionBookingDetail />}

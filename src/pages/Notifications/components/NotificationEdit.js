@@ -39,6 +39,8 @@ const formItemHalfLayout = {
   colon: false
 };
 
+const SALES_SUPPORT_ROLE_KEY = 'SALES_SUPPORT';
+
 const Link = Quill.import('formats/link');
 
 class LinkFile extends Link {
@@ -87,10 +89,10 @@ class NotificationEdit extends React.PureComponent {
       noticeFileLoadingFlag: false,
     };
     this.commit = this.commit.bind(this);
-  }
+  };
 
   componentDidMount() {
-    const { dispatch, form, notificationType } = this.props;
+    const { dispatch, form, notificationType, type = 'NEW', notification: { notificationInfo } } = this.props;
     form.resetFields();
     dispatch({
       type: 'notification/saveData',
@@ -107,8 +109,75 @@ class NotificationEdit extends React.PureComponent {
     dispatch({
       type: 'notificationSearchForm/queryStatusList',
     });
-    dispatch({ type: 'notificationSearchForm/queryAllCompanyConfig' });
+    dispatch({ type: 'notificationSearchForm/queryAllCompanyConfig' }).then(e => {
+      if(type === 'NEW') {
+        dispatch({
+          type: 'notificationSearchForm/queryAllUserByRole',
+          payload: {
+            roleCode: SALES_SUPPORT_ROLE_KEY,
+          }
+        }).then(e => {
+          dispatch({
+            type: 'notification/saveData',
+            payload: {
+              defaultTargetList: [{targetObj: `${SALES_SUPPORT_ROLE_KEY}`, targetType: '02'}],
+            }
+          });
+        })
+      } else if(type === 'EDIT' && notificationInfo && notificationInfo.targetList) {
+        // load data
+        const userList = notificationInfo.targetList.filter(item => item.targetType === '03');
+        dispatch({
+          type: 'notificationSearchForm/queryRoleByUsers',
+          payload: {
+            targetList: userList,
+          }
+        }).then(e => {
+          dispatch({
+            type: 'notification/saveData',
+            payload: {
+              defaultTargetList: notificationInfo.targetList,
+            },
+          });
+        })
+      }
+    });
   }
+
+  onSelectTemplate =(targetList, content)=> {
+    const { dispatch, form,
+      notificationSearchForm: { targetTreeData },
+    } = this.props;
+    // update targetList
+
+    // update content
+    if (content) {
+      if (this.reactQuillRef && this.reactQuillRef.getEditor) {
+        this.quillRef = this.reactQuillRef.getEditor();
+        const delta = [{ insert: ''}, { insert: '\n'}]
+        this.quillRef.setContents(delta);
+        this.quillRef.pasteHTML(content);
+      }
+    }
+
+    if (targetList && targetList.length > 0) {
+      const userList = targetList.filter(item => item.targetType === '03');
+      dispatch({
+        type: 'notificationSearchForm/queryRoleByUsers',
+        payload: {
+          targetList: userList,
+        }
+      }).then(e => {
+        let tList = [];
+        let newTargetList = [];
+        this.initAllChildrenTargetList(targetList, targetTreeData, newTargetList);
+        tList = this.initAllTargetList(newTargetList, targetTreeData);
+        const roleList = targetList.filter(item => item.targetType === '02').map(item => `role${item.targetObj}`);
+        tList = [...tList, ...roleList];
+        form.setFieldsValue({ targetList: tList });
+      })
+    }
+  };
 
   commit = e => {
     e.preventDefault();
@@ -116,13 +185,16 @@ class NotificationEdit extends React.PureComponent {
       dispatch,
       form,
       type = 'NEW',
-      notification: { notificationInfo },
+      notification: { notificationInfo, defaultTargetList },
     } = this.props;
     form.validateFields(err => {
       if (!err) {
         let dispatchType;
         if (type === 'NEW') {
           dispatchType = 'notification/fetchAddNotification';
+          if(defaultTargetList && defaultTargetList.length > 0) {
+            notificationInfo.targetList = defaultTargetList;
+          }
           notificationInfo.id = null;
           notificationInfo.notificationId = null;
         } else {
@@ -377,6 +449,7 @@ class NotificationEdit extends React.PureComponent {
     dispatch({
       type: 'notification/saveData',
       payload: {
+        defaultTargetList: [],
         notificationInfo: {
           ...newNotificationInfo,
         },
@@ -387,12 +460,20 @@ class NotificationEdit extends React.PureComponent {
   initAllChildrenTargetList = (targetList, targetTreeData, newTargetList) => {
     if (!targetTreeData) return [];
     targetTreeData.forEach(item => {
-      const targetObj = `${item.key}`.replace('customerGroup', '').replace('market', '');
+      let targetObj = `${item.key}`.replace('customerGroup', '').replace('market', '');
+      if(targetObj.startsWith("&{") && targetObj.indexOf("}&.") > -1){
+        targetObj = item.title;
+      }
       const hasTarget = targetList.findIndex(n => String(n.targetObj) === String(targetObj)) > -1;
       const existNewTargetList =
         newTargetList.findIndex(
-          e => `${e.key}`.replace('customerGroup', '').replace('market', '') === targetObj
-        ) > -1;
+          e => {
+            const value = `${e.key}`.replace('customerGroup', '').replace('market', '');
+            if(value.startsWith("&{") && value.indexOf("}&.") > -1){
+              return `${e.title}` === targetObj;
+            }
+            return value === targetObj;
+          }) > -1;
       if (hasTarget && !existNewTargetList) {
         newTargetList.push(item);
       } else if (item.children && item.children.length > 0) {
@@ -402,11 +483,31 @@ class NotificationEdit extends React.PureComponent {
     return newTargetList;
   };
 
+  getLeafTargetFromSelectNode = (targetList, targetTreeData, newTargetList) => {
+    if (!targetTreeData) return [];
+    targetTreeData.forEach(item => {
+      const hasTarget = targetList.findIndex(n => String(n) === String(item.key)) > -1;
+      if(!item.isLeaf && item.children && item.children.length > 0) {
+        newTargetList.push(item.key);
+      }
+      if (hasTarget && !existNewTargetList) {
+        newTargetList.push(item.key);
+      } else if (item.children && item.children.length > 0) {
+        this.initAllChildrenTargetList(targetList, item.children, newTargetList);
+      }
+    });
+    return newTargetList;
+  };
   // set the node in disable whose value is the same as selected node
   disableSameNode = (selectedList, allTreeData) => {
     if (!selectedList || selectedList.length < 1) return allTreeData;
+    const expendSelectedList = [];
+    this.getLeafTargetFromSelectNode(selectedList, allTreeData, expendSelectedList);
     const compareList = [];
     selectedList.forEach(item => {
+      if (item.startsWith("&{") && item.indexOf("}&.") > -1) {
+        compareList.push(item);
+      }
       if (item.indexOf('customerGroup') > -1) {
         compareList.push(item.replace('customerGroup', 'market'));
       }
@@ -417,10 +518,10 @@ class NotificationEdit extends React.PureComponent {
     const initTreeData = [];
     const marketTree = allTreeData.find(n => String(n.key) === 'market') || {};
     const customerGroupTree = allTreeData.find(n => String(n.key) === 'customerGroup') || {};
+    const userTree = allTreeData.find(n => String(n.key) === 'RWS') || {};
 
     if (marketTree && marketTree.children && marketTree.children.length > 0) {
       marketTree.children.forEach(item => {
-        const onLen = 0;
         if (item.children && item.children.length > 0) {
           item.children.forEach(j => {
             j.disableCheckbox = '';
@@ -448,7 +549,29 @@ class NotificationEdit extends React.PureComponent {
       });
       initTreeData.push(customerGroupTree);
     }
-
+    if (userTree && userTree.children && userTree.children.length > 0) {
+      userTree.children.forEach(item => {
+        if (item.children && item.children.length > 0) {
+          const parentRoleCode = item.title;
+          item.children.forEach(j => {
+            j.disableCheckbox = '';
+            const hasTarget = compareList.findIndex(n => {
+              const value = String(n);
+              if (value.startsWith("&{") && value.indexOf("}&.") > -1) {
+                const userCode = value.slice(value.indexOf("}&.") + 3);
+                const roleCode = value.slice(value.indexOf("&{") + 2, value.indexOf("}&."));
+                return parentRoleCode !== roleCode && userCode === String(j.title);
+              }
+              return false;
+            }) > -1;
+            if (hasTarget) {
+              j.disableCheckbox = true;
+            }
+          });
+        }
+      });
+      initTreeData.push(userTree);
+    }
     return initTreeData;
   };
 
@@ -456,6 +579,7 @@ class NotificationEdit extends React.PureComponent {
     if (!targetTreeData) return [];
     const marketTree = targetTreeData.find(n => String(n.key) === 'market') || {};
     const customerGroupTree = targetTreeData.find(n => String(n.key) === 'customerGroup') || {};
+    const roleTree = targetTreeData.find(n => String(n.key) === 'RWS') || {};
     let treeList = [];
     if (marketTree && marketTree.children && marketTree.children.length > 0) {
       marketTree.children.forEach(item => {
@@ -497,20 +621,64 @@ class NotificationEdit extends React.PureComponent {
         treeList = [...treeList, ...tlist];
       });
     }
+    if (roleTree && roleTree.children && roleTree.children.length > 0) {
+      roleTree.children.forEach(item => {
+        let onLen = 0;
+        const tlist = [];
+        if (item.children && item.children.length > 0) {
+          item.children.forEach(j => {
+            const hasTarget = targetList.findIndex(n => String(n.key) === String(j.key)) > -1;
+            if (hasTarget) {
+              tlist.push(j.key);
+              onLen += 1;
+            }
+          });
+          if (item.children.length === onLen && onLen !== 0) {
+            tlist.length = 0;
+            tlist.push(item.key);
+          }
+        }
+        treeList = [...treeList, ...tlist];
+      });
+    }
     return treeList;
   };
+
+  onLoadData = treeNode  => {
+    return new Promise(resolve => {
+      const { children, value } = treeNode.props;
+      if(children && children.length > 0) {
+        resolve();
+        return;
+      }
+      const{ dispatch } = this.props;
+      if(value.indexOf('role') === 0) {
+        setTimeout(() => {
+          dispatch({
+            type: 'notificationSearchForm/queryAllUserByRole',
+            payload: {
+              roleCode: value.replace('role', ''),
+            },
+          });
+          resolve();
+        }, 300);
+      }
+    });
+  };
+  getTemplateModalHtml =()=>{
+    return <NotificationTemplate onSelectTemplate={(targetList, content) => this.onSelectTemplate(targetList, content)} />;
+  }
 
   render() {
     const {
       form,
       type,
-      notification: { notificationInfo, visibleFlag },
+      notification: { notificationInfo, defaultTargetList, visibleFlag },
       notificationSearchForm: { notificationTypeList, statusList, targetTreeData },
     } = this.props;
 
     const { noticeFileLoadingFlag } = this.state;
     const { getFieldDecorator } = form;
-    const templateModalHtml = <NotificationTemplate />;
     const modalOpts = {
       title: formatMessage({ id: 'SELECT_TEMPLATE_TITLE' }),
       visible: visibleFlag,
@@ -531,7 +699,7 @@ class NotificationEdit extends React.PureComponent {
     const fileProps = {
       ...comProps,
       data: { type: 'noticeFile' },
-      onPreview: () => { },
+      onPreview: () => {},
       onChange: changeValue => this.onHandleFileChange(changeValue),
       onRemove: file => {
         const { status, response: { result: { filePath, fileName } = '' } = '' } = file;
@@ -556,29 +724,32 @@ class NotificationEdit extends React.PureComponent {
         );
       },
     };
-
-    const newTargetList = [];
-    this.initAllChildrenTargetList(
-      notificationInfo.targetList || [],
-      targetTreeData,
-      newTargetList
-    );
-    const selectedList = form.getFieldValue('targetList');
-
-    const tList = selectedList || this.initAllTargetList(newTargetList, targetTreeData);
+    let tList = form.getFieldValue('targetList');
+    if(defaultTargetList && defaultTargetList.length > 0) {
+      if(type === 'EDIT') {
+        const newTargetList = [];
+        this.initAllChildrenTargetList(defaultTargetList, targetTreeData, newTargetList);
+        tList = this.initAllTargetList(newTargetList, targetTreeData);
+        const roleList = defaultTargetList.filter(item => item.targetType === '02').map(item => `role${item.targetObj}`);
+        tList = [...tList, ...roleList];
+      } else if(type === 'NEW') {
+        tList = [`role${SALES_SUPPORT_ROLE_KEY}`];
+      }
+    }
     const initTargetList = this.disableSameNode(tList, targetTreeData);
     const tProps = {
       allowClear: true,
       showSearch: true,
       multiple: true,
-      treeDefaultExpandAll: true,
       treeData: initTargetList,
       value: tList || [],
       onChange: value => this.onHandleTreeChange(value),
+      onSelect: (value, treeNode) => this.onLoadData(treeNode),
       treeCheckable: true,
       treeNodeFilterProp: 'title',
       showCheckedStrategy: TreeSelect.SHOW_PARENT,
       searchPlaceholder: formatMessage({ id: 'NOTICE_PLEASE_SELECT' }),
+      loadData: treeNode => this.onLoadData(treeNode),
       getPopupContainer: () => document.getElementById(`noticeViewEdit`),
       style: {
         width: '100%',
@@ -624,22 +795,7 @@ class NotificationEdit extends React.PureComponent {
                 </a>
               </Input.Group>
             </Form.Item>
-            {notificationInfo.saveTemplate === true && (
-              <Form.Item label={formatMessage({ id: 'REASON_DURATION' })}>
-                {getFieldDecorator(`reasonDuration`, {
-                  initialValue: reasonDuration || [],
-                  rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
-                })(
-                  <DatePicker.RangePicker
-                    placeholder={formatMessage({ id: 'NOTICE_PLEASE_SELECT' })}
-                    style={{ width: '350px' }}
-                    format="DD/MM/YYYY"
-                    onChange={dates => this.onHandleRangeChange(dates)}
-                  />
-                )}
-              </Form.Item>
-            )}
-            <Form.Item label={`${formatMessage({ id: 'REASON_SCOPE_ROLE' })} :`} {...formItemHalfLayout}>
+            <Form.Item {...formItemHalfLayout} label={formatMessage({ id: 'REASON_SCOPE_ROLE' })}>
               {getFieldDecorator(`targetList`, {
                 initialValue: tList || [],
                 rules: [{ required: true, message: formatMessage({ id: 'NOTICE_REQUIRED' }) }],
@@ -795,7 +951,7 @@ class NotificationEdit extends React.PureComponent {
               minWidth={SCREEN.screenSmMin}
               maxHeight={SCREEN.screenXsMax}
             >
-              <MobileModal modalOpts={modalOpts}>{templateModalHtml}</MobileModal>
+              <MobileModal modalOpts={modalOpts}>{this.getTemplateModalHtml()}</MobileModal>
             </MediaQuery>
             <MediaQuery
               maxWidth={SCREEN.screenMdMax}
@@ -816,7 +972,7 @@ class NotificationEdit extends React.PureComponent {
                 }}
                 id="contractHisModalView"
               >
-                {templateModalHtml}
+                {this.getTemplateModalHtml()}
               </Modal>
             </MediaQuery>
             <MediaQuery minWidth={SCREEN.screenLgMin}>
@@ -834,11 +990,11 @@ class NotificationEdit extends React.PureComponent {
                 }}
                 id="contractHisModalView"
               >
-                {templateModalHtml}
+                {this.getTemplateModalHtml()}
               </Modal>
             </MediaQuery>
             <MediaQuery maxWidth={SCREEN.screenXsMax}>
-              <MobileModal modalOpts={modalOpts}>{templateModalHtml}</MobileModal>
+              <MobileModal modalOpts={modalOpts}>{this.getTemplateModalHtml()}</MobileModal>
             </MediaQuery>
           </React.Fragment>
         )}

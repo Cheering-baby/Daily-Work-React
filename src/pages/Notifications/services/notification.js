@@ -65,3 +65,9 @@ export async function updateReadStatus(params) {
     body: params,
   });
 }
+
+export async function queryUserByRoles(params) {
+  return UAAService.request(`/b2b/user/v1/user/queryUserByRoleCode?${stringify(params)}`, {
+    method: 'GET',
+  });
+}

@@ -566,7 +566,7 @@ class TableComp extends PureComponent {
     if (taSelectedRowKeys.length > 0) {
       router.push({
         pathname: `/TAManagement/MainTAManagement/Grant`,
-        query: { taIdList: taSelectedRowKeys.join(',') },
+        query: { taIdList: taSelectedRowKeys.join(','), taLength: taSelectedRowKeys.length },
       });
     }
   };

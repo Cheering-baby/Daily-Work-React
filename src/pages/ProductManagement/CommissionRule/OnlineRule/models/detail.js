@@ -45,6 +45,10 @@ export default {
     addInput2: '',
     // list: [],
     commissionName: '',
+    effectivePeriodDate: [],
+    commissionType: '',
+    effectiveStartDate: '',
+    effectiveEndDate: ''
   },
   effects: {
     *queryDetail({ payload }, { call, put }) {
@@ -102,6 +106,9 @@ export default {
               createTime,
             },
             tieredList,
+            effectiveStartDate: effectiveDate,
+            commissionType,
+            effectiveEndDate: expiryDate,
             // tieredList: addRow ? [addRow, ...tieredList] : tieredList,
           },
         });
@@ -213,6 +220,10 @@ export default {
         addInput1Max: '',
         addInput2: '',
         commissionName: '',
+        effectivePeriodDate: [],
+        commissionType: '',
+        effectiveStartDate: '',
+        effectiveEndDate: ''
       };
     },
     saveSelectOffer(state, { payload }) {

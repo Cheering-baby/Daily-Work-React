@@ -72,6 +72,15 @@ export async function accept(params) {
   });
 }
 
+export async function secondUpdate(params) {
+  return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/updateGalaxyNo`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
 export async function reject(params) {
   return UAAService.request(`${uaaPath}/b2b/user/v1/activity/reject`, {
     method: 'POST',

@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import * as service from '../services/mainTAManagement';
 import { setSelected } from '../../../ProductManagement/utils/tools';
 
@@ -17,16 +18,12 @@ export default {
     searchOfferTotalSize: 0,
     checkedList: [],
     displayGrantOfferList: [],
-
     grantPagination: {
       currentPage: 1,
       pageSize: 10,
     },
-
     checkedOnlineList: [],
-
     subPLUList: [],
-
     pagination: {
       currentPage: 1,
       pageSize: 10,
@@ -37,9 +34,11 @@ export default {
     },
     bindingList: [],
     expandedRowKeys: [],
-
     selectedRowKeys: [],
-    filter: {},
+    filter: {
+      likeParam: {},
+    },
+    grantOfferList: [],
   },
   effects: {
     *effectSave({ payload }, { put }) {
@@ -48,12 +47,21 @@ export default {
         payload,
       });
     },
-    *fetch({ payload }, { call, put }) {
+    *fetch({ payload }, { call, put, select }) {
       const { agentId } = payload;
-      const requestData = {
+      const { filter } = yield select(state => state.grant);
+      const { likeParam } = filter;
+      let requestData = {
         agentId,
         bindingType: 'Offer',
       };
+      if (!isEmpty(likeParam)) {
+        requestData = {
+          agentId,
+          bindingType: 'Offer',
+          commonSearchText: likeParam,
+        };
+      }
       const res = yield call(service.queryAgentBindingList, requestData);
       const {
         data: { resultCode, resultMsg, result },
@@ -64,6 +72,41 @@ export default {
           type: 'changePage',
           payload: {
             checkedList: bindingList,
+          },
+        });
+      } else throw resultMsg;
+    },
+    *fetchGrantOffer({ payload }, { call, put, select }) {
+      const { checkedList } = yield select(state => state.grant);
+      const { agentId } = payload;
+      const requestData = {
+        agentId,
+        bindingType: 'Offer',
+      };
+      const res = yield call(service.queryGrantOffer, requestData);
+      const {
+        data: { resultCode, resultMsg, result },
+      } = res;
+      if (resultCode === '0' || resultCode === 0) {
+        const {
+          page: { currentPage, pageSize },
+          queryOfferList,
+        } = result;
+
+        const grantOfferList = [];
+        if (currentPage * pageSize < queryOfferList.length) {
+          for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i += 1) {
+            grantOfferList.push(queryOfferList[i]);
+          }
+        } else {
+          for (let i = (currentPage - 1) * pageSize; i < checkedList.length; i += 1) {
+            grantOfferList.push(queryOfferList[i]);
+          }
+        }
+        yield put({
+          type: 'save',
+          payload: {
+            grantOfferList,
           },
         });
       } else throw resultMsg;
@@ -172,6 +215,19 @@ export default {
       });
       yield put({
         type: 'fetchCommodityList',
+        payload,
+      });
+    },
+    *searchOffer({ payload }, { put }) {
+      yield put({
+        type: 'clear',
+      });
+      yield put({
+        type: 'save',
+        payload,
+      });
+      yield put({
+        type: 'fetch',
         payload,
       });
     },
@@ -391,6 +447,7 @@ export default {
 
         selectedRowKeys: [],
         filter: {},
+        grantOfferList: [],
       };
     },
   },

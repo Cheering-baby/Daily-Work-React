@@ -10,7 +10,7 @@ export default {
   PASSWORD_PLACEHOLDER: 'Please Enter',
   REQUIRED: 'The field is required.',
   LOGIN: 'LOGIN',
-  SIGN_UP: 'Sign up',
+  SIGN_UP: 'Sign up as RWS Partners',
   SIGN_UP_CHECK: 'Please select Travel Agent Company Name',
   LOGIN_TIPS: 'User Login, Password are case sensitive.',
 

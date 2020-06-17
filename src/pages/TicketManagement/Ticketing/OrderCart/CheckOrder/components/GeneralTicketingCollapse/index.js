@@ -8,7 +8,6 @@ import BundleToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/compone
 import {
   calculateAllProductPrice,
   calculateProductPrice,
-  isSessionProduct,
 } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
@@ -252,7 +251,7 @@ class GeneralTicketingCollapse extends Component {
       const { ticketNumber, numOfPax } = item;
       orderInfoList.push({
         numOfPax,
-        sessionTime: isSessionProduct(priceRuleId, item) ? sessionTime : undefined,
+        sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
         pricePax: calculateProductPrice(item, priceRuleId, sessionTime),
@@ -306,7 +305,7 @@ class GeneralTicketingCollapse extends Component {
     attractionProduct.forEach(item => {
       orderInfoList.push({
         numOfPax: item.numOfPax,
-        sessionTime: isSessionProduct(priceRuleId, item) ? sessionTime : undefined,
+        sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: offerQuantity,
         pricePax: calculateProductPrice(item, priceRuleId),
@@ -384,6 +383,7 @@ class GeneralTicketingCollapse extends Component {
     attractionProduct.forEach(item => {
       const { ticketNumber } = item;
       orderInfo.push({
+        sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
@@ -439,6 +439,7 @@ class GeneralTicketingCollapse extends Component {
     const orderInfo = [];
     attractionProduct.forEach(item => {
       orderInfo.push({
+        sessionTime: item.sessionTime,
         numOfPax: item.numOfPax,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: 1,
@@ -495,6 +496,7 @@ class GeneralTicketingCollapse extends Component {
         attractionProduct = [],
       } = item;
       return {
+        sessionTime: item.sessionTime,
         quantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         offerInfo: {

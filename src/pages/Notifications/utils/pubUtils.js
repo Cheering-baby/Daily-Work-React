@@ -20,7 +20,12 @@ export function getAllTargetList(targetList, targetTreeData, newTargetList = [])
 export function getAllChildrenTargetList(childrenTargetTreeData, newTargetList) {
   if (!childrenTargetTreeData) return [];
   childrenTargetTreeData.forEach(item => {
-    if (item.children && item.children.length > 0) {
+    if (`${item.key}`.startsWith('role')) {
+      newTargetList.push({
+        targetType: '02',
+        targetObj: item.title,
+      });
+    } else if (!`${item.key}`.startsWith('role') && item.children && item.children.length > 0) {
       getAllChildrenTargetList(item.children, newTargetList);
     } else {
       const targetObj = `${item.key}`.replace('customerGroup', '').replace('market', '');
@@ -32,6 +37,12 @@ export function getAllChildrenTargetList(childrenTargetTreeData, newTargetList) 
       }
       if (`${item.key}`.startsWith('market') && noHasTarget) {
         newTargetList.push({ targetType: '01', targetObj, targetObjName });
+      }
+      // format  &{roleCode}&.userCode
+      if (`${item.key}`.startsWith('&{') && noHasTarget && `${item.key}`.indexOf("}&.") > -1) {
+        newTargetList.push({
+          targetType: '03',
+          targetObj: targetObjName});
       }
     }
   });

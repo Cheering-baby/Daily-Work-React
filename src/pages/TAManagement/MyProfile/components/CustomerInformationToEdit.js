@@ -425,6 +425,7 @@ class CustomerInformationToEdit extends PureComponent {
       onHandleChange: this.onHandleContactEditChange,
     };
     const myCompanyProps = {
+      editCondition: true,
       form,
       ...detailOpt,
       viewId,

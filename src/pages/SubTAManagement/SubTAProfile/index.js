@@ -13,11 +13,13 @@ import { hasAllPrivilege, SUB_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const { subTaId, subTaInfo, subTaInfoLoadingFlag, countryList } = store.subTaMgr;
+  const { userCompanyInfo } = store.global;
   return {
     subTaId,
     subTaInfo,
     subTaInfoLoadingFlag,
     countryList,
+    userCompanyInfo,
   };
 };
 
@@ -68,7 +70,7 @@ class SubTAProfile extends PureComponent {
   };
 
   render() {
-    const { subTaInfo = {}, countryList = [], subTaInfoLoadingFlag } = this.props;
+    const { subTaInfo = {}, countryList = [], subTaInfoLoadingFlag, userCompanyInfo } = this.props;
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_SUB_TA_MANAGEMENT' }),
@@ -81,6 +83,8 @@ class SubTAProfile extends PureComponent {
     ];
     const isAdminRoleSubFlag = hasAllPrivilege([SUB_TA_ADMIN_PRIVILEGE]);
     const isEdit = isAdminRoleSubFlag;
+    const taUserStatus = userCompanyInfo.status || '-1';
+    const isTaDeActivationFlag = taUserStatus !== '0';
     const isProfile = true;
     return (
       <Col span={24}>
@@ -108,7 +112,7 @@ class SubTAProfile extends PureComponent {
                     extra={
                       isEdit ? (
                         <Tooltip title={formatMessage({ id: 'COMMON_EDIT' })}>
-                          <Button icon="edit" onClick={e => this.goEditRegistration(e)} />
+                          <Button icon="edit" disabled={isTaDeActivationFlag} onClick={e => this.goEditRegistration(e)} />
                         </Tooltip>
                       ) : null
                     }

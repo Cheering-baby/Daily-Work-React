@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip, Button, Col, Row, Table, Card, Icon, message, Popover } from 'antd';
+import { Tooltip, Button, Input, Col, Row, Table, Card, Icon, message, Popover } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -13,6 +13,8 @@ import AddOfferModal from '../components/AddOfferModal';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
 import { objDeepCopy } from '../../utils/tools';
 import { isNvl } from '@/utils/utils';
+
+const { Search } = Input;
 
 @connect(({ grant, loading }) => ({
   grant,
@@ -223,13 +225,11 @@ class NewGrant extends React.PureComponent {
               placement="topLeft"
               title={
                 <span style={{ whiteSpace: 'pre-wrap' }}>
-                  {minimum} ~ {maxmum}
+                  {+maxmum === 0 ? `${minimum}-` : `${minimum} ~ ${maxmum}`}
                 </span>
               }
             >
-              <span>
-                {minimum} ~ {maxmum}
-              </span>
+              <span>{+maxmum === 0 ? `${minimum}-` : `${minimum} ~ ${maxmum}`}</span>
             </Tooltip>
           );
         },
@@ -250,12 +250,17 @@ class NewGrant extends React.PureComponent {
             );
           }
           if (commissionScheme === 'Percentage') {
+            // commissionValue: parseFloat(commissionValue * 100).toFixed(),
             return (
               <Tooltip
                 placement="topLeft"
-                title={<span style={{ whiteSpace: 'pre-wrap' }}>{commissionValue}%</span>}
+                title={
+                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                    {parseFloat(commissionValue * 100).toFixed()}%
+                  </span>
+                }
               >
-                <span>{commissionValue}%</span>
+                <span>{parseFloat(commissionValue * 100).toFixed()}%</span>
               </Tooltip>
             );
           }
@@ -564,6 +569,25 @@ class NewGrant extends React.PureComponent {
     );
   };
 
+  search = value => {
+    const {
+      dispatch,
+      location: {
+        query: { taIdList },
+      },
+    } = this.props;
+
+    dispatch({
+      type: 'grant/searchOffer',
+      payload: {
+        taIdList,
+        filter: {
+          likeParam: value.trim(),
+        },
+      },
+    });
+  };
+
   render() {
     const {
       loading,
@@ -574,6 +598,9 @@ class NewGrant extends React.PureComponent {
         grantPagination,
         displayGrantOfferList = [],
         subPLUList = [],
+      },
+      location: {
+        query: { taLength },
       },
     } = this.props;
 
@@ -631,10 +658,27 @@ class NewGrant extends React.PureComponent {
         <MediaQuery minWidth={SCREEN.screenLgMin}>
           <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
         </MediaQuery>
-        <Card className={styles.cardClass}>
+        <Card
+          className={styles.cardClass}
+          // title={<div className={styles.DetailTitle}>{formatMessage({ id: 'NEW_GRANT' })}</div>}
+        >
           <div style={{ padding: 15 }}>
-            <Row>
-              <Col className={styles.DetailTitle}>{formatMessage({ id: 'NEW_GRANT' })}</Col>
+            <Row style={{ padding: '10px 10px 0' }}>
+              <Col className={styles.DetailTitle} xs={12} sm={12} md={18}>
+                {taLength === 1
+                  ? formatMessage({ id: 'NEW_GRANT_OFFER' })
+                  : formatMessage({ id: 'NEW_GRANT_OFFER' })}
+              </Col>
+              {taLength === 1 ? (
+                <Col xs={12} sm={12} md={6}>
+                  <Search
+                    placeholder="Search(Identifier/Name/Description)"
+                    allowClear
+                    onSearch={this.search}
+                    // onChange={this.searchReportType}
+                  />
+                </Col>
+              ) : null}
             </Row>
             <Row style={{ marginBottom: 40 }}>
               <Col span={24}>

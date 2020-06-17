@@ -88,12 +88,9 @@ class SearchPanel extends Component {
     form.validateFields((err, values) => {
       if (!err) {
         if (
-          themeParkChooseList.indexOf('DOL') === -1 &&
           themeParkChooseList.indexOf('OAP') === -1
         ) {
           this.searchAttraction();
-        } else if (themeParkChooseList.length === 1 && themeParkChooseList[0] === 'DOL') {
-          this.searchDolphinIsland();
         } else if (themeParkChooseList.length === 1 && themeParkChooseList[0] === 'OAP') {
           this.searchOAP(values);
         }
@@ -347,9 +344,9 @@ class SearchPanel extends Component {
           bodyStyle={{ padding: 0 }}
         >
           <div style={{ minHeight: clientHeight }} className={styles.bodyContainer}>
-            <div className={styles.titleFontBlackWeight}>Custom filter</div>
+            <div className={styles.titleFontBlackWeight}>{formatMessage({ id: 'FILTER' })}</div>
             <Form>
-              <FormItem {...formItemLayout} label={formatMessage({ id: 'Ticketing' })}>
+              <FormItem {...formItemLayout} label={formatMessage({ id: 'PRODUCT_CATEGORIES' })}>
                 {getFieldDecorator('themePark', {
                   initialValue: themeParkChooseList,
                   rules: [

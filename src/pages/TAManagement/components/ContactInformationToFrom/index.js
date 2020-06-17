@@ -16,13 +16,12 @@ class ContactInformationToFrom extends PureComponent {
       countryList = [],
       customerInfo = {},
       onHandleChange,
-      isTaDeActivationFlag,
     } = this.props;
     const { getFieldDecorator } = form;
     const contactInfo = (customerInfo || {}).contactInfo || {};
     const numFormat = formatMessage({ id: 'INPUT_MAX_NUM' });
     let isDisabled = false;
-    if (isAccountingArRoleFlag || isTaDeActivationFlag) {
+    if (isAccountingArRoleFlag) {
       isDisabled = true;
     }
     return (

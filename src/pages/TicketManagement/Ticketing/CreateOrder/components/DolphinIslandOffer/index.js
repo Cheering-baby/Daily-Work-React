@@ -402,13 +402,14 @@ class DolphinIslandOffer extends Component {
               <div className={styles.productPrice}>
                 <div style={{ marginRight: '10px' }}> </div>
                 <div>
-                  ${' '}
+                  ${''}
                   {calculateAllProductPrice(
                     record.attractionProduct,
                     priceRuleId,
                     priceTimeFrom,
                     record.detail
                   )}
+                  {'/package'}
                 </div>
               </div>
             );
@@ -420,12 +421,13 @@ class DolphinIslandOffer extends Component {
                   <div className={styles.productPrice}>
                     <div style={{ marginRight: '10px' }}> </div>
                     <div>
-                      ${' '}
+                      ${''}
                       {calculateProductPrice(
                         item,
                         priceRuleId,
                         isSessionProduct(priceRuleId, item) ? priceTimeFrom : null
                       ).toFixed(2)}
+                      {'/ticket'}
                     </div>
                   </div>
                 );

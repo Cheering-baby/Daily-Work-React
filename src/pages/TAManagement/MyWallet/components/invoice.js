@@ -98,7 +98,6 @@ class Invoice extends React.PureComponent {
           type="primary"
           className={styles.downloadBtn}
           onClick={e => {
-            e.preventDefault();
             this.downloadFileEvent(details.id);
           }}
         >

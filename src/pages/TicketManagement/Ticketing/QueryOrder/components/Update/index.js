@@ -14,20 +14,21 @@ const FormItem = Form.Item;
 }))
 class Update extends React.Component {
   componentWillUnmount() {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     dispatch({
       type: 'sendETicketMgr/resetData',
     });
+    form.resetFields();
   }
 
-  handleOk = () => {
+  handleOk = (updateType, status) => {
     const { dispatch, form } = this.props;
     form.validateFields(err => {
       if (!err) {
         dispatch({
           type: 'updateOrderMgr/update',
         }).then(resultCode => {
-          if (resultCode === ERROR_CODE_SUCCESS) {
+          if (resultCode === ERROR_CODE_SUCCESS || (resultCode === '0' && updateType === 'Revalidation' && status === 'Complete')) {
             this.handleCancel();
             message.success(formatMessage({ id: 'UPDATE_SUCCESSFULLY' }));
             dispatch({
@@ -40,7 +41,7 @@ class Update extends React.Component {
   };
 
   handleCancel = () => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     dispatch({
       type: 'updateOrderMgr/effectSave',
       payload: {
@@ -53,6 +54,7 @@ class Update extends React.Component {
         });
       }, 500);
     });
+    form.resetFields();
   };
 
   showUpdateTitle = updateType => {
@@ -73,7 +75,7 @@ class Update extends React.Component {
     return null;
   };
 
-  showMain = (updateType, galaxyOrderNo, refundSelected, rejectReason, getFieldDecorator) => {
+  showMain = (updateType, galaxyOrderNo, refundSelected, rejectReason, status, getFieldDecorator) => {
     if (updateType === 'Revalidation') {
       return (
         <FormItem
@@ -83,7 +85,7 @@ class Update extends React.Component {
           colon={false}
         >
           {getFieldDecorator('galaxyOrderNo', {
-            rules: [{ required: true, message: 'Required' }],
+            rules: [{required: status === 'Confirmed', message: 'Required'}],
             initialValue: galaxyOrderNo,
           })(
             <div className={styles.modelInputStyle}>
@@ -136,7 +138,7 @@ class Update extends React.Component {
     return null;
   };
 
-  galaxyOrderNoChange = value => {
+  galaxyOrderNoChange = (value) => {
     const { dispatch, form } = this.props;
     dispatch({
       type: 'updateOrderMgr/save',
@@ -174,7 +176,7 @@ class Update extends React.Component {
     const {
       pageLoading,
       form: { getFieldDecorator },
-      updateOrderMgr: { updateVisible, updateType, galaxyOrderNo, refundSelected, rejectReason },
+      updateOrderMgr: { updateVisible, updateType, galaxyOrderNo, refundSelected, rejectReason, status },
     } = this.props;
     return (
       <Modal
@@ -188,7 +190,7 @@ class Update extends React.Component {
             <Button
               style={{ width: 70 }}
               loading={!!pageLoading}
-              onClick={() => this.handleOk()}
+              onClick={() => this.handleOk(updateType, status)}
               type="primary"
             >
               {!pageLoading ? formatMessage({ id: 'CONFIRM' }) : null}
@@ -203,6 +205,7 @@ class Update extends React.Component {
             galaxyOrderNo,
             refundSelected,
             rejectReason,
+            status,
             getFieldDecorator
           )}
         </Spin>

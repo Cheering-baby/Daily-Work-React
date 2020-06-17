@@ -13,6 +13,9 @@ import NotificationDetail from '@/pages/Notifications/components/NotificationDet
   queryLoading: loading.effects['notification/queryNotificationTemplateList'],
 }))
 class NotificationTemplate extends PureComponent {
+  static defaultProps = {
+    onSelectTemplate: () => {},
+  };
   constructor(props) {
     super(props);
     this.column = [
@@ -61,6 +64,11 @@ class NotificationTemplate extends PureComponent {
     ];
   }
 
+  beforeSelectTemplate =(targetList, content)=> {
+    const { onSelectTemplate } = this.props;
+    onSelectTemplate(targetList, content);
+  }
+
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
@@ -83,7 +91,6 @@ class NotificationTemplate extends PureComponent {
     if (visible) {
       newTemplateId = templateId;
     }
-    // console.log('templateId: ', templateId);
     dispatch({
       type: 'notification/save',
       payload: {
@@ -145,7 +152,9 @@ class NotificationTemplate extends PureComponent {
             visibleFlag: false,
             notificationInfo,
           },
-        });
+        }).then(e => {
+          this.beforeSelectTemplate(notificationInfo.targetList, notificationInfo.content);
+        })
       },
     };
     const pageOpts = {

@@ -22,6 +22,7 @@ export default {
     notificationInfo: {},
     notificationInfoLoadingFlag: false,
     isAdminRoleFlag: false,
+    defaultTargetList: [],
   },
   effects: {
     *queryNotificationTemplateList(_, { call, put, select }) {
@@ -132,6 +133,11 @@ export default {
         type: 'queryNotificationTemplateList',
       });
     },
+    *cleanData({ payload }, { put }) {
+      yield put({
+        type: 'clean',
+      });
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -158,6 +164,7 @@ export default {
           notificationInfo: {},
           notificationInfoLoadingFlag: false,
           isAdminRoleFlag: false,
+          defaultTargetList: [],
         },
         ...payload,
       };

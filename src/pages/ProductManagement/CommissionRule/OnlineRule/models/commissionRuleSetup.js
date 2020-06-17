@@ -1,4 +1,6 @@
 import { isEmpty } from 'lodash';
+import { formatMessage } from 'umi/locale';
+import { message } from 'antd';
 import * as service from '../services/commissionRuleSetup';
 
 export default {
@@ -80,6 +82,18 @@ export default {
       yield put({
         type: 'fetchCommissionRuleSetupList',
       });
+    },
+    *remove({ payload }, { call, put }) {
+      const { param } = payload;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.remove, param);
+      if (+resultCode === 0) {
+        message.success(formatMessage({ id: 'COMMON_DELETED_SUCCESSFULLY' }));
+        yield put({
+          type: 'fetchCommissionRuleSetupList',
+        });
+      } else throw resultMsg;
     },
   },
   reducers: {

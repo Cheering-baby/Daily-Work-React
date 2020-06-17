@@ -63,7 +63,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'ACTIVITY_ID' }),
-        width: '10%',
+        width: '11%',
         dataIndex: 'activityId',
         sorter: (a, b) => (a.activityId > b.activityId ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -93,7 +93,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'COMPANY_NAME' }),
-        width: '13%',
+        width: '25%',
         dataIndex: 'companyName',
         sorter: (a, b) => (a.companyName > b.companyName ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -103,7 +103,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'REMARKS' }),
-        width: '18%',
+        width: '30%',
         dataIndex: 'remarks',
         render: text => {
           return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
@@ -374,6 +374,7 @@ class MyActivity extends React.PureComponent {
       },
     });
     if (type === 'eye') {
+      const feeId = record && record.content ? JSON.parse(record.content).feeId : ''
       dispatch({
         type: 'activityDetail/save',
         payload: {
@@ -382,8 +383,10 @@ class MyActivity extends React.PureComponent {
       });
       router.push({
         pathname: `/MyActivity/${record.activityId}`,
+        query: { feeId: feeId, activityTypeName: record.activityTypeName },
       });
     } else if (type === 'audit') {
+      const feeId = record && record.content ? JSON.parse(record.content).feeId : ''
       dispatch({
         type: 'activityDetail/save',
         payload: {
@@ -392,6 +395,7 @@ class MyActivity extends React.PureComponent {
       });
       router.push({
         pathname: `/MyActivity/${record.activityId}`,
+        query: { feeId: feeId },
       });
     } else if (type === 'upload') {
       this.uploadProps = {

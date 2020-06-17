@@ -14,7 +14,7 @@ class MyOrderButton extends React.PureComponent {
           <Button type="primary" onClick={() => onClickOrder()}>
             <Icon style={{ fontSize: 17 }} type="shopping-cart" />{' '}
             {formatMessage({ id: 'MY_ORDER' })}
-            <span className={styles.orderAmount}>{orderAmount}</span>
+            <span className={styles.orderAmount}>{orderAmount} items</span>
           </Button>
         </div>
       </div>

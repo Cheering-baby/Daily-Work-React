@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { accept, reject } from '../services/queryOrderService';
+import { accept, reject, secondUpdate } from '../services/queryOrderService';
 import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
 export default {
@@ -12,6 +12,7 @@ export default {
     refundSelected: 'Complete',
     rejectReason: null,
     bookingNo: null,
+    status: null,
   },
 
   effects: {
@@ -29,6 +30,7 @@ export default {
         updateType,
         galaxyOrderNo,
         bookingNo,
+        status,
       } = yield select(state => state.updateOrderMgr);
       let response = null;
       if (updateType === 'Refund') {
@@ -37,8 +39,16 @@ export default {
         } else if (refundSelected === 'Reject') {
           response = yield call(reject, { activityId, reason: rejectReason.trim() });
         }
-      } else if (updateType === 'Revalidation') {
+      } else if (updateType === 'Revalidation' && status === 'Confirmed') {
         response = yield call(accept, { activityId, remarks: galaxyOrderNo });
+      } else if (updateType === 'Revalidation' && status === 'Complete') {
+        response = yield call(secondUpdate, { orderNo: bookingNo, galaxyNo: galaxyOrderNo });
+        if (!response) return false;
+        const { data: { resultCode, resultMsg }, } = response;
+        if(resultCode !== '0'){
+          message.error(resultMsg);
+        }
+        return resultCode;
       }
       if (!response) return false;
       const { data: resultData, success, errorMsg } = response;
@@ -79,6 +89,8 @@ export default {
         galaxyOrderNo: null,
         refundSelected: 'Complete',
         rejectReason: null,
+        bookingNo: null,
+        status: null,
       };
     },
   },

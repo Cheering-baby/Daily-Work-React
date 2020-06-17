@@ -4,30 +4,47 @@ import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getCountryStr } from '../../../utils/pubUtils';
+import {hasAllPrivilege, MAIN_TA_ADMIN_PRIVILEGE} from "@/utils/PrivilegeUtil";
 
 class SubTaDetailComp extends PureComponent {
 
   showMainTaName = (nameList) => {
     if(!isNvl(nameList) && nameList.length >0){
+      const isMainTaAdminRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
+      if(!isMainTaAdminRoleFlag){
+        return (
+          <Col span={24} style={{marginBottom: 14}}>
+            {nameList.map(name => {
+              if(!isNvl(name)){
+                let statusStr = 'default';
+                let statusTxt = '';
+                if (!isNvl(name.enableName) && String(name.enableName).toLowerCase() === 'active') {
+                  statusStr = 'success';
+                  statusTxt = formatMessage({ id: 'SUB_TA_M_TABLE_STATUS_ACTIVE' });
+                } else {
+                  statusStr = 'default';
+                  statusTxt = formatMessage({ id: 'SUB_TA_M_TABLE_STATUS_INACTIVE' });
+                }
+                return (
+                  <div className={styles.subTaDetailLeftStyle}>
+                    <span>
+                      ({name.taId}) {name.mainCompanyName} (<Badge status={statusStr} text={statusTxt || null} />)
+                    </span>
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </Col>
+        );
+      }
       return (
         <Col span={24} style={{marginBottom: 14}}>
           {nameList.map(name => {
-            if(!isNvl(name)){
-              let statusStr = 'default';
-              let statusTxt = '';
-              if (!isNvl(name.enableName) && String(name.enableName).toLowerCase() === 'active') {
-                statusStr = 'success';
-                statusTxt = formatMessage({ id: 'SUB_TA_M_TABLE_STATUS_ACTIVE' });
-              } else {
-                statusStr = 'default';
-                statusTxt = formatMessage({ id: 'SUB_TA_M_TABLE_STATUS_INACTIVE' });
-              }
+            if (!isNvl(name)) {
               return (
                 <div className={styles.subTaDetailLeftStyle}>
-                  <span>{name.mainCompanyName} (
-                    <Badge status={statusStr} text={statusTxt || null} />
-                    )
-                  </span>
+                  <span>{!isNvl(name.mainCompanyName) ? name.mainCompanyName : '-'}</span>
                 </div>
               );
             }
