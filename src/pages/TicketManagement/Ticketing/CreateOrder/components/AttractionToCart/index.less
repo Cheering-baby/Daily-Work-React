@@ -164,9 +164,6 @@
 }
 
 .searchTitle {
-  //border: 0;
-  //margin-top: 10px;
-  //border-bottom: 1px solid #EEE;
 
   :global {
     .ant-table-column-title {
@@ -187,6 +184,10 @@
   background: rgba(0, 0, 0, 0.05);
   height: 40px;
   line-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
 
   .tableFooterSpan {
     font-family: calibriBold;
@@ -208,4 +209,11 @@
 
 .termsAndConditionIconText {
   color: #f5222d;
+}
+
+.tableText {
+  white-space: normal;
+  word-break: normal;
+  word-wrap: break-word;
+  font-size: 15px;
 }

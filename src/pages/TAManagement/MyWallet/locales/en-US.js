@@ -22,7 +22,7 @@ export default {
   AR_APPLY_STATUS: 'Apply',
   No_Account_Ar: 'No Account-AR',
   TOPUP_AMOUNT_VALIDATE_MESSAGE: 'Please enter the valid topup amount.',
-  TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE: 'Topup amount must be between 0 and $21,474,836.47.',
+  TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE: 'Topup amount must be between 0 and $21,474,836.',
   TOPUP_COMPLETED_TIPS: 'Have you completed the payment?',
   TOPUP_COMPLETED_TIPS_CANCEL_TEXT: 'Unfinished',
   TOPUP_COMPLETED_TIPS_OK_TEXT: 'Finished',

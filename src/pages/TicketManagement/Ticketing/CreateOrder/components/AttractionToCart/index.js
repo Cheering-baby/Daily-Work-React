@@ -17,7 +17,6 @@ import {
   Select,
   Spin,
   Table,
-  Tooltip,
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
@@ -26,11 +25,12 @@ import { calculateAllProductPrice, calculateProductPrice } from '../../../../uti
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
 
+const priceItemKey = ['price', 'subTotalPrice'];
 const FormItem = Form.Item;
 const { Option } = Select;
 @Form.create()
 @connect(({ global, ticketMgr }) => ({
-  global,
+  userCompanyInfo: global.userCompanyInfo,
   countrys: ticketMgr.countrys,
   ticketTypesEnums: ticketMgr.ticketTypesEnums,
 }))
@@ -314,32 +314,28 @@ class ToCart extends Component {
   };
 
   bookingInformationColumns = (offerConstrain, modify, numOfGuests, getFieldDecorator) => {
-    return [
+    const {
+      userCompanyInfo: { companyType },
+    } = this.props;
+    let columns = [
+      {
+        title: 'Session',
+        dataIndex: 'sessionTime',
+        key: 'Session',
+        render: text => <div className={styles.tableText}>{text || '-'}</div>,
+      },
       {
         title: 'Ticket Type',
         dataIndex: 'ticketType',
         key: 'ticketType',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Price',
         dataIndex: 'price',
+        align: 'right',
         key: 'price',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Quantity',
@@ -372,36 +368,59 @@ class ToCart extends Component {
           );
         },
       },
+      {
+        title: 'Sub-Total (SGD)',
+        dataIndex: 'subTotalPrice',
+        align: 'right',
+        key: 'subTotalPrice',
+        render: text => <div className={styles.tableText}>{text}</div>,
+      },
     ];
+    if (companyType === '02') {
+      columns = columns.filter(({ key }) => priceItemKey.indexOf(key) === -1);
+    }
+    return columns;
   };
 
   packageBookingInfoColumns = (getFieldDecorator, modify) => {
-    return [
+    const {
+      userCompanyInfo: { companyType },
+    } = this.props;
+    let columns = [
+      {
+        title: 'Session',
+        dataIndex: 'sessionTime',
+        key: 'Session',
+        render: (_, record) => {
+          return (
+            <div>
+              {record.attractionProduct.map(({ sessionTime }) => (
+                <div key={Math.random()}>{sessionTime || '-'}</div>
+              ))}
+            </div>
+          );
+        },
+      },
       {
         title: 'Ticket Type',
         dataIndex: 'ticketType',
         key: 'ticketType',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
+        render: (_, record) => {
+          return (
+            <div>
+              {record.attractionProduct.map(itemProduct => (
+                <div key={Math.random()}>{itemProduct.attractionProduct.ageGroup || '-'}</div>
+              ))}
+            </div>
+          );
+        },
       },
       {
         title: 'Price',
         dataIndex: 'price',
+        align: 'right',
         key: 'price',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Quantity',
@@ -433,7 +452,18 @@ class ToCart extends Component {
           );
         },
       },
+      {
+        title: 'Sub-Total (SGD)',
+        dataIndex: 'subTotalPrice',
+        align: 'right',
+        key: 'subTotalPrice',
+        render: text => <div className={styles.tableText}>{text}</div>,
+      },
     ];
+    if (companyType === '02') {
+      columns = columns.filter(({ key }) => priceItemKey.indexOf(key) === -1);
+    }
+    return columns;
   };
 
   render() {
@@ -468,9 +498,7 @@ class ToCart extends Component {
         gender,
         cardDisplayName,
       },
-      global: {
-        userCompanyInfo: { companyType },
-      },
+      userCompanyInfo: { companyType },
     } = this.props;
     let termsAndCondition;
     let offerConstrain;
@@ -524,30 +552,33 @@ class ToCart extends Component {
       bookingInformation.push({
         index,
         ticketType: item.attractionProduct.ageGroup || '-',
-        price: companyType === '02' ? null : `$ ${priceShow.toFixed(2)}/ticket`,
+        price: `$ ${priceShow.toFixed(2)}/ticket`,
         quantity: item.ticketNumber,
         ticketNumberLabel: `attractionProduct${index}`,
+        subTotalPrice: `$ ${(priceShow * (item.ticketNumber || 0)).toFixed(2)}`,
+        sessionTime: item.sessionTime,
       });
     });
 
     const packageBookingInfo =
       offerConstrain === 'Fixed'
         ? [
-          {
-            id: 1,
-            ticketType: ageGroups.join('; '),
-            price:
-              companyType === '02'
-                ? null
-                : `$ ${calculateAllProductPrice(
-                  attractionProduct,
-                  priceRuleId,
-                  null,
-                  detail
-                )}/package`,
-            quantity: offerQuantity,
-          },
-        ]
+            {
+              id: 1,
+              price: `$ ${calculateAllProductPrice(
+                attractionProduct,
+                priceRuleId,
+                null,
+                detail
+              )}/package`,
+              quantity: offerQuantity,
+              subTotalPrice: `$ ${(
+                calculateAllProductPrice(attractionProduct, priceRuleId, null, detail) *
+                (offerQuantity || 0)
+              ).toFixed(2)}`,
+              attractionProduct,
+            },
+          ]
         : [];
 
     return (
@@ -646,9 +677,9 @@ class ToCart extends Component {
                             }
                             return (
                               <div className={styles.tableFooterDiv}>
-                                <div style={{ width: '60%', float: 'right' }}>
+                                <div>
                                   <span className={styles.tableFooterSpan}>
-                                    Total Amount Payable:
+                                    Total Amount Payable (SGD):
                                   </span>
                                   <span className={styles.tableTotalPrice}>
                                     {`$ ${(
@@ -669,42 +700,42 @@ class ToCart extends Component {
                       </Form>
                     </div>
                   ) : (
-                      <div className={styles.tableFormStyle}>
-                        <Form hideRequiredMark colon={false}>
-                          <Table
-                            size="small"
-                            className={`tabs-no-padding ${styles.searchTitle}`}
-                            columns={this.bookingInformationColumns(
-                              offerConstrain,
-                              modify,
-                              numOfGuests,
-                              getFieldDecorator
-                            )}
-                            rowKey={record => record.index}
-                            dataSource={bookingInformation}
-                            pagination={false}
-                            scroll={{ x: 400 }}
-                            footer={() => {
-                              if (companyType === '02') {
-                                return null;
-                              }
-                              return (
-                                <div className={styles.tableFooterDiv}>
-                                  <div style={{ width: '60%', float: 'right' }}>
-                                    <span className={styles.tableFooterSpan}>
-                                      Total Amount Payable:
+                    <div className={styles.tableFormStyle}>
+                      <Form hideRequiredMark colon={false}>
+                        <Table
+                          className={`tabs-no-padding ${styles.searchTitle}`}
+                          size="small"
+                          columns={this.bookingInformationColumns(
+                            offerConstrain,
+                            modify,
+                            numOfGuests,
+                            getFieldDecorator
+                          )}
+                          rowKey={record => record.index}
+                          dataSource={bookingInformation}
+                          pagination={false}
+                          scroll={{ x: 400 }}
+                          footer={() => {
+                            if (companyType === '02') {
+                              return null;
+                            }
+                            return (
+                              <div className={styles.tableFooterDiv}>
+                                <div>
+                                  <span className={styles.tableFooterSpan}>
+                                    Total Amount Payable:
                                   </span>
-                                    <span className={styles.tableTotalPrice}>
-                                      {this.calculateTotalPrice()}
-                                    </span>
-                                  </div>
+                                  <span className={styles.tableTotalPrice}>
+                                    {this.calculateTotalPrice()}
+                                  </span>
                                 </div>
-                              );
-                            }}
-                          />
-                        </Form>
-                      </div>
-                    )}
+                              </div>
+                            );
+                          }}
+                        />
+                      </Form>
+                    </div>
+                  )}
                 </Row>
               </div>
               <Col

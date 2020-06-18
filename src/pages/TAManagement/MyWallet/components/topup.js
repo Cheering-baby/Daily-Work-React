@@ -111,7 +111,7 @@ class Arapply extends React.PureComponent {
               {getFieldDecorator(`topupAmount`, {
                 rules: [
                   {
-                    pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/,
+                    pattern: /^(([1-9]{1}\d*)|(0{1}))$/,
                     message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MESSAGE' }),
                   },
                   {
@@ -120,7 +120,7 @@ class Arapply extends React.PureComponent {
                   },
                   {
                     min: 0,
-                    max: 21474836.47,
+                    max: 21474836,
                     message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE' }),
                     validator: (rule, value) => {
                       const v = Number(value);

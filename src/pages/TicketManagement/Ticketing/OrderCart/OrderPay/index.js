@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
-import { Button, Card, Col, Form, Icon, message, Modal, Row, Spin } from 'antd';
+import { Button, Card, Col, Form, Icon, message, Modal, Row, Spin, Steps } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
@@ -87,12 +87,12 @@ class OrderPay extends Component {
       global: {
         userCompanyInfo: { companyType },
       },
-      ticketBookingAndPayMgr: { payModeList, accountInfo, bookDetail },
+      ticketBookingAndPayMgr: { bookingNo, payModeList, accountInfo, bookDetail },
     } = this.props;
 
     if (companyType === '02') {
       message.success('Your request has been submitted.');
-      router.push(`/TicketManagement/Ticketing/CreateOrder?operateType=goBack`);
+      router.push(`/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`);
       return;
     }
 
@@ -114,11 +114,11 @@ class OrderPay extends Component {
       }).then(result => {
         confirmEventSubmitTime = 0;
         if (result && result.url) {
-          const openWindow = window.open('about:blank');
-          if (openWindow) {
-            openWindow.location.href = result.url;
-          } else {
-            message.error('Open window error!');
+          try {
+            window.location.replace(result.url);
+          } catch (e) {
+            console.log(e);
+            message.error('window location replace error!');
           }
         }
       });
@@ -282,23 +282,28 @@ class OrderPay extends Component {
 
     const { clientHeight } = this.state;
 
-    const title = [
-      { name: formatMessage({ id: 'TICKETING' }) },
-      {
-        name: formatMessage({ id: 'ORDER_CREATION' }),
-        href: '#/TicketManagement/Ticketing/CreateOrder?operateType=goBack',
-      },
-      { name: formatMessage({ id: 'MY_ORDER' }) },
-      { name: formatMessage({ id: 'REVIEW_ORDER' }) },
-    ];
+    const title = [{ name: formatMessage({ id: 'REVIEW_ORDER' }) }];
 
     const gridOpts = { xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 };
+    const titleGrid = { xs: 24, sm: 24, md: 12, lg: 16, xl: 16, xxl: 16 };
+    const processGrid = { xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8 };
 
     return (
       <Spin spinning={payPageLoading}>
-        <MediaQuery minWidth={SCREEN.screenSm}>
-          <BreadcrumbCompForPams title={title} />
-        </MediaQuery>
+        <Row gutter={12}>
+          <Col {...titleGrid}>
+            <MediaQuery minWidth={SCREEN.screenSm}>
+              <BreadcrumbCompForPams title={title} />
+            </MediaQuery>
+          </Col>
+          <Col {...processGrid} className={styles.processBarCol}>
+            <Steps labelPlacement="vertical" size="small">
+              <Steps.Step status="finish" title="Cart&nbsp;&nbsp;" />
+              <Steps.Step status="process" title={formatMessage({ id: 'REVIEW_ORDER' })} />
+              <Steps.Step status="wait" title="Complete" />
+            </Steps>
+          </Col>
+        </Row>
 
         <Card
           className={styles.orderCardStyles}

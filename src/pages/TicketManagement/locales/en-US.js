@@ -43,7 +43,7 @@ export default {
   INDIVIDUAL_SETTING: 'Individual Setting',
   MEALS: 'Meals',
   MY_ORDER: 'Cart',
-  NUM_OF_GUESTS: 'No. of Guests',
+  NUM_OF_GUESTS: 'No. of Tickets',
   NUMBER: 'Number',
   NO: 'No.',
   ORDER_DETAIL: 'Order Detail',

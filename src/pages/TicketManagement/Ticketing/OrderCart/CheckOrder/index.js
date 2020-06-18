@@ -14,6 +14,7 @@ import {
   Row,
   Select,
   Spin,
+  Steps,
 } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
@@ -32,7 +33,7 @@ import {
   getCheckTicketAmount,
   transBookingToPayTotalPrice,
 } from '@/pages/TicketManagement/utils/orderCartUtil';
-import SortSelect from "@/components/SortSelect";
+import SortSelect from '@/components/SortSelect';
 
 const FormItem = Form.Item;
 
@@ -492,6 +493,9 @@ class CheckOrder extends Component {
       colon: false,
     };
 
+    const titleGrid = { xs: 24, sm: 24, md: 12, lg: 16, xl: 16, xxl: 16 };
+    const processGrid = { xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8 };
+
     this.pageDataCheck();
 
     return (
@@ -499,21 +503,29 @@ class CheckOrder extends Component {
         <MediaQuery minWidth={SCREEN.screenSm}>
           <BreadcrumbCompForPams title={title} />
         </MediaQuery>
-        <Card className={styles.cardStyles} style={{ marginTop: '0' }}>
-          <Row className={styles.selectAll}>
-            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
-              <Checkbox
-                value="SelectAll"
-                onChange={this.clickSelectAll}
-                checked={selectAllOrder}
-                indeterminate={selectAllIndeterminate}
-                className={styles.checkOutCheckStyle}
-              >
-                Select All
-              </Checkbox>
-            </Col>
-          </Row>
-        </Card>
+
+        <Row gutter={12}>
+          <Col {...titleGrid}>
+            <Row gutter={12} style={{ paddingLeft: '5px' }}>
+              <Col span={24}>
+                <span className={styles.cartItemsSpan}>Cart (24 items)</span>
+              </Col>
+              <Col span={24}>
+                <span className={styles.noteItemsSpan}>
+                  NOTE:{formatMessage({ id: 'ORDER_TITLE_TIP' })}
+                </span>
+              </Col>
+            </Row>
+          </Col>
+          <Col {...processGrid} className={styles.processBarCol}>
+            <Steps labelPlacement="vertical" size="small">
+              <Steps.Step status="process" title="Cart&nbsp;&nbsp;" />
+              <Steps.Step status="wait" title={formatMessage({ id: 'REVIEW_ORDER' })} />
+              <Steps.Step status="wait" title="Complete" />
+            </Steps>
+          </Col>
+        </Row>
+
         <Card
           className={styles.orderCardStyles}
           style={{
@@ -531,6 +543,21 @@ class CheckOrder extends Component {
               <div className={styles.emptyListFont}>{formatMessage({ id: 'EMPTY_ORDER_TIP' })}</div>
             </div>
           )}
+        </Card>
+        <Card className={styles.cardStyles} style={{ marginTop: '0' }}>
+          <Row className={styles.selectAll}>
+            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
+              <Checkbox
+                value="SelectAll"
+                onChange={this.clickSelectAll}
+                checked={selectAllOrder}
+                indeterminate={selectAllIndeterminate}
+                className={styles.checkOutCheckStyle}
+              >
+                Select All
+              </Checkbox>
+            </Col>
+          </Row>
         </Card>
         <div className={styles.bocaFont}>
           <span className={styles.bocaStar}>*</span>
@@ -568,7 +595,7 @@ class CheckOrder extends Component {
                             BOCA
                           </Select.Option>,
                           <Select.Option value="e-Ticket">e-Ticket</Select.Option>,
-                          <Select.Option value="VID">VID</Select.Option>
+                          <Select.Option value="VID">VID</Select.Option>,
                         ]}
                       />
                     )}

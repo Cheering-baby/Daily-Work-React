@@ -1,9 +1,11 @@
 import { message, Modal } from 'antd';
+import router from 'umi/router';
 import { cloneDeep } from 'lodash';
 import {
   accountTopUp,
   invoiceDownload,
   paymentOrder,
+  queryBookingDetail,
   queryBookingStatus,
   queryTask,
   sendTransactionPaymentOrder,
@@ -16,6 +18,7 @@ import {
   queryInfoWithNoId,
   queryTaInfo,
 } from '@/pages/TicketManagement/services/taMgrService';
+import UAAService from '@/uaa-npm';
 
 export default {
   namespace: 'ticketBookingAndPayMgr',
@@ -58,6 +61,7 @@ export default {
       totalPrice: 0,
     },
     downloadFileLoading: false,
+    paymentResultLoading: false,
   },
 
   effects: {
@@ -131,6 +135,12 @@ export default {
           } = responseDetail;
           if (!responseDetail || !responseDetail.success) {
             message.error('queryTask error.');
+            yield put({
+              type: 'save',
+              payload: {
+                downloadFileLoading: false,
+              },
+            });
             return;
           }
           if (queryTaskResultCode === '0') {
@@ -310,9 +320,11 @@ export default {
       if (taDetailInfo && taDetailInfo.otherInfo && taDetailInfo.otherInfo.billingInfo) {
         emailNo = taDetailInfo.otherInfo.billingInfo.email;
       }
+      const paymentResponseUrl = `${UAAService.defaults.uaaPath}/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`;
       const params = {
         orderNo: bookingNo,
         emailNo,
+        paymentResponseUrl,
       };
       const {
         data: { resultCode, resultMsg, result },
@@ -379,10 +391,7 @@ export default {
           if (companyType === '02') {
             message.success('Confirmed successfully.');
           } else {
-            yield put({
-              type: 'queryBookingStatus',
-              payload: {},
-            });
+            router.push(`/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`);
           }
         } else {
           message.error(resultMsg);
@@ -519,6 +528,32 @@ export default {
         },
       });
     },
+
+    *fetchQueryOrderDetail({ payload }, { call, put }) {
+      const { orderNo } = payload;
+
+      const param = { bookingNo: orderNo };
+      const response = yield call(queryBookingDetail, param);
+      if (!response || !response.success) {
+        message.error(response.message);
+      } else {
+        const {
+          data: { resultCode, resultMsg, result },
+        } = response;
+        if (resultCode === '0') {
+          yield put({
+            type: 'save',
+            payload: {
+              bookDetail: result.bookingDetail,
+            },
+          });
+          return result.bookingDetail;
+        }
+        message.error(resultMsg);
+      }
+
+      return null;
+    },
   },
 
   reducers: {
@@ -567,6 +602,7 @@ export default {
           totalPrice: 20000.0,
         },
         downloadFileLoading: false,
+        paymentResultLoading: false,
       };
     },
   },

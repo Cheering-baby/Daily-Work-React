@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Card, Col, List, Row, Spin, Breadcrumb } from 'antd';
+import { Card, Col, List, Row, Spin } from 'antd';
 import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
@@ -28,7 +28,7 @@ class CreateOrder extends PureComponent {
     super(props);
     const clientHeight =
       document.getElementsByClassName('main-layout-content ant-layout-content')[0].clientHeight -
-      50;
+      78;
     this.state = {
       clientHeight,
     };
@@ -47,6 +47,10 @@ class CreateOrder extends PureComponent {
       payload: {
         attributeItem: 'TICKET_TYPE',
       },
+    });
+    dispatch({
+      type: 'ticketMgr/queryOfferBookingCategory',
+      payload: {},
     });
     dispatch({
       type: 'ticketOrderCartMgr/createShoppingCart',
@@ -157,7 +161,7 @@ class CreateOrder extends PureComponent {
           </Col>
           <Col span={24}>
             <div className={styles.orderTitleTipStyles}>
-              {formatMessage({ id: 'ORDER_TITLE_TIP' })}
+              Note: {formatMessage({ id: 'ORDER_TITLE_TIP' })}
             </div>
           </Col>
           <MediaQuery maxWidth={SCREEN.screenXsMax}>

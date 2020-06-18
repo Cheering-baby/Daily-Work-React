@@ -7,6 +7,7 @@ import {
   queryOfferDetail,
   queryOfferList,
   queryPluAttribute,
+  queryOfferBookingCategory,
 } from '../services/ticketCommon';
 import {
   changeVoucherToAttraction,
@@ -33,62 +34,7 @@ export default {
     activeGroup: 0,
     showToCart: false,
     tipVisible: true,
-    themeParkList: [
-      {
-        group: 1,
-        value: 'USS',
-        label: 'Universal Studios Singapore',
-        disabled: false,
-      },
-      {
-        group: 1,
-        value: 'ACW',
-        label: 'Adventure Cove water Park',
-        disabled: false,
-      },
-      {
-        group: 1,
-        value: 'SEA',
-        label: 'S.E.A Aquarium',
-        disabled: false,
-      },
-      {
-        group: 1,
-        value: 'MEM',
-        label: 'Maritime Experiential Museum',
-        disabled: false,
-      },
-      {
-        group: 1,
-        value: 'VOUCHER',
-        label: 'Voucher',
-        disabled: false,
-      },
-      {
-        group: 1,
-        value: 'RE',
-        label: 'Resort Events',
-        disabled: false,
-      },
-      {
-        group: 1,
-        value: 'HHN',
-        label: 'Halloween Horror Nights',
-        disabled: false,
-      },
-      {
-        group: 2,
-        value: 'DOL',
-        label: 'Dolphin Island',
-        disabled: false,
-      },
-      {
-        group: 3,
-        value: 'OAP',
-        label: 'Once A Pirate',
-        disabled: false,
-      },
-    ],
+    themeParkList: [],
     themeParkChooseList: [],
     dateOfVisit: null,
     sessionTimeList: [],
@@ -890,6 +836,39 @@ export default {
         payload,
       });
     },
+    *queryOfferBookingCategory(_, { call, put }) {
+      const param = {};
+      const response = yield call(queryOfferBookingCategory, param);
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0' || resultCode === 0) {
+        const themeParkList = [];
+        const bookingCategoryList = result.bookingCategories ? result.bookingCategories : [];
+        bookingCategoryList.forEach(item => {
+          const newItem = Object.assign({
+            value: item.code,
+            label: item.name,
+            disabled: false,
+            group: 1,
+          });
+          if (item.code === 'OAP') {
+            newItem.group = 3;
+          } else if (item.code === 'DOL') {
+            newItem.group = 2;
+          }
+          themeParkList.push({
+            ...newItem,
+          });
+        });
+        yield put({
+          type: 'save',
+          payload: {
+            themeParkList,
+          },
+        });
+      } else throw resultMsg;
+    },
   },
 
   reducers: {
@@ -908,62 +887,7 @@ export default {
         showToCart: false,
         tipVisible: true,
         deliverInformation: {},
-        themeParkList: [
-          {
-            group: 1,
-            value: 'USS',
-            label: 'Universal Studios Singapore',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'ACW',
-            label: 'Adventure Cove water Park',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'SEA',
-            label: 'S.E.A Aquarium',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'MEM',
-            label: 'Maritime Experiential Museum',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'VOUCHER',
-            label: 'Voucher',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'RE',
-            label: 'Resort Events',
-            disabled: false,
-          },
-          {
-            group: 1,
-            value: 'HHN',
-            label: 'Halloween Horror Nights',
-            disabled: false,
-          },
-          {
-            group: 2,
-            value: 'DOL',
-            label: 'Dolphin Island',
-            disabled: false,
-          },
-          {
-            group: 3,
-            value: 'OAP',
-            label: 'Once A Pirate',
-            disabled: false,
-          },
-        ],
+        themeParkList: [],
         themeParkChooseList: [],
         dateOfVisit: null,
         sessionTimeList: [],

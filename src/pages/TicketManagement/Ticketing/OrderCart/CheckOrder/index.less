@@ -107,6 +107,36 @@
   }
 }
 
+.cartItemsSpan {
+  font-family: calibriBold;
+  font-size: 18px;
+  color: #262626;
+  letter-spacing: 0.62px;
+  text-align: center;
+}
+
+.noteItemsSpan {
+  font-family: calibriBold;
+  font-size: 16px;
+  color: #FF0000;
+  letter-spacing: 0.62px;
+  text-align: center;
+}
+
+.processBarCol {
+  padding: 10px 0;
+
+  :global {
+    .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-tail::after {
+      background-color: #D9D9D9;
+    }
+
+    .ant-steps-item-wait > .ant-steps-item-container > .ant-steps-item-tail::after {
+      background-color: #D9D9D9;
+    }
+  }
+}
+
 .collapsePanelStyles {
   margin-bottom: 24px;
   border: 0 !important;

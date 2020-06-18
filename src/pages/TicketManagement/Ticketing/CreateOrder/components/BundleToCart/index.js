@@ -26,11 +26,12 @@ import { calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
 
+const priceItemKey = ['price', 'subTotalPrice'];
 const FormItem = Form.Item;
 const { Option } = Select;
 @Form.create()
 @connect(({ global, ticketMgr }) => ({
-  global,
+  userCompanyInfo: global.userCompanyInfo,
   countrys: ticketMgr.countrys,
   ticketTypesEnums: ticketMgr.ticketTypesEnums,
 }))
@@ -270,32 +271,32 @@ class ToCart extends Component {
   };
 
   bookingInfoColumns = getFieldDecorator => {
-    return [
+    const {
+      userCompanyInfo: { companyType },
+    } = this.props;
+    let columns = [
+      {
+        title: 'Session',
+        dataIndex: 'sessionTime',
+        key: 'Session',
+        width: '12%',
+        render: () => {
+          return <div>-</div>;
+        },
+      },
       {
         title: 'Ticket Type',
         dataIndex: 'ticketType',
         key: 'ticketType',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
+        width: '30%',
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Price',
         dataIndex: 'price',
+        align: 'right',
         key: 'price',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Quantity',
@@ -330,7 +331,18 @@ class ToCart extends Component {
           );
         },
       },
+      {
+        title: 'Sub-Total (SGD)',
+        dataIndex: 'subTotalPrice',
+        align: 'right',
+        key: 'subTotalPrice',
+        render: text => <div className={styles.tableText}>{text}</div>,
+      },
     ];
+    if (companyType === '02') {
+      columns = columns.filter(({ key }) => priceItemKey.indexOf(key) === -1);
+    }
+    return columns;
   };
 
   render() {
@@ -356,11 +368,8 @@ class ToCart extends Component {
         gender,
         cardDisplayName,
       },
-      global: {
-        userCompanyInfo: { companyType },
-      },
+      userCompanyInfo: { companyType },
     } = this.props;
-    console.log(bundleName);
     const description = [];
     const hasApspTicket = this.hasApspTicket();
     const termsAndConditionItems = [];
@@ -417,12 +426,13 @@ class ToCart extends Component {
       const ticketNumberLabel = `offer${index}`;
       bookingInfo.push({
         ticketType: offerBundle[0].bundleLabel,
-        price: companyType === '02' ? null : `$ ${priceShow}/ticket`,
+        price:`$ ${priceShow}/ticket`,
         quantity: ticketNumber,
         ticketNumberLabel,
         priceShow,
         offerMinQuantity,
         offerMaxQuantity,
+        subTotalPrice: `$ ${(priceShow * (ticketNumber || 0)).toFixed(2)}`,
         index,
       });
     });
@@ -469,7 +479,7 @@ class ToCart extends Component {
             <Spin spinning={loading}>
               <div>
                 <Row>
-                  <Row>
+                  <Row className={styles.orderInformation}>
                     <Col style={{ height: '35px' }} className={styles.title}>
                       ORDER INFORMATION
                     </Col>
@@ -508,7 +518,7 @@ class ToCart extends Component {
                   </Row>
                   <Col
                     span={24}
-                    style={{ marginTop: 15, marginBottom: 10 }}
+                    style={{ marginTop: 24, marginBottom: 10 }}
                     className={styles.title}
                   >
                     BOOKING INFORMATION
@@ -529,9 +539,9 @@ class ToCart extends Component {
                           }
                           return (
                             <div className={styles.tableFooterDiv}>
-                              <div style={{ width: '60%', float: 'right' }}>
+                              <div>
                                 <span className={styles.tableFooterSpan}>
-                                  Total Amount Payable:
+                                  Total Amount Payable (SGD):
                                 </span>
                                 <span className={styles.tableTotalPrice}>
                                   {this.calculateTotalPrice()}
@@ -547,7 +557,7 @@ class ToCart extends Component {
               </div>
               <Col
                 span={24}
-                style={{ height: '25px', marginTop: '20px', paddingLeft: '0' }}
+                style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
                 className={styles.title}
               >
                 GUEST INFORMATION

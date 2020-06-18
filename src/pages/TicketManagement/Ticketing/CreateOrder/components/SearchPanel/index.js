@@ -22,7 +22,7 @@ class SearchPanel extends Component {
     super(props);
     const clientHeight =
       document.getElementsByClassName('main-layout-content ant-layout-content')[0].clientHeight -
-      50;
+      80;
     this.state = {
       clientHeight,
     };
@@ -87,9 +87,7 @@ class SearchPanel extends Component {
     });
     form.validateFields((err, values) => {
       if (!err) {
-        if (
-          themeParkChooseList.indexOf('OAP') === -1
-        ) {
+        if (themeParkChooseList.indexOf('OAP') === -1) {
           this.searchAttraction();
         } else if (themeParkChooseList.length === 1 && themeParkChooseList[0] === 'OAP') {
           this.searchOAP(values);
@@ -346,7 +344,11 @@ class SearchPanel extends Component {
           <div style={{ minHeight: clientHeight }} className={styles.bodyContainer}>
             <div className={styles.filterText}>{formatMessage({ id: 'FILTER' })}</div>
             <Form className={styles.form} hideRequiredMark>
-              <FormItem className={styles.categories} {...formItemLayout} label={formatMessage({ id: 'PRODUCT_CATEGORIES' })}>
+              <FormItem
+                className={styles.categories}
+                {...formItemLayout}
+                label={formatMessage({ id: 'PRODUCT_CATEGORIES' })}
+              >
                 {getFieldDecorator('themePark', {
                   initialValue: themeParkChooseList,
                   rules: [
@@ -364,7 +366,6 @@ class SearchPanel extends Component {
                             disabled={item.disabled}
                             value={item.value}
                             key={`themePark_${item.value}`}
-                            style={{ display: 'block', color: '#3B414A', margin: '5px 0px' }}
                           >
                             {item.label}
                           </Checkbox>
@@ -378,7 +379,9 @@ class SearchPanel extends Component {
                   </div>
                 )}
               </FormItem>
-              <div className={styles.customerChoiceText}>{formatMessage({ id: 'CUSTOMER_CHOICE' })}</div>
+              <div className={styles.customerChoiceText}>
+                {formatMessage({ id: 'CUSTOMER_CHOICE' })}
+              </div>
               <FormItem {...formItemLayout} label={formatMessage({ id: 'DATE_OF_VISIT' })}>
                 {getFieldDecorator('dateOfVisit', {
                   validateTrigger: '',

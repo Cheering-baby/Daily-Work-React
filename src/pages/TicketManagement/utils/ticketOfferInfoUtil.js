@@ -278,16 +278,22 @@ export function getOfferCategory(themeparkCode) {
     'Group Ticketings',
     'Vouchers',
   ];
-  // const DOL_TAGS = [
-  //   'Dolphin Adventure',
-  //   'Dolphin Discovery',
-  //   'Dolphin Encounter',
-  //   'Dolphin Observer',
-  //   'Dolphin Trek',
-  //   'Dolphin VIP',
-  //   'Dolphin Trainer For A Day',
-  // ];
-  const DOL_TAGS = ['DIA', 'DID', 'DIE', 'DIO', 'DIV'];
+  const DOL_TAGS = [
+    'Dolphin Adventure',
+    'Dolphin Discovery',
+    'Dolphin Encounter',
+    'Dolphin Observer',
+    'Dolphin Trek',
+    'Dolphin VIP',
+    'Dolphin Trainer For A Day',
+  ];
+  const UM_TAGS = [
+    'Ray Bay',
+    'Shark Encounter',
+    'Sea Trek Adventure',
+    'Shark Dive',
+    'Open Ocean Dive',
+  ];
   const OM_TAGS = ['Ocean Dream', 'Ocean Dream Glamping', 'Ocean Dream Group'];
   const VOUCHERS_TAGS = ['Meal Vouchers', 'Retail Vouchers', 'Others'];
   const HHN_TAGS = [
@@ -310,7 +316,11 @@ export function getOfferCategory(themeparkCode) {
       resultTags = [...DOL_TAGS];
       break;
     }
-    case 'OM': {
+    case 'UMLE': {
+      resultTags = [...UM_TAGS];
+      break;
+    }
+    case 'ODA': {
       resultTags = [...OM_TAGS];
       break;
     }
@@ -322,6 +332,7 @@ export function getOfferCategory(themeparkCode) {
       resultTags = [...HHN_TAGS];
       break;
     }
+
     default: {
       resultTags = [...USS_SEAA_ACW_TAGS];
     }
