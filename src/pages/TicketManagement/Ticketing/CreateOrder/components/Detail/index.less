@@ -1,27 +1,73 @@
 .title {
   color: #171b21;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
+}
+
+.item {
+  margin-bottom: 16px;
+}
+
+.offerInformation {
+  margin-bottom: 8px;
 }
 
 .detailLabel {
   font-size: 15px;
-  color: #858585;
+  color: #262626;
 }
 
 .detailText {
   white-space: pre-wrap;
   font-size: 15px;
-  color: #3b414a;
+  color: #595959;
 }
 
-.formControl {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  border-top: 1px solid #e9e9e9;
-  padding: 10px 16px;
-  background-color: #fff;
-  text-align: right;
+.voucherContainer {
+  border-top: 1px solid #ebebeb;
+  padding-top: 24px;
+  font-size: 17px;
+  color: #171b21;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.voucherText {
+  color: #8c8c8c;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.table {
+  border: 0;
+  border-bottom: 1px solid #f3f3f3;
+  overflow: auto;
+  :global {
+    th,
+    td {
+      font-size: 15px;
+      border-bottom: 1px solid rgb(233, 233, 233) !important;
+    }
+    thead th {
+      font-size: 15px;
+      background: #f7f7f7;
+    }
+    th span {
+      color: #3b414a;
+      font-weight: 600;
+    }
+  }
+}
+
+.bundleLabel {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.offerName {
+  white-space: normal;
+  word-break: normal;
+  word-wrap: break-word;
+  font-weight: 600;
 }

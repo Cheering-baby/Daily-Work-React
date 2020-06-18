@@ -456,7 +456,7 @@ class ToCart extends Component {
           placement="right"
           destroyOnClose
           maskClosable={false}
-          width={bodyWidth < 480 ? bodyWidth : 480}
+          width={bodyWidth < 720 ? bodyWidth : 720}
           bodyStyle={{
             position: 'relative',
             height: 'calc(100% - 55px)',
@@ -469,41 +469,43 @@ class ToCart extends Component {
             <Spin spinning={loading}>
               <div>
                 <Row>
-                  <Col style={{ height: '35px' }} className={styles.title}>
-                    ORDER INFORMATION
-                  </Col>
-                  <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Offer Name</span>
+                  <Row>
+                    <Col style={{ height: '35px' }} className={styles.title}>
+                      ORDER INFORMATION
                     </Col>
-                    <Col span={12}>
-                      <span className={styles.detailText}>{bundleName || '-'}</span>
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>Offer Name :</span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>{bundleName || '-'}</span>
+                      </Col>
                     </Col>
-                  </Col>
-                  <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Description</span>
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>Description :</span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>
+                          {description.length > 0
+                            ? description.map(item => <div>{item || '-'}</div>)
+                            : '-'}
+                        </span>
+                      </Col>
                     </Col>
-                    <Col span={12}>
-                      <span className={styles.detailText}>
-                        {description.length > 0
-                          ? description.map(item => <div>{item || '-'}</div>)
-                          : '-'}
-                      </span>
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>
+                          Visit Date (Ticket Validity Start Date) :
+                        </span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>
+                          {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
+                        </span>
+                      </Col>
                     </Col>
-                  </Col>
-                  <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>
-                        Visit Date (Ticket Validity Start Date)
-                      </span>
-                    </Col>
-                    <Col span={12}>
-                      <span className={styles.detailText}>
-                        {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
-                      </span>
-                    </Col>
-                  </Col>
+                  </Row>
                   <Col
                     span={24}
                     style={{ marginTop: 15, marginBottom: 10 }}
@@ -545,7 +547,7 @@ class ToCart extends Component {
               </div>
               <Col
                 span={24}
-                style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
+                style={{ height: '25px', marginTop: '20px', paddingLeft: '0' }}
                 className={styles.title}
               >
                 GUEST INFORMATION

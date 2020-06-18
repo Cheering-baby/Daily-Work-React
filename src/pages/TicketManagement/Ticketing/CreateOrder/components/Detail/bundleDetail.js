@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Row, Col } from 'antd';
+import { Drawer, Row, Col, Table } from 'antd';
+import { getVoucherProducts } from '../../../../utils/utils';
 import styles from './index.less';
 
 @connect(({ callCenterBookingAttraction }) => ({
@@ -37,10 +38,46 @@ class Detail extends Component {
     const longDescriptionItems = [];
     const offerIncludesItems = [];
     const termsAndConditionsItems = [];
+    const voucherItems = [];
+    const columns = [
+      {
+        title: 'Voucher Name',
+        dataIndex: 'productName',
+        key: 'productName',
+        width: '70%',
+        render: record => {
+          return (
+            <div className={styles.productName}>
+              {record}
+            </div>
+          );
+        },
+      },
+      {
+        title: 'Quantity',
+        dataIndex: 'needChoiceCount',
+        key: 'needChoiceCount',
+      },
+    ];
     offers.forEach(item => {
       const {
-        detail: { offerContentList = [] },
+        detail,
+        detail: { offerContentList = [], offerBundle = [{}], offerNo },
       } = item;
+      voucherItems.push(
+        <Col span={24} key={offerNo} style={{ marginBottom: '16px' }}>
+          <Col span={24} className={styles.bundleLabel}>{offerBundle[0].bundleLabel || '-'}</Col>
+          <Col span={24}>
+            <Table
+              className={styles.table}
+              dataSource={getVoucherProducts(detail)}
+              columns={columns}
+              pagination={false}
+              rowKey={record => record.productNo}
+            />
+          </Col>
+        </Col>
+      )
       offerContentList.forEach(item2 => {
         const { contentLanguage, contentType, contentValue } = item2;
         if (contentLanguage === 'en-us') {
@@ -84,19 +121,19 @@ class Detail extends Component {
                 <Col style={{ height: '35px' }} className={styles.title}>
                   BASIC INFORMATION
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
-                  <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Offer Name</span>
+                <Col span={24} className={styles.item}>
+                  <Col span={24}>
+                    <span className={styles.detailLabel}>Offer Name :</span>
                   </Col>
-                  <Col span={15}>
+                  <Col span={24}>
                     <span className={styles.detailText}>{bundleName || '-'}</span>
                   </Col>
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
-                  <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Long Description</span>
+                <Col span={24} className={styles.item}>
+                  <Col span={24}>
+                    <span className={styles.detailLabel}>Long Description :</span>
                   </Col>
-                  <Col span={15}>
+                  <Col span={24}>
                     {longDescriptionItems.length > 0 ? (
                       <div>
                         {longDescriptionItems.map(item => (
@@ -104,15 +141,15 @@ class Detail extends Component {
                         ))}
                       </div>
                     ) : (
-                      '-'
-                    )}
+                        '-'
+                      )}
                   </Col>
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
-                  <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Offer Includes</span>
+                <Col span={24} className={styles.item}>
+                  <Col span={24}>
+                    <span className={styles.detailLabel}>Offer Includes :</span>
                   </Col>
-                  <Col span={15}>
+                  <Col span={24}>
                     {offerIncludesItems.length > 0 ? (
                       <div>
                         {longDescriptionItems.map(item => (
@@ -120,15 +157,15 @@ class Detail extends Component {
                         ))}
                       </div>
                     ) : (
-                      '-'
-                    )}
+                        '-'
+                      )}
                   </Col>
                 </Col>
-                <Col span={24} style={{ marginBottom: '5px' }}>
-                  <Col span={9} style={{ height: '30px' }}>
-                    <span className={styles.detailLabel}>Terms and Conditions</span>
+                <Col span={24} className={styles.item}>
+                  <Col span={24}>
+                    <span className={styles.detailLabel}>Terms and Conditions :</span>
                   </Col>
-                  <Col span={15}>
+                  <Col span={24}>
                     {termsAndConditionsItems.length > 0 ? (
                       <div>
                         {longDescriptionItems.map(item => (
@@ -136,9 +173,22 @@ class Detail extends Component {
                         ))}
                       </div>
                     ) : (
-                      '-'
-                    )}
+                        '-'
+                      )}
                   </Col>
+                </Col>
+              </Row>
+              <Row>
+                <Col span={24} className={styles.voucherContainer}>
+                  VOUCHER INFORMATION
+                </Col>
+                <Col span={24} className={styles.voucherText}>
+                  The corresponding voucher will be automatically matched after the items are added
+                  to the cart.
+                </Col>
+                {}
+                <Col span={24}>
+                  {voucherItems}
                 </Col>
               </Row>
             </div>

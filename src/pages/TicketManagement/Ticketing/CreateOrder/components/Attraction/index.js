@@ -2,18 +2,23 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, List, Table, Tabs, Tooltip } from 'antd';
-import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
+import { Button, Icon, List, Table, Tabs } from 'antd';
+import {
+  calculateAllProductPrice,
+  calculateProductPrice,
+  getVoucherProducts,
+} from '../../../../utils/utils';
 import styles from './index.less';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
 import BundleToCart from '../BundleToCart';
 import BundleDetail from '../Detail/bundleDetail';
+import BookingVoucher from '@/assets/image/booking-voucher.jpg';
 
 const { TabPane } = Tabs;
 @connect(({ ticketMgr, global }) => ({
   ticketMgr,
-  global,
+  userCompanyInfo: global.userCompanyInfo,
 }))
 class Attraction extends Component {
   constructor(props) {
@@ -259,7 +264,7 @@ class Attraction extends Component {
         orderData,
       },
     });
-    console.log(orderData)
+    console.log(orderData);
     this.onClose();
   };
 
@@ -323,7 +328,7 @@ class Attraction extends Component {
         orderData,
       },
     });
-    console.log(orderData)
+    console.log(orderData);
     this.onClose();
   };
 
@@ -389,31 +394,41 @@ class Attraction extends Component {
         showBundleDetailModal,
         functionActive,
       },
-      global: {
-        userCompanyInfo: { companyType },
-      },
+      userCompanyInfo: { companyType },
     } = this.props;
     const { clientHeight } = this.state;
     const columns = [
       {
         title: 'Offer Name',
         key: 'name',
-        width: '20%',
+        width: '30%',
         render: record => {
           const {
             bundleName,
+            offers = [],
             detail: {
               offerBasicInfo: { offerName },
             },
           } = record;
+          let includesVoucher = false;
+          if (getVoucherProducts(record.detail).length > 0) {
+            includesVoucher = true;
+          }
+          offers.forEach(itemOffer => {
+            if (getVoucherProducts(itemOffer.detail).length > 0) {
+              includesVoucher = true;
+            }
+          });
           return (
-            <Tooltip
-              title={bundleName || offerName}
-              placement="topLeft"
-              overlayStyle={{ whiteSpace: 'pre-wrap' }}
-            >
-              <span style={{ whiteSpace: 'pre' }}>{bundleName || offerName}</span>
-            </Tooltip>
+            <div>
+              <div className={styles.offerName}>{bundleName || offerName}</div>
+              {includesVoucher ? (
+                <div className={styles.includesVoucher}>
+                  <img src={BookingVoucher} alt="" width={16} height={16} />
+                  <div style={{ marginLeft: '3px' }}> The package includes voucher</div>
+                </div>
+              ) : null}
+            </div>
           );
         },
       },
@@ -422,10 +437,7 @@ class Attraction extends Component {
         key: 'Session',
         width: '10%',
         render: record => {
-          const {
-            bundleName,
-            offers = [],
-          } = record;
+          const { bundleName, offers = [] } = record;
           if (isNullOrUndefined(bundleName)) {
             return (
               <div className={styles.sessionContainer}>
@@ -450,7 +462,7 @@ class Attraction extends Component {
                 } = offerItem;
                 return (
                   <div key={offerNo} className={styles.productPrice}>
-                    <div >-</div>
+                    <div>-</div>
                   </div>
                 );
               })}
@@ -463,31 +475,15 @@ class Attraction extends Component {
         key: 'Category',
         width: '20%',
         render: record => {
-          const {
-            bundleName,
-            offers = [],
-          } = record;
+          const { bundleName, offers = [] } = record;
           if (!isNullOrUndefined(bundleName)) {
             return (
               <div>
                 {offers.map(offerItem => {
                   const {
-                    detail: {
-                      offerBasicInfo: { offerNo },
-                      offerBundle = [{}],
-                    },
+                    detail: { offerBundle = [{}] },
                   } = offerItem;
-                  return (
-                    <Tooltip
-                      title={offerBundle[0].bundleLabel}
-                      placement="topLeft"
-                      overlayStyle={{ whiteSpace: 'pre-wrap' }}
-                      key={offerNo}
-                    >
-                      <span className={styles.categoryShow}>{offerBundle[0].bundleLabel}</span>
-                    </Tooltip>
-
-                  );
+                  return <span className={styles.categoryShow}>{offerBundle[0].bundleLabel}</span>;
                 })}
               </div>
             );
@@ -582,7 +578,10 @@ class Attraction extends Component {
                 return (
                   <div key={productNo} className={styles.productPrice}>
                     <div style={{ marginRight: '10px' }}> </div>
-                    <div>${`${calculateProductPrice(item, priceRuleId, sessionTime).toFixed(2)}/ticket`}</div>
+                    <div>
+                      $
+                      {`${calculateProductPrice(item, priceRuleId, sessionTime).toFixed(2)}/ticket`}
+                    </div>
                   </div>
                 );
               })}
@@ -599,25 +598,16 @@ class Attraction extends Component {
         },
       },
       {
-        title: 'Operation',
+        title: '',
         key: 'Operation',
         className: styles.option,
-        width: '30%',
+        width: '15%',
         render: (_, record) => {
           return (
             <div className={styles.operation}>
-              <Tooltip title="Detail">
-                <Icon
-                  type="eye"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.viewDetail(record);
-                  }}
-                  style={{ marginRight: '10px' }}
-                />
-              </Tooltip>
               <Button
                 type="primary"
+                style={{ width: '106px', marginTop: '3px' }}
                 onClick={e => {
                   e.stopPropagation();
                   this.showToCart(record);
@@ -625,6 +615,16 @@ class Attraction extends Component {
                 disabled={!functionActive}
               >
                 Add to Cart
+              </Button>
+              <Button
+                style={{ width: '106px', marginTop: '8px' }}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.viewDetail(record);
+                }}
+                disabled={!functionActive}
+              >
+                Details
               </Button>
             </div>
           );
@@ -689,13 +689,15 @@ class Attraction extends Component {
                             onClick={() => this.showDetail(index, index2, showDetail)}
                           />
                         ) : (
-                            <Icon
-                              type="caret-right"
-                              style={{ color: '#666666', fontSize: '16px', margin: '0 8px 0 12px' }}
-                              onClick={() => this.showDetail(index, index2, showDetail)}
-                            />
-                          )}
-                        <span>{tag}</span>
+                          <Icon
+                            type="caret-right"
+                            style={{ color: '#666666', fontSize: '16px', margin: '0 8px 0 12px' }}
+                            onClick={() => this.showDetail(index, index2, showDetail)}
+                          />
+                        )}
+                        <span style={{ fontSize: '15px' }}>
+                          {tag} ({products.length} {products.length > 1 ? 'items' : 'item'})
+                        </span>
                       </div>
                       {showDetail ? (
                         <Table

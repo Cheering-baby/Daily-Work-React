@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Card, Col, List, Row, Spin } from 'antd';
+import { Card, Col, List, Row, Spin, Breadcrumb } from 'antd';
 import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
@@ -127,7 +127,7 @@ class CreateOrder extends PureComponent {
   render() {
     const {
       productPanelListLoading,
-      ticketMgr: { tipVisible, activeDataPanel, mainPageLoading = false },
+      ticketMgr: { activeDataPanel, mainPageLoading = false },
       ticketOrderCartMgr: { orderCartDataAmount },
     } = this.props;
 
@@ -142,20 +142,36 @@ class CreateOrder extends PureComponent {
 
     return (
       <Spin spinning={mainPageLoading}>
-        <Row gutter={12}>
-          <Col {...searchPanelGrid} className={styles.marginBottom8}>
-            <MediaQuery minWidth={SCREEN.screenSm}>
+        <Row gutter={12} style={{ fontSize: '15px' }}>
+          <MediaQuery minWidth={SCREEN.screenSm}>
+            <Col span={24} className={styles.top}>
               <BreadcrumbCompForPams title={title} />
-            </MediaQuery>
+              <MyOrderButton
+                orderAmount={orderCartDataAmount}
+                onClickOrder={() => this.clickOrder()}
+              />
+            </Col>
+          </MediaQuery>
+          <Col span={24}>
+            <div className={styles.orderTitle}>{formatMessage({ id: 'ORDER_CREATION' })}</div>
+          </Col>
+          <Col span={24}>
+            <div className={styles.orderTitleTipStyles}>
+              {formatMessage({ id: 'ORDER_TITLE_TIP' })}
+            </div>
+          </Col>
+          <MediaQuery maxWidth={SCREEN.screenXsMax}>
+            <Col span={24} style={{ marginLeft: '5px', marginTop: '10px' }}>
+              <MyOrderButton
+                orderAmount={orderCartDataAmount}
+                onClickOrder={() => this.clickOrder()}
+              />
+            </Col>
+          </MediaQuery>
+          <Col {...searchPanelGrid} className={styles.marginBottom8}>
             <SearchPanel />
           </Col>
           <Col {...infoPanelGrid} className={styles.marginBottom8}>
-            <MyOrderButton
-              tipVisible={tipVisible}
-              tipString={formatMessage({ id: 'ORDER_TITLE_TIP' })}
-              orderAmount={orderCartDataAmount}
-              onClickOrder={() => this.clickOrder()}
-            />
             <Spin spinning={!!productPanelListLoading}>
               <div className={styles.marginTop4}>
                 {!isNvl(activeDataPanel) ? (

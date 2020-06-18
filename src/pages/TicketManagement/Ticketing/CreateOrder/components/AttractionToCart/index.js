@@ -533,21 +533,21 @@ class ToCart extends Component {
     const packageBookingInfo =
       offerConstrain === 'Fixed'
         ? [
-            {
-              id:1,
-              ticketType: ageGroups.join('; '),
-              price:
-                companyType === '02'
-                  ? null
-                  : `$ ${calculateAllProductPrice(
-                      attractionProduct,
-                      priceRuleId,
-                      null,
-                      detail
-                    )}/package`,
-              quantity: offerQuantity,
-            },
-          ]
+          {
+            id: 1,
+            ticketType: ageGroups.join('; '),
+            price:
+              companyType === '02'
+                ? null
+                : `$ ${calculateAllProductPrice(
+                  attractionProduct,
+                  priceRuleId,
+                  null,
+                  detail
+                )}/package`,
+            quantity: offerQuantity,
+          },
+        ]
         : [];
 
     return (
@@ -558,7 +558,7 @@ class ToCart extends Component {
           placement="right"
           destroyOnClose
           maskClosable={false}
-          width={bodyWidth < 480 ? bodyWidth : 480}
+          width={bodyWidth < 720 ? bodyWidth : 720}
           drawerStyle={{ position: 'relative' }}
           bodyStyle={{
             padding: '20px',
@@ -576,7 +576,7 @@ class ToCart extends Component {
           placement="right"
           destroyOnClose
           maskClosable={false}
-          width={bodyWidth < 480 ? bodyWidth : 480}
+          width={bodyWidth < 720 ? bodyWidth : 720}
           className={styles.container}
           bodyStyle={{
             position: 'relative',
@@ -589,40 +589,42 @@ class ToCart extends Component {
             <Spin spinning={loading}>
               <div>
                 <Row>
-                  <Col style={{ height: '35px' }} className={styles.title}>
-                    ORDER INFORMATION
-                  </Col>
-                  <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Offer Name</span>
+                  <Row className={styles.orderInformation}>
+                    <Col style={{ height: '35px' }} className={styles.title}>
+                      ORDER INFORMATION
                     </Col>
-                    <Col span={12}>
-                      <span className={styles.detailText}>{offerName || '-'}</span>
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>Offer Name :</span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>{offerName || '-'}</span>
+                      </Col>
                     </Col>
-                  </Col>
-                  <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>Description</span>
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>Description :</span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>{description || '-'}</span>
+                      </Col>
                     </Col>
-                    <Col span={12}>
-                      <span className={styles.detailText}>{description || '-'}</span>
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>
+                          Visit Date (Ticket Validity Start Date) :
+                        </span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>
+                          {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
+                        </span>
+                      </Col>
                     </Col>
-                  </Col>
-                  <Col span={24} style={{ marginBottom: '10px' }}>
-                    <Col span={12} style={{ height: '30px' }}>
-                      <span className={styles.detailLabel}>
-                        Visit Date (Ticket Validity Start Date)
-                      </span>
-                    </Col>
-                    <Col span={12}>
-                      <span className={styles.detailText}>
-                        {moment(dateOfVisit, 'x').format('DD-MMM-YYYY')}
-                      </span>
-                    </Col>
-                  </Col>
+                  </Row>
                   <Col
                     span={24}
-                    style={{ marginTop: 15, marginBottom: 10 }}
+                    style={{ marginTop: 24, marginBottom: 10 }}
                     className={styles.title}
                   >
                     BOOKING INFORMATION
@@ -667,47 +669,47 @@ class ToCart extends Component {
                       </Form>
                     </div>
                   ) : (
-                    <div className={styles.tableFormStyle}>
-                      <Form hideRequiredMark colon={false}>
-                        <Table
-                          size="small"
-                          className={`tabs-no-padding ${styles.searchTitle}`}
-                          columns={this.bookingInformationColumns(
-                            offerConstrain,
-                            modify,
-                            numOfGuests,
-                            getFieldDecorator
-                          )}
-                          rowKey={record => record.index}
-                          dataSource={bookingInformation}
-                          pagination={false}
-                          scroll={{ x: 400 }}
-                          footer={() => {
-                            if (companyType === '02') {
-                              return null;
-                            }
-                            return (
-                              <div className={styles.tableFooterDiv}>
-                                <div style={{ width: '60%', float: 'right' }}>
-                                  <span className={styles.tableFooterSpan}>
-                                    Total Amount Payable:
+                      <div className={styles.tableFormStyle}>
+                        <Form hideRequiredMark colon={false}>
+                          <Table
+                            size="small"
+                            className={`tabs-no-padding ${styles.searchTitle}`}
+                            columns={this.bookingInformationColumns(
+                              offerConstrain,
+                              modify,
+                              numOfGuests,
+                              getFieldDecorator
+                            )}
+                            rowKey={record => record.index}
+                            dataSource={bookingInformation}
+                            pagination={false}
+                            scroll={{ x: 400 }}
+                            footer={() => {
+                              if (companyType === '02') {
+                                return null;
+                              }
+                              return (
+                                <div className={styles.tableFooterDiv}>
+                                  <div style={{ width: '60%', float: 'right' }}>
+                                    <span className={styles.tableFooterSpan}>
+                                      Total Amount Payable:
                                   </span>
-                                  <span className={styles.tableTotalPrice}>
-                                    {this.calculateTotalPrice()}
-                                  </span>
+                                    <span className={styles.tableTotalPrice}>
+                                      {this.calculateTotalPrice()}
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          }}
-                        />
-                      </Form>
-                    </div>
-                  )}
+                              );
+                            }}
+                          />
+                        </Form>
+                      </div>
+                    )}
                 </Row>
               </div>
               <Col
                 span={24}
-                style={{ height: '25px', marginTop: '24px', paddingLeft: '0' }}
+                style={{ height: '25px', marginTop: '20px', paddingLeft: '0' }}
                 className={styles.title}
               >
                 GUEST INFORMATION

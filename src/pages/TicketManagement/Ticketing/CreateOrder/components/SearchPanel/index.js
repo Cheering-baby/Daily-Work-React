@@ -344,9 +344,9 @@ class SearchPanel extends Component {
           bodyStyle={{ padding: 0 }}
         >
           <div style={{ minHeight: clientHeight }} className={styles.bodyContainer}>
-            <div className={styles.titleFontBlackWeight}>{formatMessage({ id: 'FILTER' })}</div>
-            <Form>
-              <FormItem {...formItemLayout} label={formatMessage({ id: 'PRODUCT_CATEGORIES' })}>
+            <div className={styles.filterText}>{formatMessage({ id: 'FILTER' })}</div>
+            <Form className={styles.form} hideRequiredMark>
+              <FormItem className={styles.categories} {...formItemLayout} label={formatMessage({ id: 'PRODUCT_CATEGORIES' })}>
                 {getFieldDecorator('themePark', {
                   initialValue: themeParkChooseList,
                   rules: [
@@ -378,6 +378,7 @@ class SearchPanel extends Component {
                   </div>
                 )}
               </FormItem>
+              <div className={styles.customerChoiceText}>{formatMessage({ id: 'CUSTOMER_CHOICE' })}</div>
               <FormItem {...formItemLayout} label={formatMessage({ id: 'DATE_OF_VISIT' })}>
                 {getFieldDecorator('dateOfVisit', {
                   validateTrigger: '',

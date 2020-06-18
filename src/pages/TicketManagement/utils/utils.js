@@ -1,4 +1,5 @@
 import { isNullOrUndefined } from 'util';
+import { Attraction, Voucher } from './constants';
 
 export function arrToString(arr = []) {
   let str1 = '';
@@ -376,4 +377,19 @@ export function dealSessionArr(target = []) {
   }
   doExchange(target, 0);
   return sessionArr;
+}
+
+export function getVoucherProducts(detail) {
+  const { productGroup } = detail;
+  let voucherProducts = [];
+  productGroup.forEach(itemProduct => {
+    if (itemProduct.productType === Attraction) {
+      itemProduct.productGroup.forEach(attractionProduct => {
+        if (attractionProduct.groupName === Voucher) {
+          voucherProducts = attractionProduct.products;
+        }
+      })
+    }
+  })
+  return voucherProducts;
 }

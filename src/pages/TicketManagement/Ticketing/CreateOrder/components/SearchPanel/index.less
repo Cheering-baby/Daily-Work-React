@@ -1,9 +1,40 @@
 @import '../../../../../../theme/screen.less';
 
 .bodyContainer {
+  font-family: calibriBold;
   position: relative;
-  padding: 15px;
   padding-bottom: 65px;
+}
+
+.filterText {
+  height: 44px;
+  line-height: 44px;
+  font-size: 16px;
+  color: #262626;
+  padding-left: 16px;
+  box-shadow: inset 0 -1px 0 0 #ebebeb;
+}
+
+.customerChoiceText {
+  color: #c0c0c0;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.form {
+  padding: 8px 16px;
+}
+
+.categories {
+  :global {
+    .ant-form-item-no-colon {
+      color: #c0c0c0 !important;
+    }
+    .ant-checkbox-wrapper span {
+      color: #262626 !important;
+      font-size: 15px;
+    }
+  }
 }
 
 .marginTop4 {
@@ -12,11 +43,7 @@
 .marginBottom8 {
   margin-bottom: 8px;
 }
-.titleFontBlackWeight {
-  font-family: calibriBold;
-  font-size: 16px;
-  color: #3b414a;
-}
+
 .titleLabelFontCommon {
   font-size: 14px;
   font-family: Calibri;

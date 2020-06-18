@@ -42,7 +42,7 @@ export default {
   GUEST_LAST_NAME: 'Guest Last Name',
   INDIVIDUAL_SETTING: 'Individual Setting',
   MEALS: 'Meals',
-  MY_ORDER: 'My Shopping Cart',
+  MY_ORDER: 'Cart',
   NUM_OF_GUESTS: 'No. of Guests',
   NUMBER: 'Number',
   NO: 'No.',
@@ -56,7 +56,8 @@ export default {
   OFFER_NAME: 'Offer Name',
   ORDER_TITLE_TIP:
     '* Prices shown in Singapore Dollars (SGD) inclusive of Goods & Services Tax (GST) of 7%',
-  PRODUCT_CATEGORIES: 'Product Categories',
+  PRODUCT_CATEGORIES: 'PRODUCT CATEGORIES',
+  CUSTOMER_CHOICE: 'CUSTOMER CHOICE',
   PAYMENT: 'Payment',
   PAYMENT_MODE: 'PAYMENT MODE',
   PARTNERS_TRANSACTION_NO: 'PARTNERS Order No.',

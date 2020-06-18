@@ -1,6 +1,6 @@
 .title {
   color: #171b21;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
 }
 
@@ -12,13 +12,32 @@
 
 .detailLabel {
   font-size: 15px;
-  color: #858585;
+  color: #262626;
 }
 
 .detailText {
   white-space: pre-wrap;
   font-size: 15px;
-  color: #3b414a;
+  color: #595959;
+}
+
+.orderInformation {
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 8px;
+}
+
+.orderInformationItem {
+  margin-bottom: 16px;
+}
+
+.tableFormStyle {
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 24px;
+  :global {
+    .ant-form .ant-form-item {
+      margin-bottom: 0;
+    }
+  }
 }
 
 .formControl {
@@ -128,10 +147,6 @@
   padding-left: 6px !important;
 }
 
-.itemTC {
-  margin: 10px 0;
-}
-
 .TC {
   margin-left: 10px;
   cursor: pointer;
@@ -154,15 +169,15 @@
   //border-bottom: 1px solid #EEE;
 
   :global {
-    .ant-table-column-title{
+    .ant-table-column-title {
       font-weight: 600;
     }
 
-    .ant-table-footer{
+    .ant-table-footer {
       padding: 0 !important;
     }
 
-    .ant-table-small > .ant-table-content > .ant-table-footer{
+    .ant-table-small > .ant-table-content > .ant-table-footer {
       border-top: 0 !important;
     }
   }
@@ -188,14 +203,6 @@
     color: #565656;
     letter-spacing: 0;
     line-height: 15px;
-  }
-}
-
-.tableFormStyle {
-  :global {
-    .ant-form .ant-form-item {
-      margin-bottom: 0px;
-    }
   }
 }
 
