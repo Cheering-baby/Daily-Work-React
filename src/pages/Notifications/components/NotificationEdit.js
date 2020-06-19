@@ -78,8 +78,7 @@ class NotificationEdit extends React.PureComponent {
           { indent: '-1' },
           { indent: '+1' },
           { align: [] },
-        ], // // outdent/indent
-        [{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
+        ],
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
         [{ color: [] }, { background: [] }], // dropdown with defaults from theme
         ['link', 'image'],
@@ -110,20 +109,14 @@ class NotificationEdit extends React.PureComponent {
       type: 'notificationSearchForm/queryStatusList',
     });
     dispatch({ type: 'notificationSearchForm/queryAllCompanyConfig' }).then(e => {
+      const { notificationSearchForm: { targetTreeData } } = this.props;
       if(type === 'NEW') {
         dispatch({
-          type: 'notificationSearchForm/queryAllUserByRole',
+          type: 'notification/saveData',
           payload: {
-            roleCode: SALES_SUPPORT_ROLE_KEY,
+            defaultTargetList: [{targetObj: `${SALES_SUPPORT_ROLE_KEY}`, targetType: '02'}],
           }
-        }).then(e => {
-          dispatch({
-            type: 'notification/saveData',
-            payload: {
-              defaultTargetList: [{targetObj: `${SALES_SUPPORT_ROLE_KEY}`, targetType: '02'}],
-            }
-          });
-        })
+        });
       } else if(type === 'EDIT' && notificationInfo && notificationInfo.targetList) {
         // load data
         const userList = notificationInfo.targetList.filter(item => item.targetType === '03');
@@ -133,10 +126,11 @@ class NotificationEdit extends React.PureComponent {
             targetList: userList,
           }
         }).then(e => {
+          const defaultTargetList = notificationInfo.targetList.filter(e => e.targetType !== '05')
           dispatch({
             type: 'notification/saveData',
             payload: {
-              defaultTargetList: notificationInfo.targetList,
+              defaultTargetList
             },
           });
         })
@@ -144,17 +138,25 @@ class NotificationEdit extends React.PureComponent {
     });
   }
 
-  onSelectTemplate =(targetList, content)=> {
+  componentWillUnmount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'notification/cleanData',
+      payload: {},
+    });
+  }
+
+  onSelectTemplate =(targetList, content, fileList)=> {
     const { dispatch, form,
       notificationSearchForm: { targetTreeData },
     } = this.props;
     // update targetList
-
+    form.setFieldsValue({ fileList: this.normFile(fileList) || [] });
     // update content
     if (content) {
       if (this.reactQuillRef && this.reactQuillRef.getEditor) {
         this.quillRef = this.reactQuillRef.getEditor();
-        const delta = [{ insert: ''}, { insert: '\n'}]
+        const delta = [{ insert: ''}, { insert: '\n'}];
         this.quillRef.setContents(delta);
         this.quillRef.pasteHTML(content);
       }
@@ -290,7 +292,8 @@ class NotificationEdit extends React.PureComponent {
     dispatch({
       type: 'notification/fetchDeleteNotificationFile',
       payload: {
-        fileName: file.name,
+        fileName: file.fileName,
+        path: file.filePath,
         filePath: file.filePath,
       },
     }).then(flag => {
@@ -483,26 +486,29 @@ class NotificationEdit extends React.PureComponent {
     return newTargetList;
   };
 
-  getLeafTargetFromSelectNode = (targetList, targetTreeData, newTargetList) => {
-    if (!targetTreeData) return [];
-    targetTreeData.forEach(item => {
-      const hasTarget = targetList.findIndex(n => String(n) === String(item.key)) > -1;
-      if(!item.isLeaf && item.children && item.children.length > 0) {
-        newTargetList.push(item.key);
-      }
-      if (hasTarget && !existNewTargetList) {
-        newTargetList.push(item.key);
-      } else if (item.children && item.children.length > 0) {
-        this.initAllChildrenTargetList(targetList, item.children, newTargetList);
-      }
-    });
-    return newTargetList;
+  resetTreeNodeCheckbox = (treeList) => {
+    if (treeList && treeList.children && treeList.children.length > 0) {
+      treeList.children.forEach(item => {
+        if (item.children && item.children.length > 0) {
+          item.children.forEach(j => {
+            j.disableCheckbox = '';
+          });
+        }
+      });
+    }
   };
+
+  clearSelectNode = (allTreeData) => {
+    if(!allTreeData || allTreeData.length < 1) return allTreeData;
+    allTreeData.forEach(item => {
+      this.resetTreeNodeCheckbox(item);
+    });
+    return allTreeData;
+  };
+
   // set the node in disable whose value is the same as selected node
   disableSameNode = (selectedList, allTreeData) => {
-    if (!selectedList || selectedList.length < 1) return allTreeData;
-    const expendSelectedList = [];
-    this.getLeafTargetFromSelectNode(selectedList, allTreeData, expendSelectedList);
+    if (!selectedList || selectedList.length < 1) return this.clearSelectNode(allTreeData);
     const compareList = [];
     selectedList.forEach(item => {
       if (item.startsWith("&{") && item.indexOf("}&.") > -1) {
@@ -666,7 +672,7 @@ class NotificationEdit extends React.PureComponent {
     });
   };
   getTemplateModalHtml =()=>{
-    return <NotificationTemplate onSelectTemplate={(targetList, content) => this.onSelectTemplate(targetList, content)} />;
+    return <NotificationTemplate onSelectTemplate={(targetList, content, fileList) => this.onSelectTemplate(targetList, content, fileList)} />;
   }
 
   render() {

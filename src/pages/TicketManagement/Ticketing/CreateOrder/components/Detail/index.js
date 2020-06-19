@@ -151,7 +151,7 @@ class Detail extends Component {
                 </Col>
                 <Col span={24} className={styles.item}>
                   <Col span={24}>
-                    <span className={styles.detailLabel}>Long Description :</span>
+                    <span className={styles.detailLabel}>Description :</span>
                   </Col>
                   <Col span={24}>
                     <span className={styles.detailText}>{longDescription || '-'}</span>

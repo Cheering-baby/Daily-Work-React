@@ -512,6 +512,7 @@ export default {
                           sessions.push(priceTimeFrom);
                         }
                       });
+                      sessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
                       if (sessions.length === 0) {
                         sessions.push(null);
                       }
@@ -539,7 +540,7 @@ export default {
                                 sessionTime: itemSession[itemProductIndex],
                               })
                             );
-                            themeParkList[index4].products.push(data);
+                            themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
                           });
                         }
                       });
@@ -560,7 +561,7 @@ export default {
             } = item;
             categoriesItem.forEach((item2, index2) => {
               const { tag } = item2;
-              products.forEach(item3 => {
+              products.forEach((item3, productIndex) => {
                 const {
                   detail: { offerTagList = [], offerNo, offerBundle = [] },
                 } = item3;
@@ -570,7 +571,7 @@ export default {
                 offerTagList.forEach(item4 => {
                   const { tagName } = item4;
                   if (tag === tagName) {
-                    item3.id = offerNo;
+                    item3.id = offerNo + productIndex;
                     if (offerBundleFilter.length > 0) {
                       const { bundleName, bundleLabel } = offerBundleFilter[0];
                       if (
@@ -888,7 +889,7 @@ export default {
         ...payload,
       };
     },
-    resetData() {
+    resetData(_, { payload }) {
       return {
         offerType: '',
         themeParkTipType: 'NoTip',
@@ -915,6 +916,7 @@ export default {
         mainPageLoading: false,
         onceAPirateLoading: false,
         functionActive: true,
+        ...payload,
       };
     },
   },

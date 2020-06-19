@@ -15,7 +15,7 @@ class MenuDetail extends PureComponent {
             <Row type="flex" justify="space-around">
               <Col span={24}>
                 <div className={styles.detailRightStyleRequired}>
-                  <span>{formatMessage({ id: 'MENU_FORM_PARENT_DIRECTORY' })}</span>
+                  <span>{formatMessage({ id: 'MENU_FORM_PARENT_DIRECTORY' })} :</span>
                 </div>
               </Col>
               <Col span={24}>
@@ -29,7 +29,7 @@ class MenuDetail extends PureComponent {
             <Row type="flex" justify="space-around">
               <Col span={24}>
                 <div className={styles.detailRightStyleRequired}>
-                  <span>{formatMessage({ id: 'MENU_FORM_MENU_NAME' })}</span>
+                  <span>{formatMessage({ id: 'MENU_FORM_MENU_NAME' })} :</span>
                 </div>
               </Col>
               <Col span={24}>
@@ -44,7 +44,7 @@ class MenuDetail extends PureComponent {
               <Row type="flex" justify="space-around">
                 <Col span={24}>
                   <div className={styles.detailRightStyleRequired}>
-                    <span>{formatMessage({ id: 'MENU_FORM_MENU_URL' })}</span>
+                    <span>{formatMessage({ id: 'MENU_FORM_MENU_URL' })} :</span>
                   </div>
                 </Col>
                 <Col span={24}>
@@ -59,7 +59,7 @@ class MenuDetail extends PureComponent {
             <Row type="flex" justify="space-around">
               <Col span={24}>
                 <div className={styles.detailRightStyleRequired}>
-                  <span>{formatMessage({ id: 'MENU_FORM_MENU_TYPE' })}</span>
+                  <span>{formatMessage({ id: 'MENU_FORM_MENU_TYPE' })} :</span>
                 </div>
               </Col>
               <Col span={24}>
@@ -73,7 +73,7 @@ class MenuDetail extends PureComponent {
             <Row type="flex" justify="space-around">
               <Col span={24}>
                 <div className={styles.detailRightStyle}>
-                  <span>{formatMessage({ id: 'MENU_FORM_ICON_URL' })}</span>
+                  <span>{formatMessage({ id: 'MENU_FORM_ICON_URL' })} :</span>
                 </div>
               </Col>
               <Col span={24}>
@@ -87,7 +87,7 @@ class MenuDetail extends PureComponent {
             <Row type="flex" justify="space-around">
               <Col span={24}>
                 <div className={styles.detailRightStyle}>
-                  <span>{formatMessage({ id: 'MENU_FORM_REMARKS' })}</span>
+                  <span>{formatMessage({ id: 'MENU_FORM_REMARKS' })} :</span>
                 </div>
               </Col>
               <Col span={24}>

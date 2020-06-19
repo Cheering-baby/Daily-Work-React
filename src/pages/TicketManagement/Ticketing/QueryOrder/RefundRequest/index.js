@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
-import { Button, Col, Input, message, Row, Spin, Table, Tooltip, Upload } from 'antd';
+import {Button, Checkbox, Col, Input, message, Row, Spin, Table, Tooltip, Upload, Modal} from 'antd';
 import moment from 'moment';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
@@ -163,58 +163,47 @@ class RefundRequest extends Component {
     });
   };
 
-  refundTicket = (selectedVidList, bookingNo, userType) => {
-    const {
-      dispatch,
-      refundRequestMgr: { bookingDetail },
-    } = this.props;
+  refundTicket = (vidResultList, bookingNo, userType) => {
+    const selectedVidList = vidResultList.filter(item => item.selected === true);
     if (selectedVidList.length < 1) {
       message.warning('Select at least one VID.');
     } else {
-      const visualIds = [];
-      const selectOfferGroupList = [];
-      selectedVidList.forEach(selectedVid => {
-        const index = selectOfferGroupList.findIndex(
-          selectOfferGroup => selectOfferGroup === selectedVid.offerGroup
-        );
-        if (index < 0) {
-          selectOfferGroupList.push(selectedVid.offerGroup);
-        }
-      });
-      const { offers = [] } = bookingDetail;
-      for (let i = 0; i < offers.length; i += 1) {
-        const index = selectOfferGroupList.findIndex(
-          selectOfferGroup => selectOfferGroup === offers[i].offerGroup
-        );
-        if (index < 0) {
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-        const { attraction = [] } = offers[i];
-        if (attraction) {
-          for (let j = 0; j < attraction.length; j += 1) {
-            if (attraction[j].visualIdStatus === 'false') {
-              visualIds.push(attraction[j].visualID);
+      const selectVidGroup = selectedVidList.filter((element, index, self) => {
+        return self.findIndex(el => el.vidGroup === element.vidGroup) === index;
+      }).map(obj => obj.vidGroup);
+      const {
+        dispatch,
+        refundRequestMgr: {
+          wholeVidList
+        },
+      } = this.props;
+      const wholeSelectList = wholeVidList.filter(item => selectVidGroup.includes(item.vidGroup));
+      const filterSelect = wholeSelectList.filter(item => !selectedVidList.map(obj => obj.vidCode).includes(item.vidCode));
+      if(filterSelect.length > 0){
+        const unUnploadVidString = filterSelect.map(obj => obj.vidCode).join(', ');
+        Modal.warning({
+          title: 'Failed to refund',
+          content: `Package needs to be refunded as a whole, together with the following vids: ${unUnploadVidString}`,
+        });
+      } else {
+        const visualIds = selectedVidList.map(item=>item.vidCode);
+        dispatch({
+          type: 'refundRequestMgr/refundTicket',
+          payload: {
+            bookingNo,
+            visualIds,
+          },
+        }).then(resultCode => {
+          if (resultCode === '0') {
+            if (userType === '02') {
+              message.success(formatMessage({ id: 'REFUNDED_SUCCESSFULLY' }));
+            }
+            if (userType === '03') {
+              message.success(formatMessage({ id: 'SUB_TA_REQUESTED_SUCCESSFULLY' }));
             }
           }
-        }
+        });
       }
-      dispatch({
-        type: 'refundRequestMgr/refundTicket',
-        payload: {
-          bookingNo,
-          visualIds,
-        },
-      }).then(resultCode => {
-        if (resultCode === '0') {
-          if (userType === '02') {
-            message.success(formatMessage({ id: 'REFUNDED_SUCCESSFULLY' }));
-          }
-          if (userType === '03') {
-            message.success(formatMessage({ id: 'SUB_TA_REQUESTED_SUCCESSFULLY' }));
-          }
-        }
-      });
     }
   };
 
@@ -255,112 +244,74 @@ class RefundRequest extends Component {
     }
   };
 
-  getCheckboxProps = record => {
-    const {
-      refundRequestMgr: { disabledKeyList, themeParkRefundList = [], disabledVidList = [] },
-    } = this.props;
-    const index = disabledKeyList.findIndex(disabledKey => disabledKey === record.offerGroup);
-    if (record.themePark && themeParkRefundList.length > 0) {
-      const themeParkRefundIndex = themeParkRefundList.findIndex(
-        themeParkRefund => themeParkRefund === record.themePark
-      );
-      if (themeParkRefundIndex > -1 && index > -1) {
-        return {
-          disabled: false,
-        };
+  onSelectChange = (record, selected, vidResultList, currentPage, nowPageSize, vidCode) => {
+    const selectVidGroup = vidResultList.filter(item => record.vidGroup === item.vidGroup);
+    vidResultList.forEach(item => {
+      selectVidGroup.forEach(selectedItem => {
+        if(item.vidCode === selectedItem.vidCode){
+          item.selected = selected;
+        }
+      })
+    });
+    this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
+  };
+
+  onSelectAll = (selected, selectedRows, vidResultList, currentPage, nowPageSize, vidCode) => {
+    selectedRows.forEach(e => {
+        const selectVidGroup = vidResultList.filter(item => e.vidGroup === item.vidGroup);
+        vidResultList.forEach(item => {
+          selectVidGroup.forEach(selectedItem => {
+            if(item.vidCode === selectedItem.vidCode){
+              item.selected = selected;
+            }
+          })
+        });
       }
-    }
-    const vidCodeIndex = disabledVidList.findIndex(
-      disabledVid => disabledVid.vidCode === record.vidCode
     );
-    let disabledResult = false;
-    if (vidCodeIndex > -1 || index > -1) {
-      disabledResult = true;
-    }
-    return {
-      disabled: disabledResult,
-    };
+    this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
   };
 
-  onSelectChange = selectedRowKeys => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'refundRequestMgr/saveSelectVid',
-      payload: {
-        selectedRowKeys,
-      },
+  refundPay = (vidResultList) => {
+    const selectedResultVidList = vidResultList.filter(item => item.selected === true);
+    const selectedVidList = selectedResultVidList.filter((element, index, self) => {
+      return self.findIndex(el => el.prodId === element.prodId) === index;
     });
-  };
-
-  onSelectAll = (selected, selectedRows) => {
-    const { dispatch } = this.props;
-    if (selected) {
-      const selectedRowKeys = selectedRows.map(selectedRow => selectedRow.key);
-      dispatch({
-        type: 'refundRequestMgr/saveSelectVid',
-        payload: {
-          selectedRowKeys,
-        },
-      });
-    } else {
-      dispatch({
-        type: 'refundRequestMgr/save',
-        payload: {
-          selectedRowKeys: [],
-          selectedVidList: [],
-        },
-      });
-    }
-  };
-
-  onSelect = (record, selected) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'refundRequestMgr/settingSelectVid',
-      payload: {
-        selected,
-        record,
-      },
-    });
-  };
-
-  refundPay = () => {
-    const {
-      refundRequestMgr: { selectedVidList = [], bookingDetail },
-    } = this.props;
 
     if (selectedVidList.length === 0) {
       return '0.00';
     }
 
     let refundPay = 0;
-    const selectOfferGroupList = [];
-    selectedVidList.forEach(selectedVid => {
-      const index = selectOfferGroupList.findIndex(
-        selectOfferGroup => selectOfferGroup === selectedVid.offerGroup
-      );
-      if (index < 0) {
-        selectOfferGroupList.push(selectedVid.offerGroup);
+
+    selectedVidList.forEach(item=> {
+      if(item.netAmt !== null){
+        refundPay += item.netAmt;
       }
     });
-    const { offers = [] } = bookingDetail;
-    for (let i = 0; i < offers.length; i += 1) {
-      const index = selectOfferGroupList.findIndex(
-        selectOfferGroup => selectOfferGroup === offers[i].offerGroup
-      );
-      if (index < 0) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      const { attraction = [] } = offers[i];
-      if (attraction) {
-        for (let j = 0; j < attraction.length; j += 1) {
-          refundPay += attraction[j].netAmt;
-        }
-      }
-    }
 
     return Number(refundPay).toFixed(2);
+  };
+
+  saveResultList = (vidResultList, currentPage, pageSize, vidCode) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'refundRequestMgr/saveSearchVidList',
+      payload: {
+        vidResultList,
+        currentPage,
+        pageSize,
+        vidCode,
+      },
+    });
+  };
+
+  selectAllVid = (value, vidResultList, currentPage, nowPageSize, vidCode) => {
+    vidResultList.forEach(item => {
+      if (!item.disabled) {
+        item.selected = value;
+      }
+    });
+    this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
   };
 
   render() {
@@ -372,8 +323,6 @@ class RefundRequest extends Component {
         total,
         vidResultList,
         searchList: { bookingNo, vidCode, currentPage: current, pageSize: nowPageSize },
-        selectedRowKeys,
-        selectedVidList,
       },
       global: {
         currentUser: { userType },
@@ -390,25 +339,14 @@ class RefundRequest extends Component {
       total,
       current,
       pageSize: nowPageSize,
-      pageChange: (page, pageSize) => {
-        const { dispatch } = this.props;
-        dispatch({
-          type: 'refundRequestMgr/saveSearchVidList',
-          payload: {
-            vidResultList,
-            currentPage: page,
-            pageSize,
-            vidCode,
-          },
-        });
-      },
+      pageChange: (page, pageSize) => this.saveResultList(vidResultList, page, pageSize, vidCode),
     };
 
     const rowSelection = {
-      selectedRowKeys,
-      onSelectAll: this.onSelectAll,
-      onSelect: this.onSelect,
-      getCheckboxProps: this.getCheckboxProps,
+      selectedRowKeys: vidList.filter(item => item.selected === true).map(item => item.vidCode),
+      onSelect: (record, selected) => this.onSelectChange(record, selected, vidResultList, current, nowPageSize, vidCode),
+      onSelectAll: (selected, _, changeRows) => this.onSelectAll(selected, changeRows, vidResultList, current, nowPageSize, vidCode),
+      getCheckboxProps: (record) => ({disabled: record.disabled}),
     };
 
     return (
@@ -422,10 +360,10 @@ class RefundRequest extends Component {
           <Col span={12}>
             <div className={styles.orderTitleStyles}>
               <div className={styles.orderTitleButtonStyles}>
-                {userType !== '03' && <span className={styles.priceFont}>${this.refundPay()}</span>}
+                {userType !== '03' && <span className={styles.priceFont}>${this.refundPay(vidResultList)}</span>}
                 <Button
                   type="primary"
-                  onClick={() => this.refundTicket(selectedVidList, bookingNo, userType)}
+                  onClick={() => this.refundTicket(vidResultList, bookingNo, userType)}
                 >
                   {this.showButtonText(userType)}
                 </Button>
@@ -437,7 +375,7 @@ class RefundRequest extends Component {
           <Col span={24}>
             <Card>
               <Row>
-                <Col span={24}>
+                <Col span={12}>
                   <Upload
                     action=""
                     beforeUpload={file => this.getRefundUploadProps(file, nowPageSize)}
@@ -454,6 +392,18 @@ class RefundRequest extends Component {
                     className={styles.inputStyle}
                   />
                 </Col>
+                <Col span={12}>
+                  <div className={styles.selectedDiv}>
+                    <Checkbox
+                      disabled={vidResultList.filter(item => item.disabled === false).length === 0}
+                      checked={vidResultList.filter(item => item.selected === true).length === vidResultList.filter(item => item.disabled === false).length && vidResultList.filter(item => item.disabled === false).length > 0}
+                      onChange={(e) => this.selectAllVid(e.target.checked, vidResultList, current, nowPageSize, vidCode)}
+                    >
+                      Select All
+                    </Checkbox>
+                    <span className={styles.selectedSpan}>Selected {vidResultList.filter(item => item.selected === true).length} items.</span>
+                  </div>
+                </Col>
                 <Col span={24}>
                   <Table
                     loading={!!tableLoading}
@@ -462,6 +412,7 @@ class RefundRequest extends Component {
                     columns={this.columns}
                     dataSource={vidList}
                     rowSelection={rowSelection}
+                    rowKey={(record => record.vidCode)}
                     pagination={false}
                     bordered={false}
                     scroll={{ x: 660 }}

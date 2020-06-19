@@ -169,7 +169,7 @@ export default {
         });
         const roleTreeList = [...roleTreeMap.values()];
         roleTreeList.sort(companyString);
-        const {targetTreeData} = yield select(state => state.notificationSearchForm);
+        const { targetTreeData } = yield select(state => state.notificationSearchForm);
         yield put({
           type: 'save',
           payload: {

@@ -225,7 +225,7 @@ class Attraction extends Component {
         ageGroup: item.attractionProduct.ageGroup,
         ageGroupQuantity: item.needChoiceCount,
         quantity: offerQuantity,
-        pricePax: calculateProductPrice(item, priceRuleId),
+        pricePax: calculateProductPrice(item, priceRuleId, item.sessionTime),
         productInfo: item,
       });
     });
@@ -293,7 +293,7 @@ class Attraction extends Component {
         ageGroup: item.attractionProduct.ageGroup,
         ageGroupQuantity: item.needChoiceCount,
         quantity: ticketNumber || 0,
-        pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
+        pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
         productInfo: item,
       });
     });

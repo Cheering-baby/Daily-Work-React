@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { Drawer, Row, Col, Table } from 'antd';
 import { getVoucherProducts } from '../../../../utils/utils';
 import styles from './index.less';
+import { calculateAllProductPrice } from '../../../../utils/utils';
 
 @connect(({ callCenterBookingAttraction }) => ({
   callCenterBookingAttraction,
@@ -46,11 +47,7 @@ class Detail extends Component {
         key: 'productName',
         width: '70%',
         render: record => {
-          return (
-            <div className={styles.productName}>
-              {record}
-            </div>
-          );
+          return <div className={styles.productName}>{record}</div>;
         },
       },
       {
@@ -66,7 +63,9 @@ class Detail extends Component {
       } = item;
       voucherItems.push(
         <Col span={24} key={offerNo} style={{ marginBottom: '16px' }}>
-          <Col span={24} className={styles.bundleLabel}>{offerBundle[0].bundleLabel || '-'}</Col>
+          <Col span={24} className={styles.bundleLabel}>
+            {offerBundle[0].bundleLabel || '-'}
+          </Col>
           <Col span={24}>
             <Table
               className={styles.table}
@@ -77,7 +76,7 @@ class Detail extends Component {
             />
           </Col>
         </Col>
-      )
+      );
       offerContentList.forEach(item2 => {
         const { contentLanguage, contentType, contentValue } = item2;
         if (contentLanguage === 'en-us') {
@@ -131,7 +130,36 @@ class Detail extends Component {
                 </Col>
                 <Col span={24} className={styles.item}>
                   <Col span={24}>
-                    <span className={styles.detailLabel}>Long Description :</span>
+                    <span className={styles.detailLabel}>Price (SGD) :</span>
+                  </Col>
+                  <Col span={24}>
+                    {offers.map((itemOffer, index) => {
+                      const {
+                        attractionProduct,
+                        detail: { priceRuleId, offerBundle = [{}] },
+                      } = itemOffer;
+                      return (
+                        <div
+                          className={styles.detailLabel}
+                          style={{ marginTop: index !== 0 ? '5px' : null }}
+                        >
+                          {offerBundle[0].bundleLabel || '-'}
+                          {' - '}
+                          {calculateAllProductPrice(
+                            attractionProduct,
+                            priceRuleId,
+                            null,
+                            itemOffer.detail
+                          )}
+                          /package
+                        </div>
+                      );
+                    })}
+                  </Col>
+                </Col>
+                <Col span={24} className={styles.item}>
+                  <Col span={24}>
+                    <span className={styles.detailLabel}>Description :</span>
                   </Col>
                   <Col span={24}>
                     {longDescriptionItems.length > 0 ? (
@@ -141,8 +169,8 @@ class Detail extends Component {
                         ))}
                       </div>
                     ) : (
-                        '-'
-                      )}
+                      '-'
+                    )}
                   </Col>
                 </Col>
                 <Col span={24} className={styles.item}>
@@ -157,8 +185,8 @@ class Detail extends Component {
                         ))}
                       </div>
                     ) : (
-                        '-'
-                      )}
+                      '-'
+                    )}
                   </Col>
                 </Col>
                 <Col span={24} className={styles.item}>
@@ -173,8 +201,8 @@ class Detail extends Component {
                         ))}
                       </div>
                     ) : (
-                        '-'
-                      )}
+                      '-'
+                    )}
                   </Col>
                 </Col>
               </Row>
@@ -187,9 +215,7 @@ class Detail extends Component {
                   to the cart.
                 </Col>
                 {}
-                <Col span={24}>
-                  {voucherItems}
-                </Col>
+                <Col span={24}>{voucherItems}</Col>
               </Row>
             </div>
           </div>

@@ -32,6 +32,7 @@ import PaymentPromptModal from '@/pages/TicketManagement/Ticketing/QueryOrder/co
     loading.effects['updateOrderMgr/update'] ||
     loading.effects['sendETicketMgr/sendEmail'] ||
     loading.effects['auditOrderMgr/audit'],
+  downloadFileLoading: loading.effects['queryOrderMgr/download'],
 }))
 class QueryOrder extends Component {
   columns = [
@@ -695,7 +696,6 @@ class QueryOrder extends Component {
   showPaymentModal = selectedBookings => {
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
-      // console.log(selectedBooking);
       const { dispatch } = this.props;
       dispatch({
         type: 'queryOrderPaymentMgr/save',
@@ -791,12 +791,6 @@ class QueryOrder extends Component {
           payload: {
             forderNo: selectedBooking.bookingNo,
           },
-        }).then(resultCode => {
-          if (resultCode === '0') {
-            message.success(formatMessage({ id: 'EXPORTED_SUCCESSFULLY' }));
-          } else {
-            message.warning(resultCode);
-          }
         });
       }
     }
@@ -830,6 +824,7 @@ class QueryOrder extends Component {
     const {
       pageLoading,
       tableLoading,
+      downloadFileLoading,
       queryOrderMgr: {
         transactionList,
         searchConditions: { currentPage: current, pageSize: nowPageSize },
@@ -837,7 +832,6 @@ class QueryOrder extends Component {
         selectedRowKeys,
         selectedBookings,
         expandTableKeys,
-        downloadFileLoading = false,
       },
       global: {
         currentUser: { userType },
@@ -946,7 +940,7 @@ class QueryOrder extends Component {
                       disabled={this.ifCanOperateETicket(selectedBookings)}
                       className={styles.buttonStyle}
                       onClick={() => this.downloadETicket(selectedBookings)}
-                      loading={downloadFileLoading}
+                      loading={!!downloadFileLoading}
                     >
                       {formatMessage({ id: 'DOWNLOAD_ETICKET' })}
                     </Button>

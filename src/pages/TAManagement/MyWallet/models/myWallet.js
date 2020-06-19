@@ -35,8 +35,12 @@ const MyWalletModel = {
   effects: {
     *fetchAccountFlowList({ payload }, { call, put, select }) {
       yield put({ type: 'save', payload });
+      const {
+        userCompanyInfo: { companyId },
+      } = yield select(state => state.global);
       const { filter, pagination } = yield select(state => state.myWallet);
       const params = {
+        taId: companyId,
         walletType: DEFAULTS.walletType,
       };
       Object.assign(params, filter, pagination);
@@ -99,7 +103,7 @@ const MyWalletModel = {
     },
     *fetchAccountDetail(_, { call, put, select }) {
       const {
-        userCompanyInfo: { companyId = '' },
+        userCompanyInfo: { companyId },
       } = yield select(state => state.global);
       const params = { taId: companyId };
       const {

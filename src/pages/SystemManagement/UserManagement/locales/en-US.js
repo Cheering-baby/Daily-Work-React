@@ -71,4 +71,8 @@ export default {
   RESET_PASSWORD_SUCCESS: 'Reset Password Success',
   SEND_EMAIL_CONTENT: 'Do you wish to send PARTNERS login invitation to {userName}?',
   RESET_PASSWORD_CONTENT: 'Do you want to reset password of userCode?',
+  MAIN_TA_HAS_USER_TIPS:
+    'This travel agent already has main user, you might not need to create this travel agent profile and user account. ',
+  SUB_TA_HAS_USER_TIPS:
+    'This subs travel agent already has main user, you might not need to create this sub travel agent profile and user account. This information will be automatically tie to your travel agent account.',
 };

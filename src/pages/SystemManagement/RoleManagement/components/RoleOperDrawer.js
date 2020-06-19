@@ -343,7 +343,7 @@ class Index extends React.PureComponent {
         visible
       >
         <Spin spinning={detailLoading}>
-          <Form onSubmit={e => this.commit(e)} layout="vertical">
+          <Form onSubmit={e => this.commit(e)}>
             <Form.Item label={formatMessage({ id: 'ROLE_CODE' })}>
               {getFieldDecorator(`roleCode`, {
                 initialValue: operType === constants.ADD_USER_ROLE ? '' : roleCode,

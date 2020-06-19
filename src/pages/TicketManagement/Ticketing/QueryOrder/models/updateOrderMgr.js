@@ -8,7 +8,9 @@ export default {
     updateVisible: false,
     activityId: null,
     updateType: null,
+    revalidationSelected: 'Complete',
     galaxyOrderNo: null,
+    revalidationRejectReason: null,
     refundSelected: 'Complete',
     rejectReason: null,
     bookingNo: null,
@@ -28,6 +30,8 @@ export default {
         refundSelected,
         rejectReason,
         updateType,
+        revalidationSelected,
+        revalidationRejectReason,
         galaxyOrderNo,
         bookingNo,
         status,
@@ -39,16 +43,22 @@ export default {
         } else if (refundSelected === 'Reject') {
           response = yield call(reject, { activityId, reason: rejectReason.trim() });
         }
-      } else if (updateType === 'Revalidation' && status === 'Confirmed') {
-        response = yield call(accept, { activityId, remarks: galaxyOrderNo });
-      } else if (updateType === 'Revalidation' && status === 'Complete') {
-        response = yield call(secondUpdate, { orderNo: bookingNo, galaxyNo: galaxyOrderNo });
-        if (!response) return false;
-        const { data: { resultCode, resultMsg }, } = response;
-        if(resultCode !== '0'){
-          message.error(resultMsg);
+      } else if(updateType === 'Revalidation') {
+        if(revalidationSelected === 'Complete') {
+          if (status === 'Confirmed') {
+            response = yield call(accept, { activityId, remarks: galaxyOrderNo });
+          } else if (status === 'Complete') {
+            response = yield call(secondUpdate, { orderNo: bookingNo, galaxyNo: galaxyOrderNo });
+            if (!response) return false;
+            const { data: { resultCode, resultMsg }, } = response;
+            if(resultCode !== '0'){
+              message.error(resultMsg);
+            }
+            return resultCode;
+          }
+        } else if(revalidationSelected === 'Reject') {
+          response = yield call(reject, { activityId, reason: revalidationRejectReason.trim() });
         }
-        return resultCode;
       }
       if (!response) return false;
       const { data: resultData, success, errorMsg } = response;
@@ -86,7 +96,9 @@ export default {
         ...state,
         updateVisible: false,
         updateType: null,
+        revalidationSelected: 'Complete',
         galaxyOrderNo: null,
+        revalidationRejectReason: null,
         refundSelected: 'Complete',
         rejectReason: null,
         bookingNo: null,

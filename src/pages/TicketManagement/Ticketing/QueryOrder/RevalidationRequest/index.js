@@ -4,7 +4,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import {
-  Button,
+  Button, Checkbox,
   Col,
   DatePicker,
   Form,
@@ -206,16 +206,6 @@ class RevalidationRequest extends Component {
     });
   };
 
-  onSelectChange = selectedRowKeys => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'revalidationRequestMgr/saveSelectVid',
-      payload: {
-        selectedRowKeys,
-      },
-    });
-  };
-
   changeSearchValue = e => {
     const { dispatch } = this.props;
     dispatch({
@@ -239,86 +229,77 @@ class RevalidationRequest extends Component {
     });
   };
 
-  revalidationTicket = (deliveryMode, collectionDate, selectedVidList, bookingNo, userType) => {
+  revalidationTicket = (deliveryMode, collectionDate, vidResultList, bookingNo, userType) => {
     const { form } = this.props;
+    const selectedVidList = vidResultList.filter(item => item.selected === true);
     if (selectedVidList.length < 1) {
       message.warning('Select at least one VID.');
     } else {
-      form.validateFields(err => {
-        if (!err) {
-          Modal.warning({
-            title:
-              'There’s $2 modification service fee. Revalidation only allowed once per order. Proceed or Not?',
-            centered: true,
-            content: (
-              <div style={{ marginBottom: 20 }}>
-                <div className={styles.operateButtonDivStyle}>
-                  <Button
-                    onClick={() => {
-                      Modal.destroyAll();
-                    }}
-                    style={{ marginRight: 8, width: 40 }}
-                  >
-                    No
-                  </Button>
-                  <Button
-                    onClick={() =>
-                      this.wantRevalidate(
-                        deliveryMode,
-                        collectionDate,
-                        selectedVidList,
-                        bookingNo,
-                        userType
-                      )
-                    }
-                    type="primary"
-                    style={{ width: 40 }}
-                  >
-                    Yes
-                  </Button>
+      const selectVidGroup = selectedVidList.filter((element, index, self) => {
+        return self.findIndex(el => el.vidGroup === element.vidGroup) === index;
+      }).map(obj => obj.vidGroup);
+      const {
+        revalidationRequestMgr: {
+          wholeVidList
+        },
+      } = this.props;
+      const wholeSelectList = wholeVidList.filter(item => selectVidGroup.includes(item.vidGroup));
+      const filterSelect = wholeSelectList.filter(item => !selectedVidList.map(obj => obj.vidCode).includes(item.vidCode));
+      if(filterSelect.length > 0){
+        const unUnploadVidString = filterSelect.map(obj => obj.vidCode).join(', ');
+        Modal.warning({
+          title: 'Failed to revalidation',
+          content: `Package needs to be revalidated as a whole, together with the following vids: ${unUnploadVidString}`,
+        });
+      } else {
+        form.validateFields(err => {
+          if (!err) {
+            Modal.warning({
+              title:
+                'There’s $2 modification service fee. Revalidation only allowed once per order. Proceed or Not?',
+              centered: true,
+              content: (
+                <div style={{ marginBottom: 20 }}>
+                  <div className={styles.operateButtonDivStyle}>
+                    <Button
+                      onClick={() => {
+                        Modal.destroyAll();
+                      }}
+                      style={{ marginRight: 8, width: 40 }}
+                    >
+                      No
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        this.wantRevalidate(
+                          deliveryMode,
+                          collectionDate,
+                          selectedVidList,
+                          bookingNo,
+                          userType
+                        )
+                      }
+                      type="primary"
+                      style={{ width: 40 }}
+                    >
+                      Yes
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ),
-            okButtonProps: { style: { display: 'none' } },
-            cancelButtonProps: { style: { display: 'none' } },
-          });
-        }
-      });
+              ),
+              okButtonProps: { style: { display: 'none' } },
+              cancelButtonProps: { style: { display: 'none' } },
+            });
+          }
+        });
+      }
     }
   };
 
   wantRevalidate = (deliveryMode, collectionDate, selectedVidList, bookingNo, userType) => {
-    const {
-      dispatch,
-      revalidationRequestMgr: { bookingDetail },
-    } = this.props;
+    const { dispatch } = this.props;
     Modal.destroyAll();
-    const visualIds = [];
-    const selectOfferGroupList = [];
-    selectedVidList.forEach(selectedVid => {
-      const index = selectOfferGroupList.findIndex(
-        selectOfferGroup => selectOfferGroup === selectedVid.offerGroup
-      );
-      if (index < 0) {
-        selectOfferGroupList.push(selectedVid.offerGroup);
-      }
-    });
-    const { offers = [] } = bookingDetail;
-    for (let i = 0; i < offers.length; i += 1) {
-      const index = selectOfferGroupList.findIndex(
-        selectOfferGroup => selectOfferGroup === offers[i].offerGroup
-      );
-      if (index < 0) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      const { attraction = [] } = offers[i];
-      if (attraction) {
-        for (let j = 0; j < attraction.length; j += 1) {
-          visualIds.push(attraction[j].visualID);
-        }
-      }
-    }
+    const visualIds = selectedVidList.map(item=>item.vidCode);
     dispatch({
       type: 'revalidationRequestMgr/revalidationTicket',
       payload: {
@@ -385,53 +366,53 @@ class RevalidationRequest extends Component {
     }
   };
 
-  onSelectAll = (selected, selectedRows) => {
-    const { dispatch } = this.props;
-    if (selected) {
-      const selectedRowKeys = selectedRows.map(selectedRow => selectedRow.key);
-      dispatch({
-        type: 'revalidationRequestMgr/saveSelectVid',
-        payload: {
-          selectedRowKeys,
-        },
-      });
-    } else {
-      dispatch({
-        type: 'revalidationRequestMgr/save',
-        payload: {
-          selectedRowKeys: [],
-          selectedVidList: [],
-        },
-      });
-    }
+  onSelectChange = (record, selected, vidResultList, currentPage, nowPageSize, vidCode) => {
+    const selectVidGroup = vidResultList.filter(item => record.vidGroup === item.vidGroup);
+    vidResultList.forEach(item => {
+      selectVidGroup.forEach(selectedItem => {
+        if(item.vidCode === selectedItem.vidCode){
+          item.selected = selected;
+        }
+      })
+    });
+    this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
   };
 
-  onSelect = (record, selected) => {
+  onSelectAll = (selected, selectedRows, vidResultList, currentPage, nowPageSize, vidCode) => {
+    selectedRows.forEach(e => {
+      const selectVidGroup = vidResultList.filter(item => e.vidGroup === item.vidGroup);
+      vidResultList.forEach(item => {
+        selectVidGroup.forEach(selectedItem => {
+          if(item.vidCode === selectedItem.vidCode){
+            item.selected = selected;
+          }
+        })
+      });
+      }
+    );
+    this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
+  };
+
+  saveResultList = (vidResultList, currentPage, pageSize, vidCode) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'revalidationRequestMgr/settingSelectVid',
+      type: 'revalidationRequestMgr/saveSearchVidList',
       payload: {
-        selected,
-        record,
+        vidResultList,
+        currentPage,
+        pageSize,
+        vidCode,
       },
     });
   };
 
-  getCheckboxProps = record => {
-    const {
-      revalidationRequestMgr: { disabledKeyList, disabledVidList = [] },
-    } = this.props;
-    const index = disabledKeyList.findIndex(disabledKey => disabledKey === record.offerGroup);
-    const vidCodeIndex = disabledVidList.findIndex(
-      disabledVid => disabledVid.vidCode === record.vidCode
-    );
-    let disabledResult = false;
-    if (vidCodeIndex > -1 || index > -1) {
-      disabledResult = true;
-    }
-    return {
-      disabled: disabledResult,
-    };
+  selectAllVid = (value, vidResultList, currentPage, nowPageSize, vidCode) => {
+    vidResultList.forEach(item => {
+      if (!item.disabled) {
+        item.selected = value;
+      }
+    });
+    this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
   };
 
   render() {
@@ -447,8 +428,6 @@ class RevalidationRequest extends Component {
         total,
         vidResultList,
         searchList: { bookingNo, vidCode, currentPage, pageSize: nowPageSize },
-        selectedRowKeys,
-        selectedVidList,
       },
       global: {
         currentUser: { userType },
@@ -465,25 +444,14 @@ class RevalidationRequest extends Component {
       total,
       current: currentPage,
       pageSize: nowPageSize,
-      pageChange: (page, pageSize) => {
-        const { dispatch } = this.props;
-        dispatch({
-          type: 'revalidationRequestMgr/saveSearchVidList',
-          payload: {
-            vidResultList,
-            currentPage: page,
-            pageSize,
-            vidCode,
-          },
-        });
-      },
+      pageChange: (page, pageSize) => this.saveResultList(vidResultList, page, pageSize, vidCode),
     };
 
     const rowSelection = {
-      selectedRowKeys,
-      onSelectAll: this.onSelectAll,
-      onSelect: this.onSelect,
-      getCheckboxProps: this.getCheckboxProps,
+      selectedRowKeys: vidList.filter(item => item.selected === true).map(item => item.vidCode),
+      onSelect: (record, selected)=>this.onSelectChange(record, selected, vidResultList, currentPage, nowPageSize, vidCode),
+      onSelectAll: (selected, _, changeRows)=>this.onSelectAll(selected, changeRows, vidResultList, currentPage, nowPageSize, vidCode),
+      getCheckboxProps: (record) => ({disabled: record.disabled}),
     };
 
     return (
@@ -503,7 +471,7 @@ class RevalidationRequest extends Component {
                     this.revalidationTicket(
                       deliveryMode,
                       collectionDate,
-                      selectedVidList,
+                      vidResultList,
                       bookingNo,
                       userType
                     )
@@ -588,7 +556,7 @@ class RevalidationRequest extends Component {
           <Col span={24}>
             <Card>
               <Row>
-                <Col span={24}>
+                <Col span={12}>
                   <Upload
                     action=""
                     beforeUpload={file => this.getUploadProps(file, nowPageSize)}
@@ -605,6 +573,18 @@ class RevalidationRequest extends Component {
                     className={styles.inputStyle}
                   />
                 </Col>
+                <Col span={12}>
+                  <div className={styles.selectedDiv}>
+                    <Checkbox
+                      disabled={vidResultList.filter(item => item.disabled === false).length === 0}
+                      checked={vidResultList.filter(item => item.selected === true).length === vidResultList.filter(item => item.disabled === false).length && vidResultList.filter(item => item.disabled === false).length > 0}
+                      onChange={(e)=>this.selectAllVid(e.target.checked, vidResultList, currentPage, nowPageSize, vidCode)}
+                    >
+                      Select All
+                    </Checkbox>
+                    <span className={styles.selectedSpan}>Selected {vidResultList.filter(item => item.selected === true).length} items.</span>
+                  </div>
+                </Col>
                 <Col span={24}>
                   <Table
                     loading={!!tableLoading}
@@ -613,6 +593,7 @@ class RevalidationRequest extends Component {
                     columns={this.columns}
                     dataSource={vidList}
                     rowSelection={rowSelection}
+                    rowKey={(record => record.vidCode)}
                     pagination={false}
                     bordered={false}
                     scroll={{ x: 660 }}

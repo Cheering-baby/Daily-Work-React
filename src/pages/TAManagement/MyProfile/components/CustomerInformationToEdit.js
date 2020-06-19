@@ -30,6 +30,7 @@ const mapStateToProps = store => {
   } = store.taCommon;
   const { taId, customerInfo, isCompanyExist } = store.taMgr;
   const { isRwsRoom, isRwsAttraction, viewId } = store.myProfile;
+  const { userCompanyInfo } = store.global;
   return {
     organizationRoleList,
     countryList,
@@ -45,6 +46,7 @@ const mapStateToProps = store => {
     isRwsAttraction,
     viewId,
     isCompanyExist,
+    userCompanyInfo,
   };
 };
 
@@ -391,12 +393,14 @@ class CustomerInformationToEdit extends PureComponent {
       isRwsRoom,
       isRwsAttraction,
       viewId,
+      userCompanyInfo,
     } = this.props;
     const { companyInfo = {} } = customerInfo || {};
     const isAccountingArRoleFlag = hasAllPrivilege([AR_ACCOUNT_PRIVILEGE]);
     const isMainTaRoleFlag = hasAllPrivilege([MAIN_TA_ADMIN_PRIVILEGE]);
     const isSaleSupportRoleFlag = hasAllPrivilege([SALES_SUPPORT_PRIVILEGE]);
     const detailOpt = getFormLayout();
+    const taUserStatus = userCompanyInfo.status || '-1';
     const arCreditProps = {
       form,
       ...detailOpt,
@@ -414,18 +418,21 @@ class CustomerInformationToEdit extends PureComponent {
       isMainTaRoleFlag,
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
+      isTaDeActivationFlag: isMainTaRoleFlag && taUserStatus !== '0',
       salutationList: salutationList || [],
       countryList: countryList || [],
       customerInfo: customerInfo || {},
       onHandleChange: this.onHandleContactEditChange,
     };
     const myCompanyProps = {
+      editCondition: true,
       form,
       ...detailOpt,
       viewId,
       isMainTaRoleFlag,
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
+      isTaDeActivationFlag: isMainTaRoleFlag && taUserStatus !== '0',
       organizationRoleList: organizationRoleList || [],
       countryList: countryList || [],
       cityList: cityList || [],
@@ -460,6 +467,7 @@ class CustomerInformationToEdit extends PureComponent {
       isMainTaRoleFlag,
       isSaleSupportRoleFlag,
       isAccountingArRoleFlag,
+      isTaDeActivationFlag: isMainTaRoleFlag && taUserStatus !== '0',
       applyArAccount: companyInfo.applyArAccount,
       taFileList: companyInfo.fileList || [],
       arAccountFileList: companyInfo.arAccountFileList || [],

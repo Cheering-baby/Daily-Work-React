@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
-import { Button, Form, Input, message, Modal, Spin } from 'antd';
+import { Button, Form, Input, Modal, Spin } from 'antd';
 import { connect } from 'dva';
 import styles from './index.less';
 
@@ -30,14 +30,8 @@ class SendETicket extends React.Component {
             email,
             busiType: 'e-Ticket',
           },
-        }).then(data => {
-          const { resultCode, resultMsg } = data;
-          if (resultCode === '0') {
-            message.success(formatMessage({ id: 'SENT_SUCCESSFULLY' }));
-            this.handleCancel();
-          } else {
-            message.warn(resultMsg);
-          }
+        }).then(() => {
+          this.handleCancel();
         });
       }
     });
@@ -69,7 +63,7 @@ class SendETicket extends React.Component {
   emailChange = value => {
     const { dispatch, form } = this.props;
     // eslint-disable-next-line no-useless-escape
-    const emailCorrect = !/^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/.test(
+    const emailCorrect = !/^[A-Za-zd0-9]+([-_.][A-Za-zd]+)*@([A-Za-zd]+[-.])+[A-Za-zd]{2,5}$/.test(
       value
     );
     dispatch({

@@ -1,0 +1,37 @@
+{
+  "id": "1885308",
+  "name": "pams",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "15339245",
+      "name": "addteam",
+      "font_class": "addteam-copy",
+      "unicode": "e717",
+      "unicode_decimal": 59159
+    },
+    {
+      "icon_id": "7239617",
+      "name": "apartment",
+      "font_class": "apartment",
+      "unicode": "e716",
+      "unicode_decimal": 59158
+    },
+    {
+      "icon_id": "10487562",
+      "name": "票据",
+      "font_class": "piaoju1",
+      "unicode": "e699",
+      "unicode_decimal": 59033
+    },
+    {
+      "icon_id": "5238510",
+      "name": "钱包",
+      "font_class": "qianbaoqiandaiyue",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    }
+  ]
+}

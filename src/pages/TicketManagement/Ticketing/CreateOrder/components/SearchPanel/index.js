@@ -68,11 +68,18 @@ class SearchPanel extends Component {
   };
 
   reset = () => {
-    const { dispatch, form } = this.props;
+    const {
+      dispatch,
+      form,
+      ticketMgr: { themeParkList = [] },
+    } = this.props;
+    const themeParkListNew = themeParkList.map(item => ({ ...item, disabled: false }));
     form.resetFields();
     dispatch({
       type: 'ticketMgr/resetData',
-      payload: {},
+      payload: {
+        themeParkList: themeParkListNew,
+      },
     });
   };
 
@@ -332,7 +339,6 @@ class SearchPanel extends Component {
       form: { getFieldDecorator },
       showLoading = false,
     } = this.props;
-
     const { clientHeight } = this.state;
     return (
       <Spin spinning={showLoading}>

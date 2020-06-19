@@ -64,9 +64,9 @@ class NotificationTemplate extends PureComponent {
     ];
   }
 
-  beforeSelectTemplate =(targetList, content)=> {
+  beforeSelectTemplate =(targetList, content, fileList)=> {
     const { onSelectTemplate } = this.props;
-    onSelectTemplate(targetList, content);
+    onSelectTemplate(targetList, content, fileList);
   }
 
   componentDidMount() {
@@ -153,7 +153,7 @@ class NotificationTemplate extends PureComponent {
             notificationInfo,
           },
         }).then(e => {
-          this.beforeSelectTemplate(notificationInfo.targetList, notificationInfo.content);
+          this.beforeSelectTemplate(notificationInfo.targetList, notificationInfo.content, notificationInfo.fileList);
         })
       },
     };

@@ -75,29 +75,80 @@ class Update extends React.Component {
     return null;
   };
 
-  showMain = (updateType, galaxyOrderNo, refundSelected, rejectReason, status, getFieldDecorator) => {
+  showMain = (updateType, revalidationSelected, galaxyOrderNo, revalidationRejectReason, refundSelected, rejectReason, status, getFieldDecorator) => {
     if (updateType === 'Revalidation') {
       return (
-        <FormItem
-          label={
-            <span className={styles.modelFormItem}>{formatMessage({ id: 'GALAXY_ORDER_NO' })}</span>
+        <div>
+          {status === 'Confirmed' &&
+          <Radio.Group onChange={e => this.onRevalidationSelectChange(e.target.value)} value={revalidationSelected}>
+            <Radio value="Complete">{formatMessage({ id: 'COMPLETE' })}</Radio>
+            <Radio value="Reject">{formatMessage({ id: 'REJECT' })}</Radio>
+          </Radio.Group>
           }
-          colon={false}
-        >
-          {getFieldDecorator('galaxyOrderNo', {
-            rules: [{required: status === 'Confirmed', message: 'Required'}],
-            initialValue: galaxyOrderNo,
-          })(
-            <div className={styles.modelInputStyle}>
-              <Input
-                allowClear
-                placeholder="Please Enter"
-                onChange={e => this.galaxyOrderNoChange(e.target.value)}
-                value={galaxyOrderNo}
-              />
-            </div>
-          )}
-        </FormItem>
+          {revalidationSelected === 'Complete' ?
+            <FormItem
+              label={
+                <span className={styles.modelFormItem}>{formatMessage({ id: 'GALAXY_ORDER_NO' })}</span>
+              }
+              colon={false}
+            >
+              {getFieldDecorator('galaxyOrderNo', {
+                rules: [{required: status === 'Confirmed', message: 'Required'}],
+                initialValue: galaxyOrderNo,
+              })(
+                <div className={styles.modelInputStyle}>
+                  <Input
+                    allowClear
+                    placeholder="Please Enter"
+                    onChange={e => this.galaxyOrderNoChange(e.target.value)}
+                    value={galaxyOrderNo}
+                    maxLength={128}
+                    onKeyUp={(e)=>{
+                      if(e.target.value.length >= 128){
+                        message.config({
+                          maxCount: 1,
+                        });
+                        message.warning('Max 128 characters for Galaxy Order No.');
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            </FormItem> :
+            <FormItem
+              label={
+                <span className={styles.modelFormItem}>
+                  {formatMessage({ id: 'REJECT_REASON' })}
+                </span>
+              }
+              colon={false}
+            >
+              {getFieldDecorator('revalidationRejectReason', {
+                rules: [{ required: true, message: 'Required' }],
+                initialValue: revalidationRejectReason,
+              })(
+                <div className={styles.modelInputStyle}>
+                  <Input
+                    allowClear
+                    className={styles.selectStyle}
+                    placeholder="Please Enter"
+                    value={revalidationRejectReason}
+                    onChange={e => this.revalidationRejectReasonChange(e.target.value)}
+                    maxLength={128}
+                    onKeyUp={(e)=>{
+                      if(e.target.value.length >= 128){
+                        message.config({
+                          maxCount: 1,
+                        });
+                        message.warning('Max 128 characters for Reject Reason.');
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            </FormItem>
+          }
+        </div>
       );
     }
     if (updateType === 'Refund') {
@@ -149,6 +200,16 @@ class Update extends React.Component {
     form.setFieldsValue({ galaxyOrderNo: value });
   };
 
+  onRevalidationSelectChange = value => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'updateOrderMgr/save',
+      payload: {
+        revalidationSelected: value,
+      },
+    });
+  };
+
   onSelectChange = value => {
     const { dispatch } = this.props;
     dispatch({
@@ -156,6 +217,19 @@ class Update extends React.Component {
       payload: {
         refundSelected: value,
       },
+    });
+  };
+
+  revalidationRejectReasonChange = value => {
+    const { dispatch, form } = this.props;
+    dispatch({
+      type: 'updateOrderMgr/save',
+      payload: {
+        revalidationRejectReason: value !== undefined ? value : null,
+      },
+    });
+    form.setFieldsValue({
+      revalidationRejectReason: value !== undefined ? value : null,
     });
   };
 
@@ -176,7 +250,16 @@ class Update extends React.Component {
     const {
       pageLoading,
       form: { getFieldDecorator },
-      updateOrderMgr: { updateVisible, updateType, galaxyOrderNo, refundSelected, rejectReason, status },
+      updateOrderMgr: {
+        updateVisible,
+        updateType,
+        revalidationSelected,
+        galaxyOrderNo,
+        revalidationRejectReason,
+        refundSelected,
+        rejectReason,
+        status
+      },
     } = this.props;
     return (
       <Modal
@@ -202,7 +285,9 @@ class Update extends React.Component {
         <Spin spinning={!!pageLoading}>
           {this.showMain(
             updateType,
+            revalidationSelected,
             galaxyOrderNo,
+            revalidationRejectReason,
             refundSelected,
             rejectReason,
             status,
