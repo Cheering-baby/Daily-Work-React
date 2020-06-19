@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import { Col, Drawer, Row, Table } from 'antd';
 import { formatMessage } from 'umi/locale';
-import { getVoucherProducts } from '../../../../utils/utils';
+import {
+  getVoucherProducts,
+  getOfferConstrain,
+  calculateProductPrice,
+  calculateAllProductPrice,
+} from '../../../../utils/utils';
+import { ticketTypes } from '../../../../utils/constants';
 import styles from './index.less';
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -12,25 +18,25 @@ class Detail extends Component {
       onClose,
       detail,
       detail: {
+        priceRuleId,
+        selectRuleId,
         offerContentList = [],
         offerBasicInfo: { offerName },
       },
+      attractionProduct,
     } = this.props;
     let longDescription;
     let offerIncludes;
     let termsAndConditions;
     const voucherProducts = getVoucherProducts(detail);
+    const offerConstrain = getOfferConstrain(detail);
     const columns = [
       {
         title: 'Voucher Name',
         dataIndex: 'productName',
         key: 'productName',
         render: record => {
-          return (
-            <div className={styles.productName}>
-              {record}
-            </div>
-          );
+          return <div className={styles.productName}>{record}</div>;
         },
       },
       {
@@ -86,6 +92,61 @@ class Detail extends Component {
                   </Col>
                   <Col span={24}>
                     <span className={styles.detailText}>{offerName || '-'}</span>
+                  </Col>
+                </Col>
+                <Col span={24} className={styles.item}>
+                  <Col span={24}>
+                    <span className={styles.detailLabel}>Price (SGD) :</span>
+                  </Col>
+                  <Col span={24}>
+                    {offerConstrain === 'Fixed' ? (
+                      <div className={styles.fixedPriceContainer}>
+                        <div style={{ marginRight: '20px' }}>
+                          {attractionProduct.map((item, index) => {
+                            const ticketTypeShow = ticketTypes.filter(
+                              ({ value }) => item.attractionProduct.ageGroup === value
+                            );
+                            return (
+                              <div
+                                className={styles.detailText}
+                                style={{ marginTop: index !== 0 ? '5px' : null }}
+                              >
+                                {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className={styles.detailText}>
+                          {calculateAllProductPrice(
+                            attractionProduct,
+                            priceRuleId || selectRuleId,
+                            null,
+                            detail
+                          )}
+                          /package
+                        </div>
+                      </div>
+                    ) : (
+                      attractionProduct.map((item, index) => {
+                        const ticketTypeShow = ticketTypes.filter(
+                          ({ value }) => item.attractionProduct.ageGroup === value
+                        );
+                        return (
+                          <div
+                            className={styles.detailText}
+                            style={{ marginTop: index !== 0 ? '5px' : null }}
+                          >
+                            {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'} -{' '}
+                            {calculateProductPrice(
+                              item,
+                              priceRuleId || selectRuleId,
+                              item.sessionTime
+                            ).toFixed(2)}
+                            /Ticket
+                          </div>
+                        );
+                      })
+                    )}
                   </Col>
                 </Col>
                 <Col span={24} className={styles.item}>

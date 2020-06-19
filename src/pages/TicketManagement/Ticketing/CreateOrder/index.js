@@ -11,10 +11,9 @@ import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompFor
 import SearchPanel from './components/SearchPanel';
 import OnceAPirate from './components/OnceAPirate';
 import Attraction from './components/Attraction';
-import DolphinIslandOffer from './components/DolphinIslandOffer';
 import MyOrderButton from '@/pages/TicketManagement/components/MyOrderButton';
 
-const productPanelList = [<Attraction />, <OnceAPirate />, <DolphinIslandOffer />];
+const productPanelList = [<Attraction />, <OnceAPirate />];
 
 @connect(({ global, ticketMgr, ticketOrderCartMgr, loading }) => ({
   global,

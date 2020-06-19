@@ -385,6 +385,7 @@ class GeneralTicketingCollapse extends Component {
       orderInfo.push({
         sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
+        ageGroupQuantity: item.needChoiceCount,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
         productInfo: item,
@@ -442,6 +443,7 @@ class GeneralTicketingCollapse extends Component {
         sessionTime: item.sessionTime,
         numOfPax: item.numOfPax,
         ageGroup: item.attractionProduct.ageGroup,
+        ageGroupQuantity: item.needChoiceCount,
         quantity: 1,
         pricePax: calculateProductPrice(item, priceRuleId),
         productInfo: item,

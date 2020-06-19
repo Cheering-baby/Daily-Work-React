@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, List, Table, Tabs } from 'antd';
+import { Button, Icon, List, Table, Tabs, Tooltip  } from 'antd';
 import {
   calculateAllProductPrice,
   calculateProductPrice,
   getVoucherProducts,
 } from '../../../../utils/utils';
+import { ticketTypes } from '../../../../utils/constants';
 import styles from './index.less';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
@@ -66,17 +67,6 @@ class Attraction extends Component {
         bundleOfferDetail,
         themeParkCode,
         themeParkName,
-      },
-    });
-  };
-
-  detailToCart = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'ticketMgr/save',
-      payload: {
-        showDetailModal: false,
-        showToCartModal: true,
       },
     });
   };
@@ -233,6 +223,7 @@ class Attraction extends Component {
       orderInfo.push({
         sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
+        ageGroupQuantity: item.needChoiceCount,
         quantity: offerQuantity,
         pricePax: calculateProductPrice(item, priceRuleId),
         productInfo: item,
@@ -300,6 +291,7 @@ class Attraction extends Component {
       orderInfo.push({
         sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
+        ageGroupQuantity: item.needChoiceCount,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
         productInfo: item,
@@ -379,6 +371,14 @@ class Attraction extends Component {
     });
     this.onClose();
   };
+
+  generateTicketTypeTooltip = () => (
+    <div>
+      {ticketTypes.map(({ text }) => (
+        <div>{text}</div>
+      ))}
+    </div>
+  );
 
   render() {
     const {
@@ -471,7 +471,19 @@ class Attraction extends Component {
         },
       },
       {
-        title: 'Ticket Type',
+        title: () => (
+          <div className={styles.ticketType}>
+            <span>Ticket Type</span>
+            <Tooltip
+              title={this.generateTicketTypeTooltip()}
+            >
+              <Icon
+                type="question-circle"
+                style={{ fontSize: '13px', margin: '1px 0 0 5px', color: 'rgb(133, 133, 133)' }}
+              />
+            </Tooltip>
+          </div>
+        ),
         key: 'Category',
         width: '20%',
         render: record => {
@@ -483,7 +495,9 @@ class Attraction extends Component {
                   const {
                     detail: { offerBundle = [{}] },
                   } = offerItem;
-                  return <span className={styles.categoryShow}>{offerBundle[0].bundleLabel}</span>;
+                  return (
+                    <span className={styles.categoryShow}>{offerBundle[0].bundleLabel} * 1</span>
+                  );
                 })}
               </div>
             );
@@ -491,11 +505,11 @@ class Attraction extends Component {
           return (
             <div>
               {record.attractionProduct.map(item => {
-                const { productNo } = item;
+                const { productNo, needChoiceCount } = item;
                 const { ageGroup } = item.attractionProduct;
                 return (
                   <div key={productNo} className={styles.categoryShow}>
-                    {ageGroup || '-'}
+                    {ageGroup || '-'} * {needChoiceCount}
                   </div>
                 );
               })}
@@ -504,7 +518,7 @@ class Attraction extends Component {
         },
       },
       {
-        title: 'Price',
+        title: 'Price (SGD)',
         key: 'Price',
         align: 'right',
         width: '15%',

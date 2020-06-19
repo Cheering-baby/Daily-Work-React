@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Form, Icon, InputNumber, message, Table, Tooltip } from 'antd';
 import styles from './index.less';
-import OfferDetail from './components/OfferDetail';
+import OfferDetail from '@/pages/TicketManagement/Ticketing/CreateOrder/components/Detail';
+import { getAttractionProducts } from '@/pages/TicketManagement/utils/utils';
 
 @Form.create()
 @connect(({ global, ticketMgr, loading, onceAPirateTicketMgr }) => ({
@@ -25,12 +26,32 @@ class OfferListPanel extends Component {
   };
 
   showDetail = offerDetail => {
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      onceAPirateTicketMgr: { queryInfo = {} },
+    } = this.props;
+    const { offerProfile, selectRuleId } = offerDetail;
+    const { sessionTime } = queryInfo;
+    let attractionProduct = getAttractionProducts(offerProfile);
+    attractionProduct = attractionProduct.map(item => ({ ...item, sessionTime }));
+    offerProfile.selectRuleId = selectRuleId;
     dispatch({
       type: 'onceAPirateTicketMgr/save',
       payload: {
         showDetail: true,
+        offerProfile,
+        attractionProduct,
         offerDetail,
+      },
+    });
+  };
+
+  onClose = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'onceAPirateTicketMgr/save',
+      payload: {
+        showDetail: false,
       },
     });
   };
@@ -71,7 +92,14 @@ class OfferListPanel extends Component {
       global: {
         userCompanyInfo: { companyType },
       },
-      onceAPirateTicketMgr: { showCategory, onceAPirateOfferData = [], showCategoryLoading },
+      onceAPirateTicketMgr: {
+        showCategory,
+        onceAPirateOfferData = [],
+        showCategoryLoading,
+        offerProfile,
+        attractionProduct,
+        showDetail,
+      },
     } = this.props;
 
     const columns = [
@@ -170,7 +198,13 @@ class OfferListPanel extends Component {
           rowKey="offerNo"
           loading={showCategoryLoading}
         />
-        <OfferDetail />
+        {showDetail ? (
+          <OfferDetail
+            detail={offerProfile}
+            attractionProduct={attractionProduct}
+            onClose={this.onClose}
+          />
+        ) : null}
       </div>
     );
   }

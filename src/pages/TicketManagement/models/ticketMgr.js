@@ -844,7 +844,16 @@ export default {
       } = response;
       if (resultCode === '0' || resultCode === 0) {
         const themeParkList = [];
-        const bookingCategoryList = result.bookingCategories ? result.bookingCategories : [];
+        const { bookingCategories = [] } = result;
+        const bookingCategoryList = bookingCategories.filter(
+          ({ code }) => code !== 'OAP' && code !== 'DOL'
+        );
+        if (bookingCategories.find(({ code }) => code === 'DOL')) {
+          bookingCategoryList.push(bookingCategories.filter(({ code }) => code === 'DOL')[0]);
+        }
+        if (bookingCategories.find(({ code }) => code === 'OAP')) {
+          bookingCategoryList.push(bookingCategories.filter(({ code }) => code === 'OAP')[0]);
+        }
         bookingCategoryList.forEach(item => {
           const newItem = Object.assign({
             value: item.code,
@@ -861,6 +870,7 @@ export default {
             ...newItem,
           });
         });
+
         yield put({
           type: 'save',
           payload: {
@@ -887,7 +897,6 @@ export default {
         showToCart: false,
         tipVisible: true,
         deliverInformation: {},
-        themeParkList: [],
         themeParkChooseList: [],
         dateOfVisit: null,
         sessionTimeList: [],

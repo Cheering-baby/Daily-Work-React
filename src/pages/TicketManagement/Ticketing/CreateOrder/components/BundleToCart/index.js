@@ -17,7 +17,6 @@ import {
   Select,
   Spin,
   Table,
-  Tooltip,
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
@@ -289,7 +288,7 @@ class ToCart extends Component {
         dataIndex: 'ticketType',
         key: 'ticketType',
         width: '30%',
-        render: text => <div className={styles.tableText}>{text}</div>,
+        render: text => <div className={styles.tableText}>{text} * 1</div>,
       },
       {
         title: 'Price',
@@ -426,7 +425,7 @@ class ToCart extends Component {
       const ticketNumberLabel = `offer${index}`;
       bookingInfo.push({
         ticketType: offerBundle[0].bundleLabel,
-        price:`$ ${priceShow}/ticket`,
+        price: `$ ${priceShow}/ticket`,
         quantity: ticketNumber,
         ticketNumberLabel,
         priceShow,

@@ -41,12 +41,12 @@ export function calculateTicketPrice(ticketNumber, productPrice = []) {
         price =
           calculatePerPiecePrice(index, productPrice) +
           (ticketNumberC - calculatePerPiece(index, productPrice)) *
-          productPrice[index].discountUnitPrice;
+            productPrice[index].discountUnitPrice;
       } else if (index > 0) {
         price =
           calculatePerPiecePrice(index - 1, productPrice) +
           (ticketNumberC - calculatePerPiece(index - 1, productPrice)) *
-          productPrice[index - 1].discountUnitPrice;
+            productPrice[index - 1].discountUnitPrice;
       } else {
         price = productPrice[0].discountUnitPrice * ticketNumberC;
       }
@@ -369,12 +369,12 @@ export function dealSessionArr(target = []) {
     for (let j = 0; j < arr[index].length; j += 1) {
       resultSession[index] = arr[index][j];
       if (index !== arr.length - 1) {
-        doExchange(arr, index + 1)
+        doExchange(arr, index + 1);
       } else {
         sessionArr.push([...resultSession]);
       }
     }
-  }
+  };
   doExchange(target, 0);
   return sessionArr;
 }
@@ -388,8 +388,38 @@ export function getVoucherProducts(detail) {
         if (attractionProduct.groupName === Voucher) {
           voucherProducts = attractionProduct.products;
         }
-      })
+      });
     }
-  })
+  });
   return voucherProducts;
+}
+
+export function getAttractionProducts(detail) {
+  const { productGroup } = detail;
+  let attractionProducts = [];
+  productGroup.forEach(itemProduct => {
+    if (itemProduct.productType === Attraction) {
+      itemProduct.productGroup.forEach(attractionProduct => {
+        if (attractionProduct.groupName === Attraction) {
+          attractionProducts = attractionProduct.products;
+        }
+      });
+    }
+  });
+  return attractionProducts;
+}
+
+export function getOfferConstrain(detail) {
+  const { productGroup } = detail;
+  let offerConstrain;
+  productGroup.forEach(item => {
+    if (item.productType === 'Attraction') {
+      item.productGroup.forEach(item2 => {
+        if (item2.groupName === 'Attraction') {
+          offerConstrain = item2.choiceConstrain;
+        }
+      });
+    }
+  });
+  return offerConstrain;
 }
