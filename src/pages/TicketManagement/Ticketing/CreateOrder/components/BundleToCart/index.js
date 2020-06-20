@@ -291,7 +291,7 @@ class ToCart extends Component {
         render: text => <div className={styles.tableText}>{text} * 1</div>,
       },
       {
-        title: 'Price',
+        title: 'Price(SGD)',
         dataIndex: 'price',
         align: 'right',
         key: 'price',

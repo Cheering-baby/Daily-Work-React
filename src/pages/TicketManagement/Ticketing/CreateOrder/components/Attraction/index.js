@@ -382,19 +382,21 @@ class Attraction extends Component {
   );
 
   generateStyle = companyType => {
-    let sessionStyle = {
+    const sessionStyle = {
       width: '20%',
     };
-    let ticketTypeStyle = { width: '50%', padding: '0 3px' };
-    let priceStyle = { width: '30%', textAlign: 'right', minWidth: '120px' };
+    const ticketTypeStyle = {
+      width: '50%',
+      padding: '0 3px',
+      whiteSpace: 'normal',
+      wordBreak: 'normal',
+      wordWrap: 'break-word',
+    };
+    const priceStyle = { width: '30%', textAlign: 'right', minWidth: '120px' };
     if (companyType === '02') {
-      sessionStyle = {
-        width: '40%',
-      };
-      ticketTypeStyle = { width: '60%', padding: '0 3px' };
-      priceStyle = {
-        display: 'none',
-      };
+      sessionStyle.width = '40%';
+      ticketTypeStyle.width = '60%';
+      priceStyle.display = 'none';
     }
     return {
       sessionStyle,
@@ -666,6 +668,7 @@ class Attraction extends Component {
                           {tag} ({products.length} {products.length > 1 ? 'items' : 'item'})
                         </span>
                       </div>
+
                       {showDetail ? (
                         <Table
                           className={styles.table}

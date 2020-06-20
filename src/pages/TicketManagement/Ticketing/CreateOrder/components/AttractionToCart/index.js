@@ -409,7 +409,9 @@ class ToCart extends Component {
           return (
             <div>
               {record.attractionProduct.map(itemProduct => (
-                <div key={Math.random()}>{`${itemProduct.attractionProduct.ageGroup || '-'} * ${itemProduct.needChoiceCount}`}</div>
+                <div key={Math.random()} className={styles.tableText}>{`${itemProduct.attractionProduct.ageGroup || '-'} * ${
+                  itemProduct.needChoiceCount
+                }`}</div>
               ))}
             </div>
           );
@@ -682,7 +684,7 @@ class ToCart extends Component {
                                     Total Amount Payable (SGD):
                                   </span>
                                   <span className={styles.tableTotalPrice}>
-                                    {`$ ${(
+                                    {`${(
                                       offerQuantity *
                                       calculateAllProductPrice(
                                         attractionProduct,
