@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Col, Drawer, Row, Table } from 'antd';
+import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import {
   getVoucherProducts,
@@ -10,6 +11,9 @@ import {
 import { ticketTypes } from '../../../../utils/constants';
 import styles from './index.less';
 
+@connect(({ global }) => ({
+  userCompanyInfo: global.userCompanyInfo,
+}))
 // eslint-disable-next-line react/prefer-stateless-function
 class Detail extends Component {
   render() {
@@ -24,6 +28,7 @@ class Detail extends Component {
         offerBasicInfo: { offerName },
       },
       attractionProduct,
+      userCompanyInfo: { companyType },
     } = this.props;
     let longDescription;
     let offerIncludes;
@@ -94,61 +99,63 @@ class Detail extends Component {
                     <span className={styles.detailText}>{offerName || '-'}</span>
                   </Col>
                 </Col>
-                <Col span={24} className={styles.item}>
-                  <Col span={24}>
-                    <span className={styles.detailLabel}>Price (SGD) :</span>
-                  </Col>
-                  <Col span={24}>
-                    {offerConstrain === 'Fixed' ? (
-                      <div className={styles.fixedPriceContainer}>
-                        <div style={{ marginRight: '20px' }}>
-                          {attractionProduct.map((item, index) => {
-                            const ticketTypeShow = ticketTypes.filter(
-                              ({ value }) => item.attractionProduct.ageGroup === value
-                            );
-                            return (
-                              <div
-                                className={styles.detailText}
-                                style={{ marginTop: index !== 0 ? '5px' : null }}
-                              >
-                                {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className={styles.detailText}>
-                          {calculateAllProductPrice(
-                            attractionProduct,
-                            priceRuleId || selectRuleId,
-                            null,
-                            detail
-                          )}
-                          /package
-                        </div>
-                      </div>
-                    ) : (
-                      attractionProduct.map((item, index) => {
-                        const ticketTypeShow = ticketTypes.filter(
-                          ({ value }) => item.attractionProduct.ageGroup === value
-                        );
-                        return (
-                          <div
-                            className={styles.detailText}
-                            style={{ marginTop: index !== 0 ? '5px' : null }}
-                          >
-                            {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'} -{' '}
-                            {calculateProductPrice(
-                              item,
-                              priceRuleId || selectRuleId,
-                              item.sessionTime
-                            ).toFixed(2)}
-                            /Ticket
+                {companyType === '02' ? null : (
+                  <Col span={24} className={styles.item}>
+                    <Col span={24}>
+                      <span className={styles.detailLabel}>Price (SGD) :</span>
+                    </Col>
+                    <Col span={24}>
+                      {offerConstrain === 'Fixed' ? (
+                        <div className={styles.fixedPriceContainer}>
+                          <div style={{ marginRight: '20px' }}>
+                            {attractionProduct.map((item, index) => {
+                              const ticketTypeShow = ticketTypes.filter(
+                                ({ value }) => item.attractionProduct.ageGroup === value
+                              );
+                              return (
+                                <div
+                                  className={styles.detailText}
+                                  style={{ marginTop: index !== 0 ? '5px' : null }}
+                                >
+                                  {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'}
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })
-                    )}
+                          <div className={styles.detailText}>
+                            {calculateAllProductPrice(
+                              attractionProduct,
+                              priceRuleId || selectRuleId,
+                              null,
+                              detail
+                            )}
+                            /package
+                          </div>
+                        </div>
+                      ) : (
+                        attractionProduct.map((item, index) => {
+                          const ticketTypeShow = ticketTypes.filter(
+                            ({ value }) => item.attractionProduct.ageGroup === value
+                          );
+                          return (
+                            <div
+                              className={styles.detailText}
+                              style={{ marginTop: index !== 0 ? '5px' : null }}
+                            >
+                              {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'} - ${' '}
+                              {calculateProductPrice(
+                                item,
+                                priceRuleId || selectRuleId,
+                                item.sessionTime
+                              ).toFixed(2)}
+                              /Ticket
+                            </div>
+                          );
+                        })
+                      )}
+                    </Col>
                   </Col>
-                </Col>
+                )}
                 <Col span={24} className={styles.item}>
                   <Col span={24}>
                     <span className={styles.detailLabel}>Description :</span>

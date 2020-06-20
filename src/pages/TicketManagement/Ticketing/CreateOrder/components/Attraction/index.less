@@ -14,7 +14,20 @@
     .ant-table {
       font-size: 15px;
     }
+    .ant-table table {
+      border-collapse: collapse;
+    }
+    .ant-table-thead > tr > th .ant-table-header-column {
+      width: 100%;
+    }
   }
+}
+
+.session {
+  min-width: 370px;
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .offerName {
@@ -100,9 +113,13 @@
 
 .table {
   border: 0;
-  border-bottom: 1px solid #f3f3f3;
   overflow: auto;
   :global {
+    tbody tr {
+      position: relative;
+      border-bottom: 5px solid #fff;
+      // border-left: 5px solid rgb(52, 132, 245);
+    }
     tr {
       background: #f7f7f7;
     }
@@ -123,7 +140,7 @@
 
 .productPrice {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 

@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Drawer, Row, Col, Table } from 'antd';
-import { getVoucherProducts } from '../../../../utils/utils';
+import { getVoucherProducts, calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
-import { calculateAllProductPrice } from '../../../../utils/utils';
 
-@connect(({ callCenterBookingAttraction }) => ({
-  callCenterBookingAttraction,
+@connect(({ global }) => ({
+  userCompanyInfo: global.userCompanyInfo,
 }))
 class Detail extends Component {
   onClose = () => {
@@ -35,6 +34,7 @@ class Detail extends Component {
     const {
       onClose,
       bundleOfferDetail: { bundleName, offers = [] },
+      userCompanyInfo: { companyType },
     } = this.props;
     const longDescriptionItems = [];
     const offerIncludesItems = [];
@@ -128,35 +128,37 @@ class Detail extends Component {
                     <span className={styles.detailText}>{bundleName || '-'}</span>
                   </Col>
                 </Col>
-                <Col span={24} className={styles.item}>
-                  <Col span={24}>
-                    <span className={styles.detailLabel}>Price (SGD) :</span>
+                {companyType === '02' ? null : (
+                  <Col span={24} className={styles.item}>
+                    <Col span={24}>
+                      <span className={styles.detailLabel}>Price (SGD) :</span>
+                    </Col>
+                    <Col span={24}>
+                      {offers.map((itemOffer, index) => {
+                        const {
+                          attractionProduct,
+                          detail: { priceRuleId, offerBundle = [{}] },
+                        } = itemOffer;
+                        return (
+                          <div
+                            className={styles.detailLabel}
+                            style={{ marginTop: index !== 0 ? '5px' : null }}
+                          >
+                            {offerBundle[0].bundleLabel || '-'}
+                            {' - '}${' '}
+                            {calculateAllProductPrice(
+                              attractionProduct,
+                              priceRuleId,
+                              null,
+                              itemOffer.detail
+                            )}
+                            /package
+                          </div>
+                        );
+                      })}
+                    </Col>
                   </Col>
-                  <Col span={24}>
-                    {offers.map((itemOffer, index) => {
-                      const {
-                        attractionProduct,
-                        detail: { priceRuleId, offerBundle = [{}] },
-                      } = itemOffer;
-                      return (
-                        <div
-                          className={styles.detailLabel}
-                          style={{ marginTop: index !== 0 ? '5px' : null }}
-                        >
-                          {offerBundle[0].bundleLabel || '-'}
-                          {' - '}
-                          {calculateAllProductPrice(
-                            attractionProduct,
-                            priceRuleId,
-                            null,
-                            itemOffer.detail
-                          )}
-                          /package
-                        </div>
-                      );
-                    })}
-                  </Col>
-                </Col>
+                )}
                 <Col span={24} className={styles.item}>
                   <Col span={24}>
                     <span className={styles.detailLabel}>Description :</span>

@@ -5,7 +5,7 @@ export default {
   AUDIT: 'Approve',
   ACCESSIBLE_SEAT: 'Accessible Seat',
   ADD_TO_CART: 'Add to Cart',
-  ADD_TO_MY_SHOPPING_CART: 'Add to My Shopping Cart',
+  ADD_TO_MY_SHOPPING_CART: 'Add to Cart',
   ADD_MENU_SCHEME: '+ Add Menu Scheme',
   AR_PAYMENT_STATUS: 'AR Payment Status',
   AUDIT_SUCCESSFULLY: 'Approve successfully.',
