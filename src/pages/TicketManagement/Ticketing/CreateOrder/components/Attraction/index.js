@@ -386,7 +386,7 @@ class Attraction extends Component {
       width: '20%',
     };
     let ticketTypeStyle = { width: '50%', padding: '0 3px' };
-    let priceStyle = { width: '30%', textAlign: 'right' };
+    let priceStyle = { width: '30%', textAlign: 'right', minWidth: '120px' };
     if (companyType === '02') {
       sessionStyle = {
         width: '40%',
@@ -500,18 +500,18 @@ class Attraction extends Component {
                       <div style={this.generateStyle(companyType).priceStyle}>
                         {offerConstrain === 'Fixed' ? (
                           <div style={{ display: index === 0 ? null : 'none' }}>
-                            {`$ ${calculateAllProductPrice(
+                            {`${calculateAllProductPrice(
                               record.attractionProduct,
                               priceRuleId,
                               null,
                               record.detail
                             )}
-                            /package`}
+                            /Package`}
                           </div>
                         ) : (
-                          `$ ${calculateProductPrice(item, priceRuleId, sessionTime).toFixed(
+                          `${calculateProductPrice(item, priceRuleId, sessionTime).toFixed(
                             2
-                          )}/ticket`
+                          )}/Ticket`
                         )}
                       </div>
                     </div>
@@ -541,14 +541,13 @@ class Attraction extends Component {
                       {offerBundle[0].bundleLabel} * 1
                     </div>
                     <div style={this.generateStyle(companyType).priceStyle}>
-                      ${' '}
                       {calculateAllProductPrice(
                         attractionProductItems,
                         offerPriceRuleId,
                         null,
                         offerItem.detail
                       )}
-                      {'/package'}
+                      {'/Package'}
                     </div>
                   </div>
                 );
@@ -557,137 +556,6 @@ class Attraction extends Component {
           );
         },
       },
-      // {
-      //   title: () => (
-      //     <div className={styles.ticketType}>
-      //       <span>Ticket Type</span>
-      //       <Tooltip title={this.generateTicketTypeTooltip()}>
-      //         <Icon
-      //           type="question-circle"
-      //           style={{ fontSize: '13px', margin: '1px 0 0 5px', color: 'rgb(133, 133, 133)' }}
-      //         />
-      //       </Tooltip>
-      //     </div>
-      //   ),
-      //   key: 'Category',
-      //   width: '0%',
-      //   render: record => {
-      //     const { bundleName, offers = [] } = record;
-      //     if (!isNullOrUndefined(bundleName)) {
-      //       return (
-      //         <div>
-      //           {offers.map(offerItem => {
-      //             const {
-      //               detail: { offerBundle = [{}] },
-      //             } = offerItem;
-      //             return (
-      //               <span className={styles.categoryShow}>{offerBundle[0].bundleLabel} * 1</span>
-      //             );
-      //           })}
-      //         </div>
-      //       );
-      //     }
-      //     return (
-      //       <div>
-      //         {record.attractionProduct.map(item => {
-      //           const { productNo, needChoiceCount } = item;
-      //           const { ageGroup } = item.attractionProduct;
-      //           return (
-      //             <div key={productNo} className={styles.categoryShow}>
-      //               {ageGroup || '-'} * {needChoiceCount}
-      //             </div>
-      //           );
-      //         })}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   title: 'Price (SGD)',
-      //   key: 'Price',
-      //   align: 'right',
-      //   width: '15%',
-      //   render: record => {
-      //     const {
-      //       bundleName,
-      //       offers = [],
-      //       detail: { priceRuleId, productGroup = [] },
-      //     } = record;
-      //     if (!isNullOrUndefined(bundleName)) {
-      //       return (
-      //         <div>
-      //           {offers.map(offerItem => {
-      //             const {
-      //               attractionProduct: attractionProductItems = [],
-      //               detail: {
-      //                 offerBasicInfo: { offerNo },
-      //                 priceRuleId: offerPriceRuleId,
-      //               },
-      //             } = offerItem;
-      //             return (
-      //               <div key={offerNo} className={styles.productPrice}>
-      //                 <div style={{ marginRight: '10px' }}> </div>
-      //                 <div>
-      //                   ${''}
-      //                   {calculateAllProductPrice(
-      //                     attractionProductItems,
-      //                     offerPriceRuleId,
-      //                     null,
-      //                     offerItem.detail
-      //                   )}
-      //                   {'/package'}
-      //                 </div>
-      //               </div>
-      //             );
-      //           })}
-      //         </div>
-      //       );
-      //     }
-      //     let offerConstrain;
-      //     productGroup.forEach(item => {
-      //       if (item.productType === 'Attraction') {
-      //         item.productGroup.forEach(item2 => {
-      //           if (item2.groupName === 'Attraction') {
-      //             offerConstrain = item2.choiceConstrain;
-      //           }
-      //         });
-      //       }
-      //     });
-      //     if (offerConstrain === 'Fixed') {
-      //       return (
-      //         <div className={styles.productPrice}>
-      //           <div style={{ marginRight: '10px' }}> </div>
-      //           <div>
-      //             ${''}
-      //             {calculateAllProductPrice(
-      //               record.attractionProduct,
-      //               priceRuleId,
-      //               null,
-      //               record.detail
-      //             )}
-      //             {'/package'}
-      //           </div>
-      //         </div>
-      //       );
-      //     }
-      //     return (
-      //       <div>
-      //         {record.attractionProduct.map(item => {
-      //           const { productNo, sessionTime } = item;
-      //           return (
-      //             <div key={productNo} className={styles.productPrice}>
-      //               <div style={{ marginRight: '10px' }}> </div>
-      //               <div>
-      //                 $
-      //                 {`${calculateProductPrice(item, priceRuleId, sessionTime).toFixed(2)}/ticket`}
-      //               </div>
-      //             </div>
-      //           );
-      //         })}
-      //       </div>
-      //     );
-      //   },
-      // },
       {
         title: '',
         key: 'empty',

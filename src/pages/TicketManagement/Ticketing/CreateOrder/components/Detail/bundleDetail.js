@@ -145,14 +145,14 @@ class Detail extends Component {
                             style={{ marginTop: index !== 0 ? '5px' : null }}
                           >
                             {offerBundle[0].bundleLabel || '-'}
-                            {' - '}${' '}
+                            {' - '}
                             {calculateAllProductPrice(
                               attractionProduct,
                               priceRuleId,
                               null,
                               itemOffer.detail
                             )}
-                            /package
+                            /Package
                           </div>
                         );
                       })}

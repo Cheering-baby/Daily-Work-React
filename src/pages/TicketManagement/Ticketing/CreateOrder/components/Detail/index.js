@@ -129,7 +129,7 @@ class Detail extends Component {
                               null,
                               detail
                             )}
-                            /package
+                            /Package
                           </div>
                         </div>
                       ) : (
@@ -142,7 +142,7 @@ class Detail extends Component {
                               className={styles.detailText}
                               style={{ marginTop: index !== 0 ? '5px' : null }}
                             >
-                              {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'} - ${' '}
+                              {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'} -{' '}
                               {calculateProductPrice(
                                 item,
                                 priceRuleId || selectRuleId,

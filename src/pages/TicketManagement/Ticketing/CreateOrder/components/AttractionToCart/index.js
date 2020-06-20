@@ -88,7 +88,7 @@ class ToCart extends Component {
         totalPrice += calculateProductPrice(item, priceRuleId, item.sessionTime) * ticketNumber;
       }
     });
-    return `$ ${Number(totalPrice).toFixed(2)}`;
+    return `${Number(totalPrice).toFixed(2)}`;
   };
 
   order = offerConstrain => {
@@ -331,7 +331,7 @@ class ToCart extends Component {
         render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
-        title: 'Price',
+        title: 'Price(SGD)',
         dataIndex: 'price',
         align: 'right',
         key: 'price',
@@ -416,7 +416,7 @@ class ToCart extends Component {
         },
       },
       {
-        title: 'Price',
+        title: 'Price(SGD)',
         dataIndex: 'price',
         align: 'right',
         key: 'price',
@@ -552,10 +552,10 @@ class ToCart extends Component {
       bookingInformation.push({
         index,
         ticketType: `${item.attractionProduct.ageGroup || '-'} * ${item.needChoiceCount}`,
-        price: `$ ${priceShow.toFixed(2)}/ticket`,
+        price: `${priceShow.toFixed(2)}/Ticket`,
         quantity: item.ticketNumber,
         ticketNumberLabel: `attractionProduct${index}`,
-        subTotalPrice: `$ ${(priceShow * (item.ticketNumber || 0)).toFixed(2)}`,
+        subTotalPrice: `${(priceShow * (item.ticketNumber || 0)).toFixed(2)}`,
         sessionTime: item.sessionTime,
       });
     });
@@ -565,14 +565,14 @@ class ToCart extends Component {
         ? [
             {
               id: 1,
-              price: `$ ${calculateAllProductPrice(
+              price: `${calculateAllProductPrice(
                 attractionProduct,
                 priceRuleId,
                 null,
                 detail
-              )}/package`,
+              )}/Package`,
               quantity: offerQuantity,
-              subTotalPrice: `$ ${(
+              subTotalPrice: `${(
                 calculateAllProductPrice(attractionProduct, priceRuleId, null, detail) *
                 (offerQuantity || 0)
               ).toFixed(2)}`,
@@ -603,7 +603,7 @@ class ToCart extends Component {
         </Drawer>
         <Drawer
           visible={!showTermsAndCondition}
-          title={<div className={styles.title}>ADD TO MY SHOPPING CART</div>}
+          title={<div className={styles.title}>ADD TO CART</div>}
           placement="right"
           destroyOnClose
           maskClosable={false}

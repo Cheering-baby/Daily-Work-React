@@ -91,7 +91,7 @@ class ToCart extends Component {
           calculateAllProductPrice(attractionProduct, priceRuleId, null, detail) * ticketNumber;
       }
     });
-    return `$ ${Number(totalPrice).toFixed(2)}`;
+    return `${Number(totalPrice).toFixed(2)}`;
   };
 
   order = () => {
@@ -425,13 +425,13 @@ class ToCart extends Component {
       const ticketNumberLabel = `offer${index}`;
       bookingInfo.push({
         ticketType: offerBundle[0].bundleLabel,
-        price: `$ ${priceShow}/ticket`,
+        price: `${priceShow}/Package`,
         quantity: ticketNumber,
         ticketNumberLabel,
         priceShow,
         offerMinQuantity,
         offerMaxQuantity,
-        subTotalPrice: `$ ${(priceShow * (ticketNumber || 0)).toFixed(2)}`,
+        subTotalPrice: `${(priceShow * (ticketNumber || 0)).toFixed(2)}`,
         index,
       });
     });
@@ -461,7 +461,7 @@ class ToCart extends Component {
         </Drawer>
         <Drawer
           visible={!showTermsAndCondition}
-          title={<div className={styles.title}>ADD TO MY SHOPPING CART</div>}
+          title={<div className={styles.title}>ADD TO CART</div>}
           placement="right"
           destroyOnClose
           maskClosable={false}
