@@ -20,7 +20,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
-import { reBytesStr } from '@/utils/utils';
+import { reBytesStr, toThousands } from '@/utils/utils';
 import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
@@ -88,7 +88,7 @@ class ToCart extends Component {
         totalPrice += calculateProductPrice(item, priceRuleId, item.sessionTime) * ticketNumber;
       }
     });
-    return `${Number(totalPrice).toFixed(2)}`;
+    return `${toThousands(Number(totalPrice).toFixed(2))}`;
   };
 
   order = offerConstrain => {
@@ -338,11 +338,7 @@ class ToCart extends Component {
         align: 'right',
         width: '25%',
         key: 'price',
-        render: text => (
-          <div className={styles.tableText}>
-            {text}
-          </div>
-        ),
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Quantity',
@@ -433,11 +429,7 @@ class ToCart extends Component {
         align: 'right',
         width: '25%',
         key: 'price',
-        render: text => (
-          <div className={styles.tableText}>
-            {text}
-          </div>
-        ),
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Quantity',
@@ -571,10 +563,10 @@ class ToCart extends Component {
       bookingInformation.push({
         index,
         ticketType: `${item.attractionProduct.ageGroup || '-'} * ${item.needChoiceCount}`,
-        price: `${priceShow.toFixed(2)}/Ticket`,
+        price: `${toThousands(priceShow.toFixed(2))}/Ticket`,
         quantity: item.ticketNumber,
         ticketNumberLabel: `attractionProduct${index}`,
-        subTotalPrice: `${(priceShow * (item.ticketNumber || 0)).toFixed(2)}`,
+        subTotalPrice: `${toThousands((priceShow * (item.ticketNumber || 0)).toFixed(2))}`,
         sessionTime: item.sessionTime,
       });
     });
@@ -584,17 +576,14 @@ class ToCart extends Component {
         ? [
             {
               id: 1,
-              price: `${calculateAllProductPrice(
-                attractionProduct,
-                priceRuleId,
-                null,
-                detail
+              price: `${toThousands(
+                calculateAllProductPrice(attractionProduct, priceRuleId, null, detail)
               )}/Package`,
               quantity: offerQuantity,
-              subTotalPrice: `${(
+              subTotalPrice: `${toThousands(
                 calculateAllProductPrice(attractionProduct, priceRuleId, null, detail) *
-                (offerQuantity || 0)
-              ).toFixed(2)}`,
+                  (offerQuantity || 0).toFixed(2)
+              )}`,
               attractionProduct,
             },
           ]
@@ -703,15 +692,17 @@ class ToCart extends Component {
                                     Total Amount Payable (SGD):
                                   </span>
                                   <span className={styles.tableTotalPrice}>
-                                    {`${(
-                                      offerQuantity *
-                                      calculateAllProductPrice(
-                                        attractionProduct,
-                                        priceRuleId,
-                                        null,
-                                        detail
-                                      )
-                                    ).toFixed(2)}`}
+                                    {`${toThousands(
+                                      (
+                                        offerQuantity *
+                                        calculateAllProductPrice(
+                                          attractionProduct,
+                                          priceRuleId,
+                                          null,
+                                          detail
+                                        )
+                                      ).toFixed(2)
+                                    )}`}
                                   </span>
                                 </div>
                               </div>

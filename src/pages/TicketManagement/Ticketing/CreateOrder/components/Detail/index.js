@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Col, Drawer, Row, Table } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
+import { toThousands } from '@/utils/utils';
 import {
   getVoucherProducts,
   getOfferConstrain,
@@ -123,11 +124,13 @@ class Detail extends Component {
                             })}
                           </div>
                           <div className={styles.detailText}>
-                            {calculateAllProductPrice(
-                              attractionProduct,
-                              priceRuleId || selectRuleId,
-                              null,
-                              detail
+                            {toThousands(
+                              calculateAllProductPrice(
+                                attractionProduct,
+                                priceRuleId || selectRuleId,
+                                null,
+                                detail
+                              )
                             )}
                             /Package
                           </div>
@@ -143,11 +146,13 @@ class Detail extends Component {
                               style={{ marginTop: index !== 0 ? '5px' : null }}
                             >
                               {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'} -{' '}
-                              {calculateProductPrice(
-                                item,
-                                priceRuleId || selectRuleId,
-                                item.sessionTime
-                              ).toFixed(2)}
+                              {toThousands(
+                                calculateProductPrice(
+                                  item,
+                                  priceRuleId || selectRuleId,
+                                  item.sessionTime
+                                ).toFixed(2)
+                              )}
                               /Ticket
                             </div>
                           );

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Drawer, Row, Col, Table } from 'antd';
+import { toThousands } from '@/utils/utils';
 import { getVoucherProducts, calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 
@@ -146,11 +147,13 @@ class Detail extends Component {
                           >
                             {offerBundle[0].bundleLabel || '-'}
                             {' - '}
-                            {calculateAllProductPrice(
-                              attractionProduct,
-                              priceRuleId,
-                              null,
-                              itemOffer.detail
+                            {toThousands(
+                              calculateAllProductPrice(
+                                attractionProduct,
+                                priceRuleId,
+                                null,
+                                itemOffer.detail
+                              )
                             )}
                             /Package
                           </div>

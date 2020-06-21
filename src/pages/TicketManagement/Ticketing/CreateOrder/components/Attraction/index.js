@@ -10,6 +10,7 @@ import {
   getOfferConstrain,
 } from '../../../../utils/utils';
 import { ticketTypes } from '../../../../utils/constants';
+import { toThousands } from '@/utils/utils';
 import styles from './index.less';
 import Detail from '../Detail';
 import ToCart from '../AttractionToCart';
@@ -424,7 +425,7 @@ class Attraction extends Component {
     const { clientHeight } = this.state;
     const columns = [
       {
-        title: () => <div style={{minWidth: '122px'}}>Offer Name</div>,
+        title: () => <div style={{ minWidth: '122px' }}>Offer Name</div>,
         key: 'name',
         width: '30%',
         render: record => {
@@ -450,7 +451,10 @@ class Attraction extends Component {
               {includesVoucher ? (
                 <div className={styles.includesVoucher}>
                   <img src={BookingVoucher} alt="" width={16} height={16} />
-                  <div style={{ marginLeft: '3px', marginTop: '-3px' }}> The package includes voucher</div>
+                  <div style={{ marginLeft: '3px', marginTop: '-3px' }}>
+                    {' '}
+                    The package includes voucher
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -502,17 +506,19 @@ class Attraction extends Component {
                       <div style={this.generateStyle(companyType).priceStyle}>
                         {offerConstrain === 'Fixed' ? (
                           <div style={{ display: index === 0 ? null : 'none' }}>
-                            {`${calculateAllProductPrice(
-                              record.attractionProduct,
-                              priceRuleId,
-                              null,
-                              record.detail
+                            {`${toThousands(
+                              calculateAllProductPrice(
+                                record.attractionProduct,
+                                priceRuleId,
+                                null,
+                                record.detail
+                              )
                             )}
                             /Package`}
                           </div>
                         ) : (
-                          `${calculateProductPrice(item, priceRuleId, sessionTime).toFixed(
-                            2
+                          `${toThousands(
+                            calculateProductPrice(item, priceRuleId, sessionTime).toFixed(2)
                           )}/Ticket`
                         )}
                       </div>
@@ -543,11 +549,13 @@ class Attraction extends Component {
                       {offerBundle[0].bundleLabel} * 1
                     </div>
                     <div style={this.generateStyle(companyType).priceStyle}>
-                      {calculateAllProductPrice(
-                        attractionProductItems,
-                        offerPriceRuleId,
-                        null,
-                        offerItem.detail
+                      {toThousands(
+                        calculateAllProductPrice(
+                          attractionProductItems,
+                          offerPriceRuleId,
+                          null,
+                          offerItem.detail
+                        )
                       )}
                       {'/Package'}
                     </div>
@@ -650,18 +658,19 @@ class Attraction extends Component {
                   const { tag, showDetail, products = [] } = item2;
                   return (
                     <div key={tag} className={styles.categoryItem}>
-                      <div className={styles.category}>
+                      <div
+                        className={styles.category}
+                        onClick={() => this.showDetail(index, index2, showDetail)}
+                      >
                         {showDetail ? (
                           <Icon
                             type="caret-down"
                             style={{ color: '#666666', fontSize: '16px', margin: '0 8px 0 12px' }}
-                            onClick={() => this.showDetail(index, index2, showDetail)}
                           />
                         ) : (
                           <Icon
                             type="caret-right"
                             style={{ color: '#666666', fontSize: '16px', margin: '0 8px 0 12px' }}
-                            onClick={() => this.showDetail(index, index2, showDetail)}
                           />
                         )}
                         <span style={{ fontSize: '15px' }}>

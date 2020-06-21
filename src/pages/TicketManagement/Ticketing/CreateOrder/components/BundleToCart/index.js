@@ -20,7 +20,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
-import { reBytesStr } from '@/utils/utils';
+import { reBytesStr, toThousands } from '@/utils/utils';
 import { calculateAllProductPrice } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
@@ -91,7 +91,7 @@ class ToCart extends Component {
           calculateAllProductPrice(attractionProduct, priceRuleId, null, detail) * ticketNumber;
       }
     });
-    return `${Number(totalPrice).toFixed(2)}`;
+    return `${toThousands(Number(totalPrice).toFixed(2))}`;
   };
 
   order = () => {
@@ -275,7 +275,7 @@ class ToCart extends Component {
     } = this.props;
     let columns = [
       {
-        title:'Session',
+        title: 'Session',
         dataIndex: 'sessionTime',
         key: 'Session',
         width: '15%',
@@ -429,13 +429,13 @@ class ToCart extends Component {
       const ticketNumberLabel = `offer${index}`;
       bookingInfo.push({
         ticketType: offerBundle[0].bundleLabel,
-        price: `${priceShow}/Package`,
+        price: `${toThousands(priceShow)}/Package`,
         quantity: ticketNumber,
         ticketNumberLabel,
         priceShow,
         offerMinQuantity,
         offerMaxQuantity,
-        subTotalPrice: `${(priceShow * (ticketNumber || 0)).toFixed(2)}`,
+        subTotalPrice: `${toThousands((priceShow * (ticketNumber || 0)).toFixed(2))}`,
         index,
       });
     });
