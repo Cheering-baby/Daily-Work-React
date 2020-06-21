@@ -383,16 +383,16 @@ class Attraction extends Component {
 
   generateStyle = companyType => {
     const sessionStyle = {
-      width: '20%',
+      width: '25%',
     };
     const ticketTypeStyle = {
-      width: '50%',
+      width: '40%',
       padding: '0 3px',
       whiteSpace: 'normal',
       wordBreak: 'normal',
       wordWrap: 'break-word',
     };
-    const priceStyle = { width: '30%', textAlign: 'right', minWidth: '120px' };
+    const priceStyle = { width: '35%', textAlign: 'right', minWidth: '115px' };
     if (companyType === '02') {
       sessionStyle.width = '40%';
       ticketTypeStyle.width = '60%';
@@ -424,7 +424,7 @@ class Attraction extends Component {
     const { clientHeight } = this.state;
     const columns = [
       {
-        title: 'Offer Name',
+        title: () => <div style={{minWidth: '122px'}}>Offer Name</div>,
         key: 'name',
         width: '30%',
         render: record => {
@@ -450,7 +450,7 @@ class Attraction extends Component {
               {includesVoucher ? (
                 <div className={styles.includesVoucher}>
                   <img src={BookingVoucher} alt="" width={16} height={16} />
-                  <div style={{ marginLeft: '3px' }}> The package includes voucher</div>
+                  <div style={{ marginLeft: '3px', marginTop: '-3px' }}> The package includes voucher</div>
                 </div>
               ) : null}
             </div>

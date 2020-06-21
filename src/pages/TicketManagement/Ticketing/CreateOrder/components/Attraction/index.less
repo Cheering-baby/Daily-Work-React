@@ -1,3 +1,4 @@
+@import '../../../../../../theme/screen.less';
 .container {
   background-color: #fff;
   box-shadow: rgba(0, 0, 0, 0.3) 0 2px 4px;
@@ -24,7 +25,7 @@
 }
 
 .session {
-  min-width: 370px;
+  min-width: 350px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -111,14 +112,25 @@
   align-items: center;
 }
 
+@media screen and (max-width: @screenXs) {
+  .table::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+    color: transparent;
+  }
+  .table::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0);
+  }
+}
+
 .table {
   border: 0;
   overflow: auto;
   :global {
     tbody tr {
       position: relative;
-      border-bottom: 5px solid #fff;
-      // border-left: 5px solid rgb(52, 132, 245);
+      border-bottom: 6px solid #fff;
+      border-left: 5px solid rgb(52, 132, 245);
     }
     tr {
       background: #f7f7f7;
@@ -181,7 +193,9 @@
   color: #c0c0c0;
   margin-top: 3px;
   display: flex;
-  align-items: center;
+  white-space: normal;
+  word-break: normal;
+  word-wrap: break-word;
 }
 
 .ticketType {

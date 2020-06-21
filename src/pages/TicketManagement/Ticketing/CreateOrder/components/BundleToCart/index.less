@@ -1,3 +1,5 @@
+@import '../../../../../../theme/screen.less';
+
 .title {
   color: #171b21;
   font-size: 15px;
@@ -8,6 +10,18 @@
   height: calc(100% - 55px);
   padding: 20px 20px 0 20px;
   overflow: auto;
+  @media screen and (max-width: @screenXs) {
+    :global {
+      .ant-table-scroll ::-webkit-scrollbar {
+        height: 0;
+        width: 0;
+        color: transparent;
+      }
+      .ant-table-scroll ::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0);
+      }
+    }
+  }
 }
 
 .detailLabel {

@@ -322,25 +322,33 @@ class ToCart extends Component {
         title: 'Session',
         dataIndex: 'sessionTime',
         key: 'Session',
+        width: '15%',
         render: text => <div className={styles.tableText}>{text || '-'}</div>,
       },
       {
         title: 'Ticket Type',
         dataIndex: 'ticketType',
         key: 'ticketType',
+        width: '18%',
         render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Price(SGD)',
         dataIndex: 'price',
         align: 'right',
+        width: '25%',
         key: 'price',
-        render: text => <div className={styles.tableText}>{text}</div>,
+        render: text => (
+          <div className={styles.tableText}>
+            {text}
+          </div>
+        ),
       },
       {
         title: 'Quantity',
         dataIndex: 'quantity',
         key: 'quantity',
+        width: '20%',
         render: (text, record) => {
           return (
             <FormItem>
@@ -373,6 +381,7 @@ class ToCart extends Component {
         dataIndex: 'subTotalPrice',
         align: 'right',
         key: 'subTotalPrice',
+        width: '25%',
         render: text => <div className={styles.tableText}>{text}</div>,
       },
     ];
@@ -391,6 +400,7 @@ class ToCart extends Component {
         title: 'Session',
         dataIndex: 'sessionTime',
         key: 'Session',
+        width: '15%',
         render: (_, record) => {
           return (
             <div>
@@ -405,13 +415,13 @@ class ToCart extends Component {
         title: 'Ticket Type',
         dataIndex: 'ticketType',
         key: 'ticketType',
+        width: '18%',
         render: (_, record) => {
           return (
             <div>
               {record.attractionProduct.map(itemProduct => (
-                <div key={Math.random()} className={styles.tableText}>{`${itemProduct.attractionProduct.ageGroup || '-'} * ${
-                  itemProduct.needChoiceCount
-                }`}</div>
+                <div key={Math.random()} className={styles.tableText}>{`${itemProduct
+                  .attractionProduct.ageGroup || '-'} * ${itemProduct.needChoiceCount}`}</div>
               ))}
             </div>
           );
@@ -421,13 +431,19 @@ class ToCart extends Component {
         title: 'Price(SGD)',
         dataIndex: 'price',
         align: 'right',
+        width: '25%',
         key: 'price',
-        render: text => <div className={styles.tableText}>{text}</div>,
+        render: text => (
+          <div className={styles.tableText}>
+            {text}
+          </div>
+        ),
       },
       {
         title: 'Quantity',
         dataIndex: 'quantity',
         key: 'quantity',
+        width: '22%',
         render: text => {
           return (
             <FormItem>
@@ -459,6 +475,7 @@ class ToCart extends Component {
         dataIndex: 'subTotalPrice',
         align: 'right',
         key: 'subTotalPrice',
+        width: '25%',
         render: text => <div className={styles.tableText}>{text}</div>,
       },
     ];
@@ -591,6 +608,7 @@ class ToCart extends Component {
           placement="right"
           destroyOnClose
           maskClosable={false}
+          getContainer={false}
           width={bodyWidth < 720 ? bodyWidth : 720}
           drawerStyle={{ position: 'relative' }}
           bodyStyle={{
@@ -608,6 +626,7 @@ class ToCart extends Component {
           title={<div className={styles.title}>ADD TO CART</div>}
           placement="right"
           destroyOnClose
+          getContainer={false}
           maskClosable={false}
           width={bodyWidth < 720 ? bodyWidth : 720}
           className={styles.container}
@@ -671,7 +690,7 @@ class ToCart extends Component {
                           columns={this.packageBookingInfoColumns(getFieldDecorator, modify)}
                           dataSource={packageBookingInfo}
                           pagination={false}
-                          scroll={{ x: 400 }}
+                          scroll={{ x: 600 }}
                           rowKey={record => record.id}
                           footer={() => {
                             if (companyType === '02') {
@@ -716,7 +735,7 @@ class ToCart extends Component {
                           rowKey={record => record.index}
                           dataSource={bookingInformation}
                           pagination={false}
-                          scroll={{ x: 400 }}
+                          scroll={{ x: 600 }}
                           footer={() => {
                             if (companyType === '02') {
                               return null;

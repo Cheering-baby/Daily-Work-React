@@ -47,7 +47,7 @@ class Detail extends Component {
         key: 'productName',
         width: '70%',
         render: record => {
-          return <div className={styles.productName}>{record}</div>;
+          return <div className={styles.voucherName}>{record}</div>;
         },
       },
       {
@@ -105,7 +105,7 @@ class Detail extends Component {
           placement="right"
           destroyOnClose
           maskClosable={false}
-          width={bodyWidth < 480 ? bodyWidth : 480}
+          width={bodyWidth < 720 ? bodyWidth : 720}
           bodyStyle={{
             height: 'calc(100% - 55px)',
             padding: '20px 20px 53px 20px',

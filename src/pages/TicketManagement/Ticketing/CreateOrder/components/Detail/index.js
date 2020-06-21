@@ -41,7 +41,7 @@ class Detail extends Component {
         dataIndex: 'productName',
         key: 'productName',
         render: record => {
-          return <div className={styles.productName}>{record}</div>;
+          return <div className={styles.voucherName}>{record}</div>;
         },
       },
       {

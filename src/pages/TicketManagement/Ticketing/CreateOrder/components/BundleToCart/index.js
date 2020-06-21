@@ -275,10 +275,11 @@ class ToCart extends Component {
     } = this.props;
     let columns = [
       {
-        title: 'Session',
+        title:'Session',
         dataIndex: 'sessionTime',
         key: 'Session',
-        width: '12%',
+        width: '15%',
+        className: styles.session,
         render: () => {
           return <div>-</div>;
         },
@@ -287,13 +288,14 @@ class ToCart extends Component {
         title: 'Ticket Type',
         dataIndex: 'ticketType',
         key: 'ticketType',
-        width: '30%',
+        width: '25%',
         render: text => <div className={styles.tableText}>{text} * 1</div>,
       },
       {
         title: 'Price(SGD)',
         dataIndex: 'price',
         align: 'right',
+        width: '25%',
         key: 'price',
         render: text => <div className={styles.tableText}>{text}</div>,
       },
@@ -301,6 +303,7 @@ class ToCart extends Component {
         title: 'Quantity',
         dataIndex: 'quantity',
         key: 'quantity',
+        width: '20%',
         render: (text, record) => {
           return (
             <FormItem>
@@ -334,6 +337,7 @@ class ToCart extends Component {
         title: 'Sub-Total (SGD)',
         dataIndex: 'subTotalPrice',
         align: 'right',
+        width: '25%',
         key: 'subTotalPrice',
         render: text => <div className={styles.tableText}>{text}</div>,
       },
@@ -444,6 +448,7 @@ class ToCart extends Component {
           placement="right"
           destroyOnClose
           maskClosable={false}
+          getContainer={false}
           width={bodyWidth < 480 ? bodyWidth : 480}
           bodyStyle={{
             padding: '20px',
@@ -465,6 +470,7 @@ class ToCart extends Component {
           placement="right"
           destroyOnClose
           maskClosable={false}
+          getContainer={false}
           width={bodyWidth < 720 ? bodyWidth : 720}
           bodyStyle={{
             position: 'relative',
@@ -530,7 +536,7 @@ class ToCart extends Component {
                         columns={this.bookingInfoColumns(getFieldDecorator)}
                         dataSource={bookingInfo}
                         pagination={false}
-                        scroll={{ x: 400 }}
+                        scroll={{ x: 600 }}
                         rowKey={record => record.index}
                         footer={() => {
                           if (companyType === '02') {
