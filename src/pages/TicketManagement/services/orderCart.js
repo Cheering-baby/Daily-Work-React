@@ -57,6 +57,15 @@ export async function removeShoppingCart(params) {
   });
 }
 
+export async function clearShoppingCart(params) {
+  return UAAService.request(`${localPath}/b2c/transaction/v1/shoppingcart/clear`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
 export async function calculateOrderOfferPrice(params) {
   return UAAService.request(`${localPath}/b2c/transaction/v1/booking/calculate`, {
     method: 'POST',

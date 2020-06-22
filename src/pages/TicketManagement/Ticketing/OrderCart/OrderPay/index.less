@@ -15,7 +15,7 @@
   }
 
   > div:nth-child(1) {
-    text-align: right;
+    text-align: left;
     font-family: Calibri;
     font-size: 15px;
     color: #858585;
@@ -63,11 +63,26 @@
     }
   }
   .titleBlack {
+    padding: 15px 24px 15px 24px;
     font-family: calibriBold;
     font-size: 14px;
     color: #171B21;
     margin-bottom: 6px;
+    border-bottom: 1px solid #d9d9d9;
   }
+}
+
+.shoppingCartOfferRow {
+  @media screen and (max-width: @screenXsMax) {
+    padding: 20px 0;
+  }
+  @media screen and (min-width: @screenSmMin) {
+    padding: 20px 25px;
+  }
+}
+
+.shoppingCartOffer {
+  overflow-x: auto;
 }
 
 .cardStyles {
@@ -88,6 +103,13 @@
 }
 
 .orderCardStyles {
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+
+  :global {
+    .ant-card-body {
+      padding: 0 !important;
+    }
+  }
   @media screen and (max-width: @screenXsMax) {
     :global {
       .ant-card-body {
@@ -97,6 +119,14 @@
   }
   @media screen and (min-width: @screenSmMin) {
 
+  }
+
+  .titleBlack {
+    padding: 15px 24px 15px 24px;
+    font-family: calibriBold;
+    font-size: 14px;
+    color: #171B21;
+    border-bottom: 1px solid #d9d9d9;
   }
 }
 
@@ -274,7 +304,19 @@
 
   .checkOutButton {
     width: 110px;
-    background: #D23136;
+    background: #8DC53D;
+    font-family: calibriBold;
+    font-size: 18px;
+    color: #FFF;
+    letter-spacing: 0.29px;
+    line-height: 10px;
+    border: 0;
+    margin-right: 20px;
+  }
+
+  .checkOutButton2 {
+    width: 110px;
+    background: #C0C0C0;
     font-family: calibriBold;
     font-size: 18px;
     color: #FFF;
@@ -317,3 +359,53 @@
   }
 }
 
+.priceRow {
+  margin-top: 20px;
+  margin-right: 20px;
+
+  .priceCol {
+    text-align: right;
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .priceCol2 {
+    text-align: right;
+    height: 40px;
+    line-height: 30px;
+    border-bottom: 1px solid #d9d9d9;
+  }
+
+  .priceCol3 {
+    margin-top: 6px;
+    text-align: right;
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .priceKeySpan {
+    font-family: calibri;
+    color: #171B21;
+    font-size: 15px;
+    letter-spacing: 0.24px;
+  }
+
+  .priceValueSpan {
+    font-family: calibri;
+    color: #171B21;
+    font-size: 15px;
+    letter-spacing: 0.24px;
+  }
+
+  .priceValueSpan2 {
+    font-family: calibriBold;
+    color: #171B21;
+    font-size: 18px;
+    letter-spacing: 0.24px;
+  }
+}
+
+.deliveryModeSpan {
+  color: #262626;
+  font-family: calibri;
+}

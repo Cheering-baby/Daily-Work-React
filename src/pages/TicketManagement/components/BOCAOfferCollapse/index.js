@@ -1,37 +1,50 @@
 import React from 'react';
-import { Icon, Collapse } from 'antd';
+import { Col, Row } from 'antd';
 import styles from './index.less';
-import OrderItemCollapse from './components/OrderItemCollapse';
+import { toThousandsByRound } from '@/pages/TicketManagement/utils/orderCartUtil';
 
 class BOCAOfferCollapse extends React.PureComponent {
   render() {
     const { companyType = '01', quantity = 0, pricePax = 0 } = this.props;
 
     return (
-      <Collapse
-        bordered={false}
-        defaultActiveKey={['BOCAOfferCollapsePanel']}
-        expandIcon={({ isActive }) => (
-          <Icon
-            style={{ color: '#FFF', right: 15, textAlign: 'right' }}
-            type="up"
-            rotate={isActive ? 0 : 180}
-          />
-        )}
-      >
-        <Collapse.Panel
-          className={styles.collapsePanelStyles}
-          key="BOCAOfferCollapsePanel"
-          header={<span className={styles.collapsePanelHeaderStyles}>ADDITIONAL INFORMATION</span>}
+      <div>
+        <Row key="package_orderInfo_1" gutter={24} className={styles.contentRow}>
+          <Col offset={1} span={7} className={styles.dataCol}>
+            <span className={styles.dataSpan}>Quantity</span>
+          </Col>
+          <Col span={6} className={styles.dataCol2}>
+            <span className={styles.dataSpan}>Fee(SGD)</span>
+          </Col>
+          <Col span={9} className={styles.dataCol2}>
+            <span className={styles.dataSpan}>Sub-Total(SGD)</span>
+          </Col>
+        </Row>
+        <Row
+          key="package_orderInfo_2"
+          gutter={24}
+          className={styles.contentRow}
+          style={{ backgroundColor: '#fff' }}
         >
-          <OrderItemCollapse
-            key="BOCAOfferCollapse"
-            companyType={companyType}
-            quantity={quantity}
-            pricePax={pricePax}
-          />
-        </Collapse.Panel>
-      </Collapse>
+          <Col offset={1} span={7} className={styles.titleCol}>
+            <span className={styles.dataSpan}>{quantity}</span>
+          </Col>
+          <Col span={6} className={styles.dataCol2}>
+            {companyType === '01' && (
+              <span className={styles.priceSpan}>
+                {toThousandsByRound(Number(pricePax).toFixed(2))}/Ticket
+              </span>
+            )}
+          </Col>
+          <Col span={9} className={styles.priceCol}>
+            {companyType === '01' && (
+              <span className={styles.priceSpan}>
+                {toThousandsByRound(Number(pricePax * quantity).toFixed(2))}
+              </span>
+            )}
+          </Col>
+        </Row>
+      </div>
     );
   }
 }

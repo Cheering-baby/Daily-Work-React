@@ -211,6 +211,7 @@ export function mergeOapOrder(offerInstanceId, onceAPirateOrderData, orderInfo) 
         {
           offerInstanceId,
           ...orderInfo.orderDetail,
+          orderCheck: false,
         },
       ],
     };
@@ -221,6 +222,7 @@ export function mergeOapOrder(offerInstanceId, onceAPirateOrderData, orderInfo) 
     existOrderData.orderOfferList.push({
       offerInstanceId,
       ...orderInfo.orderDetail,
+      orderCheck: false,
     });
     existOrderData.orderAll = false;
     existOrderData.orderDisabled = outTimeOffer;

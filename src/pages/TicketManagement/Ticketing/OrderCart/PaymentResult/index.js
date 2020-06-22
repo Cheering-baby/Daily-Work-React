@@ -33,7 +33,7 @@ class PaymentResult extends Component {
     const {
       dispatch,
       location: {
-        query: { orderNo },
+        query: { orderNo, errorCode },
       },
     } = this.props;
 
@@ -64,6 +64,9 @@ class PaymentResult extends Component {
           let statusValue = false;
           if (bookDetail && bookDetail.status) {
             statusValue = bookDetail.status;
+          }
+          if (errorCode) {
+            statusValue = 'paymentFailed';
           }
           if (
             statusValue === 'WaitingForPaying' ||
@@ -117,13 +120,22 @@ class PaymentResult extends Component {
     if (bookDetail && bookDetail.status === 'Complete') {
       return successIcon;
     }
+    if (bookDetail && bookDetail.status === 'PendingApproval') {
+      return successIcon;
+    }
     return failIcon;
   };
 
   checkBookingHandleInfo = () => {
     const {
       ticketBookingAndPayMgr: { bookDetail = {} },
+      location: {
+        query: { errorCode },
+      },
     } = this.props;
+    if (errorCode) {
+      return true;
+    }
     let statusValue = false;
     if (bookDetail && bookDetail.status) {
       statusValue = bookDetail.status;
@@ -173,7 +185,13 @@ class PaymentResult extends Component {
       global: {
         userCompanyInfo: { companyType },
       },
+      location: {
+        query: { errorCode },
+      },
     } = this.props;
+    if (errorCode) {
+      return 'Payment Failed';
+    }
     if (companyType === '01') {
       if (bookDetail && bookDetail.status && bookDetail.status === 'Complete') {
         paymentResultStr = 'Payment Successful';
@@ -288,7 +306,7 @@ class PaymentResult extends Component {
         paymentResultLoading = false,
       },
       location: {
-        query: { orderNo },
+        query: { orderNo, errorCode },
       },
     } = this.props;
 
@@ -338,18 +356,20 @@ class PaymentResult extends Component {
                     <span className={styles.resultSpan}>Please wait for processing</span>
                   </Col>
                 </Row>
-                <Col span={24} className={styles.resultCol}>
-                  <Button className={styles.backButton} onClick={this.backToCartEvent}>
-                    Back to Cart
-                  </Button>
-                  <Button
-                    type="primary"
-                    className={styles.downloadButton}
-                    onClick={this.gotoOrderQueryEvent}
-                  >
-                    Goto Order Query
-                  </Button>
-                </Col>
+                <Row>
+                  <Col span={24} className={styles.resultCol}>
+                    <Button className={styles.backButton} onClick={this.backToCartEvent}>
+                      Back to Cart
+                    </Button>
+                    <Button
+                      type="primary"
+                      className={styles.downloadButton}
+                      onClick={this.gotoOrderQueryEvent}
+                    >
+                      Goto Order Query
+                    </Button>
+                  </Col>
+                </Row>
               </div>
             )}
             {this.checkBookingHandleInfo() && (
@@ -388,12 +408,15 @@ class PaymentResult extends Component {
                   )}
                   {bookDetail.status !== 'Complete' && (
                     <Col span={24} className={styles.resultCol}>
+                      <Button className={styles.downloadButton} onClick={this.backToCartEvent}>
+                        Back to Cart
+                      </Button>
                       <Button
                         type="primary"
                         className={styles.downloadButton}
-                        onClick={this.backToCartEvent}
+                        onClick={this.gotoOrderQueryEvent}
                       >
-                        Back to Cart
+                        Goto Order Query
                       </Button>
                     </Col>
                   )}
@@ -455,6 +478,14 @@ class PaymentResult extends Component {
                       <span className={styles.orderValueSpan}>{this.getOrderDate(bookDetail)}</span>
                     </div>
                   </Col>
+                  <Col {...orderTitleGrid} className={styles.informationCol}>
+                    <div className={styles.orderKeySpan}>
+                      <span>Payment Order No:</span>
+                    </div>
+                    <div>
+                      <span className={styles.orderValueSpan}>{bookDetail.paymentNo || '-'}</span>
+                    </div>
+                  </Col>
                   {companyType === 'false' && (
                     <Col {...orderTitleGrid} className={styles.informationCol}>
                       <div className={styles.orderKeySpan}>
@@ -468,22 +499,33 @@ class PaymentResult extends Component {
                     </Col>
                   )}
                 </Row>
-                {!paymentResultLoading && bookDetail.status !== 'Complete' && (
-                  <div>
-                    <Row className={styles.orderRow}>
-                      <Col span={24} className={styles.informationCol}>
-                        <div className={styles.orderKeySpan}>
-                          <span>Reason for failure:</span>
-                        </div>
-                        <div>
-                          <span className={styles.orderValueSpan}>
-                            {bookDetail.failedReason || '-'}
-                          </span>
-                        </div>
-                      </Col>
-                    </Row>
-                  </div>
-                )}
+                {!paymentResultLoading &&
+                  bookDetail.status !== 'Complete' &&
+                  bookDetail.status !== 'PendingApproval' && (
+                    <div>
+                      <Row className={styles.orderRow}>
+                        <Col span={24} className={styles.informationCol}>
+                          <div className={styles.orderKeySpan}>
+                            <span>Reason for failure:</span>
+                          </div>
+                          {errorCode && (
+                            <div>
+                              <span className={styles.orderValueSpan}>
+                                Payment failed,You can goto query order page to continue processing.
+                              </span>
+                            </div>
+                          )}
+                          {!errorCode && (
+                            <div>
+                              <span className={styles.orderValueSpan}>
+                                {bookDetail.failedReason || '-'}
+                              </span>
+                            </div>
+                          )}
+                        </Col>
+                      </Row>
+                    </div>
+                  )}
               </Col>
             </Row>
           </Card>

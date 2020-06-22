@@ -22,15 +22,14 @@ import moment from 'moment';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
-import PackageTicketCollapse from './components/PackageTicketCollapse';
-import OnceAPirateCollapse from './components/OnceAPirateCollapse';
-import GeneralTicketingCollapse from './components/GeneralTicketingCollapse';
 import BOCAOfferCollapse from '@/pages/TicketManagement/components/BOCAOfferCollapse';
+import ShoppingCartOffer from '@/pages/TicketManagement/components/ShoppingCartOffer';
 
 import {
   getCheckOapOrderData,
   getCheckPackageOrderData,
   getCheckTicketAmount,
+  toThousandsByRound,
   transBookingToPayTotalPrice,
 } from '@/pages/TicketManagement/utils/orderCartUtil';
 import SortSelect from '@/components/SortSelect';
@@ -54,7 +53,7 @@ class CheckOrder extends Component {
       100 -
       80 -
       97 -
-      20;
+      100;
     this.state = {
       clientHeight,
     };
@@ -442,6 +441,177 @@ class CheckOrder extends Component {
     }
   };
 
+  getProductFeeExclude = (bocaFeePax, ticketAmount) => {
+    const {
+      ticketOrderCartMgr: { deliveryMode },
+    } = this.props;
+    let sumBocaPrice = bocaFeePax * ticketAmount;
+    if (deliveryMode !== 'BOCA') {
+      sumBocaPrice = 0;
+    }
+    const sumPrice = this.payTotal() - sumBocaPrice;
+    const sumPriceTax = sumPrice * 0.07;
+    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+  };
+
+  getBocaFeeExclude = (bocaFeePax, ticketAmount) => {
+    const sumPrice = bocaFeePax * ticketAmount;
+    const sumPriceTax = bocaFeePax * ticketAmount * 0.07;
+    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+  };
+
+  getServiceTax = () => {
+    return toThousandsByRound(Number(this.payTotal() * 0.07).toFixed(2));
+  };
+
+  deleteAllCart = () => {
+    const {
+      dispatch,
+      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+    } = this.props;
+    const offerInstances = [];
+    generalTicketOrderData.forEach(orderData => {
+      orderData.orderOfferList.forEach(orderItem => {
+        if (orderItem.orderType === 'offerBundle') {
+          const { orderInfo } = orderItem;
+          orderInfo.forEach(orderInfoItem => {
+            offerInstances.push({
+              offerNo: orderInfoItem.offerInfo.offerNo,
+              offerInstanceId: orderInfoItem.offerInstanceId,
+            });
+          });
+        } else {
+          offerInstances.push({
+            offerNo: orderItem.offerInfo.offerNo,
+            offerInstanceId: orderItem.offerInstanceId,
+          });
+        }
+      });
+    });
+    onceAPirateOrderData.forEach(orderData => {
+      orderData.orderOfferList.forEach(offerDetail => {
+        offerInstances.push({
+          offerNo: offerDetail.offerInfo.offerNo,
+          offerInstanceId: offerDetail.offerInstanceId,
+        });
+      });
+    });
+    if (offerInstances.length < 1) {
+      message.success('No Data.');
+    } else {
+      dispatch({
+        type: 'ticketOrderCartMgr/removeShoppingCart',
+        payload: {
+          offerInstances,
+          callbackFn: null,
+        },
+      }).then(resultCode => {
+        if (resultCode === '0') {
+          message.success('Deleted successfully.');
+        }
+      });
+    }
+  };
+
+  deleteSelectItemOnCart = () => {
+    const {
+      dispatch,
+      ticketOrderCartMgr: {
+        packageOrderData = [],
+        generalTicketOrderData = [],
+        onceAPirateOrderData = [],
+      },
+    } = this.props;
+    const ticketAmount = getCheckTicketAmount(
+      packageOrderData,
+      generalTicketOrderData,
+      onceAPirateOrderData
+    );
+    if (ticketAmount < 1) {
+      message.warn('Please select one item.');
+    } else {
+      const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
+      const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
+      const offerInstances = [];
+      generalTicketOrderDataNew.forEach(orderData => {
+        orderData.orderOfferList.forEach(orderItem => {
+          if (orderItem.orderType === 'offerBundle') {
+            const { orderInfo } = orderItem;
+            orderInfo.forEach(orderInfoItem => {
+              offerInstances.push({
+                offerNo: orderInfoItem.offerInfo.offerNo,
+                offerInstanceId: orderInfoItem.offerInstanceId,
+              });
+            });
+          } else {
+            offerInstances.push({
+              offerNo: orderItem.offerInfo.offerNo,
+              offerInstanceId: orderItem.offerInstanceId,
+            });
+          }
+        });
+      });
+      onceAPirateOrderDataNew.forEach(orderData => {
+        orderData.orderOfferList.forEach(offerDetail => {
+          offerInstances.push({
+            offerNo: offerDetail.offerInfo.offerNo,
+            offerInstanceId: offerDetail.offerInstanceId,
+          });
+        });
+      });
+      dispatch({
+        type: 'ticketOrderCartMgr/removeShoppingCart',
+        payload: {
+          offerInstances,
+          callbackFn: null,
+        },
+      }).then(resultCode => {
+        if (resultCode === '0') {
+          message.success('Deleted successfully.');
+        }
+      });
+    }
+  };
+
+  deleteClickEvent = (e, methodType) => {
+    e.stopPropagation();
+    const {
+      ticketOrderCartMgr: {
+        packageOrderData = [],
+        generalTicketOrderData = [],
+        onceAPirateOrderData = [],
+      },
+    } = this.props;
+    if (methodType === 'all') {
+      if (generalTicketOrderData.length < 1 && onceAPirateOrderData.length < 1) {
+        message.warn('No data to delete.');
+        return;
+      }
+    } else {
+      const ticketAmount = getCheckTicketAmount(
+        packageOrderData,
+        generalTicketOrderData,
+        onceAPirateOrderData
+      );
+      if (ticketAmount < 1) {
+        message.warn('Please select one item.');
+        return;
+      }
+    }
+    confirm({
+      title: 'Are you sure you want to delete?',
+      content: '',
+      onOk: () => {
+        if (methodType === 'all') {
+          this.deleteAllCart();
+        } else {
+          this.deleteSelectItemOnCart();
+        }
+      },
+      onCancel() {},
+    });
+  };
+
   render() {
     const {
       global: {
@@ -456,9 +626,6 @@ class CheckOrder extends Component {
         checkOutLoading = false,
         selectAllOrder,
         selectAllIndeterminate,
-        packageOrderData = [],
-        generalTicketOrderData,
-        onceAPirateOrderData = [],
       },
     } = this.props;
 
@@ -475,26 +642,30 @@ class CheckOrder extends Component {
 
     const formItemLayout = {
       labelCol: {
-        xs: { span: 10 },
-        sm: { span: 9 },
-        md: { span: 8 },
-        lg: { span: 8 },
-        xl: { span: 8 },
-        xxl: { span: 8 },
+        xs: { span: 24 },
+        sm: { span: 24 },
+        md: { span: 24 },
+        lg: { span: 24 },
+        xl: { span: 24 },
+        xxl: { span: 24 },
       },
       wrapperCol: {
-        xs: { span: 14 },
-        sm: { span: 15 },
-        md: { span: 16 },
-        lg: { span: 16 },
-        xl: { span: 16 },
-        xxl: { span: 16 },
+        xs: { span: 24 },
+        sm: { span: 24 },
+        md: { span: 24 },
+        lg: { span: 24 },
+        xl: { span: 24 },
+        xxl: { span: 24 },
       },
       colon: false,
     };
 
     const titleGrid = { xs: 24, sm: 24, md: 12, lg: 16, xl: 16, xxl: 16 };
     const processGrid = { xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8 };
+    const priceGrid = { xs: 0, sm: 0, md: 12, lg: 12, xl: 14, xxl: 16 };
+    const priceGrid2 = { xs: 24, sm: 24, md: 12, lg: 12, xl: 10, xxl: 8 };
+    const priceGrid3 = { xs: 0, sm: 0, md: 2, lg: 2, xl: 2, xxl: 2 };
+    const priceGrid4 = { xs: 24, sm: 24, md: 22, lg: 22, xl: 22, xxl: 22 };
 
     this.pageDataCheck();
 
@@ -508,7 +679,7 @@ class CheckOrder extends Component {
           <Col {...titleGrid}>
             <Row gutter={12} style={{ paddingLeft: '5px' }}>
               <Col span={24}>
-                <span className={styles.cartItemsSpan}>Cart (24 items)</span>
+                <span className={styles.cartItemsSpan}>Cart ({this.getOrderAmount()} items)</span>
               </Col>
               <Col span={24}>
                 <span className={styles.noteItemsSpan}>
@@ -534,15 +705,13 @@ class CheckOrder extends Component {
             marginTop: '0',
           }}
         >
-          {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
-          {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
-          {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
           {this.getOrderAmount() === 0 && (
             <div>
               <List style={{ marginTop: 100 }} />
               <div className={styles.emptyListFont}>{formatMessage({ id: 'EMPTY_ORDER_TIP' })}</div>
             </div>
           )}
+          {this.getOrderAmount() > 0 && <ShoppingCartOffer editModal />}
         </Card>
         <Card className={styles.cardStyles} style={{ marginTop: '0' }}>
           <Row className={styles.selectAll}>
@@ -557,6 +726,26 @@ class CheckOrder extends Component {
                 Select All
               </Checkbox>
             </Col>
+            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
+              <Button
+                type="link"
+                onClick={e => {
+                  this.deleteClickEvent(e, 'select');
+                }}
+              >
+                Delete the select Items
+              </Button>
+            </Col>
+            <Col xs={24} md={8} lg={4} className={styles.checkOutCheckBox}>
+              <Button
+                type="link"
+                onClick={e => {
+                  this.deleteClickEvent(e, 'all');
+                }}
+              >
+                Delete All Items
+              </Button>
+            </Col>
           </Row>
         </Card>
         <div className={styles.bocaFont}>
@@ -564,15 +753,15 @@ class CheckOrder extends Component {
           {formatMessage({ id: 'BOCA_ORDER_TIP' })}
         </div>
         <Card className={styles.cardDeliverStyles}>
-          <Row style={{ padding: '15px' }}>
+          <Row>
             <Col span={24}>
               <Row>
                 <Col span={24} className={styles.titleBlack}>
                   {formatMessage({ id: 'DELIVER_INFORMATION' })}
                 </Col>
               </Row>
-              <Row>
-                <Col offer={2} xs={24} md={12} lg={10}>
+              <Row style={{ padding: '10px 24px 20px 24px' }}>
+                <Col xs={24} md={8} lg={6}>
                   <FormItem {...formItemLayout} label={formatMessage({ id: 'DELIVERY_MODE' })}>
                     {getFieldDecorator('deliveryMode', {
                       initialValue: deliveryMode,
@@ -592,16 +781,17 @@ class CheckOrder extends Component {
                         disabled={this.deliveryModeDisabled()}
                         options={[
                           <Select.Option value="BOCA" disabled={this.bocaOptionDisabled()}>
-                            BOCA
+                            BOCA (Ticket / Voucher Collection Letter)
                           </Select.Option>,
                           <Select.Option value="e-Ticket">e-Ticket</Select.Option>,
-                          <Select.Option value="VID">VID</Select.Option>,
+                          <Select.Option value="VID">EVID (Visual ID)</Select.Option>,
                         ]}
                       />
                     )}
                   </FormItem>
                 </Col>
-                <Col offer={2} xs={24} md={12} lg={10}>
+                <Col xs={0} md={2} lg={2} />
+                <Col xs={24} md={8} lg={6}>
                   {deliveryMode && deliveryMode === 'BOCA' && (
                     <FormItem {...formItemLayout} label={formatMessage({ id: 'COLLECTION_DATE' })}>
                       {getFieldDecorator('collectionDate', {
@@ -638,7 +828,7 @@ class CheckOrder extends Component {
           </Row>
           {companyType !== '02' && deliveryMode === 'BOCA' && this.getOrderAmount() !== 0 && (
             <Row>
-              <Col style={{ padding: '15px' }}>
+              <Col style={{ padding: '0px 15px 25px 15px' }}>
                 <BOCAOfferCollapse
                   form={form}
                   companyType={companyType}
@@ -649,29 +839,80 @@ class CheckOrder extends Component {
             </Row>
           )}
         </Card>
-        <Card className={styles.cardStyles} style={{ marginTop: '0', marginBottom: '20px' }}>
-          <Row className={styles.checkOut}>
-            <Col xs={0} md={8} lg={1} className={styles.checkOutCheckBox} />
-            <Col xs={24} md={16} lg={23} className={styles.checkOutBtn}>
-              {companyType === '01' && (
-                <div className={styles.checkOutPayDiv}>
-                  <div className={styles.payFont}>
-                    Pay Today: <span className={styles.priceFont}>${this.payTotal()}</span>
-                  </div>
-                </div>
+        <Row>
+          <Col {...priceGrid} />
+          <Col {...priceGrid2}>
+            <Card className={styles.cardStyles} style={{ marginTop: '12px', marginBottom: '20px' }}>
+              {companyType !== '02' && (
+                <Row className={styles.priceRow}>
+                  <Col {...priceGrid3} />
+                  <Col {...priceGrid4}>
+                    <Row className={styles.priceCol}>
+                      <Col span={16}>
+                        <span className={styles.priceKeySpan}>Product Sub-Total(Exclude GST):</span>
+                      </Col>
+                      <Col span={8}>
+                        <span className={styles.priceValueSpan}>
+                          {this.getProductFeeExclude(bocaFeePax, this.getTicketAmount())}
+                        </span>
+                      </Col>
+                    </Row>
+                    {companyType !== '02' &&
+                      deliveryMode === 'BOCA' &&
+                      this.getOrderAmount() !== 0 && (
+                        <Row className={styles.priceCol}>
+                          <Col span={16}>
+                            <span className={styles.priceKeySpan}>
+                              BOCA Fee Sub-Total(Exclude GST):
+                            </span>
+                          </Col>
+                          <Col span={8}>
+                            <span className={styles.priceValueSpan}>
+                              {this.getBocaFeeExclude(bocaFeePax, this.getTicketAmount())}
+                            </span>
+                          </Col>
+                        </Row>
+                      )}
+                    <Row className={styles.priceCol2}>
+                      <Col span={16}>
+                        <span className={styles.priceKeySpan}>Goods & Service Tax (GST 7%):</span>
+                      </Col>
+                      <Col span={8}>
+                        <span className={styles.priceValueSpan}>{this.getServiceTax()}</span>
+                      </Col>
+                    </Row>
+                    <Row className={styles.priceCol3}>
+                      <Col span={16}>
+                        <span className={styles.priceKeySpan}>Total Amount Payable(GSD):</span>
+                      </Col>
+                      <Col span={8}>
+                        <span className={styles.priceValueSpan2}>
+                          {toThousandsByRound(this.payTotal())}
+                        </span>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
               )}
-              <Button
-                disabled={this.checkoutBtnDisabled()}
-                className={styles.checkOutButton}
-                htmlType="button"
-                size="large"
-                onClick={this.checkOutEvent}
-              >
-                Check Out
-              </Button>
-            </Col>
-          </Row>
-        </Card>
+              <Row className={styles.checkOut}>
+                <Col xs={0} md={8} lg={1} className={styles.checkOutCheckBox} />
+                <Col xs={24} md={16} lg={23} className={styles.checkOutBtn}>
+                  <Button
+                    disabled={this.checkoutBtnDisabled()}
+                    className={
+                      this.checkoutBtnDisabled() ? styles.checkOutButton2 : styles.checkOutButton
+                    }
+                    htmlType="button"
+                    size="large"
+                    onClick={this.checkOutEvent}
+                  >
+                    Check Out
+                  </Button>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
       </Spin>
     );
   }

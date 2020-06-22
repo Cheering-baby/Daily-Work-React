@@ -5,6 +5,7 @@ import { queryAgentOpt, queryCountry } from '@/pages/TicketManagement/services/t
 import {
   addToShoppingCart,
   calculateOrderOfferPrice,
+  clearShoppingCart,
   createShoppingCart,
   queryPluAttribute,
   queryPluListByCondition,
@@ -264,6 +265,10 @@ export default {
         type: 'countTicketOrderAmount',
         payload: {},
       });
+      yield put({
+        type: 'ticketOrderCheckSave',
+        payload: {},
+      });
     },
 
     *addToShoppingCart({ payload }, { call, put, select }) {
@@ -312,6 +317,25 @@ export default {
       }
       if (callbackFn) {
         callbackFn.setFnCode(resultCode);
+      }
+      yield put({
+        type: 'queryShoppingCart',
+        payload: {},
+      });
+      return resultCode;
+    },
+
+    *clearShoppingCart(_, { call, put, select }) {
+      const { cartId } = yield select(state => state.ticketOrderCartMgr);
+      const params = {
+        cartId,
+      };
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(clearShoppingCart, params);
+      if (resultCode !== '0' && resultCode !== 0) {
+        message.warn(resultMsg);
+        return;
       }
       yield put({
         type: 'queryShoppingCart',
@@ -821,7 +845,7 @@ export default {
       }
 
       if (batchPullResult === 'done') {
-        message.success('Order successfully.');
+        message.success('Add to Cart successfully.');
       }
     },
 
@@ -892,7 +916,7 @@ export default {
       yield take('addToShoppingCart/@@end');
 
       if (callbackFn.callbackFnCode === '0') {
-        message.success('Add to Orders Cart successfully.');
+        message.success('Add to Cart successfully.');
       }
     },
 
@@ -937,8 +961,8 @@ export default {
       // new data setting
       const orderOfferList = orderData.orderOfferList.map(orderOffer => {
         return {
-          orderCheck: false,
           ...orderOffer,
+          orderCheck: false,
           orderInfo: {
             ...orderOffer.orderInfo,
             voucherType: orderData.voucherType,

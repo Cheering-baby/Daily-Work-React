@@ -320,7 +320,7 @@ export default {
       if (taDetailInfo && taDetailInfo.otherInfo && taDetailInfo.otherInfo.billingInfo) {
         emailNo = taDetailInfo.otherInfo.billingInfo.email;
       }
-      const paymentResponseUrl = `${UAAService.defaults.uaaPath}/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`;
+      const paymentResponseUrl = `${UAAService.defaults.uaaPath}/#/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`;
       const params = {
         orderNo: bookingNo,
         emailNo,

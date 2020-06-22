@@ -8,12 +8,13 @@ import router from 'umi/router';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
-import PackageTicketCollapse from './components/PackageTicketCollapse';
-import GeneralTicketingCollapse from './components/GeneralTicketingCollapse';
-import OnceAPirateCollapse from './components/OnceAPirateCollapse';
 import PaymentMode from './components/PaymentMode';
 import BOCAOfferCollapse from '@/pages/TicketManagement/components/BOCAOfferCollapse';
-import { transBookingToPayTotalPrice } from '@/pages/TicketManagement/utils/orderCartUtil';
+import {
+  toThousandsByRound,
+  transBookingToPayTotalPrice,
+} from '@/pages/TicketManagement/utils/orderCartUtil';
+import ShoppingCartOffer from '@/pages/TicketManagement/components/ShoppingCartOffer';
 
 let confirmEventSubmitTime = 0;
 
@@ -27,7 +28,7 @@ class OrderPay extends Component {
     super(props);
     const clientHeight =
       document.getElementsByClassName('main-layout-content ant-layout-content')[0].clientHeight -
-      200 -
+      300 -
       70 -
       97;
     this.state = {
@@ -260,6 +261,22 @@ class OrderPay extends Component {
     });
   };
 
+  getProductFeeExclude = () => {
+    const sumPrice = this.payTotal();
+    const sumPriceTax = sumPrice * 0.07;
+    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+  };
+
+  getBocaFeeExclude = (bocaFeePax, ticketAmount) => {
+    const sumPrice = bocaFeePax * ticketAmount;
+    const sumPriceTax = bocaFeePax * ticketAmount * 0.07;
+    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+  };
+
+  getServiceTax = () => {
+    return toThousandsByRound(Number(this.payTotal() * 0.07).toFixed(2));
+  };
+
   render() {
     const {
       global: {
@@ -274,9 +291,6 @@ class OrderPay extends Component {
         ticketAmount,
         bocaFeePax,
         payModelShow,
-        packageOrderData,
-        onceAPirateOrderData,
-        generalTicketOrderData,
       },
     } = this.props;
 
@@ -284,9 +298,12 @@ class OrderPay extends Component {
 
     const title = [{ name: formatMessage({ id: 'REVIEW_ORDER' }) }];
 
-    const gridOpts = { xs: 24, sm: 24, md: 12, lg: 12, xl: 12, xxl: 12 };
     const titleGrid = { xs: 24, sm: 24, md: 12, lg: 16, xl: 16, xxl: 16 };
     const processGrid = { xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8 };
+    const priceGrid = { xs: 0, sm: 0, md: 12, lg: 12, xl: 16, xxl: 16 };
+    const priceGrid2 = { xs: 24, sm: 24, md: 12, lg: 12, xl: 8, xxl: 8 };
+    const priceGrid3 = { xs: 0, sm: 0, md: 2, lg: 2, xl: 2, xxl: 2 };
+    const priceGrid4 = { xs: 24, sm: 24, md: 22, lg: 22, xl: 22, xxl: 22 };
 
     return (
       <Spin spinning={payPageLoading}>
@@ -305,41 +322,39 @@ class OrderPay extends Component {
           </Col>
         </Row>
 
-        <Card
-          className={styles.orderCardStyles}
-          style={{ minHeight: clientHeight, boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)' }}
-        >
-          {packageOrderData.length > 0 && <PackageTicketCollapse form={form} />}
-          {generalTicketOrderData.length > 0 && <GeneralTicketingCollapse form={form} />}
-          {onceAPirateOrderData.length > 0 && <OnceAPirateCollapse form={form} />}
-        </Card>
-
         {companyType && (
           <Card className={styles.cardDeliverStyles}>
-            <Row style={{ padding: '15px' }}>
+            <Row>
               <Col span={24}>
                 <Row>
                   <Col span={24} className={styles.titleBlack}>
                     {formatMessage({ id: 'DELIVER_INFORMATION' })}
                   </Col>
                 </Row>
-                <Row>
-                  <Col {...gridOpts} className={styles.basicInfoContent}>
-                    <Col span={8}>
-                      <span>{formatMessage({ id: 'DELIVERY_MODE' })}</span>
+                <Row style={{ padding: '10px 24px 20px 24px' }}>
+                  <Col xs={24} md={8} lg={6} className={styles.basicInfoContent}>
+                    <Col span={24}>
+                      <span className={styles.deliveryModeSpan}>
+                        {formatMessage({ id: 'DELIVERY_MODE' })}
+                      </span>
                     </Col>
-                    <Col span={16}>
-                      {deliveryMode === 'BOCA' && <span>BOCA</span>}
-                      {deliveryMode === 'VID' && <span>VID</span>}
+                    <Col span={24}>
+                      {deliveryMode === 'BOCA' && (
+                        <span>BOCA (Ticket / Voucher Collection Letter)</span>
+                      )}
+                      {deliveryMode === 'VID' && <span>EVID (Visual ID)</span>}
                       {deliveryMode === 'e-Ticket' && <span>e-Ticket</span>}
                     </Col>
                   </Col>
+                  <Col xs={0} md={2} lg={2} />
                   {deliveryMode && deliveryMode === 'BOCA' && (
-                    <Col {...gridOpts} className={styles.basicInfoContent}>
-                      <Col span={8}>
-                        <span>{formatMessage({ id: 'COLLECTION_DATE' })}</span>
+                    <Col xs={24} md={8} lg={6} className={styles.basicInfoContent}>
+                      <Col span={24}>
+                        <span className={styles.deliveryModeSpan}>
+                          {formatMessage({ id: 'COLLECTION_DATE' })}
+                        </span>
                       </Col>
-                      <Col span={16}>{moment(collectionDate, 'x').format('DD-MMM-YYYY')}</Col>
+                      <Col span={24}>{moment(collectionDate, 'x').format('DD-MMM-YYYY')}</Col>
                     </Col>
                   )}
                 </Row>
@@ -347,7 +362,7 @@ class OrderPay extends Component {
             </Row>
             {deliveryMode === 'BOCA' && companyType !== '02' && (
               <Row>
-                <Col style={{ padding: '15px 15px 0px 15px' }}>
+                <Col style={{ padding: '0 15px 15px 15px' }}>
                   <BOCAOfferCollapse
                     form={form}
                     companyType={companyType}
@@ -357,43 +372,118 @@ class OrderPay extends Component {
                 </Col>
               </Row>
             )}
+          </Card>
+        )}
+
+        {companyType === '01' && (
+          <Card
+            className={styles.cardDeliverStyles}
+            style={{
+              marginTop: '10px',
+            }}
+          >
             <Row>
               <Col style={{ padding: '15px' }}>
-                {companyType !== '02' && this.payTotal() > 0 && <PaymentMode form={form} />}
+                {companyType !== '02' && <PaymentMode form={form} />}
               </Col>
             </Row>
           </Card>
         )}
+
         <Card
-          className={styles.cardStyles}
+          className={styles.orderCardStyles}
           style={{
-            marginTop: '0',
-            marginBottom: '20px',
+            minHeight: clientHeight,
             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)',
+            marginTop: '10px',
           }}
         >
-          <Row className={styles.checkOut}>
-            <Col xs={0} md={8} lg={4} className={styles.checkOutCheckBox} />
-            <Col xs={24} md={16} lg={20} className={styles.checkOutBtn}>
-              {companyType === '01' && (
-                <div className={styles.checkOutPayDiv}>
-                  <div className={styles.payFont}>
-                    TOTAL PAY: <span className={styles.priceFont}>${this.payTotal()}</span>
-                  </div>
-                </div>
-              )}
-              <Button
-                className={styles.checkOutButton}
-                htmlType="button"
-                size="large"
-                onClick={this.confirmEvent}
-                disabled={!this.getConfirmEventStatus()}
-              >
-                {companyType !== '02' ? 'Confirm' : 'Submit'}
-              </Button>
+          <Row>
+            <Col span={24}>
+              <Row>
+                <Col span={24} className={styles.titleBlack}>
+                  PRODUCTS LIST
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+          <Row className={styles.shoppingCartOfferRow}>
+            <Col span={24} className={styles.shoppingCartOffer}>
+              <ShoppingCartOffer editModal={false} />
             </Col>
           </Row>
         </Card>
+
+        <Row>
+          <Col {...priceGrid} />
+          <Col {...priceGrid2}>
+            <Card className={styles.cardStyles} style={{ marginTop: '12px', marginBottom: '20px' }}>
+              {companyType !== '02' && (
+                <Row className={styles.priceRow}>
+                  <Col {...priceGrid3} />
+                  <Col {...priceGrid4}>
+                    <Row className={styles.priceCol}>
+                      <Col span={16}>
+                        <span className={styles.priceKeySpan}>Product Sub-Total(Exclude GST):</span>
+                      </Col>
+                      <Col span={8}>
+                        <span className={styles.priceValueSpan}>{this.getProductFeeExclude()}</span>
+                      </Col>
+                    </Row>
+                    {companyType !== '02' && deliveryMode === 'BOCA' && (
+                      <Row className={styles.priceCol}>
+                        <Col span={16}>
+                          <span className={styles.priceKeySpan}>
+                            BOCA Fee Sub-Total(Exclude GST):
+                          </span>
+                        </Col>
+                        <Col span={8}>
+                          <span className={styles.priceValueSpan}>
+                            {this.getBocaFeeExclude(bocaFeePax, ticketAmount)}
+                          </span>
+                        </Col>
+                      </Row>
+                    )}
+                    <Row className={styles.priceCol2}>
+                      <Col span={16}>
+                        <span className={styles.priceKeySpan}>Goods & Service Tax (GST 7%):</span>
+                      </Col>
+                      <Col span={8}>
+                        <span className={styles.priceValueSpan}>{this.getServiceTax()}</span>
+                      </Col>
+                    </Row>
+                    <Row className={styles.priceCol3}>
+                      <Col span={16}>
+                        <span className={styles.priceKeySpan}>Total Amount Payable(GSD):</span>
+                      </Col>
+                      <Col span={8}>
+                        <span className={styles.priceValueSpan2}>
+                          {toThousandsByRound(this.payTotal())}
+                        </span>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              )}
+              <Row className={styles.checkOut}>
+                <Col xs={0} md={8} lg={1} className={styles.checkOutCheckBox} />
+                <Col xs={24} md={16} lg={23} className={styles.checkOutBtn}>
+                  <Button
+                    className={
+                      !this.getConfirmEventStatus() ? styles.checkOutButton2 : styles.checkOutButton
+                    }
+                    htmlType="button"
+                    size="large"
+                    onClick={this.confirmEvent}
+                    disabled={!this.getConfirmEventStatus()}
+                  >
+                    {companyType !== '02' ? 'Confirm' : 'Submit'}
+                  </Button>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
 
         <Modal
           visible={payModelShow}

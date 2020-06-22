@@ -7,16 +7,6 @@ export default {
   // https://umijs.org/zh/config/#minimizer
   // hash --> Type: Boolean Default: false
   // 是否开启 hash 文件后缀。
-  proxy: {
-    '/b2b': {
-      target: 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams',
-      changeOrigin: true,
-    },
-    '/b2c': {
-      target: 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams',
-      changeOrigin: true,
-    },
-  },
   hash: true,
   publicPath: defaultSettings.publicPath,
   history: 'hash',

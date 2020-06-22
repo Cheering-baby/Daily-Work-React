@@ -68,10 +68,12 @@
     }
   }
   .titleBlack {
+    padding: 15px 24px 15px 24px;
     font-family: calibriBold;
     font-size: 14px;
     color: #171B21;
     margin-bottom: 6px;
+    border-bottom: 1px solid #d9d9d9;
   }
 }
 
@@ -95,6 +97,8 @@
 }
 
 .orderCardStyles {
+  border: 0 !important;
+  overflow: auto;
   @media screen and (max-width: @screenXsMax) {
     :global {
       .ant-card-body {
@@ -103,7 +107,11 @@
     }
   }
   @media screen and (min-width: @screenSmMin) {
-
+    :global {
+      .ant-card-body {
+        padding: 0 !important;
+      }
+    }
   }
 }
 
@@ -255,10 +263,10 @@
 
     .checkOutCheckStyle {
       @media screen and (max-width: @screenXsMax) {
-        margin-left: 10px;
+        margin-left: 25px;
       }
       @media screen and (min-width: @screenSmMin) {
-        margin-left: 34px;
+        margin-left: 25px;
       }
     }
 
@@ -316,7 +324,7 @@
 
   .checkOutButton {
     width: 110px;
-    background: #D23136;
+    background: #8DC53D;
     font-family: calibriBold;
     font-size: 18px;
     color: #FFF;
@@ -324,5 +332,63 @@
     line-height: 10px;
     border: 0;
     margin-right: 20px;
+  }
+
+  .checkOutButton2 {
+    width: 110px;
+    background: #C0C0C0;
+    font-family: calibriBold;
+    font-size: 18px;
+    color: #FFF;
+    letter-spacing: 0.29px;
+    line-height: 10px;
+    border: 0;
+    margin-right: 20px;
+  }
+}
+
+.priceRow {
+  margin-top: 20px;
+  margin-right: 20px;
+
+  .priceCol {
+    text-align: right;
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .priceCol2 {
+    text-align: right;
+    height: 40px;
+    line-height: 30px;
+    border-bottom: 1px solid #d9d9d9;
+  }
+
+  .priceCol3 {
+    margin-top: 6px;
+    text-align: right;
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .priceKeySpan {
+    font-family: calibri;
+    color: #171B21;
+    font-size: 15px;
+    letter-spacing: 0.24px;
+  }
+
+  .priceValueSpan {
+    font-family: calibri;
+    color: #171B21;
+    font-size: 15px;
+    letter-spacing: 0.24px;
+  }
+
+  .priceValueSpan2 {
+    font-family: calibriBold;
+    color: #171B21;
+    font-size: 18px;
+    letter-spacing: 0.24px;
   }
 }
