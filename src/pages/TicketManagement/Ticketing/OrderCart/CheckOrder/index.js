@@ -29,6 +29,7 @@ import {
   getCheckOapOrderData,
   getCheckPackageOrderData,
   getCheckTicketAmount,
+  getOrderProductServiceTax,
   toThousandsByRound,
   transBookingToPayTotalPrice,
 } from '@/pages/TicketManagement/utils/orderCartUtil';
@@ -441,27 +442,36 @@ class CheckOrder extends Component {
     }
   };
 
-  getProductFeeExclude = (bocaFeePax, ticketAmount) => {
+  getProductFeeExclude = () => {
     const {
-      ticketOrderCartMgr: { deliveryMode },
+      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
     } = this.props;
-    let sumBocaPrice = bocaFeePax * ticketAmount;
-    if (deliveryMode !== 'BOCA') {
-      sumBocaPrice = 0;
-    }
-    const sumPrice = this.payTotal() - sumBocaPrice;
-    const sumPriceTax = sumPrice * 0.07;
-    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+    const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
+    const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
+    const serviceTax = getOrderProductServiceTax(
+      generalTicketOrderDataNew,
+      onceAPirateOrderDataNew
+    );
+    const sumPrice = this.payTotal() - serviceTax;
+    return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
   getBocaFeeExclude = (bocaFeePax, ticketAmount) => {
     const sumPrice = bocaFeePax * ticketAmount;
-    const sumPriceTax = bocaFeePax * ticketAmount * 0.07;
-    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+    return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
   getServiceTax = () => {
-    return toThousandsByRound(Number(this.payTotal() * 0.07).toFixed(2));
+    const {
+      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+    } = this.props;
+    const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
+    const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
+    const serviceTax = getOrderProductServiceTax(
+      generalTicketOrderDataNew,
+      onceAPirateOrderDataNew
+    );
+    return toThousandsByRound(serviceTax);
   };
 
   deleteAllCart = () => {
@@ -780,11 +790,19 @@ class CheckOrder extends Component {
                         onChange={this.changeDeliveryMode}
                         disabled={this.deliveryModeDisabled()}
                         options={[
-                          <Select.Option value="BOCA" disabled={this.bocaOptionDisabled()}>
+                          <Select.Option
+                            key="deliveryMode1"
+                            value="BOCA"
+                            disabled={this.bocaOptionDisabled()}
+                          >
                             BOCA (Ticket / Voucher Collection Letter)
                           </Select.Option>,
-                          <Select.Option value="e-Ticket">e-Ticket</Select.Option>,
-                          <Select.Option value="VID">EVID (Visual ID)</Select.Option>,
+                          <Select.Option key="deliveryMode2" value="e-Ticket">
+                            e-Ticket
+                          </Select.Option>,
+                          <Select.Option key="deliveryMode3" value="VID">
+                            EVID (Visual ID)
+                          </Select.Option>,
                         ]}
                       />
                     )}
@@ -875,7 +893,7 @@ class CheckOrder extends Component {
                       )}
                     <Row className={styles.priceCol2}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Goods & Service Tax (GST 7%):</span>
+                        <span className={styles.priceKeySpan}>Goods & Service Tax (GST):</span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>{this.getServiceTax()}</span>

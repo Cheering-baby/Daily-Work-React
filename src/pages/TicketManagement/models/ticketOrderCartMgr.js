@@ -1063,7 +1063,7 @@ export default {
       orderArray.forEach((orderList, listIndex) => {
         orderList.forEach(orderData => {
           orderData.orderOfferList.forEach(orderOffer => {
-            if (listIndex < 2 && orderOffer.orderInfo) {
+            if (listIndex < 2 && orderOffer.orderInfo && !orderOffer.orderDisabled) {
               orderOffer.orderInfo.forEach(info => {
                 if (info.orderCheck) {
                   existOneChecked = true;
@@ -1072,7 +1072,7 @@ export default {
                 }
               });
             } else if (listIndex === 2) {
-              if (orderOffer.orderCheck) {
+              if (orderOffer.orderCheck && !orderOffer.orderDisabled) {
                 existOneChecked = true;
               } else {
                 existOneNoChecked = true;

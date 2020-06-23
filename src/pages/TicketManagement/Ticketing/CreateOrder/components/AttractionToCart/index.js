@@ -17,6 +17,7 @@ import {
   Select,
   Spin,
   Table,
+  Tooltip,
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
@@ -116,6 +117,7 @@ class ToCart extends Component {
         address,
         gender,
         cardDisplayName,
+        customerContactNoCountry,
       },
     } = this.props;
     let data = {
@@ -137,6 +139,7 @@ class ToCart extends Component {
         'guestLastName',
         'guestFirstName',
         'customerContactNo',
+        'customerContactNoCountry',
       ]);
       data = Object.assign(data, {
         birth,
@@ -146,6 +149,7 @@ class ToCart extends Component {
         guestLastName,
         guestFirstName,
         customerContactNo,
+        customerContactNoCountry,
       });
     }
     if (offerConstrain === 'Single' || offerConstrain === 'Multiple') {
@@ -417,7 +421,8 @@ class ToCart extends Component {
             <div>
               {record.attractionProduct.map(itemProduct => (
                 <div key={Math.random()} className={styles.tableText}>{`${itemProduct
-                  .attractionProduct.ageGroup || '-'} * ${itemProduct.needChoiceCount}`}</div>
+                  .attractionProduct.ageGroup || '-'} * ${itemProduct.needChoiceCount}`}
+                </div>
               ))}
             </div>
           );
@@ -508,6 +513,7 @@ class ToCart extends Component {
         address,
         gender,
         cardDisplayName,
+        customerContactNoCountry,
       },
       userCompanyInfo: { companyType },
     } = this.props;
@@ -990,29 +996,71 @@ class ToCart extends Component {
                   </Col>
                 </Col>
                 <Col span={24} className={styles.deliverCol}>
-                  <FormItem className={styles.label} label="Customer Contact No." colon={false}>
-                    {getFieldDecorator('customerContactNo', {
-                      initialValue: customerContactNo,
-                      validateTrigger: '',
-                      rules: [
-                        {
-                          required: hasApspTicket,
-                          message: 'Required',
-                        },
-                      ],
-                    })(
-                      <div>
-                        <Input
-                          allowClear
-                          placeholder="Please Enter"
-                          style={{ width: '100%' }}
-                          value={customerContactNo}
-                          onChange={e => {
-                            this.changeDeliveryInformation('customerContactNo', e.target.value);
-                          }}
-                        />
-                      </div>
-                    )}
+                  <FormItem
+                    className={styles.customerContactNo}
+                    label="Customer Contact No."
+                    colon={false}
+                    required={hasApspTicket}
+                  >
+                    <FormItem colon={false} className={styles.phoneCountryItem}>
+                      {getFieldDecorator('customerContactNoCountry', {
+                        initialValue: customerContactNoCountry || [],
+                        rules: [
+                          { required: hasApspTicket, message: formatMessage({ id: 'REQUIRED' }) },
+                        ],
+                      })(
+                        <div style={{ width: '100%' }}>
+                          <SortSelect
+                            allowClear
+                            showSearch
+                            value={customerContactNoCountry}
+                            placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                            optionFilterProp="label"
+                            onChange={value => {
+                              this.changeDeliveryInformation('customerContactNoCountry', value);
+                            }}
+                            options={countrys.map(item => (
+                              <Select.Option
+                                key={`countryPhoneList${item.dictId}`}
+                                value={`${item.dictId}`}
+                                label={`${item.dictName} +${item.dictId}`}
+                              >
+                                <Tooltip
+                                  placement="topLeft"
+                                  title={
+                                    <span style={{ whiteSpace: 'pre-wrap' }}>
+                                      {`${item.dictName} +${item.dictId}`}
+                                    </span>
+                                  }
+                                >
+                                  {`${item.dictName} +${item.dictId}`}
+                                </Tooltip>
+                              </Select.Option>
+                            ))}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                    <FormItem colon={false} className={styles.contactPhoneItem}>
+                      {getFieldDecorator('customerContactNo', {
+                        initialValue: customerContactNo || null,
+                        rules: [
+                          { required: hasApspTicket, message: formatMessage({ id: 'REQUIRED' }) },
+                        ],
+                      })(
+                        <div style={{ width: '100%' }}>
+                          <Input
+                            allowClear
+                            placeholder="Please Enter"
+                            style={{ width: '100%' }}
+                            value={customerContactNo}
+                            onChange={e => {
+                              this.changeDeliveryInformation('customerContactNo', e.target.value);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
                   </FormItem>
                 </Col>
                 <Col span={24} className={styles.deliverCol} style={{ marginBottom: '5px' }}>

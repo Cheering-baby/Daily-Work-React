@@ -230,3 +230,35 @@
   word-wrap: break-word;
   font-size: 15px;
 }
+
+.customerContactNo {
+  height: 70px;
+  padding: 0 !important;
+  :global {
+    .ant-form-item-children {
+      display: flex !important;
+    }
+  }
+}
+
+.phoneCountryItem {
+  width: 30%;
+
+  :global {
+    .ant-select-selection {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+.contactPhoneItem {
+  width: 70%;
+
+  :global {
+    .ant-input {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+}

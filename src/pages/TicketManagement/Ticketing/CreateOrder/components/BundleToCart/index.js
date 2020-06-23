@@ -17,6 +17,7 @@ import {
   Select,
   Spin,
   Table,
+  Tooltip,
 } from 'antd';
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
@@ -114,6 +115,7 @@ class ToCart extends Component {
         guestFirstName,
         guestLastName,
         customerContactNo,
+        customerContactNoCountry,
       },
       modify,
     } = this.props;
@@ -131,6 +133,7 @@ class ToCart extends Component {
         guestFirstName,
         guestLastName,
         customerContactNo,
+        customerContactNoCountry,
       });
       validFields = validFields.concat([
         'birth',
@@ -140,6 +143,7 @@ class ToCart extends Component {
         'guestFirstName',
         'guestLastName',
         'customerContactNo',
+        'customerContactNoCountry',
       ]);
     }
     offers.forEach((item, index) => {
@@ -320,7 +324,7 @@ class ToCart extends Component {
                 <div>
                   <InputNumber
                     max={record.offerMaxQuantity}
-                    min={record.offerMinQuantity}
+                    min={0}
                     value={text}
                     onChange={value =>
                       this.changeTicketNumber(record.index, value, record.priceShow)
@@ -370,6 +374,7 @@ class ToCart extends Component {
         address,
         gender,
         cardDisplayName,
+        customerContactNoCountry,
       },
       userCompanyInfo: { companyType },
     } = this.props;
@@ -807,29 +812,71 @@ class ToCart extends Component {
                   </Col>
                 </Col>
                 <Col span={24} className={styles.deliverCol}>
-                  <FormItem className={styles.label} label="Customer Contact No." colon={false}>
-                    {getFieldDecorator('customerContactNo', {
-                      initialValue: customerContactNo,
-                      validateTrigger: '',
-                      rules: [
-                        {
-                          required: hasApspTicket,
-                          message: 'Required',
-                        },
-                      ],
-                    })(
-                      <div>
-                        <Input
-                          allowClear
-                          placeholder="Please Enter"
-                          style={{ width: '100%' }}
-                          value={customerContactNo}
-                          onChange={e => {
-                            this.changeDeliveryInformation('customerContactNo', e.target.value);
-                          }}
-                        />
-                      </div>
-                    )}
+                  <FormItem
+                    className={styles.customerContactNo}
+                    label="Customer Contact No."
+                    colon={false}
+                    required={hasApspTicket}
+                  >
+                    <FormItem colon={false} className={styles.phoneCountryItem}>
+                      {getFieldDecorator('customerContactNoCountry', {
+                        initialValue: customerContactNoCountry || [],
+                        rules: [
+                          { required: hasApspTicket, message: formatMessage({ id: 'REQUIRED' }) },
+                        ],
+                      })(
+                        <div style={{ width: '100%' }}>
+                          <SortSelect
+                            allowClear
+                            showSearch
+                            value={customerContactNoCountry}
+                            placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                            optionFilterProp="label"
+                            onChange={value => {
+                              this.changeDeliveryInformation('customerContactNoCountry', value);
+                            }}
+                            options={countrys.map(item => (
+                              <Select.Option
+                                key={`countryPhoneList${item.dictId}`}
+                                value={`${item.dictId}`}
+                                label={`${item.dictName} +${item.dictId}`}
+                              >
+                                <Tooltip
+                                  placement="topLeft"
+                                  title={
+                                    <span style={{ whiteSpace: 'pre-wrap' }}>
+                                      {`${item.dictName} +${item.dictId}`}
+                                    </span>
+                                  }
+                                >
+                                  {`${item.dictName} +${item.dictId}`}
+                                </Tooltip>
+                              </Select.Option>
+                            ))}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
+                    <FormItem colon={false} className={styles.contactPhoneItem}>
+                      {getFieldDecorator('customerContactNo', {
+                        initialValue: customerContactNo || null,
+                        rules: [
+                          { required: hasApspTicket, message: formatMessage({ id: 'REQUIRED' }) },
+                        ],
+                      })(
+                        <div style={{ width: '100%' }}>
+                          <Input
+                            allowClear
+                            placeholder="Please Enter"
+                            style={{ width: '100%' }}
+                            value={customerContactNo}
+                            onChange={e => {
+                              this.changeDeliveryInformation('customerContactNo', e.target.value);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </FormItem>
                   </FormItem>
                 </Col>
                 <Col span={24} className={styles.deliverCol} style={{ marginBottom: '5px' }}>

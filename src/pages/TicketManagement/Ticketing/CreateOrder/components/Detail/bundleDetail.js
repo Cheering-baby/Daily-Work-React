@@ -62,22 +62,25 @@ class Detail extends Component {
         detail,
         detail: { offerContentList = [], offerBundle = [{}], offerNo },
       } = item;
-      voucherItems.push(
-        <Col span={24} key={offerNo} style={{ marginBottom: '16px' }}>
-          <Col span={24} className={styles.bundleLabel}>
-            {offerBundle[0].bundleLabel || '-'}
+      if (getVoucherProducts(detail).length > 0) {
+        voucherItems.push(
+          <Col span={24} key={offerNo} style={{ marginBottom: '16px' }}>
+            <Col span={24} className={styles.bundleLabel}>
+              {offerBundle[0].bundleLabel || '-'}
+            </Col>
+            <Col span={24}>
+              <Table
+                className={styles.table}
+                dataSource={getVoucherProducts(detail)}
+                columns={columns}
+                pagination={false}
+                rowKey={record => record.productNo}
+              />
+            </Col>
           </Col>
-          <Col span={24}>
-            <Table
-              className={styles.table}
-              dataSource={getVoucherProducts(detail)}
-              columns={columns}
-              pagination={false}
-              rowKey={record => record.productNo}
-            />
-          </Col>
-        </Col>
-      );
+        );
+      }
+
       offerContentList.forEach(item2 => {
         const { contentLanguage, contentType, contentValue } = item2;
         if (contentLanguage === 'en-us') {
@@ -211,17 +214,18 @@ class Detail extends Component {
                   </Col>
                 </Col>
               </Row>
-              <Row>
-                <Col span={24} className={styles.voucherContainer}>
-                  VOUCHER INFORMATION
-                </Col>
-                <Col span={24} className={styles.voucherText}>
-                  The corresponding voucher will be automatically matched after the items are added
-                  to the cart.
-                </Col>
-                {}
-                <Col span={24}>{voucherItems}</Col>
-              </Row>
+              {voucherItems.length > 0 ? (
+                <Row>
+                  <Col span={24} className={styles.voucherContainer}>
+                    VOUCHER INFORMATION
+                  </Col>
+                  <Col span={24} className={styles.voucherText}>
+                    The corresponding voucher will be automatically matched after the items are
+                    added to the cart.
+                  </Col>
+                  <Col span={24}>{voucherItems}</Col>
+                </Row>
+              ) : null}
             </div>
           </div>
         </Drawer>

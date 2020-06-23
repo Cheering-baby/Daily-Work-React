@@ -1,13 +1,14 @@
 import { message } from 'antd';
 import moment from 'moment';
+import router from 'umi/router';
 import { isNullOrUndefined } from 'util';
 import {
   queryAgentOpt,
   queryCountry,
+  queryOfferBookingCategory,
   queryOfferDetail,
   queryOfferList,
   queryPluAttribute,
-  queryOfferBookingCategory,
 } from '../services/ticketCommon';
 import {
   changeVoucherToAttraction,
@@ -57,6 +58,10 @@ export default {
   },
 
   effects: {
+    // eslint-disable-next-line require-yield
+    *backRouterEventOnMobile() {
+      router.push(`/TicketManagement/Ticketing/CreateOrder`);
+    },
     *fetchQueryAgentOpt(_, { call, put }) {
       const param = { queryType: 'signUp' };
       const response = yield call(queryAgentOpt, param);
@@ -83,6 +88,17 @@ export default {
                 }
               )
             );
+          });
+          countryArray.sort((a, b) => {
+            const val1 = a.lookupName.toLowerCase();
+            const val2 = b.lookupName.toLowerCase();
+            if (val1 < val2) {
+              return -1;
+            }
+            if (val1 > val2) {
+              return 1;
+            }
+            return 0;
           });
           yield put({
             type: 'save',

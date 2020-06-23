@@ -15,7 +15,6 @@ import styles from './index.less';
 @connect(({ global }) => ({
   userCompanyInfo: global.userCompanyInfo,
 }))
-// eslint-disable-next-line react/prefer-stateless-function
 class Detail extends Component {
   render() {
     const bodyWidth = document.body.clientWidth || document.documentElement.clientWidth;
@@ -186,24 +185,26 @@ class Detail extends Component {
                   </Col>
                 </Col>
               </Row>
-              <Row>
-                <Col span={24} className={styles.voucherContainer}>
-                  VOUCHER INFORMATION
-                </Col>
-                <Col span={24} className={styles.voucherText}>
-                  The corresponding voucher will be automatically matched after the items are added
-                  to the cart.
-                </Col>
-                <Col span={24}>
-                  <Table
-                    className={styles.table}
-                    dataSource={voucherProducts}
-                    columns={columns}
-                    pagination={false}
-                    rowKey={record => record.productNo}
-                  />
-                </Col>
-              </Row>
+              {voucherProducts.length > 0 ? (
+                <Row>
+                  <Col span={24} className={styles.voucherContainer}>
+                    VOUCHER INFORMATION
+                  </Col>
+                  <Col span={24} className={styles.voucherText}>
+                    The corresponding voucher will be automatically matched after the items are
+                    added to the cart.
+                  </Col>
+                  <Col span={24}>
+                    <Table
+                      className={styles.table}
+                      dataSource={voucherProducts}
+                      columns={columns}
+                      pagination={false}
+                      rowKey={record => record.productNo}
+                    />
+                  </Col>
+                </Row>
+              ) : null}
             </div>
           </div>
         </Drawer>

@@ -11,6 +11,7 @@ import styles from './index.less';
 import PaymentMode from './components/PaymentMode';
 import BOCAOfferCollapse from '@/pages/TicketManagement/components/BOCAOfferCollapse';
 import {
+  getOrderProductServiceTax,
   toThousandsByRound,
   transBookingToPayTotalPrice,
 } from '@/pages/TicketManagement/utils/orderCartUtil';
@@ -263,18 +264,24 @@ class OrderPay extends Component {
 
   getProductFeeExclude = () => {
     const sumPrice = this.payTotal();
-    const sumPriceTax = sumPrice * 0.07;
-    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+    const {
+      ticketBookingAndPayMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+    } = this.props;
+    const serviceTax = getOrderProductServiceTax(generalTicketOrderData, onceAPirateOrderData);
+    return toThousandsByRound(Number(sumPrice - serviceTax).toFixed(2));
   };
 
   getBocaFeeExclude = (bocaFeePax, ticketAmount) => {
     const sumPrice = bocaFeePax * ticketAmount;
-    const sumPriceTax = bocaFeePax * ticketAmount * 0.07;
-    return toThousandsByRound(Number(sumPrice - sumPriceTax).toFixed(2));
+    return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
   getServiceTax = () => {
-    return toThousandsByRound(Number(this.payTotal() * 0.07).toFixed(2));
+    const {
+      ticketBookingAndPayMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+    } = this.props;
+    const serviceTax = getOrderProductServiceTax(generalTicketOrderData, onceAPirateOrderData);
+    return toThousandsByRound(serviceTax);
   };
 
   render() {
@@ -446,7 +453,7 @@ class OrderPay extends Component {
                     )}
                     <Row className={styles.priceCol2}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Goods & Service Tax (GST 7%):</span>
+                        <span className={styles.priceKeySpan}>Goods & Service Tax (GST):</span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>{this.getServiceTax()}</span>

@@ -210,11 +210,11 @@ class PaymentResult extends Component {
   };
 
   backToCartEvent = () => {
-    router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
+    router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder?backFlag=payment`);
   };
 
   gotoOrderQueryEvent = () => {
-    router.push(`/TicketManagement/Ticketing/QueryOrder`);
+    router.push(`/TicketManagement/Ticketing/QueryOrder?backFlag=payment`);
   };
 
   downloadFileEvent = () => {

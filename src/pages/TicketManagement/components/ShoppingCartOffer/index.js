@@ -113,9 +113,10 @@ class ShoppingCartOffer extends Component {
         </Row>
         {orderData &&
           orderData.map((orderDataItem, orderDataItemIndex) => {
+            const indexS = `${orderDataItem.themePark}${orderDataItemIndex}`;
             return (
               <OrderItemCollapse
-                key={orderDataItem.themePark}
+                key={indexS}
                 bookingCategory={orderDataItem.themePark}
                 orderDataItemIndex={orderDataItemIndex}
                 orderData={orderDataItem}

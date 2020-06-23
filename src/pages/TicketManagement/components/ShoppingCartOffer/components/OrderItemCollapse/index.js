@@ -614,136 +614,6 @@ class OrderItemCollapse extends Component {
     });
   };
 
-  orderDolOffer = () => {
-    const {
-      dispatch,
-      ticketOrderCartMgr: {
-        orderIndex,
-        offerIndex,
-        deliverInformation = {},
-        attractionProduct = [],
-        editOrderOffer,
-        generalTicketOrderData,
-      },
-    } = this.props;
-
-    const orderDataGroup = generalTicketOrderData[orderIndex];
-    const { themeParkCode, themeParkName } = orderDataGroup;
-
-    const detail = editOrderOffer.offerInfo;
-    let offerConstrain = 'offer';
-    editOrderOffer.offerInfo.productGroup.forEach(item => {
-      if (item.productType === 'Attraction') {
-        item.productGroup.forEach(item2 => {
-          if (item2.groupName === 'Attraction') {
-            offerConstrain = item2.choiceConstrain;
-          }
-        });
-      }
-    });
-    if (offerConstrain === 'Fixed') {
-      this.orderDolOfferFixed();
-      return true;
-    }
-    const { dateOfVisit, numOfGuests, priceRuleId } = detail;
-    const { sessionTime } = editOrderOffer.orderInfo[0];
-    const orderInfoList = [];
-    attractionProduct.forEach(item => {
-      const { ticketNumber, numOfPax } = item;
-      orderInfoList.push({
-        numOfPax,
-        sessionTime: item.sessionTime,
-        ageGroup: item.attractionProduct.ageGroup,
-        quantity: ticketNumber || 0,
-        pricePax: calculateProductPrice(item, priceRuleId, sessionTime),
-        productInfo: item,
-      });
-    });
-    const orderData = {
-      themeParkCode,
-      themeParkName,
-      orderType: 'offer',
-      queryInfo: {
-        dateOfVisit,
-        numOfGuests,
-      },
-      orderInfo: orderInfoList,
-      offerInfo: { ...detail, selectRuleId: priceRuleId },
-      deliveryInfo: deliverInformation,
-    };
-    dispatch({
-      type: 'ticketOrderCartMgr/settingPackAgeTicketOrderData',
-      payload: {
-        orderIndex,
-        offerIndex,
-        orderData,
-      },
-    });
-
-    this.onClose();
-  };
-
-  orderDolOfferFixed = () => {
-    const {
-      dispatch,
-      ticketOrderCartMgr: {
-        orderIndex,
-        offerIndex,
-        deliverInformation = {},
-        attractionProduct = [],
-        editOrderOffer,
-        generalTicketOrderData,
-      },
-    } = this.props;
-    const orderDataGroup = generalTicketOrderData[orderIndex];
-    const { themeParkCode, themeParkName } = orderDataGroup;
-    const detail = editOrderOffer.offerInfo;
-    const { dateOfVisit, numOfGuests } = detail;
-    const { offerQuantity } = editOrderOffer.offerInfo;
-    const priceRuleId = editOrderOffer.orderSummary.selectPriceRuleId;
-    const { sessionTime } = editOrderOffer.orderInfo[0];
-    const orderInfoList = [];
-    attractionProduct.forEach(item => {
-      orderInfoList.push({
-        numOfPax: item.numOfPax,
-        sessionTime: item.sessionTime,
-        ageGroup: item.attractionProduct.ageGroup,
-        quantity: offerQuantity,
-        pricePax: calculateProductPrice(item, priceRuleId),
-        productInfo: item,
-      });
-    });
-    const orderData = {
-      themeParkCode,
-      themeParkName,
-      orderType: 'offerFixed',
-      orderSummary: {
-        quantity: offerQuantity,
-        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
-        totalPrice:
-          offerQuantity *
-          calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
-        selectPriceRuleId: priceRuleId,
-      },
-      queryInfo: {
-        dateOfVisit,
-        numOfGuests,
-      },
-      orderInfo: orderInfoList,
-      offerInfo: { ...detail },
-      deliveryInfo: deliverInformation,
-    };
-    dispatch({
-      type: 'ticketOrderCartMgr/settingGeneralTicketOrderData',
-      payload: {
-        orderIndex,
-        offerIndex,
-        orderData,
-      },
-    });
-    this.onClose();
-  };
-
   order = () => {
     const {
       dispatch,
@@ -756,14 +626,8 @@ class OrderItemCollapse extends Component {
         generalTicketOrderData,
       },
     } = this.props;
-
     const orderDataGroup = generalTicketOrderData[orderIndex];
     const { themeParkCode, themeParkName } = orderDataGroup;
-    if (themeParkCode === 'DOL') {
-      this.orderDolOffer();
-      return;
-    }
-
     const detail = editOrderOffer.offerInfo;
     let offerConstrain = 'offer';
     editOrderOffer.offerInfo.productGroup.forEach(item => {

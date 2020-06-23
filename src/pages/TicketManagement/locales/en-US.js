@@ -55,7 +55,7 @@ export default {
   OFFER_NAME_TITLE: 'OFFER NAME',
   OFFER_NAME: 'Offer Name',
   ORDER_TITLE_TIP:
-    '* Prices shown in Singapore Dollars (SGD) inclusive of Goods & Services Tax (GST) of 7%',
+    '* Prices shown in Singapore Dollars (SGD) inclusive of Goods & Services Tax (GST)',
   PRODUCT_CATEGORIES: 'PRODUCT CATEGORIES',
   CUSTOMER_CHOICE: 'CUSTOMER CHOICE',
   PAYMENT: 'Payment',
