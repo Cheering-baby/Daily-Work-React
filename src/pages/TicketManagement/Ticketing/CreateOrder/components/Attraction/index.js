@@ -338,14 +338,16 @@ class Attraction extends Component {
     } = this.props;
     const orderInfo = offers.map(item => {
       const {
+        sessionTime,
         ticketNumber,
         detail,
         detail: { priceRuleId },
         attractionProduct = [],
       } = item;
       return {
+        sessionTime,
         quantity: ticketNumber || 0,
-        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
         offerInfo: {
           ...detail,
           selectRuleId: priceRuleId,
@@ -532,6 +534,7 @@ class Attraction extends Component {
             <div>
               {offers.map(offerItem => {
                 const {
+                  sessionTime,
                   attractionProduct: attractionProductItems = [],
                   detail: {
                     offerBasicInfo: { offerNo },
@@ -541,7 +544,9 @@ class Attraction extends Component {
                 } = offerItem;
                 return (
                   <div key={offerNo} className={styles.productPrice}>
-                    <div style={this.generateStyle(companyType).sessionStyle}>-</div>
+                    <div style={this.generateStyle(companyType).sessionStyle}>
+                      {sessionTime || '-'}
+                    </div>
                     <div
                       className={styles.categoryShow}
                       style={this.generateStyle(companyType).ticketTypeStyle}
@@ -553,7 +558,7 @@ class Attraction extends Component {
                         calculateAllProductPrice(
                           attractionProductItems,
                           offerPriceRuleId,
-                          null,
+                          sessionTime,
                           offerItem.detail
                         )
                       )}
@@ -608,7 +613,6 @@ class Attraction extends Component {
         },
       },
     ];
-    const columns2 = columns.filter(({ title }) => title === 'Offer Name' || title === 'Operation');
     return (
       <div className={styles.container} style={{ minHeight: clientHeight }}>
         {showBundleDetailModal ? (
@@ -677,11 +681,10 @@ class Attraction extends Component {
                           {tag} ({products.length} {products.length > 1 ? 'items' : 'item'})
                         </span>
                       </div>
-
                       {showDetail ? (
                         <Table
                           className={styles.table}
-                          columns={companyType === '02' ? columns2 : columns}
+                          columns={columns}
                           dataSource={products}
                           pagination={false}
                           rowKey={record => record.id}

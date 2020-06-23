@@ -891,15 +891,16 @@ class OrderItemCollapse extends Component {
     } = this.props;
     const orderInfo = offers.map(item => {
       const {
+        sessionTime,
         ticketNumber: quantity,
         detail,
         detail: { priceRuleId },
         attractionProduct = [],
       } = item;
       return {
-        sessionTime: item.sessionTime,
+        sessionTime,
         quantity,
-        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
+        pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
         offerInfo: {
           ...detail,
         },

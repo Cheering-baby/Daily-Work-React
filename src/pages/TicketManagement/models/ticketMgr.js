@@ -18,8 +18,9 @@ import {
 import {
   checkInventory,
   checkNumOfGuestsAvailable,
-  checkSessionProductInventory,
   multiplePromise,
+  filterSessionProduct,
+  findArrSame,
   dealSessionArr,
 } from '../utils/utils';
 
@@ -481,11 +482,11 @@ export default {
             let attractionProduct;
             let noMatchPriceRule = false;
             let priceRuleId;
-            const {
-              offerProfile: { bookingCategory = [] },
-            } = resultDetail;
             resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
             resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
+            const {
+              offerProfile: { bookingCategory = [], offerBundle = [{}] },
+            } = resultDetail;
             if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
               // eslint-disable-next-line no-continue
               continue;
@@ -513,12 +514,38 @@ export default {
                         }
                       });
                       sessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
-                      if (sessions.length === 0) {
-                        sessions.push(null);
-                      }
                       productSessions.push(sessions);
                     });
-                    const sessionArr = dealSessionArr(productSessions);
+                    let sessionArr = [];
+                    if (item2.choiceConstrain === 'Fixed' || offerBundle[0].bundleName) {
+                      if (item2.choiceConstrain === 'Fixed') {
+                        const existProductSession = [];
+                        productSessions.forEach(itemProductSession => {
+                          if (itemProductSession.indexOf(null) === -1) {
+                            existProductSession.push(itemProductSession);
+                          }
+                        });
+                        if (existProductSession.length > 0) {
+                          sessionArr = findArrSame(existProductSession);
+                        } else {
+                          sessionArr = findArrSame(productSessions);
+                        }
+                      }
+                      if (offerBundle[0].bundleName) {
+                        sessionArr = findArrSame(productSessions);
+                      }
+                    } else {
+                      productSessions.forEach(itemProductSession => {
+                        itemProductSession.forEach(itemSession => {
+                          if (sessionArr.indexOf(itemSession) === -1) {
+                            sessionArr.push(itemSession);
+                          }
+                        });
+                      });
+                      if (sessionArr.length > 1 && sessionArr.indexOf(null) !== -1) {
+                        sessionArr = sessionArr.filter(session => session !== null);
+                      }
+                    }
                     if (noMatchPriceRule) return false;
                     bookingCategory.forEach(item3 => {
                       themeParkList.forEach((item4, index4) => {
@@ -532,16 +559,22 @@ export default {
                           data.detail.offerPrice = offerList[i].offerPrice;
                           data.detail.dateOfVisit = dateOfVisit;
                           data.detail.numOfGuests = numOfGuests;
+                          data.detail.productSessions = sessionArr;
                           themeParkList[index4].offerNos.push(offerNo);
-                          sessionArr.forEach(itemSession => {
-                            data.attractionProduct = attractionProduct.map(
-                              (itemProduct, itemProductIndex) => ({
-                                ...itemProduct,
-                                sessionTime: itemSession[itemProductIndex],
-                              })
-                            );
+                          if (offerBundle[0].bundleName) {
+                            data.attractionProduct = attractionProduct;
                             themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
-                          });
+                          } else {
+                            sessionArr.forEach(itemSession => {
+                              filterSessionProduct();
+                              data.attractionProduct = filterSessionProduct(
+                                priceRuleId,
+                                itemSession,
+                                attractionProduct
+                              );
+                              themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
+                            });
+                          }
                         }
                       });
                     });
@@ -613,13 +646,65 @@ export default {
               });
             });
           });
+
+          themeParkList2.forEach((itemThemePark, itemThemeParkIndex) => {
+            itemThemePark.categories.forEach((category, categoryIndex) => {
+              const bundleArr = [];
+              category.products.forEach((itemProduct, itemProductIndex) => {
+                if (itemProduct.bundleName) {
+                  const { offers } = itemProduct;
+                  const offerSessions = [];
+                  offers.forEach(itemOffer => {
+                    const {
+                      detail: { productSessions = [] },
+                    } = itemOffer;
+                    offerSessions.push(productSessions);
+                  });
+                  const OfferSessionArr = dealSessionArr(offerSessions);
+                  bundleArr.push({
+                    bundleName: itemProduct.bundleName,
+                    bundleDetail: itemProduct,
+                    OfferSessionArr,
+                  });
+                }
+              });
+              bundleArr.forEach(bundleArrItem => {
+                const searchIndex = category.products.findIndex(
+                  item => item.bundleName === bundleArrItem.bundleName
+                );
+                bundleArrItem.OfferSessionArr.forEach(
+                  (OfferSessionArrItem, OfferSessionArrItemIndex) => {
+                    if (OfferSessionArrItemIndex === 0) {
+                      category.products[searchIndex].offers.forEach(
+                        (offersItem, offersItemIndex) => {
+                          offersItem.sessionTime = OfferSessionArrItem[offersItemIndex];
+                        }
+                      );
+                    } else {
+                      const offerCopy = category.products[searchIndex].offers.map(
+                        (offersItem, offersItemIndex) => ({
+                          ...offersItem,
+                          sessionTime: OfferSessionArrItem[offersItemIndex],
+                        })
+                      );
+                      category.products.splice(searchIndex + 1, 0, {
+                        ...bundleArrItem.bundleDetail,
+                        offers: offerCopy,
+                      });
+                    }
+                  }
+                );
+              });
+            });
+          });
+
           themeParkList2.forEach((itemThemePark, index) => {
             themeParkList2[index].categories = itemThemePark.categories.filter(
               ({ products }) => products.length > 0
             );
-            itemThemePark.categories.forEach(categorie => {
-              if (categorie.products) {
-                categorie.products.forEach(product => {
+            itemThemePark.categories.forEach(category => {
+              if (category.products) {
+                category.products.forEach(product => {
                   if (product.bundleName && product.bundleName !== '') {
                     product.offers.sort((a, b) => {
                       const aName = a.detail.offerBundle[0].bundleLabel || '';
@@ -640,138 +725,6 @@ export default {
         } else {
           message.error(resultMsg);
         }
-      },
-      takeLatest,
-    ],
-
-    queryDolphinIsland: [
-      function* queryDolphinIslandFunction({ payload }, { call, put, select }) {
-        const response = yield call(queryOfferList, payload);
-        const { dateOfVisit, numOfGuests } = yield select(({ ticketMgr }) => ticketMgr);
-        if (!response) return false;
-        const {
-          data: { result },
-        } = response;
-        const { offerList = [] } = result;
-        const dolphinIslandOfferList = getOfferCategory('DOL');
-
-        const requestPromiseList = [];
-        const offerDetailList = [];
-        for (let i = 0; i < offerList.length; i += 1) {
-          const { offerNo } = offerList[i];
-          const params = {
-            offerNo,
-            validTimeFrom: moment(dateOfVisit, 'x').format('YYYY-MM-DD'),
-          };
-          const requestFn = () => {
-            return queryOfferDetail(params).then(responseDetail => {
-              if (!responseDetail || !responseDetail.success) {
-                message.error(`The offer ${offerNo} query detail failed.`);
-                return;
-              }
-              const {
-                data: {
-                  resultCode: queryOfferDetailResultCode,
-                  resultMsg: queryOfferDetailResultMsg,
-                  result: resultDetail,
-                },
-              } = responseDetail;
-              if (queryOfferDetailResultCode !== '0') {
-                message.error(queryOfferDetailResultMsg);
-              } else {
-                offerDetailList.push(Object.assign({}, resultDetail));
-              }
-            });
-          };
-          requestPromiseList.push(requestFn);
-        }
-
-        if (offerList && offerList.length > 0) {
-          const queryOfferDetailPromise = new Promise(resolve => {
-            multiplePromise(requestPromiseList, 20, () => {
-              resolve();
-            });
-          });
-          //  wait for query offer detail
-          yield call(() => queryOfferDetailPromise);
-        }
-
-        for (let i = 0; i < offerDetailList.length; i += 1) {
-          const resultDetail = offerDetailList[i];
-          resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
-          resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
-          if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
-            // eslint-disable-next-line no-continue
-            continue;
-          }
-          resultDetail.offerProfile.productGroup.forEach(item => {
-            const { productType } = item;
-            const sessions = [];
-            let attractionProduct;
-            let priceRuleId;
-            if (productType === 'Attraction') {
-              item.productGroup.forEach(item2 => {
-                if (item2.groupName === 'Attraction') {
-                  attractionProduct = item2.products;
-                  // eslint-disable-next-line prefer-destructuring
-                  priceRuleId = attractionProduct[0].priceRule[1].priceRuleId;
-                  attractionProduct.forEach(itemProduct => {
-                    const { priceRule = [] } = itemProduct;
-                    priceRule.forEach((itemPrice, itemPriceIndex) => {
-                      if (itemPriceIndex === 1) {
-                        const { productPrice } = itemPrice;
-                        productPrice.forEach(itemProductPrice => {
-                          const sessionsExist = [];
-                          sessions.forEach(itemSessions => [
-                            sessionsExist.push(itemSessions.priceTimeFrom),
-                          ]);
-                          const { priceTimeFrom } = itemProductPrice;
-                          if (
-                            priceTimeFrom &&
-                            sessionsExist.indexOf(priceTimeFrom) === -1 &&
-                            checkSessionProductInventory(numOfGuests, priceTimeFrom, itemProduct)
-                          ) {
-                            sessions.push(itemProductPrice);
-                          }
-                        });
-                      }
-                    });
-                  });
-                }
-              });
-            }
-            resultDetail.offerProfile.dateOfVisit = dateOfVisit;
-            resultDetail.offerProfile.priceRuleId = priceRuleId;
-            resultDetail.offerProfile.selectRuleId = priceRuleId;
-            resultDetail.offerProfile.numOfGuests = numOfGuests;
-            dolphinIslandOfferList.forEach((item2, index) => {
-              const { tag } = item2;
-              resultDetail.offerProfile.offerTagList.forEach(item3 => {
-                const { tagName } = item3;
-                if (tag === tagName) {
-                  sessions.forEach(sessionItem => {
-                    const len = dolphinIslandOfferList[index].offer.length;
-                    dolphinIslandOfferList[index].offer.push({
-                      detail: resultDetail.offerProfile,
-                      session: sessionItem,
-                      attractionProduct,
-                      id: len,
-                    });
-                  });
-                }
-              });
-            });
-          });
-        }
-        const dolphinIslandOfferListFilter = dolphinIslandOfferList.filter(
-          ({ offer }) => offer.length > 0
-        );
-        yield put({
-          type: 'save',
-          payload: {
-            dolphinIslandOfferList: dolphinIslandOfferListFilter,
-          },
-        });
       },
       takeLatest,
     ],

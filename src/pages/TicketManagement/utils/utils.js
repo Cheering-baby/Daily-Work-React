@@ -104,7 +104,7 @@ export function calculateAllProductPrice(products = [], selectRuleId, session, d
   products.forEach(item => {
     const { sessionTime } = item;
     if (isSessionProduct(selectRuleId, item)) {
-      price += calculateProductPrice(item, selectRuleId, sessionTime);
+      price += calculateProductPrice(item, selectRuleId, sessionTime || session);
     } else if (isSessionProduct(selectRuleId, item)) {
       const { priceRule, needChoiceCount } = item;
       const filterPriceRule = priceRule.filter(({ priceRuleId }) => priceRuleId === selectRuleId);
@@ -287,16 +287,26 @@ export function checkNumOfGuestsAvailable(numOfGuests, detail) {
 
 export function filterSessionProduct(priceRuleId, session, products = []) {
   if (!session) return products;
-  const filterProduct = products.filter(item => {
+  const filterProduct = [];
+  products.forEach(item => {
     const { priceRule = [] } = item;
     const priceRuleFilter = priceRule.filter(item2 => item2.priceRuleId === priceRuleId);
     const currentPriceRule = priceRuleFilter[0];
     const { productPrice } = currentPriceRule;
     const isSession = productPrice.some(({ priceTimeFrom }) => !!priceTimeFrom);
     if (isSession) {
-      return productPrice.find(({ priceTimeFrom }) => priceTimeFrom === session);
+      if (productPrice.find(({ priceTimeFrom }) => priceTimeFrom === session)) {
+        filterProduct.push({
+          ...item,
+          sessionTime: session,
+        });
+      }
+    } else {
+      filterProduct.push({
+        ...item,
+        sessionTime: null,
+      });
     }
-    return true;
   });
   return filterProduct;
 }
@@ -422,4 +432,14 @@ export function getOfferConstrain(detail) {
     }
   });
   return offerConstrain;
+}
+
+export function findArrSame(arr = []) {
+  let temArr = arr[0] || [];
+  for (let j = 1; j < arr.length; j += 1) {
+    const arr1 = temArr;
+    const arr2 = arr[j];
+    temArr = arr1.filter(element1 => arr2.some(element2 => element1 === element2));
+  }
+  return temArr;
 }

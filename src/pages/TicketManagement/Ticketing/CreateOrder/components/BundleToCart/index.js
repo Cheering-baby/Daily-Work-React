@@ -81,6 +81,7 @@ class ToCart extends Component {
     let totalPrice = 0;
     offers.forEach(item => {
       const {
+        sessionTime,
         attractionProduct,
         detail,
         detail: { priceRuleId },
@@ -88,7 +89,8 @@ class ToCart extends Component {
       } = item;
       if (!isNullOrUndefined(ticketNumber) && ticketNumber !== '') {
         totalPrice +=
-          calculateAllProductPrice(attractionProduct, priceRuleId, null, detail) * ticketNumber;
+          calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail) *
+          ticketNumber;
       }
     });
     return `${toThousands(Number(totalPrice).toFixed(2))}`;
@@ -280,9 +282,7 @@ class ToCart extends Component {
         key: 'Session',
         width: '15%',
         className: styles.session,
-        render: () => {
-          return <div>-</div>;
-        },
+        render: text => <div className={styles.tableText}>{text}</div>,
       },
       {
         title: 'Ticket Type',
@@ -416,6 +416,7 @@ class ToCart extends Component {
     const bookingInfo = [];
     offers.forEach((item, index) => {
       const {
+        sessionTime,
         ticketNumber,
         attractionProduct = [],
         detail,
@@ -425,11 +426,17 @@ class ToCart extends Component {
           offerBundle = [{}],
         },
       } = item;
-      const priceShow = calculateAllProductPrice(attractionProduct, priceRuleId, null, detail);
+      const priceShow = calculateAllProductPrice(
+        attractionProduct,
+        priceRuleId,
+        sessionTime,
+        detail
+      );
       const ticketNumberLabel = `offer${index}`;
       bookingInfo.push({
         ticketType: offerBundle[0].bundleLabel,
         price: `${toThousands(priceShow)}/Package`,
+        sessionTime,
         quantity: ticketNumber,
         ticketNumberLabel,
         priceShow,
