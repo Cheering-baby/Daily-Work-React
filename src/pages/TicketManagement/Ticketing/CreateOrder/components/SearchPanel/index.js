@@ -373,17 +373,17 @@ class SearchPanel extends Component {
                             value={item.value}
                             key={`themePark_${item.value}`}
                           >
-                            {item.label}
+                            {item.value === 'OAP' || item.value === 'DOL'
+                              ? `*${item.label}`
+                              : item.label}
                           </Checkbox>
                         );
                       })}
                   </Checkbox.Group>
                 )}
-                {themeParkTipType === '1' && (
-                  <div className={styles.themeParkTipStyles2}>
-                    {formatMessage({ id: 'SELECT_INDIVIDUALLY_TIP' })}
-                  </div>
-                )}
+                <div className={styles.themeParkTipStyles2}>
+                  {formatMessage({ id: 'SELECT_INDIVIDUALLY_TIP' })}
+                </div>
               </FormItem>
               <div className={styles.customerChoiceText}>
                 {formatMessage({ id: 'CUSTOMER_CHOICE' })}

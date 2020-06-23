@@ -307,7 +307,7 @@ export function getOfferCategory(themeparkCode) {
   let resultTags = [];
   switch (themeparkCode) {
     case 'USS':
-    case 'SEAA':
+    case 'SEA':
     case 'ACW': {
       resultTags = [...USS_SEAA_ACW_TAGS];
       break;

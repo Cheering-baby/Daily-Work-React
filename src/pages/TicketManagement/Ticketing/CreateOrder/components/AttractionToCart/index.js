@@ -441,7 +441,8 @@ class ToCart extends Component {
         dataIndex: 'quantity',
         key: 'quantity',
         width: '22%',
-        render: text => {
+        render: (text, record) => {
+          const { offerMinQuantity, offerMaxQuantity } = record;
           return (
             <FormItem>
               {getFieldDecorator('offerNumbers', {
@@ -456,7 +457,8 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
-                    min={1}
+                    min={offerMinQuantity}
+                    max={offerMaxQuantity}
                     value={text}
                     disabled={!modify}
                     onChange={value => this.changeFixedOfferNumbers(value)}
@@ -497,7 +499,7 @@ class ToCart extends Component {
         offerContentList = [],
         productGroup = [],
         offerQuantity,
-        offerBasicInfo: { offerName },
+        offerBasicInfo: { offerName, offerMinQuantity, offerMaxQuantity },
       },
       onClose,
       countrys = [],
@@ -591,6 +593,8 @@ class ToCart extends Component {
                   (offerQuantity || 0).toFixed(2)
               )}`,
               attractionProduct,
+              offerMinQuantity,
+              offerMaxQuantity,
             },
           ]
         : [];
@@ -764,7 +768,7 @@ class ToCart extends Component {
                 GUEST INFORMATION
               </Col>
               <Col span={24} style={{ marginTop: '5px', paddingLeft: '0' }}>
-                <div style={{ color: '#171b21' }}>
+                <div style={{ color: '#8C8C8C' }}>
                   Kindly ensure that all COMPULSORY fields (guest name, contact number and email
                   address) are completed below for VIP Experiences, Dolphin Island, Special
                   Experiences at ACW and Ocean Dreams.

@@ -373,6 +373,7 @@ class Attraction extends Component {
         orderData,
       },
     });
+    console.log(orderData)
     this.onClose();
   };
 

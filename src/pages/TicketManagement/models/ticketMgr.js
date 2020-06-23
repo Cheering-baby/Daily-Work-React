@@ -663,10 +663,10 @@ export default {
             });
           });
 
-          themeParkList2.forEach((itemThemePark, itemThemeParkIndex) => {
-            itemThemePark.categories.forEach((category, categoryIndex) => {
+          themeParkList2.forEach(itemThemePark => {
+            itemThemePark.categories.forEach(category => {
               const bundleArr = [];
-              category.products.forEach((itemProduct, itemProductIndex) => {
+              category.products.forEach(itemProduct => {
                 if (itemProduct.bundleName) {
                   const { offers } = itemProduct;
                   const offerSessions = [];
@@ -706,6 +706,7 @@ export default {
                       category.products.splice(searchIndex + 1, 0, {
                         ...bundleArrItem.bundleDetail,
                         offers: offerCopy,
+                        id: OfferSessionArrItem[0],
                       });
                     }
                   }

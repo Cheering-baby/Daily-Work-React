@@ -580,7 +580,7 @@ class ToCart extends Component {
                 GUEST INFORMATION
               </Col>
               <Col span={24} style={{ marginTop: '5px', paddingLeft: '0' }}>
-                <div style={{ color: '#171b21' }}>
+                <div style={{ color: '#8C8C8C' }}>
                   Kindly ensure that all COMPULSORY fields (guest name, contact number and email
                   address) are completed below for VIP Experiences, Dolphin Island, Special
                   Experiences at ACW and Ocean Dreams.

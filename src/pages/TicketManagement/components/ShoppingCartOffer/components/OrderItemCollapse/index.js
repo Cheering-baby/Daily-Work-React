@@ -499,6 +499,7 @@ class OrderItemCollapse extends Component {
             Object.assign(
               {},
               {
+                sessionTime: orderInfoItem.sessionTime,
                 ticketNumber: orderInfoItem.quantity,
                 attractionProduct,
                 detail: orderInfoItem.offerInfo,
@@ -792,6 +793,7 @@ class OrderItemCollapse extends Component {
         orderData,
       },
     });
+    console.log(orderData)
     this.onClose();
   };
 
