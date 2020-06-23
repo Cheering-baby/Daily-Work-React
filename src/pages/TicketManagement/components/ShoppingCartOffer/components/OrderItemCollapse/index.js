@@ -60,22 +60,20 @@ class OrderItemCollapse extends Component {
   };
 
   getSessionTime = (orderOffer, bookingCategory) => {
-    let sessionTime = '-';
+    const sessionTimeList = [];
     if (bookingCategory !== 'OAP') {
       if (orderOffer.orderInfo) {
         orderOffer.orderInfo.forEach(orderInfoItem => {
-          // eslint-disable-next-line prefer-destructuring
-          sessionTime = orderInfoItem.sessionTime || '-';
+          if (orderInfoItem.quantity > 0) {
+            sessionTimeList.push(orderInfoItem.sessionTime || '-');
+          }
         });
       }
-      if (orderOffer.orderSummary && orderOffer.orderSummary.sessionTime) {
-        // eslint-disable-next-line prefer-destructuring
-        sessionTime = orderOffer.orderSummary.sessionTime;
-      }
     } else {
-      sessionTime = this.getOAPSessionTimeStr(orderOffer);
+      const sessionTime = this.getOAPSessionTimeStr(orderOffer);
+      sessionTimeList.push(sessionTime);
     }
-    return sessionTime;
+    return sessionTimeList;
   };
 
   getOAPOrderTimeStr = onceAPirateOrder => {
@@ -793,7 +791,7 @@ class OrderItemCollapse extends Component {
         orderData,
       },
     });
-    console.log(orderData)
+    console.log(orderData);
     this.onClose();
   };
 
@@ -1037,7 +1035,17 @@ class OrderItemCollapse extends Component {
                           <span className={styles.titleSpan}>{showItem.visitDate}</span>
                         </Col>
                         <Col span={2}>
-                          <span className={styles.titleSpan}>{showItem.session}</span>
+                          {showItem.session &&
+                            showItem.session.length > 0 &&
+                            showItem.session.map((sessionItem, indexV) => {
+                              const indexS = `session${itemIndex}${indexV}`;
+                              return (
+                                <p key={indexS} className={styles.ticketSpan}>
+                                  {sessionItem}
+                                </p>
+                              );
+                            })}
+                          {showItem.session && showItem.session.length < 1 && '-'}
                         </Col>
                         <Col span={companyType === '01' ? 3 : 5}>
                           {showItem.ticketType &&
