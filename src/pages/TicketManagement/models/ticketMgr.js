@@ -778,7 +778,7 @@ export default {
       } = response;
       if (resultCode === '0') {
         const { offerProfile } = result;
-        return checkInventory(offerProfile, orderProducts);
+        return checkInventory(changeVoucherToAttraction(offerProfile), orderProducts);
       }
       message.error(resultMsg);
       return false;

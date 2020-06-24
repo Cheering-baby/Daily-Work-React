@@ -420,8 +420,10 @@ class ToCart extends Component {
           return (
             <div>
               {record.attractionProduct.map(itemProduct => (
-                <div key={Math.random()} className={styles.tableText}>{`${itemProduct
-                  .attractionProduct.ageGroup || '-'} * ${itemProduct.needChoiceCount}`}
+                <div key={Math.random()} className={styles.tableText}>
+                  {`${itemProduct.attractionProduct.ageGroup || 'General'} * ${
+                    itemProduct.needChoiceCount
+                  }`}
                 </div>
               ))}
             </div>
@@ -570,7 +572,7 @@ class ToCart extends Component {
       const priceShow = calculateProductPrice(item, priceRuleId, item.sessionTime);
       bookingInformation.push({
         index,
-        ticketType: `${item.attractionProduct.ageGroup || '-'} * ${item.needChoiceCount}`,
+        ticketType: `${item.attractionProduct.ageGroup || 'General'} * ${item.needChoiceCount}`,
         price: `${toThousands(priceShow.toFixed(2))}/Ticket`,
         quantity: item.ticketNumber,
         ticketNumberLabel: `attractionProduct${index}`,

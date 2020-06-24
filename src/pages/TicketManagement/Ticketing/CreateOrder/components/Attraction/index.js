@@ -504,7 +504,7 @@ class Attraction extends Component {
                         {sessionTime || '-'}
                       </div>
                       <div style={this.generateStyle(companyType).ticketTypeStyle}>
-                        {ageGroup || '-'} * {needChoiceCount}
+                        {ageGroup || 'General'} * {needChoiceCount}
                       </div>
                       <div style={this.generateStyle(companyType).priceStyle}>
                         {offerConstrain === 'Fixed' ? (
@@ -552,7 +552,7 @@ class Attraction extends Component {
                       className={styles.categoryShow}
                       style={this.generateStyle(companyType).ticketTypeStyle}
                     >
-                      {offerBundle[0].bundleLabel} * 1
+                      {offerBundle[0].bundleLabel || 'General'} * 1
                     </div>
                     <div style={this.generateStyle(companyType).priceStyle}>
                       {toThousands(

@@ -117,7 +117,9 @@ class Detail extends Component {
                                   className={styles.detailText}
                                   style={{ marginTop: index !== 0 ? '5px' : null }}
                                 >
-                                  {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'}
+                                  {ticketTypeShow.length > 0
+                                    ? ticketTypeShow[0].text
+                                    : item.attractionProduct.ageGroup || 'General'}
                                 </div>
                               );
                             })}
@@ -144,7 +146,10 @@ class Detail extends Component {
                               className={styles.detailText}
                               style={{ marginTop: index !== 0 ? '5px' : null }}
                             >
-                              {ticketTypeShow.length > 0 ? ticketTypeShow[0].text : '-'} -{' '}
+                              {ticketTypeShow.length > 0
+                                ? ticketTypeShow[0].text
+                                : item.attractionProduct.ageGroup || 'General'}{' '}
+                              -{' '}
                               {toThousands(
                                 calculateProductPrice(
                                   item,

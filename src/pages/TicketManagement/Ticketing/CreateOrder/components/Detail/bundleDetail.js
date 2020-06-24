@@ -129,7 +129,7 @@ class Detail extends Component {
                     <span className={styles.detailLabel}>Offer Name :</span>
                   </Col>
                   <Col span={24}>
-                    <span className={styles.detailText}>{bundleName || '-'}</span>
+                    <span className={styles.detailText}>{bundleName || 'General'}</span>
                   </Col>
                 </Col>
                 {companyType === '02' ? null : (

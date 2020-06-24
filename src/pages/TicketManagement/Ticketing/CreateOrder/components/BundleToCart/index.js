@@ -186,6 +186,7 @@ class ToCart extends Component {
         });
         for (let i = 0; i < offers.length; i += 1) {
           const {
+            sessionTime: session,
             ticketNumber,
             attractionProduct = [],
             detail: {
@@ -196,6 +197,7 @@ class ToCart extends Component {
           const orderProducts = attractionProduct.map(orderProductItem => {
             const { productNo } = orderProductItem;
             return {
+              session,
               ticketNumber,
               productNo,
             };
@@ -286,14 +288,14 @@ class ToCart extends Component {
         key: 'Session',
         width: '15%',
         className: styles.session,
-        render: text => <div className={styles.tableText}>{text}</div>,
+        render: text => <div className={styles.tableText}>{text || '-'}</div>,
       },
       {
         title: 'Ticket Type',
         dataIndex: 'ticketType',
         key: 'ticketType',
         width: '25%',
-        render: text => <div className={styles.tableText}>{text} * 1</div>,
+        render: text => <div className={styles.tableText}>{text || '-'} * 1</div>,
       },
       {
         title: 'Price(SGD)',
