@@ -130,7 +130,7 @@ class NotificationEdit extends React.PureComponent {
           dispatch({
             type: 'notification/saveData',
             payload: {
-              defaultTargetList
+              defaultTargetList,
             },
           });
         })
@@ -682,7 +682,6 @@ class NotificationEdit extends React.PureComponent {
       notification: { notificationInfo, defaultTargetList, visibleFlag },
       notificationSearchForm: { notificationTypeList, statusList, targetTreeData },
     } = this.props;
-
     const { noticeFileLoadingFlag } = this.state;
     const { getFieldDecorator } = form;
     const modalOpts = {

@@ -60,6 +60,7 @@ class Index extends React.PureComponent {
       dispatch,
       form,
       type = 'NEW',
+      global: { currentUser = {} },
       userMgr: { currentUserProfile = {} },
     } = this.props;
 
@@ -67,6 +68,7 @@ class Index extends React.PureComponent {
       if (!err) {
         let dispatchType = '';
         if (type === 'NEW') {
+          const { userType: loginUserType = '' } = currentUser;
           dispatchType = 'userMgr/addTAUser';
           const { subCompanyId } = values;
           if (subCompanyId) {
@@ -75,7 +77,7 @@ class Index extends React.PureComponent {
           } else {
             values.userType = '02';
           }
-          if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE])) {
+          if (loginUserType === '03') {
             values.userType = '03';
           }
         } else {

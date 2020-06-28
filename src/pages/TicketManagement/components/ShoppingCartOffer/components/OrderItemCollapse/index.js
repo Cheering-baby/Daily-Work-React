@@ -289,9 +289,13 @@ class OrderItemCollapse extends Component {
         }
       } else if (orderOfferItem.orderType !== 'offerBundle') {
         if (voucherQtyType === 'By Package') {
-          quantityList.forEach(quantityV => {
-            quantitySum += quantityV;
-          });
+          if (orderOfferItem.orderType === 'offerFixed') {
+            quantityList.forEach(quantityV => {
+              quantitySum += quantityV;
+            });
+          } else {
+            quantitySum = 1;
+          }
           voucherTicketQuantity = quantitySum * needChoiceCount;
         } else if (voucherQtyType === 'By Ticket') {
           if (orderOfferItem.orderType === 'offerFixed') {

@@ -20,6 +20,38 @@ import {
 const notPageUrls = ['/userLogin', '/userLogin/pamsLogin', '/'];
 const watchObj = { refreshed: false };
 
+const leafMenuSpecialMap = () => {
+  return new Map([
+    [
+      'CREATE_ORDER',
+      {
+        noShowLeft: false,
+        onLeftClick: 'ticketMgr/backRouterEventOnMobile',
+        rightContent: null,
+        menuCode: 'CREATE_ORDER',
+      },
+    ],
+    [
+      'QUERY_ORDER',
+      {
+        noShowLeft: false,
+        onLeftClick: 'ticketMgr/backRouterEventOnMobile',
+        rightContent: null,
+        menuCode: 'QUERY_ORDER',
+      },
+    ],
+    [
+      'TICKET_SEASONALITY_CALENDAR',
+      {
+        noShowLeft: false,
+        onLeftClick: 'ticketMgr/backRouterEventOnMobile',
+        rightContent: null,
+        menuCode: 'TICKET_SEASONALITY_CALENDAR',
+      },
+    ],
+  ]);
+};
+
 export default {
   namespace: 'global',
 
@@ -32,6 +64,7 @@ export default {
     defaultUrl: '/',
     menu: [],
     rawMenu: [],
+    leafMenuSpecialGroup: leafMenuSpecialMap(),
     // 菜单是否加载过
     menuLoaded: false,
     // 系统配置参数
@@ -124,10 +157,10 @@ export default {
         const urlParams = new URL(window.location.href);
         const { hash } = urlParams;
         const { need2faVerify = false } = data;
-        if(need2faVerify){
-          if(hash.indexOf('/twoFactorAuth') <= -1) {
+        if (need2faVerify) {
+          if (hash.indexOf('/twoFactorAuth') <= -1) {
             router.push({
-              pathname: '/twoFactorAuth'
+              pathname: '/twoFactorAuth',
             });
           }
         } else {
@@ -173,7 +206,10 @@ export default {
           });
           // postLogin 接口调用成功，通知 privilege 接口调用
           watchObj.refreshed = true;
-          if (String(data.needChangePassword) !== '01' && String(data.needChangePassword) !== '02') {
+          if (
+            String(data.needChangePassword) !== '01' &&
+            String(data.needChangePassword) !== '02'
+          ) {
             yield put({
               type: 'fetchCurrentUserMenu',
               payload: {

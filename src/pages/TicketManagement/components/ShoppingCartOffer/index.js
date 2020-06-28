@@ -119,7 +119,7 @@ class ShoppingCartOffer extends Component {
       },
     });
   };
-  
+
   onClose = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -190,7 +190,7 @@ class ShoppingCartOffer extends Component {
         sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
-        pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId) : 0,
+        pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
         productInfo: item,
       });
     });
@@ -218,7 +218,7 @@ class ShoppingCartOffer extends Component {
         orderData,
       },
     });
-
+    console.log(orderData)
     this.onClose();
   };
 
@@ -247,7 +247,7 @@ class ShoppingCartOffer extends Component {
         numOfPax: item.numOfPax,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: 1,
-        pricePax: calculateProductPrice(item, priceRuleId),
+        pricePax: calculateProductPrice(item, priceRuleId, item.sessionTime),
         productInfo: item,
       });
     });
@@ -278,6 +278,7 @@ class ShoppingCartOffer extends Component {
         orderData,
       },
     });
+    console.log(orderData)
     this.onClose();
   };
 

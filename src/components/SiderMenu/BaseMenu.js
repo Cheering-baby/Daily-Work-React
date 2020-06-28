@@ -1,14 +1,14 @@
-import React, {PureComponent} from 'react';
-import {Icon, Menu, Tooltip} from 'antd';
+import React, { PureComponent } from 'react';
+import { Icon, Menu, Tooltip } from 'antd';
 import Link from 'umi/link';
-import {forEach, isArray, isEqual} from 'lodash';
+import { forEach, isArray, isEqual } from 'lodash';
 import memoizeOne from 'memoize-one';
-import {formatMessage} from 'umi/locale';
+import { formatMessage } from 'umi/locale';
 import pathToRegexp from 'path-to-regexp';
 import styles from './index.less';
 import IconFont from '@/components/IconFont';
 
-const {SubMenu} = Menu;
+const { SubMenu } = Menu;
 
 // Allow menu.js config icon as string or ReactNode
 //   icon: 'setting',
@@ -16,15 +16,15 @@ const {SubMenu} = Menu;
 //   icon: <Icon type="setting" />,
 const getIcon = icon => {
   if (typeof icon === 'string' && icon.indexOf('http') === 0) {
-    return <img src={icon} alt="icon" className={styles.icon}/>;
+    return <img src={icon} alt="icon" className={styles.icon} />;
   }
   if (typeof icon === 'string' && icon.startsWith('icon-')) {
-    return <IconFont type={icon} style={{fontSize: '20px'}}/>;
+    return <IconFont type={icon} style={{ fontSize: '20px' }} />;
   }
   if (typeof icon === 'string' && String(icon) !== 'iconfont icon-list')
-    return <Icon type={icon} style={{fontSize: '20px'}}/>;
+    return <Icon type={icon} style={{ fontSize: '20px' }} />;
   if (typeof icon === 'string' && String(icon) === 'iconfont icon-list')
-    return <span className={icon}/>;
+    return <span className={icon} />;
   return icon;
 };
 
@@ -162,7 +162,7 @@ export default class BaseMenu extends PureComponent {
         </a>
       );
     }
-    const { location, isMobile, onCollapse } = this.props;
+    const { location, isMobile, onCollapse, onHandleVisibleLeftMenuChange } = this.props;
     return (
       <Link
         to={itemPath}
@@ -172,6 +172,7 @@ export default class BaseMenu extends PureComponent {
           isMobile
             ? () => {
                 onCollapse(true);
+                onHandleVisibleLeftMenuChange(false);
               }
             : undefined
         }

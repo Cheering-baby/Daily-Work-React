@@ -262,13 +262,21 @@ class OrderPay extends Component {
     });
   };
 
-  getProductFeeExclude = () => {
-    const sumPrice = this.payTotal();
+  getProductFeeExclude = (bocaFeePax, ticketAmount) => {
     const {
-      ticketBookingAndPayMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+      ticketBookingAndPayMgr: {
+        generalTicketOrderData = [],
+        onceAPirateOrderData = [],
+        deliveryMode,
+      },
     } = this.props;
     const serviceTax = getOrderProductServiceTax(generalTicketOrderData, onceAPirateOrderData);
-    return toThousandsByRound(Number(sumPrice - serviceTax).toFixed(2));
+    let bocaPrice = bocaFeePax * ticketAmount;
+    if (deliveryMode !== 'BOCA') {
+      bocaPrice = 0;
+    }
+    const sumPrice = this.payTotal() - serviceTax - bocaPrice;
+    return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
   getBocaFeeExclude = (bocaFeePax, ticketAmount) => {
@@ -434,7 +442,9 @@ class OrderPay extends Component {
                         <span className={styles.priceKeySpan}>Product Sub-Total(Exclude GST):</span>
                       </Col>
                       <Col span={8}>
-                        <span className={styles.priceValueSpan}>{this.getProductFeeExclude()}</span>
+                        <span className={styles.priceValueSpan}>
+                          {this.getProductFeeExclude(bocaFeePax, ticketAmount)}
+                        </span>
                       </Col>
                     </Row>
                     {companyType !== '02' && deliveryMode === 'BOCA' && (

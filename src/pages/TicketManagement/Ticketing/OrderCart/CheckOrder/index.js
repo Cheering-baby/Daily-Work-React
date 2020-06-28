@@ -442,9 +442,9 @@ class CheckOrder extends Component {
     }
   };
 
-  getProductFeeExclude = () => {
+  getProductFeeExclude = (bocaFeePax, ticketAmount) => {
     const {
-      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [], deliveryMode },
     } = this.props;
     const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
     const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
@@ -452,7 +452,11 @@ class CheckOrder extends Component {
       generalTicketOrderDataNew,
       onceAPirateOrderDataNew
     );
-    const sumPrice = this.payTotal() - serviceTax;
+    let bocaPrice = bocaFeePax * ticketAmount;
+    if (deliveryMode !== 'BOCA') {
+      bocaPrice = 0;
+    }
+    const sumPrice = this.payTotal() - serviceTax - bocaPrice;
     return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
@@ -691,7 +695,7 @@ class CheckOrder extends Component {
               <Col span={24}>
                 <span className={styles.cartItemsSpan}>Cart ({this.getOrderAmount()} items)</span>
               </Col>
-              <Col span={24}>
+              <Col span={24} style={{ paddingTop: '8px' }}>
                 <span className={styles.noteItemsSpan}>
                   NOTE:{formatMessage({ id: 'ORDER_TITLE_TIP' })}
                 </span>

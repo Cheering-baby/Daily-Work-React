@@ -128,19 +128,22 @@ class TableComp extends PureComponent {
         dataIndex: '',
         width: '100px',
         render: (text, record) => {
-          return (
-            <Tooltip placement="top" title={formatMessage({ id: 'VIEW_WALLET' })}>
-              <Icon
-                type="wallet"
-                onClick={()=>{
-                  router.push({
-                    pathname: `/TravelAgentWallet/Wallet`,
-                    query: { taId: record.taId },
-                  });
-                }}
-              />
-            </Tooltip>
-          );
+          if (record.peoplesoftEwalletId !== undefined && record.peoplesoftEwalletId !== null) {
+            return (
+              <Tooltip placement="top" title={formatMessage({id: 'VIEW_WALLET'})}>
+                <Icon
+                  type="wallet"
+                  onClick={() => {
+                    router.push({
+                      pathname: `/TravelAgentWallet/Wallet`,
+                      query: {taId: record.taId},
+                    });
+                  }}
+                />
+              </Tooltip>
+            );
+          }
+          return null;
         },
       },
     ];

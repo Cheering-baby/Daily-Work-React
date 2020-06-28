@@ -428,6 +428,7 @@ class RevalidationRequest extends Component {
         total,
         vidResultList,
         searchList: { bookingNo, vidCode, currentPage, pageSize: nowPageSize },
+        wholeVidList,
       },
       global: {
         currentUser: { userType },
@@ -572,6 +573,12 @@ class RevalidationRequest extends Component {
                     onSearch={value => this.searchByVidCode(vidResultList, nowPageSize, value)}
                     className={styles.inputStyle}
                   />
+                  <Button
+                    style={{marginLeft: 10, width: 60}}
+                    onClick={()=>this.saveResultList(wholeVidList, 1, 10, null)}
+                  >
+                    {formatMessage({ id: 'RESET' })}
+                  </Button>
                 </Col>
                 <Col span={12}>
                   <div className={styles.selectedDiv}>

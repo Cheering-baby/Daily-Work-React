@@ -539,7 +539,9 @@ export function putAttractionProductsByOffer(
   const patronInfoData = {
     lastName: deliveryInfoData.guestLastName,
     firstName: deliveryInfoData.guestFirstName,
-    phoneNo: deliveryInfoData.customerContactNo,
+    phoneNo: deliveryInfoData.customerContactNo
+      ? `(${deliveryInfoData.customerContactNoCountry})${deliveryInfoData.customerContactNo}`
+      : null,
     nationality: deliveryInfoData.country,
     countryCode: deliveryInfoData.country,
     email: deliveryInfoData.customerEmailAddress,
@@ -631,7 +633,9 @@ export function putAttractionProductsByOfferBundle(
   const patronInfoData = {
     lastName: deliveryInfoData.guestLastName,
     firstName: deliveryInfoData.guestFirstName,
-    phoneNo: deliveryInfoData.customerContactNo,
+    phoneNo: deliveryInfoData.customerContactNo
+      ? `(${deliveryInfoData.customerContactNoCountry})${deliveryInfoData.customerContactNo}`
+      : null,
     nationality: deliveryInfoData.country,
     countryCode: deliveryInfoData.country,
     email: deliveryInfoData.customerEmailAddress,
@@ -688,7 +692,9 @@ export function putCommonOffersByOfferBundle(
 
   const deliveryInfoData = {
     referenceNo: deliveryInfo.taNo,
-    contactNo: deliveryInfo.customerContactNo,
+    contactNo: deliveryInfo.customerContactNo
+      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
+      : null,
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
     country: deliveryInfo.country,
@@ -743,7 +749,9 @@ export function putCommonOffersByOfferFixed(
 
   const deliveryInfoData = {
     referenceNo: deliveryInfo.taNo,
-    contactNo: deliveryInfo.customerContactNo,
+    contactNo: deliveryInfo.customerContactNo
+      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
+      : null,
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
     country: deliveryInfo.country,
@@ -755,7 +763,9 @@ export function putCommonOffersByOfferFixed(
   const patronInfoData = {
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
-    phoneNo: deliveryInfo.customerContactNo,
+    phoneNo: deliveryInfoData.customerContactNo
+      ? `(${deliveryInfoData.customerContactNoCountry})${deliveryInfoData.customerContactNo}`
+      : null,
     nationality: deliveryInfo.country,
     countryCode: deliveryInfo.country,
     email: deliveryInfo.customerEmailAddress,
@@ -825,7 +835,9 @@ export function putCommonOffersByOffer(commonOffers, orderOffer, collectionDate,
 
   const deliveryInfoData = {
     referenceNo: deliveryInfo.taNo,
-    contactNo: deliveryInfo.customerContactNo,
+    contactNo: deliveryInfo.customerContactNo
+      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
+      : null,
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
     country: deliveryInfo.country,

@@ -4,21 +4,25 @@ import Notification from '../Notification';
 
 class PageHeader extends PureComponent {
   render() {
-    const { children, hideNotification } = this.props;
+    const { children, hideNotification, noShowLeft, onLeftClick } = this.props;
     let { rightContent } = this.props;
     const defaultProps = {
       mode: 'light',
-      icon: <MobileIcon type="left" />,
-      onLeftClick: () => window.history.go(-1),
       rightContent: [],
     };
+    if (!noShowLeft) {
+      defaultProps.icon = <MobileIcon type="left" />;
+      defaultProps.onLeftClick = () => window.history.go(-1);
+    }
+    if (!noShowLeft && onLeftClick) {
+      defaultProps.onLeftClick = () => onLeftClick();
+    }
     if (!rightContent) {
       rightContent = [];
     }
     if (!hideNotification) {
       rightContent.unshift(<Notification key="0" isPageHeader />);
     }
-
     return (
       <NavBar
         {...defaultProps}

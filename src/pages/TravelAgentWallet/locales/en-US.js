@@ -14,7 +14,7 @@ export default {
   TA_TABLE_AR_AR_ACCOUNT_ID: 'Peoplesoft AR Account ID',
   TA_TABLE_AR_CREDIT_BALANCE: 'AR Credit Balance',
   TA_TABLE_E_WALLET_BALANCE: 'e-Wallet Balance',
-  TA_TABLE_AR_EFFECTIVE_DATE: 'Effective date',
+  TA_TABLE_AR_EFFECTIVE_DATE: 'Effective Date',
   TA_TABLE_AR_STATUS: 'Status',
   TA_TABLE_OPERATION: 'Operation',
   BTN_SEARCH: 'Search',

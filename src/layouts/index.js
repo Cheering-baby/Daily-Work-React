@@ -515,6 +515,7 @@ export default withRouter(
     resetModal: login.resetModal,
     needChangePassword: global.needChangePassword,
     menuLoaded: global.menuLoaded,
+    leafMenuSpecialGroup: global.leafMenuSpecialGroup,
     privilegeLoading: loading.effects['global/fetchPrivileges'],
     ...setting,
   }))(BasicLayout)

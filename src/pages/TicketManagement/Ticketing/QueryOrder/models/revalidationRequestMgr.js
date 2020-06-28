@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import moment from 'moment';
 import serialize from '../utils/utils';
 import {
@@ -19,7 +20,6 @@ export default {
       currentPage: 1,
       pageSize: 10,
     },
-    selectedRowKeys: [],
     selectedVidList: [],
     orderCreateTime: null,
     bookingDetail: null,
@@ -156,6 +156,7 @@ export default {
             }
           })
         });
+        vidResultList.sort((a,b) => a.vidGroup - b.vidGroup);
         for (let i = 0; i < vidResultList.length; i += 1) {
           vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
           vidResultList[i].key = i;
@@ -163,7 +164,7 @@ export default {
         yield put({
           type: 'save',
           payload: {
-            wholeVidList: vidResultList,
+            wholeVidList: cloneDeep(vidResultList),
             orderCreateTime: createTime,
             bookingDetail,
             disabledKeyList,
@@ -196,8 +197,6 @@ export default {
           payload: {
             deliveryMode: null,
             collectionDate: null,
-            selectedRowKeys: [],
-            selectedVidList: [],
           },
         });
       } else {
@@ -298,10 +297,11 @@ export default {
     },
     saveSearchVidList(state, { payload }) {
       const { currentPage, pageSize, vidCode, vidResultList, disabledVidList } = payload;
+      const vidResultListCopy = cloneDeep(vidResultList);
       const { searchList } = state;
-      let vidSearchList = vidResultList;
+      let vidSearchList = vidResultListCopy;
       if (vidCode !== null) {
-        vidSearchList = vidResultList.filter(array => array.vidCode.match(vidCode));
+        vidSearchList = vidResultListCopy.filter(array => array.vidCode.match(vidCode));
       }
       const vidList = [];
       if (currentPage * pageSize > vidSearchList.length) {
@@ -317,125 +317,14 @@ export default {
         ...state,
         vidList,
         total: vidSearchList.length,
-        selectedRowKeys: [],
-        selectedVidList: [],
         searchList: {
           ...searchList,
           vidCode,
           currentPage,
           pageSize,
         },
-        vidResultList,
+        vidResultList: vidResultListCopy,
         disabledVidList,
-      };
-    },
-    settingSelectVid(state, { payload }) {
-      const { selected, record } = payload;
-      const { selectedRowKeys, vidList, vidResultList } = state;
-      const selectedVidList = [];
-      let selectedRowKeysNew = [];
-      if (selected) {
-        selectedRowKeysNew = [...selectedRowKeys];
-        selectedRowKeysNew.push(record.key);
-        for (let i = 0; i < vidList.length; i += 1) {
-          for (let j = 0; j < selectedRowKeysNew.length; j += 1) {
-            if (selectedRowKeysNew[j] === vidList[i].key) {
-              selectedVidList.push(vidList[i]);
-            }
-          }
-        }
-        const addSelectedVidList = [];
-        selectedVidList.forEach(selectedVid => {
-          const { offerGroup } = selectedVid;
-          const findResultList = [];
-          vidResultList.forEach(vidResult => {
-            if (vidResult.offerGroup === offerGroup) {
-              findResultList.push({
-                ...vidResult,
-              });
-            }
-          });
-          findResultList.forEach(findResult => {
-            const keyIndex = selectedVidList.findIndex(
-              selectedVidItem => selectedVidItem.key === findResult.key
-            );
-            if (keyIndex < 0) {
-              addSelectedVidList.push({
-                ...findResult,
-              });
-            }
-          });
-        });
-        selectedRowKeysNew = [...selectedVidList, ...addSelectedVidList].map(
-          selectedVid => selectedVid.key
-        );
-      } else {
-        const selectedVidListOld = [];
-        let deleteOfferGroup = null;
-        for (let i = 0; i < vidList.length; i += 1) {
-          for (let j = 0; j < selectedRowKeys.length; j += 1) {
-            if (selectedRowKeys[j] === vidList[i].key) {
-              selectedVidListOld.push(vidList[i]);
-            }
-          }
-          if (record.key === vidList[i].key) {
-            deleteOfferGroup = vidList[i].offerGroup;
-          }
-        }
-        selectedVidListOld.forEach(selectedVid => {
-          if (selectedVid.offerGroup !== deleteOfferGroup) {
-            selectedVidList.push({ ...selectedVid });
-            selectedRowKeysNew.push(selectedVid.key);
-          }
-        });
-      }
-
-      return {
-        ...state,
-        selectedRowKeys: selectedRowKeysNew,
-        selectedVidList,
-      };
-    },
-    saveSelectVid(state, { payload }) {
-      const { vidList, vidResultList } = state;
-      const { selectedRowKeys } = payload;
-      const selectedVidList = [];
-      for (let i = 0; i < vidList.length; i += 1) {
-        for (let j = 0; j < selectedRowKeys.length; j += 1) {
-          if (selectedRowKeys[j] === vidList[i].key) {
-            selectedVidList.push(vidList[i]);
-          }
-        }
-      }
-      const addSelectedVidList = [];
-      selectedVidList.forEach(selectedVid => {
-        const { offerGroup } = selectedVid;
-        const findResultList = [];
-        vidResultList.forEach(vidResult => {
-          if (vidResult.offerGroup === offerGroup) {
-            findResultList.push({
-              ...vidResult,
-            });
-          }
-        });
-        findResultList.forEach(findResult => {
-          const keyIndex = selectedVidList.findIndex(
-            selectedVidItem => selectedVidItem.key === findResult.key
-          );
-          if (keyIndex < 0) {
-            addSelectedVidList.push({
-              ...findResult,
-            });
-          }
-        });
-      });
-      const selectedRowKeysNew = [...selectedVidList, ...addSelectedVidList].map(
-        selectedVid => selectedVid.key
-      );
-      return {
-        ...state,
-        selectedRowKeys: selectedRowKeysNew,
-        selectedVidList,
       };
     },
     resetData(state) {
@@ -452,8 +341,6 @@ export default {
           currentPage: 1,
           pageSize: 10,
         },
-        selectedRowKeys: [],
-        selectedVidList: [],
         orderCreateTime: null,
         bookingDetail: null,
         disabledKeyList: [],

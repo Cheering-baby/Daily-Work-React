@@ -35,13 +35,13 @@ export const getFlatMenuKeys = menu =>
 
 export const getRelativePages = menuData => {
   let keys = [];
-  menuData.forEach(({ children, menuName, relativePages }) => {
+  menuData.forEach(({ children, menuName, menuCode, relativePages }) => {
     if (children) {
       keys = keys.concat(getRelativePages(children));
     }
     if (relativePages instanceof Array && relativePages.length > 0) {
       relativePages.forEach(item => {
-        keys.push({ ...item, menuName });
+        keys.push({ ...item, menuName, menuCode });
       });
     }
   });
@@ -127,6 +127,7 @@ class MobileHeader extends PureComponent {
             overflow: 'hidden auto',
             height: '300px',
           }}
+          isMobile
           {...{ openKeys }}
         />
       </div>
@@ -158,9 +159,11 @@ class MobileHeader extends PureComponent {
 
   render() {
     const {
+      dispatch,
       currentUser = {},
       menuData = [],
       location: { pathname },
+      leafMenuSpecialGroup,
     } = this.props;
     const { visibleLeft } = this.state;
     const { userName, userType } = currentUser;
@@ -169,7 +172,25 @@ class MobileHeader extends PureComponent {
     const relativePage = getRelativePage(menuData, pathname);
 
     if (!isNvl(relativePage)) {
-      const { menuName = '' } = relativePage;
+      const { menuName = '', menuCode = '' } = relativePage;
+      if (leafMenuSpecialGroup && leafMenuSpecialGroup.has(menuCode)) {
+        const leafMenuSpecialInfo = leafMenuSpecialGroup.get(menuCode);
+        return (
+          <PageHeader
+            noShowLeft={leafMenuSpecialInfo.noShowLeft}
+            onLeftClick={
+              leafMenuSpecialInfo.onLeftClick
+                ? () => {
+                    dispatch({ type: `${leafMenuSpecialInfo.onLeftClick}` });
+                  }
+                : null
+            }
+            rightContent={leafMenuSpecialInfo.rightContent}
+          >
+            {menuName.toUpperCase()}
+          </PageHeader>
+        );
+      }
       return <PageHeader rightContent={null}>{menuName.toUpperCase()}</PageHeader>;
     }
     return (

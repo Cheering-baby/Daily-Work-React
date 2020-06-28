@@ -272,11 +272,11 @@ class FileUploadToFrom extends PureComponent {
       onPreview: () => {},
       onChange: changeValue => this.onHandleChange(changeValue, 'taFile'),
       onRemove: file => {
-        const { status, response: { result: { filePath, fileName } = '' } = '' } = file;
+        const { status, response: { result: { filePath, fileName } = '' } = '', url } = file;
         let newTaFiles = [...newTaFileList];
         newTaFiles = newTaFiles.filter(item => item.uid !== file.uid);
         if (status === 'done') {
-          onHandleDelTaFile({ name: fileName, filePath }, 'taFile');
+          onHandleDelTaFile({ name: fileName, filePath: filePath || url }, 'taFile');
         }
         this.setState({
           newTaFileList: [...newTaFiles],
@@ -306,11 +306,11 @@ class FileUploadToFrom extends PureComponent {
       onPreview: () => {},
       onChange: changeValue => this.onHandleChange(changeValue, 'arAccountFile'),
       onRemove: file => {
-        const { status, response: { result: { filePath, fileName } = '' } = '' } = file;
+        const { status, response: { result: { filePath, fileName } = '' } = '', url } = file;
         let newArAccountFiles = [...newArAccountFileList];
         newArAccountFiles = newArAccountFiles.filter(item => item.uid !== file.uid);
         if (status === 'done') {
-          onHandleDelTaFile({ name: fileName, filePath }, 'arAccountFile');
+          onHandleDelTaFile({ name: fileName, filePath: filePath || url }, 'arAccountFile');
         }
         this.setState({
           newArAccountFileList: [...newArAccountFiles],
