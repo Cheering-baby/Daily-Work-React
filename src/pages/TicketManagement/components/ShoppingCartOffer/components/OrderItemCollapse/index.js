@@ -6,6 +6,7 @@ import { Button, Checkbox, Col, Collapse, message, Modal, Row, Tooltip } from 'a
 import styles from './index.less';
 import Voucher from '../../assets/Voucher.png';
 import { toThousandsByRound } from '@/pages/TicketManagement/utils/orderCartUtil';
+import { getProductLimitInventory } from '@/pages/TicketManagement/utils/utils';
 
 const { confirm } = Modal;
 
@@ -528,6 +529,11 @@ class OrderItemCollapse extends Component {
             attractionProduct = [...attractionProduct, { ...orderInfoItem.productInfo }];
           });
         }
+        const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(editOrderOffer.offerInfo);
+        attractionProduct.forEach(item => {
+          item.minProductQuantity = minProductQuantity;
+          item.maxProductQuantity = maxProductQuantity;
+        });
         const deliverInformation = { ...editOrderOffer.deliveryInfo };
         dispatch({
           type: 'ticketOrderCartMgr/save',

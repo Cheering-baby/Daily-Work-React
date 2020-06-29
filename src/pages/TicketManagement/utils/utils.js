@@ -423,15 +423,32 @@ export function getOfferConstrain(detail) {
   const { productGroup } = detail;
   let offerConstrain;
   productGroup.forEach(item => {
-    if (item.productType === 'Attraction') {
+    if (item.productType === Attraction) {
       item.productGroup.forEach(item2 => {
-        if (item2.groupName === 'Attraction') {
+        if (item2.groupName === Attraction) {
           offerConstrain = item2.choiceConstrain;
         }
       });
     }
   });
   return offerConstrain;
+}
+
+export function getProductLimitInventory(detail) {
+  let min;
+  let max;
+  const { productGroup } = detail;
+  productGroup.forEach(item => {
+    if (item.productType === Attraction) {
+      item.productGroup.forEach(item2 => {
+        if (item2.groupName === Attraction) {
+          min = item2.minProductQuantity;
+          max = item2.maxProductQuantity;
+        }
+      });
+    }
+  });
+  return [min, max];
 }
 
 export function findArrSame(arr = []) {

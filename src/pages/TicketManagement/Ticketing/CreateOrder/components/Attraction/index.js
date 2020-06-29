@@ -8,6 +8,7 @@ import {
   calculateProductPrice,
   getVoucherProducts,
   getOfferConstrain,
+  getProductLimitInventory,
 } from '../../../../utils/utils';
 import { ticketTypes } from '../../../../utils/constants';
 import { toThousands } from '@/utils/utils';
@@ -45,6 +46,11 @@ class Attraction extends Component {
       themeParkName,
     } = record;
     const { numOfGuests } = detail;
+    const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(detail);
+    attractionProduct.forEach(item => {
+      item.minProductQuantity = minProductQuantity;
+      item.maxProductQuantity = maxProductQuantity;
+    });
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const detailCopy = JSON.parse(JSON.stringify(detail));
     let bundleOfferDetail = {};
@@ -128,17 +134,32 @@ class Attraction extends Component {
     });
   };
 
-  changeTicketNumber = async (index, value) => {
+  changeTicketNumber = async (index, value, offerConstrain) => {
     const {
       dispatch,
-      ticketMgr: { attractionProduct = [] },
+      ticketMgr: { attractionProduct = [], detail },
     } = this.props;
+    const maxProductQuantity = getProductLimitInventory(detail)[1];
     const originalValue = attractionProduct[index].ticketNumber;
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
     if (value === '' || testZero.test(value) || testReg.test(value)) {
       attractionProductCopy[index].ticketNumber = value;
+      if (
+        offerConstrain === 'Multiple' &&
+        value <= attractionProductCopy[index].maxProductQuantity
+      ) {
+        attractionProductCopy.forEach((item, itemIndex) => {
+          let allOtherTickets = 0;
+          attractionProductCopy.forEach((item2, itemIndex2) => {
+            if (item2.ticketNumber && itemIndex !== itemIndex2) {
+              allOtherTickets += item2.ticketNumber;
+            }
+          });
+          item.maxProductQuantity = maxProductQuantity - allOtherTickets;
+        });
+      }
       dispatch({
         type: 'ticketMgr/save',
         payload: {
@@ -373,7 +394,7 @@ class Attraction extends Component {
         orderData,
       },
     });
-    console.log(orderData)
+    console.log(orderData);
     this.onClose();
   };
 

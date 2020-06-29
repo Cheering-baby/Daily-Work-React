@@ -7,6 +7,7 @@ import BundleToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/compone
 import {
   calculateAllProductPrice,
   calculateProductPrice,
+  getProductLimitInventory,
 } from '@/pages/TicketManagement/utils/utils';
 import OrderItemCollapse from './components/OrderItemCollapse';
 
@@ -131,17 +132,35 @@ class ShoppingCartOffer extends Component {
     });
   };
 
-  changeTicketNumber = async (index, value) => {
+  changeTicketNumber = async (index, value, offerConstrain) => {
     const {
       dispatch,
-      ticketOrderCartMgr: { attractionProduct = [] },
+      ticketOrderCartMgr: {
+        attractionProduct = [],
+        editOrderOffer: { offerInfo: detail },
+      },
     } = this.props;
+    const maxProductQuantity = getProductLimitInventory(detail)[1];
     const originalValue = attractionProduct[index].ticketNumber;
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
     if (value === '' || testZero.test(value) || testReg.test(value)) {
       attractionProductCopy[index].ticketNumber = value;
+      if (
+        offerConstrain === 'Multiple' &&
+        value <= attractionProductCopy[index].maxProductQuantity
+      ) {
+        attractionProductCopy.forEach((item, itemIndex) => {
+          let allOtherTickets = 0;
+          attractionProductCopy.forEach((item2, itemIndex2) => {
+            if (item2.ticketNumber && itemIndex !== itemIndex2) {
+              allOtherTickets += item2.ticketNumber;
+            }
+          });
+          item.maxProductQuantity = maxProductQuantity - allOtherTickets;
+        });
+      }
       dispatch({
         type: 'ticketOrderCartMgr/save',
         payload: {
@@ -218,7 +237,7 @@ class ShoppingCartOffer extends Component {
         orderData,
       },
     });
-    console.log(orderData)
+    console.log(orderData);
     this.onClose();
   };
 
@@ -278,7 +297,7 @@ class ShoppingCartOffer extends Component {
         orderData,
       },
     });
-    console.log(orderData)
+    console.log(orderData);
     this.onClose();
   };
 

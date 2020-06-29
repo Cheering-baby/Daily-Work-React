@@ -54,9 +54,9 @@ class ToCart extends Component {
     }
   }
 
-  changeTicketNumber = (index, value) => {
+  changeTicketNumber = (index, value, offerConstrain) => {
     const { form, changeTicketNumber } = this.props;
-    changeTicketNumber(index, value).then(res => {
+    changeTicketNumber(index, value, offerConstrain).then(res => {
       const data = {};
       const ticketNumberLabel = `attractionProduct${index}`;
       if (res !== '') {
@@ -350,6 +350,11 @@ class ToCart extends Component {
         key: 'quantity',
         width: '20%',
         render: (text, record) => {
+          const { minProductQuantity, maxProductQuantity } = record;
+          let min = 0;
+          if (offerConstrain === 'Single') {
+            min = minProductQuantity;
+          }
           return (
             <FormItem>
               {getFieldDecorator(record.ticketNumberLabel, {
@@ -364,10 +369,11 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
-                    min={offerConstrain === 'Single' && !modify ? numOfGuests : 0}
+                    min={min}
+                    max={maxProductQuantity}
                     disabled={this.disabledProduct(record.index, offerConstrain)}
                     value={text}
-                    onChange={value => this.changeTicketNumber(record.index, value, record.price)}
+                    onChange={value => this.changeTicketNumber(record.index, value, offerConstrain)}
                     parser={value => this.formatInputValue(record.index, value)}
                   />
                 </div>
@@ -444,7 +450,7 @@ class ToCart extends Component {
         key: 'quantity',
         width: '22%',
         render: (text, record) => {
-          const { offerMinQuantity, offerMaxQuantity } = record;
+          const { offerMaxQuantity } = record;
           return (
             <FormItem>
               {getFieldDecorator('offerNumbers', {
@@ -459,7 +465,7 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
-                    min={offerMinQuantity}
+                    min={1}
                     max={offerMaxQuantity}
                     value={text}
                     disabled={!modify}
@@ -578,6 +584,8 @@ class ToCart extends Component {
         ticketNumberLabel: `attractionProduct${index}`,
         subTotalPrice: `${toThousands((priceShow * (item.ticketNumber || 0)).toFixed(2))}`,
         sessionTime: item.sessionTime,
+        minProductQuantity: item.minProductQuantity,
+        maxProductQuantity: item.maxProductQuantity,
       });
     });
 
