@@ -22,7 +22,11 @@ import {
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
 import { reBytesStr, toThousands } from '@/utils/utils';
-import { calculateAllProductPrice, calculateProductPrice } from '../../../../utils/utils';
+import {
+  calculateAllProductPrice,
+  calculateProductPrice,
+  getProductLimitInventory,
+} from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
 
@@ -100,6 +104,7 @@ class ToCart extends Component {
       order,
       modify,
       attractionProduct = [],
+      detail,
       detail: {
         offerQuantity,
         dateOfVisit,
@@ -129,6 +134,7 @@ class ToCart extends Component {
     };
     let allTicketNumbers = 0;
     let validFields = ['country'];
+    const minProductQuantity = getProductLimitInventory(detail)[0];
     const hasApspTicket = this.hasApspTicket(offerConstrain);
     if (hasApspTicket) {
       validFields = validFields.concat([
@@ -202,6 +208,10 @@ class ToCart extends Component {
     }
     if (offerConstrain !== 'Fixed' && allTicketNumbers === 0) {
       message.warning('Please select one product at least.');
+      return false;
+    }
+    if (allTicketNumbers < minProductQuantity) {
+      message.warning(`Please select ${minProductQuantity} products at least.`);
       return false;
     }
     form.setFieldsValue(data);
