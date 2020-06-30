@@ -184,7 +184,7 @@ class MyWallet extends React.PureComponent {
 
     const columns = [
       {
-        title: 'No',
+        title: 'No.',
         width: 80,
         key: 'index',
         render: (text, record, index) => (index < 9 ? `0${index + 1}` : `${index + 1}`),
@@ -228,7 +228,7 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'Invoice No',
+        title: 'Invoice No.',
         key: 'invoiceNo',
         render: (text, record) => {
           const invoiceText =
@@ -237,7 +237,7 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'Reference No',
+        title: 'Reference No.',
         key: 'referenceNo',
         dataIndex: 'referenceNo',
         render: text => {
@@ -245,7 +245,7 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'Galaxy Order No',
+        title: 'Galaxy Order No.',
         key: 'galaxyOrderNo',
         dataIndex: 'galaxyOrderNo',
         render: text => {
@@ -253,7 +253,7 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'Travel Agent Reference No',
+        title: 'Travel Agent Reference No.',
         key: 'taReferenceNo',
         dataIndex: 'taReferenceNo',
         render: text => {

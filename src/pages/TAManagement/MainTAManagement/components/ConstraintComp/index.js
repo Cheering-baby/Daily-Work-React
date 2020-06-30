@@ -208,6 +208,7 @@ class ConstraintComp extends PureComponent {
                     })(
                       <SortSelect
                         showSearch
+                        allowClear
                         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                         optionFilterProp="children"
                         getPopupContainer={() => document.getElementById(`${viewId}`)}
@@ -310,6 +311,7 @@ class ConstraintComp extends PureComponent {
                     })(
                       <SortSelect
                         showSearch
+                        allowClear
                         placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                         optionFilterProp="children"
                         getPopupContainer={() => document.getElementById(`${viewId}`)}
@@ -348,6 +350,7 @@ class ConstraintComp extends PureComponent {
                         })(
                           <SortSelect
                             showSearch
+                            allowClear
                             placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                             optionFilterProp="children"
                             getPopupContainer={() => document.getElementById(`${viewId}`)}
@@ -377,6 +380,7 @@ class ConstraintComp extends PureComponent {
                         })(
                           <SortSelect
                             showSearch
+                            allowClear
                             placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
                             optionFilterProp="children"
                             getPopupContainer={() => document.getElementById(`${viewId}`)}
@@ -415,7 +419,10 @@ class ConstraintComp extends PureComponent {
                     {getFieldDecorator('remark', {
                       initialValue: companyInfo.remark || undefined,
                     })(
-                      <Input
+                      <Input.TextArea
+                        allowClear
+                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        autoSize={{ minRows: 3, maxRows: 6 }}
                         onChange={e => this.onHandleChange('remark', e.target.value, 'remark')}
                       />
                     )}

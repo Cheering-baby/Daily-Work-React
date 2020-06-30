@@ -235,7 +235,7 @@ class AddOfferModal extends React.PureComponent {
     }
 
     return (
-      <div>
+      <div style={{ margin: '-9px -9px -9px 0' }}>
         <Table
           size="small"
           columns={this.detailColumns}
@@ -271,7 +271,7 @@ class AddOfferModal extends React.PureComponent {
     }
 
     return (
-      <div>
+      <div style={{ margin: '-9px -9px -9px 0' }}>
         <Table
           size="small"
           columns={this.detailColumns}

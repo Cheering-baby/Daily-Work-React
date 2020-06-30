@@ -523,7 +523,7 @@ class NewGrant extends React.PureComponent {
   subExpandedRowRender = record => {
     const { subCommodityList } = record;
     return (
-      <div>
+      <div style={{ margin: '-9px -9px -9px 0' }}>
         <Table
           size="small"
           columns={this.subPluColumns}
@@ -550,7 +550,7 @@ class NewGrant extends React.PureComponent {
       }
     }
     return (
-      <div>
+      <div style={{ margin: '-9px -9px -9px 0' }}>
         <Table
           size="small"
           columns={this.pluColumns}
