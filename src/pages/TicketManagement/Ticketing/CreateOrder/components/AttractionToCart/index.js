@@ -626,7 +626,6 @@ class ToCart extends Component {
             },
           ]
         : [];
-
     return (
       <div>
         <Drawer
@@ -650,7 +649,11 @@ class ToCart extends Component {
         </Drawer>
         <Drawer
           visible={!showTermsAndCondition}
-          title={<div className={styles.title}>ADD TO CART</div>}
+          title={
+            <div className={styles.title}>
+              {formatMessage({ id: modify ? 'MODIFY_TO_CART' : 'ADD_TO_CART' }).toUpperCase()}
+            </div>
+          }
           placement="right"
           destroyOnClose
           getContainer={false}
@@ -1147,7 +1150,7 @@ class ToCart extends Component {
               style={{ minWidth: 60 }}
               loading={loading}
             >
-              {formatMessage({ id: 'ADD_TO_MY_SHOPPING_CART' })}
+              {formatMessage({ id: modify ? 'MODIFY_TO_CART' : 'ADD_TO_CART' })}
             </Button>
           </div>
         </Drawer>

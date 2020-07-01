@@ -399,6 +399,7 @@ class ToCart extends Component {
         cardDisplayName,
         customerContactNoCountry,
       },
+      modify,
       userCompanyInfo: { companyType },
     } = this.props;
     const description = [];
@@ -501,7 +502,11 @@ class ToCart extends Component {
         </Drawer>
         <Drawer
           visible={!showTermsAndCondition}
-          title={<div className={styles.title}>ADD TO CART</div>}
+          title={
+            <div className={styles.title}>
+              {formatMessage({ id: modify ? 'MODIFY_TO_CART' : 'ADD_TO_CART' }).toUpperCase()}
+            </div>
+          }
           placement="right"
           destroyOnClose
           maskClosable={false}
@@ -949,7 +954,7 @@ class ToCart extends Component {
               Cancel
             </Button>
             <Button onClick={this.order} type="primary" style={{ minWidth: 60 }} loading={loading}>
-              {formatMessage({ id: 'ADD_TO_MY_SHOPPING_CART' })}
+              {formatMessage({ id: modify ? 'MODIFY_TO_CART' : 'ADD_TO_CART' })}
             </Button>
           </div>
         </Drawer>
