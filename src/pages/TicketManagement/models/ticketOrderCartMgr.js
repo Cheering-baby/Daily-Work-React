@@ -845,7 +845,7 @@ export default {
       }
 
       if (batchPullResult === 'done') {
-        message.success('Add to Cart successfully.');
+        message.success(`${isNvl(orderIndex) ? 'Added' : 'Modified'}  to Cart successfully.`);
       }
     },
 
@@ -916,7 +916,7 @@ export default {
       yield take('addToShoppingCart/@@end');
 
       if (callbackFn.callbackFnCode === '0') {
-        message.success('Add to Cart successfully.');
+        message.success(`${isNvl(orderIndex) ? 'Added' : 'Modified'}  to Cart successfully.`);
       }
     },
 

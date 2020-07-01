@@ -159,9 +159,32 @@ class ToCart extends Component {
       return false;
     }
     if (allTicketNumbers === 0) {
-      message.warning('Please select one product at least.');
+      message.warning('Total quantity is at least 1.');
       return false;
     }
+    let notEnough = false;
+    offers.forEach(item => {
+      const {
+        ticketNumber,
+        detail: {
+          offerBasicInfo: { offerMinQuantity, offerMaxQuantity },
+          offerBundle = [{}],
+        },
+      } = item;
+      if (ticketNumber) {
+        if (ticketNumber < offerMinQuantity) {
+          notEnough = true;
+          message.warning(`${offerBundle[0].bundleLabel} cannot be less then ${offerMinQuantity}.`);
+        }
+        if (ticketNumber > offerMaxQuantity) {
+          notEnough = true;
+          message.warning(
+            `${offerBundle[0].bundleLabel} cannot be greater then ${offerMinQuantity}.`
+          );
+        }
+      }
+    });
+    if (notEnough) return false;
     form.setFieldsValue(data);
     form.validateFields(validFields, async err => {
       if (!err) {
@@ -325,8 +348,6 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
-                    max={record.offerMaxQuantity}
-                    min={0}
                     value={text}
                     onChange={value =>
                       this.changeTicketNumber(record.index, value, record.priceShow)

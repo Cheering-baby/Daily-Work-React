@@ -110,7 +110,7 @@ class ToCart extends Component {
         dateOfVisit,
         numOfGuests,
         productGroup = [],
-        offerBasicInfo: { offerNo },
+        offerBasicInfo: { offerNo, offerMinQuantity, offerMaxQuantity },
       },
       deliverInformation: {
         country,
@@ -134,7 +134,7 @@ class ToCart extends Component {
     };
     let allTicketNumbers = 0;
     let validFields = ['country'];
-    const minProductQuantity = getProductLimitInventory(detail)[0];
+    const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(detail);
     const hasApspTicket = this.hasApspTicket(offerConstrain);
     if (hasApspTicket) {
       validFields = validFields.concat([
@@ -206,12 +206,30 @@ class ToCart extends Component {
       message.warning(`Total quantity must be ${numOfGuests}.`);
       return false;
     }
-    if (offerConstrain !== 'Fixed' && allTicketNumbers === 0) {
-      message.warning('Please select one product at least.');
-      return false;
+    if (offerConstrain === 'Fixed') {
+      if (offerQuantity < offerMinQuantity) {
+        message.warning(`Total quantity cannot be less then ${offerMinQuantity}.`);
+        return false;
+      }
+      if (offerQuantity > offerMaxQuantity) {
+        message.warning(`Total quantity cannot be greater then ${offerMaxQuantity}.`);
+        return false;
+      }
+    } else {
+      if (allTicketNumbers < minProductQuantity) {
+        message.warning(`Total quantity cannot be less then ${minProductQuantity}.`);
+        return false;
+      }
+      if (allTicketNumbers > maxProductQuantity) {
+        message.warning(`Total quantity cannot be greater then ${maxProductQuantity}.`);
+        return false;
+      }
     }
-    if (allTicketNumbers < minProductQuantity) {
-      message.warning(`Please select ${minProductQuantity} products at least.`);
+    if (
+      (offerConstrain !== 'Fixed' && allTicketNumbers === 0) ||
+      (offerConstrain === 'Fixed' && offerQuantity === 0)
+    ) {
+      message.warning('Total quantity is at least 1.');
       return false;
     }
     form.setFieldsValue(data);
@@ -360,11 +378,6 @@ class ToCart extends Component {
         key: 'quantity',
         width: '20%',
         render: (text, record) => {
-          const { minProductQuantity, maxProductQuantity } = record;
-          let min = 0;
-          if (offerConstrain === 'Single') {
-            min = minProductQuantity;
-          }
           return (
             <FormItem>
               {getFieldDecorator(record.ticketNumberLabel, {
@@ -379,8 +392,6 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
-                    min={min}
-                    max={maxProductQuantity}
                     disabled={this.disabledProduct(record.index, offerConstrain)}
                     value={text}
                     onChange={value => this.changeTicketNumber(record.index, value, offerConstrain)}
@@ -459,8 +470,7 @@ class ToCart extends Component {
         dataIndex: 'quantity',
         key: 'quantity',
         width: '22%',
-        render: (text, record) => {
-          const { offerMaxQuantity } = record;
+        render: text => {
           return (
             <FormItem>
               {getFieldDecorator('offerNumbers', {
@@ -475,8 +485,6 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
-                    min={1}
-                    max={offerMaxQuantity}
                     value={text}
                     disabled={!modify}
                     onChange={value => this.changeFixedOfferNumbers(value)}

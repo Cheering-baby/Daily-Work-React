@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, List, Table, Tabs, Tooltip } from 'antd';
+import { Button, Icon, List, Table, Tabs, Tooltip, message } from 'antd';
 import {
   calculateAllProductPrice,
   calculateProductPrice,
@@ -134,32 +134,17 @@ class Attraction extends Component {
     });
   };
 
-  changeTicketNumber = async (index, value, offerConstrain) => {
+  changeTicketNumber = async (index, value) => {
     const {
       dispatch,
-      ticketMgr: { attractionProduct = [], detail },
+      ticketMgr: { attractionProduct = [] },
     } = this.props;
-    const maxProductQuantity = getProductLimitInventory(detail)[1];
     const originalValue = attractionProduct[index].ticketNumber;
     const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const testReg = /^[1-9]\d*$/;
     const testZero = /^0$/;
     if (value === '' || testZero.test(value) || testReg.test(value)) {
       attractionProductCopy[index].ticketNumber = value;
-      if (
-        offerConstrain === 'Multiple' &&
-        value <= attractionProductCopy[index].maxProductQuantity
-      ) {
-        attractionProductCopy.forEach((item, itemIndex) => {
-          let allOtherTickets = 0;
-          attractionProductCopy.forEach((item2, itemIndex2) => {
-            if (item2.ticketNumber && itemIndex !== itemIndex2) {
-              allOtherTickets += item2.ticketNumber;
-            }
-          });
-          item.maxProductQuantity = maxProductQuantity - allOtherTickets;
-        });
-      }
       dispatch({
         type: 'ticketMgr/save',
         payload: {
