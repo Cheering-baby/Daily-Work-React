@@ -1124,7 +1124,9 @@ export function getProductTaxByFixed(offerProfile, orderOfferItem) {
       orderInfoItem.productInfo.priceRule[0].productPrice.forEach(productPriceItem => {
         gstValue = productPriceItem.gst / 100;
       });
-      productTax += orderInfoItem.pricePax * gstValue * orderInfoItem.quantity;
+      let sourcePrice = orderInfoItem.pricePax / (gstValue + 1);
+      sourcePrice = Number(sourcePrice).toFixed(2);
+      productTax += (orderInfoItem.pricePax - sourcePrice) * orderInfoItem.quantity;
     }
   });
   return productTax;
@@ -1155,7 +1157,9 @@ export function getProductTaxByMultiple(offerProfile, orderOfferItem) {
     if (orderInfoItem.quantity > 0) {
       gstValueList.forEach(gstValueInfo => {
         if (gstValueInfo.productNo === orderInfoItem.productInfo.productNo) {
-          productTax += orderInfoItem.pricePax * gstValueInfo.gstValue * orderInfoItem.quantity;
+          let sourcePrice = orderInfoItem.pricePax / (gstValueInfo.gstValue + 1);
+          sourcePrice = Number(sourcePrice).toFixed(2);
+          productTax += (orderInfoItem.pricePax - sourcePrice) * orderInfoItem.quantity;
         }
       });
     }
@@ -1180,7 +1184,9 @@ export function getProductTaxByBundle(offerProfile, quantity, session) {
                 productObj.priceRule[1].priceRuleId,
                 session
               );
-              productTax += productPrice * gstValue * quantity;
+              let sourcePrice = productPrice / (gstValue + 1);
+              sourcePrice = Number(sourcePrice).toFixed(2);
+              productTax += (productPrice - sourcePrice) * quantity;
             });
           }
           if (productGroupItem.groupName === 'Voucher') {
@@ -1196,7 +1202,9 @@ export function getProductTaxByBundle(offerProfile, quantity, session) {
                   productObj.priceRule[1].priceRuleId,
                   session
                 );
-                productTax += productPrice * gstValue * quantity;
+                let sourcePrice = productPrice / (gstValue + 1);
+                sourcePrice = Number(sourcePrice).toFixed(2);
+                productTax += (productPrice - sourcePrice) * quantity;
               }
             });
           }

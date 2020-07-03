@@ -460,14 +460,16 @@ class CheckOrder extends Component {
     return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
-  getBocaFeeExclude = (bocaFeePax, ticketAmount) => {
-    const sumPrice = bocaFeePax * ticketAmount;
+  getBocaFeeExclude = (bocaFeePax, ticketAmount, bocaFeeGst) => {
+    let sourceBocaPrice = bocaFeePax / (bocaFeeGst / 100 + 1);
+    sourceBocaPrice = Number(sourceBocaPrice).toFixed(2);
+    const sumPrice = sourceBocaPrice * ticketAmount;
     return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
-  getServiceTax = () => {
+  getServiceTax = (bocaFeePax, ticketAmount, bocaFeeGst) => {
     const {
-      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+      ticketOrderCartMgr: { generalTicketOrderData = [], onceAPirateOrderData = [], deliveryMode },
     } = this.props;
     const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
     const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
@@ -475,7 +477,16 @@ class CheckOrder extends Component {
       generalTicketOrderDataNew,
       onceAPirateOrderDataNew
     );
-    return toThousandsByRound(serviceTax);
+    let bocaGst = 0;
+    if (deliveryMode !== 'BOCA') {
+      bocaGst = 0;
+    } else {
+      let sourceBocaPrice = bocaFeePax / (bocaFeeGst / 100 + 1);
+      sourceBocaPrice = Number(sourceBocaPrice).toFixed(2);
+      const sumBocaPrice = sourceBocaPrice * ticketAmount;
+      bocaGst = bocaFeePax * ticketAmount - sumBocaPrice;
+    }
+    return toThousandsByRound(Number(serviceTax + bocaGst).toFixed(2));
   };
 
   deleteAllCart = () => {
@@ -637,6 +648,7 @@ class CheckOrder extends Component {
         deliveryMode,
         collectionDate,
         bocaFeePax,
+        bocaFeeGst,
         checkOutLoading = false,
         selectAllOrder,
         selectAllIndeterminate,
@@ -871,7 +883,7 @@ class CheckOrder extends Component {
                   <Col {...priceGrid4}>
                     <Row className={styles.priceCol}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Product Sub-Total(Exclude GST):</span>
+                        <span className={styles.priceKeySpan}>Offer Price (Before GST):</span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>
@@ -884,13 +896,15 @@ class CheckOrder extends Component {
                       this.getOrderAmount() !== 0 && (
                         <Row className={styles.priceCol}>
                           <Col span={16}>
-                            <span className={styles.priceKeySpan}>
-                              BOCA Fee Sub-Total(Exclude GST):
-                            </span>
+                            <span className={styles.priceKeySpan}>BOCA Fee (Before GST):</span>
                           </Col>
                           <Col span={8}>
                             <span className={styles.priceValueSpan}>
-                              {this.getBocaFeeExclude(bocaFeePax, this.getTicketAmount())}
+                              {this.getBocaFeeExclude(
+                                bocaFeePax,
+                                this.getTicketAmount(),
+                                bocaFeeGst
+                              )}
                             </span>
                           </Col>
                         </Row>
@@ -900,12 +914,16 @@ class CheckOrder extends Component {
                         <span className={styles.priceKeySpan}>Goods & Service Tax (GST):</span>
                       </Col>
                       <Col span={8}>
-                        <span className={styles.priceValueSpan}>{this.getServiceTax()}</span>
+                        <span className={styles.priceValueSpan}>
+                          {this.getServiceTax(bocaFeePax, this.getTicketAmount(), bocaFeeGst)}
+                        </span>
                       </Col>
                     </Row>
                     <Row className={styles.priceCol3}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Total Amount Payable(GSD):</span>
+                        <span className={styles.priceKeySpan}>
+                          Total Amount Payable (After SGD):
+                        </span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan2}>

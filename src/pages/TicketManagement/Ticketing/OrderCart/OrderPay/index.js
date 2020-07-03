@@ -279,17 +279,32 @@ class OrderPay extends Component {
     return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
-  getBocaFeeExclude = (bocaFeePax, ticketAmount) => {
-    const sumPrice = bocaFeePax * ticketAmount;
+  getBocaFeeExclude = (bocaFeePax, ticketAmount, bocaFeeGst) => {
+    let sourceBocaPrice = bocaFeePax / (bocaFeeGst / 100 + 1);
+    sourceBocaPrice = Number(sourceBocaPrice).toFixed(2);
+    const sumPrice = sourceBocaPrice * ticketAmount;
     return toThousandsByRound(Number(sumPrice).toFixed(2));
   };
 
-  getServiceTax = () => {
+  getServiceTax = (bocaFeePax, ticketAmount, bocaFeeGst) => {
     const {
-      ticketBookingAndPayMgr: { generalTicketOrderData = [], onceAPirateOrderData = [] },
+      ticketBookingAndPayMgr: {
+        generalTicketOrderData = [],
+        onceAPirateOrderData = [],
+        deliveryMode,
+      },
     } = this.props;
     const serviceTax = getOrderProductServiceTax(generalTicketOrderData, onceAPirateOrderData);
-    return toThousandsByRound(serviceTax);
+    let bocaGst = 0;
+    if (deliveryMode !== 'BOCA') {
+      bocaGst = 0;
+    } else {
+      let sourceBocaPrice = bocaFeePax / (bocaFeeGst / 100 + 1);
+      sourceBocaPrice = Number(sourceBocaPrice).toFixed(2);
+      const sumBocaPrice = sourceBocaPrice * ticketAmount;
+      bocaGst = bocaFeePax * ticketAmount - sumBocaPrice;
+    }
+    return toThousandsByRound(Number(serviceTax + bocaGst).toFixed(2));
   };
 
   render() {
@@ -305,6 +320,7 @@ class OrderPay extends Component {
         collectionDate,
         ticketAmount,
         bocaFeePax,
+        bocaFeeGst,
         payModelShow,
       },
     } = this.props;
@@ -315,8 +331,8 @@ class OrderPay extends Component {
 
     const titleGrid = { xs: 24, sm: 24, md: 12, lg: 16, xl: 16, xxl: 16 };
     const processGrid = { xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8 };
-    const priceGrid = { xs: 0, sm: 0, md: 12, lg: 12, xl: 16, xxl: 16 };
-    const priceGrid2 = { xs: 24, sm: 24, md: 12, lg: 12, xl: 8, xxl: 8 };
+    const priceGrid = { xs: 0, sm: 0, md: 12, lg: 12, xl: 14, xxl: 16 };
+    const priceGrid2 = { xs: 24, sm: 24, md: 12, lg: 12, xl: 10, xxl: 8 };
     const priceGrid3 = { xs: 0, sm: 0, md: 2, lg: 2, xl: 2, xxl: 2 };
     const priceGrid4 = { xs: 24, sm: 24, md: 22, lg: 22, xl: 22, xxl: 22 };
 
@@ -439,7 +455,7 @@ class OrderPay extends Component {
                   <Col {...priceGrid4}>
                     <Row className={styles.priceCol}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Product Sub-Total(Exclude GST):</span>
+                        <span className={styles.priceKeySpan}>Offer Price (Before GST):</span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>
@@ -450,13 +466,11 @@ class OrderPay extends Component {
                     {companyType !== '02' && deliveryMode === 'BOCA' && (
                       <Row className={styles.priceCol}>
                         <Col span={16}>
-                          <span className={styles.priceKeySpan}>
-                            BOCA Fee Sub-Total(Exclude GST):
-                          </span>
+                          <span className={styles.priceKeySpan}>BOCA Fee (Before GST):</span>
                         </Col>
                         <Col span={8}>
                           <span className={styles.priceValueSpan}>
-                            {this.getBocaFeeExclude(bocaFeePax, ticketAmount)}
+                            {this.getBocaFeeExclude(bocaFeePax, ticketAmount, bocaFeeGst)}
                           </span>
                         </Col>
                       </Row>
@@ -466,12 +480,16 @@ class OrderPay extends Component {
                         <span className={styles.priceKeySpan}>Goods & Service Tax (GST):</span>
                       </Col>
                       <Col span={8}>
-                        <span className={styles.priceValueSpan}>{this.getServiceTax()}</span>
+                        <span className={styles.priceValueSpan}>
+                          {this.getServiceTax(bocaFeePax, ticketAmount, bocaFeeGst)}
+                        </span>
                       </Col>
                     </Row>
                     <Row className={styles.priceCol3}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Total Amount Payable(GSD):</span>
+                        <span className={styles.priceKeySpan}>
+                          Total Amount Payable (After SGD):
+                        </span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan2}>

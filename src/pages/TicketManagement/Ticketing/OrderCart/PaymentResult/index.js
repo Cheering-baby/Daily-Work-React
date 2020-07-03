@@ -214,7 +214,10 @@ class PaymentResult extends Component {
   };
 
   gotoOrderQueryEvent = () => {
-    router.push(`/TicketManagement/Ticketing/QueryOrder?backFlag=payment`);
+    const {
+      ticketBookingAndPayMgr: { bookingNo },
+    } = this.props;
+    router.push(`/TicketManagement/Ticketing/QueryOrder?backFlag=payment&orderNo=${bookingNo}`);
   };
 
   downloadFileEvent = () => {
@@ -361,12 +364,8 @@ class PaymentResult extends Component {
                     <Button className={styles.backButton} onClick={this.backToCartEvent}>
                       Back to Cart
                     </Button>
-                    <Button
-                      type="primary"
-                      className={styles.downloadButton}
-                      onClick={this.gotoOrderQueryEvent}
-                    >
-                      Goto Order Query
+                    <Button className={styles.downloadButton} onClick={this.gotoOrderQueryEvent}>
+                      Go to Order Query
                     </Button>
                   </Col>
                 </Row>
@@ -394,30 +393,19 @@ class PaymentResult extends Component {
                       <Button className={styles.backButton} onClick={this.backToCartEvent}>
                         Back to Cart
                       </Button>
+                      <Button className={styles.downloadButton} onClick={this.gotoOrderQueryEvent}>
+                        Go to Order Query
+                      </Button>
                       {companyType === '01' && (
                         <Button
                           type="primary"
-                          className={styles.downloadButton}
+                          className={styles.downloadButton2}
                           loading={downloadFileLoading}
                           onClick={this.downloadFileEvent}
                         >
                           {this.getDownloadBtnName(bookDetail)}
                         </Button>
                       )}
-                    </Col>
-                  )}
-                  {bookDetail.status !== 'Complete' && (
-                    <Col span={24} className={styles.resultCol}>
-                      <Button className={styles.downloadButton} onClick={this.backToCartEvent}>
-                        Back to Cart
-                      </Button>
-                      <Button
-                        type="primary"
-                        className={styles.downloadButton}
-                        onClick={this.gotoOrderQueryEvent}
-                      >
-                        Goto Order Query
-                      </Button>
                     </Col>
                   )}
                 </Row>

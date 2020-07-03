@@ -332,7 +332,6 @@ class SearchPanel extends Component {
         sessionTimeList,
         themeParkChooseList,
         activeGroup,
-        themeParkTipType,
         searchPanelActive,
         activeGroupSelectData,
       },

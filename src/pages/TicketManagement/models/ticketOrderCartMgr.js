@@ -40,6 +40,7 @@ export default {
     deliveryMode: undefined,
     collectionDate: null,
     bocaFeePax: 0.0,
+    bocaFeeGst: 0.0,
     offerOrderData: [],
     selectAllOrder: false,
     selectAllIndeterminate: false,
@@ -443,13 +444,16 @@ export default {
         return;
       }
       let bocaFeePax = 0;
+      let bocaFeeGst = 0;
       for (const pluObj of result.pluInfos) {
         bocaFeePax = pluObj.unitPrice;
+        bocaFeeGst = pluObj.gst;
       }
       yield put({
         type: 'save',
         payload: {
           bocaFeePax,
+          bocaFeeGst,
         },
       });
     },
@@ -464,6 +468,7 @@ export default {
 
       const {
         bocaFeePax,
+        bocaFeeGst,
         generalTicketOrderData = [],
         packageOrderData = [],
         onceAPirateOrderData = [],
@@ -487,6 +492,7 @@ export default {
           collectionDate,
           ticketAmount,
           bocaFeePax,
+          bocaFeeGst,
           packageOrderData: packageOrderDataNew,
           generalTicketOrderData: generalTicketOrderDataNew,
           onceAPirateOrderData: onceAPirateOrderDataNew,
@@ -500,6 +506,7 @@ export default {
         collectionDate,
         ticketAmount,
         bocaFeePax,
+        bocaFeeGst,
         generalTicketOrderData = [],
         packageOrderData = [],
         onceAPirateOrderData = [],
@@ -612,6 +619,7 @@ export default {
               collectionDate,
               ticketAmount,
               bocaFeePax,
+              bocaFeeGst,
               generalTicketOrderData,
               packageOrderData,
               onceAPirateOrderData,
@@ -649,6 +657,7 @@ export default {
         collectionDate,
         ticketAmount,
         bocaFeePax,
+        bocaFeeGst,
         generalTicketOrderData,
         packageOrderData,
         onceAPirateOrderData,
@@ -703,6 +712,7 @@ export default {
             collectionDate,
             ticketAmount,
             bocaFeePax,
+            bocaFeeGst,
             generalTicketOrderData,
             packageOrderData,
             onceAPirateOrderData,
@@ -1176,6 +1186,7 @@ export default {
         deliveryMode: undefined,
         collectionDate: null,
         bocaFeePax: 0.0,
+        bocaFeeGst: 0.0,
         offerOrderData: [],
         selectAllOrder: false,
         selectAllIndeterminate: false,

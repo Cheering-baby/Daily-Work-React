@@ -2,7 +2,7 @@ import UAAService from '@/uaa-npm';
 
 const dev = 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams';
 const uaaPath = process.env.NODE_ENV === 'development' ? dev : '';
-const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '';
+const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export async function createBooking(params) {
   return UAAService.request(`${localPath}/b2b/transaction/v1/booking/create`, {
