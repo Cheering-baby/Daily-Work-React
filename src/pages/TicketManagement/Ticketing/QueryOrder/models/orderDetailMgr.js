@@ -1,7 +1,8 @@
 import serialize from '../utils/utils';
 import {
   queryBookingDetail,
-  queryPluAttribute
+  queryPluAttribute,
+  queryRevalidationVids,
 } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
 export default {
@@ -16,10 +17,13 @@ export default {
     detailList: [],
     vidResultList: [],
     patronInfo: {},
-    themeParkList:[],
+    themeParkList: [],
     netAmt: 0,
     refundSuccessFlag: false,
     status: null,
+
+    revalidationVidListVisible: false,
+    revalidationVidList: [],
   },
 
   effects: {
@@ -28,6 +32,27 @@ export default {
         type: 'save',
         payload,
       });
+    },
+    *queryVid({ payload }, { call, put }) {
+      const response = yield call(queryRevalidationVids, serialize(payload));
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        const { vidInfos } = result;
+        if (vidInfos) {
+          for (let i = 0; i < vidInfos.length; i += 1) {
+            vidInfos[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
+          }
+          yield put({
+            type: 'save',
+            payload: {
+              revalidationVidList: vidInfos,
+            },
+          });
+        }
+      } else throw resultMsg;
     },
     *queryOrderDetail({ payload }, { call, put, select }) {
       const { searchList } = yield select(state => state.orderDetailMgr);
@@ -54,14 +79,14 @@ export default {
         });
       } else throw resultMsg;
     },
-    * queryThemePark(_, {call, put}) {
-      const response = yield call(queryPluAttribute, {attributeItem: 'THEME_PARK'});
+    *queryThemePark(_, { call, put }) {
+      const response = yield call(queryPluAttribute, { attributeItem: 'THEME_PARK' });
       if (!response) return false;
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        yield put({type: 'save', payload: {themeParkList: result.items}});
+        yield put({ type: 'save', payload: { themeParkList: result.items } });
       } else throw resultMsg;
     },
   },
@@ -77,7 +102,13 @@ export default {
       const { bookingDetail = {} } = payload;
       const detailList = [];
       const vidResultList = [];
-      const { offers = [], patronInfo = {}, netAmt, refundSuccessFlag = false, status } = bookingDetail;
+      const {
+        offers = [],
+        patronInfo = {},
+        netAmt,
+        refundSuccessFlag = false,
+        status,
+      } = bookingDetail;
       for (let i = 0; i < offers.length; i += 1) {
         const vidList = [];
         const { attraction = [] } = offers[i];
@@ -174,7 +205,7 @@ export default {
         patronInfo,
         netAmt,
         refundSuccessFlag,
-        status
+        status,
       };
     },
     resetData(state) {
@@ -189,7 +220,7 @@ export default {
         detailList: [],
         vidResultList: [],
         patronInfo: {},
-        themeParkList:[],
+        themeParkList: [],
         netAmt: 0,
         refundSuccessFlag: false,
         status: null,

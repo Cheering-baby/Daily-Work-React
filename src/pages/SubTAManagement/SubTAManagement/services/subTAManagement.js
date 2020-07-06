@@ -9,6 +9,13 @@ export async function querySubTAList(params) {
   });
 }
 
+export async function queryAllCompany(params) {
+  return UAAService.request(`/b2b/agent/v1/profile/queryAllCompanyConfig`, {
+    params,
+    method: 'GET',
+  });
+}
+
 export async function updateProfileStatus(params) {
   return UAAService.request(`/b2b/agent/v1/profile/updateProfileStatus`, {
     method: 'POST',

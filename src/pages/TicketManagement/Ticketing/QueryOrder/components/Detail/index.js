@@ -1,5 +1,5 @@
 import React from 'react';
-import {Divider, Drawer, Form, Icon, Popover, Spin, Table, Tooltip} from 'antd';
+import { Divider, Drawer, Form, Icon, Popover, Spin, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from './index.less';
@@ -21,12 +21,13 @@ const formLayout = {
   orderDetailMgr,
   global,
   pageLoading: loading.effects['orderDetailMgr/queryOrderDetail'],
+  revalidationVidLoading: loading.effects['orderDetailMgr/queryVid'],
 }))
 class Detail extends React.Component {
   detailColumns = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width:'8%',
+      width: '8%',
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -37,7 +38,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width:'23%',
+      width: '23%',
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -48,7 +49,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' })}</span>,
-      width:'23%',
+      width: '23%',
       dataIndex: 'offerName',
       key: 'offerName',
       render: text => (
@@ -59,14 +60,14 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width:'23%',
+      width: '23%',
       dataIndex: 'themePark',
       key: 'themePark',
       render: text => this.showThemePark(text),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
-      width:'11%',
+      width: '11%',
       dataIndex: 'ticketGroup',
       key: 'ticketGroup',
       render: text => (
@@ -86,7 +87,7 @@ class Detail extends React.Component {
   columns = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width:'10%',
+      width: '10%',
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -97,7 +98,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width:'30%',
+      width: '30%',
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -108,16 +109,65 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width:'30%',
+      width: '30%',
       dataIndex: 'themePark',
       key: 'themePark',
       render: text => this.showThemePark(text),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
-      width:'15%',
+      width: '15%',
       dataIndex: 'ticketGroup',
       key: 'ticketGroup',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
+      dataIndex: 'ticketType',
+      key: 'ticketType',
+      render: text => this.showVidType(text),
+    },
+  ];
+
+  revalidationVidColumns = [
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
+      width: '10%',
+      dataIndex: 'vidNo',
+      key: 'vidNo',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
+      width: '30%',
+      dataIndex: 'vid',
+      key: 'vid',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
+      width: '30%',
+      dataIndex: 'themeParkCode',
+      key: 'themeParkCode',
+      render: text => this.showThemePark(text),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
+      width: '15%',
+      dataIndex: 'ageGroup',
+      key: 'ageGroup',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -189,7 +239,7 @@ class Detail extends React.Component {
     );
   };
 
-  showQuantity = (vidList) => {
+  showQuantity = vidList => {
     let adult = 0;
     let senior = 0;
     let child = 0;
@@ -217,27 +267,25 @@ class Detail extends React.Component {
     const quantity = adult + senior + child + student + helper + voucher + noSet;
     return (
       <div>
-        <span className={styles.drawerTitleStyle}>
-          {quantity}
-        </span>
-        {quantity > 0 &&
-        <Popover
-          overlayStyle={{width: 160, color: '#565656'}}
-          content={
-            <Form className={styles.quantityFormStyle}>
-              {adult > 0 && this.showQuantityEye('Adult', adult)}
-              {senior > 0 && this.showQuantityEye('Senior', senior)}
-              {child > 0 && this.showQuantityEye('Child', child)}
-              {student > 0 && this.showQuantityEye('Student', student)}
-              {helper > 0 && this.showQuantityEye('Helper', helper)}
-              {voucher > 0 && this.showQuantityEye('Voucher', voucher)}
-              {noSet > 0 && this.showQuantityEye('-', noSet)}
-            </Form>
-          }
-        >
-          <Icon style={{marginLeft: 10}} type="eye"/>
-        </Popover>
-        }
+        <span className={styles.drawerTitleStyle}>{quantity}</span>
+        {quantity > 0 && (
+          <Popover
+            overlayStyle={{ width: 160, color: '#565656' }}
+            content={
+              <Form className={styles.quantityFormStyle}>
+                {adult > 0 && this.showQuantityEye('Adult', adult)}
+                {senior > 0 && this.showQuantityEye('Senior', senior)}
+                {child > 0 && this.showQuantityEye('Child', child)}
+                {student > 0 && this.showQuantityEye('Student', student)}
+                {helper > 0 && this.showQuantityEye('Helper', helper)}
+                {voucher > 0 && this.showQuantityEye('Voucher', voucher)}
+                {noSet > 0 && this.showQuantityEye('-', noSet)}
+              </Form>
+            }
+          >
+            <Icon style={{ marginLeft: 10 }} type="eye" />
+          </Popover>
+        )}
       </div>
     );
   };
@@ -248,7 +296,19 @@ class Detail extends React.Component {
     </FormItem>
   );
 
-  showInformation = (detailType, detailList, vidResultList, patronInfo, netAmt, refundSuccessFlag, pageLoading, userType) => {
+  showInformation = (
+    detailType,
+    detailList,
+    vidResultList,
+    patronInfo,
+    netAmt,
+    refundSuccessFlag,
+    pageLoading,
+    userType,
+    revalidationVidListVisible,
+    revalidationVidList,
+    revalidationVidLoading
+  ) => {
     if (detailType !== 'Revalidation' && detailType !== 'Refund') {
       const { mainTaName = '-', taName = '-' } = patronInfo;
       const child = [];
@@ -275,7 +335,7 @@ class Detail extends React.Component {
       });
       detailList = newDetailList;
       for (let i = 0; i < detailList.length; i += 1) {
-        const filterVidList = detailList[i].vidList.filter((item) => {
+        const filterVidList = detailList[i].vidList.filter(item => {
           return item.vidCode !== undefined && item.vidCode !== null && item.vidCode !== '';
         });
         for (let j = 0; j < filterVidList.length; j += 1) {
@@ -335,18 +395,18 @@ class Detail extends React.Component {
               {this.showDelivery(formatMessage({ id: 'CUSTOMER_CONTACT_NO' }), contactNo)}
               {this.showDelivery(formatMessage({ id: 'CUSTOMER_EMAIL_ADDRESS' }), email)}
             </Form>
-            {filterVidList.length > 0 &&
-            <Table
-              size="small"
-              style={{ marginTop: 10, marginBottom: 20 }}
-              columns={this.columns}
-              dataSource={filterVidList}
-              loading={!!pageLoading}
-              scroll={{ x: 540 }}
-              pagination={false}
-              bordered={false}
-            />
-            }
+            {filterVidList.length > 0 && (
+              <Table
+                size="small"
+                style={{ marginTop: 10, marginBottom: 20 }}
+                columns={this.columns}
+                dataSource={filterVidList}
+                loading={!!pageLoading}
+                scroll={{ x: 540 }}
+                pagination={false}
+                bordered={false}
+              />
+            )}
           </div>
         );
       }
@@ -383,40 +443,73 @@ class Detail extends React.Component {
                 <span className={styles.drawerTitleStyle}>{taName || '-'}</span>
               </Tooltip>
             </FormItem>
-            {(userType === '02' || userType === '01') &&
-            <FormItem
-              label={
-                <span className={styles.drawerTitleStyle}>
-                  {formatMessage({ id: 'RECEIVED_AMOUNT' })}
-                </span>
-              }
-              {...formLayout}
-            >
-              <Tooltip
-                placement="topLeft"
-                title={<span style={{ whiteSpace: 'pre-wrap' }}>{`$ ${Number(netAmt).toFixed(2)}`}</span>}
+            {(userType === '02' || userType === '01') && (
+              <FormItem
+                label={
+                  <span className={styles.drawerTitleStyle}>
+                    {formatMessage({ id: 'RECEIVED_AMOUNT' })}
+                  </span>
+                }
+                {...formLayout}
               >
-                <span className={styles.drawerTitleStyle}>{`$ ${Number(netAmt).toFixed(2)}`}</span>
-              </Tooltip>
-            </FormItem>
-            }
-            {refundSuccessFlag && (userType === '02' || userType === '01') &&
-            <FormItem
-              label={
-                <span className={styles.drawerTitleStyle}>
-                  {formatMessage({ id: 'REFUNDED_AMOUNT' })}
-                </span>
-              }
-              {...formLayout}
-            >
-              <Tooltip
-                placement="topLeft"
-                title={<span style={{ whiteSpace: 'pre-wrap' }}>{`$ ${Number(netAmt).toFixed(2)}`}</span>}
+                <Tooltip
+                  placement="topLeft"
+                  title={
+                    <span style={{ whiteSpace: 'pre-wrap' }}>{`$ ${Number(netAmt).toFixed(
+                      2
+                    )}`}
+                    </span>
+                  }
+                >
+                  <span className={styles.drawerTitleStyle}>{`$ ${Number(netAmt).toFixed(
+                    2
+                  )}`}
+                  </span>
+                </Tooltip>
+              </FormItem>
+            )}
+            {refundSuccessFlag && (userType === '02' || userType === '01') && (
+              <FormItem
+                label={
+                  <span className={styles.drawerTitleStyle}>
+                    {formatMessage({ id: 'REFUNDED_AMOUNT' })}
+                  </span>
+                }
+                {...formLayout}
               >
-                <span className={styles.drawerTitleStyle}>{`$ ${Number(netAmt).toFixed(2)}`}</span>
-              </Tooltip>
-            </FormItem>
-            }
+                <Tooltip
+                  placement="topLeft"
+                  title={
+                    <span style={{ whiteSpace: 'pre-wrap' }}>{`$ ${Number(netAmt).toFixed(
+                      2
+                    )}`}
+                    </span>
+                  }
+                >
+                  <span className={styles.drawerTitleStyle}>{`$ ${Number(netAmt).toFixed(
+                    2
+                  )}`}
+                  </span>
+                </Tooltip>
+              </FormItem>
+            )}
+            {revalidationVidListVisible && (
+              <div>
+                <span className={styles.drawerTitleStyle}>
+                  {formatMessage({ id: 'REVALIDATION_VID_TITLE' })}
+                </span>
+                <Table
+                  size="small"
+                  style={{ marginTop: 10, marginBottom: 20 }}
+                  columns={this.revalidationVidColumns}
+                  dataSource={revalidationVidList}
+                  loading={!!revalidationVidLoading}
+                  scroll={{ x: 540 }}
+                  pagination={false}
+                  bordered={false}
+                />
+              </div>
+            )}
           </Form>
           {child}
         </Spin>
@@ -467,6 +560,7 @@ class Detail extends React.Component {
   render() {
     const {
       pageLoading,
+      revalidationVidLoading,
       orderDetailMgr: {
         orderDetailVisible,
         detailType,
@@ -475,6 +569,8 @@ class Detail extends React.Component {
         patronInfo,
         netAmt,
         refundSuccessFlag,
+        revalidationVidListVisible,
+        revalidationVidList,
       },
       global: {
         currentUser: { userType },
@@ -491,7 +587,19 @@ class Detail extends React.Component {
         visible={orderDetailVisible}
         maskClosable={false}
       >
-        {this.showInformation(detailType, detailList, vidResultList, patronInfo, netAmt, refundSuccessFlag, pageLoading, userType)}
+        {this.showInformation(
+          detailType,
+          detailList,
+          vidResultList,
+          patronInfo,
+          netAmt,
+          refundSuccessFlag,
+          pageLoading,
+          userType,
+          revalidationVidListVisible,
+          revalidationVidList,
+          revalidationVidLoading
+        )}
       </Drawer>
     );
   }

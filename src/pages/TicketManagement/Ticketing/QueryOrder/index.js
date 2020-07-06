@@ -441,7 +441,6 @@ class QueryOrder extends Component {
                 Cancel
               </Button>
               <Button
-                // onClick={() => this.jumpToOperation(bookingNo, isSubOrder, flag)}
                 onClick={() => {
                   Modal.destroyAll();
                 }}
@@ -549,7 +548,10 @@ class QueryOrder extends Component {
             status,
           },
         });
-      } else if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
+      } else if (
+        transType === 'revalidation' &&
+        (status === 'Confirmed' || status === 'Complete')
+      ) {
         dispatch({
           type: 'updateOrderMgr/save',
           payload: {
@@ -581,12 +583,13 @@ class QueryOrder extends Component {
   openDetailDrawer = selectedBookings => {
     const { dispatch } = this.props;
     if (selectedBookings.length === 1) {
-      const { bookingNo } = selectedBookings[0];
+      const { bookingNo, productInstances = [] } = selectedBookings[0];
       dispatch({
         type: 'orderDetailMgr/save',
         payload: {
           orderDetailVisible: true,
           detailType: 'Booking',
+          revalidationVidListVisible: productInstances.length > 0,
         },
       });
       dispatch({
@@ -595,6 +598,14 @@ class QueryOrder extends Component {
           bookingNo,
         },
       });
+      if (productInstances.length > 0) {
+        dispatch({
+          type: 'orderDetailMgr/queryVid',
+          payload: {
+            orderNo: bookingNo,
+          },
+        });
+      }
       dispatch({ type: 'orderDetailMgr/queryThemePark' });
     }
   };

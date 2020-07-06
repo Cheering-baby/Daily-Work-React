@@ -4,7 +4,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import styles from './ApprovalHistory.less';
-import {isNvl} from "@/utils/utils";
+import { isNvl } from '@/utils/utils';
 
 const { Step } = Steps;
 
@@ -12,18 +12,43 @@ const { Step } = Steps;
   activityDetail,
 }))
 class ApprovalHistory extends PureComponent {
-
-  getTargetDesc = (targetList) => {
-    const taList = targetList.filter(item => item.targetType === '01').map(item => item.targetObjName);
-    const roleList = targetList.filter(item => item.targetType === '02').map(item => item.targetObjName);
-    const userList = targetList.filter(item => item.targetType === '03').map(item => item.targetObjName);
-    const subTaList = targetList.filter(item => item.targetType === '04').map(item => item.targetObjName);
-    return (<dev>
-      {roleList && roleList.length > 0 ? <div><span>Role: {roleList.join(',')}</span></div> : null}
-      {userList && userList.length > 0 ? <div><span>User: {userList.join(',')}</span></div> : null}
-      {taList && taList.length > 0 ? <div><span>Travel Agent: {taList.join(',')}</span></div> : null}
-      {subTaList && subTaList.length > 0 ? <div><span>Sub Travel Agent: {subTaList .join(',')}</span></div> : null}
-    </dev>)
+  getTargetDesc = targetList => {
+    const taList = targetList
+      .filter(item => item.targetType === '01')
+      .map(item => item.targetObjName);
+    const roleList = targetList
+      .filter(item => item.targetType === '02')
+      .map(item => item.targetObjName);
+    const userList = targetList
+      .filter(item => item.targetType === '03')
+      .map(item => item.targetObjName);
+    const subTaList = targetList
+      .filter(item => item.targetType === '04')
+      .map(item => item.targetObjName);
+    return (
+      <dev>
+        {roleList && roleList.length > 0 ? (
+          <div>
+            <span>Role: {roleList.join(',')}</span>
+          </div>
+        ) : null}
+        {userList && userList.length > 0 ? (
+          <div>
+            <span>User: {userList.join(',')}</span>
+          </div>
+        ) : null}
+        {taList && taList.length > 0 ? (
+          <div>
+            <span>Travel Agent: {taList.join(',')}</span>
+          </div>
+        ) : null}
+        {subTaList && subTaList.length > 0 ? (
+          <div>
+            <span>Sub Travel Agent: {subTaList.join(',')}</span>
+          </div>
+        ) : null}
+      </dev>
+    );
   };
 
   render() {
@@ -34,13 +59,13 @@ class ApprovalHistory extends PureComponent {
     const steps = [];
 
     historyHandlers.map((historyHandler, index) => {
-      const stepsIcon = (
-        <div
-          className={
-            historyHandler.status === '05' ? styles.rejectCircleStyle : styles.approveCircleStyle
-          }
-        />
-      );
+      let statusStyle = styles.approveCircleStyle;
+      if (historyHandler.status === '05') {
+        statusStyle = styles.rejectCircleStyle;
+      } else if (historyHandler.status === '06') {
+        statusStyle = styles.closeCircleStyle;
+      }
+      const stepsIcon = <div className={statusStyle} />;
       const stepTitle = (
         <div className={styles.stepTitle}>
           <span className={styles.approveStyle}>{historyHandler.statusName}</span>
@@ -75,13 +100,14 @@ class ApprovalHistory extends PureComponent {
     pendingHandlers.map(pendingHandler => {
       pendingTarget.push({
         targetType: pendingHandler.targetType,
-        targetObjName: isNvl(pendingHandler.targetObjName) ? pendingHandler.targetObj: pendingHandler.targetObjName,
+        targetObjName: isNvl(pendingHandler.targetObjName)
+          ? pendingHandler.targetObj
+          : pendingHandler.targetObjName,
       });
       const { statusName } = pendingHandler;
       statusName1 = statusName;
       return pendingHandler;
     });
-
 
     if (pendingHandlers.length > 0) {
       const stepsIcon = <div className={styles.pendingCircleStyle} />;

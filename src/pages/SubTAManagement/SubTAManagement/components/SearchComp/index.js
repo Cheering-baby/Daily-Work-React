@@ -1,22 +1,31 @@
 import React, { PureComponent } from 'react';
-import { Button, Col, DatePicker, Form, Input, Row, Spin } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import { getFormKeyValue } from '@/pages/SubTAManagement/utils/pubUtils';
+import SortSelect from '@/components/SortSelect';
 
 const mapStateToProps = store => {
-  const { searchForm, searchList, qrySubTaTableLoading, viewId } = store.subTAManagement;
+  const {
+    searchForm,
+    searchList,
+    qrySubTaTableLoading,
+    viewId,
+    companyList,
+  } = store.subTAManagement;
   return {
     searchForm,
     searchList,
     qrySubTaTableLoading,
     viewId,
+    companyList,
   };
 };
 
+const { Option } = Select;
 @Form.create()
 @connect(mapStateToProps)
 class SearchComp extends PureComponent {
@@ -25,6 +34,7 @@ class SearchComp extends PureComponent {
     dispatch({
       type: 'subTAManagement/fetchQrySubTAList',
       payload: {
+        taCompanyId: searchForm.taCompanyId,
         companyName: searchForm.companyName,
         applyStartDate: searchForm.applyStartDate,
         applyEndDate: searchForm.applyEndDate,
@@ -93,7 +103,7 @@ class SearchComp extends PureComponent {
   };
 
   render() {
-    const { form, searchForm, qrySubTaTableLoading, viewId } = this.props;
+    const { form, searchForm, qrySubTaTableLoading, viewId, companyList = [] } = this.props;
     const { getFieldDecorator } = form;
     const startDateOpts = {
       placeholder: formatMessage({ id: 'SUB_TA_M_APPLICATION_START_DATE' }),
@@ -123,6 +133,27 @@ class SearchComp extends PureComponent {
       <Spin spinning={qrySubTaTableLoading}>
         <Row type="flex" justify="space-around">
           <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.subTaMSearchCompCol}>
+            {getFieldDecorator(`taCompanyId`, {
+              initialValue: searchForm.taCompanyId !== null ? searchForm.taCompanyId : undefined,
+            })(
+              <SortSelect
+                showSearch
+                onChange={value => this.onHandleChange('taCompanyId', value, 'taCompanyId')}
+                placeholder={formatMessage({ id: 'MAIN_TA_COMPANY_NAME' })}
+                style={{ width: '100%' }}
+                allowClear
+                filterOption={(input, option) =>
+                  option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+                options={companyList.map(item => (
+                  <Option key={item.id} value={item.id}>
+                    {item.companyName}
+                  </Option>
+                ))}
+              />
+            )}
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.subTaMSearchCompCol}>
             {getFieldDecorator('companyName', {
               initialValue: searchForm.companyName || null,
             })(
@@ -150,6 +181,8 @@ class SearchComp extends PureComponent {
                 : null,
             })(<DatePicker {...endDateOpts} style={{ width: '100%' }} />)}
           </Col>
+        </Row>
+        <Row>
           <Col
             xs={24}
             sm={12}

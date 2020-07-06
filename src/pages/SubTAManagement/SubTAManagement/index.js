@@ -26,8 +26,12 @@ class SubTAManagement extends PureComponent {
       type: 'subTAManagement/doCleanAllDate',
     }).then(() => {
       dispatch({
+        type: 'subTAManagement/queryAllCompany',
+      });
+      dispatch({
         type: 'subTAManagement/fetchQrySubTAList',
         payload: {
+          taCompanyId: searchForm.taCompanyId,
           companyName: searchForm.companyName,
           applyStartDate: searchForm.applyStartDate,
           applyEndDate: searchForm.applyEndDate,

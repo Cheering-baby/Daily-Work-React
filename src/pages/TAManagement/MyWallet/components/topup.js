@@ -120,7 +120,7 @@ class Arapply extends React.PureComponent {
                   },
                   {
                     min: 0,
-                    max: 21474836,
+                    max: 21000000,
                     message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE' }),
                     validator: (rule, value) => {
                       const v = Number(value);

@@ -39,6 +39,7 @@ export default {
   SUB_TA_LEAVE_SIGN_UP_YES: 'Yes',
   SUB_TA_LEAVE_SIGN_UP_NOT: 'No',
 
+  MAIN_TA_COMPANY_NAME: 'Main Travel Agent Company Name',
   SUB_TA_M_SUB_AGENT_COMPANY_NAME: 'Sub Agent Company Name',
   SUB_TA_M_APPLICATION_START_DATE: 'Application Start Date',
   SUB_TA_M_APPLICATION_END_DATE: 'Application End Date',

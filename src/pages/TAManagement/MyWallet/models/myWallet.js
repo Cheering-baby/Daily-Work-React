@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import * as service from '../services/myWallet';
 import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
@@ -9,15 +9,25 @@ const DEFAULTS = {
   dateRange: [],
   currentPage: 1,
   pageSize: 20,
+  filter: {
+    // transactionId: DEFAULTS.transactionId,
+    // transactionType: DEFAULTS.transactionType,
+    // dateRange: DEFAULTS.dateRange,
+  },
+  filterFields: {},
 };
+
+const RESULT_CODE_SUCCESS = '0';
 const MyWalletModel = {
   namespace: 'myWallet',
   state: {
-    filter: {
-      transactionId: DEFAULTS.transactionId,
-      transactionType: DEFAULTS.transactionType,
-      dateRange: DEFAULTS.dateRange,
-    },
+    // filter: {
+    //   transactionId: DEFAULTS.transactionId,
+    //   transactionType: DEFAULTS.transactionType,
+    //   dateRange: DEFAULTS.dateRange,
+    // },
+    filter: DEFAULTS.filter,
+    filterFields: DEFAULTS.filterFields,
     pagination: {
       total: 0,
       currentPage: DEFAULTS.currentPage,
@@ -31,7 +41,6 @@ const MyWalletModel = {
     arActivity: undefined,
     mappingForArApplicationActivityId: undefined,
   },
-  subscriptions: {},
   effects: {
     *fetchAccountFlowList({ payload }, { call, put, select }) {
       yield put({ type: 'save', payload });
@@ -42,33 +51,37 @@ const MyWalletModel = {
       const params = {
         taId: companyId,
         walletType: DEFAULTS.walletType,
+        ...filter,
+        ...pagination,
       };
-      Object.assign(params, filter, pagination);
-      delete params.dateRange;
-      if (filter.dateRange && filter.dateRange.length > 0) {
-        const startDate = filter.dateRange[0].format('YYYY-MM-DD');
-        const endDate = filter.dateRange[1].format('YYYY-MM-DD');
+
+      const { dateRange } = filter;
+      if (dateRange && dateRange.length > 0) {
+        const startDate = dateRange[0].format('YYYY-MM-DD');
+        const endDate = dateRange[1].format('YYYY-MM-DD');
         params.startDate = startDate;
         params.endDate = endDate;
       }
+      delete params.dateRange;
 
       const {
-        data: { resultCode, resultMsg, result = [] },
+        data: { resultCode, resultMsg, result = {} },
       } = yield call(service.search, params);
-      if (resultCode === '0') {
+      if (resultCode === RESULT_CODE_SUCCESS) {
         const dataSource = [];
         result.array.forEach((item, index) => {
           item.key = index;
           dataSource.push(item);
         });
+        const { totalSize, currentPage, pageSize } = result;
         yield put({
           type: 'save',
           payload: {
             dataSource,
             pagination: {
-              total: result.totalSize,
-              currentPage: result.currentPage,
-              pageSize: result.pageSize,
+              total: totalSize,
+              currentPage,
+              pageSize,
             },
           },
         });
@@ -79,7 +92,7 @@ const MyWalletModel = {
       const {
         data: { resultCode, resultMsg, result = [] },
       } = yield call(service.queryTransactonTypes);
-      if (resultCode === '0') {
+      if (resultCode === RESULT_CODE_SUCCESS) {
         yield put({
           type: 'save',
           payload: {
@@ -92,7 +105,7 @@ const MyWalletModel = {
       const {
         data: { resultCode, resultMsg, result = [] },
       } = yield call(service.queryWalletTypes);
-      if (resultCode === '0') {
+      if (resultCode === RESULT_CODE_SUCCESS) {
         yield put({
           type: 'save',
           payload: {
@@ -109,7 +122,7 @@ const MyWalletModel = {
       const {
         data: { resultCode, resultMsg, result = {} },
       } = yield call(service.queryAccount, params);
-      if (resultCode === '0') {
+      if (resultCode === RESULT_CODE_SUCCESS) {
         if (!result.accountProfileBean) return;
         const bean = cloneDeep(result.accountProfileBean);
         let arRemark = {};
@@ -154,6 +167,11 @@ const MyWalletModel = {
           }
         });
 
+        const { account } = yield select(state => state.myWallet);
+        if (!isEqual(account, bean)) {
+          yield put({ type: 'resetFilter' });
+          yield put({ type: 'fetchAccountFlowList' });
+        }
         yield put({
           type: 'save',
           payload: {
@@ -208,31 +226,26 @@ const MyWalletModel = {
   },
   reducers: {
     save(state, { payload }) {
-      return { ...state, ...payload };
-    },
-    clear(state) {
       return {
         ...state,
-        filter: {
-          transactionId: DEFAULTS.transactionId,
-          transactionType: DEFAULTS.transactionType,
-          dateRange: DEFAULTS.dateRange,
-        },
+        ...payload,
+      };
+    },
+    resetState(state, { payload }) {
+      return {
+        ...state,
+        ...payload,
+      };
+    },
+    resetFilter(state) {
+      return {
+        ...state,
+        filter: DEFAULTS.filter,
         pagination: {
+          total: 0,
           currentPage: DEFAULTS.currentPage,
           pageSize: DEFAULTS.pageSize,
         },
-        account: [],
-        walletTypes: [{ label: 'eWallet', value: 'E_WALLET' }],
-        transactionTypes: [],
-        dataSource: [],
-      };
-    },
-    toggleModal(state, { payload }) {
-      const { key, val } = payload;
-      return {
-        ...state,
-        [key]: val,
       };
     },
   },

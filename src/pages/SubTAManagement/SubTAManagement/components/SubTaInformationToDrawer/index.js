@@ -120,6 +120,7 @@ class SubTaInformationToDrawer extends PureComponent {
     dispatch({
       type: 'subTAManagement/fetchQrySubTAList',
       payload: {
+        taCompanyId: searchForm.taCompanyId,
         companyName: searchForm.companyName,
         applyStartDate: searchForm.applyStartDate,
         applyEndDate: searchForm.applyEndDate,
@@ -158,57 +159,57 @@ class SubTaInformationToDrawer extends PureComponent {
         <Row type="flex" justify="space-around">
           <Col span={24}>
             <Spin spinning={subTaInfoLoadingFlag}>
-              {/*{isEdit && !isDetail && (*/}
-              {/*  <AccountInformationToSubTaWithDrawer*/}
-              {/*    wrappedComponentRef={ref => {*/}
-              {/*      this.editRef = ref;*/}
-              {/*    }}*/}
-              {/*    subTaInfo={subTaInfo || {}}*/}
-              {/*    countryList={countryList || []}*/}
-              {/*    onHandleChange={this.onHandleChange}*/}
-              {/*    detailOpt={{*/}
-              {/*      formItemLayout: {*/}
-              {/*        labelCol: { span: 24 },*/}
-              {/*        wrapperCol: { span: 24 },*/}
-              {/*      },*/}
-              {/*      formItemRowLayout: {*/}
-              {/*        labelCol: { span: 24 },*/}
-              {/*        wrapperCol: { span: 24 },*/}
-              {/*      },*/}
-              {/*      formItemLongLayout: {*/}
-              {/*        labelCol: { span: 24 },*/}
-              {/*        wrapperCol: { span: 24 },*/}
-              {/*      },*/}
-              {/*    }}*/}
-              {/*    viewId="subTaDrawerView"*/}
-              {/*  />*/}
-              {/*)}*/}
+              {/* {isEdit && !isDetail && ( */}
+              {/*  <AccountInformationToSubTaWithDrawer */}
+              {/*    wrappedComponentRef={ref => { */}
+              {/*      this.editRef = ref; */}
+              {/*    }} */}
+              {/*    subTaInfo={subTaInfo || {}} */}
+              {/*    countryList={countryList || []} */}
+              {/*    onHandleChange={this.onHandleChange} */}
+              {/*    detailOpt={{ */}
+              {/*      formItemLayout: { */}
+              {/*        labelCol: { span: 24 }, */}
+              {/*        wrapperCol: { span: 24 }, */}
+              {/*      }, */}
+              {/*      formItemRowLayout: { */}
+              {/*        labelCol: { span: 24 }, */}
+              {/*        wrapperCol: { span: 24 }, */}
+              {/*      }, */}
+              {/*      formItemLongLayout: { */}
+              {/*        labelCol: { span: 24 }, */}
+              {/*        wrapperCol: { span: 24 }, */}
+              {/*      }, */}
+              {/*    }} */}
+              {/*    viewId="subTaDrawerView" */}
+              {/*  /> */}
+              {/* )} */}
               {!isEdit && isDetail && (
                 <SubTaDetailComp subTaInfo={subTaInfo || {}} countryList={countryList || []} />
               )}
             </Spin>
           </Col>
         </Row>
-        {/*<div className={styles.subTaEditBtn}>*/}
-        {/*  <Button onClick={this.onClose} style={{ marginRight: 8 }}>*/}
-        {/*    {formatMessage({ id: 'COMMON_CANCEL' })}*/}
-        {/*  </Button>*/}
-        {/*  {isDetail && (*/}
-        {/*    <Button onClick={this.goModify} type="primary">*/}
-        {/*      {formatMessage({ id: 'SUB_TA_BTN_MODIFY' })}*/}
-        {/*    </Button>*/}
-        {/*  )}*/}
-        {/*  {isEdit && (*/}
-        {/*    <Button*/}
-        {/*      onClick={this.onOk}*/}
-        {/*      type="primary"*/}
-        {/*      loading={subTaInfoLoadingFlag}*/}
-        {/*      disabled={hasSubTaWithEmail}*/}
-        {/*    >*/}
-        {/*      {formatMessage({ id: 'COMMON_OK' })}*/}
-        {/*    </Button>*/}
-        {/*  )}*/}
-        {/*</div>*/}
+        {/* <div className={styles.subTaEditBtn}> */}
+        {/*  <Button onClick={this.onClose} style={{ marginRight: 8 }}> */}
+        {/*    {formatMessage({ id: 'COMMON_CANCEL' })} */}
+        {/*  </Button> */}
+        {/*  {isDetail && ( */}
+        {/*    <Button onClick={this.goModify} type="primary"> */}
+        {/*      {formatMessage({ id: 'SUB_TA_BTN_MODIFY' })} */}
+        {/*    </Button> */}
+        {/*  )} */}
+        {/*  {isEdit && ( */}
+        {/*    <Button */}
+        {/*      onClick={this.onOk} */}
+        {/*      type="primary" */}
+        {/*      loading={subTaInfoLoadingFlag} */}
+        {/*      disabled={hasSubTaWithEmail} */}
+        {/*    > */}
+        {/*      {formatMessage({ id: 'COMMON_OK' })} */}
+        {/*    </Button> */}
+        {/*  )} */}
+        {/* </div> */}
       </Drawer>
     );
   }

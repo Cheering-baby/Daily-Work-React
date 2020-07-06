@@ -3,20 +3,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
-import {
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  Row,
-  Select,
-  Spin,
-  Table,
-  Tooltip,
-  Modal,
-} from 'antd';
+import { Button, Card, Col, Form, Row, Spin, Table, Tooltip, Modal } from 'antd';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
 import Invoice from './components/invoice';
@@ -25,7 +12,7 @@ import ARApply from './components/ARApply';
 import More from './components/More';
 import Approval from './components/Approval';
 import styles from './index.less';
-import SortSelect from '@/components/SortSelect';
+import Filter from './components/Filter';
 
 const ACTIVITY_STATUS = {
   Approved: '00',
@@ -104,35 +91,6 @@ class MyWallet extends React.PureComponent {
     }
   };
 
-  handleSearch = ev => {
-    ev.preventDefault();
-    const { dispatch, form } = this.props;
-    form.validateFields((err, values) => {
-      if (!err) {
-        dispatch({ type: 'myWallet/fetchAccountFlowList', payload: { filter: values } });
-      }
-    });
-  };
-
-  handleReset = () => {
-    const { dispatch, form } = this.props;
-    form.resetFields();
-    form.validateFields((err, values) => {
-      if (!err) {
-        dispatch({
-          type: 'myWallet/fetchAccountFlowList',
-          payload: {
-            filter: values,
-            pagination: {
-              currentPage: 1,
-              pageSize: 20,
-            },
-          },
-        });
-      }
-    });
-  };
-
   handleTableChange = page => {
     const { dispatch } = this.props;
     dispatch({
@@ -153,7 +111,6 @@ class MyWallet extends React.PureComponent {
   render() {
     const {
       loading,
-      form: { getFieldDecorator },
       myWallet: {
         dataSource = [],
         transactionTypes = [],
@@ -390,70 +347,7 @@ class MyWallet extends React.PureComponent {
           </Row>
         </Card>
         <Card>
-          <Form onSubmit={this.handleSearch}>
-            <Row type="flex" justify="space-around" gutter={24}>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
-                <Form.Item>
-                  {getFieldDecorator(`transactionId`, {
-                    rules: [
-                      {
-                        required: false,
-                        message: '',
-                      },
-                    ],
-                  })(<Input placeholder="PARTNERS Transaction No." allowClear />)}
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
-                <Form.Item>
-                  {getFieldDecorator(`transactionType`, {
-                    rules: [{ required: false, message: '' }],
-                  })(
-                    <SortSelect
-                      placeholder="Transaction Type"
-                      allowClear
-                      options={transactionTypes.map((item, index) => {
-                        return (
-                          // eslint-disable-next-line react/no-array-index-key
-                          <Select.Option value={item.value} key={`tr_options_${index}`}>
-                            {item.label}
-                          </Select.Option>
-                        );
-                      })}
-                    />
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
-                <Form.Item>
-                  {getFieldDecorator(`dateRange`, {
-                    rules: [{ required: false, message: '' }],
-                  })(
-                    <DatePicker.RangePicker
-                      format="DD-MMM-YYYY"
-                      allowClear
-                      disabledDate={current => current && current > moment().endOf('day')}
-                    />
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right' }}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ backgroundColor: '#1890FF', width: '73px', borderRadius: '4px' }}
-                >
-                  {formatMessage({ id: 'BTN_SEARCH' })}
-                </Button>
-                <Button
-                  style={{ marginLeft: 8, width: '66px', borderRadius: '4px' }}
-                  onClick={this.handleReset}
-                >
-                  {formatMessage({ id: 'BTN_RESET' })}
-                </Button>
-              </Col>
-            </Row>
-          </Form>
+          <Filter />
         </Card>
         <Card>
           <Spin spinning={loading}>

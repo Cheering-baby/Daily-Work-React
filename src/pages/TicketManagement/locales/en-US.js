@@ -72,6 +72,7 @@ export default {
   REQUIRED_TIP: 'Required',
   REMARK: 'Remark',
   REVALIDATION_VID: 'Revalidation VID',
+  REVALIDATION_VID_TITLE: 'REVALIDATION VID',
   RESUBMIT: 'Resubmit',
   REPRINT: 'Reprint',
   RECEIVED_AMOUNT: 'RECEIVED AMOUNT',

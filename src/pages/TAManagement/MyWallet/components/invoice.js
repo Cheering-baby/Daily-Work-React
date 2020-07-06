@@ -45,16 +45,7 @@ class Invoice extends React.PureComponent {
           const urlArray = result.split('?');
           const pointIndex = urlArray[0].lastIndexOf('.');
           const fileType = urlArray[0].substring(pointIndex + 1);
-          this.getBlob(result).then(blob => {
-            const blobUrl = window.URL.createObjectURL(blob);
-            const aElement = document.createElement('a');
-            document.body.appendChild(aElement);
-            aElement.style.display = 'none';
-            aElement.href = blobUrl;
-            aElement.download = 'invoice.' + fileType;
-            aElement.click();
-            document.body.removeChild(aElement);
-          });
+          this.downloadFile(result, fileType);
         } else {
           message.error('Download invoice error!');
         }
@@ -62,18 +53,30 @@ class Invoice extends React.PureComponent {
     });
   };
 
-  getBlob = url => {
-    return new Promise(resolve => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.responseType = 'blob';
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          resolve(xhr.response);
+  downloadFile = (url, fileType) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'blob';
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        // resolve(xhr.response);
+        const fileName = 'invoice.' + fileType;
+        const blob = xhr.response;
+        if (window.navigator.msSaveOrOpenBlob) {
+          navigator.msSaveBlob(blob, fileName);
+        } else {
+          const blobUrl = window.URL.createObjectURL(blob);
+          const aElement = document.createElement('a');
+          document.body.appendChild(aElement);
+          aElement.style.display = 'none';
+          aElement.href = blobUrl;
+          aElement.download = fileName;
+          aElement.click();
+          document.body.removeChild(aElement);
         }
-      };
-      xhr.send();
-    });
+      }
+    };
+    xhr.send();
   };
 
   render() {
@@ -95,6 +98,7 @@ class Invoice extends React.PureComponent {
       onCancel: this.handleCancel,
       footer: [
         <Button
+          key="download"
           type="primary"
           className={styles.downloadBtn}
           onClick={e => {
@@ -198,7 +202,6 @@ class Invoice extends React.PureComponent {
                           Line Description
                         </th>
                         <th
-                          colSpan={1}
                           className={`${styles['descriptions-table-item-label']} ${styles['descriptions-table-item-right']}`}
                         >
                           <div className={styles['descriptions-table-width']}>
@@ -226,10 +229,8 @@ class Invoice extends React.PureComponent {
                         </td>
                       </tr>
                       <tr>
-                        <td
-                          colSpan={2}
-                          className={`${styles['descriptions-table-item-content']} ${styles['descriptions-table-item-right']}`}
-                        >
+                        <td />
+                        <td className={styles['descriptions-table-item-content']}>
                           <div className={styles['descriptions-item-content-internal-label']}>
                             Total Amount Before GST
                           </div>

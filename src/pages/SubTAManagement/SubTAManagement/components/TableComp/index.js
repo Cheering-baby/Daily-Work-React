@@ -12,7 +12,11 @@ import styles from './index.less';
 import prohibit from '../../../../../assets/pams/prohibit.svg';
 import circleURL from '../../../../../assets/pams/circle.svg';
 import PaginationComp from '@/components/PaginationComp';
-import {hasAllPrivilege, MAIN_TA_ADMIN_PRIVILEGE, SALES_SUPPORT_PRIVILEGE} from '@/utils/PrivilegeUtil';
+import {
+  hasAllPrivilege,
+  MAIN_TA_ADMIN_PRIVILEGE,
+  SALES_SUPPORT_PRIVILEGE,
+} from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const {
@@ -37,8 +41,8 @@ const mapStateToProps = store => {
 
 @connect(mapStateToProps)
 class TableComp extends PureComponent {
-  getColumns = (isMainTaAdminRoleFlag) => {
-    const columns =  [
+  getColumns = isMainTaAdminRoleFlag => {
+    const columns = [
       {
         title: formatMessage({ id: 'SUB_TA_M_TABLE_NO' }),
         dataIndex: 'number',
@@ -110,14 +114,14 @@ class TableComp extends PureComponent {
                   onClick={e => this.goOperationInformation(e, record.subTaId, true, false)}
                 />
               </Tooltip>
-              {/*{isMainTaRoleFlag && (*/}
-              {/*  <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}>*/}
-              {/*    <Icon*/}
-              {/*      type="edit"*/}
-              {/*      onClick={e => this.goOperationInformation(e, record.subTaId, false, true)}*/}
-              {/*    />*/}
-              {/*  </Tooltip>*/}
-              {/*)}*/}
+              {/* {isMainTaRoleFlag && ( */}
+              {/*  <Tooltip placement="top" title={formatMessage({ id: 'COMMON_EDIT' })}> */}
+              {/*    <Icon */}
+              {/*      type="edit" */}
+              {/*      onClick={e => this.goOperationInformation(e, record.subTaId, false, true)} */}
+              {/*    /> */}
+              {/*  </Tooltip> */}
+              {/* )} */}
               <Tooltip placement="top" title={formatMessage({ id: 'SUB_TA_TABLE_HISTORY' })}>
                 <Icon type="file-text" onClick={e => this.onShowHisModal(e, record.subTaId)} />
               </Tooltip>
@@ -152,8 +156,10 @@ class TableComp extends PureComponent {
         },
       },
     ];
-    if(!isMainTaAdminRoleFlag){
-      return columns.filter(item => {return item.dataIndex !== 'statusName'});
+    if (!isMainTaAdminRoleFlag) {
+      return columns.filter(item => {
+        return item.dataIndex !== 'statusName';
+      });
     }
     return columns;
   };
@@ -231,6 +237,7 @@ class TableComp extends PureComponent {
     dispatch({
       type: 'subTAManagement/fetchQrySubTAList',
       payload: {
+        taCompanyId: searchForm.taCompanyId,
         companyName: searchForm.companyName,
         applyStartDate: searchForm.applyStartDate,
         applyEndDate: searchForm.applyEndDate,

@@ -21,8 +21,9 @@ export default {
   APPROVAL_MODEL_CONTENT: 'Your application is being approved,please wait patiently',
   AR_APPLY_STATUS: 'Apply',
   No_Account_Ar: 'No Account-AR',
-  TOPUP_AMOUNT_VALIDATE_MESSAGE: 'Please enter the valid topup amount.',
-  TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE: 'Topup amount must be between 0 and $21,474,836.',
+  TOPUP_AMOUNT_VALIDATE_MESSAGE: 'Please enter the valid top up amount. ',
+  TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE:
+    'Top up amount must be between $1 to $21,000,000 (rounded to the nearest dollar).',
   TOPUP_COMPLETED_TIPS: 'Have you completed the payment?',
   TOPUP_COMPLETED_TIPS_CANCEL_TEXT: 'Unfinished',
   TOPUP_COMPLETED_TIPS_OK_TEXT: 'Finished',
@@ -42,4 +43,8 @@ export default {
 
   MORE_BTN: 'More >',
   MORE_TITLE: 'DOWNLOAD',
+
+  'MyWallet.flow.filter.transactionId.placeholder': 'PARTNERS Transaction No.',
+  'MyWallet.flow.filter.transactionType.placeholder': 'Transaction Type',
+  'MyWallet.flow.filter.dateRange.placeholder': 'DateRange',
 };

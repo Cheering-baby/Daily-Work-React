@@ -23,7 +23,7 @@ import BreadcrumbComp from '@/components/BreadcrumbComp';
 import UploadContract from '@/pages/MyActivity/components/UploadContract';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
 import { isNvl } from '@/utils/utils';
-import SortSelect from "@/components/SortSelect";
+import SortSelect from '@/components/SortSelect';
 
 const { Option } = Select;
 
@@ -56,23 +56,22 @@ class MyActivity extends React.PureComponent {
     this.columns = [
       {
         title: 'No.',
-        width: '6%',
+        width: '30px',
         dataIndex: 'index',
         key: 'index',
         render: (text, record, index) => (index < 9 ? `0${index + 1}` : `${index + 1}`),
       },
       {
         title: formatMessage({ id: 'ACTIVITY_ID' }),
-        width: '11%',
+        width: '80px',
         dataIndex: 'activityId',
         sorter: (a, b) => (a.activityId > b.activityId ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
       },
       {
         title: formatMessage({ id: 'ACTIVITY_TYPE' }),
-        width: '16%',
+        width: '100px',
         dataIndex: 'activityTypeName',
-        sorter: (a, b) => (a.activityTypeName > b.activityTypeName ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
         render: text => {
           return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
@@ -80,7 +79,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'AGENT_ID' }),
-        width: '10%',
+        width: '70px',
         dataIndex: 'agentId',
         sorter: (a, b) => (a.agentId > b.agentId ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -93,7 +92,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'COMPANY_NAME' }),
-        width: '25%',
+        width: '140px',
         dataIndex: 'companyName',
         sorter: (a, b) => (a.companyName > b.companyName ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -103,7 +102,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'REMARKS' }),
-        width: '30%',
+        width: '160px',
         dataIndex: 'remarks',
         render: text => {
           return !isNvl(text) ? <Tooltip title={text}>{text}</Tooltip> : '-';
@@ -111,7 +110,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'CREATE_DATE' }),
-        width: '12%',
+        width: '80px',
         dataIndex: 'createTime',
         sorter: (a, b) => (a.createTime > b.createTime ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -128,7 +127,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'STATUS' }),
-        width: '16%',
+        width: '90px',
         dataIndex: 'status',
         sorter: (a, b) => (a.status > b.status ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
@@ -137,6 +136,7 @@ class MyActivity extends React.PureComponent {
           if (text === '02' || text === '03') flagClass = detailStyles.flagStyle1;
           if (text === '00') flagClass = detailStyles.flagStyle2;
           if (text === '01') flagClass = detailStyles.flagStyle3;
+          if (text === '04') flagClass = detailStyles.flagStyle4;
           return (
             <div>
               <span className={flagClass} />
@@ -147,7 +147,7 @@ class MyActivity extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'OPERATION' }),
-        width: '10%',
+        width: '60px',
         dataIndex: 'operation',
         render: (text, record) => {
           return (
@@ -374,7 +374,7 @@ class MyActivity extends React.PureComponent {
       },
     });
     if (type === 'eye') {
-      const feeId = record && record.content ? JSON.parse(record.content).feeId : ''
+      const feeId = record && record.content ? JSON.parse(record.content).feeId : '';
       dispatch({
         type: 'activityDetail/save',
         payload: {
@@ -383,10 +383,10 @@ class MyActivity extends React.PureComponent {
       });
       router.push({
         pathname: `/MyActivity/${record.activityId}`,
-        query: { feeId: feeId, activityTypeName: record.activityTypeName },
+        query: { feeId, activityTypeName: record.activityTypeName },
       });
     } else if (type === 'audit') {
-      const feeId = record && record.content ? JSON.parse(record.content).feeId : ''
+      const feeId = record && record.content ? JSON.parse(record.content).feeId : '';
       dispatch({
         type: 'activityDetail/save',
         payload: {
@@ -395,7 +395,7 @@ class MyActivity extends React.PureComponent {
       });
       router.push({
         pathname: `/MyActivity/${record.activityId}`,
-        query: { feeId: feeId },
+        query: { feeId },
       });
     } else if (type === 'upload') {
       this.uploadProps = {
@@ -598,7 +598,6 @@ class MyActivity extends React.PureComponent {
     const tableOpts = {
       size: 'small',
       bordered: false,
-      scroll: { x: 750 },
     };
     return (
       <Row type="flex" justify="space-around" id="myActivity">
@@ -753,7 +752,6 @@ class MyActivity extends React.PureComponent {
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
             <Table
-              {...tableOpts}
               rowKey={record => `activityList${record.activityId}`}
               bordered={false}
               size="small"
@@ -763,7 +761,8 @@ class MyActivity extends React.PureComponent {
               columns={this.columns}
               className={detailStyles.tableStyle}
               onChange={this.handleTableChange}
-              scroll={{ x: 660, y: this.getTableHeight() }}
+              scroll={{ x: 1200, y: this.getTableHeight() }}
+              {...tableOpts}
             />
           </Card>
         </Col>

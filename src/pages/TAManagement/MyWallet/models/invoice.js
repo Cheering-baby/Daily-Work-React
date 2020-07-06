@@ -98,7 +98,7 @@ const InvoiceModel = {
               Total_Amount: flow.charge.toFixed(2),
               Line_Description: `${
                 mappingInfo.peoplesoftEwalletId
-              }-Top up prepayment \nfor ${moment(flow.createTime)
+              } - Top up prepayment for ${moment(flow.createTime)
                 .format('MMM YYYY')
                 .toString()}`,
               internal: {
