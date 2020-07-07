@@ -23,7 +23,6 @@ class AccountInformationToSubTa extends PureComponent {
       subTaInfo = {},
       countryList = [],
       onHandleChange,
-      detailOpt,
       viewId,
       hasSubTaWithEmail,
     } = this.props;
@@ -40,9 +39,7 @@ class AccountInformationToSubTa extends PureComponent {
             <Card title={formatMessage({ id: 'SUB_TA_ACCOUNT_INFORMATION' })}>
               <Row {...rowLayOut}>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })}>
                     {getFieldDecorator('mainCompanyName', {
                       initialValue: subTaInfo.mainCompanyName || null,
                       rules: [
@@ -65,9 +62,7 @@ class AccountInformationToSubTa extends PureComponent {
               </Row>
               <Row {...rowLayOut}>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_FULL_NAME' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_FULL_NAME' })}>
                     {getFieldDecorator('fullName', {
                       initialValue: subTaInfo.fullName || null,
                       rules: [
@@ -85,9 +80,7 @@ class AccountInformationToSubTa extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_EMAIL' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_EMAIL' })}>
                     {getFieldDecorator('email', {
                       initialValue: subTaInfo.email || null,
                       rules: [
@@ -105,9 +98,7 @@ class AccountInformationToSubTa extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}>
                     {getFieldDecorator('companyName', {
                       initialValue: subTaInfo.companyName || null,
                       rules: [
@@ -131,10 +122,7 @@ class AccountInformationToSubTa extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}
-
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}>
                     {getFieldDecorator('country', {
                       initialValue: subTaInfo.country || [],
                       rules: [
@@ -158,16 +146,14 @@ class AccountInformationToSubTa extends PureComponent {
                             >
                               {item.dictName}
                             </Select.Option>
-                          ))
+                            ))
                           : null}
                       </Select>
                     )}
                   </Form.Item>
                 </Col>
                 <Col {...addressLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}>
                     {getFieldDecorator('address', {
                       initialValue: subTaInfo.address || null,
                       rules: [

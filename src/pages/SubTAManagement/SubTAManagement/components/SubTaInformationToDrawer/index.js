@@ -150,11 +150,11 @@ class SubTaInformationToDrawer extends PureComponent {
     return (
       <Drawer
         id="subTaDrawerView"
-        title={showTitle}
+        title={<div className={styles.title}>{showTitle}</div>}
         className={styles.subTaDrawer}
         onClose={this.onClose}
         visible={operationVisible}
-        bodyStyle={{ padding: '8px' }}
+        bodyStyle={{ padding: '8px 24px' }}
       >
         <Row type="flex" justify="space-around">
           <Col span={24}>

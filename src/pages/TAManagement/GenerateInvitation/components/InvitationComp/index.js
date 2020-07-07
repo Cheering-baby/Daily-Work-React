@@ -136,11 +136,12 @@ class InvitationComp extends PureComponent {
     return (
       <div>
         <Drawer
-          title={formatMessage({ id: 'GI_BTN_INVITATION' })}
+          title={<div className={styles.title}>{formatMessage({ id: 'GI_BTN_INVITATION' })}</div>}
           className={styles.userPerspectiveDrawer}
           visible={invitationVisible}
           onClose={this.onClose}
-          bodyStyle={{ padding: '8px' }}
+          maskClosable={false}
+          bodyStyle={{ padding: ' 8px 24px' }}
         >
           <Row type="flex" justify="space-around">
             <Col span={24}>
@@ -182,6 +183,7 @@ class InvitationComp extends PureComponent {
           <Row type="flex" justify="space-around">
             <Col span={24}>
               <Card
+                style={{ margin: '0 -10px' }}
                 title={
                   <span className={styles.userPerspectiveTitle}>
                     {formatMessage({ id: 'GI_USER_PERSPECTIVE' })}

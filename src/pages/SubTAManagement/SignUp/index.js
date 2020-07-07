@@ -146,6 +146,11 @@ class SignUp extends PureComponent {
         payload: {
           email: keyValue,
         },
+      }).then(res => {
+        if (res) {
+          const { country, address, fullName, companyName } = res;
+          form.setFieldsValue({ country, address, fullName, companyName });
+        }
       });
     }
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));

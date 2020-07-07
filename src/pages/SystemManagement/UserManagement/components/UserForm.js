@@ -508,7 +508,7 @@ class Index extends React.PureComponent {
                 PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
                 PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
               ]) && type === 'NEW' ? (
-                <Col {...colLayOut}>
+                <Col {...colLayOut} style={{ minHeight: '75px' }}>
                   <Form.Item label={formatMessage({ id: 'SUB_COMPANY_NAME' })}>
                     {getFieldDecorator(`subCompanyId`, {
                       initialValue: type === 'NEW' ? undefined : String(subCompanyId),

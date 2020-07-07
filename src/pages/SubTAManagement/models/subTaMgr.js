@@ -113,16 +113,7 @@ export default {
       return false;
     },
     *fetchQrySubTaInfoWithEmail({ payload }, { call, put, select }) {
-      if (isNvl(payload.email)) {
-        yield put({
-          type: 'save',
-          payload: {
-            hasSubTaWithEmail: false,
-          },
-        });
-        return false;
-      }
-      const { subTaInfo } = yield select(state => state.subTaMgr);
+      const { hasSubTaWithEmail, subTaInfo } = yield select(state => state.subTaMgr);
       const {
         data: { resultCode, resultMsg, result },
       } = yield call(service.querySubTaInfoWithEmail, { ...payload });
@@ -141,15 +132,15 @@ export default {
               hasSubTaWithEmail: !isNvl(result),
             },
           });
-        } else {
-          yield put({
-            type: 'save',
-            payload: {
-              hasSubTaWithEmail: !isNvl(result),
-            },
-          });
+          return result;
         }
-        return true;
+        yield put({
+          type: 'save',
+          payload: {
+            hasSubTaWithEmail: !isNvl(result),
+          },
+        });
+        return hasSubTaWithEmail ? {} : false;
       }
       message.warn(resultMsg, 10);
       return false;
