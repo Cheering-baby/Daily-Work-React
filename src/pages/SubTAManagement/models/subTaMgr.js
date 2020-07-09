@@ -114,6 +114,16 @@ export default {
     },
     *fetchQrySubTaInfoWithEmail({ payload }, { call, put, select }) {
       const { hasSubTaWithEmail, subTaInfo } = yield select(state => state.subTaMgr);
+      if (isNvl(payload.email)) {
+        const returnDate = hasSubTaWithEmail ? {} : false;
+        yield put({
+          type: 'save',
+          payload: {
+            hasSubTaWithEmail: false,
+          },
+        });
+        return returnDate;
+      }
       const {
         data: { resultCode, resultMsg, result },
       } = yield call(service.querySubTaInfoWithEmail, { ...payload });
