@@ -1,27 +1,21 @@
 import React, { PureComponent } from 'react';
-import { Button, Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
+import {Button, Col, DatePicker, Form, Input, Row, Select, Spin} from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import { isNvl } from '@/utils/utils';
 import styles from './index.less';
 import { getFormKeyValue } from '@/pages/SubTAManagement/utils/pubUtils';
-import SortSelect from '@/components/SortSelect';
+import SortSelect from "@/components/SortSelect";
 
 const mapStateToProps = store => {
-  const {
-    searchForm,
-    searchList,
-    qrySubTaTableLoading,
-    viewId,
-    companyList,
-  } = store.subTAManagement;
+  const { searchForm, searchList, qrySubTaTableLoading, viewId, companyList } = store.subTAManagement;
   return {
     searchForm,
     searchList,
     qrySubTaTableLoading,
     viewId,
-    companyList,
+    companyList
   };
 };
 
@@ -183,15 +177,7 @@ class SearchComp extends PureComponent {
           </Col>
         </Row>
         <Row>
-          <Col
-            xs={24}
-            sm={12}
-            md={12}
-            lg={6}
-            xl={6}
-            xxl={6}
-            className={styles.subTaMSearchCompBtnCol}
-          >
+          <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.subTaMSearchCompBtnCol}>
             <Button
               type="primary"
               style={{ marginRight: 8 }}

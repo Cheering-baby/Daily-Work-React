@@ -548,10 +548,7 @@ class QueryOrder extends Component {
             status,
           },
         });
-      } else if (
-        transType === 'revalidation' &&
-        (status === 'Confirmed' || status === 'Complete')
-      ) {
+      } else if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
         dispatch({
           type: 'updateOrderMgr/save',
           payload: {
@@ -598,7 +595,7 @@ class QueryOrder extends Component {
           bookingNo,
         },
       });
-      if (productInstances.length > 0) {
+      if(productInstances.length > 0){
         dispatch({
           type: 'orderDetailMgr/queryVid',
           payload: {

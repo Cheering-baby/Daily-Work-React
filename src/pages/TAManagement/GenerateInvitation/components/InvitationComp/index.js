@@ -168,9 +168,9 @@ class InvitationComp extends PureComponent {
                       options={
                         emailList && emailList.length > 0
                           ? emailList.map(item => (
-                            <Select.Option key={`${item.key}`} value={`${item.email}`}>
-                              {`${item.email}`}
-                            </Select.Option>
+                              <Select.Option key={`${item.key}`} value={`${item.email}`}>
+                                {`${item.email}`}
+                              </Select.Option>
                             ))
                           : null
                       }
@@ -183,7 +183,7 @@ class InvitationComp extends PureComponent {
           <Row type="flex" justify="space-around">
             <Col span={24}>
               <Card
-                style={{ margin: '0 -10px' }}
+                style={{margin: '0 -10px'}}
                 title={
                   <span className={styles.userPerspectiveTitle}>
                     {formatMessage({ id: 'GI_USER_PERSPECTIVE' })}

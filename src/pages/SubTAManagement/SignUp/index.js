@@ -225,31 +225,31 @@ class SignUp extends PureComponent {
         actions={
           String(currentStep) === '0'
             ? [
-              <Row
-                type="flex"
-                justify="space-around"
-                className={styles.subTaInformationButtonRow}
-              >
-                <Col span={24}>
-                  <Button
-                    htmlType="button"
-                    className={styles.subTaInformationButton}
-                    loading={subTaInfoLoadingFlag}
-                    onClick={e => this.giveUpRegister(e)}
-                  >
-                    {formatMessage({ id: 'COMMON_CANCEL' })}
-                  </Button>
-                  <Button
-                    htmlType="button"
-                    type="primary"
-                    className={styles.subTaInformationButton}
-                    loading={subTaInfoLoadingFlag}
-                    onClick={this.onHandleSubmit}
-                  >
-                    {formatMessage({ id: 'COMMON_OK' })}
-                  </Button>
-                </Col>
-              </Row>,
+                <Row
+                  type="flex"
+                  justify="space-around"
+                  className={styles.subTaInformationButtonRow}
+                >
+                  <Col span={24}>
+                    <Button
+                      htmlType="button"
+                      className={styles.subTaInformationButton}
+                      loading={subTaInfoLoadingFlag}
+                      onClick={e => this.giveUpRegister(e)}
+                    >
+                      {formatMessage({ id: 'COMMON_CANCEL' })}
+                    </Button>
+                    <Button
+                      htmlType="button"
+                      type="primary"
+                      className={styles.subTaInformationButton}
+                      loading={subTaInfoLoadingFlag}
+                      onClick={this.onHandleSubmit}
+                    >
+                      {formatMessage({ id: 'COMMON_OK' })}
+                    </Button>
+                  </Col>
+                </Row>,
               ]
             : []
         }

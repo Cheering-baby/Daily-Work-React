@@ -1,8 +1,8 @@
 import { message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import * as service from '../services/subTAManagement';
-import PrivilegeUtil from '@/utils/PrivilegeUtil';
-import constants from '@/pages/SystemManagement/UserManagement/constants';
+import PrivilegeUtil from "@/utils/PrivilegeUtil";
+import constants from "@/pages/SystemManagement/UserManagement/constants";
 
 export default {
   namespace: 'subTAManagement',

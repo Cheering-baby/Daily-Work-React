@@ -159,31 +159,7 @@ class SubTaInformationToDrawer extends PureComponent {
         <Row type="flex" justify="space-around">
           <Col span={24}>
             <Spin spinning={subTaInfoLoadingFlag}>
-              {/* {isEdit && !isDetail && ( */}
-              {/*  <AccountInformationToSubTaWithDrawer */}
-              {/*    wrappedComponentRef={ref => { */}
-              {/*      this.editRef = ref; */}
-              {/*    }} */}
-              {/*    subTaInfo={subTaInfo || {}} */}
-              {/*    countryList={countryList || []} */}
-              {/*    onHandleChange={this.onHandleChange} */}
-              {/*    detailOpt={{ */}
-              {/*      formItemLayout: { */}
-              {/*        labelCol: { span: 24 }, */}
-              {/*        wrapperCol: { span: 24 }, */}
-              {/*      }, */}
-              {/*      formItemRowLayout: { */}
-              {/*        labelCol: { span: 24 }, */}
-              {/*        wrapperCol: { span: 24 }, */}
-              {/*      }, */}
-              {/*      formItemLongLayout: { */}
-              {/*        labelCol: { span: 24 }, */}
-              {/*        wrapperCol: { span: 24 }, */}
-              {/*      }, */}
-              {/*    }} */}
-              {/*    viewId="subTaDrawerView" */}
-              {/*  /> */}
-              {/* )} */}
+
               {!isEdit && isDetail && (
                 <SubTaDetailComp subTaInfo={subTaInfo || {}} countryList={countryList || []} />
               )}

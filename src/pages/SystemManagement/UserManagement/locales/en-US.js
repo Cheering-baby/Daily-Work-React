@@ -38,7 +38,7 @@ export default {
   COMMISSION_MONTH: 'Month',
   COMMON_GRANT: 'Grant',
   NEW_GRANT: 'GRANT',
-  NEW_GRANT_OFFER: 'GRANT Offer',
+  NEW_GRANT_OFFER: 'Grant Offer',
   GRANT_OFFER: 'Grant offer&commison for Hong Tai ',
   OFFER_NAME: 'Offer Name',
   OFFER_IDENTIFIER: 'Offer Identifier',

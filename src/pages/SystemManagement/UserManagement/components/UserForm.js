@@ -266,7 +266,7 @@ class Index extends React.PureComponent {
     if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE])) {
       flag = true;
     }
-
+    
     if (flag && value) {
       dispatch({
         type: 'userMgr/checkHasMasterUser',
@@ -508,7 +508,7 @@ class Index extends React.PureComponent {
                 PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
                 PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
               ]) && type === 'NEW' ? (
-                <Col {...colLayOut} style={{ minHeight: '75px' }}>
+                <Col {...colLayOut} style={{minHeight: '75px'}}>
                   <Form.Item label={formatMessage({ id: 'SUB_COMPANY_NAME' })}>
                     {getFieldDecorator(`subCompanyId`, {
                       initialValue: type === 'NEW' ? undefined : String(subCompanyId),

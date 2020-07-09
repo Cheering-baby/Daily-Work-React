@@ -217,12 +217,12 @@ class ConstraintComp extends PureComponent {
                         options={
                           marketList && marketList.length > 0
                             ? marketList.map(item => (
-                              <Select.Option
-                                key={`marketList${item.dictId}`}
-                                value={`${item.dictId}`}
-                              >
-                                {item.dictName}
-                              </Select.Option>
+                                <Select.Option
+                                  key={`marketList${item.dictId}`}
+                                  value={`${item.dictId}`}
+                                >
+                                  {item.dictName}
+                                </Select.Option>
                               ))
                             : null
                         }
@@ -320,12 +320,12 @@ class ConstraintComp extends PureComponent {
                         options={
                           salesPersonList && salesPersonList.length > 0
                             ? salesPersonList.map(item => (
-                              <Select.Option
-                                key={`salesPersonList${item.userCode}`}
-                                value={`${item.userCode}`}
-                              >
-                                {item.userCode}
-                              </Select.Option>
+                                <Select.Option
+                                  key={`salesPersonList${item.userCode}`}
+                                  value={`${item.userCode}`}
+                                >
+                                  {item.userCode}
+                                </Select.Option>
                               ))
                             : null
                         }
@@ -359,12 +359,12 @@ class ConstraintComp extends PureComponent {
                             options={
                               categoryList && categoryList.length > 0
                                 ? categoryList.map(item => (
-                                  <Select.Option
-                                    key={`categoryList${item.dictId}`}
-                                    value={`${item.dictId}`}
-                                  >
-                                    {item.dictName}
-                                  </Select.Option>
+                                    <Select.Option
+                                      key={`categoryList${item.dictId}`}
+                                      value={`${item.dictId}`}
+                                    >
+                                      {item.dictName}
+                                    </Select.Option>
                                   ))
                                 : null
                             }
@@ -392,12 +392,12 @@ class ConstraintComp extends PureComponent {
                             options={
                               customerGroupList && customerGroupList.length > 0
                                 ? customerGroupList.map(item => (
-                                  <Select.Option
-                                    key={`customerGroupList${item.dictId}`}
-                                    value={`${item.dictId}`}
-                                  >
-                                    {item.dictName}
-                                  </Select.Option>
+                                    <Select.Option
+                                      key={`customerGroupList${item.dictId}`}
+                                      value={`${item.dictId}`}
+                                    >
+                                      {item.dictName}
+                                    </Select.Option>
                                   ))
                                 : null
                             }
