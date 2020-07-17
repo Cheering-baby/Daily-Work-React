@@ -488,7 +488,7 @@ class OrderPay extends Component {
                     <Row className={styles.priceCol3}>
                       <Col span={16}>
                         <span className={styles.priceKeySpan}>
-                          Total Amount Payable (After SGD):
+                          Total Amount Payable (After GST):
                         </span>
                       </Col>
                       <Col span={8}>

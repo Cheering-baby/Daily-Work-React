@@ -66,36 +66,41 @@ export function isSessionProduct(priceRuleId, product) {
 }
 
 export function calculateProductPrice(product, selectRuleId, session) {
-  const { priceRule = [], productType, special = [], needChoiceCount } = product;
+  const { priceRule = [], needChoiceCount } = product;
   const ruleId = selectRuleId || null;
   let { productPrice } = priceRule.find(({ priceRuleId }) => priceRuleId === ruleId);
   let price = 0;
-
-  if (productType === 'Hotel') {
-    const specialPriceArray = special.map(({ servicePriceValue }) => servicePriceValue);
-    const specialTotalPrice =
-      specialPriceArray.length > 0
-        ? specialPriceArray.reduce((a, b) => parseFloat(a) + parseFloat(b))
-        : 0;
-    const hotelPrice = productPrice.map(
-      ({ discountUnitPrice }) => parseFloat(discountUnitPrice) + parseFloat(specialTotalPrice)
-    );
-    price +=
-      hotelPrice.length === 0 ? 0 : hotelPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
-  } else if (productType === 'Attraction') {
-    if (session && isSessionProduct(selectRuleId, product)) {
-      productPrice = productPrice.filter(({ priceTimeFrom }) => priceTimeFrom === session);
-    }
-    const priceArray = productPrice.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
-    const attractionPrice = priceArray.map(
-      ({ perPiece, discountUnitPrice }) =>
-        parseFloat(perPiece || needChoiceCount) * parseFloat(discountUnitPrice)
-    );
-    price +=
-      attractionPrice.length === 0
-        ? 0
-        : attractionPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
+  if (session && isSessionProduct(selectRuleId, product)) {
+    productPrice = productPrice.filter(({ priceTimeFrom }) => priceTimeFrom === session);
   }
+  const priceArray = productPrice.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
+  const attractionPrice = priceArray.map(
+    ({ perPiece, discountUnitPrice }) =>
+      parseFloat(perPiece || needChoiceCount) * parseFloat(discountUnitPrice)
+  );
+  price +=
+    attractionPrice.length === 0
+      ? 0
+      : attractionPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
+  return price;
+}
+
+export function calculateProductPriceGst(product, selectRuleId, session) {
+  const { priceRule = [], needChoiceCount } = product;
+  const ruleId = selectRuleId || null;
+  let { productPrice } = priceRule.find(({ priceRuleId }) => priceRuleId === ruleId);
+  let price = 0;
+  if (session && isSessionProduct(selectRuleId, product)) {
+    productPrice = productPrice.filter(({ priceTimeFrom }) => priceTimeFrom === session);
+  }
+  const priceArray = productPrice.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
+  const attractionPrice = priceArray.map(
+    ({ perPiece, gstAmount }) => parseFloat(perPiece || needChoiceCount) * parseFloat(gstAmount)
+  );
+  price +=
+    attractionPrice.length === 0
+      ? 0
+      : attractionPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
   return price;
 }
 
@@ -130,6 +135,50 @@ export function calculateAllProductPrice(products = [], selectRuleId, session, d
             item2.products.forEach(itemProduct => {
               if (itemProduct.attractionProduct.voucherQtyType === 'By Package' && isFixedOffer) {
                 price += calculateProductPrice(itemProduct, itemProduct.priceRule[1].priceRuleId);
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+  return price.toFixed(2);
+}
+
+export function calculateAllProductPriceGst(products = [], selectRuleId, session, detail) {
+  let price = 0;
+  products.forEach(item => {
+    const { sessionTime } = item;
+    if (isSessionProduct(selectRuleId, item)) {
+      price += calculateProductPriceGst(item, selectRuleId, sessionTime || session);
+    } else if (isSessionProduct(selectRuleId, item)) {
+      const { priceRule, needChoiceCount } = item;
+      const filterPriceRule = priceRule.filter(({ priceRuleId }) => priceRuleId === selectRuleId);
+      const { productPrice } = filterPriceRule[0];
+      const { priceTimeFrom } = productPrice.find(
+        ({ productInventory }) => productInventory / needChoiceCount >= 1
+      );
+      price += calculateProductPriceGst(item, selectRuleId, priceTimeFrom);
+    } else {
+      price += calculateProductPriceGst(item, selectRuleId);
+    }
+  });
+  if (detail) {
+    let isFixedOffer = false;
+    const { productGroup = [] } = detail;
+    productGroup.forEach(item => {
+      if (item.productType === 'Attraction') {
+        item.productGroup.forEach(item2 => {
+          if (item2.groupName === 'Attraction' && item2.choiceConstrain === 'Fixed') {
+            isFixedOffer = true;
+          }
+          if (item2.groupName === 'Voucher') {
+            item2.products.forEach(itemProduct => {
+              if (itemProduct.attractionProduct.voucherQtyType === 'By Package' && isFixedOffer) {
+                price += calculateProductPriceGst(
+                  itemProduct,
+                  itemProduct.priceRule[1].priceRuleId
+                );
               }
             });
           }

@@ -19,10 +19,10 @@ import {
 import {
   checkInventory,
   checkNumOfGuestsAvailable,
-  multiplePromise,
+  dealSessionArr,
   filterSessionProduct,
   findArrSame,
-  dealSessionArr,
+  multiplePromise,
 } from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
@@ -55,6 +55,7 @@ export default {
     mainPageLoading: false,
     onceAPirateLoading: false,
     functionActive: true,
+    ticketConfig: [],
   },
 
   effects: {
@@ -676,7 +677,17 @@ export default {
                     } = itemOffer;
                     offerSessions.push(productSessions);
                   });
-                  const OfferSessionArr = dealSessionArr(offerSessions);
+                  let OfferSessionArr = [];
+                  offerSessions.forEach(itemProductSession => {
+                    itemProductSession.forEach(itemSession => {
+                      if (OfferSessionArr.indexOf(itemSession) === -1) {
+                        OfferSessionArr.push(itemSession);
+                      }
+                    });
+                  });
+                  if (OfferSessionArr.length > 1 && OfferSessionArr.indexOf(null) !== -1) {
+                    OfferSessionArr = OfferSessionArr.filter(session => session !== null);
+                  }
                   bundleArr.push({
                     bundleName: itemProduct.bundleName,
                     bundleDetail: itemProduct,
@@ -688,24 +699,54 @@ export default {
                 const searchIndex = category.products.findIndex(
                   item => item.bundleName === bundleArrItem.bundleName
                 );
+                let firstOffers = [];
+                if (bundleArrItem.OfferSessionArr.length === 0) {
+                  category.products.splice(searchIndex, 1);
+                }
                 bundleArrItem.OfferSessionArr.forEach(
                   (OfferSessionArrItem, OfferSessionArrItemIndex) => {
                     if (OfferSessionArrItemIndex === 0) {
-                      category.products[searchIndex].offers.forEach(
-                        (offersItem, offersItemIndex) => {
-                          offersItem.sessionTime = OfferSessionArrItem[offersItemIndex];
+                      const newOffers = [];
+                      firstOffers = JSON.parse(
+                        JSON.stringify(category.products[searchIndex].offers)
+                      );
+                      category.products[searchIndex].offers.forEach(offersItem => {
+                        const {
+                          detail: { productSessions = [] },
+                        } = offersItem;
+                        if (
+                          productSessions.indexOf(OfferSessionArrItem) === -1 &&
+                          productSessions.indexOf(null) !== -1
+                        ) {
+                          offersItem.sessionTime = null;
+                          newOffers.push({ ...offersItem });
+                        } else if (productSessions.indexOf(OfferSessionArrItem) !== -1) {
+                          offersItem.sessionTime = OfferSessionArrItem;
+                          newOffers.push({ ...offersItem });
                         }
-                      );
+                      });
+                      category.products[searchIndex].offers = newOffers;
                     } else {
-                      const offerCopy = category.products[searchIndex].offers.map(
-                        (offersItem, offersItemIndex) => ({
-                          ...offersItem,
-                          sessionTime: OfferSessionArrItem[offersItemIndex],
-                        })
-                      );
+                      const newOffers = [];
+                      firstOffers.forEach(offersItem => {
+                        const {
+                          detail: { productSessions = [] },
+                        } = offersItem;
+                        let sessionTime;
+                        if (
+                          productSessions.indexOf(OfferSessionArrItem) === -1 &&
+                          productSessions.indexOf(null) !== -1
+                        ) {
+                          sessionTime = null;
+                          newOffers.push({ ...offersItem, sessionTime });
+                        } else if (productSessions.indexOf(OfferSessionArrItem) !== -1) {
+                          sessionTime = OfferSessionArrItem;
+                          newOffers.push({ ...offersItem, sessionTime });
+                        }
+                      });
                       category.products.splice(searchIndex + 1, 0, {
                         ...bundleArrItem.bundleDetail,
-                        offers: offerCopy,
+                        offers: newOffers,
                         id: OfferSessionArrItem[0],
                       });
                     }
@@ -801,6 +842,19 @@ export default {
       } else throw resultMsg;
     },
 
+    *queryTicketConfig(_, { call, put }) {
+      const response = yield call(queryPluAttribute, { attributeItem: 'TICKET_BOOKING_CONFIG' });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        yield put({ type: 'save', payload: { ticketConfig: result.items } });
+      } else {
+        message.error(resultMsg);
+      }
+    },
+
     *effectSave({ payload }, { put }) {
       yield put({
         type: 'save',
@@ -886,6 +940,7 @@ export default {
         mainPageLoading: false,
         onceAPirateLoading: false,
         functionActive: true,
+        ticketConfig: [],
         ...payload,
       };
     },

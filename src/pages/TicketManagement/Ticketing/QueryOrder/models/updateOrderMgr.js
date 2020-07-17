@@ -43,20 +43,25 @@ export default {
         } else if (refundSelected === 'Reject') {
           response = yield call(reject, { activityId, reason: rejectReason.trim() });
         }
-      } else if(updateType === 'Revalidation') {
-        if(revalidationSelected === 'Complete') {
+      } else if (updateType === 'Revalidation') {
+        if (revalidationSelected === 'Complete') {
           if (status === 'Confirmed') {
             response = yield call(accept, { activityId, remarks: galaxyOrderNo });
           } else if (status === 'Complete') {
-            response = yield call(secondUpdate, { orderNo: bookingNo, galaxyNo: galaxyOrderNo });
+            response = yield call(secondUpdate, {
+              orderNo: bookingNo,
+              galaxyNo: galaxyOrderNo === null ? '' : galaxyOrderNo,
+            });
             if (!response) return false;
-            const { data: { resultCode, resultMsg }, } = response;
-            if(resultCode !== '0'){
+            const {
+              data: { resultCode, resultMsg },
+            } = response;
+            if (resultCode !== '0') {
               message.error(resultMsg);
             }
             return resultCode;
           }
-        } else if(revalidationSelected === 'Reject') {
+        } else if (revalidationSelected === 'Reject') {
           response = yield call(reject, { activityId, reason: revalidationRejectReason.trim() });
         }
       }

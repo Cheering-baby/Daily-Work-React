@@ -48,6 +48,12 @@ class CreateOrder extends PureComponent {
       },
     });
     dispatch({
+      type: 'ticketMgr/queryTicketConfig',
+      payload: {
+        attributeItem: 'TICKET_TYPE',
+      },
+    });
+    dispatch({
       type: 'ticketMgr/queryOfferBookingCategory',
       payload: {},
     });

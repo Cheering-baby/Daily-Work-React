@@ -63,7 +63,7 @@ class SendETicket extends React.Component {
   emailChange = value => {
     const { dispatch, form } = this.props;
     // eslint-disable-next-line no-useless-escape
-    const emailCorrect = !/^[A-Za-zd0-9]+([-_.][A-Za-zd]+)*@([A-Za-zd]+[-.])+[A-Za-zd]{2,5}$/.test(
+    const emailCorrect = !/^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/.test(
       value
     );
     dispatch({

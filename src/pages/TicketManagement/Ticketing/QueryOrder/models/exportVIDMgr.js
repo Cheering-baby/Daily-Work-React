@@ -151,45 +151,43 @@ export default {
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
-              const packageThemeparkList = [];
-              itemPluList.forEach(itemPlu => {
-                if (itemPlu.ticketType !== 'Voucher' && itemPlu.themeParkCode) {
-                  const themeParkIndex = packageThemeparkList.findIndex(
-                    item => item === itemPlu.themeParkCode
-                  );
-                  if (themeParkIndex < 0) {
-                    packageThemeparkList.push(itemPlu.themeParkCode);
-                  }
-                }
-              });
-              itemPluList.forEach(itemPlu => {
-                if (itemPlu.ticketType === 'Voucher' || packageThemeparkList.length < 2) {
-                  vidList.push({
-                    key: null,
-                    vidNo: null,
-                    checked: false,
-                    vidCode: itemPlu.visualId,
-                    offerName: offers[i].offerName,
-                    offerGroup: offers[i].offerGroup,
-                    themePark: itemPlu.themeParkCode,
-                    expiryDate: attraction[j].validDayTo,
-                    status: attraction[j].visualIdStatus,
-                    hadRefunded: attraction[j].hadRefunded,
-                  });
-                }
-              });
-              if (packageThemeparkList.length > 1) {
+              if (attraction[j].ticketType === 'MPP') {
                 vidList.push({
                   key: null,
                   vidNo: null,
                   checked: false,
                   vidCode: attraction[j].visualID,
                   offerName: offers[i].offerName,
-                  offerGroup: offers[i].offerGroup,
                   themePark: attraction[j].themePark,
-                  expiryDate: attraction[j].validDayTo,
                   status: attraction[j].visualIdStatus,
                   hadRefunded: attraction[j].hadRefunded,
+                });
+                itemPluList.forEach(itemPlu => {
+                  if (itemPlu.ticketType === 'Voucher') {
+                    vidList.push({
+                      key: null,
+                      vidNo: null,
+                      checked: false,
+                      vidCode: itemPlu.visualId,
+                      offerName: offers[i].offerName,
+                      themePark: itemPlu.themeParkCode,
+                      status: attraction[j].visualIdStatus,
+                      hadRefunded: attraction[j].hadRefunded,
+                    });
+                  }
+                });
+              } else {
+                itemPluList.forEach(itemPlu => {
+                  vidList.push({
+                    key: null,
+                    vidNo: null,
+                    checked: false,
+                    vidCode: itemPlu.visualId,
+                    offerName: offers[i].offerName,
+                    themePark: itemPlu.themeParkCode,
+                    status: attraction[j].visualIdStatus,
+                    hadRefunded: attraction[j].hadRefunded,
+                  });
                 });
               }
             } else {
@@ -199,9 +197,7 @@ export default {
                 checked: false,
                 vidCode: attraction[j].visualID,
                 offerName: offers[i].offerName,
-                offerGroup: offers[i].offerGroup,
                 themePark: attraction[j].themePark,
-                expiryDate: attraction[j].validDayTo,
                 status: attraction[j].visualIdStatus,
                 hadRefunded: attraction[j].hadRefunded,
               });

@@ -341,7 +341,7 @@ class QueryOrder extends Component {
         dataIndex: 'totalAmount',
         render: text => {
           if (text !== null) {
-            return `${Number(text).toFixed(2)}(SGD)`;
+            return `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}(SGD)`;
           }
           return '';
         },
@@ -548,7 +548,10 @@ class QueryOrder extends Component {
             status,
           },
         });
-      } else if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
+      } else if (
+        transType === 'revalidation' &&
+        (status === 'Confirmed' || status === 'Complete')
+      ) {
         dispatch({
           type: 'updateOrderMgr/save',
           payload: {
@@ -580,13 +583,13 @@ class QueryOrder extends Component {
   openDetailDrawer = selectedBookings => {
     const { dispatch } = this.props;
     if (selectedBookings.length === 1) {
-      const { bookingNo, productInstances = [] } = selectedBookings[0];
+      const { bookingNo, productInstances = [], transType } = selectedBookings[0];
       dispatch({
         type: 'orderDetailMgr/save',
         payload: {
           orderDetailVisible: true,
           detailType: 'Booking',
-          revalidationVidListVisible: productInstances.length > 0,
+          revalidationVidListVisible: transType === 'revalidation' && productInstances.length > 0,
         },
       });
       dispatch({
@@ -595,7 +598,7 @@ class QueryOrder extends Component {
           bookingNo,
         },
       });
-      if(productInstances.length > 0){
+      if (transType === 'revalidation' && productInstances.length > 0) {
         dispatch({
           type: 'orderDetailMgr/queryVid',
           payload: {

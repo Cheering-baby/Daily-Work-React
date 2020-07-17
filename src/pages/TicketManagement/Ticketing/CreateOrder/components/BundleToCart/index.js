@@ -34,6 +34,7 @@ const { Option } = Select;
   userCompanyInfo: global.userCompanyInfo,
   countrys: ticketMgr.countrys,
   ticketTypesEnums: ticketMgr.ticketTypesEnums,
+  ticketConfig: ticketMgr.ticketConfig,
 }))
 class ToCart extends Component {
   constructor(props) {
@@ -256,6 +257,21 @@ class ToCart extends Component {
     this.setState({
       showTermsAndCondition: value,
     });
+  };
+
+  toShowDataProtectionPolicy = () => {
+    const { ticketConfig = [] } = this.props;
+    const dataProtectionPolicy = ticketConfig.find(
+      ticketConfigItem => ticketConfigItem.item === 'DataProtectionPolicy'
+    );
+    if (dataProtectionPolicy) {
+      const openWindow = window.open(dataProtectionPolicy.itemValue);
+      if (!openWindow) {
+        message.error('Open window error!');
+      }
+    } else {
+      message.error('This data not config.');
+    }
   };
 
   changeCheckTermsAndCondition = e => {
@@ -941,10 +957,14 @@ class ToCart extends Component {
                 />{' '}
                 <span className={styles.termsAndConditionIconText}>*</span>
                 <span>
-                  Please tick (<Icon type="check" />) to accept
+                  Please tick (<Icon type="check" />) to accept{' '}
                 </span>
                 <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
-                  Terms and Conditions &gt;
+                  Terms and Conditions
+                </span>
+                <span> and </span>
+                <span className={styles.TC} onClick={() => this.toShowDataProtectionPolicy()}>
+                  Data Protection Policy.
                 </span>
               </div>
             </Spin>

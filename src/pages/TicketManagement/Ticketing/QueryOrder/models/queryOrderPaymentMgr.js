@@ -10,6 +10,7 @@ import {
   ticketDownload,
 } from '@/pages/TicketManagement/services/bookingAndPay';
 import { queryAccount, queryTaInfo } from '@/pages/TicketManagement/services/taMgrService';
+import UAAService from '@/uaa-npm';
 
 export default {
   namespace: 'queryOrderPaymentMgr',
@@ -205,9 +206,11 @@ export default {
       if (taDetailInfo && taDetailInfo.otherInfo && taDetailInfo.otherInfo.billingInfo) {
         emailNo = taDetailInfo.otherInfo.billingInfo.email;
       }
+      const paymentResponseUrl = `${UAAService.defaults.uaaPath}/#/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`;
       const params = {
         orderNo: bookingNo,
         emailNo,
+        paymentResponseUrl,
       };
       const {
         data: { resultCode, resultMsg, result },
@@ -385,7 +388,7 @@ export default {
             return;
           }
           if (queryTaskResultCode === '0') {
-            if (queryTaskResult && queryTaskResult.status === 'success') {
+            if (queryTaskResult && queryTaskResult.status === 2) {
               taskStatus = 'success';
               yield put({
                 type: 'save',
@@ -395,7 +398,7 @@ export default {
               });
               return queryTaskResult.result;
             }
-            if (queryTaskResult && queryTaskResult.status === 'failed') {
+            if (queryTaskResult && queryTaskResult.status === 3) {
               taskStatus = 'failed';
               message.error(queryTaskResult.reason);
             }

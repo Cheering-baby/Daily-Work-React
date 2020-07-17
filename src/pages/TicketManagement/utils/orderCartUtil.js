@@ -4,8 +4,6 @@ import {
   getVoucherProductList,
 } from '@/pages/TicketManagement/utils/ticketOfferInfoUtil';
 
-import { calculateProductPrice } from '@/pages/TicketManagement/utils/utils';
-
 export function checkDateOfVisitForOutTime(dateOfVisit) {
   let checkPass = false;
   if (dateOfVisit) {
@@ -763,8 +761,8 @@ export function putCommonOffersByOfferFixed(
   const patronInfoData = {
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
-    phoneNo: deliveryInfoData.customerContactNo
-      ? `(${deliveryInfoData.customerContactNoCountry})${deliveryInfoData.customerContactNo}`
+    phoneNo: deliveryInfo.customerContactNo
+      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
       : null,
     nationality: deliveryInfo.country,
     countryCode: deliveryInfo.country,
@@ -1116,101 +1114,26 @@ export function toThousandsByRound(numberParam) {
     .join('')}.${numberRight}`;
 }
 
-export function getProductTaxByFixed(offerProfile, orderOfferItem) {
-  let productTax = 0;
-  orderOfferItem.orderInfo.forEach(orderInfoItem => {
-    if (orderInfoItem.quantity > 0) {
-      let gstValue = 0;
-      orderInfoItem.productInfo.priceRule[0].productPrice.forEach(productPriceItem => {
-        gstValue = productPriceItem.gst / 100;
-      });
-      let sourcePrice = orderInfoItem.pricePax / (gstValue + 1);
-      sourcePrice = Number(sourcePrice).toFixed(2);
-      productTax += (orderInfoItem.pricePax - sourcePrice) * orderInfoItem.quantity;
-    }
-  });
+export function getProductTaxByFixed(orderOfferItem) {
+  const productTax =
+    (orderOfferItem.orderSummary.gstAmountPax || 0) * orderOfferItem.orderSummary.quantity;
   return productTax;
 }
 
 export function getProductTaxByMultiple(offerProfile, orderOfferItem) {
   let productTax = 0;
-  const gstValueList = [];
-  offerProfile.productGroup.forEach(productGroupInfo => {
-    if (productGroupInfo.productType === 'Attraction') {
-      productGroupInfo.productGroup.forEach(productGroupItem => {
-        if (productGroupItem.groupName === 'Attraction') {
-          productGroupItem.products.forEach(productObj => {
-            let gstValue = 0;
-            productObj.priceRule[0].productPrice.forEach(productPriceItem => {
-              gstValue = productPriceItem.gst / 100;
-            });
-            gstValueList.push({
-              productNo: productObj.productNo,
-              gstValue,
-            });
-          });
-        }
-      });
-    }
-  });
   orderOfferItem.orderInfo.forEach(orderInfoItem => {
     if (orderInfoItem.quantity > 0) {
-      gstValueList.forEach(gstValueInfo => {
-        if (gstValueInfo.productNo === orderInfoItem.productInfo.productNo) {
-          let sourcePrice = orderInfoItem.pricePax / (gstValueInfo.gstValue + 1);
-          sourcePrice = Number(sourcePrice).toFixed(2);
-          productTax += (orderInfoItem.pricePax - sourcePrice) * orderInfoItem.quantity;
-        }
-      });
+      productTax += (orderInfoItem.gstAmountPax || 0) * orderInfoItem.quantity;
     }
   });
   return productTax;
 }
 
-export function getProductTaxByBundle(offerProfile, quantity, session) {
+export function getProductTaxByBundle(quantity, gstAmountPax) {
   let productTax = 0;
   if (quantity > 0) {
-    offerProfile.productGroup.forEach(productGroupInfo => {
-      if (productGroupInfo.productType === 'Attraction') {
-        productGroupInfo.productGroup.forEach(productGroupItem => {
-          if (productGroupItem.groupName === 'Attraction') {
-            productGroupItem.products.forEach(productObj => {
-              let gstValue = 0;
-              productObj.priceRule[0].productPrice.forEach(productPriceItem => {
-                gstValue = productPriceItem.gst / 100;
-              });
-              const productPrice = calculateProductPrice(
-                productObj,
-                productObj.priceRule[1].priceRuleId,
-                session
-              );
-              let sourcePrice = productPrice / (gstValue + 1);
-              sourcePrice = Number(sourcePrice).toFixed(2);
-              productTax += (productPrice - sourcePrice) * quantity;
-            });
-          }
-          if (productGroupItem.groupName === 'Voucher') {
-            productGroupItem.products.forEach(productObj => {
-              const { voucherQtyType } = productObj.attractionProduct;
-              if (voucherQtyType === 'By Package') {
-                let gstValue = 0;
-                productObj.priceRule[0].productPrice.forEach(productPriceItem => {
-                  gstValue = productPriceItem.gst / 100;
-                });
-                const productPrice = calculateProductPrice(
-                  productObj,
-                  productObj.priceRule[1].priceRuleId,
-                  session
-                );
-                let sourcePrice = productPrice / (gstValue + 1);
-                sourcePrice = Number(sourcePrice).toFixed(2);
-                productTax += (productPrice - sourcePrice) * quantity;
-              }
-            });
-          }
-        });
-      }
-    });
+    productTax = (gstAmountPax || 0) * quantity;
   }
   return productTax;
 }
@@ -1221,16 +1144,10 @@ export function getOrderProductServiceTax(generalTicketOrderData, onceAPirateOrd
     orderItem.orderOfferList.forEach(orderOfferItem => {
       if (orderOfferItem.orderType === 'offerBundle') {
         orderOfferItem.orderInfo.forEach(orderInfoItem => {
-          const offerProfile = orderInfoItem.offerInfo;
-          serviceTax += getProductTaxByBundle(
-            offerProfile,
-            orderInfoItem.quantity,
-            orderInfoItem.sessionTime
-          );
+          serviceTax += getProductTaxByBundle(orderInfoItem.quantity, orderInfoItem.gstAmountPax);
         });
       } else if (orderOfferItem.orderType === 'offerFixed') {
-        const offerProfile = orderOfferItem.offerInfo;
-        serviceTax += getProductTaxByFixed(offerProfile, orderOfferItem);
+        serviceTax += getProductTaxByFixed(orderOfferItem);
       } else {
         const offerProfile = orderOfferItem.offerInfo;
         serviceTax += getProductTaxByMultiple(offerProfile, orderOfferItem);
@@ -1238,13 +1155,10 @@ export function getOrderProductServiceTax(generalTicketOrderData, onceAPirateOrd
     });
   });
   onceAPirateOrderData.forEach(onceAPirateOrder => {
-    const session = onceAPirateOrder.queryInfo.sessionTime;
     onceAPirateOrder.orderOfferList.forEach(orderOfferItem => {
-      const { offerProfile } = orderOfferItem.offerInfo;
       serviceTax += getProductTaxByBundle(
-        offerProfile,
         orderOfferItem.orderInfo.orderQuantity,
-        session
+        orderOfferItem.orderInfo.gstAmountPax
       );
     });
   });

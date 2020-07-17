@@ -115,6 +115,42 @@ export function calculateProductPrice(product, selectRuleId, sessionTime) {
   return price;
 }
 
+export function calculateProductGST(product, selectRuleId, sessionTime) {
+  const { priceRule = [], productType, special = [], needChoiceCount } = product;
+  const ruleId = selectRuleId || null;
+  const { productPrice } = priceRule.find(({ priceRuleId }) => priceRuleId === ruleId);
+  let price = 0;
+  if (productType === 'Hotel') {
+    const specialPriceArray = special.map(({ servicePriceValue }) => servicePriceValue);
+    const specialTotalPrice =
+      specialPriceArray.length > 0
+        ? specialPriceArray.reduce((a, b) => parseFloat(a) + parseFloat(b))
+        : 0;
+    const hotelPrice = productPrice.map(
+      ({ discountUnitPrice }) => parseFloat(discountUnitPrice) + parseFloat(specialTotalPrice)
+    );
+    price +=
+      hotelPrice.length === 0 ? 0 : hotelPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
+  } else if (productType === 'Attraction') {
+    let productPriceList = [...productPrice];
+    if (sessionTime) {
+      productPriceList = productPrice.filter(({ priceTimeFrom }) => priceTimeFrom === sessionTime);
+    }
+    let priceArray = [...productPriceList];
+    if (productPriceList.length > 1) {
+      priceArray = productPriceList.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
+    }
+    const attractionPrice = priceArray.map(
+      ({ perPiece, gstAmount }) => parseFloat(perPiece || needChoiceCount) * parseFloat(gstAmount)
+    );
+    price +=
+      attractionPrice.length === 0
+        ? 0
+        : attractionPrice.reduce((a, b) => parseFloat(a) + parseFloat(b));
+  }
+  return price;
+}
+
 export function getPamsPriceRuleIdByOfferProfile(offerProfile) {
   let priceRuleId = null;
   const productGroupList = getProductGroupByOfferProfile(offerProfile, PRODUCT_TYPE_ATTRACTION);
@@ -157,6 +193,25 @@ export function getSumPriceOfOfferPaxOfferProfile(
   if (attractionProductList && attractionProductList.length > 0) {
     attractionProductList.forEach(attractionProduct => {
       sumPriceOfOfferPax += calculateProductPrice(attractionProduct, selectRuleId, sessionTime);
+    });
+  }
+  return sumPriceOfOfferPax;
+}
+
+export function getSumGSTOfOfferPaxOfferProfile(
+  offerProfile,
+  dateOfVisit,
+  selectRuleId,
+  sessionTime
+) {
+  if (!selectRuleId) {
+    selectRuleId = getPamsPriceRuleIdByOfferProfile(offerProfile);
+  }
+  const attractionProductList = getAttractionProductList(offerProfile, dateOfVisit);
+  let sumPriceOfOfferPax = 0.0;
+  if (attractionProductList && attractionProductList.length > 0) {
+    attractionProductList.forEach(attractionProduct => {
+      sumPriceOfOfferPax += calculateProductGST(attractionProduct, selectRuleId, sessionTime);
     });
   }
   return sumPriceOfOfferPax;

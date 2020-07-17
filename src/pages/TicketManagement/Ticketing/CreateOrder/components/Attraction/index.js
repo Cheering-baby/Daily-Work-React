@@ -2,13 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, List, Table, Tabs, Tooltip, message } from 'antd';
+import { Button, Icon, List, Table, Tabs, Tooltip } from 'antd';
 import {
   calculateAllProductPrice,
   calculateProductPrice,
   getVoucherProducts,
   getOfferConstrain,
   getProductLimitInventory,
+  calculateProductPriceGst,
+  calculateAllProductPriceGst,
 } from '../../../../utils/utils';
 import { ticketTypes } from '../../../../utils/constants';
 import { toThousands } from '@/utils/utils';
@@ -234,6 +236,7 @@ class Attraction extends Component {
         ageGroupQuantity: item.needChoiceCount,
         quantity: offerQuantity,
         pricePax: calculateProductPrice(item, priceRuleId, item.sessionTime),
+        gstAmountPax: calculateProductPriceGst(item, priceRuleId, item.sessionTime),
         productInfo: item,
       });
     });
@@ -244,6 +247,7 @@ class Attraction extends Component {
       orderSummary: {
         quantity: offerQuantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
+        gstAmountPax: calculateAllProductPriceGst(attractionProduct, priceRuleId, null, detail),
         totalPrice:
           offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         selectPriceRuleId: priceRuleId,
@@ -302,6 +306,9 @@ class Attraction extends Component {
         ageGroupQuantity: item.needChoiceCount,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
+        gstAmountPax: ticketNumber
+          ? calculateProductPriceGst(item, priceRuleId, item.sessionTime)
+          : 0,
         productInfo: item,
       });
     });
@@ -354,6 +361,12 @@ class Attraction extends Component {
         sessionTime,
         quantity: ticketNumber || 0,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
+        gstAmountPax: calculateAllProductPriceGst(
+          attractionProduct,
+          priceRuleId,
+          sessionTime,
+          detail
+        ),
         offerInfo: {
           ...detail,
           selectRuleId: priceRuleId,

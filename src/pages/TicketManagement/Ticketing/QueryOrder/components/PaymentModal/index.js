@@ -78,11 +78,10 @@ class PaymentModal extends React.Component {
         payload: {},
       }).then(result => {
         if (result && result.url) {
-          const openWindow = window.open('about:blank');
-          if (openWindow) {
-            openWindow.location.href = result.url;
-          } else {
-            message.error('Open window error!');
+          try {
+            window.location.replace(result.url);
+          } catch (e) {
+            message.error('window location replace error!');
           }
         }
       });
@@ -162,7 +161,8 @@ class PaymentModal extends React.Component {
                 <div className={styles.checkOut}>
                   <div className={styles.checkOutPayDiv}>
                     <div className={styles.payFont}>
-                      TOTAL PAY: <span className={styles.priceFont}>${this.payTotal()}</span>
+                      Total Amount Payable:{' '}
+                      <span className={styles.priceFont}>${this.payTotal()}</span>
                     </div>
                   </div>
                   <Button

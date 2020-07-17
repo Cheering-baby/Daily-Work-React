@@ -5,6 +5,7 @@ import {
   getAttractionProductList,
   getPamsPriceRuleIdByOfferProfile,
   getPluProductByRuleId,
+  getSumGSTOfOfferPaxOfferProfile,
   getSumPriceOfOfferPaxOfferProfile,
   getVoucherProductList,
 } from '../utils/ticketOfferInfoUtil';
@@ -40,6 +41,7 @@ export default {
             quantity: item.orderQuantity,
             orderQuantity: item.orderQuantity,
             pricePax: item.offerPricePax,
+            gstAmountPax: item.gstAmountPax,
             offerSumPrice: item.offerPricePax * item.orderQuantity,
             voucherType: '1',
             groupSettingList: [],
@@ -79,6 +81,7 @@ export default {
             quantity: item.orderQuantity,
             orderQuantity: item.orderQuantity,
             pricePax: item.offerPricePax,
+            gstAmountPax: item.gstAmountPax,
             offerSumPrice: item.offerPricePax * item.orderQuantity,
             voucherType: '1',
             groupSettingList: [],
@@ -406,6 +409,13 @@ export default {
           activeGroupSelectData.sessionTime
         );
 
+        const offerGSTAmountPax = getSumGSTOfOfferPaxOfferProfile(
+          offerProfile,
+          requestParam.validTimeFrom,
+          selectRuleId,
+          activeGroupSelectData.sessionTime
+        );
+
         if (sessionTimeFix && offerPricePax > 0 && offerMaxQuantity > 0) {
           let orderQuantity = 0;
           if (orderIndex !== null && onceAPirateOrder !== null) {
@@ -420,6 +430,7 @@ export default {
             Object.assign(offerList[i], {
               selectRuleId,
               offerPricePax,
+              gstAmountPax: offerGSTAmountPax,
               offerSumPrice: offerPricePax * orderQuantity,
               showPrice: `$${Number(offerPricePax).toFixed(2)}/package`,
               orderQuantity,

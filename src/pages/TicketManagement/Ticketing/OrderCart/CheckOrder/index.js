@@ -79,6 +79,12 @@ class CheckOrder extends Component {
       },
     });
     dispatch({
+      type: 'ticketMgr/queryTicketConfig',
+      payload: {
+        attributeItem: 'TICKET_TYPE',
+      },
+    });
+    dispatch({
       type: 'ticketOrderCartMgr/queryPluAttribute',
       payload: {
         attributeItem: 'BOCA_PLU',
@@ -922,7 +928,7 @@ class CheckOrder extends Component {
                     <Row className={styles.priceCol3}>
                       <Col span={16}>
                         <span className={styles.priceKeySpan}>
-                          Total Amount Payable (After SGD):
+                          Total Amount Payable (After GST):
                         </span>
                       </Col>
                       <Col span={8}>

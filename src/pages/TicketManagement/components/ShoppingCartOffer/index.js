@@ -7,7 +7,8 @@ import BundleToCart from '@/pages/TicketManagement/Ticketing/CreateOrder/compone
 import {
   calculateAllProductPrice,
   calculateProductPrice,
-  getProductLimitInventory,
+  calculateProductPriceGst,
+  calculateAllProductPriceGst,
 } from '@/pages/TicketManagement/utils/utils';
 import OrderItemCollapse from './components/OrderItemCollapse';
 
@@ -192,6 +193,9 @@ class ShoppingCartOffer extends Component {
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
+        gstAmountPax: ticketNumber
+          ? calculateProductPriceGst(item, priceRuleId, item.sessionTime)
+          : 0,
         productInfo: item,
       });
     });
@@ -249,6 +253,7 @@ class ShoppingCartOffer extends Component {
         ageGroup: item.attractionProduct.ageGroup,
         quantity: 1,
         pricePax: calculateProductPrice(item, priceRuleId, item.sessionTime),
+        gstAmountPax: calculateProductPriceGst(item, priceRuleId, item.sessionTime),
         productInfo: item,
       });
     });
@@ -259,6 +264,7 @@ class ShoppingCartOffer extends Component {
       orderSummary: {
         quantity: offerQuantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
+        gstAmountPax: calculateAllProductPriceGst(attractionProduct, priceRuleId, null, detail),
         totalPrice:
           offerQuantity * calculateAllProductPrice(attractionProduct, priceRuleId, null, detail),
         selectPriceRuleId: priceRuleId,
@@ -306,6 +312,12 @@ class ShoppingCartOffer extends Component {
         sessionTime,
         quantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
+        gstAmountPax: calculateAllProductPriceGst(
+          attractionProduct,
+          priceRuleId,
+          sessionTime,
+          detail
+        ),
         offerInfo: {
           ...detail,
         },
