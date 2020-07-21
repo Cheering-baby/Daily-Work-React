@@ -5,6 +5,7 @@ import moment from 'moment';
 import { Button, Col, message, Modal, Row, Spin, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import router from 'umi/router';
+import { isNullOrUndefined } from 'util';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
@@ -90,7 +91,7 @@ class QueryOrder extends Component {
       ),
       dataIndex: 'arPaymentStatus',
       key: 'arPaymentStatus',
-      width: '170px',
+      width: '160px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span className={styles.tableSpan}>{text}</span>
@@ -98,13 +99,25 @@ class QueryOrder extends Component {
       ),
     },
     {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'SALES_CHANNEL' })}</span>,
-      dataIndex: 'salesChannel',
-      key: 'salesChannel',
-      width: '120px',
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'MODE_OF_PAYMENT' })}</span>,
+      dataIndex: 'paymentModel',
+      key: 'paymentModel',
+      width: '140px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'TOTAL_AMOUNT' })}</span>,
+      dataIndex: 'totalPrice',
+      key: 'totalPrice',
+      align: 'right',
+      width: '150px',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{!isNullOrUndefined(text) ? `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}` : text}</span>
         </Tooltip>
       ),
     },
@@ -126,6 +139,60 @@ class QueryOrder extends Component {
       key: 'lastName',
       width: '110px',
       render: (_, record) => this.showOrderDeliveryName(record, 'lastName'),
+    },
+    {
+      title: (
+        <span className={styles.tableTitle}>{formatMessage({ id: 'COMPANY_NAME' })}</span>
+      ),
+      key: 'companyName',
+      width: '150px',
+      render: (_, record) => {
+        const { patronInfo = {} } = record;
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{patronInfo.mainTaName}</span>}
+          >
+            <span>{patronInfo.mainTaName}</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: (
+        <span className={styles.tableTitle}>{formatMessage({ id: 'SUB_AGENT_COMPANY_NAME' })}</span>
+      ),
+      key: 'subTaCompanyName',
+      width: '200px',
+      render: (_, record) => {
+        const { patronInfo = {} } = record;
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{patronInfo.taName}</span>}
+          >
+            <span>{patronInfo.taName}</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: (
+        <span className={styles.tableTitle}>{formatMessage({ id: 'CREATE_BY' })}</span>
+      ),
+      key: 'createBy',
+      dataIndex: 'createBy',
+      width: '100px',
+      render: text => {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span>{text}</span>
+          </Tooltip>
+        );
+      },
     },
   ];
 
@@ -339,9 +406,10 @@ class QueryOrder extends Component {
       {
         title: <span className={styles.tableTitle}>{formatMessage({ id: 'TOTAL_AMOUNT' })}</span>,
         dataIndex: 'totalAmount',
+        align: 'right',
         render: text => {
           if (text !== null) {
-            return `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}(SGD)`;
+            return `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
           }
           return '';
         },

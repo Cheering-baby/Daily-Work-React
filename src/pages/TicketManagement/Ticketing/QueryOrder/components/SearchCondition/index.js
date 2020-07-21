@@ -181,6 +181,7 @@ class SearchCondition extends Component {
     const {
       queryOrderMgr: {
         searchConditions: {
+          agentName,
           deliveryLastName,
           deliveryFirstName,
           confirmationNumber,
