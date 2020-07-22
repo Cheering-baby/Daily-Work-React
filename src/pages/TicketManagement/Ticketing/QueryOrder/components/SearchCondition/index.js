@@ -16,6 +16,14 @@ const { Option } = Select;
 class SearchCondition extends Component {
   inputChange = (value, flag) => {
     const { dispatch } = this.props;
+    if (flag === 'offerName') {
+      dispatch({
+        type: 'queryOrderMgr/saveSearchConditions',
+        payload: {
+          offerName: value,
+        },
+      });
+    }
     if (flag === 'deliveryLastName') {
       dispatch({
         type: 'queryOrderMgr/saveSearchConditions',
@@ -99,7 +107,7 @@ class SearchCondition extends Component {
   };
 
   showDateValue = time => {
-    if (time !== null) {
+    if (time !== null && time !== undefined ) {
       return moment(time, 'YYYY-MM-DDTHH:mm:ss');
     }
     return null;
@@ -120,6 +128,14 @@ class SearchCondition extends Component {
         type: 'queryOrderMgr/saveSearchConditions',
         payload: {
           createTimeTo: date !== null ? date.format('YYYY-MM-DDTHH:mm:ss') : null,
+        },
+      });
+    }
+    if(flag === 'checkInDateFrom') {
+      dispatch({
+        type: 'queryOrderMgr/saveSearchConditions',
+        payload: {
+          checkInDateFrom: date !== null ? date.format('YYYY-MM-DD') : null,
         },
       });
     }
@@ -181,6 +197,8 @@ class SearchCondition extends Component {
     const {
       queryOrderMgr: {
         searchConditions: {
+          offerName,
+          checkInDateFrom,
           agentName,
           deliveryLastName,
           deliveryFirstName,
@@ -202,6 +220,14 @@ class SearchCondition extends Component {
     return (
       <Card>
         <Row>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <Input
+              allowClear
+              placeholder={formatMessage({ id: 'OFFER_NAME' })}
+              onChange={e => this.inputChange(e.target.value, 'offerName')}
+              value={offerName}
+            />
+          </Col>
           <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
             <Input
               allowClear
@@ -232,6 +258,27 @@ class SearchCondition extends Component {
               placeholder={formatMessage({ id: 'CONFIRMATION_NO' })}
               onChange={e => this.inputChange(e.target.value, 'confirmationNumber')}
               value={confirmationNumber}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <DatePicker
+              allowClear
+              showToday={false}
+              placeholder={formatMessage({ id: 'VISIT_DATE' })}
+              className={styles.inputStyle}
+              format={'YYYY-MM-DD'}
+              value={ checkInDateFrom ? moment(checkInDateFrom) : null }
+              onChange={date => this.dateChange(date, 'checkInDateFrom')}
+            />
+          </Col>
+          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+            <DatePicker
+              allowClear
+              showTime
+              placeholder={formatMessage({ id: 'ORDER_DATE_FROM' })}
+              className={styles.inputStyle}
+              value={this.showDateValue(createTimeFrom)}
+              onChange={date => this.dateChange(date, 'StartDate')}
             />
           </Col>
           <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>

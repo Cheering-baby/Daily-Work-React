@@ -129,16 +129,36 @@ class QueryOrder extends Component {
       render: text => this.showTxnDate(text),
     },
     {
-      title: <span className={styles.tableTitle}>First Name</span>,
+      title: <span className={styles.tableTitle}>Offer And Visit Date</span>,
       key: 'firstName',
-      width: '110px',
-      render: (_, record) => this.showOrderDeliveryName(record, 'firstName'),
-    },
-    {
-      title: <span className={styles.tableTitle}>Last Name</span>,
-      key: 'lastName',
-      width: '110px',
-      render: (_, record) => this.showOrderDeliveryName(record, 'lastName'),
+      width: '170px',
+      render: (_, record) => {
+        const { offInstances = []} = record;
+        let text = '';
+        const offInstancesDiv = [];
+        const offerNos = [];
+        const offInstancesFilter = [];
+        offInstances.forEach(item => {
+          const { offerNo, visitDate } = item;
+          if(!offerNos.includes(offerNo)) {
+            offInstancesFilter.push(item);
+          } else {
+            if(offerNos.find(itemOffer => itemOffer.offNo === offerNo && itemOffer.visitDate !== visitDate)) {
+              offInstancesFilter.push(item);
+            }
+          }
+        })
+        offInstancesFilter.forEach((item, index) => {
+          const { offerName, visitDate,offerNo } = item;
+          text += offerName + " " + (visitDate ? moment(visitDate).format('YYYY-MM-DD') : '') + '\n';
+          offInstancesDiv.push(<div className={styles.offerNames} key={offerNo + index}>{offerName + " " + (visitDate ? moment(visitDate).format('YYYY-MM-DD') : '')}</div>)
+        })
+        return  <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <div>
+            {offInstancesDiv}
+          </div>
+        </Tooltip>
+      },
     },
     {
       title: (

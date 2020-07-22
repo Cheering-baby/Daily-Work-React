@@ -1,6 +1,7 @@
 import { formatMessage } from 'umi/locale';
 import { message } from 'antd';
 import serialize from '../utils/utils';
+import moment from 'moment';
 import {
   attractionTaConfirm,
   downloadETicket,
@@ -73,6 +74,7 @@ export default {
       }
       const paramList = {
         ...params,
+        checkInDateTo: params.checkInDateFrom ? moment(params.checkInDateFrom).add('d', 1).format('YYYY-MM-DD') : null,
         deliveryLastName: params.deliveryLastName !== null ? params.deliveryLastName.trim() : null,
         deliveryFirstName:
           params.deliveryFirstName !== null ? params.deliveryFirstName.trim() : null,

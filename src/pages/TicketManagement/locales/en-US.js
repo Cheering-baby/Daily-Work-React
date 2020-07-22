@@ -55,6 +55,7 @@ export default {
   ORIGINAL_ORDER_NO: 'Original PARTNERS Order No.',
   OFFER_NAME_TITLE: 'OFFER NAME',
   OFFER_NAME: 'Offer Name',
+  VISIT_DATE: 'Visit Date',
   ORDER_TITLE_TIP:
     '* Prices shown in Singapore Dollars (SGD) inclusive of Goods & Services Tax (GST)',
   PRODUCT_CATEGORIES: 'PRODUCT CATEGORIES',
