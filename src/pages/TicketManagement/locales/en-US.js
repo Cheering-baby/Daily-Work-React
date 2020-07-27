@@ -1,5 +1,7 @@
 export default {
-  AGENT_ID: 'Agent ID',
+  AGENT_ID: 'Company ID',
+  SUB_AGENT_ID: 'Sub Company ID',
+  SUB_AGENT_NAME: 'Sub Agent Company Name',
   AGENT_NAME: 'Agent Name',
   APPROVE: 'Approve',
   AUDIT: 'Approve',

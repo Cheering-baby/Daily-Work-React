@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Col, DatePicker, Input, message, Radio, Row, Select } from 'antd';
+import { Button, Col, DatePicker, Input, message, Radio, Row, Select, Icon } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
@@ -107,7 +107,7 @@ class SearchCondition extends Component {
   };
 
   showDateValue = time => {
-    if (time !== null && time !== undefined ) {
+    if (time !== null && time !== undefined) {
       return moment(time, 'YYYY-MM-DDTHH:mm:ss');
     }
     return null;
@@ -131,7 +131,7 @@ class SearchCondition extends Component {
         },
       });
     }
-    if(flag === 'checkInDateFrom') {
+    if (flag === 'checkInDateFrom') {
       dispatch({
         type: 'queryOrderMgr/saveSearchConditions',
         payload: {
@@ -193,13 +193,26 @@ class SearchCondition extends Component {
     });
   };
 
+  changeExpandCondition = () => {
+    const {
+      dispatch,
+      queryOrderMgr: { isQueryExpand },
+    } = this.props;
+    dispatch({
+      type: 'queryOrderMgr/save',
+      payload: {
+        isQueryExpand: !isQueryExpand,
+      },
+    });
+  };
+
   render() {
     const {
       queryOrderMgr: {
+        isQueryExpand,
         searchConditions: {
           offerName,
           checkInDateFrom,
-          agentName,
           deliveryLastName,
           deliveryFirstName,
           confirmationNumber,
@@ -214,12 +227,31 @@ class SearchCondition extends Component {
       },
       global: {
         currentUser: { userType },
+        userCompanyInfo: { companyType },
       },
     } = this.props;
     const rwsLogin = userType === '01';
+    const mainTaLogin = companyType === '01';
+    const searchColLayout = {
+      xs: 24,
+      sm: 24,
+      md: 16,
+      lg: 12,
+    };
+    if (rwsLogin) {
+      searchColLayout.lg = 24;
+      searchColLayout.md = 24;
+    } else if (mainTaLogin) {
+      searchColLayout.lg = 18;
+    }
+    if (!isQueryExpand) {
+      searchColLayout.lg = 6;
+      searchColLayout.md = 8;
+      searchColLayout.sm = 12;
+    }
     return (
       <Card>
-        <Row>
+        <Row type="flex">
           <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
             <Input
               allowClear
@@ -228,7 +260,13 @@ class SearchCondition extends Component {
               value={offerName}
             />
           </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+          <Col
+            className={styles.inputColStyle}
+            xs={isQueryExpand ? 24 : 0}
+            sm={isQueryExpand ? 12 : 0}
+            md={8}
+            lg={6}
+          >
             <Input
               allowClear
               placeholder={formatMessage({ id: 'FIRST_NAME' })}
@@ -236,7 +274,13 @@ class SearchCondition extends Component {
               value={deliveryFirstName}
             />
           </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+          <Col
+            className={styles.inputColStyle}
+            xs={isQueryExpand ? 24 : 0}
+            sm={isQueryExpand ? 12 : 0}
+            md={isQueryExpand ? 8 : 0}
+            lg={6}
+          >
             <Input
               allowClear
               placeholder={formatMessage({ id: 'LAST_NAME' })}
@@ -244,124 +288,137 @@ class SearchCondition extends Component {
               value={deliveryLastName}
             />
           </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <Input
-              allowClear
-              placeholder={formatMessage({ id: 'PARTNERS_TRANSACTION_NO' })}
-              onChange={e => this.inputChange(e.target.value, 'bookingId')}
-              value={bookingId}
-            />
-          </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <Input
-              allowClear
-              placeholder={formatMessage({ id: 'CONFIRMATION_NO' })}
-              onChange={e => this.inputChange(e.target.value, 'confirmationNumber')}
-              value={confirmationNumber}
-            />
-          </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <DatePicker
-              allowClear
-              showToday={false}
-              placeholder={formatMessage({ id: 'VISIT_DATE' })}
-              className={styles.inputStyle}
-              format={'YYYY-MM-DD'}
-              value={ checkInDateFrom ? moment(checkInDateFrom) : null }
-              onChange={date => this.dateChange(date, 'checkInDateFrom')}
-            />
-          </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <DatePicker
-              allowClear
-              showTime
-              placeholder={formatMessage({ id: 'ORDER_DATE_FROM' })}
-              className={styles.inputStyle}
-              value={this.showDateValue(createTimeFrom)}
-              onChange={date => this.dateChange(date, 'StartDate')}
-            />
-          </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <DatePicker
-              allowClear
-              showTime
-              placeholder={formatMessage({ id: 'ORDER_DATE_FROM' })}
-              className={styles.inputStyle}
-              value={this.showDateValue(createTimeFrom)}
-              onChange={date => this.dateChange(date, 'StartDate')}
-            />
-          </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <DatePicker
-              allowClear
-              showTime
-              placeholder={formatMessage({ id: 'ORDER_DATE_TO' })}
-              className={styles.inputStyle}
-              value={this.showDateValue(createTimeTo)}
-              onChange={date => this.dateChange(date, 'EndDate')}
-            />
-          </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <SortSelect
-              allowClear
-              mode="multiple"
-              placeholder={formatMessage({ id: 'ORDER_TYPE' })}
-              className={styles.inputStyle}
-              onChange={value => this.selectChange(value, 'orderType')}
-              value={orderType === null ? [] : orderType.split(',')}
-              options={[
-                <Option value="Booking">Booking</Option>,
-                <Option value="Revalidation">Revalidation</Option>,
-                <Option value="Refund">Refund</Option>,
-              ]}
-            />
-          </Col>
-          <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-            <SortSelect
-              allowClear
-              showSearch
-              placeholder={formatMessage({ id: 'STATUS' })}
-              className={styles.inputStyle}
-              onChange={value => this.selectChange(value, 'status')}
-              value={status === null ? undefined : status}
-              options={[
-                <Option value="Confirmed">Confirmed</Option>,
-                <Option value="WaitingForPaying">Pending Payment</Option>,
-                <Option value="PendingApproval">Pending Approval</Option>,
-                <Option value="PendingOrderNo">Pending order No.</Option>,
-                <Option value="PendingRefund">Pending Refund</Option>,
-                <Option value="Reject">Reject</Option>,
-                <Option value="PendingTopup">Pending Topup</Option>,
-                <Option value="Cancelled">Cancelled</Option>,
-                <Option value="Failed">Failed</Option>,
-                <Option value="ArchiveFailed">ArchiveFailed</Option>,
-                <Option value="CommissionFail">CommissionFail</Option>,
-              ]}
-            />
-          </Col>
-          {rwsLogin && (
-            <Col className={styles.radioColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Radio.Group value={agentType} onChange={this.onAgentTypeChange}>
-                <Radio value="agentId">Agent ID</Radio>
-                <Radio value="agentName">Agent Name</Radio>
-              </Radio.Group>
-            </Col>
-          )}
-          {rwsLogin && (
-            <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
-              <Input
-                allowClear
-                placeholder={
-                  agentType === 'agentId'
-                    ? formatMessage({ id: 'AGENT_ID' })
-                    : formatMessage({ id: 'AGENT_NAME' })
-                }
-                onChange={e => this.inputChange(e.target.value, 'agentValue')}
-                value={agentValue}
-              />
-            </Col>
-          )}
-          <Col className={styles.buttonColStyle} xs={24} sm={12} md={8} lg={6}>
+          {isQueryExpand ? (
+            <>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <Input
+                  allowClear
+                  placeholder={formatMessage({ id: 'PARTNERS_TRANSACTION_NO' })}
+                  onChange={e => this.inputChange(e.target.value, 'bookingId')}
+                  value={bookingId}
+                />
+              </Col>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <Input
+                  allowClear
+                  placeholder={formatMessage({ id: 'CONFIRMATION_NO' })}
+                  onChange={e => this.inputChange(e.target.value, 'confirmationNumber')}
+                  value={confirmationNumber}
+                />
+              </Col>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <DatePicker
+                  allowClear
+                  showToday={false}
+                  placeholder={formatMessage({ id: 'VISIT_DATE' })}
+                  className={styles.inputStyle}
+                  format="DD-MMM-YYYY"
+                  value={checkInDateFrom ? moment(checkInDateFrom) : null}
+                  onChange={date => this.dateChange(date, 'checkInDateFrom')}
+                />
+              </Col>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <DatePicker
+                  allowClear
+                  showTime
+                  placeholder={formatMessage({ id: 'ORDER_DATE_FROM' })}
+                  className={styles.inputStyle}
+                  format="DD-MMM-YYYY"
+                  value={this.showDateValue(createTimeFrom)}
+                  onChange={date => this.dateChange(date, 'StartDate')}
+                />
+              </Col>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <DatePicker
+                  allowClear
+                  showTime
+                  placeholder={formatMessage({ id: 'ORDER_DATE_TO' })}
+                  className={styles.inputStyle}
+                  format="DD-MMM-YYYY"
+                  value={this.showDateValue(createTimeTo)}
+                  onChange={date => this.dateChange(date, 'EndDate')}
+                />
+              </Col>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <SortSelect
+                  allowClear
+                  mode="multiple"
+                  placeholder={formatMessage({ id: 'ORDER_TYPE' })}
+                  className={styles.inputStyle}
+                  onChange={value => this.selectChange(value, 'orderType')}
+                  value={orderType === null ? [] : orderType.split(',')}
+                  options={[
+                    <Option value="Booking">Booking</Option>,
+                    <Option value="Revalidation">Revalidation</Option>,
+                    <Option value="Refund">Refund</Option>,
+                  ]}
+                />
+              </Col>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <SortSelect
+                  allowClear
+                  showSearch
+                  placeholder={formatMessage({ id: 'STATUS' })}
+                  className={styles.inputStyle}
+                  onChange={value => this.selectChange(value, 'status')}
+                  value={status === null ? undefined : status}
+                  options={[
+                    <Option value="Confirmed">Confirmed</Option>,
+                    <Option value="WaitingForPaying">Pending Payment</Option>,
+                    <Option value="PendingApproval">Pending Approval</Option>,
+                    <Option value="PendingOrderNo">Pending order No.</Option>,
+                    <Option value="PendingRefund">Pending Refund</Option>,
+                    <Option value="Reject">Reject</Option>,
+                    <Option value="PendingTopup">Pending Topup</Option>,
+                    <Option value="Cancelled">Cancelled</Option>,
+                    <Option value="Failed">Failed</Option>,
+                    <Option value="ArchiveFailed">ArchiveFailed</Option>,
+                    <Option value="CommissionFail">CommissionFail</Option>,
+                  ]}
+                />
+              </Col>
+              {(rwsLogin || mainTaLogin) && (
+                <Col
+                  className={styles.radioColStyle}
+                  xs={24}
+                  sm={12}
+                  md={mainTaLogin ? 16 : 8}
+                  lg={mainTaLogin ? 12 : 6}
+                >
+                  <Radio.Group value={agentType} onChange={this.onAgentTypeChange}>
+                    <Radio value="agentId">
+                      {formatMessage({ id: rwsLogin ? 'AGENT_ID' : 'SUB_AGENT_ID' })}
+                    </Radio>
+                    <Radio value="agentName">
+                      {formatMessage({ id: rwsLogin ? 'COMPANY_NAME' : 'SUB_COMPANY_NAME' })}
+                    </Radio>
+                  </Radio.Group>
+                </Col>
+              )}
+              {(rwsLogin || mainTaLogin) && (
+                <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                  <Input
+                    allowClear
+                    placeholder={
+                      agentType === 'agentId'
+                        ? formatMessage({ id: rwsLogin ? 'AGENT_ID' : 'SUB_AGENT_ID' })
+                        : formatMessage({ id: rwsLogin ? 'COMPANY_NAME' : 'SUB_COMPANY_NAME' })
+                    }
+                    onChange={e => this.inputChange(e.target.value, 'agentValue')}
+                    value={agentValue}
+                  />
+                </Col>
+              )}
+            </>
+          ) : null}
+          <Col className={styles.buttonColStyle} {...searchColLayout}>
+            <Button
+              className={styles.expandButton}
+              style={{ border: '0', marginLeft: '5px', width: '80px' }}
+              onClick={this.changeExpandCondition}
+            >
+              {isQueryExpand ? 'Expand' : 'Collapse'} <Icon type={isQueryExpand ? 'down' : 'up'} />
+            </Button>
             <Button className={styles.searchButton} onClick={() => this.resetCondition()}>
               {formatMessage({ id: 'RESET' })}
             </Button>

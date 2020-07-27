@@ -36,6 +36,8 @@ import PaymentPromptModal from '@/pages/TicketManagement/Ticketing/QueryOrder/co
   downloadFileLoading: loading.effects['queryOrderMgr/download'],
 }))
 class QueryOrder extends Component {
+
+
   columns = [
     {
       title: (
@@ -129,9 +131,9 @@ class QueryOrder extends Component {
       render: text => this.showTxnDate(text),
     },
     {
-      title: <span className={styles.tableTitle}>Offer And Visit Date</span>,
+      title: <span className={styles.tableTitle}>Offer Name And Visit Date</span>,
       key: 'firstName',
-      width: '170px',
+      width: '190px',
       render: (_, record) => {
         const { offInstances = []} = record;
         let text = '';
@@ -150,8 +152,8 @@ class QueryOrder extends Component {
         })
         offInstancesFilter.forEach((item, index) => {
           const { offerName, visitDate,offerNo } = item;
-          text += offerName + " " + (visitDate ? moment(visitDate).format('YYYY-MM-DD') : '') + '\n';
-          offInstancesDiv.push(<div className={styles.offerNames} key={offerNo + index}>{offerName + " " + (visitDate ? moment(visitDate).format('YYYY-MM-DD') : '')}</div>)
+          text += offerName + `${visitDate ? ': ':' '}` + (visitDate ? moment(visitDate).format('YYYY-MM-DD') : '') + '\n';
+          offInstancesDiv.push(<div className={styles.offerNames} key={offerNo + index}>{offerName + `${visitDate ? ': ':' '}` + (visitDate ? moment(visitDate).format('DD-MMM-YYYY') : '')}</div>)
         })
         return  <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <div>
@@ -1098,6 +1100,7 @@ class QueryOrder extends Component {
                   </Col>
                   <Col span={24}>
                     <Table
+                      tableLayout="fixed"
                       size="small"
                       className={`components-table-demo-nested ${styles.searchTitle}`}
                       columns={this.columns}
@@ -1114,7 +1117,7 @@ class QueryOrder extends Component {
                       loading={!!tableLoading}
                       expandedRowRender={record => this.expandedRowRender(record, userType)}
                       dataSource={dataSource}
-                      scroll={{ x: 1140 }}
+                      scroll={{ x: 1140, y: 400 }}
                       pagination={false}
                     />
                     <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />

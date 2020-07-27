@@ -13,6 +13,7 @@ import {
 export default {
   namespace: 'queryOrderMgr',
   state: {
+    isQueryExpand: true,
     transactionList: [],
     searchConditions: {
       deliveryLastName: null,
@@ -288,6 +289,7 @@ export default {
     },
     resetData() {
       return {
+        isQueryExpand: true,
         transactionList: [],
         searchConditions: {
           deliveryLastName: null,

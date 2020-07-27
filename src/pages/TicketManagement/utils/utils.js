@@ -95,7 +95,8 @@ export function calculateProductPriceGst(product, selectRuleId, session) {
   }
   const priceArray = productPrice.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
   const attractionPrice = priceArray.map(
-    ({ perPiece, gstAmount }) => parseFloat(perPiece || needChoiceCount) * parseFloat(gstAmount)
+    ({ perPiece, gstAmount }) =>
+      parseFloat(perPiece || needChoiceCount) * parseFloat(gstAmount)
   );
   price +=
     attractionPrice.length === 0
@@ -175,10 +176,7 @@ export function calculateAllProductPriceGst(products = [], selectRuleId, session
           if (item2.groupName === 'Voucher') {
             item2.products.forEach(itemProduct => {
               if (itemProduct.attractionProduct.voucherQtyType === 'By Package' && isFixedOffer) {
-                price += calculateProductPriceGst(
-                  itemProduct,
-                  itemProduct.priceRule[1].priceRuleId
-                );
+                price += calculateProductPriceGst(itemProduct, itemProduct.priceRule[1].priceRuleId);
               }
             });
           }
@@ -244,6 +242,9 @@ export function checkInventory(detail, orderProducts = []) {
 
 export function checkNumOfGuestsAvailable(numOfGuests, detail) {
   let enough = true;
+  if(!detail || Object.keys(detail).length === 0) {
+    return false;
+  }
   const {
     productGroup = [],
     offerBundle = [{}],
