@@ -151,7 +151,7 @@ export default {
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
-              if (attraction[j].ticketType === 'MPP') {
+              if(attraction[j].ticketType === 'MPP'){
                 vidList.push({
                   key: null,
                   vidNo: null,

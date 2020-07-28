@@ -889,7 +889,7 @@ class CheckOrder extends Component {
                   <Col {...priceGrid4}>
                     <Row className={styles.priceCol}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Offer Price (Before GST):</span>
+                        <span className={styles.priceKeySpan}>Offer Price (Before 7% GST):</span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>
@@ -902,7 +902,7 @@ class CheckOrder extends Component {
                       this.getOrderAmount() !== 0 && (
                         <Row className={styles.priceCol}>
                           <Col span={16}>
-                            <span className={styles.priceKeySpan}>BOCA Fee (Before GST):</span>
+                            <span className={styles.priceKeySpan}>BOCA Fee (Before 7% GST):</span>
                           </Col>
                           <Col span={8}>
                             <span className={styles.priceValueSpan}>
@@ -917,7 +917,7 @@ class CheckOrder extends Component {
                       )}
                     <Row className={styles.priceCol2}>
                       <Col span={16}>
-                        <span className={styles.priceKeySpan}>Goods & Service Tax (GST):</span>
+                        <span className={styles.priceKeySpan}>Goods & Services Tax (7% GST):</span>
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>
@@ -928,7 +928,7 @@ class CheckOrder extends Component {
                     <Row className={styles.priceCol3}>
                       <Col span={16}>
                         <span className={styles.priceKeySpan}>
-                          Total Amount Payable (After GST):
+                          Total Amount Payable (After 7% GST):
                         </span>
                       </Col>
                       <Col span={8}>

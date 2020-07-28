@@ -193,9 +193,7 @@ class ShoppingCartOffer extends Component {
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
-        gstAmountPax: ticketNumber
-          ? calculateProductPriceGst(item, priceRuleId, item.sessionTime)
-          : 0,
+        gstAmountPax: ticketNumber ? calculateProductPriceGst(item, priceRuleId, item.sessionTime) : 0,
         productInfo: item,
       });
     });
@@ -312,12 +310,7 @@ class ShoppingCartOffer extends Component {
         sessionTime,
         quantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
-        gstAmountPax: calculateAllProductPriceGst(
-          attractionProduct,
-          priceRuleId,
-          sessionTime,
-          detail
-        ),
+        gstAmountPax: calculateAllProductPriceGst(attractionProduct, priceRuleId, sessionTime, detail),
         offerInfo: {
           ...detail,
         },

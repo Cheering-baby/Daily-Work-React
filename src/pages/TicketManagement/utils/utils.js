@@ -242,9 +242,6 @@ export function checkInventory(detail, orderProducts = []) {
 
 export function checkNumOfGuestsAvailable(numOfGuests, detail) {
   let enough = true;
-  if(!detail || Object.keys(detail).length === 0) {
-    return false;
-  }
   const {
     productGroup = [],
     offerBundle = [{}],

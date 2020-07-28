@@ -1,6 +1,6 @@
 import UAAService from '@/uaa-npm';
 
-const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '';
+const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export async function queryPluAttribute(params) {
   return UAAService.request(`${localPath}/b2c/product/v1/dictionary/attraction/list`, {

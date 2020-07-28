@@ -1,6 +1,6 @@
 import UAAService from '@/uaa-npm';
 
-const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '';
+const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 export async function queryAgentOpt(params) {
   return UAAService.request(`/agent/common/queryAgentOpt?queryType=${params.queryType}`, {

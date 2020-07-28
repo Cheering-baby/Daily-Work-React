@@ -91,7 +91,7 @@ export default {
               if (isPackage) {
                 const packageSpecObj = JSON.parse(attraction[j].packageSpec);
                 const itemPluList = packageSpecObj.packageSpecAttributes || [];
-                if (attraction[j].ticketType === 'MPP') {
+                if(attraction[j].ticketType === 'MPP'){
                   vidResultList.push({
                     key: null,
                     vidNo: null,
@@ -102,10 +102,7 @@ export default {
                     hadRefunded: attraction[j].hadRefunded,
                     vidGroup: attraction[j].vidGroup,
                     selected: false,
-                    disabled: !(
-                      attraction[j].visualIdStatus === 'false' &&
-                      attraction[j].hadRefunded !== 'Yes'
-                    ),
+                    disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                   });
                   itemPluList.forEach(itemPlu => {
                     if (itemPlu.ticketType === 'Voucher') {
@@ -135,10 +132,7 @@ export default {
                         hadRefunded: attraction[j].hadRefunded,
                         vidGroup: attraction[j].vidGroup,
                         selected: false,
-                        disabled: !(
-                          attraction[j].visualIdStatus === 'false' &&
-                          attraction[j].hadRefunded !== 'Yes'
-                        ),
+                        disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                       });
                     }
                   });
@@ -170,10 +164,7 @@ export default {
                       hadRefunded: attraction[j].hadRefunded,
                       vidGroup: attraction[j].vidGroup,
                       selected: false,
-                      disabled: !(
-                        attraction[j].visualIdStatus === 'false' &&
-                        attraction[j].hadRefunded !== 'Yes'
-                      ),
+                      disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                     });
                   });
                 }
@@ -188,9 +179,7 @@ export default {
                   hadRefunded: attraction[j].hadRefunded,
                   vidGroup: attraction[j].vidGroup,
                   selected: false,
-                  disabled: !(
-                    attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'
-                  ),
+                  disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                 });
               }
             }
@@ -202,9 +191,9 @@ export default {
             if (e.vidGroup === item.vidGroup) {
               item.disabled = true;
             }
-          });
+          })
         });
-        vidResultList.sort((a, b) => a.vidGroup - b.vidGroup);
+        vidResultList.sort((a,b) => a.vidGroup - b.vidGroup);
         for (let i = 0; i < vidResultList.length; i += 1) {
           vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
           vidResultList[i].key = i;
@@ -283,7 +272,7 @@ export default {
           newVidList[i].key = i;
         }
         newVidList.forEach(item => {
-          if (!item.disabled) {
+          if(!item.disabled){
             item.selected = true;
           }
         });

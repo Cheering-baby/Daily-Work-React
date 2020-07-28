@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import {cloneDeep} from "lodash";
 import { message } from 'antd';
 import moment from 'moment';
 import serialize from '../utils/utils';
@@ -143,7 +143,7 @@ export default {
               if (isPackage) {
                 const packageSpecObj = JSON.parse(attraction[j].packageSpec);
                 const itemPluList = packageSpecObj.packageSpecAttributes || [];
-                if (attraction[j].ticketType === 'MPP') {
+                if(attraction[j].ticketType === 'MPP'){
                   vidResultList.push({
                     key: null,
                     vidNo: null,
@@ -158,10 +158,7 @@ export default {
                     prodId: attraction[j].prodId,
                     netAmt: attraction[j].netAmt,
                     selected: false,
-                    disabled: !(
-                      attraction[j].visualIdStatus === 'false' &&
-                      attraction[j].hadRefunded !== 'Yes'
-                    ),
+                    disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                   });
                   itemPluList.forEach(itemPlu => {
                     if (itemPlu.ticketType === 'Voucher') {
@@ -195,10 +192,7 @@ export default {
                         selected: false,
                         prodId: attraction[j].prodId,
                         netAmt: attraction[j].netAmt,
-                        disabled: !(
-                          attraction[j].visualIdStatus === 'false' &&
-                          attraction[j].hadRefunded !== 'Yes'
-                        ),
+                        disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                       });
                     }
                   });
@@ -234,10 +228,7 @@ export default {
                       selected: false,
                       prodId: attraction[j].prodId,
                       netAmt: attraction[j].netAmt,
-                      disabled: !(
-                        attraction[j].visualIdStatus === 'false' &&
-                        attraction[j].hadRefunded !== 'Yes'
-                      ),
+                      disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                     });
                   });
                 }
@@ -256,9 +247,7 @@ export default {
                   prodId: attraction[j].prodId,
                   netAmt: attraction[j].netAmt,
                   selected: false,
-                  disabled: !(
-                    attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'
-                  ),
+                  disabled: !(attraction[j].visualIdStatus === 'false' && attraction[j].hadRefunded !== 'Yes'),
                 });
               }
             }
@@ -270,9 +259,9 @@ export default {
             if (e.vidGroup === item.vidGroup) {
               item.disabled = true;
             }
-          });
+          })
         });
-        vidResultList.sort((a, b) => a.vidGroup - b.vidGroup);
+        vidResultList.sort((a,b) => a.vidGroup - b.vidGroup);
         for (let i = 0; i < vidResultList.length; i += 1) {
           vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
           vidResultList[i].key = i;
@@ -345,7 +334,7 @@ export default {
           newVidList[i].key = i;
         }
         newVidList.forEach(item => {
-          if (!item.disabled) {
+          if(!item.disabled){
             item.selected = true;
           }
         });

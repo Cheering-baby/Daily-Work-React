@@ -306,9 +306,7 @@ class Attraction extends Component {
         ageGroupQuantity: item.needChoiceCount,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
-        gstAmountPax: ticketNumber
-          ? calculateProductPriceGst(item, priceRuleId, item.sessionTime)
-          : 0,
+        gstAmountPax: ticketNumber ? calculateProductPriceGst(item, priceRuleId, item.sessionTime) : 0,
         productInfo: item,
       });
     });
@@ -361,12 +359,7 @@ class Attraction extends Component {
         sessionTime,
         quantity: ticketNumber || 0,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
-        gstAmountPax: calculateAllProductPriceGst(
-          attractionProduct,
-          priceRuleId,
-          sessionTime,
-          detail
-        ),
+        gstAmountPax: calculateAllProductPriceGst(attractionProduct, priceRuleId, sessionTime, detail),
         offerInfo: {
           ...detail,
           selectRuleId: priceRuleId,

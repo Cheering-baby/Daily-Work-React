@@ -1,7 +1,6 @@
 import { formatMessage } from 'umi/locale';
 import { message } from 'antd';
 import serialize from '../utils/utils';
-import moment from 'moment';
 import {
   attractionTaConfirm,
   downloadETicket,
@@ -13,7 +12,6 @@ import {
 export default {
   namespace: 'queryOrderMgr',
   state: {
-    isQueryExpand: true,
     transactionList: [],
     searchConditions: {
       deliveryLastName: null,
@@ -75,7 +73,6 @@ export default {
       }
       const paramList = {
         ...params,
-        checkInDateTo: params.checkInDateFrom ? moment(params.checkInDateFrom).add('d', 1).format('YYYY-MM-DD') : null,
         deliveryLastName: params.deliveryLastName !== null ? params.deliveryLastName.trim() : null,
         deliveryFirstName:
           params.deliveryFirstName !== null ? params.deliveryFirstName.trim() : null,
@@ -289,7 +286,6 @@ export default {
     },
     resetData() {
       return {
-        isQueryExpand: true,
         transactionList: [],
         searchConditions: {
           deliveryLastName: null,

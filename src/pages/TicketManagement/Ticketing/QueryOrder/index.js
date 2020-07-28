@@ -5,7 +5,6 @@ import moment from 'moment';
 import { Button, Col, message, Modal, Row, Spin, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import router from 'umi/router';
-import { isNullOrUndefined } from 'util';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
@@ -36,8 +35,6 @@ import PaymentPromptModal from '@/pages/TicketManagement/Ticketing/QueryOrder/co
   downloadFileLoading: loading.effects['queryOrderMgr/download'],
 }))
 class QueryOrder extends Component {
-
-
   columns = [
     {
       title: (
@@ -93,7 +90,7 @@ class QueryOrder extends Component {
       ),
       dataIndex: 'arPaymentStatus',
       key: 'arPaymentStatus',
-      width: '160px',
+      width: '170px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span className={styles.tableSpan}>{text}</span>
@@ -101,25 +98,13 @@ class QueryOrder extends Component {
       ),
     },
     {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'MODE_OF_PAYMENT' })}</span>,
-      dataIndex: 'paymentModel',
-      key: 'paymentModel',
-      width: '140px',
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'SALES_CHANNEL' })}</span>,
+      dataIndex: 'salesChannel',
+      key: 'salesChannel',
+      width: '120px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'TOTAL_AMOUNT' })}</span>,
-      dataIndex: 'totalPrice',
-      key: 'totalPrice',
-      align: 'right',
-      width: '150px',
-      render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span>{!isNullOrUndefined(text) ? `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}` : text}</span>
         </Tooltip>
       ),
     },
@@ -131,90 +116,16 @@ class QueryOrder extends Component {
       render: text => this.showTxnDate(text),
     },
     {
-      title: <span className={styles.tableTitle}>Offer Name And Visit Date</span>,
+      title: <span className={styles.tableTitle}>First Name</span>,
       key: 'firstName',
-      width: '190px',
-      render: (_, record) => {
-        const { offInstances = []} = record;
-        let text = '';
-        const offInstancesDiv = [];
-        const offerNos = [];
-        const offInstancesFilter = [];
-        offInstances.forEach(item => {
-          const { offerNo, visitDate } = item;
-          if(!offerNos.includes(offerNo)) {
-            offInstancesFilter.push(item);
-          } else {
-            if(offerNos.find(itemOffer => itemOffer.offNo === offerNo && itemOffer.visitDate !== visitDate)) {
-              offInstancesFilter.push(item);
-            }
-          }
-        })
-        offInstancesFilter.forEach((item, index) => {
-          const { offerName, visitDate,offerNo } = item;
-          text += offerName + `${visitDate ? ': ':' '}` + (visitDate ? moment(visitDate).format('YYYY-MM-DD') : '') + '\n';
-          offInstancesDiv.push(<div className={styles.offerNames} key={offerNo + index}>{offerName + `${visitDate ? ': ':' '}` + (visitDate ? moment(visitDate).format('DD-MMM-YYYY') : '')}</div>)
-        })
-        return  <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <div>
-            {offInstancesDiv}
-          </div>
-        </Tooltip>
-      },
+      width: '110px',
+      render: (_, record) => this.showOrderDeliveryName(record, 'firstName'),
     },
     {
-      title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'COMPANY_NAME' })}</span>
-      ),
-      key: 'companyName',
-      width: '150px',
-      render: (_, record) => {
-        const { patronInfo = {} } = record;
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{patronInfo.mainTaName}</span>}
-          >
-            <span>{patronInfo.mainTaName}</span>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'SUB_AGENT_COMPANY_NAME' })}</span>
-      ),
-      key: 'subTaCompanyName',
-      width: '200px',
-      render: (_, record) => {
-        const { patronInfo = {} } = record;
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{patronInfo.taName}</span>}
-          >
-            <span>{patronInfo.taName}</span>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'CREATE_BY' })}</span>
-      ),
-      key: 'createBy',
-      dataIndex: 'createBy',
-      width: '100px',
-      render: text => {
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        );
-      },
+      title: <span className={styles.tableTitle}>Last Name</span>,
+      key: 'lastName',
+      width: '110px',
+      render: (_, record) => this.showOrderDeliveryName(record, 'lastName'),
     },
   ];
 
@@ -428,10 +339,9 @@ class QueryOrder extends Component {
       {
         title: <span className={styles.tableTitle}>{formatMessage({ id: 'TOTAL_AMOUNT' })}</span>,
         dataIndex: 'totalAmount',
-        align: 'right',
         render: text => {
           if (text !== null) {
-            return `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            return `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}(SGD)`;
           }
           return '';
         },
@@ -638,10 +548,7 @@ class QueryOrder extends Component {
             status,
           },
         });
-      } else if (
-        transType === 'revalidation' &&
-        (status === 'Confirmed' || status === 'Complete')
-      ) {
+      } else if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
         dispatch({
           type: 'updateOrderMgr/save',
           payload: {
@@ -679,7 +586,7 @@ class QueryOrder extends Component {
         payload: {
           orderDetailVisible: true,
           detailType: 'Booking',
-          revalidationVidListVisible: transType === 'revalidation' && productInstances.length > 0,
+          revalidationVidListVisible:  transType === 'revalidation' && productInstances.length > 0,
         },
       });
       dispatch({
@@ -688,7 +595,7 @@ class QueryOrder extends Component {
           bookingNo,
         },
       });
-      if (transType === 'revalidation' && productInstances.length > 0) {
+      if(transType === 'revalidation' && productInstances.length > 0){
         dispatch({
           type: 'orderDetailMgr/queryVid',
           payload: {
@@ -1100,7 +1007,6 @@ class QueryOrder extends Component {
                   </Col>
                   <Col span={24}>
                     <Table
-                      tableLayout="fixed"
                       size="small"
                       className={`components-table-demo-nested ${styles.searchTitle}`}
                       columns={this.columns}
@@ -1117,7 +1023,7 @@ class QueryOrder extends Component {
                       loading={!!tableLoading}
                       expandedRowRender={record => this.expandedRowRender(record, userType)}
                       dataSource={dataSource}
-                      scroll={{ x: 1140, y: 400 }}
+                      scroll={{ x: 1140 }}
                       pagination={false}
                     />
                     <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
