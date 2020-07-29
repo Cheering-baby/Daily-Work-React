@@ -535,7 +535,7 @@ export default {
                     });
                     let sessionArr = [];
                     if (item2.choiceConstrain === 'Fixed' || offerBundle[0].bundleName) {
-                      if (item2.choiceConstrain === 'Fixed') {
+                      // if (item2.choiceConstrain === 'Fixed') {
                         const existProductSession = [];
                         productSessions.forEach(itemProductSession => {
                           if (itemProductSession.indexOf(null) === -1) {
@@ -547,10 +547,10 @@ export default {
                         } else {
                           sessionArr = findArrSame(productSessions);
                         }
-                      }
-                      if (offerBundle[0].bundleName) {
-                        sessionArr = findArrSame(productSessions);
-                      }
+                      // }
+                      // if (offerBundle[0].bundleName) {
+                      //   sessionArr = findArrSame(productSessions);
+                      // }
                     } else {
                       productSessions.forEach(itemProductSession => {
                         itemProductSession.forEach(itemSession => {
@@ -583,7 +583,6 @@ export default {
                             themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
                           } else {
                             sessionArr.forEach(itemSession => {
-                              filterSessionProduct();
                               data.attractionProduct = filterSessionProduct(
                                 priceRuleId,
                                 itemSession,
