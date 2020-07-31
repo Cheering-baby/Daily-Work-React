@@ -95,8 +95,7 @@ export function calculateProductPriceGst(product, selectRuleId, session) {
   }
   const priceArray = productPrice.filter(({ perPiece }) => (selectRuleId ? perPiece : !perPiece));
   const attractionPrice = priceArray.map(
-    ({ perPiece, gstAmount }) =>
-      parseFloat(perPiece || needChoiceCount) * parseFloat(gstAmount)
+    ({ perPiece, gstAmount }) => parseFloat(perPiece || needChoiceCount) * parseFloat(gstAmount)
   );
   price +=
     attractionPrice.length === 0
@@ -107,39 +106,39 @@ export function calculateProductPriceGst(product, selectRuleId, session) {
 
 export function calculateAllProductPrice(products = [], selectRuleId, session, detail) {
   let price = 0;
-  products.forEach(item => {
-    const { sessionTime } = item;
-    if (isSessionProduct(selectRuleId, item)) {
-      price += calculateProductPrice(item, selectRuleId, sessionTime || session);
-    } else if (isSessionProduct(selectRuleId, item)) {
-      const { priceRule, needChoiceCount } = item;
-      const filterPriceRule = priceRule.filter(({ priceRuleId }) => priceRuleId === selectRuleId);
-      const { productPrice } = filterPriceRule[0];
-      const { priceTimeFrom } = productPrice.find(
-        ({ productInventory }) => productInventory / needChoiceCount >= 1
-      );
-      price += calculateProductPrice(item, selectRuleId, priceTimeFrom);
-    } else {
-      price += calculateProductPrice(item, selectRuleId);
-    }
-  });
+  let isChoiceConstrain = false;
   if (detail) {
-    let isFixedOffer = false;
     const { productGroup = [] } = detail;
     productGroup.forEach(item => {
       if (item.productType === 'Attraction') {
         item.productGroup.forEach(item2 => {
           if (item2.groupName === 'Attraction' && item2.choiceConstrain === 'Fixed') {
-            isFixedOffer = true;
-          }
-          if (item2.groupName === 'Voucher') {
-            item2.products.forEach(itemProduct => {
-              if (itemProduct.attractionProduct.voucherQtyType === 'By Package' && isFixedOffer) {
-                price += calculateProductPrice(itemProduct, itemProduct.priceRule[1].priceRuleId);
-              }
-            });
+            isChoiceConstrain = true;
+            const { groupPrices = [] } = item2;
+            const groupPriceSelect = groupPrices.find(
+              groupPrice => groupPrice.priceRuleId === selectRuleId
+            );
+            price = groupPriceSelect ? groupPriceSelect.totalPrice : 0.0;
           }
         });
+      }
+    });
+  }
+  if (!isChoiceConstrain) {
+    products.forEach(item => {
+      const { sessionTime } = item;
+      if (isSessionProduct(selectRuleId, item)) {
+        price += calculateProductPrice(item, selectRuleId, sessionTime || session);
+      } else if (isSessionProduct(selectRuleId, item)) {
+        const { priceRule, needChoiceCount } = item;
+        const filterPriceRule = priceRule.filter(({ priceRuleId }) => priceRuleId === selectRuleId);
+        const { productPrice } = filterPriceRule[0];
+        const { priceTimeFrom } = productPrice.find(
+          ({ productInventory }) => productInventory / needChoiceCount >= 1
+        );
+        price += calculateProductPrice(item, selectRuleId, priceTimeFrom);
+      } else {
+        price += calculateProductPrice(item, selectRuleId);
       }
     });
   }
@@ -148,39 +147,39 @@ export function calculateAllProductPrice(products = [], selectRuleId, session, d
 
 export function calculateAllProductPriceGst(products = [], selectRuleId, session, detail) {
   let price = 0;
-  products.forEach(item => {
-    const { sessionTime } = item;
-    if (isSessionProduct(selectRuleId, item)) {
-      price += calculateProductPriceGst(item, selectRuleId, sessionTime || session);
-    } else if (isSessionProduct(selectRuleId, item)) {
-      const { priceRule, needChoiceCount } = item;
-      const filterPriceRule = priceRule.filter(({ priceRuleId }) => priceRuleId === selectRuleId);
-      const { productPrice } = filterPriceRule[0];
-      const { priceTimeFrom } = productPrice.find(
-        ({ productInventory }) => productInventory / needChoiceCount >= 1
-      );
-      price += calculateProductPriceGst(item, selectRuleId, priceTimeFrom);
-    } else {
-      price += calculateProductPriceGst(item, selectRuleId);
-    }
-  });
+  let isChoiceConstrain = false;
   if (detail) {
-    let isFixedOffer = false;
     const { productGroup = [] } = detail;
     productGroup.forEach(item => {
       if (item.productType === 'Attraction') {
         item.productGroup.forEach(item2 => {
           if (item2.groupName === 'Attraction' && item2.choiceConstrain === 'Fixed') {
-            isFixedOffer = true;
-          }
-          if (item2.groupName === 'Voucher') {
-            item2.products.forEach(itemProduct => {
-              if (itemProduct.attractionProduct.voucherQtyType === 'By Package' && isFixedOffer) {
-                price += calculateProductPriceGst(itemProduct, itemProduct.priceRule[1].priceRuleId);
-              }
-            });
+            isChoiceConstrain = true;
+            const { groupPrices = [] } = item2;
+            const groupPriceSelect = groupPrices.find(
+              groupPrice => groupPrice.priceRuleId === selectRuleId
+            );
+            price = groupPriceSelect ? groupPriceSelect.totalGSTAmount : 0.0;
           }
         });
+      }
+    });
+  }
+  if (!isChoiceConstrain) {
+    products.forEach(item => {
+      const { sessionTime } = item;
+      if (isSessionProduct(selectRuleId, item)) {
+        price += calculateProductPriceGst(item, selectRuleId, sessionTime || session);
+      } else if (isSessionProduct(selectRuleId, item)) {
+        const { priceRule, needChoiceCount } = item;
+        const filterPriceRule = priceRule.filter(({ priceRuleId }) => priceRuleId === selectRuleId);
+        const { productPrice } = filterPriceRule[0];
+        const { priceTimeFrom } = productPrice.find(
+          ({ productInventory }) => productInventory / needChoiceCount >= 1
+        );
+        price += calculateProductPriceGst(item, selectRuleId, priceTimeFrom);
+      } else {
+        price += calculateProductPriceGst(item, selectRuleId);
       }
     });
   }
@@ -242,6 +241,9 @@ export function checkInventory(detail, orderProducts = []) {
 
 export function checkNumOfGuestsAvailable(numOfGuests, detail) {
   let enough = true;
+  if(!detail || Object.keys(detail).length === 0) {
+    return false;
+  }
   const {
     productGroup = [],
     offerBundle = [{}],

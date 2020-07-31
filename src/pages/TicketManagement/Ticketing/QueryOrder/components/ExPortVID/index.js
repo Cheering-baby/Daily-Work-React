@@ -14,8 +14,7 @@ class ExportVID extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
       dataIndex: 'vidNo',
-      key: 'vidNo',
-      width: '15%',
+      width: '6%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span className={styles.tableSpan}>{text}</span>
@@ -25,8 +24,7 @@ class ExportVID extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
       dataIndex: 'vidCode',
-      key: 'vidCode',
-      width: '35%',
+      width: '20%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span className={styles.tableSpan}>{text}</span>
@@ -36,8 +34,7 @@ class ExportVID extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' })}</span>,
       dataIndex: 'offerName',
-      key: 'offerName',
-      width: '25%',
+      width: '20%',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span className={styles.tableSpan}>{text}</span>
@@ -47,13 +44,12 @@ class ExportVID extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'STATUS' })}</span>,
       dataIndex: 'status',
-      key: 'status',
-      width: '25%',
+      width: '8%',
       render: (text, record) => {
         let status = text;
         const { hadRefunded } = record;
         if (text === 'false' && hadRefunded !== 'Yes') {
-          status = 'ISSUED';
+          status = 'VALID';
         } else {
           status = 'INVALID';
         }
@@ -73,6 +69,73 @@ class ExportVID extends React.Component {
         );
       },
     },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
+      width: '15%',
+      dataIndex: 'themePark',
+      render: text => this.showThemePark(text),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
+      width: '8%',
+      dataIndex: 'ticketGroup',
+      render: (text, row) => {
+        if (row.ticketType === 'Voucher') {
+          return '';
+        }
+        if (text !== null) {
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+            >
+              <span className={styles.tableSpan}>{text}</span>
+            </Tooltip>
+          );
+        }
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>General</span>}
+          >
+            <span className={styles.tableSpan}>General</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
+      dataIndex: 'ticketType',
+      width: '8%',
+      render: text => {
+        if (text === 'Voucher') {
+          return text;
+        }
+        if (text !== 'Voucher') {
+          return 'Ticket';
+        }
+      },
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'BLACKOUT_DAY' })}</span>,
+      dataIndex: 'blackOutDay',
+      render: (text = []) => {
+        const textShow = text.join(', ');
+        if (text.length === 0) {
+          return '-';
+        }
+        return (
+          <Tooltip
+            placement="top"
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>{textShow.replace(/,/g, '$&\r\n')}</span>
+            }
+          >
+            <span className={styles.tableSpan}>{textShow}</span>
+          </Tooltip>
+        );
+      },
+    },
   ];
 
   componentWillUnmount() {
@@ -87,6 +150,24 @@ class ExportVID extends React.Component {
       return '#40C940';
     }
     return '#C0C0C0';
+  };
+
+  showThemePark = text => {
+    const {
+      exportVIDMgr: { themeParkList = [] },
+    } = this.props;
+    for (let i = 0; i < themeParkList.length; i += 1) {
+      if (themeParkList[i].itemValue === text) {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+          >
+            <span>{themeParkList[i].itemName}</span>
+          </Tooltip>
+        );
+      }
+    }
   };
 
   onClose = () => {
@@ -135,6 +216,7 @@ class ExportVID extends React.Component {
           <span className={styles.drawerTitleStyle}>{formatMessage({ id: 'VIEW_VID_TITLE' })}</span>
         }
         className={styles.drawerStyle}
+        getContainer={false}
         placement="right"
         closable={false}
         onClose={this.onClose}
@@ -152,7 +234,7 @@ class ExportVID extends React.Component {
           dataSource={vidList}
           pagination={false}
           bordered={false}
-          scroll={{ x: 310 }}
+          scroll={{ x: 1000 }}
         />
         <div className={styles.operateButtonDivStyle}>
           <Button style={{ marginRight: 8 }} onClick={() => this.onClose()}>

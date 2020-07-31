@@ -361,19 +361,17 @@ export default {
         userCompanyInfo: { companyType },
       } = yield select(state => state.global);
       const {
+        bookingNo,
         bookDetail: { totalPrice },
       } = yield select(state => state.ticketBookingAndPayMgr);
       if (Number.parseFloat(totalPrice) === Number.parseFloat(0)) {
         if (companyType === '02') {
           message.success('Confirmed successfully.');
         } else {
-          yield put({
-            type: 'queryBookingStatus',
-            payload: {},
-          });
+          router.push(`/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`);
         }
       } else {
-        const { bookingNo, payModeList } = yield select(state => state.ticketBookingAndPayMgr);
+        const { payModeList } = yield select(state => state.ticketBookingAndPayMgr);
         const payMode = payModeList.filter(payModeObj => payModeObj.check);
         const params = {
           orderNo: bookingNo,

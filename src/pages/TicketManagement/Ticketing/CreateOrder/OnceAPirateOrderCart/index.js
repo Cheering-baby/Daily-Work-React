@@ -270,7 +270,7 @@ class OnceAPirateOrderCart extends Component {
                     type="primary"
                     onClick={this.orderEvent}
                   >
-                    {formatMessage({ id: 'ORDER' })}
+                    {formatMessage({ id: 'ADD_TO_MY_SHOPPING_CART' })}
                   </Button>
                 </div>
               </MediaQuery>
@@ -286,7 +286,7 @@ class OnceAPirateOrderCart extends Component {
                     type="primary"
                     onClick={this.orderEvent}
                   >
-                    {formatMessage({ id: 'ORDER' })}
+                    {formatMessage({ id: 'ADD_TO_MY_SHOPPING_CART' })}
                   </Button>
                 </div>
               </MediaQuery>

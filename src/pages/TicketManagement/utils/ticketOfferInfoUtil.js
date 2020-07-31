@@ -188,12 +188,30 @@ export function getSumPriceOfOfferPaxOfferProfile(
   if (!selectRuleId) {
     selectRuleId = getPamsPriceRuleIdByOfferProfile(offerProfile);
   }
-  const attractionProductList = getAttractionProductList(offerProfile, dateOfVisit);
   let sumPriceOfOfferPax = 0.0;
-  if (attractionProductList && attractionProductList.length > 0) {
-    attractionProductList.forEach(attractionProduct => {
-      sumPriceOfOfferPax += calculateProductPrice(attractionProduct, selectRuleId, sessionTime);
-    });
+  let isChoiceConstrain = false;
+  const { productGroup = [] } = offerProfile;
+  productGroup.forEach(item => {
+    if (item.productType === 'Attraction') {
+      item.productGroup.forEach(item2 => {
+        if (item2.groupName === 'Attraction' && item2.choiceConstrain === 'Fixed') {
+          isChoiceConstrain = true;
+          const { groupPrices = [] } = item2;
+          const groupPriceSelect = groupPrices.find(
+            groupPrice => groupPrice.priceRuleId === selectRuleId
+          );
+          sumPriceOfOfferPax = groupPriceSelect ? groupPriceSelect.totalPrice : 0.0;
+        }
+      });
+    }
+  });
+  if (!isChoiceConstrain) {
+    const attractionProductList = getAttractionProductList(offerProfile, dateOfVisit);
+    if (attractionProductList && attractionProductList.length > 0) {
+      attractionProductList.forEach(attractionProduct => {
+        sumPriceOfOfferPax += calculateProductPrice(attractionProduct, selectRuleId, sessionTime);
+      });
+    }
   }
   return sumPriceOfOfferPax;
 }
@@ -207,12 +225,30 @@ export function getSumGSTOfOfferPaxOfferProfile(
   if (!selectRuleId) {
     selectRuleId = getPamsPriceRuleIdByOfferProfile(offerProfile);
   }
-  const attractionProductList = getAttractionProductList(offerProfile, dateOfVisit);
   let sumPriceOfOfferPax = 0.0;
-  if (attractionProductList && attractionProductList.length > 0) {
-    attractionProductList.forEach(attractionProduct => {
-      sumPriceOfOfferPax += calculateProductGST(attractionProduct, selectRuleId, sessionTime);
-    });
+  let isChoiceConstrain = false;
+  const { productGroup = [] } = offerProfile;
+  productGroup.forEach(item => {
+    if (item.productType === 'Attraction') {
+      item.productGroup.forEach(item2 => {
+        if (item2.groupName === 'Attraction' && item2.choiceConstrain === 'Fixed') {
+          isChoiceConstrain = true;
+          const { groupPrices = [] } = item2;
+          const groupPriceSelect = groupPrices.find(
+            groupPrice => groupPrice.priceRuleId === selectRuleId
+          );
+          sumPriceOfOfferPax = groupPriceSelect ? groupPriceSelect.totalGSTAmount : 0.0;
+        }
+      });
+    }
+  });
+  if (!isChoiceConstrain) {
+    const attractionProductList = getAttractionProductList(offerProfile, dateOfVisit);
+    if (attractionProductList && attractionProductList.length > 0) {
+      attractionProductList.forEach(attractionProduct => {
+        sumPriceOfOfferPax += calculateProductGST(attractionProduct, selectRuleId, sessionTime);
+      });
+    }
   }
   return sumPriceOfOfferPax;
 }

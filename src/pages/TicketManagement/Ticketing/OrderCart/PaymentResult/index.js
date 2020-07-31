@@ -332,10 +332,7 @@ class PaymentResult extends Component {
               <Steps labelPlacement="vertical" size="small">
                 <Steps.Step status="finish" title="Cart&nbsp;&nbsp;" />
                 <Steps.Step status="finish" title={formatMessage({ id: 'REVIEW_ORDER' })} />
-                <Steps.Step
-                  status={this.getOrderProcess(bookDetail)}
-                  title={this.getOrderResult(bookDetail)}
-                />
+                <Steps.Step status={this.getOrderProcess(bookDetail)} title="Complete" />
               </Steps>
             </Col>
           </Row>
@@ -388,7 +385,7 @@ class PaymentResult extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  {bookDetail.status === 'Complete' && (
+                  {bookDetail.status && (
                     <Col span={24} className={styles.resultCol}>
                       <Button className={styles.backButton} onClick={this.backToCartEvent}>
                         Back to Cart
@@ -396,7 +393,7 @@ class PaymentResult extends Component {
                       <Button className={styles.downloadButton} onClick={this.gotoOrderQueryEvent}>
                         Go to Order Query
                       </Button>
-                      {companyType === '01' && (
+                      {companyType === '01' && bookDetail.status === 'Complete' && (
                         <Button
                           type="primary"
                           className={styles.downloadButton2}
@@ -499,7 +496,8 @@ class PaymentResult extends Component {
                           {errorCode && (
                             <div>
                               <span className={styles.orderValueSpan}>
-                                Payment failed,You can goto query order page to continue processing.
+                                Payment failed,You can go to query order page to continue
+                                processing.
                               </span>
                             </div>
                           )}

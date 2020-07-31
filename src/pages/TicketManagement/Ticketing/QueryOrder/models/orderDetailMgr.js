@@ -4,6 +4,7 @@ import {
   queryPluAttribute,
   queryRevalidationVids,
 } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
+import { getNumOfPaxInPackage } from '@/pages/TicketManagement/Ticketing/QueryOrder/utils/utils';
 
 export default {
   namespace: 'orderDetailMgr',
@@ -17,12 +18,14 @@ export default {
     detailList: [],
     vidResultList: [],
     patronInfo: {},
-    themeParkList:[],
+    themeParkList: [],
     netAmt: 0,
     refundSuccessFlag: false,
     status: null,
     revalidationVidListVisible: false,
     revalidationVidList: [],
+    bookingDetail: null,
+    orderQuantityList: [],
   },
 
   effects: {
@@ -40,8 +43,8 @@ export default {
       } = response;
       if (resultCode === '0') {
         const { vidInfos } = result;
-        if(vidInfos){
-          for (let i = 0; i < vidInfos.length; i+=1) {
+        if (vidInfos) {
+          for (let i = 0; i < vidInfos.length; i += 1) {
             vidInfos[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
           }
           yield put({
@@ -83,16 +86,22 @@ export default {
             bookingDetail,
           },
         });
+        yield put({
+          type: 'saveOrderQuantity',
+          payload: {
+            bookingDetail,
+          },
+        });
       } else throw resultMsg;
     },
-    * queryThemePark(_, {call, put}) {
-      const response = yield call(queryPluAttribute, {attributeItem: 'THEME_PARK'});
+    *queryThemePark(_, { call, put }) {
+      const response = yield call(queryPluAttribute, { attributeItem: 'THEME_PARK' });
       if (!response) return false;
       const {
-        data: {resultCode, resultMsg, result},
+        data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        yield put({type: 'save', payload: {themeParkList: result.items}});
+        yield put({ type: 'save', payload: { themeParkList: result.items } });
       } else throw resultMsg;
     },
   },
@@ -104,11 +113,152 @@ export default {
         ...payload,
       };
     },
+    saveOrderQuantity(state, { payload }) {
+      const { themeParkList = [] } = state;
+      const { bookingDetail = {} } = payload;
+      const { offers = [] } = bookingDetail;
+      const offerGroupList = [];
+      offers.forEach(offerInfo => {
+        const offerGroupInfo = offerGroupList.find(
+          offerGroupItem => offerInfo.offerGroup === offerGroupItem.offerGroup
+        );
+        if (!offerGroupInfo) {
+          offerGroupList.push({
+            offerGroup: offerInfo.offerGroup,
+            offerList: [
+              {
+                ...offerInfo,
+              },
+            ],
+          });
+        } else {
+          offerGroupInfo.offerList.push({
+            ...offerInfo,
+          });
+        }
+      });
+      const orderQuantityList = [];
+      offerGroupList.forEach(offerGroupItem => {
+        const offerOrderQuantityItem = {
+          offerGroup: offerGroupItem.offerGroup,
+          itemList: [],
+          quantityTotal: 0,
+        };
+        offerGroupItem.offerList.forEach(offerItem => {
+          if (offerItem.bundleName) {
+            const findQuantityItem = offerOrderQuantityItem.itemList.find(
+              itemInfo => itemInfo.itemName === offerItem.bundleLabel
+            );
+            if (findQuantityItem) {
+              findQuantityItem.itemQuantity += 1;
+            } else {
+              offerOrderQuantityItem.itemList.push({
+                itemName: offerItem.bundleLabel,
+                itemQuantity: 1,
+                configQuantity: 1,
+                numOfPax: null,
+              });
+            }
+          } else {
+            const { attraction = [], attractionGroupType, voucherOnly } = offerItem;
+            if (attractionGroupType === 'Fixed' && attraction.length !== 1) {
+              if (offerOrderQuantityItem.itemList.length > 0) {
+                offerOrderQuantityItem.itemList[0].itemQuantity += 1;
+              } else {
+                const showName = [];
+                const productNoList = [];
+                attraction.forEach(attractionItem => {
+                  if (attractionItem.ticketType !== 'Voucher') {
+                    const productNoFind = productNoList.find(
+                      productNoItem => productNoItem === attractionItem.prodNo
+                    );
+                    if (!productNoFind) {
+                      productNoList.push(attractionItem.prodNo);
+                      showName.push(attractionItem.ticketGroup || 'General');
+                    }
+                  }
+                });
+                offerOrderQuantityItem.itemList.push({
+                  itemName: showName.join(','),
+                  itemQuantity: 1,
+                  configQuantity: 1,
+                  numOfPax: null,
+                });
+              }
+            } else {
+              attraction.forEach(attractionItem => {
+                if (voucherOnly === 'Yes' && attractionItem.ticketType === 'Voucher') {
+                  const themeParkObj = themeParkList.find(
+                    themeParkInfo => themeParkInfo.itemValue === attractionItem.themePark
+                  );
+                  let showName = 'General';
+                  if (themeParkObj) {
+                    showName = themeParkObj.itemName;
+                  }
+                  const itemInfoFind = offerOrderQuantityItem.itemList.find(
+                    itemInfo => itemInfo.prodNo === attractionItem.prodNo
+                  );
+                  if (itemInfoFind) {
+                    itemInfoFind.itemQuantity += 1;
+                  } else {
+                    offerOrderQuantityItem.itemList.push({
+                      itemName: showName,
+                      itemQuantity: 1,
+                      configQuantity: attractionItem.configQuantity,
+                      prodNo: attractionItem.prodNo,
+                      numOfPax: attractionItem.numOfPax,
+                    });
+                  }
+                } else if (voucherOnly !== 'Yes' && attractionItem.ticketType !== 'Voucher') {
+                  const itemInfoFind = offerOrderQuantityItem.itemList.find(
+                    itemInfo => itemInfo.prodNo === attractionItem.prodNo
+                  );
+                  if (itemInfoFind) {
+                    itemInfoFind.itemQuantity += 1;
+                  } else {
+                    // attractionItem.configQuantity
+                    offerOrderQuantityItem.itemList.push({
+                      itemName: attractionItem.ticketGroup || 'General',
+                      itemQuantity: 1,
+                      configQuantity: attractionItem.configQuantity,
+                      prodNo: attractionItem.prodNo,
+                      numOfPax: attractionItem.numOfPax,
+                    });
+                  }
+                }
+              });
+            }
+          }
+        });
+        offerOrderQuantityItem.itemList.forEach(itemInfo => {
+          if (itemInfo.numOfPax) {
+            itemInfo.itemQuantity = itemInfo.numOfPax;
+          } else {
+            itemInfo.itemQuantity /= itemInfo.configQuantity || 1;
+          }
+        });
+        offerOrderQuantityItem.itemList.forEach(itemInfo => {
+          offerOrderQuantityItem.quantityTotal += itemInfo.itemQuantity;
+        });
+        orderQuantityList.push(offerOrderQuantityItem);
+      });
+      // console.log(orderQuantityList);
+      return {
+        ...state,
+        orderQuantityList,
+      };
+    },
     saveOrderDetail(state, { payload }) {
       const { bookingDetail = {} } = payload;
       const detailList = [];
       const vidResultList = [];
-      const { offers = [], patronInfo = {}, netAmt, refundSuccessFlag = false, status } = bookingDetail;
+      const {
+        offers = [],
+        patronInfo = {},
+        netAmt,
+        refundSuccessFlag = false,
+        status,
+      } = bookingDetail;
       for (let i = 0; i < offers.length; i += 1) {
         const vidList = [];
         const { attraction = [] } = offers[i];
@@ -121,13 +271,14 @@ export default {
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
-              if(attraction[j].ticketType === 'MPP'){
+              if (attraction[j].ticketType === 'MPP') {
                 vidList.push({
                   vidNo: null,
                   vidCode: attraction[j].visualID,
                   themePark: attraction[j].themePark,
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
+                  numOfPax: getNumOfPaxInPackage(attraction[j]),
                 });
                 vidResultList.push({
                   vidNo: null,
@@ -136,6 +287,7 @@ export default {
                   offerName: offers[i].offerName,
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
+                  numOfPax: getNumOfPaxInPackage(attraction[j]),
                 });
                 itemPluList.forEach(itemPlu => {
                   if (itemPlu.ticketType === 'Voucher') {
@@ -143,16 +295,18 @@ export default {
                       vidNo: null,
                       vidCode: itemPlu.visualId,
                       themePark: itemPlu.themeParkCode,
-                      ticketGroup: itemPlu.ageGroup,
+                      ticketGroup: '',
                       ticketType: itemPlu.ticketType,
+                      numOfPax: getNumOfPaxInPackage(attraction[j]),
                     });
                     vidResultList.push({
                       vidNo: null,
                       vidCode: itemPlu.visualId,
                       offerName: offers[i].offerName,
                       themePark: itemPlu.themeParkCode,
-                      ticketGroup: itemPlu.ageGroup,
+                      ticketGroup: '',
                       ticketType: itemPlu.ticketType,
+                      numOfPax: getNumOfPaxInPackage(attraction[j]),
                     });
                   }
                 });
@@ -164,6 +318,7 @@ export default {
                     themePark: itemPlu.themeParkCode,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
+                    numOfPax: getNumOfPaxInPackage(attraction[j]),
                   });
                   vidResultList.push({
                     vidNo: null,
@@ -172,6 +327,7 @@ export default {
                     themePark: itemPlu.themeParkCode,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
+                    numOfPax: getNumOfPaxInPackage(attraction[j]),
                   });
                 });
               }
@@ -182,6 +338,7 @@ export default {
                 themePark: attraction[j].themePark,
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
+                numOfPax: getNumOfPaxInPackage(attraction[j]),
               });
               vidResultList.push({
                 vidNo: null,
@@ -190,6 +347,7 @@ export default {
                 offerName: offers[i].offerName,
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
+                numOfPax: getNumOfPaxInPackage(attraction[j]),
               });
             }
           }
@@ -197,6 +355,7 @@ export default {
         detailList.push({
           offerName: offers[i].offerName,
           bundleName: offers[i].bundleName,
+          visitDate: offers[i].visitDate,
           vidList,
           delivery: offers[i].deliveryInfo,
           offerGroup: offers[i].offerGroup,
@@ -212,7 +371,8 @@ export default {
         patronInfo,
         netAmt,
         refundSuccessFlag,
-        status
+        status,
+        bookingDetail,
       };
     },
     resetData(state) {
@@ -227,12 +387,14 @@ export default {
         detailList: [],
         vidResultList: [],
         patronInfo: {},
-        themeParkList:[],
+        themeParkList: [],
         netAmt: 0,
         refundSuccessFlag: false,
         status: null,
         revalidationVidListVisible: false,
         revalidationVidList: [],
+        bookingDetail: null,
+        orderQuantityList: [],
       };
     },
   },

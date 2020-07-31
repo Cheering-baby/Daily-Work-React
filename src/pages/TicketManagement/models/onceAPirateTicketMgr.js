@@ -416,7 +416,7 @@ export default {
           activeGroupSelectData.sessionTime
         );
 
-        if (sessionTimeFix && offerPricePax > 0 && offerMaxQuantity > 0) {
+        if (sessionTimeFix && offerMaxQuantity > 0) {
           let orderQuantity = 0;
           if (orderIndex !== null && onceAPirateOrder !== null) {
             onceAPirateOrder.orderOfferList.forEach(orderOffer => {

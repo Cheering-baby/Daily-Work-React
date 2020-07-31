@@ -538,7 +538,7 @@ export function putAttractionProductsByOffer(
     lastName: deliveryInfoData.guestLastName,
     firstName: deliveryInfoData.guestFirstName,
     phoneNo: deliveryInfoData.customerContactNo
-      ? `(${deliveryInfoData.customerContactNoCountry})${deliveryInfoData.customerContactNo}`
+      ? `${deliveryInfoData.customerContactNoCountry}${deliveryInfoData.customerContactNo}`
       : null,
     nationality: deliveryInfoData.country,
     countryCode: deliveryInfoData.country,
@@ -632,7 +632,7 @@ export function putAttractionProductsByOfferBundle(
     lastName: deliveryInfoData.guestLastName,
     firstName: deliveryInfoData.guestFirstName,
     phoneNo: deliveryInfoData.customerContactNo
-      ? `(${deliveryInfoData.customerContactNoCountry})${deliveryInfoData.customerContactNo}`
+      ? `${deliveryInfoData.customerContactNoCountry}${deliveryInfoData.customerContactNo}`
       : null,
     nationality: deliveryInfoData.country,
     countryCode: deliveryInfoData.country,
@@ -691,7 +691,7 @@ export function putCommonOffersByOfferBundle(
   const deliveryInfoData = {
     referenceNo: deliveryInfo.taNo,
     contactNo: deliveryInfo.customerContactNo
-      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
+      ? `${deliveryInfo.customerContactNoCountry}${deliveryInfo.customerContactNo}`
       : null,
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
@@ -748,7 +748,7 @@ export function putCommonOffersByOfferFixed(
   const deliveryInfoData = {
     referenceNo: deliveryInfo.taNo,
     contactNo: deliveryInfo.customerContactNo
-      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
+      ? `${deliveryInfo.customerContactNoCountry}${deliveryInfo.customerContactNo}`
       : null,
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
@@ -762,7 +762,7 @@ export function putCommonOffersByOfferFixed(
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,
     phoneNo: deliveryInfo.customerContactNo
-      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
+      ? `${deliveryInfo.customerContactNoCountry}${deliveryInfo.customerContactNo}`
       : null,
     nationality: deliveryInfo.country,
     countryCode: deliveryInfo.country,
@@ -834,7 +834,7 @@ export function putCommonOffersByOffer(commonOffers, orderOffer, collectionDate,
   const deliveryInfoData = {
     referenceNo: deliveryInfo.taNo,
     contactNo: deliveryInfo.customerContactNo
-      ? `(${deliveryInfo.customerContactNoCountry})${deliveryInfo.customerContactNo}`
+      ? `${deliveryInfo.customerContactNoCountry}${deliveryInfo.customerContactNo}`
       : null,
     lastName: deliveryInfo.guestLastName,
     firstName: deliveryInfo.guestFirstName,

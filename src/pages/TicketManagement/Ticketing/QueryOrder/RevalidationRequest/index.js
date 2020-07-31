@@ -4,7 +4,8 @@ import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import {
-  Button, Checkbox,
+  Button,
+  Checkbox,
   Col,
   DatePicker,
   Form,
@@ -77,7 +78,7 @@ class RevalidationRequest extends Component {
         let status = text;
         const { hadRefunded } = record;
         if (text === 'false' && hadRefunded !== 'Yes') {
-          status = 'ISSUED';
+          status = 'VALID';
         } else {
           status = 'INVALID';
         }
@@ -233,23 +234,32 @@ class RevalidationRequest extends Component {
     });
   };
 
-  revalidationTicket = (deliveryMode, collectionDate, vidResultList, bookingNo, userType, submitVidList) => {
+  revalidationTicket = (
+    deliveryMode,
+    collectionDate,
+    vidResultList,
+    bookingNo,
+    userType,
+    submitVidList
+  ) => {
     const { form } = this.props;
     const selectedVidList = vidResultList.filter(item => item.selected === true);
     if (selectedVidList.length < 1) {
       message.warning('Select at least one VID.');
     } else {
-      const selectVidGroup = selectedVidList.filter((element, index, self) => {
-        return self.findIndex(el => el.vidGroup === element.vidGroup) === index;
-      }).map(obj => obj.vidGroup);
+      const selectVidGroup = selectedVidList
+        .filter((element, index, self) => {
+          return self.findIndex(el => el.vidGroup === element.vidGroup) === index;
+        })
+        .map(obj => obj.vidGroup);
       const {
-        revalidationRequestMgr: {
-          wholeVidList
-        },
+        revalidationRequestMgr: { wholeVidList },
       } = this.props;
       const wholeSelectList = wholeVidList.filter(item => selectVidGroup.includes(item.vidGroup));
-      const filterSelect = wholeSelectList.filter(item => !selectedVidList.map(obj => obj.vidCode).includes(item.vidCode));
-      if(filterSelect.length > 0){
+      const filterSelect = wholeSelectList.filter(
+        item => !selectedVidList.map(obj => obj.vidCode).includes(item.vidCode)
+      );
+      if (filterSelect.length > 0) {
         const unUnploadVidString = filterSelect.map(obj => obj.vidCode).join(', ');
         Modal.warning({
           title: 'Failed to revalidation',
@@ -301,11 +311,22 @@ class RevalidationRequest extends Component {
     }
   };
 
-  wantRevalidate = (deliveryMode, collectionDate, selectedVidList, bookingNo, userType, submitVidList) => {
+  wantRevalidate = (
+    deliveryMode,
+    collectionDate,
+    selectedVidList,
+    bookingNo,
+    userType,
+    submitVidList
+  ) => {
     const { dispatch } = this.props;
     Modal.destroyAll();
-    const selectVidGroups = Array.from(new Set(selectedVidList.map(item=>item.vidGroup)));
-    const visualIds = submitVidList.filter(item => selectVidGroups.filter(selectedItem => selectedItem === item.vidGroup).length > 0).map(item=>item.vidCode);
+    const selectVidGroups = Array.from(new Set(selectedVidList.map(item => item.vidGroup)));
+    const visualIds = submitVidList
+      .filter(
+        item => selectVidGroups.filter(selectedItem => selectedItem === item.vidGroup).length > 0
+      )
+      .map(item => item.vidCode);
     dispatch({
       type: 'revalidationRequestMgr/revalidationTicket',
       payload: {
@@ -376,10 +397,10 @@ class RevalidationRequest extends Component {
     const selectVidGroup = vidResultList.filter(item => record.vidGroup === item.vidGroup);
     vidResultList.forEach(item => {
       selectVidGroup.forEach(selectedItem => {
-        if(item.vidCode === selectedItem.vidCode){
+        if (item.vidCode === selectedItem.vidCode) {
           item.selected = selected;
         }
-      })
+      });
     });
     this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
   };
@@ -389,13 +410,12 @@ class RevalidationRequest extends Component {
       const selectVidGroup = vidResultList.filter(item => e.vidGroup === item.vidGroup);
       vidResultList.forEach(item => {
         selectVidGroup.forEach(selectedItem => {
-          if(item.vidCode === selectedItem.vidCode){
+          if (item.vidCode === selectedItem.vidCode) {
             item.selected = selected;
           }
-        })
+        });
       });
-      }
-    );
+    });
     this.saveResultList(vidResultList, currentPage, nowPageSize, vidCode);
   };
 
@@ -435,7 +455,7 @@ class RevalidationRequest extends Component {
         vidResultList,
         searchList: { bookingNo, vidCode, currentPage, pageSize: nowPageSize },
         wholeVidList,
-        submitVidList
+        submitVidList,
       },
       global: {
         currentUser: { userType },
@@ -458,9 +478,11 @@ class RevalidationRequest extends Component {
     const rowSelection = {
       columnWidth: '5%',
       selectedRowKeys: vidList.filter(item => item.selected === true).map(item => item.vidCode),
-      onSelect: (record, selected)=>this.onSelectChange(record, selected, vidResultList, currentPage, nowPageSize, vidCode),
-      onSelectAll: (selected, _, changeRows)=>this.onSelectAll(selected, changeRows, vidResultList, currentPage, nowPageSize, vidCode),
-      getCheckboxProps: (record) => ({disabled: record.disabled}),
+      onSelect: (record, selected) =>
+        this.onSelectChange(record, selected, vidResultList, currentPage, nowPageSize, vidCode),
+      onSelectAll: (selected, _, changeRows) =>
+        this.onSelectAll(selected, changeRows, vidResultList, currentPage, nowPageSize, vidCode),
+      getCheckboxProps: record => ({ disabled: record.disabled }),
     };
 
     return (
@@ -572,7 +594,9 @@ class RevalidationRequest extends Component {
                     beforeUpload={file => this.getUploadProps(file, nowPageSize)}
                     showUploadList={false}
                   >
-                    <Button type="primary" style={{marginRight: 10, marginBottom: 10}}>{formatMessage({ id: 'UPLOAD' })}</Button>
+                    <Button type="primary" style={{ marginRight: 10, marginBottom: 10 }}>
+                      {formatMessage({ id: 'UPLOAD' })}
+                    </Button>
                   </Upload>
                   <Search
                     allowClear
@@ -583,8 +607,8 @@ class RevalidationRequest extends Component {
                     className={styles.inputStyle}
                   />
                   <Button
-                    style={{width: 60, marginBottom: 10}}
-                    onClick={()=>this.saveResultList(wholeVidList, 1, 10, null)}
+                    style={{ width: 60, marginBottom: 10 }}
+                    onClick={() => this.saveResultList(wholeVidList, 1, 10, null)}
                   >
                     {formatMessage({ id: 'RESET' })}
                   </Button>
@@ -593,12 +617,26 @@ class RevalidationRequest extends Component {
                   <div className={styles.selectedDiv}>
                     <Checkbox
                       disabled={vidResultList.filter(item => item.disabled === false).length === 0}
-                      checked={vidResultList.filter(item => item.selected === true).length === vidResultList.filter(item => item.disabled === false).length && vidResultList.filter(item => item.disabled === false).length > 0}
-                      onChange={(e)=>this.selectAllVid(e.target.checked, vidResultList, currentPage, nowPageSize, vidCode)}
+                      checked={
+                        vidResultList.filter(item => item.selected === true).length ===
+                          vidResultList.filter(item => item.disabled === false).length &&
+                        vidResultList.filter(item => item.disabled === false).length > 0
+                      }
+                      onChange={e =>
+                        this.selectAllVid(
+                          e.target.checked,
+                          vidResultList,
+                          currentPage,
+                          nowPageSize,
+                          vidCode
+                        )
+                      }
                     >
                       Select All
                     </Checkbox>
-                    <span className={styles.selectedSpan}>Selected {vidResultList.filter(item => item.selected === true).length} items.</span>
+                    <span className={styles.selectedSpan}>
+                      Selected {vidResultList.filter(item => item.selected === true).length} items.
+                    </span>
                   </div>
                 </Col>
                 <Col span={24}>
@@ -608,7 +646,7 @@ class RevalidationRequest extends Component {
                     columns={this.columns}
                     dataSource={vidList}
                     rowSelection={rowSelection}
-                    rowKey={(record => record.vidCode)}
+                    rowKey={record => record.vidCode}
                     pagination={false}
                     bordered={false}
                     scroll={{ x: 800 }}

@@ -14,12 +14,10 @@ import {
   changeVoucherToAttraction,
   getOfferCategory,
   getSessionTimeList,
-  sortAttractionByAgeGroup,
 } from '../utils/ticketOfferInfoUtil';
 import {
   checkInventory,
   checkNumOfGuestsAvailable,
-  dealSessionArr,
   filterSessionProduct,
   findArrSame,
   multiplePromise,
@@ -453,7 +451,7 @@ export default {
           const { offerList = [] } = result;
 
           const requestPromiseList = [];
-          const offerDetailList = [];
+          const offerDetailList = offerList.map(item => ({...item, offerProfile: {}}));
           for (let i = 0; i < offerList.length; i += 1) {
             const { offerNo } = offerList[i];
             const params = {
@@ -476,7 +474,7 @@ export default {
                 if (queryOfferDetailResultCode !== '0') {
                   message.error(queryOfferDetailResultMsg);
                 } else {
-                  offerDetailList.push(Object.assign({}, resultDetail));
+                  offerDetailList[i] = Object.assign({}, resultDetail);
                 }
               });
             };
@@ -500,7 +498,7 @@ export default {
             let noMatchPriceRule = false;
             let priceRuleId;
             resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
-            resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
+            // resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
             const {
               offerProfile: { bookingCategory = [], offerBundle = [{}] },
             } = resultDetail;

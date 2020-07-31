@@ -702,6 +702,14 @@ export default {
           checkOutLoading: false,
         },
       });
+      if (Number.parseFloat(totalPrice) === Number.parseFloat(0)) {
+        const {
+          userCompanyInfo: { companyType },
+        } = yield select(state => state.global);
+        if (companyType !== '02') {
+          router.push(`/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`);
+        }
+      }
       // status: WaitingForPaying
       if (status === 'WaitingForPaying' || status === 'PendingApproval' || status === 'Paying') {
         yield put({

@@ -4,6 +4,7 @@ import serialize from '../utils/utils';
 import {
   downloadETicket,
   queryBookingDetail,
+  queryPluAttribute,
   queryTask,
 } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
@@ -17,6 +18,7 @@ export default {
     },
     vidList: [],
     downloadFileLoading: false,
+    themeParkList: [],
   },
 
   effects: {
@@ -25,6 +27,16 @@ export default {
         type: 'save',
         payload,
       });
+    },
+    *queryThemePark(_, { call, put }) {
+      const response = yield call(queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        yield put({ type: 'save', payload: { themeParkList: result.items } });
+      } else throw resultMsg;
     },
     *queryVIDList({ payload }, { call, put, select }) {
       const { searchList } = yield select(state => state.exportVIDMgr);
@@ -141,7 +153,14 @@ export default {
       const vidList = [];
       const { offers = [] } = bookingDetail;
       for (let i = 0; i < offers.length; i += 1) {
-        const { attraction = [] } = offers[i];
+        const { attraction = [], blackOutDays, blackOutWeekly } = offers[i];
+        let blackOutDay = [];
+        if (blackOutWeekly) {
+          blackOutDay = blackOutDay.concat(blackOutWeekly.split(';'));
+        }
+        if (blackOutDays) {
+          blackOutDay = blackOutDay.concat(blackOutDays.split(';'));
+        }
         if (attraction) {
           for (let j = 0; j < attraction.length; j += 1) {
             let isPackage = false;
@@ -151,16 +170,20 @@ export default {
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
-              if(attraction[j].ticketType === 'MPP'){
+              if (attraction[j].ticketType === 'MPP') {
                 vidList.push({
                   key: null,
                   vidNo: null,
                   checked: false,
                   vidCode: attraction[j].visualID,
-                  offerName: offers[i].offerName,
+                  offerName:
+                    offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                   themePark: attraction[j].themePark,
                   status: attraction[j].visualIdStatus,
                   hadRefunded: attraction[j].hadRefunded,
+                  ticketGroup: attraction[j].ticketGroup,
+                  ticketType: attraction[j].ticketType,
+                  blackOutDay,
                 });
                 itemPluList.forEach(itemPlu => {
                   if (itemPlu.ticketType === 'Voucher') {
@@ -169,10 +192,14 @@ export default {
                       vidNo: null,
                       checked: false,
                       vidCode: itemPlu.visualId,
-                      offerName: offers[i].offerName,
+                      offerName:
+                        offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                       themePark: itemPlu.themeParkCode,
                       status: attraction[j].visualIdStatus,
                       hadRefunded: attraction[j].hadRefunded,
+                      ticketGroup: itemPlu.ageGroup,
+                      ticketType: itemPlu.ticketType,
+                      blackOutDay,
                     });
                   }
                 });
@@ -183,10 +210,14 @@ export default {
                     vidNo: null,
                     checked: false,
                     vidCode: itemPlu.visualId,
-                    offerName: offers[i].offerName,
+                    offerName:
+                      offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                     themePark: itemPlu.themeParkCode,
                     status: attraction[j].visualIdStatus,
                     hadRefunded: attraction[j].hadRefunded,
+                    ticketGroup: itemPlu.ageGroup,
+                    ticketType: itemPlu.ticketType,
+                    blackOutDay,
                   });
                 });
               }
@@ -196,16 +227,21 @@ export default {
                 vidNo: null,
                 checked: false,
                 vidCode: attraction[j].visualID,
-                offerName: offers[i].offerName,
+                offerName:
+                  offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                 themePark: attraction[j].themePark,
                 status: attraction[j].visualIdStatus,
                 hadRefunded: attraction[j].hadRefunded,
+                ticketGroup: attraction[j].ticketGroup,
+                ticketType: attraction[j].ticketType,
+                blackOutDay,
               });
             }
           }
         }
       }
       for (let i = 0; i < vidList.length; i += 1) {
+        vidList[i].key = i;
         vidList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
       }
       return {
@@ -223,6 +259,7 @@ export default {
         },
         vidList: [],
         downloadFileLoading: false,
+        themeParkList: [],
       };
     },
   },

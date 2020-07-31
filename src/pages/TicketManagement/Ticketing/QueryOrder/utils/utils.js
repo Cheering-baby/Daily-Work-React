@@ -6,3 +6,19 @@ export default function serialize(obj) {
     }
   return `?${ary.join('&')}`;
 }
+
+export function getNumOfPaxInPackage(attraction) {
+  let resultValue = 0;
+  if (attraction && attraction.ticketNumOfPax) {
+    try {
+      const ticketNumOfPaxList = JSON.parse(attraction.ticketNumOfPax);
+      if (ticketNumOfPaxList && ticketNumOfPaxList.length > 0) {
+        resultValue = ticketNumOfPaxList[0].qty || 1;
+      }
+    } catch (e) {
+      console.log('getNumOfPaxInPackage error');
+      console.log(e);
+    }
+  }
+  return resultValue;
+}

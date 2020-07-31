@@ -622,6 +622,7 @@ class QueryOrder extends Component {
           exportVIDVisible: true,
         },
       });
+      dispatch({ type: 'exportVIDMgr/queryThemePark' });
       dispatch({
         type: 'exportVIDMgr/queryVIDList',
         payload: {
@@ -708,6 +709,7 @@ class QueryOrder extends Component {
   openDetailDrawer = selectedBookings => {
     const { dispatch } = this.props;
     if (selectedBookings.length === 1) {
+      dispatch({ type: 'orderDetailMgr/queryThemePark' });
       const { bookingNo, productInstances = [], transType } = selectedBookings[0];
       dispatch({
         type: 'orderDetailMgr/save',
@@ -731,7 +733,6 @@ class QueryOrder extends Component {
           },
         });
       }
-      dispatch({ type: 'orderDetailMgr/queryThemePark' });
     }
   };
 
