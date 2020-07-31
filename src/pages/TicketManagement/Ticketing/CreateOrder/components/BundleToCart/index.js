@@ -22,7 +22,7 @@ import {
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
 import { reBytesStr, toThousands } from '@/utils/utils';
-import { calculateAllProductPrice } from '../../../../utils/utils';
+import { calculateAllProductPrice, isSessionProduct } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
 
@@ -210,18 +210,19 @@ class ToCart extends Component {
         });
         for (let i = 0; i < offers.length; i += 1) {
           const {
-            sessionTime: session,
+            sessionTime,
             ticketNumber,
             attractionProduct = [],
             detail: {
               dateOfVisit,
+              priceRuleId,
               offerBasicInfo: { offerNo },
             },
           } = offers[i];
           const orderProducts = attractionProduct.map(orderProductItem => {
             const { productNo } = orderProductItem;
             return {
-              session,
+              session: isSessionProduct(priceRuleId, orderProductItem) ? sessionTime : null,
               ticketNumber,
               productNo,
             };

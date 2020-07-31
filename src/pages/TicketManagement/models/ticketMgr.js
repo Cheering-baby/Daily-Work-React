@@ -535,7 +535,6 @@ export default {
                     });
                     let sessionArr = [];
                     if (item2.choiceConstrain === 'Fixed' || offerBundle[0].bundleName) {
-                      // if (item2.choiceConstrain === 'Fixed') {
                         const existProductSession = [];
                         productSessions.forEach(itemProductSession => {
                           if (itemProductSession.indexOf(null) === -1) {
@@ -547,10 +546,6 @@ export default {
                         } else {
                           sessionArr = findArrSame(productSessions);
                         }
-                      // }
-                      // if (offerBundle[0].bundleName) {
-                      //   sessionArr = findArrSame(productSessions);
-                      // }
                     } else {
                       productSessions.forEach(itemProductSession => {
                         itemProductSession.forEach(itemSession => {
@@ -563,6 +558,7 @@ export default {
                         sessionArr = sessionArr.filter(session => session !== null);
                       }
                     }
+                    sessionArr.sort((a, b) => moment(a, "HH:mm:ss") - moment(b, "HH:mm:ss"));
                     if (noMatchPriceRule) return false;
                     bookingCategory.forEach(item3 => {
                       themeParkList.forEach((item4, index4) => {
