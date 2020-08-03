@@ -113,13 +113,14 @@ class GlobalHeaderRight extends PureComponent {
         notificationVisibleFlag,
       },
     } = this.props;
-    const { userName, userType } = currentUser;
+    const { userName, userType, companyInfo : { companyType, mainTAInfo } = { }  } = currentUser;
+    console.log(currentUser,companyType, mainTAInfo)
     const menu = (
       <div className={styles.menu}>
         <div className={styles.avatarCard}>
           <Avatar alt="avatar">{abbreviateName(userName)}</Avatar>
           <div className={styles.avatarInfo} id="currentUser">
-            <h4>{userName}</h4>
+            <h4>{companyType === '02' ? `${mainTAInfo.companyName  }: ${(userName)}`:userName}</h4>
             <div>
               {currentUserRole &&
                 currentUserRole.map(item => (
