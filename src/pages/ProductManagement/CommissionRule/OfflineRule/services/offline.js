@@ -11,6 +11,18 @@ export async function queryPluAttribute(params) {
   });
 }
 
+export async function queryOfferBookingCategory(params) {
+  return UAAService.request(
+    `${localPath}/b2c/product/v1/offer/offerBookingCategory/queryOfferBookingCategory`,
+    {
+      method: 'POST',
+      body: {
+        ...params,
+      },
+    }
+  );
+}
+
 export function commodityList(data) {
   return UAAService.request(
     `/b2b/agent/v1/commission/binding/queryCommodityList?${stringify(data)}`,
