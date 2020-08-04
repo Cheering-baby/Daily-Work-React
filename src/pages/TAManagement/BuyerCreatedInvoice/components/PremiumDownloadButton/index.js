@@ -4,14 +4,7 @@ import { formatMessage } from 'umi/locale';
 import 'isomorphic-fetch';
 import download from '@/pages/ReportCenter/PamsReport/utils/downloadUtils';
 
-const PremiumDownloadButton = ({
-                                 url,
-                                 method,
-                                 body,
-                                 defFileName,
-                                 loading,
-                               }) => {
-
+const PremiumDownloadButton = ({ url, method, body, defFileName, loading, disabled = false }) => {
   const menu = (
     <Menu>
       <Menu.Item
@@ -20,7 +13,8 @@ const PremiumDownloadButton = ({
           Object.assign(body, { fileSuffixType: 'xlsx' });
           download({ url, method, body, defFileName, loading });
         }}
-      >EXCEL
+      >
+        EXCEL
       </Menu.Item>
       <Menu.Item
         key="2"
@@ -28,19 +22,15 @@ const PremiumDownloadButton = ({
           Object.assign(body, { fileSuffixType: 'pdf' });
           download({ url, method, body, defFileName, loading });
         }}
-      >PDF
+      >
+        PDF
       </Menu.Item>
     </Menu>
   );
 
   return (
-    <Dropdown
-      overlay={menu}
-      style={{ width: 80 }}
-    >
-      <Button
-        type="primary"
-      >
+    <Dropdown overlay={menu} style={{ width: 80 }} disabled={disabled}>
+      <Button type="primary">
         {formatMessage({ id: 'BUTTON_DOWNLOAD' })} <Icon type="down" />
       </Button>
     </Dropdown>

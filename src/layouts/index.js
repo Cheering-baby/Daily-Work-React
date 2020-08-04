@@ -107,6 +107,7 @@ class BasicLayout extends React.PureComponent {
     } = this.props;
     const isSignUp =
       pathname.indexOf('/TAManagement/SignUp') >= 0 ||
+      pathname.indexOf('/about') >= 0 ||
       pathname.indexOf('/SubTAManagement/SignUp') >= 0;
     // 最大宽度1200px，菜单被自动折叠
     this.handleResize();
@@ -318,7 +319,11 @@ class BasicLayout extends React.PureComponent {
     } = this.props;
     const isSignUp =
       pathname.indexOf('/TAManagement/SignUp') >= 0 ||
-      pathname.indexOf('/SubTAManagement/SignUp') >= 0;
+      pathname.indexOf('/SubTAManagement/SignUp') >= 0 ||
+      pathname.indexOf('/about') >= 0;
+    if (pathname.indexOf('/about') >= 0) {
+      return children;
+    }
     const visibilityHeight = Math.round((Number(document.body.clientHeight) - 64) / 2);
     if (isSignUp) {
       return (

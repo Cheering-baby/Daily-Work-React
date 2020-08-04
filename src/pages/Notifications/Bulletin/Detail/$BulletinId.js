@@ -32,7 +32,6 @@ class BulletinDetail extends PureComponent {
         type: 'notification/fetchUpdateNotificationStatus',
         payload: {
           notificationId: notificationInfo.id,
-          status: '01',
         },
       });
     }

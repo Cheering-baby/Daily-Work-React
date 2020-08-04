@@ -123,6 +123,18 @@ class Circular extends PureComponent {
     });
   };
 
+  batchRead = notificationIdList => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'notification/batchUpdateNotificationStatus',
+      payload: {
+        notificationIdList,
+      },
+    }).then(() => {
+      this.onSearch({});
+    });
+  };
+
   render() {
     const {
       pagination: { currentPage, pageSize, totalSize },
@@ -147,6 +159,7 @@ class Circular extends PureComponent {
       onTableEditChange: notificationInfo => this.onTableEditChange(notificationInfo),
       onTableDetailChange: notificationInfo => this.onTableDetailChange(notificationInfo),
       onTableDelChange: notificationInfo => this.onTableDelChange(notificationInfo),
+      onBatchRead: notificationIdList => this.batchRead(notificationIdList),
     };
     const breadcrumbArr = [
       {

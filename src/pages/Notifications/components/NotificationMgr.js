@@ -19,6 +19,13 @@ class NotificationMgr extends PureComponent {
     onTableChange: () => {},
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedList: [],
+    };
+  }
+
   getColumn = isAdminRoleFlag => {
     if (isAdminRoleFlag) {
       return [
@@ -317,6 +324,22 @@ class NotificationMgr extends PureComponent {
     }
   };
 
+  setNotificationReadStatus = () => {
+    const { onBatchRead } = this.props;
+    const { selectedList } = this.state;
+    const notificationIdList = selectedList.map(item => item.replace('notificationList', ''));
+    onBatchRead(notificationIdList);
+    this.setState({
+      selectedList: [],
+    });
+  };
+
+  onSelectChange = selectedRowKeys => {
+    this.setState({
+      selectedList: selectedRowKeys,
+    });
+  };
+
   render() {
     const {
       pagination,
@@ -335,23 +358,43 @@ class NotificationMgr extends PureComponent {
         this.onChangeEvent({ current: page, pageSize });
       },
     };
-
+    const { selectedList = [] } = this.state;
+    const hasSelected = !selectedList || selectedList.length < 1;
+    const rowSelection = {
+      selectedRowKeys: selectedList,
+      onChange: this.onSelectChange,
+      getCheckboxProps: record => ({
+        disabled: !(
+          record.currentReceiver &&
+          record.currentReceiver.status &&
+          record.currentReceiver.status === '02'
+        ),
+      }),
+    };
     const tableOpts = {
       pagination: false,
       footer: () => <PaginationComp {...pageOpts} />,
     };
-
     return (
       <Card className={`as-shadow no-border ${styles.tableCardClass}`}>
-        {isAdminRoleFlag && (
-          <Row gutter={24}>
-            <Col {...colProps} className={styles.tableCardClassCol}>
+        <Row gutter={24}>
+          <Col {...colProps} className={styles.tableCardClassCol}>
+            <Button
+              type="primary"
+              style={{ marginRight: 8 }}
+              onClick={() => this.setNotificationReadStatus()}
+              disabled={hasSelected}
+            >
+              {formatMessage({ id: 'READ' })}
+            </Button>
+            {isAdminRoleFlag && (
               <Button type="primary" onClick={e => this.add(e)}>
                 {formatMessage({ id: 'COMMON_NEW' })}
               </Button>
-            </Col>
-          </Row>
-        )}
+            )}
+          </Col>
+        </Row>
+
         <Table
           size="small"
           className={`tabs-no-padding ${styles.searchTitle}`}
@@ -361,6 +404,7 @@ class NotificationMgr extends PureComponent {
           dataSource={notificationList}
           loading={notificationListLoading}
           scroll={{ x: 660 }}
+          rowSelection={rowSelection}
           {...tableOpts}
         />
       </Card>

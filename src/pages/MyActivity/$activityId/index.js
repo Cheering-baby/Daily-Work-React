@@ -109,16 +109,19 @@ class ActivityDetail extends React.PureComponent {
     const { activityDetail = {} } = this.props;
     const {
       activityDetail: {
-        activityInfo: { activityTplCode },
+        activityInfo: { activityTplCode, activityTypeName },
         historyHandlers,
         pendingHandlers,
         isOperationApproval,
+        activityInfo
       },
       match: { params },
-      location: {
-        query: { activityTypeName, feeId },
-      },
+      // location: {
+      //   query: { activityTypeName, feeId },
+      // },
     } = this.props;
+
+    const feeId = activityInfo && activityInfo.content ? JSON.parse(activityInfo.content).feeId : ''
 
     let pendStepTplCode = '';
     if (pendingHandlers.length > 0) {

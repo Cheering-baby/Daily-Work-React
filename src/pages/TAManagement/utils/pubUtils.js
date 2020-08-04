@@ -158,10 +158,23 @@ export function getSalesPersonEmailStr(salesPersonList, salesPerson) {
   if (salesPerson && salesPersonList && salesPersonList.length) {
     const salesPersonInfo =
       salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
-    if (!isNvl(salesPersonInfo) && !isNvl(salesPersonInfo.rwsInfo) && !isNvl(salesPersonInfo.rwsInfo.email)) {
+    if (
+      !isNvl(salesPersonInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo.email)
+    ) {
       salesPersonEmailStr += `${salesPersonInfo.rwsInfo.email}`;
       return salesPersonEmailStr;
     }
+  }
+  return '-';
+}
+
+export function getSalesPersonProductEligibility(queryMappingInfo) {
+  if (queryMappingInfo && queryMappingInfo.productName) {
+    return queryMappingInfo.productName
+      .replace('hotel', 'Rooms')
+      .replace('attractions', 'Attractions');
   }
   return '-';
 }
@@ -171,7 +184,11 @@ export function getSalesPersonContactNumberStr(salesPersonList, salesPerson) {
   if (salesPerson && salesPersonList && salesPersonList.length) {
     const salesPersonInfo =
       salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
-    if (!isNvl(salesPersonInfo) && !isNvl(salesPersonInfo.rwsInfo) && !isNvl(salesPersonInfo.rwsInfo.phone)) {
+    if (
+      !isNvl(salesPersonInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo) &&
+      !isNvl(salesPersonInfo.rwsInfo.phone)
+    ) {
       salesPersonContactNumberStr += `${salesPersonInfo.rwsInfo.phone}`;
       return salesPersonContactNumberStr;
     }

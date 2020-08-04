@@ -59,7 +59,7 @@ export async function deleteFile(params) {
   });
 }
 
-export async function updateReadStatus(params) {
+export async function batchUpdateReadStatus(params) {
   return UAAService.request(`/b2b/user/v1/notification/updateReadStatus`, {
     method: 'POST',
     body: params,

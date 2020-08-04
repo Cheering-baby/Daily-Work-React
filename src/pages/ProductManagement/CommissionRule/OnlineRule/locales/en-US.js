@@ -50,7 +50,7 @@ export default {
   PLU_CODE_AND_DESCRIPTION: 'PLU Code/PLU Description',
   THEME_PARK: 'Theme Park',
   CHANGE_COMMISSION_AMOUNT:
-    'If you change the commission percentage to commission amount, the date you fill in with be cleared.',
+    'If you change the commission percentage to commission amount, the date you fill in will be cleared.',
   CHANGE_PERCENT_AMOUNT:
     'If you change the commission amount to commission percentage, the data you fill in will be cleared.',
   PLEASE_END_THE_CURRENT_EDIT_FIRST: 'Please end the current edit first.',
@@ -61,7 +61,7 @@ export default {
   QUARTERLY_COMMISSION:
     '2. Quarterly commission - Calculation on every 1st day of the following quarter (i.e. only on every 1 Apr, 1 Jul, 1 Oct and 1 Jan).',
   ADHOC_COMMISSION:
-    '3. Ad-Hoc commission - Calculation on the following day after the end of commission effective period (e.g. calculation on 16 June 2020 if commission if effective until 15 June 2020).',
+    '3. Ad-Hoc commission - Calculation on the following day after the end of commission effective period (e.g. calculation on 16 June 2020 if commission is effective until 15 June 2020).',
   COMMISSION_PERCENTAGE_CONTENT:
     'Percentage is based on the price after fixed commission rates. (e.g. based on SGD71, if ticket price is SGD 81 and fixed commission rate is SGD10.)',
   CONFIRM_TO_DELETE: 'Are you sure to delete it?',

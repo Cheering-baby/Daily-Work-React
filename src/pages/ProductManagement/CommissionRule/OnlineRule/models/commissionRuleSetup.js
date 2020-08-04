@@ -93,7 +93,7 @@ export default {
         yield put({
           type: 'fetchCommissionRuleSetupList',
         });
-      } else throw resultMsg;
+      } else message.warning(resultMsg);
     },
   },
   reducers: {

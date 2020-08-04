@@ -233,6 +233,12 @@ class Index extends React.PureComponent {
     dispatch({
       type: 'mapping/fetchqueryDictionary',
     });
+    dispatch({
+      type: 'mapping/fetchEWalletTypeDictionary',
+    });
+    dispatch({
+      type: 'mapping/fetchArCreditTypeDictionary',
+    });
   }
 
   componentWillUnmount() {
@@ -285,6 +291,8 @@ class Index extends React.PureComponent {
             ? values.applicationEndDate.format('YYYY-MM-DD')
             : '',
           status: values.status || '',
+          ewalletType: values.ewalletType || '',
+          arCreditType: values.arCreditType || '',
         };
         // if (Array.isArray(values.applicationDate)) {
         //   const begin = values.applicationDate[0];
@@ -394,7 +402,15 @@ class Index extends React.PureComponent {
     const {
       form: { getFieldDecorator },
       loading,
-      mapping: { mappingList, currentPage, pageSize, totalSize, salutationList },
+      mapping: {
+        mappingList,
+        currentPage,
+        pageSize,
+        totalSize,
+        salutationList,
+        arCreditTypeList,
+        eWalletTypeList,
+      },
     } = this.props;
     const pagination = {
       current: currentPage,
@@ -507,6 +523,50 @@ class Index extends React.PureComponent {
                         options={salutationList.map(status => (
                           <Select.Option key={`option_${status.dictId}`} value={status.dictId}>
                             {status.dictName}
+                          </Select.Option>
+                        ))}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator('arCreditType', {
+                      // initialValue: this.handleInitVal('status'),
+                    })(
+                      <SortSelect
+                        placeholder={formatMessage({ id: 'AR_CREDIT_BALANCE' })}
+                        optionFilterProp="children"
+                        style={{ width: '100%' }}
+                        allowClear
+                        options={arCreditTypeList.map(arCreditType => (
+                          <Select.Option
+                            key={`arCreditTypeList${arCreditType.dictId}`}
+                            value={arCreditType.dictId}
+                          >
+                            {arCreditType.dictName}
+                          </Select.Option>
+                        ))}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator('ewalletType', {
+                      // initialValue: this.handleInitVal('status'),
+                    })(
+                      <SortSelect
+                        placeholder={formatMessage({ id: 'EWALLET_BALANCE' })}
+                        optionFilterProp="children"
+                        style={{ width: '100%' }}
+                        allowClear
+                        options={eWalletTypeList.map(eWalletType => (
+                          <Select.Option
+                            key={`eWalletTypeList_${eWalletType.dictId}`}
+                            value={eWalletType.dictId}
+                          >
+                            {eWalletType.dictName}
                           </Select.Option>
                         ))}
                       />

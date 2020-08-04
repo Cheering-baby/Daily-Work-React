@@ -77,13 +77,13 @@ export default {
   },
   effects: {
     *queryThemeParks(_, { call, put }) {
-      const response = yield call(service.queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      const response = yield call(service.queryPluAttribute, { status: 'Active' });
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        yield put({ type: 'save', payload: { themeParkList: result.items } });
+        yield put({ type: 'save', payload: { themeParkList: result.offerBookingCategoryList } });
       } else throw resultMsg;
     },
     *queryBindingDetailList({ payload }, { call, put }) {
@@ -109,11 +109,17 @@ export default {
               ) {
                 commodityList[i].subCommodityList[j].selectedType = 'packagePLU';
                 commodityList[i].subCommodityList[j].subCommodityList[k].selectedType = 'subPLU';
-                commodityList[i].subCommodityList[j].subCommodityList[k].proProCommoditySpecId =
+                commodityList[i].subCommodityList[j].subCommodityList[k].proCommoditySpecId =
                   commodityList[i].subCommodityList[j].commoditySpecId;
                 commodityList[i].subCommodityList[j].subCommodityList[k].proProCommoditySpecId =
                   commodityList[i].commoditySpecId;
               }
+              if (!commodityList[i].subCommodityList[j].subCommodityList.length) {
+                commodityList[i].subCommodityList[j].subCommodityListNull = true;
+              }
+            }
+            if (!commodityList[i].subCommodityList.length) {
+              commodityList[i].subCommodityListNull = true;
             }
           }
           yield put({
@@ -315,13 +321,14 @@ export default {
       }
     },
     *edit({ payload }, { call }) {
-      const { params, tieredList, commodityList, tplId, usageScope } = payload;
+      const { params, tieredList, commodityList, tplId, usageScope, tplVersion  } = payload;
       const reqParams = {
         ...params,
         tieredList,
         commodityList,
         tplId,
         usageScope,
+        tplVersion
       };
       const {
         data: { resultCode, resultMsg },

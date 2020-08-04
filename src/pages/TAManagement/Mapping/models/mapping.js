@@ -12,6 +12,8 @@ export default {
     },
     mappingList: [],
     statusList: [],
+    arCreditTypeList: [],
+    eWalletTypeList: [],
     mappingDetailVisible: false,
     salutationList: [],
     type: '',
@@ -84,7 +86,6 @@ export default {
         type: 'fetchMappingList',
       });
     },
-
     *fetchSelectReset(_, { put }) {
       yield put({
         type: 'clear',
@@ -93,7 +94,6 @@ export default {
         type: 'fetchMappingList',
       });
     },
-
     *fetchqueryDictionary(_, { call, put }) {
       const params = {
         dictType: '10',
@@ -104,6 +104,24 @@ export default {
       } = yield call(service.queryDictionary, { ...params });
       if (resultCode === '0' || resultCode === 0) {
         yield put({ type: 'save', payload: { salutationList: result || [] } });
+      } else message.warn(resultMsg, 10);
+    },
+    *fetchEWalletTypeDictionary(_, { call, put }) {
+      const params = { dictType: '10', dictSubType: '1014' };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.queryDictionary, { ...params });
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({ type: 'save', payload: { arCreditTypeList: result || [] } });
+      } else message.warn(resultMsg, 10);
+    },
+    *fetchArCreditTypeDictionary(_, { call, put }) {
+      const params = { dictType: '10', dictSubType: '1013' };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.queryDictionary, { ...params });
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({ type: 'save', payload: { eWalletTypeList: result || [] } });
       } else message.warn(resultMsg, 10);
     },
   },

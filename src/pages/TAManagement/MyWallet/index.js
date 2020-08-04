@@ -3,7 +3,8 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
-import { Button, Card, Col, Form, Row, Spin, Table, Tooltip, Modal } from 'antd';
+import {Button, Card, Col, Form, Row, Spin, Table, Tooltip, Modal, Collapse} from 'antd';
+import CurrencyFormatter from 'currencyformatter.js';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
 import Invoice from './components/invoice';
@@ -13,6 +14,26 @@ import More from './components/More';
 import Approval from './components/Approval';
 import styles from './index.less';
 import Filter from './components/Filter';
+
+const CURRENCY_FORMATTER_OPTIONS = {
+  // currency: 	'USD', 		// If currency is not supplied, defaults to USD
+  symbol: '', // Overrides the currency's default symbol
+  // thousand: ',',
+  // locale: 	'en',			  // Overrides the currency's default locale (see supported locales)
+  decimal: '.', // Overrides the locale's decimal character
+  group: ',', // Overrides the locale's group character (thousand separator)
+  pattern: '#,##0', // Overrides the locale's default display pattern
+};
+
+const CURRENCY_FORMATTER_OPTIONS_DECIMAL = {
+  // currency: 	'USD', 		// If currency is not supplied, defaults to USD
+  symbol: '', // Overrides the currency's default symbol
+  // thousand: ',',
+  // locale: 	'en',			  // Overrides the currency's default locale (see supported locales)
+  decimal: '.', // Overrides the locale's decimal character
+  group: ',', // Overrides the locale's group character (thousand separator)
+  pattern: '#,##0.00', // Overrides the locale's default display pattern
+};
 
 const ACTIVITY_STATUS = {
   Approved: '00',
@@ -108,6 +129,27 @@ class MyWallet extends React.PureComponent {
     this.invoice.open(id);
   };
 
+  getTableHeight = () => {
+    const {offsetHeight: layoutHeight} = document.getElementById('layout');
+    if (document.getElementById('pageHeaderTitle') && document.getElementById('walletCard') && document.getElementById('pageSearchCard')) {
+      const {offsetHeight: pageHeaderTitleHeight} = document.getElementById('pageHeaderTitle');
+      const {offsetHeight: walletCardHeight} = document.getElementById('walletCard');
+      const {offsetHeight: pageSearchCardHeight} = document.getElementById('pageSearchCard');
+      return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 320;
+    }
+    return layoutHeight;
+  };
+
+  changePanel = key => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'myWallet/save',
+      payload: {
+        activeKey: key,
+      },
+    });
+  };
+
   render() {
     const {
       loading,
@@ -117,6 +159,7 @@ class MyWallet extends React.PureComponent {
         account = {},
         pagination = {},
         arActivity = {},
+        activeKey,
       },
       global: { userCompanyInfo = {} },
     } = this.props;
@@ -180,7 +223,7 @@ class MyWallet extends React.PureComponent {
         render: (text, record) => {
           const chargeText =
             (record.flow === 0 ? '+' : '-') +
-            record.charge.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            CurrencyFormatter.format(record.charge, CURRENCY_FORMATTER_OPTIONS_DECIMAL);
           return <Tooltip title={chargeText}>{chargeText}</Tooltip>;
         },
       },
@@ -194,7 +237,7 @@ class MyWallet extends React.PureComponent {
         },
       },
       {
-        title: 'Reference No.',
+        title: 'Partners Order No.',
         key: 'referenceNo',
         dataIndex: 'referenceNo',
         render: text => {
@@ -274,80 +317,90 @@ class MyWallet extends React.PureComponent {
     };
     return (
       <Col lg={24} md={24}>
-        <MediaQuery
-          maxWidth={SCREEN.screenMdMax}
-          minWidth={SCREEN.screenSmMin}
-          minHeight={SCREEN.screenSmMin}
-        >
-          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-        </MediaQuery>
-        <MediaQuery minWidth={SCREEN.screenLgMin}>
-          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-        </MediaQuery>
-        <Card>
-          <Row gutter={24}>
-            <Col lg={12} md={12}>
-              <div className={`${styles.flexBetween} ${styles.walletCard}`}>
-                <div style={{ height: '100%' }} className={styles.flexCenter}>
-                  <div className={styles.lighthouse} />
-                  <div className={styles.account}>
-                    <div className={styles.label}>{formatMessage({ id: 'EW' })}:</div>
-                    {eWallet && (
-                      <div className={`${styles.labelValue} ${styles.colorBlack}`}>
-                        <span className={styles.symbolPart}>$</span>
-                        <span className={styles.integerPart}>{eWallet.integer}</span>
-                        <span className={styles.decimalPart}>.{eWallet.decimal}</span>
+        <div id='pageHeaderTitle'>
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+        </div>
+        <div id='walletCard' style={{marginBottom:16}}>
+          <Collapse activeKey={activeKey} onChange={(key)=>this.changePanel(key)}>
+            <Collapse.Panel header={activeKey.length===0?'Show balance widget':'Hide balance widget'} key="1">
+              <Row gutter={24}>
+                <Col lg={12} md={12}>
+                  <div className={`${styles.flexBetween} ${styles.walletCard}`}>
+                    <div style={{ height: '100%' }} className={styles.flexCenter}>
+                      <div className={styles.lighthouse} />
+                      <div className={styles.account}>
+                        <div className={styles.label}>{formatMessage({ id: 'EW' })}:</div>
+                        {eWallet && (
+                          <div className={`${styles.labelValue} ${styles.colorBlack}`}>
+                            <span className={styles.symbolPart}>$</span>
+                            <span className={styles.integerPart}>
+                              {CurrencyFormatter.format(eWallet.balance, CURRENCY_FORMATTER_OPTIONS)}
+                            </span>
+                            <span className={styles.decimalPart}>.{eWallet.decimal}</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
+                    <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <Topup />}</div>
                   </div>
-                </div>
-                <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <Topup />}</div>
-              </div>
-            </Col>
-            <Col lg={12} md={12}>
-              <div className={`${styles.flexBetween} ${styles.walletCard}`}>
-                <div style={{ height: '100%' }} className={styles.flexCenter}>
-                  <div className={styles.lighthouseOrange} />
-                  <div className={styles.account}>
-                    <div className={styles.label}>{formatMessage({ id: 'AR' })}:</div>
-                    {ar && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        <span className={styles.symbolPart}>$</span>
-                        <span className={styles.integerPart}>{ar.integer}</span>
-                        <span className={styles.decimalPart}>.{ar.decimal}</span>
+                </Col>
+                <Col lg={12} md={12}>
+                  <div className={`${styles.flexBetween} ${styles.walletCard}`}>
+                    <div style={{ height: '100%' }} className={styles.flexCenter}>
+                      <div className={styles.lighthouseOrange} />
+                      <div className={styles.account}>
+                        <div className={styles.label}>{formatMessage({ id: 'AR' })}:</div>
+                        {ar && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            <span className={styles.symbolPart}>$</span>
+                            <span className={styles.integerPart}>{ar.integer}</span>
+                            <span className={styles.decimalPart}>.{ar.decimal}</span>
+                          </div>
+                        )}
+                        {!ar && !arActivity.status && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            {formatMessage({ id: 'No_Account_Ar' })}
+                          </div>
+                        )}
+                        {!ar && arActivity.status === ACTIVITY_STATUS.Rejected && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            {formatMessage({ id: 'REJECT' })}
+                          </div>
+                        )}
+                        {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            {formatMessage({ id: 'PENDING_OPREATION' })}
+                          </div>
+                        )}
+                        {!ar && arActivity.status === ACTIVITY_STATUS.Approved && <Approval />}
                       </div>
+                    </div>
+                    {!ar && (!arActivity.status || arActivity.status === ACTIVITY_STATUS.Rejected) && (
+                      <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <ARApply />}</div>
                     )}
-                    {!ar && !arActivity.status && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        {formatMessage({ id: 'No_Account_Ar' })}
-                      </div>
-                    )}
-                    {!ar && arActivity.status === ACTIVITY_STATUS.Rejected && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        {formatMessage({ id: 'REJECT' })}
-                      </div>
-                    )}
-                    {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        {formatMessage({ id: 'PENDING_OPREATION' })}
-                      </div>
-                    )}
-                    {!ar && arActivity.status === ACTIVITY_STATUS.Approved && <Approval />}
-                  </div>
-                </div>
-                {!ar && (!arActivity.status || arActivity.status === ACTIVITY_STATUS.Rejected) && (
-                  <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <ARApply />}</div>
-                )}
 
-                {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
-                  <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <More />}</div>
-                )}
-              </div>
-            </Col>
-          </Row>
-        </Card>
+                    {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
+                      <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <More />}</div>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+            </Collapse.Panel>
+          </Collapse>
+        </div>
         <Card>
-          <Filter />
+          <div id='pageSearchCard'>
+            <Filter />
+          </div>
         </Card>
         <Card>
           <Spin spinning={loading}>
@@ -358,6 +411,7 @@ class MyWallet extends React.PureComponent {
               columns={columns}
               pagination={paginationSetting}
               onChange={this.handleTableChange}
+              scroll={{y: this.getTableHeight()}}
             />
           </Spin>
         </Card>

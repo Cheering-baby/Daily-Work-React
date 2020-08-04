@@ -1,5 +1,4 @@
 import { stringify } from 'qs';
-import axios from 'axios';
 import UAAService from '@/uaa-npm';
 
 export async function queryActivityList(data) {

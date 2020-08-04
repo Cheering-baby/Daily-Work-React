@@ -39,6 +39,7 @@ export default {
       likeParam: {},
     },
     grantOfferList: [],
+    checkedListLength: '',
   },
   effects: {
     *effectSave({ payload }, { put }) {
@@ -55,6 +56,7 @@ export default {
         agentId,
         bindingType: 'Offer',
       };
+
       if (!isEmpty(likeParam)) {
         requestData = {
           agentId,
@@ -72,6 +74,25 @@ export default {
           type: 'changePage',
           payload: {
             checkedList: bindingList,
+          },
+        });
+      } else throw resultMsg;
+    },
+    *fetch2({ payload }, { call, put }) {
+      const { agentId } = payload;
+      const request = {
+        agentId,
+        bindingType: 'Offer',
+      };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.queryAgentBindingList, request);
+      if (resultCode === '0' || resultCode === 0) {
+        const { bindingList } = result;
+        yield put({
+          type: 'save',
+          payload: {
+            checkedListLength: bindingList,
           },
         });
       } else throw resultMsg;

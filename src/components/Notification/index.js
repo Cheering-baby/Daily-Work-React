@@ -5,6 +5,7 @@ import { formatMessage } from 'umi/locale';
 import router from 'umi/router';
 import UserNotificationView from '../GlobalHeader/UserNotificationView';
 import MobileModal from '../MobileModal';
+import { hasAnyPrivilege } from '@/utils/PrivilegeUtil';
 
 const mapStateToProps = store => {
   const { notificationMgr } = store;
@@ -81,7 +82,6 @@ class Notification extends PureComponent {
 
   render() {
     const {
-      currentUser = {},
       isPageHeader,
       notificationMgr: {
         systemNotificationCount,
@@ -91,12 +91,12 @@ class Notification extends PureComponent {
         notificationVisibleFlag,
       },
     } = this.props;
-    const { userType } = currentUser;
     let notificationCount = 0;
     if (systemNotificationCount) notificationCount += Number(systemNotificationCount);
     if (pendingActivityCount) notificationCount += Number(pendingActivityCount);
-    if (bulletinCount) notificationCount += Number(bulletinCount);
-    if (String(userType) !== '03' && circularCount) {
+    if (hasAnyPrivilege(['NOTIFICATION_BELL_BULLETIN_PRIVILEGE']) && bulletinCount)
+      notificationCount += Number(bulletinCount);
+    if (hasAnyPrivilege(['NOTIFICATION_BELL_CIRCULAR_PRIVILEGE']) && circularCount) {
       notificationCount += Number(circularCount);
     }
     const modalOpts = {

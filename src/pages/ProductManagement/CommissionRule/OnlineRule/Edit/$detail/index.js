@@ -63,7 +63,7 @@ class onlineEdit extends React.PureComponent {
       detail: { tieredList },
       commissionNew: { checkedList, checkedOnlineList },
       location: {
-        query: { tplId },
+        query: { tplId, tplVersion },
       },
     } = this.props;
     this.refForm.validateFields((err, values) => {
@@ -145,6 +145,7 @@ class onlineEdit extends React.PureComponent {
               commodityList: [...checkedList, ...checkedOnlineList],
               tplId,
               usageScope: 'Common',
+              tplVersion,
             },
           }).then(resultCode => {
             if (resultCode === '0') {

@@ -43,11 +43,10 @@ class EditCommission extends React.PureComponent {
           commissionScheme,
           commissionValueAmount,
           commissionValuePercent,
-          commodityList
         },
+        commodityList,
       },
     } = this.props;
-    console.log([commodityList])
     if (
       commissionScheme === 'Amount' &&
       (commissionValueAmount === null || commissionValueAmount === '')
@@ -90,7 +89,7 @@ class EditCommission extends React.PureComponent {
             commissionScheme,
             commissionValue:
               commissionScheme === 'Amount' ? commissionValueAmount : commissionValue2,
-            commodityList: [commodityList]
+            commodityList: [commodityList],
           },
         }).then(resultCode => {
           if (resultCode === '0') {

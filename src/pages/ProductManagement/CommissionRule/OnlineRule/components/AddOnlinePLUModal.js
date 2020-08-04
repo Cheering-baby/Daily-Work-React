@@ -492,8 +492,8 @@ class AddOnlinePLUModal extends React.PureComponent {
                       options={
                         themeParkList &&
                         themeParkList.map(item => (
-                          <Option key={item.itemValue} value={item.itemValue}>
-                            {item.itemName}
+                          <Option key={item.bookingCategoryCode} value={item.bookingCategoryName}>
+                            {item.bookingCategoryName}
                           </Option>
                         ))
                       }

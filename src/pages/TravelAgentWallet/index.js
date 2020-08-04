@@ -1,18 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import {
-  Button,
   Card,
   Col,
-  DatePicker,
-  Form,
-  Input,
   Row,
-  Select,
-  Spin,
-  Table,
-  Tooltip,
-  Modal,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import MediaQuery from "react-responsive";
@@ -43,7 +34,6 @@ class TravelAgentWallet extends PureComponent {
     if (document.getElementById('taAgentWalletPageHeaderTitle') && document.getElementById('taAgentWalletPageSearchCard')) {
       const {offsetHeight: pageHeaderTitleHeight} = document.getElementById('taAgentWalletPageHeaderTitle');
       const {offsetHeight: pageSearchCardHeight} = document.getElementById('taAgentWalletPageSearchCard');
-      console.log(layoutHeight, pageHeaderTitleHeight, pageSearchCardHeight);
       return layoutHeight - pageHeaderTitleHeight - pageSearchCardHeight - 100;
     }
     return layoutHeight - 270;

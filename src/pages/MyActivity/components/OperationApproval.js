@@ -77,6 +77,7 @@ class OperationApproval extends React.PureComponent {
       form,
       dispatch,
       operationApproval: { bReroute, approvalStatus },
+      customerInfo,
     } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
@@ -103,6 +104,8 @@ class OperationApproval extends React.PureComponent {
               remarks: values.remarks,
               allowRestart: values.allowRestart,
               saleManager: values.saleManager,
+              productList: values.productList,
+              taId: customerInfo.companyInfo.taId,
             },
           });
         }
@@ -111,8 +114,20 @@ class OperationApproval extends React.PureComponent {
   };
 
   handleInitVal = key => {
-    const { operationApproval } = this.props;
-    return operationApproval[key];
+    if (key === 'approvalStatus') {
+      const { operationApproval } = this.props;
+      return operationApproval[key];
+    }
+    if (key === 'productList') {
+      const { customerInfo } = this.props;
+      if (typeof customerInfo.companyInfo.productList !== 'undefined') {
+        let val = customerInfo.companyInfo.productList;
+        val = val.map(element => {
+          return element.productType;
+        });
+        return val;
+      }
+    }
   };
 
   render() {
@@ -247,33 +262,54 @@ class OperationApproval extends React.PureComponent {
                               </Form.Item>
                             </Col>
                           ) : null}
+
                           {approvalStatus === 'A' &&
                           !bReroute &&
                           pendStepTplCode === 'TA_SALES_LEAD_APPROVAL' ? (
-                            <Col {...ColProps}>
-                              <Form.Item
-                                labelCol={{ span: 24 }}
-                                wrapperCol={{ span: 24 }}
-                                label={formatMessage({ id: 'SALE_MANAGER' })}
-                              >
-                                {getFieldDecorator(
-                                  `saleManager`,
-                                  {}
-                                )(
-                                  <SortSelect
-                                    showSearch
-                                    placeholder="Please Select"
-                                    filterOption={(input, option) =>
-                                      option.props.children
-                                        .toLowerCase()
-                                        .indexOf(input.toLowerCase()) >= 0
-                                    }
-                                    options={saleManagerSelectList}
-                                  />
-                                )}
-                              </Form.Item>
-                            </Col>
+                            <React.Fragment>
+                              <Col {...ColProps}>
+                                <Form.Item
+                                  labelCol={{ span: 24 }}
+                                  wrapperCol={{ span: 24 }}
+                                  label={formatMessage({ id: 'SALE_MANAGER' })}
+                                >
+                                  {getFieldDecorator(
+                                    `saleManager`,
+                                    {}
+                                  )(
+                                    <SortSelect
+                                      showSearch
+                                      placeholder="Please Select"
+                                      filterOption={(input, option) =>
+                                        option.props.children
+                                          .toLowerCase()
+                                          .indexOf(input.toLowerCase()) >= 0
+                                      }
+                                      options={saleManagerSelectList}
+                                    />
+                                  )}
+                                </Form.Item>
+                              </Col>
+
+                              <Col {...ColProps}>
+                                <Form.Item
+                                  labelCol={{ span: 24 }}
+                                  wrapperCol={{ span: 24 }}
+                                  label={formatMessage({ id: 'PRODUCT_ELIGIBILITY' })}
+                                >
+                                  {getFieldDecorator('productList', {
+                                    initialValue: this.handleInitVal('productList'),
+                                  })(
+                                    <Checkbox.Group>
+                                      <Checkbox value="02">Attractions</Checkbox>
+                                      <Checkbox value="01">Hotel</Checkbox>
+                                    </Checkbox.Group>
+                                  )}
+                                </Form.Item>
+                              </Col>
+                            </React.Fragment>
                           ) : null}
+
                           {approvalStatus === 'R' && !bReroute ? (
                             <Col {...ColProps}>
                               <Form.Item

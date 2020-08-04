@@ -3,6 +3,7 @@ export default {
   MYACTIVITY_AR_CREDIT_LIMIT: 'AR Credit Limit',
   RE_ROUTE: 'Re-Route',
   STATUS: 'Status',
+  PRODUCT_ELIGIBILITY: 'Product Eligibility',
   TA_SIGNED_CONTRACT: 'SIGNED CONTRACT',
   TA_SIGNED_UPLOADED_BY: 'Uploaded By',
   TA_SIGNED_UPLOADED_TIME: 'Uploaded Time',

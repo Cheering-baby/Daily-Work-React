@@ -12,12 +12,11 @@ import {
   Select,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
-import classNames from 'classnames';
 import { connect } from 'dva';
 import { router } from 'umi';
 import moment from 'moment';
 import detailStyles from './MappingDetail.less';
-import { colLayOut, rowLayOut, getFormLayout } from '../../utils/pubUtils';
+import { colLayOut } from '../../utils/pubUtils';
 import { commonConfirm } from '@/components/CommonModal';
 import {
   AR_ACCOUNT_PRIVILEGE,
@@ -25,24 +24,9 @@ import {
   SALES_SUPPORT_PRIVILEGE,
 } from '@/utils/PrivilegeUtil';
 import SortSelect from '@/components/SortSelect';
+import { isNumber } from '../../../../utils/utils';
 
-const detailOpt = getFormLayout();
 const FormItem = Form.Item;
-const formItemLayout = {
-  labelCol: {
-    span: 9,
-  },
-  wrapperCol: {
-    span: 14,
-  },
-};
-
-const ColProps = {
-  xs: 8,
-  sm: 8,
-  md: 12,
-  xl: 12,
-};
 
 @Form.create()
 @connect(({ mappingDetails, mapping }) => ({
@@ -101,9 +85,9 @@ class MappingDetailList extends React.PureComponent {
         key === 'arFixedThreshold'
       ) {
         val = val ? Number(val) : '';
-        val = isNaN(val) ? '' : val;
+        val = isNumber(val) ? '' : val;
       } else if (key === 'productName') {
-        val = typeof val === 'string' ? val.split(',').filter(_ => _) : [];
+        val = val && typeof val === 'string' ? val.split(',').filter(_ => _) : [];
         // val = val ? JSON.stringify(val) : {}
         const toStr = {
           hotel: '01',
@@ -155,7 +139,7 @@ class MappingDetailList extends React.PureComponent {
               values[k] = value.join();
             } else if (k === 'creditTerm' && Array.isArray(value)) {
               values[k] = value.join();
-            } else if (k === 'product') {
+            } else if (k === 'product' && Array.isArray(value)) {
               values[k] = value.join();
             } else if (k === 'guaranteeExpiryDate' && value) {
               values[k] = value ? value.format('YYYY-MM-DD') : '';
@@ -452,7 +436,7 @@ class MappingDetailList extends React.PureComponent {
                               >
                                 {item.dictName}
                               </Select.Option>
-                            ))
+                              ))
                             : null
                         }
                       />

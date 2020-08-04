@@ -154,13 +154,15 @@ class NewOfflineplu extends React.PureComponent {
       commissionNew: { themeParkList },
     } = this.props;
     for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].itemValue === text) {
+      if (themeParkList[i].bookingCategoryCode === text) {
         return (
           <Tooltip
             placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
+            }
           >
-            <span>{themeParkList[i].itemName}</span>
+            <span>{themeParkList[i].bookingCategoryName}</span>
           </Tooltip>
         );
       }
@@ -209,26 +211,21 @@ class NewOfflineplu extends React.PureComponent {
     }
   };
 
+
   deleteSubPLU = record => {
-    const {
-      commissionNew: { checkedList },
-      dispatch,
-    } = this.props;
-    for (let i = 0; i < checkedList.length; i += 1) {
-      if (record.proCommoditySpecId === checkedList[i].commoditySpecId) {
-        for (let j = 0; j < checkedList[i].subCommodityList.length; j += 1) {
-          if (record.commoditySpecId === checkedList[i].subCommodityList[j].commoditySpecId) {
+    const {commissionNew: { checkedList }, dispatch,} = this.props;
+    for (let i = 0; i < checkedList.length; i+=1) {
+      if(record.proCommoditySpecId === checkedList[i].commoditySpecId){
+        for (let j = 0; j < checkedList[i].subCommodityList.length; j+=1) {
+          if(record.commoditySpecId === checkedList[i].subCommodityList[j].commoditySpecId){
             checkedList[i].subCommodityList.splice(j, 1);
-            j -= 1;
+            j-=1;
           }
         }
       }
-      if (
-        checkedList[i].subCommodityList.length === 0 &&
-        checkedList[i].selectedType === 'packagePLU'
-      ) {
+      if(checkedList[i].subCommodityList.length === 0 && checkedList[i].selectedType==='packagePLU'){
         checkedList.splice(i, 1);
-        i -= 1;
+        i-=1;
       }
     }
     dispatch({

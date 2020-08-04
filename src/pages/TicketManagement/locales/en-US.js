@@ -31,6 +31,7 @@ export default {
   DETAIL: 'DETAIL',
   DETAILS: 'DETAILS',
   DOWNLOAD_ETICKET: 'Download e-Ticket',
+  DOWNLOAD_COLLECTION_LETTER: 'Download Collection Letter',
   DELIVERY_INFORMATION: 'DELIVERY INFORMATION',
   EMPTY_PRODUCT_TIP: 'Please use the filter for product screening！',
   EMPTY_ORDER_TIP: 'Please add some offer to cart！',

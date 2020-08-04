@@ -8,6 +8,8 @@ import LoginForm from './components/LoginForm';
 import SubLoginForm from './components/SubLoginForm';
 import UAAService from '@/uaa-npm';
 import loginStyles from './login.less';
+// eslint-disable-next-line import/no-unresolved
+import Copyright from './components/Copyright';
 
 const {
   containerMain,
@@ -125,6 +127,7 @@ class PamsLogin extends Component {
             </div>
           </div>
         </div>
+        <Copyright />
       </div>
     );
   }

@@ -31,12 +31,6 @@ const DEFAULT_DETAILS = {
   taxRatio: 'NaN',
 };
 const DEFAULT_PAYMENT_INSTRUCTIONS = {
-  content:
-    'Payment should be made by cheque, GIRO or T/T quoting invoice numbers being paid to "Resorts World at Sentosa Pte Ltd"; \n' +
-    'Bank: DBS Bank Ltd, Address: 12 Marina Boulevard, Marina Bay Financial Centre Tower 3, Singapore 018982\n' +
-    'Bank Code: 7171, Branch Code: 003, Account No: 003-910526-6, Swift Code: DBSSSGSG',
-  party: 'Resorts World at Sentosa Pte Ltd.',
-  address: '3, Lim Teck Kim Road #10-01, Genting Centre, Singapore 088934',
   footer: 'This is a computer generated invoice. No signature is required.',
 };
 

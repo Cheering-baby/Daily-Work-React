@@ -1,4 +1,4 @@
-import { Button, Card, Col, Icon, message, Modal, Row, Table, Tooltip } from 'antd';
+import { Button, Card, Col, Empty, Icon, message, Modal, Row, Table, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
@@ -15,7 +15,13 @@ import download from '@/pages/ReportCenter/PamsReport/utils/downloadUtils';
 import { exportReportUrl } from '@/pages/ReportCenter/PamsReport/services/adhocReportsService';
 import PremiumDownloadButton from '@/pages/TAManagement/BuyerCreatedInvoice/components/PremiumDownloadButton';
 
-const CommissionDetailModal = ({ loading, visible, setVisible, selectedInvoice }) => {
+const CommissionDetailModal = ({
+  loading,
+  visible,
+  setVisible,
+  selectedInvoice,
+  dataList = [],
+}) => {
   const handleCancel = () => {
     setVisible(false);
   };
@@ -30,7 +36,7 @@ const CommissionDetailModal = ({ loading, visible, setVisible, selectedInvoice }
     reportType: 'FixedCommissionReport',
     fileSuffixType: 'xlsx',
   };
-
+  const disabled = !dataList || dataList.length === 0;
   return (
     <>
       <Modal
@@ -45,6 +51,7 @@ const CommissionDetailModal = ({ loading, visible, setVisible, selectedInvoice }
               body={downloadBody}
               method="POST"
               loading={loading}
+              disabled={disabled}
             />
           </div>
         }
@@ -56,14 +63,15 @@ const CommissionDetailModal = ({ loading, visible, setVisible, selectedInvoice }
 };
 
 const InvoiceDetailModal = ({
-                              loading,
-                              isMobile,
-                              dispatch,
-                              visible,
-                              setVisible,
-                              selectedInvoice,
-                              previewOfPdfBase64,
-                            }) => {
+  loading,
+  isMobile,
+  dispatch,
+  visible,
+  setVisible,
+  selectedInvoice,
+  previewOfPdfBase64,
+  dataList = [],
+}) => {
   const [commissionDetailModalVisible, setCommissionDetailModalVisible] = useState(false);
 
   useEffect(() => {
@@ -75,21 +83,24 @@ const InvoiceDetailModal = ({
     }
   }, [dispatch, selectedInvoice]);
 
+  const modalWidth = 800;
   return (
     <>
       <Modal
         title={<span className={styles.modalTitle}>BUYER CREATED INVOICE</span>}
+        className={styles.modalDetail}
         visible={visible}
-        width={715}
+        width={modalWidth}
         onCancel={() => setVisible(false)}
         footer={
           <div>
             {!isMobile && (
               <DownloadButton
                 url={`${downloadBuyerCreatedInvoiceUrl}?id=${selectedInvoice &&
-                selectedInvoice.id}`}
+                  selectedInvoice.id}`}
                 method="GET"
                 defFileName="BuyerCreatedInvoice.pdf"
+                disabled={!previewOfPdfBase64}
               />
             )}
             <Button
@@ -106,9 +117,16 @@ const InvoiceDetailModal = ({
         }
       >
         <Row>
-          <Col span={24}>
-            <Document file={previewOfPdfBase64}>
-              <Page width={window.innerWidth < 715 ? window.innerWidth - 40 : 680} pageNumber={1} />
+          <Col span={24} style={{ userSelect: 'none' }}>
+            <Document
+              file={previewOfPdfBase64}
+              error={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+              noData={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+            >
+              <Page
+                width={window.innerWidth < modalWidth ? window.innerWidth - 20 : modalWidth}
+                pageNumber={1}
+              />
             </Document>
           </Col>
         </Row>
@@ -118,6 +136,7 @@ const InvoiceDetailModal = ({
         visible={commissionDetailModalVisible}
         setVisible={setCommissionDetailModalVisible}
         selectedInvoice={selectedInvoice}
+        dataList={dataList}
       />
     </>
   );
@@ -132,16 +151,17 @@ export const renderContent = text => {
 };
 
 const TableComponent = ({
-                          loading,
-                          isMobile,
-                          dispatch,
-                          selectedRowKeys,
-                          setSelectedRowKeys,
-                          buyerCreatedInvoice: {
-                            table: { totalSize, pageSize = PAGE_SIZE, currentPage, dataList },
-                            previewOfPdfBase64,
-                          },
-                        }) => {
+  loading,
+  isMobile,
+  dispatch,
+  selectedRowKeys,
+  setSelectedRowKeys,
+  buyerCreatedInvoice: {
+    table: { totalSize, pageSize = PAGE_SIZE, currentPage, dataList = [] },
+    previewOfPdfBase64,
+    commissionTable: { dataList: commissionDataList = [] },
+  },
+}) => {
   const [invoiceDetailModalVisible, setInvoiceDetailModalVisible] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
 
@@ -259,6 +279,7 @@ const TableComponent = ({
         selectedInvoice={selectedInvoice}
         setSelectedInvoice={setSelectedInvoice}
         previewOfPdfBase64={previewOfPdfBase64}
+        dataList={commissionDataList}
       />
     </>
   );

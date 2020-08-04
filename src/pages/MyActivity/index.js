@@ -136,7 +136,6 @@ class MyActivity extends React.PureComponent {
           if (text === '02' || text === '03') flagClass = detailStyles.flagStyle1;
           if (text === '00') flagClass = detailStyles.flagStyle2;
           if (text === '01') flagClass = detailStyles.flagStyle3;
-          if (text === '04') flagClass = detailStyles.flagStyle4;
           return (
             <div>
               <span className={flagClass} />
@@ -160,8 +159,9 @@ class MyActivity extends React.PureComponent {
                   }}
                 />
               </Tooltip>
-              {record.status === '02' &&
-              record.pendingStep.stepCode === 'TA_SALES_SUPPORT_APPROVAL' ? (
+              {record.activityTplCode === 'TA-SIGN-UP' &&
+              record.status === '00' &&
+              PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ? (
                 <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
                   <Icon
                     type="upload"
@@ -379,11 +379,13 @@ class MyActivity extends React.PureComponent {
         type: 'activityDetail/save',
         payload: {
           isOperationApproval: false,
+          feeId,
         },
       });
       router.push({
         pathname: `/MyActivity/${record.activityId}`,
         query: { feeId, activityTypeName: record.activityTypeName },
+        // query: { feeId: feeId, activityTypeName: record.activityTypeName },
       });
     } else if (type === 'audit') {
       const feeId = record && record.content ? JSON.parse(record.content).feeId : '';

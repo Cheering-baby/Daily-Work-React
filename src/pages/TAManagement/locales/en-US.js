@@ -96,6 +96,7 @@ export default {
   ADDITIONAL_SALES_MANAGER: 'Sales Manager',
   ADDITIONAL_SALES_MANAGER_EMAIL: `Sales Manager's Email`,
   ADDITIONAL_SALES_MANAGER_CONTACT_NUMBER: `Sales Manager’s Contact Number`,
+  PRODUCT_ELIGIBILITY: 'Product Eligibility',
   ADDITIONAL_CATEGORY_AND_CUSTOMER_GROUP: 'Category And Customer Group',
   ADDITIONAL_REMARK: 'Remark',
   ADDITIONAL_EDIT_SUBMITTED_SUCCESS: 'Additional information submitted successfully.',
@@ -293,6 +294,4 @@ export default {
   AR_CREDIT_BALANCE: 'AR Credit',
   EWALLET_BALANCE: 'e-Wallet',
   MYACTIVITY_REGISTRATION_DOCS: ' Registration Docs',
-
-
 };

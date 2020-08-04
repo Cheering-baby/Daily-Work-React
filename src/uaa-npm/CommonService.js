@@ -100,7 +100,7 @@ class CommonService {
         if (!this.axiosConfig.refreshTokenLoading) {
           this.axiosConfig.refreshTokenLoading = true;
 
-          this.axiosConfig.refreshTokenPromise = new Promise((resolve, reject) => {
+          this.axiosConfig.refreshTokenPromise = new Promise(resolve => {
             // 调用refresh接口
             const refreshConfig = {};
             refreshConfig.url =
@@ -196,7 +196,9 @@ class CommonService {
       if (typeof newOptions.body !== 'string') {
         newOptions.body = JSON.stringify(newOptions.body);
       }
-      newOptions.data = newOptions.body;
+      if (newOptions.body) {
+        newOptions.data = newOptions.body;
+      }
       delete newOptions.body;
     } else {
       newOptions.headers = {
@@ -213,7 +215,7 @@ class CommonService {
       ...newOptions,
       withCredentials: true,
     };
-
+    // console.log(config)
     return this.axios
       .request(config)
       .then(response => {
@@ -239,13 +241,13 @@ class CommonService {
             data: null,
             errorMsg: undefined,
           };
-          let message;
+          let myMessage;
           const { data } = error.response;
 
-          message = data.message || codeMessage[data.status];
+          myMessage = data.message || codeMessage[data.status];
 
-          if (message === undefined) {
-            message = error.message || error;
+          if (myMessage === undefined) {
+            myMessage = error.message || error;
           }
 
           if (data.errCode && data.errCode === 'SESSION_TIMEOUT') {
@@ -254,10 +256,10 @@ class CommonService {
             this.defaults.doSessionTimeout();
           }
 
-          result.errorMsg = message;
+          result.errorMsg = myMessage;
           result.data = data;
           data.resultCode = data.code;
-          data.resultMsg = message;
+          data.resultMsg = myMessage;
           return result;
         }
       });

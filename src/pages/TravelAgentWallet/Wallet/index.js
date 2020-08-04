@@ -15,7 +15,7 @@ import {
   Spin,
   Table,
   Tooltip,
-  Modal,
+  Modal, Collapse,
 } from 'antd';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
@@ -105,6 +105,27 @@ class Wallet extends React.PureComponent {
     });
   };
 
+  getTableHeight = () => {
+    const {offsetHeight: layoutHeight} = document.getElementById('layout');
+    if (document.getElementById('pageHeaderTitle') && document.getElementById('walletCard') && document.getElementById('pageSearchCard')) {
+      const {offsetHeight: pageHeaderTitleHeight} = document.getElementById('pageHeaderTitle');
+      const {offsetHeight: walletCardHeight} = document.getElementById('walletCard');
+      const {offsetHeight: pageSearchCardHeight} = document.getElementById('pageSearchCard');
+      return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 320;
+    }
+    return layoutHeight;
+  };
+
+  changePanel = key => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'taWalletMgr/save',
+      payload: {
+        activeKey: key,
+      },
+    });
+  };
+
   render() {
     const {
       loading,
@@ -115,6 +136,7 @@ class Wallet extends React.PureComponent {
         account = {},
         pagination = {},
         arActivity = {},
+        activeKey,
       },
     } = this.props;
 
@@ -181,7 +203,7 @@ class Wallet extends React.PureComponent {
         },
       },
       {
-        title: 'Invoice No',
+        title: 'Invoice No.',
         key: 'invoiceNo',
         render: (text, record) => {
           const invoiceText =
@@ -190,7 +212,7 @@ class Wallet extends React.PureComponent {
         },
       },
       {
-        title: 'Reference No',
+        title: 'Partners Order No.',
         key: 'referenceNo',
         dataIndex: 'referenceNo',
         render: text => {
@@ -198,7 +220,7 @@ class Wallet extends React.PureComponent {
         },
       },
       {
-        title: 'Galaxy Order No',
+        title: 'Galaxy Order No.',
         key: 'galaxyOrderNo',
         dataIndex: 'galaxyOrderNo',
         render: text => {
@@ -206,7 +228,7 @@ class Wallet extends React.PureComponent {
         },
       },
       {
-        title: 'Travel Agent Reference No',
+        title: 'Travel Agent Reference No.',
         key: 'taReferenceNo',
         dataIndex: 'taReferenceNo',
         render: text => {
@@ -252,134 +274,175 @@ class Wallet extends React.PureComponent {
     };
     return (
       <Col lg={24} md={24}>
-        <MediaQuery
-          maxWidth={SCREEN.screenMdMax}
-          minWidth={SCREEN.screenSmMin}
-          minHeight={SCREEN.screenSmMin}
-        >
-          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-        </MediaQuery>
-        <MediaQuery minWidth={SCREEN.screenLgMin}>
-          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-        </MediaQuery>
-        <Card>
-          <Row gutter={24}>
-            <Col lg={12} md={12}>
-              <div className={`${styles.flexBetween} ${styles.walletCard}`}>
-                <div style={{ height: '100%' }} className={styles.flexCenter}>
-                  <div className={styles.lighthouse} />
-                  <div className={styles.account}>
-                    <div className={styles.label}>{formatMessage({ id: 'EW' })}:</div>
-                    {eWallet && (
-                      <div className={`${styles.labelValue} ${styles.colorBlack}`}>
-                        <span className={styles.symbolPart}>$</span>
-                        <span className={styles.integerPart}>{eWallet.integer}</span>
-                        <span className={styles.decimalPart}>.{eWallet.decimal}</span>
+        <div id='pageHeaderTitle'>
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+        </div>
+        <div id='walletCard' style={{marginBottom:16}}>
+          <Collapse activeKey={activeKey} onChange={(key)=>this.changePanel(key)}>
+            <Collapse.Panel header={activeKey.length===0?'Show balance widget':'Hide balance widget'} key="1">
+              <Row gutter={24}>
+                <Col lg={12} md={12}>
+                  <div className={`${styles.flexBetween} ${styles.walletCard}`}>
+                    <div style={{ height: '100%' }} className={styles.flexCenter}>
+                      <div className={styles.lighthouse} />
+                      <div className={styles.account}>
+                        <div className={styles.label}>{formatMessage({ id: 'EW' })}:</div>
+                        {eWallet && (
+                          <div className={`${styles.labelValue} ${styles.colorBlack}`}>
+                            <span className={styles.symbolPart}>$</span>
+                            <span className={styles.integerPart}>{eWallet.integer}</span>
+                            <span className={styles.decimalPart}>.{eWallet.decimal}</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Col>
-            <Col lg={12} md={12}>
-              <div className={`${styles.flexBetween} ${styles.walletCard}`}>
-                <div style={{ height: '100%' }} className={styles.flexCenter}>
-                  <div className={styles.lighthouseOrange} />
-                  <div className={styles.account}>
-                    <div className={styles.label}>{formatMessage({ id: 'AR' })}:</div>
-                    {ar && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        <span className={styles.symbolPart}>$</span>
-                        <span className={styles.integerPart}>{ar.integer}</span>
-                        <span className={styles.decimalPart}>.{ar.decimal}</span>
+                </Col>
+                <Col lg={12} md={12}>
+                  <div className={`${styles.flexBetween} ${styles.walletCard}`}>
+                    <div style={{ height: '100%' }} className={styles.flexCenter}>
+                      <div className={styles.lighthouseOrange} />
+                      <div className={styles.account}>
+                        <div className={styles.label}>{formatMessage({ id: 'AR' })}:</div>
+                        {ar && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            <span className={styles.symbolPart}>$</span>
+                            <span className={styles.integerPart}>{ar.integer}</span>
+                            <span className={styles.decimalPart}>.{ar.decimal}</span>
+                          </div>
+                        )}
+                        {!ar && !arActivity.status && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            {formatMessage({ id: 'No_Account_Ar' })}
+                          </div>
+                        )}
+                        {!ar && arActivity.status === ACTIVITY_STATUS.Rejected && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            {formatMessage({ id: 'REJECT' })}
+                          </div>
+                        )}
+                        {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
+                          <div className={`${styles.labelValue} ${styles.colorOrange}`}>
+                            {formatMessage({ id: 'PENDING_OPREATION' })}
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {!ar && !arActivity.status && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        {formatMessage({ id: 'No_Account_Ar' })}
-                      </div>
-                    )}
-                    {!ar && arActivity.status === ACTIVITY_STATUS.Rejected && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        {formatMessage({ id: 'REJECT' })}
-                      </div>
-                    )}
-                    {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
-                      <div className={`${styles.labelValue} ${styles.colorOrange}`}>
-                        {formatMessage({ id: 'PENDING_OPREATION' })}
-                      </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Col>
-          </Row>
-        </Card>
+                </Col>
+              </Row>
+            </Collapse.Panel>
+          </Collapse>
+        </div>
         <Card>
-          <Form onSubmit={this.handleSearch}>
-            <Row type="flex" justify="space-around" gutter={24}>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
-                <Form.Item>
-                  {getFieldDecorator(`transactionId`, {
-                    rules: [
-                      {
-                        required: false,
-                        message: '',
-                      },
-                    ],
-                  })(<Input placeholder="PARTNERS Transaction No." allowClear />)}
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
-                <Form.Item>
-                  {getFieldDecorator(`transactionType`, {
-                    rules: [{ required: false, message: '' }],
-                  })(
-                    <SortSelect
-                      placeholder="Transaction Type"
-                      allowClear
-                      options={transactionTypes.map((item, index) => {
-                        return (
-                          // eslint-disable-next-line react/no-array-index-key
-                          <Select.Option value={item.value} key={`tr_options_${index}`}>
-                            {item.label}
-                          </Select.Option>
-                        );
-                      })}
-                    />
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
-                <Form.Item>
-                  {getFieldDecorator(`dateRange`, {
-                    rules: [{ required: false, message: '' }],
-                  })(
-                    <DatePicker.RangePicker
-                      format="DD-MMM-YYYY"
-                      allowClear
-                      disabledDate={current => current && current > moment().endOf('day')}
-                    />
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right' }}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ backgroundColor: '#1890FF', width: '73px', borderRadius: '4px' }}
-                >
-                  {formatMessage({ id: 'BTN_SEARCH' })}
-                </Button>
-                <Button
-                  style={{ marginLeft: 8, width: '66px', borderRadius: '4px' }}
-                  onClick={this.handleReset}
-                >
-                  {formatMessage({ id: 'BTN_RESET' })}
-                </Button>
-              </Col>
-            </Row>
-          </Form>
+          <div id='pageSearchCard'>
+            <Form onSubmit={this.handleSearch}>
+              <Row justify="space-around" gutter={24}>
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
+                  <Form.Item>
+                    {getFieldDecorator(`transactionId`, {
+                      rules: [
+                        {
+                          required: false,
+                          message: '',
+                        },
+                      ],
+                    })(<Input placeholder="PARTNERS Transaction No." allowClear />)}
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
+                  <Form.Item>
+                    {getFieldDecorator(`transactionType`, {
+                      rules: [{ required: false, message: '' }],
+                    })(
+                      <SortSelect
+                        placeholder="Transaction Type"
+                        allowClear
+                        options={transactionTypes.map((item, index) => {
+                          return (
+                            // eslint-disable-next-line react/no-array-index-key
+                            <Select.Option value={item.value} key={`tr_options_${index}`}>
+                              {item.label}
+                            </Select.Option>
+                          );
+                        })}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
+                  <Form.Item>
+                    {getFieldDecorator(`dateRange`, {
+                      rules: [{ required: false, message: '' }],
+                    })(
+                      <DatePicker.RangePicker
+                        style={{width: '100%'}}
+                        format="DD-MMM-YYYY"
+                        allowClear
+                        disabledDate={current => current && current > moment().endOf('day')}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
+                  <Form.Item>
+                    {getFieldDecorator(
+                      'galaxyOrderNo',
+                      {}
+                    )(
+                      <Input
+                        allowClear
+                        disabled={loading}
+                        placeholder={formatMessage({
+                          id: 'MyWallet.flow.filter.galaxyOrderNo.placeholder',
+                        })}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
+                  <Form.Item>
+                    {getFieldDecorator(
+                      'invoiceNo',
+                      {}
+                    )(
+                      <Input
+                        allowClear
+                        disabled={loading}
+                        placeholder={formatMessage({
+                          id: 'MyWallet.flow.filter.invoiceNo.placeholder',
+                        })}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right', float: 'right' }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{ backgroundColor: '#1890FF', width: '73px', borderRadius: '4px' }}
+                  >
+                    {formatMessage({ id: 'BTN_SEARCH' })}
+                  </Button>
+                  <Button
+                    style={{ marginLeft: 8, width: '66px', borderRadius: '4px' }}
+                    onClick={this.handleReset}
+                  >
+                    {formatMessage({ id: 'BTN_RESET' })}
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+          </div>
         </Card>
         <Card>
           <Spin spinning={loading}>
@@ -390,6 +453,7 @@ class Wallet extends React.PureComponent {
               columns={columns}
               pagination={paginationSetting}
               onChange={this.handleTableChange}
+              scroll={{y: this.getTableHeight()}}
             />
           </Spin>
         </Card>

@@ -5,9 +5,10 @@ import { router } from 'umi';
 import detailStyles from './OperationApprovalDrawer.less';
 import OperationApproval from '@/pages/MyActivity/components/OperationApproval';
 
-@connect(({ operationApproval, global }) => ({
+@connect(({ operationApproval, taSignUpDetail, global }) => ({
   operationApproval,
   global,
+  taSignUpDetail,
 }))
 class OperationApprovalDrawer extends PureComponent {
   operation = () => {
@@ -40,13 +41,14 @@ class OperationApprovalDrawer extends PureComponent {
     const {
       operationApproval: { operationVisible },
       global: { userCompanyInfo },
+      taSignUpDetail: { customerInfo },
       activityTplCode,
       pendStepTplCode,
     } = this.props;
     let isPermission = false;
     if (userCompanyInfo && JSON.stringify(userCompanyInfo) !== '{}') {
       const { status } = userCompanyInfo;
-      isPermission = '1' === status;
+      isPermission = status === '1';
     }
     return (
       <Col span={24}>
@@ -74,6 +76,7 @@ class OperationApprovalDrawer extends PureComponent {
             <OperationApproval
               activityTplCode={activityTplCode}
               pendStepTplCode={pendStepTplCode}
+              customerInfo={customerInfo}
             />
           </Drawer>
         </div>

@@ -39,13 +39,13 @@ export default {
   },
   effects: {
     *queryThemeParks(_, { call, put }) {
-      const response = yield call(service.queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      const response = yield call(service.queryPluAttribute, { status: 'Active' });
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        yield put({ type: 'save', payload: { themeParkList: result.items } });
+        yield put({ type: 'save', payload: { themeParkList: result.offerBookingCategoryList } });
       } else throw resultMsg;
     },
     *fetchPLUList({ payload }, { call, put, select }) {

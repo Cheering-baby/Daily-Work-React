@@ -25,6 +25,7 @@ export default {
   NOTICE_PLEASE_SELECT: 'Please Select',
   NOTICE_REQUIRED: 'Required',
 
+  READ: 'READ',
   SEARCH: 'Search',
   TARGET_TYPE: 'Scope/Role',
   TYPE: 'Type',

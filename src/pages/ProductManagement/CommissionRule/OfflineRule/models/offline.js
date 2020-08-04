@@ -24,8 +24,8 @@ export default {
       commissionValue: null,
       commissionValueAmount: null,
       commissionValuePercent: null,
-      commodityList: []
     },
+    commodityList: [],
 
     detailVisible: false,
     type: '',
@@ -35,13 +35,13 @@ export default {
   },
   effects: {
     *queryThemeParks(_, { call, put }) {
-      const response = yield call(service.queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      const response = yield call(service.queryPluAttribute, { status: 'Active' });
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0' || resultCode === 0) {
-        yield put({ type: 'save', payload: { themeParkList: result.items } });
+        yield put({ type: 'save', payload: { themeParkList: result.offerBookingCategoryList } });
       } else throw resultMsg;
     },
     *fetchOfflineList({ payload }, { call, put, select }) {
@@ -73,6 +73,17 @@ export default {
             return v;
           });
         }
+        if (commodityList && commodityList.length > 0) {
+          commodityList.forEach(item => {
+            if (item.children && item.children.length > 0) {
+              item.children.map(v => {
+                Object.assign(v, {
+                  isChild: true,
+                });
+              });
+            }
+          });
+        }
         yield put({
           type: 'save',
           payload: {
@@ -83,7 +94,6 @@ export default {
       } else throw resultMsg;
     },
     *edit({ payload }, { call }) {
-      console.log(payload)
       const res = yield call(service.edit, payload);
       if (!res) return false;
       const {
@@ -179,7 +189,7 @@ export default {
           commissionValue: null,
           commissionValueAmount: null,
           commissionValuePercent: null,
-          commodityList: []
+          commodityList: [],
         },
 
         detailVisible: false,
@@ -187,7 +197,7 @@ export default {
         drawerVisible: false,
         // themeParkList: [],
         commissionList: [],
-        recordList: []
+        recordList: [],
       };
     },
   },

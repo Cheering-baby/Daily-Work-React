@@ -162,6 +162,12 @@ class NewGrant extends React.PureComponent {
           agentId: newTaIdList[0],
         },
       });
+      dispatch({
+        type: 'grant/fetch2',
+        payload: {
+          agentId: newTaIdList[0],
+        },
+      });
     }
   }
 
@@ -477,15 +483,30 @@ class NewGrant extends React.PureComponent {
   handleSubmit = () => {
     const {
       dispatch,
-      grant: { checkedList },
+      grant: { checkedList, checkedListLength, displayGrantOfferList },
       location: {
         query: { taIdList },
       },
     } = this.props;
-    // if (checkedList.length === 0) {
-    //   message.warning('Please select at least one offer.');
-    //   return false;
+    // if (
+    //   checkedListLength &&
+    //   checkedListLength.length > 0 &&
+    //   displayGrantOfferList &&
+    //   displayGrantOfferList.length > 0
+    // ) {
+    //   if (checkedListLength.length > displayGrantOfferList.length) {
+    //     message.warning('Please added before search.');
+    //     return false;
+    //   }
     // }
+
+    // if (checkedListLength && checkedListLength.length > 0) {
+    //   if (displayGrantOfferList.length === 0) {
+    //     message.warning('Please added before search.');
+    //     return false;
+    //   }
+    // }
+
     dispatch({
       type: 'grant/add',
       payload: {
@@ -576,16 +597,18 @@ class NewGrant extends React.PureComponent {
         query: { taIdList },
       },
     } = this.props;
-
-    dispatch({
-      type: 'grant/searchOffer',
-      payload: {
-        taIdList,
-        filter: {
-          likeParam: value.trim(),
+    const newTaIdList = taIdList.split(',');
+    if (newTaIdList.length === 1) {
+      dispatch({
+        type: 'grant/searchOffer',
+        payload: {
+          agentId: newTaIdList[0],
+          filter: {
+            likeParam: value.trim(),
+          },
         },
-      },
-    });
+      });
+    }
   };
 
   render() {
@@ -667,7 +690,7 @@ class NewGrant extends React.PureComponent {
               <Col className={styles.DetailTitle} xs={12} sm={12} md={18}>
                 {taLength === 1
                   ? formatMessage({ id: 'NEW_GRANT_OFFER' })
-                  : formatMessage({ id: 'NEW_GRANT_OFFER' })}
+                  : formatMessage({ id: 'NEW_GRANT' })}
               </Col>
               {taLength === 1 ? (
                 <Col xs={12} sm={12} md={6}>

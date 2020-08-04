@@ -2,8 +2,18 @@ import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import { Button, Form, Input, Modal } from 'antd';
-
+import CurrencyFormatter from 'currencyformatter.js';
 import styles from './topup.less';
+
+const CURRENCY_FORMATTER_OPTIONS_DECIMAL = {
+  // currency: 	'USD', 		// If currency is not supplied, defaults to USD
+  symbol: '', // Overrides the currency's default symbol
+  // thousand: ',',
+  // locale: 	'en',			  // Overrides the currency's default locale (see supported locales)
+  decimal: '.', // Overrides the locale's decimal character
+  group: ',', // Overrides the locale's group character (thousand separator)
+  pattern: '#,##0.00', // Overrides the locale's default display pattern
+};
 
 const formItemLayout = {
   labelCol: {
@@ -104,25 +114,21 @@ class Arapply extends React.PureComponent {
           <Form {...formItemLayout}>
             <Form.Item {...formItemLayout} label="Ewallet Balance">
               <span className={`${styles.labelValue} ${styles.colorOrange}`}>
-                ${eWallet.balance}
+                {CurrencyFormatter.format(eWallet.balance, CURRENCY_FORMATTER_OPTIONS_DECIMAL)}
               </span>
             </Form.Item>
             <Form.Item {...formItemLayout} label="Topup Amount">
               {getFieldDecorator(`topupAmount`, {
                 rules: [
                   {
-                    pattern: /^(([1-9]{1}\d*)|(0{1}))$/,
-                    message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MESSAGE' }),
-                  },
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MESSAGE' }),
-                  },
-                  {
                     min: 0,
                     max: 21000000,
+                    pattern: /^(([1-9]{1}\d*)|(0{1}))$/,
                     message: formatMessage({ id: 'TOPUP_AMOUNT_VALIDATE_MAX_VAL_MESSAGE' }),
                     validator: (rule, value) => {
+                      if (!rule.pattern.test(value)) {
+                        return false;
+                      }
                       const v = Number(value);
                       return v > rule.min && v <= rule.max;
                     },

@@ -18,7 +18,7 @@ export default {
   },
   effects: {
     *approve({ payload }, { call, select, put }) {
-      const { reason, approver, allowRestart, remarks, saleManager } = payload;
+      const { reason, approver, allowRestart, remarks, saleManager, productList, taId } = payload;
       const { activityId } = yield select(state => state.activityDetail);
       const { bReroute, approvalStatus } = yield select(state => state.operationApproval);
 
@@ -41,9 +41,15 @@ export default {
       } else if (approvalStatus === 'A') {
         if (!isNvl(saleManager)) {
           const pload = `{'saleManager' : '${saleManager}'}`;
-          result = yield call(service.accept, { activityId, remarks, payload: pload });
+          result = yield call(service.accept, {
+            activityId,
+            remarks,
+            taId,
+            productList,
+            payload: pload,
+          });
         } else {
-          result = yield call(service.accept, { activityId, remarks });
+          result = yield call(service.accept, { activityId, remarks, taId, productList });
         }
       } else if (approvalStatus === 'R') {
         result = yield call(service.reject, { activityId, reason, allowRestart });

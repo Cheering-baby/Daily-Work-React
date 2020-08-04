@@ -3,15 +3,6 @@ import UAAService from '@/uaa-npm';
 
 const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 export async function queryPluAttribute(params) {
-  return UAAService.request(`${localPath}/b2c/product/v1/dictionary/attraction/list`, {
-    method: 'POST',
-    body: {
-      ...params,
-    },
-  });
-}
-
-export async function queryOfferBookingCategory(params) {
   return UAAService.request(
     `${localPath}/b2c/product/v1/offer/offerBookingCategory/queryOfferBookingCategory`,
     {
@@ -74,13 +65,6 @@ export async function edit(params) {
 
 export async function add(params) {
   return UAAService.request(`/b2b/agent/v1/commission/template/batchSaveCommodityCommissionTpl`, {
-    method: 'POST',
-    body: params,
-  });
-}
-
-export async function themepark(params) {
-  return UAAService.request(`/b2c/product/v1/dictionary/attraction/list`, {
     method: 'POST',
     body: params,
   });

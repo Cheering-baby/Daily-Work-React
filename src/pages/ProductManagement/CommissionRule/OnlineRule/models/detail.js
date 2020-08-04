@@ -1,5 +1,6 @@
 import { message } from 'antd';
 import * as service from '../services/commissionRuleSetup';
+import React from "react";
 
 const bingdingPLU2 = commodityList => {
   const list = [];
@@ -48,7 +49,7 @@ export default {
     effectivePeriodDate: [],
     commissionType: '',
     effectiveStartDate: '',
-    effectiveEndDate: ''
+    effectiveEndDate: '',
   },
   effects: {
     *queryDetail({ payload }, { call, put }) {
@@ -74,10 +75,27 @@ export default {
         if (commissionScheme === 'Percentage') {
           if (tieredList && tieredList.length > 0) {
             tieredList.map(v => {
+              let commissionValue2 = '';
+              let commissionValue = ''
+              const x = String(v.commissionValue).indexOf('.') + 1;
+              const y = String(v.commissionValue).length - x;
+              if (y <= 2) {
+                commissionValue2 = parseFloat(v.commissionValue * 100);
+              }
+              if (y === 4) {
+                commissionValue2 = parseFloat(v.commissionValue * 100).toFixed(2);
+              }
+              if (y === 3) {
+                commissionValue2 = parseFloat(v.commissionValue * 100).toFixed(1);
+              }
+              if (commissionScheme === 'Amount') {
+                commissionValue = v.commissionValue
+              }
+              if (commissionScheme === 'Percentage') {
+                commissionValue = commissionValue2
+              }
               Object.assign(v, {
-                commissionValue: v.commissionValue
-                  ? parseFloat(v.commissionValue * 100).toFixed()
-                  : '',
+                commissionValue: v.commissionValue ? commissionValue : '',
                 maxmum: v.maxmum === null ? '' : v.maxmum,
               });
               return v;
@@ -223,7 +241,7 @@ export default {
         effectivePeriodDate: [],
         commissionType: '',
         effectiveStartDate: '',
-        effectiveEndDate: ''
+        effectiveEndDate: '',
       };
     },
     saveSelectOffer(state, { payload }) {

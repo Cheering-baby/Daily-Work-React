@@ -84,6 +84,18 @@ class SystemNotification extends PureComponent {
     });
   };
 
+  batchRead = notificationIdList => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'notification/batchUpdateNotificationStatus',
+      payload: {
+        notificationIdList,
+      },
+    }).then(() => {
+      this.onSearch({});
+    });
+  };
+
   render() {
     const {
       pagination: { currentPage, pageSize, totalSize },
@@ -108,6 +120,7 @@ class SystemNotification extends PureComponent {
       onTableEditChange: () => {},
       onTableDetailChange: notificationInfo => this.onTableDetailChange(notificationInfo),
       onTableDelChange: () => {},
+      onBatchRead: notificationIdList => this.batchRead(notificationIdList),
     };
 
     const breadcrumbArr = [

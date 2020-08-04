@@ -84,7 +84,7 @@ class Offline extends React.PureComponent {
     },
     {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
-      key: 'commissionScheme',
+      dataIndex: 'commissionScheme',
       render: (_, record) => this.commissionSchemeValue(record),
     },
     {
@@ -102,8 +102,26 @@ class Offline extends React.PureComponent {
       },
     },
     {
+      title: 'Modified by',
+      dataIndex: 'modifyStaff',
+      width: '10%',
+      render: (_, record) => this.showModifyStaff(record),
+    },
+    {
+      title: 'Date Modified',
+      dataIndex: 'modifyDate',
+      width: '10%',
+      render: (_, record) => this.showModifyDate(record),
+    },
+    {
+      title: 'Time Modified',
+      dataIndex: 'modifyDate',
+      width: '10%',
+      render: (_, record) => this.showModifyTime(record),
+    },
+    {
       title: formatMessage({ id: 'OPERATION' }),
-      key: 'operation',
+      dataIndex: 'operation',
       render: (_, record) => this.showOperation(record),
     },
   ];
@@ -129,7 +147,21 @@ class Offline extends React.PureComponent {
   commissionSchemeValue = record => {
     if (!isNvl(record && record.commissionList && record.commissionList.Fixed)) {
       const { commissionScheme, commissionValue } = record.commissionList.Fixed;
-      const commissionValue2 = parseFloat(commissionValue * 100).toFixed();
+      // const commissionValue2 = parseFloat(commissionValue * 100).toFixed();
+      let commissionValue2 = '';
+      if (commissionScheme === 'Percentage') {
+        const x = String(commissionValue).indexOf('.') + 1;
+        const y = String(commissionValue).length - x;
+        if (y <= 2) {
+          commissionValue2 = parseFloat(commissionValue * 100);
+        }
+        if (y === 4) {
+          commissionValue2 = parseFloat(commissionValue * 100).toFixed(2);
+        }
+        if (y === 3) {
+          commissionValue2 = parseFloat(commissionValue * 100).toFixed(1);
+        }
+      }
       if (commissionScheme === 'Amount') {
         return (
           <Tooltip
@@ -154,8 +186,54 @@ class Offline extends React.PureComponent {
     return null;
   };
 
+  showModifyStaff = record => {
+    if (!isNvl(record && record.commissionList && record.commissionList.Fixed)) {
+      const { modifyStaff } = record.commissionList.Fixed;
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{ modifyStaff }</span>}
+        >
+          <span>{ modifyStaff }</span>
+        </Tooltip>
+      );
+    }
+    return null;
+  };
+
+  showModifyDate = record => {
+    if (!isNvl(record && record.commissionList && record.commissionList.Fixed)) {
+      const { modifyDate } = record.commissionList.Fixed;
+      const timeText = modifyDate ? moment(modifyDate).format('YYYY-MMM-DD') : '';
+      return timeText ? (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{timeText}</span>}
+        >
+          <span>{timeText}</span>
+        </Tooltip>
+      ) : null;
+    }
+    return null;
+  };
+
+  showModifyTime = record => {
+    if (!isNvl(record && record.commissionList && record.commissionList.Fixed)) {
+      const { modifyDate } = record.commissionList.Fixed;
+      const timeText = modifyDate ? moment(modifyDate).format('HH:mm:ss') : '';
+      return timeText ? (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{timeText}</span>}
+        >
+          <span>{timeText}</span>
+        </Tooltip>
+      ) : null;
+    }
+  };
+
   showOperation = record => {
-    if (record.subCommodityList !== null) {
+    if (record.children && record.children.length > 0) {
       return null;
     }
     return (
@@ -177,13 +255,15 @@ class Offline extends React.PureComponent {
       offline: { themeParkList },
     } = this.props;
     for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].itemValue === text) {
+      if (themeParkList[i].bookingCategoryCode === text) {
         return (
           <Tooltip
             placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
+            }
           >
-            <span>{themeParkList[i].itemName}</span>
+            <span>{themeParkList[i].bookingCategoryName}</span>
           </Tooltip>
         );
       }
@@ -205,7 +285,19 @@ class Offline extends React.PureComponent {
       if (commissionScheme === 'Amount') {
         commissionSchemeValue = `$${commissionValue} / Ticket`;
       } else if (commissionScheme === 'Percentage') {
-        commissionSchemeValue = `${parseFloat(commissionValue * 100).toFixed()}%`;
+        let commissionValue2;
+        const x = String(commissionValue).indexOf('.') + 1;
+        const y = String(commissionValue).length - x;
+        if (y <= 2) {
+          commissionValue2 = parseFloat(commissionValue * 100);
+        }
+        if (y === 4) {
+          commissionValue2 = parseFloat(commissionValue * 100).toFixed(2);
+        }
+        if (y === 3) {
+          commissionValue2 = parseFloat(commissionValue * 100).toFixed(1);
+        }
+        commissionSchemeValue = `${commissionValue2}%`;
       }
       createBy = createStaff !== null ? createStaff : '-';
       createTimeValue = createTime !== null ? moment(createTime).format('DD-MMM-YYYY') : '-';
@@ -279,35 +371,62 @@ class Offline extends React.PureComponent {
   };
 
   edit = record => {
+    const {
+      offline: { offlineList },
+    } = this.props;
+    let commodityList = [];
+
+    if (record.isChild) {
+      const lists = offlineList.filter(item => item.children && item.children.length > 0);
+      commodityList = lists.find(item1 =>
+        item1.children.find(item2 => item2.commoditySpecId === record.commoditySpecId)
+      );
+      const fd = commodityList.children.find(i => i.commoditySpecId === record.commoditySpecId);
+      commodityList.subCommodityList = [fd];
+    } else {
+      commodityList = record;
+    }
+
     const { dispatch } = this.props;
     let commissionSchemeValue = 'Amount';
     let commissionShowValue = null;
     let tplIdValue = null;
     let commissionValueAmount = null;
     let commissionValuePercent = null;
+    let tplVersionVal = '';
     if (record && record.commissionList && record.commissionList.Fixed) {
-      const { commissionScheme, commissionValue, tplId } = record.commissionList.Fixed;
+      const { commissionScheme, commissionValue, tplId, tplVersion } = record.commissionList.Fixed;
       commissionSchemeValue = commissionScheme;
       commissionShowValue = commissionValue;
       tplIdValue = tplId;
+      tplVersionVal = tplVersion;
     }
     if (commissionSchemeValue === 'Amount') {
       commissionValueAmount = commissionShowValue;
     }
     if (commissionSchemeValue === 'Percentage') {
-      commissionValuePercent = parseFloat(commissionShowValue * 100).toFixed();
+      let commissionValue2;
+      const x = String(commissionShowValue).indexOf('.') + 1;
+      const y = String(commissionShowValue).length - x;
+      if (y <= 2) {
+        commissionValue2 = parseFloat(commissionShowValue * 100);
+      }
+      if (y === 4) {
+        commissionValue2 = parseFloat(commissionShowValue * 100).toFixed(2);
+      }
+      if (y === 3) {
+        commissionValue2 = parseFloat(commissionShowValue * 100).toFixed(1);
+      }
+      commissionValuePercent = commissionValue2;
     }
+
     dispatch({
       type: 'offline/save',
       payload: {
+        commodityList,
+        tplVersion: tplVersionVal,
         drawerVisible: true,
       },
-    });
-
-    Object.entries(record).map(([key, value]) => {
-      if(key === 'commissionList') {
-        delete record[key];
-      }
     });
 
     dispatch({
@@ -318,7 +437,6 @@ class Offline extends React.PureComponent {
         tplId: tplIdValue,
         commissionValueAmount,
         commissionValuePercent,
-        commodityList: record
       },
     });
   };
@@ -429,11 +547,11 @@ class Offline extends React.PureComponent {
                         allowClear
                       >
                         {themeParkList &&
-                          themeParkList.map(item => (
-                            <Option key={item.itemValue} value={item.itemValue}>
-                              {item.itemName}
-                            </Option>
-                          ))}
+                        themeParkList.map(item => (
+                          <Option key={item.bookingCategoryCode} value={item.bookingCategoryCode}>
+                            {item.bookingCategoryName}
+                          </Option>
+                        ))}
                       </Select>
                     )}
                   </Form.Item>

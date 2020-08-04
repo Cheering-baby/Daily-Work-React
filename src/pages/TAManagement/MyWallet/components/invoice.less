@@ -1,6 +1,6 @@
 
 .invoice-container {
-  margin-top: -2px;
+  margin-top: 0;
   padding-left: 12px;
   padding-right: 12px;
 }
@@ -9,7 +9,6 @@
   font-family: calibriBold,sans-serif;
   font-size: 18px;
   color: #3B414A;
-  letter-spacing: 0.29px;
   text-align: right;
 }
 
@@ -26,24 +25,27 @@
 .invoice-logo {
   height: 45px;
   width: 132px;
-  margin: -2px 0 11px 0;
+  margin: 0 0 11px 0;
 }
 
 .company-name {
   font-family: calibriBold,sans-serif;
   font-size: 13px;
   color: #3B414A;
-  letter-spacing: 0.21px;
   width: 200px;
+  word-wrap: break-word;
+  word-break:break-all
 }
 
 .company-address {
+  display: table;
   font-family: calibri,sans-serif;
   font-size: 13px;
   color: #565656;
-  letter-spacing: 0.21px;
-  //white-space: pre-line;
   width: 200px;
+  //line-height: 18px;
+  word-wrap: break-word;
+  word-break:break-all;
 }
 
 
@@ -57,7 +59,6 @@
   font-family: calibriBold,sans-serif;
   font-size: 18px;
   color: #3B414A;
-  letter-spacing: 0.29px;
   margin-bottom: 9px;
   border-bottom: 1px solid #000;
 }
@@ -90,7 +91,6 @@
   font-weight: bold;
   font-size: 13px;
   color: #3B414A;
-  letter-spacing: 0.21px;
   text-align: left;
   width: 120px;
 }
@@ -149,7 +149,6 @@
   font-family: calibriBold, sans-serif;
   font-size: 13px;
   color: #3B414A;
-  letter-spacing: 0.21px;
   padding: 16px 0 16px 0;
   white-space: nowrap;
 }
@@ -183,7 +182,6 @@
   font-family: calibriBold, sans-serif;
   font-size: 13px;
   color: #3B414A;
-  letter-spacing: 0.21px;
   white-space: nowrap;
   text-align: left;
 }
@@ -211,8 +209,12 @@
   font-family: calibri, sans-serif;
   font-size: 13px;
   color: #565656;
+  letter-spacing: 0;
   padding-bottom: 25px;
   white-space: pre-line;
+  word-wrap:break-word;
+  word-break: break-all;
+  overflow:hidden;
 }
 .instructions-signature-line {
   box-sizing: border-box;
@@ -224,7 +226,6 @@
     font-size: 13px;
     line-height: 15px;
     color: #565656;
-    padding-bottom: 10px;
     text-align: center;
     white-space: pre-line;
   }
@@ -235,6 +236,7 @@
   font-size: 13px;
   color: #565656;
   padding-bottom: 10px;
+  text-align: center;
 }
 
 .downloadBtn {
@@ -247,5 +249,5 @@
 
 
 .invoiceModal {
-  max-width: 740px;
+  max-width: 750px;
 }

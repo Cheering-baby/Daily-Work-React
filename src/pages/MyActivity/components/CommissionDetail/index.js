@@ -26,6 +26,7 @@ class ARApplicationDetail extends React.PureComponent {
       taSignUpDetail: { customerInfo },
       feeId,
     } = this.props;
+
     const { companyInfo = {} } = customerInfo || {};
     dispatch({
       type: 'commonSignUpDetail/queryCityList',

@@ -12,6 +12,11 @@ import PaginationComp from '../../../components/PaginationComp';
   detail,
 }))
 class NewOnlineOffer extends React.PureComponent {
+
+  state = {
+    expandedRowKeys: []
+  }
+
   columns = [
     {
       title: formatMessage({ id: 'OFFER_NAME' }),
@@ -135,7 +140,7 @@ class NewOnlineOffer extends React.PureComponent {
               <Icon
                 type="delete"
                 onClick={() => {
-                  this.deleteSubSubPLU(record);
+                  this.deleteSubPLU(record);
                 }}
               />
             </Tooltip>
@@ -201,26 +206,42 @@ class NewOnlineOffer extends React.PureComponent {
   };
 
   deleteSubPLU = record => {
-    const {
+    console.log(record)
+    let {
       commissionNew: { checkedOnlineList },
       dispatch,
     } = this.props;
-    for (let i = 0; i < checkedOnlineList.length; i += 1) {
-      if (record.proCommoditySpecId === checkedOnlineList[i].commoditySpecId) {
-        for (let j = 0; j < checkedOnlineList[i].subCommodityList.length; j += 1) {
-          if (record.commoditySpecId === checkedOnlineList[i].subCommodityList[j].commoditySpecId) {
-            checkedOnlineList[i].subCommodityList.splice(j, 1);
-            j -= 1;
-          }
+    if(Array.isArray(checkedOnlineList)){
+      checkedOnlineList = checkedOnlineList.filter(item => {
+        let bool = true
+        // if (record.proCommoditySpecId !== item.commoditySpecId) {
+        //   return bool
+        // }
+        // if(!(Array.isArray(item.subCommodityList) && item.subCommodityList.length)) {
+        //   return bool
+        // }
+        if (!item.subCommodityListNull) {
+          item.subCommodityList = item.subCommodityList.filter(item2 => {
+            let bool2 = true
+            if (!item2.subCommodityListNull) {
+              item2.subCommodityList = item2.subCommodityList.filter(item3 => {
+                return record.commoditySpecId !== item3.commoditySpecId
+              })
+              bool2 = item2.subCommodityList.length > 0
+            }
+            if (bool2) {
+              bool2 = record.commoditySpecId !== item2.commoditySpecId
+            }
+            return bool2
+          })
+          bool = item.subCommodityList.length > 0;
         }
-      }
-      if (
-        checkedOnlineList[i].subCommodityList.length === 0 &&
-        checkedOnlineList[i].selectedType === 'offerPLU'
-      ) {
-        checkedOnlineList.splice(i, 1);
-        i -= 1;
-      }
+        if (!bool) {
+          const { expandedRowKeys } = this.state
+          this.setState(() => ({ expandedRowKeys: expandedRowKeys.filter(e => e !== item.commoditySpecId) }))
+        }
+        return bool
+      })
     }
     dispatch({
       type: 'commissionNew/changeOnlinePage',
@@ -231,55 +252,67 @@ class NewOnlineOffer extends React.PureComponent {
   };
 
   deleteSubSubPLU = record => {
-    const {
+    let {
       commissionNew: { checkedOnlineList },
       dispatch,
     } = this.props;
-    // const fd = checkedOnlineList.find(item => item.commoditySpecId === record.proProCommoditySpecId)
-    // // console.log(fd, record.proProCommoditySpecId)
-    // if(fd){
-    //   const fd2 = fd.subCommodityList.find(item => item.commoditySpecId === record.proCommoditySpecId)
-    //   if(fd2) {
-    //     const fd3 = fd2.subCommodityList.find(item => item.commoditySpecId === record.commoditySpecId)
-    //     if(fd3) {
-    //       // fd2.splice(item, 1)
-    //       console.log(fd3)
-    //     }
-    //   }
-    //   return checkedOnlineList
-    // }
-    for (let i = 0; i < checkedOnlineList.length; i += 1) {
-      if (record.proProCommoditySpecId === checkedOnlineList[i].commoditySpecId) {
-        for (let j = 0; j < checkedOnlineList[i].subCommodityList.length; j += 1) {
-          if (
-            record.proCommoditySpecId === checkedOnlineList[i].subCommodityList[j].commoditySpecId
-          ) {
-            // console.log(checkedOnlineList[i].subCommodityList[j].commoditySpecId)
-
-            for (
-              let k = 0;
-              k < checkedOnlineList[i].subCommodityList[j].subCommodityList.length;
-              k += 1
-            ) {
-              if (
-                record.commoditySpecId ===
-                checkedOnlineList[i].subCommodityList[j].subCommodityList[k].commoditySpecId
-              ) {
+    for (let i = 0; i < checkedOnlineList.length; i+=1) {
+      if(record.proProCommoditySpecId === checkedOnlineList[i].commoditySpecId) {
+        for (let j = 0; j < checkedOnlineList[i].subCommodityList.length; j+=1) {
+          if(record.proCommoditySpecId === checkedOnlineList[i].subCommodityList[j].commoditySpecId){
+            for (let k = 0; k < checkedOnlineList[i].subCommodityList[j].subCommodityList.length; k+=1) {
+              if(record.commoditySpecId === checkedOnlineList[i].subCommodityList[j].subCommodityList[k].commoditySpecId){
                 checkedOnlineList[i].subCommodityList[j].subCommodityList.splice(k, 1);
-                k -= 1;
+                k-=1;
               }
             }
           }
-          if (
-            checkedOnlineList[i].subCommodityList[j].subCommodityList.length === 0 &&
-            checkedOnlineList[i].subCommodityList[j].selectedType === 'packagePLU'
-          ) {
+          if(checkedOnlineList[i].subCommodityList[j].subCommodityList.length === 0 && checkedOnlineList[i].subCommodityList[j].selectedType === 'packagePLU'){
             checkedOnlineList[i].subCommodityList.splice(j, 1);
-            j -= 1;
+            j-=1;
           }
         }
+
       }
     }
+    // if(Array.isArray(checkedOnlineList)){
+    //   checkedOnlineList = checkedOnlineList.filter(item => {
+    //     let bool = true
+    //     item.subCommodityList = item.subCommodityList.filter(i => {
+    //       // return
+    //       // return record.commoditySpecId !== i.commoditySpecId
+    //         i.subCommodityList = i.subCommodityList.filter(k => {
+    //           console.log(record, k.commoditySpecId)
+    //
+    //           if (record.commoditySpecId !== k.commoditySpecId) {
+    //             return bool
+    //           }
+    //           // if(!(Array.isArray(k.subCommodityList) && k.subCommodityList.length)) {
+    //           //   return bool
+    //           // }
+    //           // k.subCommodityList = k.subCommodityList.filter(i => {
+    //           //   return record.commoditySpecId !== i.commoditySpecId
+    //           // })
+    //           // bool = item.subCommodityList.length > 0; return bool
+    //           // return record.commoditySpecId !== k.commoditySpecId
+    //           // return record.commoditySpecId !== k.commoditySpecId
+    //           // if (record.proCommoditySpecId !== k.commoditySpecId) {
+    //           //   return bool
+    //           // }
+    //           // if(!(Array.isArray(item.subCommodityList) && k.subCommodityList.length)) {
+    //           //   return bool
+    //           // }
+    //         })
+    //     })
+    //     // bool = item.subCommodityList.length > 0; return bool
+    //     // if (!bool) {
+    //     //   const { expandedRowKeys } = this.state
+    //     //   this.setState(() => ({ expandedRowKeys: expandedRowKeys.filter(e => e !== item.commoditySpecId) }))
+    //     // }
+    //     // return true
+    //   })
+    // }
+    console.log(checkedOnlineList)
     dispatch({
       type: 'commissionNew/changeOnlinePage',
       payload: {
@@ -295,48 +328,50 @@ class NewOnlineOffer extends React.PureComponent {
 
   subExpandedRowRender = record => {
     const { subCommodityList } = record;
-    if(subCommodityList.length > 0) {
-      return (
-        <div>
-          <Table
-            size="small"
-            columns={this.subDetailColumns}
-            dataSource={subCommodityList}
-            expandedRowRender={rec => this.subExpandedRowRender(rec)}
-            rowClassName={rec =>
-              rec.subCommodityList === null || rec.subCommodityList.length === 0
-                ? styles.hideIcon
-                : undefined
-            }
-            pagination={false}
-            bordered={false}
-          />
-        </div>
-      );
-    }
+    return subCommodityList.length > 0 ? (
+      <Table
+        size="small"
+        rowKey={(_, i) => i}
+        columns={this.subDetailColumns}
+        dataSource={subCommodityList}
+        rowClassName={rec =>
+          rec.subCommodityList === null || rec.subCommodityList.length === 0
+            ? styles.hideIcon
+            : undefined
+        }
+        pagination={false}
+        bordered={false}
+      />
+    ) : null;
   };
 
   expandedRowRender = record => {
     const { subCommodityList } = record;
-    if(subCommodityList.length > 0) {
-      return (
-        <div>
-          <Table
-            size="small"
-            columns={this.detailColumns}
-            dataSource={subCommodityList}
-            expandedRowRender={rec => this.subExpandedRowRender(rec)}
-            rowClassName={rec =>
-              rec.subCommodityList === null || rec.subCommodityList.length === 0
-                ? styles.hideIcon
-                : undefined
-            }
-            pagination={false}
-            bordered={false}
-          />
-        </div>
-      );
+    return subCommodityList.length > 0 ? (
+      <Table
+        size="small"
+        columns={this.detailColumns}
+        dataSource={subCommodityList}
+        expandedRowRender={rec => this.subExpandedRowRender(rec)}
+        rowClassName={rec =>
+          rec.subCommodityList === null || rec.subCommodityList.length === 0
+            ? styles.hideIcon
+            : undefined
+        }
+        pagination={false}
+        bordered={false}
+      />
+    ) : null;
+  };
+
+  getRowSelectedClassName = (record, index) => {
+    if (index === 0) {
+      return styles.hideIcon;
     }
+    if (record.subCommodityList.length === 0) {
+      return styles.hideIcon;
+    }
+    return undefined;
   };
 
   render() {
@@ -350,6 +385,7 @@ class NewOnlineOffer extends React.PureComponent {
         displayOnlineList = [],
       },
     } = this.props;
+    // console.log(displayOnlineList)
     const { currentPage, pageSize: nowPageSize } = onlineOfferPagination;
     const pageOpts = {
       total: checkedOnlineList.length,
@@ -391,10 +427,21 @@ class NewOnlineOffer extends React.PureComponent {
             <Col span={24}>
               <Table
                 size="small"
+                rowKey='commoditySpecId'
                 columns={this.columns}
                 className={`tabs-no-padding ${styles.searchTitle}`}
                 pagination={false}
-                rowClassName={(_, index) => (index === 0 ? styles.hideIcon : undefined)}
+                expandedRowKeys={this.state.expandedRowKeys}
+                onExpand={(bool, record) => {
+                  let { expandedRowKeys } = this.state
+                  if (bool) {
+                    expandedRowKeys = expandedRowKeys.concat(record.commoditySpecId)
+                  } else {
+                    expandedRowKeys = expandedRowKeys.filter(e => e !== record.commoditySpecId)
+                  }
+                  this.setState({ expandedRowKeys })
+                }}
+                rowClassName={(record, index) => this.getRowSelectedClassName(record, index)}
                 expandedRowRender={record => this.expandedRowRender(record)}
                 dataSource={[
                   {

@@ -12,12 +12,15 @@ export function commissionRuleSetupList(data) {
 
 const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 export async function queryPluAttribute(params) {
-  return UAAService.request(`${localPath}/b2c/product/v1/dictionary/attraction/list`, {
-    method: 'POST',
-    body: {
-      ...params,
-    },
-  });
+  return UAAService.request(
+    `${localPath}/b2c/product/v1/offer/offerBookingCategory/queryOfferBookingCategory`,
+    {
+      method: 'POST',
+      body: {
+        ...params,
+      },
+    }
+  );
 }
 
 export function queryCommissionTplDetail(data) {

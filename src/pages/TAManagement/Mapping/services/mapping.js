@@ -54,7 +54,7 @@ export async function querySalePerson() {
 }
 
 export async function registerMappingInfo() {
-  return UAAService.request(`/agent/v1/profile/registerMappingInfo`, {
+  return UAAService.request(`/b2b/agent/v1/profile/registerMappingInfo`, {
     method: 'POST',
     body: {},
   });

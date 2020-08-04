@@ -12,14 +12,15 @@ import { isNvl } from '@/utils/utils';
 import { hasAllPrivilege, MAIN_TA_ADMIN_PRIVILEGE } from '@/utils/PrivilegeUtil';
 import SCREEN from '@/utils/screen';
 import {
+  detailLayOut,
   getSalesPersonContactNumberStr,
   getSalesPersonEmailStr,
+  getSalesPersonProductEligibility,
   getSalesPersonStr,
-  detailLayOut,
 } from '@/pages/TAManagement/utils/pubUtils';
 
 const mapStateToProps = store => {
-  const { currentStep } = store.myProfile;
+  const { currentStep, queryMappingInfo } = store.myProfile;
   const {
     organizationRoleList,
     salutationList,
@@ -74,6 +75,7 @@ const mapStateToProps = store => {
     userType,
     salesPersonList,
     userCompanyInfo,
+    queryMappingInfo,
   };
 };
 
@@ -82,6 +84,12 @@ class MyProfile extends PureComponent {
   componentDidMount() {
     const { taInfo = {} } = window.g_app.login_data || {};
     const { dispatch } = this.props;
+
+    dispatch({
+      type: 'myProfile/queryMappingDetail',
+      payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
+    });
+
     dispatch({
       type: 'myProfile/doCleanData',
       payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
@@ -139,6 +147,7 @@ class MyProfile extends PureComponent {
       userType,
       salesPersonList,
       userCompanyInfo,
+      queryMappingInfo,
     } = this.props;
     const detailProps = {
       otherInfo,
@@ -199,17 +208,18 @@ class MyProfile extends PureComponent {
                     extra={
                       isEdit ? (
                         <Tooltip title={formatMessage({ id: 'TA_EDIT' })}>
-                          <Button disabled={isTaDeActivationFlag} icon="edit" onClick={e => this.goEditRegistration(e)} />
+                          <Button
+                            disabled={isTaDeActivationFlag}
+                            icon="edit"
+                            onClick={e => this.goEditRegistration(e)}
+                          />
                         </Tooltip>
                       ) : null
                     }
                   >
                     <Row type="flex" justify="space-around">
                       <Col span={24}>
-                        <Descriptions
-                          className={styles.descriptionsStyle}
-                          column={detailLayOut}
-                        >
+                        <Descriptions className={styles.descriptionsStyle} column={detailLayOut}>
                           <Descriptions.Item
                             label={formatMessage({ id: 'ADDITIONAL_EFFECTIVE_DATE' })}
                           >
@@ -241,6 +251,9 @@ class MyProfile extends PureComponent {
                               salesPersonList,
                               companyInfo.salesPerson
                             )}
+                          </Descriptions.Item>
+                          <Descriptions.Item label={formatMessage({ id: 'PRODUCT_ELIGIBILITY' })}>
+                            {getSalesPersonProductEligibility(queryMappingInfo)}
                           </Descriptions.Item>
                         </Descriptions>
                       </Col>

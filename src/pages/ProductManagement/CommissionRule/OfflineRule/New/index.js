@@ -21,7 +21,7 @@ import styles from '../../OnlineRule/New/index.less';
 import AddOfflinePLUModal from '../components/AddOfflinePLUModal';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
-import {formatPrice} from "../../../utils/tools";
+import { formatPrice } from '../../../utils/tools';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -179,13 +179,15 @@ class OfflineNew extends React.PureComponent {
       offlineNew: { themeParkList },
     } = this.props;
     for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].itemValue === text) {
+      if (themeParkList[i].bookingCategoryCode === text) {
         return (
           <Tooltip
             placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].itemName}</span>}
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
+            }
           >
-            <span>{themeParkList[i].itemName}</span>
+            <span>{themeParkList[i].bookingCategoryName}</span>
           </Tooltip>
         );
       }

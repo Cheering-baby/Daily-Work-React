@@ -6,6 +6,7 @@ import { connect } from 'dva';
 import UserNotificationView from './UserNotificationView';
 import { abbreviateName } from '@/utils/utils';
 import styles from './index.less';
+import { hasAnyPrivilege } from '@/utils/PrivilegeUtil';
 
 const downImg = require('../../assets/image/icon-pull-down.svg');
 
@@ -113,14 +114,13 @@ class GlobalHeaderRight extends PureComponent {
         notificationVisibleFlag,
       },
     } = this.props;
-    const { userName, userType, companyInfo : { companyType, mainTAInfo } = { }  } = currentUser;
-    console.log(currentUser,companyType, mainTAInfo)
+    const { userName, userType } = currentUser;
     const menu = (
       <div className={styles.menu}>
         <div className={styles.avatarCard}>
           <Avatar alt="avatar">{abbreviateName(userName)}</Avatar>
           <div className={styles.avatarInfo} id="currentUser">
-            <h4>{companyType === '02' ? `${mainTAInfo.companyName  }: ${(userName)}`:userName}</h4>
+            <h4>{userName}</h4>
             <div>
               {currentUserRole &&
                 currentUserRole.map(item => (
@@ -168,8 +168,9 @@ class GlobalHeaderRight extends PureComponent {
     let notificationCount = 0;
     if (systemNotificationCount) notificationCount += Number(systemNotificationCount);
     if (pendingActivityCount) notificationCount += Number(pendingActivityCount);
-    if (bulletinCount) notificationCount += Number(bulletinCount);
-    if (String(userType) !== '03' && circularCount) {
+    if (hasAnyPrivilege(['NOTIFICATION_BELL_BULLETIN_PRIVILEGE']) && bulletinCount)
+      notificationCount += Number(bulletinCount);
+    if (hasAnyPrivilege(['NOTIFICATION_BELL_CIRCULAR_PRIVILEGE']) && circularCount) {
       notificationCount += Number(circularCount);
     }
     return (

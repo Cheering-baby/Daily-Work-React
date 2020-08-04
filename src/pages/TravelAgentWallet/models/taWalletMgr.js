@@ -34,6 +34,7 @@ export default {
     dataSource: [],
     arActivity: undefined,
     mappingForArApplicationActivityId: undefined,
+    activeKey: ['1'],
   },
   subscriptions: {},
   effects: {
@@ -217,6 +218,7 @@ export default {
         dataSource: [],
         arActivity: undefined,
         mappingForArApplicationActivityId: undefined,
+        activeKey: ['1'],
       };
     },
     toggleModal(state, { payload }) {

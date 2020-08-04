@@ -3,6 +3,7 @@ import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import { Button, message, Modal, Spin } from 'antd';
+import html2pdf from 'html2pdf.js';
 import styles from './invoice.less';
 
 const logoImage = require('@/assets/image/logi-mini.png');
@@ -34,49 +35,21 @@ class Invoice extends React.PureComponent {
     this.setState({ visible: false });
   };
 
-  downloadFileEvent = id => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'invoice/fetchDownloadInvoice',
-      payload: { accountBookFlowId: id },
-    }).then(result => {
-      if (result) {
-        if (result) {
-          const urlArray = result.split('?');
-          const pointIndex = urlArray[0].lastIndexOf('.');
-          const fileType = urlArray[0].substring(pointIndex + 1);
-          this.downloadFile(result, fileType);
-        } else {
-          message.error('Download invoice error!');
-        }
-      }
-    });
-  };
-
-  downloadFile = (url, fileType) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'blob';
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        // resolve(xhr.response);
-        const fileName = 'invoice.' + fileType;
-        const blob = xhr.response;
-        if (window.navigator.msSaveOrOpenBlob) {
-          navigator.msSaveBlob(blob, fileName);
-        } else {
-          const blobUrl = window.URL.createObjectURL(blob);
-          const aElement = document.createElement('a');
-          document.body.appendChild(aElement);
-          aElement.style.display = 'none';
-          aElement.href = blobUrl;
-          aElement.download = fileName;
-          aElement.click();
-          document.body.removeChild(aElement);
-        }
-      }
+  exportPdf = fileName => {
+    const element = document.getElementById('invoice-doc');
+    const opt = {
+      margin: 0.5,
+      filename: `${fileName}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, width: 750 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
     };
-    xhr.send();
+    if (element) {
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save();
+    }
   };
 
   render() {
@@ -94,7 +67,7 @@ class Invoice extends React.PureComponent {
     const modelProps = {
       title: formatMessage({ id: 'INVOICE_TITLE' }),
       visible,
-      width: 740,
+      width: 760,
       onCancel: this.handleCancel,
       footer: [
         <Button
@@ -102,18 +75,20 @@ class Invoice extends React.PureComponent {
           type="primary"
           className={styles.downloadBtn}
           onClick={e => {
-            this.downloadFileEvent(details.id);
+            this.exportPdf(descriptionsData['Tax_Invoice']);
           }}
         >
           {formatMessage({ id: 'BTN_DOWNLOAD' })}
         </Button>,
       ],
     };
+
     return (
       <React.Fragment>
         <Modal {...modelProps} className={styles.invoiceModal}>
           <Spin spinning={loading}>
             <div
+              id="invoice-doc"
               className={styles['invoice-container']}
               ref={el => {
                 this.invoice = el;
@@ -266,20 +241,26 @@ class Invoice extends React.PureComponent {
                   </table>
                 </div>
               </div>
-              <div>
+              <div style={{ width: '100%' }}>
                 <div className={styles['instructions-title']}>
                   <div className={styles['instructions-title-label']}>Payment Instructions</div>
                 </div>
-                <div className={styles['instructions-content']}>{paymentInstructions.content}</div>
+                <div className={styles['instructions-content']}>
+                  Payment should be made by cheque, GIRO or T/T quoting invoice numbers being paid
+                  to "Resorts World at Sentosa Pte Ltd";
+                  <br />
+                  Bank: DBS Bank Ltd, Address: 12 Marina Boulevard, Marina Bay Financial Centre
+                  Tower 3, Singapore 018982
+                  <br />
+                  Bank Code: 7171, Branch Code: 003, Account No: 003-910526-6, Swift Code: DBSSSGSG
+                </div>
                 <div className={styles['instructions-signature-line']}>
                   <div className={styles['instructions-signature']}>
-                    {paymentInstructions.party}
+                    Resorts World at Sentosa Pte Ltd.
                     <br />
-                    {paymentInstructions.address}
-                    <div className={styles['instructions-footer']}>
-                      {paymentInstructions.footer}
-                    </div>
+                    3, Lim Teck Kim Road #10-01, Genting Centre, Singapore 088934
                   </div>
+                  <div className={styles['instructions-footer']}>{paymentInstructions.footer}</div>
                 </div>
               </div>
             </div>

@@ -26,7 +26,7 @@ const Filter = props => {
 
   return (
     <Form>
-      <Row type="flex" justify="space-around" gutter={24}>
+      <Row justify="space-around" gutter={24}>
         <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6}>
           <Form.Item>
             {getFieldDecorator(
@@ -72,6 +72,7 @@ const Filter = props => {
               {}
             )(
               <DatePicker.RangePicker
+                style={{width: '100%'}}
                 allowClear
                 disabled={loading}
                 placeholder={formatMessage({ id: 'MyWallet.flow.filter.dateRange.placeholder' })}
@@ -81,7 +82,39 @@ const Filter = props => {
             )}
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right' }}>
+        <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6}>
+          <Form.Item>
+            {getFieldDecorator(
+              'galaxyOrderNo',
+              {}
+            )(
+              <Input
+                allowClear
+                disabled={loading}
+                placeholder={formatMessage({
+                  id: 'MyWallet.flow.filter.galaxyOrderNo.placeholder',
+                })}
+              />
+            )}
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6}>
+          <Form.Item>
+            {getFieldDecorator(
+              'invoiceNo',
+              {}
+            )(
+              <Input
+                allowClear
+                disabled={loading}
+                placeholder={formatMessage({
+                  id: 'MyWallet.flow.filter.invoiceNo.placeholder',
+                })}
+              />
+            )}
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right', float: 'right' }}>
           <Button
             type="primary"
             onClick={search}

@@ -1,5 +1,19 @@
 import React from 'react';
-import { Button, Card, Col, Form, Icon, Input, Row, Select, Table, Tooltip, DatePicker, Popconfirm, message } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Icon,
+  Input,
+  Row,
+  Select,
+  Table,
+  Tooltip,
+  DatePicker,
+  Popconfirm,
+  message,
+} from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -42,7 +56,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_NAME' }),
       dataIndex: 'commissionName',
       key: 'commissionName',
-      width: '38%',
+      width: '170px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -53,7 +67,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' }),
       dataIndex: 'commissionType',
       key: 'commissionType',
-      width: '15%',
+      width: '40px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -64,7 +78,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
       dataIndex: 'commissionScheme',
       key: 'commissionScheme',
-      width: '13%',
+      width: '40px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -75,10 +89,11 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'EFFECTIVE_PERIOD' }),
       dataIndex: 'effectiveDate',
       key: 'effectiveDate',
-      width: '22%',
+      width: '70px',
       render: (text, record) => {
         const timeText = text ? moment(text).format('DD-MMM-YYYY') : '';
-        const end = record && record.expiryDate ? moment(record.expiryDate).format('DD-MMM-YYYY') : '';
+        const end =
+          record && record.expiryDate ? moment(record.expiryDate).format('DD-MMM-YYYY') : '';
         return timeText ? (
           <Tooltip
             placement="topLeft"
@@ -90,10 +105,55 @@ class CommissionRuleSetup extends React.PureComponent {
       },
     },
     {
+      title: 'Modified by',
+      dataIndex: 'modifyStaff',
+      key: 'modifyStaff',
+      width: '30px',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'Date Modified',
+      dataIndex: 'modifyDate',
+      key: 'modifyDate',
+      width: '50px',
+      render: text => {
+        const timeText = text ? moment(text).format('YYYY-MMM-DD') : '';
+        return timeText ? (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{timeText}</span>}
+          >
+            <span>{timeText}</span>
+          </Tooltip>
+        ) : null;
+      },
+    },
+    {
+      title: 'Time Modified',
+      dataIndex: 'modifyDate',
+      key: 'modifyDate',
+      width: '50px',
+      render: text => {
+        const timeText = text ? moment(text).format('HH:mm:ss') : '';
+        return timeText ? (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{timeText}</span>}
+          >
+            <span>{timeText}</span>
+          </Tooltip>
+        ) : null;
+      },
+    },
+    {
       title: formatMessage({ id: 'STATUS' }),
       dataIndex: 'status',
       key: 'status',
-      width: '8%',
+      width: '30px',
       render: text => {
         let flagClass = '';
         if (text === 'Active') flagClass = detailStyles.flagStyle1;
@@ -110,7 +170,7 @@ class CommissionRuleSetup extends React.PureComponent {
     {
       title: formatMessage({ id: 'OPERATION' }),
       dataIndex: 'tplId',
-      width: '10%',
+      width: '36px',
       render: (text, record) => {
         return (
           <div>
@@ -174,7 +234,7 @@ class CommissionRuleSetup extends React.PureComponent {
   edit = record => {
     router.push({
       pathname: `/ProductManagement/CommissionRule/OnlineRule/Edit/${record.id}`,
-      query: { type: 'edit', tplId: record.tplId },
+      query: { type: 'edit', tplId: record.tplId, tplVersion: record.tplVersion },
     });
   };
 
@@ -182,18 +242,23 @@ class CommissionRuleSetup extends React.PureComponent {
     const { dispatch } = this.props;
     e.persist();
     if (record.status === 'Invalid') {
-      message.warning('Calculation has been initiated based on commission rule cycle setup, hence cannot be discarded/deleted.');
+      message.warning(
+        'Calculation has been initiated based on commission rule cycle setup, hence cannot be discarded/deleted.'
+      );
       return false;
-    } else {
-      dispatch({
-        type: 'commissionRuleSetup/remove',
-        payload: {
-          param: {
-            tplId: record.tplId,
-          },
-        },
-      });
+    } if (record.status === 'Inactive') {
+      message.warning('The commission rule is inactive, and cannot be deleted.');
+      return false;
     }
+    dispatch({
+      type: 'commissionRuleSetup/remove',
+      payload: {
+        param: {
+          tplId: record.tplId,
+        },
+      },
+    });
+
   };
 
   new = () => {
@@ -215,7 +280,7 @@ class CommissionRuleSetup extends React.PureComponent {
     const { form } = this.props;
     const { dispatch } = this.props;
     form.validateFields((err, values) => {
-      console.log(values)
+      console.log(values);
       if (!err) {
         dispatch({
           type: 'commissionRuleSetup/search',
@@ -225,8 +290,12 @@ class CommissionRuleSetup extends React.PureComponent {
                 commissionName: values.commissionName,
                 commissionType: values.commissionType,
                 status: values.status,
-                effectiveDate: values.effectiveDate ? values.effectiveDate[0].format('YYYY-MM-DD') : '',
-                expiryDate: values.effectiveDate ? values.effectiveDate[1].format('YYYY-MM-DD'): '',
+                effectiveDate: values.effectiveDate
+                  ? values.effectiveDate[0].format('YYYY-MM-DD')
+                  : '',
+                expiryDate: values.effectiveDate
+                  ? values.effectiveDate[1].format('YYYY-MM-DD')
+                  : '',
               },
             },
           },
@@ -343,7 +412,7 @@ class CommissionRuleSetup extends React.PureComponent {
                           </Option>,
                           <Option value="Invalid" key="Invalid">
                             Invalid
-                          </Option>
+                          </Option>,
                         ]}
                       />
                     )}
@@ -394,7 +463,7 @@ class CommissionRuleSetup extends React.PureComponent {
               pagination={false}
               loading={!!loading}
               columns={this.columns}
-              scroll={{ x: 660 }}
+              scroll={{ x: 1200 }}
             />
             <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
           </Card>

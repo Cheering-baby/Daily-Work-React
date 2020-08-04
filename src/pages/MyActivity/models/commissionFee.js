@@ -9,18 +9,20 @@ export default {
   },
   effects: {
     *queryCommissionDeatil({ payload }, { call, put }) {
-      const { feeId } = payload;
+      const {feeId} = payload;
       const res = yield call(service.queryCommission, feeId);
-      const { resultCode, resultMsg, result } = res.data;
+      const {resultCode, resultMsg, result} = res.data;
       if (+resultCode === 0) {
-        yield put({
-          type: 'save',
-          payload: {
-            feeDetailList: result,
-          },
-        });
+        if (result) {
+          yield put({
+            type: 'save',
+            payload: {
+              feeDetailList: result,
+            },
+          });
+        }
       } else message.warn(resultMsg, 10);
-    },
+    }
   },
   reducers: {
     save(state, { payload }) {

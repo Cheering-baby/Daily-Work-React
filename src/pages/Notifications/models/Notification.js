@@ -104,10 +104,23 @@ export default {
     },
     *fetchUpdateNotificationStatus({ payload }, { call, put }) {
       yield put({ type: 'save', payload: { notificationInfoLoadingFlag: true } });
+      const { notificationId } = payload;
+      const notificationIdList = [];
+      notificationIdList.push(String(notificationId));
       const {
         data: { resultCode, resultMsg },
-      } = yield call(service.updateReadStatus, { ...payload });
+      } = yield call(service.batchUpdateReadStatus, { notificationIdList });
       yield put({ type: 'save', payload: { notificationInfoLoadingFlag: false } });
+      if (resultCode === '0' || resultCode === 0) {
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+    *batchUpdateNotificationStatus({ payload }, { call }) {
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(service.batchUpdateReadStatus, payload);
       if (resultCode === '0' || resultCode === 0) {
         return true;
       }
@@ -136,6 +149,9 @@ export default {
     *cleanData({ payload }, { put }) {
       yield put({
         type: 'clean',
+        payload: {
+          ...payload,
+        },
       });
     },
   },
