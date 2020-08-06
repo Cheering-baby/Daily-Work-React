@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import router from 'umi/router';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
+import { isNullOrUndefined } from 'util';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
@@ -152,12 +153,11 @@ class PaymentResult extends Component {
     return true;
   };
 
-  getTotalAmount = bookDetail => {
-    let totalAmountStr = '-';
-    if (bookDetail && bookDetail.totalPrice) {
-      totalAmountStr = bookDetail.totalPrice;
+  getTotalAmount = (bookDetail = {}) => {
+    if (bookDetail && !isNullOrUndefined(bookDetail.totalPrice)) {
+      return toThousandsByRound(bookDetail.totalPrice);
     }
-    return toThousandsByRound(totalAmountStr);
+    return '-'
   };
 
   getOrderDate = bookDetail => {
