@@ -85,7 +85,7 @@ class MappingDetailList extends React.PureComponent {
         key === 'arFixedThreshold'
       ) {
         val = val ? Number(val) : '';
-        val = isNumber(val) ? '' : val;
+        val = !isNumber(val) ? '' : val;
       } else if (key === 'productName') {
         val = val && typeof val === 'string' ? val.split(',').filter(_ => _) : [];
         // val = val ? JSON.stringify(val) : {}

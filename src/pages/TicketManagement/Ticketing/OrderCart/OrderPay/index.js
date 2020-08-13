@@ -322,6 +322,7 @@ class OrderPay extends Component {
         bocaFeePax,
         bocaFeeGst,
         payModelShow,
+        bookDetail: { totalPrice },
       },
     } = this.props;
 
@@ -406,7 +407,7 @@ class OrderPay extends Component {
           </Card>
         )}
 
-        {companyType === '01' && (
+        {companyType === '01' && Number.parseFloat(totalPrice) !== Number.parseFloat(0) && (
           <Card
             className={styles.cardDeliverStyles}
             style={{
@@ -415,7 +416,7 @@ class OrderPay extends Component {
           >
             <Row>
               <Col style={{ padding: '15px' }}>
-                {companyType !== '02' && <PaymentMode form={form} />}
+                <PaymentMode form={form} />
               </Col>
             </Row>
           </Card>

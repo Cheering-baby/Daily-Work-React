@@ -13,6 +13,7 @@ import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompFor
 import GroupSetting from './components/GroupSetting';
 import IndividualSetting from './components/IndividualSetting';
 import MyOrderButton from '@/pages/TicketManagement/components/MyOrderButton';
+import { sessionTimeToWholeDay } from '../../../utils/utils';
 
 @Form.create()
 @connect(({ ticketMgr, onceAPirateTicketMgr, ticketOrderCartMgr }) => ({
@@ -216,7 +217,9 @@ class OnceAPirateOrderCart extends Component {
                 <Col {...gridOpts} className={styles.basicInfoContent}>
                   <Col span={8}>{formatMessage({ id: 'SESSION_TIME' })}</Col>
                   <Col span={16}>
-                    {queryInfo && queryInfo.sessionTime ? queryInfo.sessionTime : '-'}
+                    {queryInfo && queryInfo.sessionTime
+                      ? sessionTimeToWholeDay(queryInfo.sessionTime)
+                      : '-'}
                   </Col>
                 </Col>
               </Row>

@@ -509,3 +509,10 @@ export function findArrSame(arr = []) {
   }
   return temArr;
 }
+
+export const sessionTimeToWholeDay = time => {
+  if (time === '03:00:00') {
+    return 'Whole Day';
+  }
+  return time;
+};

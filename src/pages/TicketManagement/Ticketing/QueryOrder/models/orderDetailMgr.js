@@ -1,7 +1,7 @@
 import serialize from '../utils/utils';
 import {
   queryBookingDetail,
-  queryPluAttribute,
+  queryOfferBookingCategory,
   queryRevalidationVids,
 } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 import { getNumOfPaxInPackage } from '@/pages/TicketManagement/Ticketing/QueryOrder/utils/utils';
@@ -95,13 +95,13 @@ export default {
       } else throw resultMsg;
     },
     *queryThemePark(_, { call, put }) {
-      const response = yield call(queryPluAttribute, { attributeItem: 'THEME_PARK' });
+      const response = yield call(queryOfferBookingCategory, {});
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
-        yield put({ type: 'save', payload: { themeParkList: result.items } });
+        yield put({ type: 'save', payload: { themeParkList: result.offerBookingCategoryList } });
       } else throw resultMsg;
     },
   },
@@ -189,7 +189,7 @@ export default {
               attraction.forEach(attractionItem => {
                 if (voucherOnly === 'Yes' && attractionItem.ticketType === 'Voucher') {
                   const themeParkObj = themeParkList.find(
-                    themeParkInfo => themeParkInfo.itemValue === attractionItem.themePark
+                    themeParkInfo => themeParkInfo.bookingCategoryCode === attractionItem.themePark
                   );
                   let showName = 'General';
                   if (themeParkObj) {

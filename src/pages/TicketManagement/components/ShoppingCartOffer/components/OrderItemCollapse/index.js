@@ -7,6 +7,7 @@ import styles from './index.less';
 import Voucher from '../../assets/Voucher.png';
 import { toThousandsByRound } from '@/pages/TicketManagement/utils/orderCartUtil';
 import { getProductLimitInventory } from '@/pages/TicketManagement/utils/utils';
+import { sessionTimeToWholeDay } from '../../../../utils/utils';
 
 const { confirm } = Modal;
 
@@ -60,13 +61,15 @@ class OrderItemCollapse extends Component {
       if (orderOffer.orderInfo) {
         orderOffer.orderInfo.forEach(orderInfoItem => {
           if (orderInfoItem.quantity > 0) {
-            sessionTimeList.push(orderInfoItem.sessionTime || '-');
+            sessionTimeList.push(
+              orderInfoItem.sessionTime ? sessionTimeToWholeDay(orderInfoItem.sessionTime) : '-'
+            );
           }
         });
       }
     } else {
       const sessionTime = this.getOAPSessionTimeStr(orderOffer);
-      sessionTimeList.push(sessionTime);
+      sessionTimeList.push(sessionTimeToWholeDay(sessionTime));
     }
     return sessionTimeList;
   };
@@ -80,7 +83,7 @@ class OrderItemCollapse extends Component {
 
   getOAPSessionTimeStr = onceAPirateOrder => {
     if (onceAPirateOrder && onceAPirateOrder.queryInfo.sessionTime) {
-      return onceAPirateOrder.queryInfo.sessionTime;
+      return sessionTimeToWholeDay(onceAPirateOrder.queryInfo.sessionTime);
     }
     return '-';
   };
@@ -529,7 +532,9 @@ class OrderItemCollapse extends Component {
             attractionProduct = [...attractionProduct, { ...orderInfoItem.productInfo }];
           });
         }
-        const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(editOrderOffer.offerInfo);
+        const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(
+          editOrderOffer.offerInfo
+        );
         attractionProduct.forEach(item => {
           item.minProductQuantity = minProductQuantity;
           item.maxProductQuantity = maxProductQuantity;
@@ -759,7 +764,7 @@ class OrderItemCollapse extends Component {
                               const indexS = `session${itemIndex}${indexV}`;
                               return (
                                 <p key={indexS} className={styles.ticketSpan}>
-                                  {sessionItem}
+                                  {sessionTimeToWholeDay(sessionItem)}
                                 </p>
                               );
                             })}
@@ -874,7 +879,9 @@ class OrderItemCollapse extends Component {
                                 <span className={styles.titleSpan}>{oapOffer.visitDate}</span>
                               </Col>
                               <Col span={2}>
-                                <span className={styles.titleSpan}>{oapOffer.session}</span>
+                                <span className={styles.titleSpan}>
+                                  {sessionTimeToWholeDay(oapOffer.session)}
+                                </span>
                               </Col>
                               <Col span={companyType === '01' ? 3 : 5}>
                                 Meals Voucher * {oapOffer.quantity}
@@ -922,7 +929,7 @@ class OrderItemCollapse extends Component {
                               </Col>
                               <Col span={2}>
                                 <span className={styles.titleSpan}>
-                                  {voucherInfo.session || '-'}
+                                  {sessionTimeToWholeDay(voucherInfo.session) || '-'}
                                 </span>
                               </Col>
                               <Col span={companyType === '01' ? 3 : 5}>

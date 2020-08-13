@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Col, Collapse, Icon, Row } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
+import { sessionTimeToWholeDay } from '../../../../../../../utils/utils';
 
 class OrderItemCollapse extends Component {
   getTitleNameStr = orderOffer => {
@@ -77,7 +78,7 @@ class OrderItemCollapse extends Component {
     }
 
     if (sessionTime) {
-      titleNameStr += ` ${sessionTime}`;
+      titleNameStr += ` ${sessionTimeToWholeDay(sessionTime)}`;
     }
 
     return titleNameStr;

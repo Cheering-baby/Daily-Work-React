@@ -1,0 +1,59 @@
+.calendar {
+  text-align: center;
+  margin-top: -32px;
+
+  :global {
+    .ant-fullcalendar-header {
+      padding: 11px 16px 11px 0;
+      text-align: center;
+      display: none;
+    }
+
+    .ant-fullcalendar-fullscreen .ant-fullcalendar-content {
+      position: static;
+      width: auto;
+      height: 88px;
+      overflow: hidden;
+    }
+
+    .ant-fullcalendar-fullscreen .ant-fullcalendar-month-panel-selected-cell .ant-fullcalendar-month, .ant-fullcalendar-fullscreen .ant-fullcalendar-selected-day .ant-fullcalendar-date {
+      background: white;
+      border-top-color: #f3f3f3;
+    }
+
+    .ant-fullcalendar-fullscreen .ant-fullcalendar-selected-day .ant-fullcalendar-value {
+      color: #858585;
+    }
+  }
+}
+
+.mobile {
+  :global {
+    .ant-fullcalendar-fullscreen .ant-fullcalendar-month, .ant-fullcalendar-fullscreen .ant-fullcalendar-date {
+      height: 54px;
+    }
+  }
+}
+
+.more {
+  position: absolute;
+  right: 5px;
+  bottom: 2px;
+}
+
+.noBorder {
+  border: 0;
+  z-index: 999;
+  box-shadow: none;
+  font-size: 18px;
+  font-family: calibriBold;
+  display: inline-block;
+}
+
+.badge {
+  border-radius: 2px;
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  margin-right: 3px;
+}

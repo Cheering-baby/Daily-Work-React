@@ -1,0 +1,64 @@
+@import '../../../../theme/screen.less';
+.cardStyle {
+  padding: 20px 15px 15px 15px;
+  :global {
+    .ant-tabs .ant-tabs-tabpane {
+      padding: 0 15px 2px;
+    }
+  }
+}
+
+.searchDiv{
+  padding: 0px;
+}
+
+.inputColStyle {
+  padding: 0 6px;
+  :global {
+    .ant-calendar-range-picker-input {
+      font-family: 'calibri', serif;
+    }
+  }
+}
+
+.buttonColStyle {
+  float: right;
+  padding: 0 6px;
+  .searchButton {
+    float: right;
+    margin-left: 12px;
+  }
+}
+
+.searchTitle {
+  border:0;
+  border-bottom: 1px solid #EEE;
+
+  :global {
+    .ant-table-title {
+      padding: 10px 0 !important;
+    }
+
+    th div {
+      font-family: calibriBold;
+      font-weight: 600;
+    }
+  }
+}
+
+.iconStyle{
+  :hover{
+    cursor: not-allowed;
+  }
+}
+
+@media screen and (max-width: @screenSmMax) {
+  .buttonColStyle {
+    float: right;
+    padding: 10px 6px 0 6px;
+    .searchButton {
+      float: right;
+      margin-left: 12px;
+    }
+  }
+}

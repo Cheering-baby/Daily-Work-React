@@ -11,6 +11,7 @@ import {
   getProductLimitInventory,
   calculateProductPriceGst,
   calculateAllProductPriceGst,
+  sessionTimeToWholeDay,
 } from '../../../../utils/utils';
 import { ticketTypes } from '../../../../utils/constants';
 import { toThousands } from '@/utils/utils';
@@ -306,7 +307,9 @@ class Attraction extends Component {
         ageGroupQuantity: item.needChoiceCount,
         quantity: ticketNumber || 0,
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
-        gstAmountPax: ticketNumber ? calculateProductPriceGst(item, priceRuleId, item.sessionTime) : 0,
+        gstAmountPax: ticketNumber
+          ? calculateProductPriceGst(item, priceRuleId, item.sessionTime)
+          : 0,
         productInfo: item,
       });
     });
@@ -359,7 +362,12 @@ class Attraction extends Component {
         sessionTime,
         quantity: ticketNumber || 0,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
-        gstAmountPax: calculateAllProductPriceGst(attractionProduct, priceRuleId, sessionTime, detail),
+        gstAmountPax: calculateAllProductPriceGst(
+          attractionProduct,
+          priceRuleId,
+          sessionTime,
+          detail
+        ),
         offerInfo: {
           ...detail,
           selectRuleId: priceRuleId,
@@ -513,7 +521,7 @@ class Attraction extends Component {
                   return (
                     <div key={productNo} className={styles.productPrice}>
                       <div style={this.generateStyle(companyType).sessionStyle}>
-                        {sessionTime || '-'}
+                        {sessionTime ? sessionTimeToWholeDay(sessionTime) : '-'}
                       </div>
                       <div style={this.generateStyle(companyType).ticketTypeStyle}>
                         {ageGroup || 'General'} * {needChoiceCount}
@@ -558,7 +566,7 @@ class Attraction extends Component {
                 return (
                   <div key={offerNo} className={styles.productPrice}>
                     <div style={this.generateStyle(companyType).sessionStyle}>
-                      {sessionTime || '-'}
+                      {sessionTimeToWholeDay(sessionTime) || '-'}
                     </div>
                     <div
                       className={styles.categoryShow}

@@ -26,6 +26,7 @@ import {
   calculateAllProductPrice,
   calculateProductPrice,
   getProductLimitInventory,
+  sessionTimeToWholeDay,
 } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
@@ -371,7 +372,9 @@ class ToCart extends Component {
         dataIndex: 'sessionTime',
         key: 'Session',
         width: '15%',
-        render: text => <div className={styles.tableText}>{text || '-'}</div>,
+        render: text => (
+          <div className={styles.tableText}>{sessionTimeToWholeDay(text) || '-'}</div>
+        ),
       },
       {
         title: 'Ticket Type',
@@ -448,7 +451,9 @@ class ToCart extends Component {
           return (
             <div>
               {record.attractionProduct.map(({ sessionTime }) => (
-                <div key={Math.random()}>{sessionTime || '-'}</div>
+                <div key={Math.random()}>
+                  {sessionTime ? sessionTimeToWholeDay(sessionTime) : '-'}
+                </div>
               ))}
             </div>
           );

@@ -3,9 +3,10 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { Button, Card, Checkbox, DatePicker, Form, InputNumber, Select, Spin } from 'antd';
 import moment from 'moment';
-import { arrToString } from '../../../../utils/utils';
+import { arrToString , sessionTimeToWholeDay } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
+
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -432,7 +433,7 @@ class SearchPanel extends Component {
                         sessionTimeList.map((item, index) => (
                           // eslint-disable-next-line react/no-array-index-key
                           <Select.Option key={`${item.value}_${index}`} value={item.value}>
-                            {item.label}
+                            {sessionTimeToWholeDay(item.label)}
                           </Select.Option>
                         ))
                       }

@@ -512,25 +512,6 @@ class Index extends React.PureComponent {
                 </Col>
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
-                    {getFieldDecorator('status', {
-                      // initialValue: this.handleInitVal('status'),
-                    })(
-                      <SortSelect
-                        placeholder={formatMessage({ id: 'STATUS' })}
-                        optionFilterProp="children"
-                        style={{ width: '100%' }}
-                        allowClear
-                        options={salutationList.map(status => (
-                          <Select.Option key={`option_${status.dictId}`} value={status.dictId}>
-                            {status.dictName}
-                          </Select.Option>
-                        ))}
-                      />
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col {...ColProps}>
-                  <Form.Item {...formItemLayout}>
                     {getFieldDecorator('arCreditType', {
                       // initialValue: this.handleInitVal('status'),
                     })(

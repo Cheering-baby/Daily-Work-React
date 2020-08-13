@@ -30,6 +30,13 @@ export async function queryPluAttribute(params) {
   });
 }
 
+export async function queryOfferBookingCategory(params) {
+  return UAAService.request(`${uaaPath}/b2c/product/v1/offer/offerBookingCategory/queryOfferBookingCategory`, {
+    method: 'POST',
+    body: params,
+  });
+}
+
 export async function revalidationTicket(params) {
   return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/revalidationticket`, {
     method: 'POST',

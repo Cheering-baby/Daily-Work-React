@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Checkbox, Col, Collapse, Icon, Modal, Row, Tooltip } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
+import { sessionTimeToWholeDay } from '../../../../../../../utils/utils';
 
 const { confirm } = Modal;
 
@@ -137,7 +138,7 @@ class OrderItemCollapse extends Component {
     }
 
     if (sessionTime) {
-      titleNameStr += ` ${sessionTime}`;
+      titleNameStr += ` ${sessionTimeToWholeDay(sessionTime)}`;
     }
 
     return titleNameStr;

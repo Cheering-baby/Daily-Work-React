@@ -194,9 +194,9 @@ class QueryOrder extends Component {
             placement="topLeft"
             title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
           >
-            <div className={styles.offers}>
+            <span>
               {offInstancesFilter.length > 1 ? `${firstOffer}...` : firstOffer}
-            </div>
+            </span>
           </Tooltip>
         );
       },
@@ -804,21 +804,6 @@ class QueryOrder extends Component {
     return true;
   };
 
-  ifCanOperateCollectionLetter = selectedBookings => {
-    if (selectedBookings.length === 1) {
-      const selectedBooking = selectedBookings[0];
-      if (
-        selectedBooking.transType === 'booking' &&
-        selectedBooking.status === 'Complete' &&
-        selectedBooking.offInstances.length > 0 &&
-        selectedBooking.offInstances[0].deliveryMode === 'BOCA'
-      ) {
-        return false;
-      }
-    }
-    return true;
-  };
-
   ifCanUpdate = (selectedBookings, userType) => {
     if (selectedBookings.length === 1 && userType === '01') {
       const { transType, status } = selectedBookings[0];
@@ -1102,13 +1087,6 @@ class QueryOrder extends Component {
                       onClick={() => this.openSendETicketModel(selectedBookings)}
                     >
                       {formatMessage({ id: 'SEND_ETICKET' })}
-                    </Button>
-                    <Button
-                      disabled={this.ifCanOperateCollectionLetter(selectedBookings)}
-                      className={styles.buttonStyle}
-                      onClick={() => this.downloadETicket(selectedBookings)}
-                    >
-                      {formatMessage({ id: 'DOWNLOAD_COLLECTION_LETTER' })}
                     </Button>
                     {userType === '01' && (
                       <Button

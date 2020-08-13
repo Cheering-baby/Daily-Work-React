@@ -77,7 +77,7 @@ class OperationApproval extends React.PureComponent {
       form,
       dispatch,
       operationApproval: { bReroute, approvalStatus },
-      customerInfo,
+      customerInfo = {},
     } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
@@ -96,6 +96,7 @@ class OperationApproval extends React.PureComponent {
             },
           });
         } else {
+          const { companyInfo } = customerInfo || {};
           dispatch({
             type: 'operationApproval/approve',
             payload: {
@@ -105,7 +106,7 @@ class OperationApproval extends React.PureComponent {
               allowRestart: values.allowRestart,
               saleManager: values.saleManager,
               productList: values.productList,
-              taId: customerInfo.companyInfo.taId,
+              taId: companyInfo ? companyInfo.taId : undefined,
             },
           });
         }
