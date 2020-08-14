@@ -667,12 +667,14 @@ class TableComp extends PureComponent {
     };
     return (
       <Col span={24}>
-        <Button
-          onClick={() => this.grantTa(taSelectedRowKeys)}
-          disabled={taSelectedRowKeys.length === 0}
-        >
-          {formatMessage({ id: 'GRANT' })}
-        </Button>
+        {hasAllPrivilege(['MAIN_TA_MANAGEMENT_FUNCTION_GRANT_OFFER']) ? (
+          <Button
+            onClick={() => this.grantTa(taSelectedRowKeys)}
+            disabled={taSelectedRowKeys.length === 0}
+          >
+            {formatMessage({ id: 'GRANT' })}
+          </Button>
+        ) : null}
         <Table
           style={{ marginTop: 10 }}
           size="small"
@@ -681,7 +683,7 @@ class TableComp extends PureComponent {
           rowKey={record => record.taId}
           dataSource={mainTAList}
           loading={qryTaTableLoading}
-          scroll={{ x: 660, y:height }}
+          scroll={{ x: 660, y: height }}
           rowSelection={taRowSelection}
           {...tableOpts}
         />
