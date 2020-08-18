@@ -572,19 +572,19 @@ export default {
                           data.detail.numOfGuests = numOfGuests;
                           data.detail.productSessions = sessionArr;
                           themeParkList[index4].offerNos.push(offerNo);
-                          if (offerBundle[0].bundleName) {
+                          // if (offerBundle[0].bundleName) {
                             data.attractionProduct = attractionProduct;
                             themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
-                          } else {
-                            sessionArr.forEach(itemSession => {
-                              data.attractionProduct = filterSessionProduct(
-                                priceRuleId,
-                                itemSession,
-                                attractionProduct
-                              );
-                              themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
-                            });
-                          }
+                          // } else {
+                          //   sessionArr.forEach(itemSession => {
+                          //     data.attractionProduct = filterSessionProduct(
+                          //       priceRuleId,
+                          //       itemSession,
+                          //       attractionProduct
+                          //     );
+                          //     themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
+                          //   });
+                          // }
                         }
                       });
                     });
@@ -653,98 +653,6 @@ export default {
                     }
                   }
                 });
-              });
-            });
-          });
-
-          themeParkList2.forEach(itemThemePark => {
-            itemThemePark.categories.forEach(category => {
-              const bundleArr = [];
-              category.products.forEach(itemProduct => {
-                if (itemProduct.bundleName) {
-                  const { offers } = itemProduct;
-                  const offerSessions = [];
-                  offers.forEach(itemOffer => {
-                    const {
-                      detail: { productSessions = [] },
-                    } = itemOffer;
-                    offerSessions.push(productSessions);
-                  });
-                  let OfferSessionArr = [];
-                  offerSessions.forEach(itemProductSession => {
-                    itemProductSession.forEach(itemSession => {
-                      if (OfferSessionArr.indexOf(itemSession) === -1) {
-                        OfferSessionArr.push(itemSession);
-                      }
-                    });
-                  });
-                  if (OfferSessionArr.length > 1 && OfferSessionArr.indexOf(null) !== -1) {
-                    OfferSessionArr = OfferSessionArr.filter(session => session !== null);
-                  }
-                  bundleArr.push({
-                    bundleName: itemProduct.bundleName,
-                    bundleDetail: itemProduct,
-                    OfferSessionArr,
-                  });
-                }
-              });
-              bundleArr.forEach(bundleArrItem => {
-                const searchIndex = category.products.findIndex(
-                  item => item.bundleName === bundleArrItem.bundleName
-                );
-                let firstOffers = [];
-                if (bundleArrItem.OfferSessionArr.length === 0) {
-                  category.products.splice(searchIndex, 1);
-                }
-                bundleArrItem.OfferSessionArr.forEach(
-                  (OfferSessionArrItem, OfferSessionArrItemIndex) => {
-                    if (OfferSessionArrItemIndex === 0) {
-                      const newOffers = [];
-                      firstOffers = JSON.parse(
-                        JSON.stringify(category.products[searchIndex].offers)
-                      );
-                      category.products[searchIndex].offers.forEach(offersItem => {
-                        const {
-                          detail: { productSessions = [] },
-                        } = offersItem;
-                        if (
-                          productSessions.indexOf(OfferSessionArrItem) === -1 &&
-                          productSessions.indexOf(null) !== -1
-                        ) {
-                          offersItem.sessionTime = null;
-                          newOffers.push({ ...offersItem });
-                        } else if (productSessions.indexOf(OfferSessionArrItem) !== -1) {
-                          offersItem.sessionTime = OfferSessionArrItem;
-                          newOffers.push({ ...offersItem });
-                        }
-                      });
-                      category.products[searchIndex].offers = newOffers;
-                    } else {
-                      const newOffers = [];
-                      firstOffers.forEach(offersItem => {
-                        const {
-                          detail: { productSessions = [] },
-                        } = offersItem;
-                        let sessionTime;
-                        if (
-                          productSessions.indexOf(OfferSessionArrItem) === -1 &&
-                          productSessions.indexOf(null) !== -1
-                        ) {
-                          sessionTime = null;
-                          newOffers.push({ ...offersItem, sessionTime });
-                        } else if (productSessions.indexOf(OfferSessionArrItem) !== -1) {
-                          sessionTime = OfferSessionArrItem;
-                          newOffers.push({ ...offersItem, sessionTime });
-                        }
-                      });
-                      category.products.splice(searchIndex + 1, 0, {
-                        ...bundleArrItem.bundleDetail,
-                        offers: newOffers,
-                        id: OfferSessionArrItem[0],
-                      });
-                    }
-                  }
-                );
               });
             });
           });
