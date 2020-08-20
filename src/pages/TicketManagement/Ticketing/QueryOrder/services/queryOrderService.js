@@ -18,7 +18,7 @@ export async function queryRevalidationVids(params) {
 }
 
 export async function queryBookingDetail(params) {
-  return UAAService.request(`${mock}/b2b/transaction/v1/booking/query${params}`, {
+  return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/query${params}`, {
     method: 'GET',
   });
 }
