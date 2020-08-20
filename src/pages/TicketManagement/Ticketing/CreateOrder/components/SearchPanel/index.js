@@ -3,10 +3,9 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { Button, Card, Checkbox, DatePicker, Form, InputNumber, Select, Spin } from 'antd';
 import moment from 'moment';
-import { arrToString , sessionTimeToWholeDay } from '../../../../utils/utils';
+import { arrToString, sessionTimeToWholeDay } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
-
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -16,7 +15,8 @@ const formItemLayout = {
 @Form.create()
 @connect(({ ticketMgr, loading }) => ({
   ticketMgr,
-  showLoading: loading.effects['ticketMgr/querySessionTime'],
+  showLoading:
+    loading.effects['ticketMgr/querySessionTime'] || loading.effects['ticketMgr/queryOfferBookingCategory'],
 }))
 class SearchPanel extends Component {
   constructor(props) {

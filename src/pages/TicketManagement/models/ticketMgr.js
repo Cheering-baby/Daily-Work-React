@@ -18,7 +18,6 @@ import {
 import {
   checkInventory,
   checkNumOfGuestsAvailable,
-  filterSessionProduct,
   findArrSame,
   multiplePromise,
 } from '../utils/utils';
@@ -451,7 +450,7 @@ export default {
           const { offerList = [] } = result;
 
           const requestPromiseList = [];
-          const offerDetailList = offerList.map(item => ({...item, offerProfile: {}}));
+          const offerDetailList = offerList.map(item => ({ ...item, offerProfile: {} }));
           for (let i = 0; i < offerList.length; i += 1) {
             const { offerNo } = offerList[i];
             const params = {
@@ -523,41 +522,41 @@ export default {
                     attractionProduct.forEach(itemProduct => {
                       const { priceRule } = itemProduct;
                       const sessions = [];
+                      const includeSessions = [];
                       priceRule[0].productPrice.forEach(({ priceTimeFrom }) => {
-                        if (sessions.indexOf(priceTimeFrom) === -1) {
+                        if (sessions.indexOf(priceTimeFrom) === -1 && priceTimeFrom !== null) {
                           sessions.push(priceTimeFrom);
+                        }
+                        if (includeSessions.indexOf(priceTimeFrom) === -1) {
+                          includeSessions.push(priceTimeFrom);
                         }
                       });
                       sessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
-                      productSessions.push(sessions);
+                      includeSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
+                      itemProduct.sessionOptions = sessions;
+                      productSessions.push(includeSessions);
                     });
-                    let sessionArr = [];
-                    if (item2.choiceConstrain === 'Fixed' || offerBundle[0].bundleName) {
-                        const existProductSession = [];
-                        productSessions.forEach(itemProductSession => {
-                          if (itemProductSession.indexOf(null) === -1) {
-                            existProductSession.push(itemProductSession);
-                          }
-                        });
-                        if (existProductSession.length > 0) {
-                          sessionArr = findArrSame(existProductSession);
-                        } else {
-                          sessionArr = findArrSame(productSessions);
-                        }
-                    } else {
+                    let offerSessions = [];
+                    if (offerBundle[0].bundleName) {
+                      const existProductSession = [];
                       productSessions.forEach(itemProductSession => {
-                        itemProductSession.forEach(itemSession => {
-                          if (sessionArr.indexOf(itemSession) === -1) {
-                            sessionArr.push(itemSession);
-                          }
-                        });
+                        if (itemProductSession.indexOf(null) === -1) {
+                          existProductSession.push(itemProductSession);
+                        }
                       });
-                      if (sessionArr.length > 1 && sessionArr.indexOf(null) !== -1) {
-                        sessionArr = sessionArr.filter(session => session !== null);
+                      if (existProductSession.length > 0) {
+                        offerSessions = findArrSame(existProductSession);
+                      } else {
+                        offerSessions = findArrSame(productSessions);
                       }
                     }
-                    sessionArr.sort((a, b) => moment(a, "HH:mm:ss") - moment(b, "HH:mm:ss"));
-                    if (noMatchPriceRule) return false;
+                    offerSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
+                    if (
+                      noMatchPriceRule ||
+                      (offerBundle[0].bundleName && offerSessions.length === 0)
+                    ) {
+                      return false;
+                    }
                     bookingCategory.forEach(item3 => {
                       themeParkList.forEach((item4, index4) => {
                         if (
@@ -570,21 +569,12 @@ export default {
                           data.detail.offerPrice = offerList[i].offerPrice;
                           data.detail.dateOfVisit = dateOfVisit;
                           data.detail.numOfGuests = numOfGuests;
-                          data.detail.productSessions = sessionArr;
                           themeParkList[index4].offerNos.push(offerNo);
-                          // if (offerBundle[0].bundleName) {
-                            data.attractionProduct = attractionProduct;
-                            themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
-                          // } else {
-                          //   sessionArr.forEach(itemSession => {
-                          //     data.attractionProduct = filterSessionProduct(
-                          //       priceRuleId,
-                          //       itemSession,
-                          //       attractionProduct
-                          //     );
-                          //     themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
-                          //   });
-                          // }
+                          if (offerBundle[0].bundleName) {
+                            data.offerSessions = offerSessions;
+                          }
+                          data.attractionProduct = attractionProduct;
+                          themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
                         }
                       });
                     });
@@ -629,6 +619,7 @@ export default {
                           ...item3,
                           themeParkCode,
                           themeParkName,
+                          tag,
                         });
                       } else {
                         themeParkList2[index].categories[index2].products.forEach(
@@ -639,6 +630,7 @@ export default {
                                 offers: item5.offers.concat([item3]),
                                 themeParkCode,
                                 themeParkName,
+                                tag,
                               };
                             }
                           }
@@ -649,6 +641,7 @@ export default {
                         ...item3,
                         themeParkCode,
                         themeParkName,
+                        tag,
                       });
                     }
                   }
@@ -663,7 +656,7 @@ export default {
             );
             itemThemePark.categories.forEach(category => {
               if (category.products) {
-                category.products.forEach(product => {
+                category.products.forEach((product, productIndex) => {
                   if (product.bundleName && product.bundleName !== '') {
                     product.offers.sort((a, b) => {
                       const aName = a.detail.offerBundle[0].bundleLabel || '';
@@ -671,6 +664,7 @@ export default {
                       return aName.charCodeAt(0) - bName.charCodeAt(0);
                     });
                   }
+                  product.index = productIndex;
                 });
               }
             });

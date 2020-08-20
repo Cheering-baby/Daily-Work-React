@@ -337,8 +337,9 @@ class Detail extends React.Component {
     let userRolesStr = '-';
     let transTypeStr = 'booking';
     let refundAmountStr = 0;
+    const { orderSourceChannel, externalOrderNo } = bookingDetail || {};
     if (bookingDetail) {
-      const { approveBy, paymentMode } = bookingDetail;
+      const { approveBy, paymentMode,  } = bookingDetail;
       approveByStr = approveBy;
       if (paymentMode === 'eWallet') {
         paymentModeStr = 'e-Wallet';
@@ -401,12 +402,18 @@ class Detail extends React.Component {
         const firstName = detailList[i].delivery ? detailList[i].delivery.firstName : '-';
         const lastName = detailList[i].delivery ? detailList[i].delivery.lastName : '-';
         const country = detailList[i].delivery ? detailList[i].delivery.country : '-';
-        const referenceNo = detailList[i].delivery ? detailList[i].delivery.referenceNo : '-';
         const contactNo = detailList[i].delivery ? detailList[i].delivery.contactNo : '-';
         const email = detailList[i].delivery ? detailList[i].delivery.email : '-';
         const visitDate = detailList[i].visitDate ? detailList[i].visitDate : '-';
         const { bundleName, offerName } = detailList[i];
         let offerNameText = offerName;
+        let referenceNo;
+        if(orderSourceChannel === 'OTA') {
+          referenceNo = externalOrderNo;
+        } else if(detailList[i].delivery) {
+          // eslint-disable-next-line prefer-destructuring
+          referenceNo = detailList[i].delivery.referenceNo;
+        }
         if (bundleName !== null && bundleName !== '') {
           offerNameText = bundleName;
         }
@@ -465,7 +472,7 @@ class Detail extends React.Component {
             </div>
             <Form className={styles.formStyle}>
               {this.showDelivery(formatMessage({ id: 'COUNTRY_OF_RESIDENCE' }), country)}
-              {this.showDelivery(formatMessage({ id: 'TA_REFERENCE_NO' }), referenceNo)}
+              {this.showDelivery(formatMessage({ id: 'TA_REFERENCE_NO' }), referenceNo || '-')}
               {this.showDelivery(formatMessage({ id: 'GUEST_FIRST_NAME' }), firstName)}
               {this.showDelivery(formatMessage({ id: 'GUEST_LAST_NAME' }), lastName)}
               {this.showDelivery(formatMessage({ id: 'CUSTOMER_CONTACT_NO' }), contactNo)}
