@@ -108,6 +108,7 @@ class SearchPanel extends Component {
     const {
       dispatch,
       ticketMgr: { dateOfVisit, themeParkChooseList = [] },
+      searchSuccess,
     } = this.props;
     let requestParams;
     const paramValue = arrToString(themeParkChooseList);
@@ -135,6 +136,7 @@ class SearchPanel extends Component {
         requestParams,
       },
     }).then(() => {
+      searchSuccess()
       dispatch({
         type: 'ticketMgr/save',
         payload: {
