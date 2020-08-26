@@ -18,6 +18,7 @@ import {
 import {
   checkInventory,
   checkNumOfGuestsAvailable,
+  filterSessionProduct,
   findArrSame,
   multiplePromise,
 } from '../utils/utils';
@@ -450,7 +451,7 @@ export default {
           const { offerList = [] } = result;
 
           const requestPromiseList = [];
-          const offerDetailList = offerList.map(item => ({ ...item, offerProfile: {} }));
+          const offerDetailList = offerList.map(item => ({...item, offerProfile: {}}));
           for (let i = 0; i < offerList.length; i += 1) {
             const { offerNo } = offerList[i];
             const params = {
@@ -522,41 +523,41 @@ export default {
                     attractionProduct.forEach(itemProduct => {
                       const { priceRule } = itemProduct;
                       const sessions = [];
-                      const includeSessions = [];
                       priceRule[0].productPrice.forEach(({ priceTimeFrom }) => {
-                        if (sessions.indexOf(priceTimeFrom) === -1 && priceTimeFrom !== null) {
+                        if (sessions.indexOf(priceTimeFrom) === -1) {
                           sessions.push(priceTimeFrom);
-                        }
-                        if (includeSessions.indexOf(priceTimeFrom) === -1) {
-                          includeSessions.push(priceTimeFrom);
                         }
                       });
                       sessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
-                      includeSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
-                      itemProduct.sessionOptions = sessions;
-                      productSessions.push(includeSessions);
+                      productSessions.push(sessions);
                     });
-                    let offerSessions = [];
-                    if (offerBundle[0].bundleName) {
-                      const existProductSession = [];
-                      productSessions.forEach(itemProductSession => {
-                        if (itemProductSession.indexOf(null) === -1) {
-                          existProductSession.push(itemProductSession);
+                    let sessionArr = [];
+                    if (item2.choiceConstrain === 'Fixed' || offerBundle[0].bundleName) {
+                        const existProductSession = [];
+                        productSessions.forEach(itemProductSession => {
+                          if (itemProductSession.indexOf(null) === -1) {
+                            existProductSession.push(itemProductSession);
+                          }
+                        });
+                        if (existProductSession.length > 0) {
+                          sessionArr = findArrSame(existProductSession);
+                        } else {
+                          sessionArr = findArrSame(productSessions);
                         }
+                    } else {
+                      productSessions.forEach(itemProductSession => {
+                        itemProductSession.forEach(itemSession => {
+                          if (sessionArr.indexOf(itemSession) === -1) {
+                            sessionArr.push(itemSession);
+                          }
+                        });
                       });
-                      if (existProductSession.length > 0) {
-                        offerSessions = findArrSame(existProductSession);
-                      } else {
-                        offerSessions = findArrSame(productSessions);
+                      if (sessionArr.length > 1 && sessionArr.indexOf(null) !== -1) {
+                        sessionArr = sessionArr.filter(session => session !== null);
                       }
                     }
-                    offerSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
-                    if (
-                      noMatchPriceRule ||
-                      (offerBundle[0].bundleName && offerSessions.length === 0)
-                    ) {
-                      return false;
-                    }
+                    sessionArr.sort((a, b) => moment(a, "HH:mm:ss") - moment(b, "HH:mm:ss"));
+                    if (noMatchPriceRule) return false;
                     bookingCategory.forEach(item3 => {
                       themeParkList.forEach((item4, index4) => {
                         if (
@@ -569,12 +570,21 @@ export default {
                           data.detail.offerPrice = offerList[i].offerPrice;
                           data.detail.dateOfVisit = dateOfVisit;
                           data.detail.numOfGuests = numOfGuests;
+                          data.detail.productSessions = sessionArr;
                           themeParkList[index4].offerNos.push(offerNo);
                           if (offerBundle[0].bundleName) {
-                            data.offerSessions = offerSessions;
+                            data.attractionProduct = attractionProduct;
+                            themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
+                          } else {
+                            sessionArr.forEach(itemSession => {
+                              data.attractionProduct = filterSessionProduct(
+                                priceRuleId,
+                                itemSession,
+                                attractionProduct
+                              );
+                              themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
+                            });
                           }
-                          data.attractionProduct = attractionProduct;
-                          themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
                         }
                       });
                     });
@@ -619,7 +629,6 @@ export default {
                           ...item3,
                           themeParkCode,
                           themeParkName,
-                          tag,
                         });
                       } else {
                         themeParkList2[index].categories[index2].products.forEach(
@@ -630,7 +639,6 @@ export default {
                                 offers: item5.offers.concat([item3]),
                                 themeParkCode,
                                 themeParkName,
-                                tag,
                               };
                             }
                           }
@@ -641,11 +649,102 @@ export default {
                         ...item3,
                         themeParkCode,
                         themeParkName,
-                        tag,
                       });
                     }
                   }
                 });
+              });
+            });
+          });
+
+          themeParkList2.forEach(itemThemePark => {
+            itemThemePark.categories.forEach(category => {
+              const bundleArr = [];
+              category.products.forEach(itemProduct => {
+                if (itemProduct.bundleName) {
+                  const { offers } = itemProduct;
+                  const offerSessions = [];
+                  offers.forEach(itemOffer => {
+                    const {
+                      detail: { productSessions = [] },
+                    } = itemOffer;
+                    offerSessions.push(productSessions);
+                  });
+                  let OfferSessionArr = [];
+                  offerSessions.forEach(itemProductSession => {
+                    itemProductSession.forEach(itemSession => {
+                      if (OfferSessionArr.indexOf(itemSession) === -1) {
+                        OfferSessionArr.push(itemSession);
+                      }
+                    });
+                  });
+                  if (OfferSessionArr.length > 1 && OfferSessionArr.indexOf(null) !== -1) {
+                    OfferSessionArr = OfferSessionArr.filter(session => session !== null);
+                  }
+                  bundleArr.push({
+                    bundleName: itemProduct.bundleName,
+                    bundleDetail: itemProduct,
+                    OfferSessionArr,
+                  });
+                }
+              });
+              bundleArr.forEach(bundleArrItem => {
+                const searchIndex = category.products.findIndex(
+                  item => item.bundleName === bundleArrItem.bundleName
+                );
+                let firstOffers = [];
+                if (bundleArrItem.OfferSessionArr.length === 0) {
+                  category.products.splice(searchIndex, 1);
+                }
+                bundleArrItem.OfferSessionArr.forEach(
+                  (OfferSessionArrItem, OfferSessionArrItemIndex) => {
+                    if (OfferSessionArrItemIndex === 0) {
+                      const newOffers = [];
+                      firstOffers = JSON.parse(
+                        JSON.stringify(category.products[searchIndex].offers)
+                      );
+                      category.products[searchIndex].offers.forEach(offersItem => {
+                        const {
+                          detail: { productSessions = [] },
+                        } = offersItem;
+                        if (
+                          productSessions.indexOf(OfferSessionArrItem) === -1 &&
+                          productSessions.indexOf(null) !== -1
+                        ) {
+                          offersItem.sessionTime = null;
+                          newOffers.push({ ...offersItem });
+                        } else if (productSessions.indexOf(OfferSessionArrItem) !== -1) {
+                          offersItem.sessionTime = OfferSessionArrItem;
+                          newOffers.push({ ...offersItem });
+                        }
+                      });
+                      category.products[searchIndex].offers = newOffers;
+                    } else {
+                      const newOffers = [];
+                      firstOffers.forEach(offersItem => {
+                        const {
+                          detail: { productSessions = [] },
+                        } = offersItem;
+                        let sessionTime;
+                        if (
+                          productSessions.indexOf(OfferSessionArrItem) === -1 &&
+                          productSessions.indexOf(null) !== -1
+                        ) {
+                          sessionTime = null;
+                          newOffers.push({ ...offersItem, sessionTime });
+                        } else if (productSessions.indexOf(OfferSessionArrItem) !== -1) {
+                          sessionTime = OfferSessionArrItem;
+                          newOffers.push({ ...offersItem, sessionTime });
+                        }
+                      });
+                      category.products.splice(searchIndex + 1, 0, {
+                        ...bundleArrItem.bundleDetail,
+                        offers: newOffers,
+                        id: OfferSessionArrItem[0],
+                      });
+                    }
+                  }
+                );
               });
             });
           });
@@ -656,7 +755,7 @@ export default {
             );
             itemThemePark.categories.forEach(category => {
               if (category.products) {
-                category.products.forEach((product, productIndex) => {
+                category.products.forEach(product => {
                   if (product.bundleName && product.bundleName !== '') {
                     product.offers.sort((a, b) => {
                       const aName = a.detail.offerBundle[0].bundleLabel || '';
@@ -664,7 +763,6 @@ export default {
                       return aName.charCodeAt(0) - bName.charCodeAt(0);
                     });
                   }
-                  product.index = productIndex;
                 });
               }
             });
