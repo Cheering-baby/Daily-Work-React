@@ -100,7 +100,7 @@ class Invoice extends React.PureComponent {
                     display: 'block',
                     position: 'absolute',
                     boxSizing: 'borderBox',
-                    width: '288px',
+                    width: '400px',
                     height: '100%',
                   }}
                 >
@@ -121,9 +121,9 @@ class Invoice extends React.PureComponent {
                   style={{
                     display: 'block',
                     position: 'relative',
-                    left: '50%',
+                    left: '63%',
                     boxSizing: 'borderBox',
-                    width: '50%',
+                    width: '37%',
                     height: '100%',
                     right: '0px',
                   }}
@@ -133,7 +133,7 @@ class Invoice extends React.PureComponent {
                       {formatMessage({ id: 'INVOICE_TITLE' })}
                     </div>
                     <div className={styles['descriptions-view']}>
-                      <table>
+                      <table style={{ width: '100%' }}>
                         <tbody>
                           {descriptions.map((item, index) => {
                             return (
