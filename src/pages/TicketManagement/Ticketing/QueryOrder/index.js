@@ -19,7 +19,6 @@ import PaymentModal from './components/PaymentModal';
 import PaginationComp from './components/PaginationComp';
 import Audit from './components/Audit';
 import PaymentPromptModal from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaymentPromptModal';
-import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 function transferModeOfPayment(type) {
   if (type && type.toUpperCase() === 'EWALLET') {
@@ -195,7 +194,9 @@ class QueryOrder extends Component {
             placement="topLeft"
             title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
           >
-            <span>{offInstancesFilter.length > 1 ? `${firstOffer}...` : firstOffer}</span>
+            <span>
+              {offInstancesFilter.length > 1 ? `${firstOffer}...` : firstOffer}
+            </span>
           </Tooltip>
         );
       },
@@ -803,21 +804,6 @@ class QueryOrder extends Component {
     return true;
   };
 
-  ifCanOperateCollectionLetter = selectedBookings => {
-    if (selectedBookings.length === 1) {
-      const selectedBooking = selectedBookings[0];
-      if (
-        selectedBooking.transType === 'booking' &&
-        selectedBooking.status === 'Complete' &&
-        selectedBooking.offInstances.length > 0 &&
-        selectedBooking.offInstances[0].deliveryMode === 'BOCA'
-      ) {
-        return false;
-      }
-    }
-    return true;
-  };
-
   ifCanUpdate = (selectedBookings, userType) => {
     if (selectedBookings.length === 1 && userType === '01') {
       const { transType, status } = selectedBookings[0];
@@ -1080,43 +1066,28 @@ class QueryOrder extends Component {
                         {formatMessage({ id: 'AUDIT' })}
                       </Button>
                     )}
-                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_EXPORT_VID']) && (
-                      <Button
-                        disabled={this.ifCanExportVID(selectedBookings)}
-                        className={styles.buttonStyle}
-                        onClick={() => this.openExportVIDDrawer(selectedBookings)}
-                      >
-                        {formatMessage({ id: 'EXPORT_VID' })}
-                      </Button>
-                    )}
-                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_DOWNLOAD_E_TICKET']) && (
-                      <Button
-                        disabled={this.ifCanOperateETicket(selectedBookings)}
-                        className={styles.buttonStyle}
-                        onClick={() => this.downloadETicket(selectedBookings)}
-                        loading={!!downloadFileLoading}
-                      >
-                        {formatMessage({ id: 'DOWNLOAD_ETICKET' })}
-                      </Button>
-                    )}
-                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_SEND_E_TICKET']) && (
-                      <Button
-                        disabled={this.ifCanOperateETicket(selectedBookings)}
-                        className={styles.buttonStyle}
-                        onClick={() => this.openSendETicketModel(selectedBookings)}
-                      >
-                        {formatMessage({ id: 'SEND_ETICKET' })}
-                      </Button>
-                    )}
-                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_DOWNLOAD_COLLECTION_LETTER']) && (
-                      <Button
-                        disabled={this.ifCanOperateCollectionLetter(selectedBookings)}
-                        className={styles.buttonStyle}
-                        onClick={() => this.downloadETicket(selectedBookings)}
-                      >
-                        {formatMessage({ id: 'DOWNLOAD_COLLECTION_LETTER' })}
-                      </Button>
-                    )}
+                    <Button
+                      disabled={this.ifCanExportVID(selectedBookings)}
+                      className={styles.buttonStyle}
+                      onClick={() => this.openExportVIDDrawer(selectedBookings)}
+                    >
+                      {formatMessage({ id: 'EXPORT_VID' })}
+                    </Button>
+                    <Button
+                      disabled={this.ifCanOperateETicket(selectedBookings)}
+                      className={styles.buttonStyle}
+                      onClick={() => this.downloadETicket(selectedBookings)}
+                      loading={!!downloadFileLoading}
+                    >
+                      {formatMessage({ id: 'DOWNLOAD_ETICKET' })}
+                    </Button>
+                    <Button
+                      disabled={this.ifCanOperateETicket(selectedBookings)}
+                      className={styles.buttonStyle}
+                      onClick={() => this.openSendETicketModel(selectedBookings)}
+                    >
+                      {formatMessage({ id: 'SEND_ETICKET' })}
+                    </Button>
                     {userType === '01' && (
                       <Button
                         disabled={this.ifCanUpdate(selectedBookings, userType)}

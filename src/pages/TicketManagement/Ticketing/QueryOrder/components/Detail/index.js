@@ -50,8 +50,8 @@ class Detail extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
       width: '30%',
-      dataIndex: 'themeParkCode',
-      key: 'themeParkCode',
+      dataIndex: 'themeParks',
+      key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
@@ -110,8 +110,8 @@ class Detail extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
       width: '18%',
-      dataIndex: 'themePark',
-      key: 'themePark',
+      dataIndex: 'themeParks',
+      key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
@@ -170,8 +170,8 @@ class Detail extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
       width: '22%',
-      dataIndex: 'themePark',
-      key: 'themePark',
+      dataIndex: 'themeParks',
+      key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
@@ -198,8 +198,8 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
-      dataIndex: 'ticketType',
-      key: 'ticketType',
+      dataIndex: 'ticketTypes',
+      key: 'ticketTypes',
       render: text => this.showVidType(text),
     },
   ];
@@ -230,8 +230,8 @@ class Detail extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
       width: '30%',
-      dataIndex: 'themePark',
-      key: 'themePark',
+      dataIndex: 'themeParks',
+      key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
@@ -339,7 +339,7 @@ class Detail extends React.Component {
     let refundAmountStr = 0;
     const { orderSourceChannel, externalOrderNo } = bookingDetail || {};
     if (bookingDetail) {
-      const { approveBy, paymentMode,  } = bookingDetail;
+      const { approveBy, paymentMode } = bookingDetail;
       approveByStr = approveBy;
       if (paymentMode === 'eWallet') {
         paymentModeStr = 'e-Wallet';
@@ -399,6 +399,7 @@ class Detail extends React.Component {
         for (let j = 0; j < filterVidList.length; j += 1) {
           filterVidList[j].vidNo = (Array(3).join('0') + (j + 1)).slice(-3);
         }
+        
         const firstName = detailList[i].delivery ? detailList[i].delivery.firstName : '-';
         const lastName = detailList[i].delivery ? detailList[i].delivery.lastName : '-';
         const country = detailList[i].delivery ? detailList[i].delivery.country : '-';
@@ -408,9 +409,9 @@ class Detail extends React.Component {
         const { bundleName, offerName } = detailList[i];
         let offerNameText = offerName;
         let referenceNo;
-        if(orderSourceChannel === 'OTA') {
+        if (orderSourceChannel === 'OTA') {
           referenceNo = externalOrderNo;
-        } else if(detailList[i].delivery) {
+        } else if (detailList[i].delivery) {
           // eslint-disable-next-line prefer-destructuring
           referenceNo = detailList[i].delivery.referenceNo;
         }
@@ -488,6 +489,7 @@ class Detail extends React.Component {
                 scroll={{ x: 540 }}
                 pagination={false}
                 bordered={false}
+                rowKey={record => record.visualID}
               />
             )}
           </div>
@@ -674,12 +676,31 @@ class Detail extends React.Component {
     const {
       orderDetailMgr: { themeParkList = [] },
     } = this.props;
+    if (text instanceof Array) {
+      const resObj = text.map(item => {
+        if (themeParkList.find(item2 => item === item2.bookingCategoryCode)) {
+          return themeParkList.find(item2 => item === item2.bookingCategoryCode).bookingCategoryName;
+        }
+        return item;
+      });
+      const showText = resObj.length > 0 ? resObj.join(', ') : '-';
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showText}</span>}
+        >
+          <span>{showText}</span>
+        </Tooltip>
+      );
+    }
     for (let i = 0; i < themeParkList.length; i += 1) {
       if (themeParkList[i].bookingCategoryCode === text) {
         return (
           <Tooltip
             placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>}
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
+            }
           >
             <span>{themeParkList[i].bookingCategoryName}</span>
           </Tooltip>
