@@ -271,7 +271,6 @@ export default {
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
-              console.log(itemPluList)
               if (attraction[j].ticketType === 'MPP') {
                 vidList.push({
                   vidNo: null,
@@ -298,6 +297,7 @@ export default {
                       vidNo: null,
                       vidCode: itemPlu.visualId,
                       themePark: itemPlu.themeParkCode,
+                      themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -307,6 +307,7 @@ export default {
                       vidCode: itemPlu.visualId,
                       offerName: offers[i].offerName,
                       themePark: itemPlu.themeParkCode,
+                      themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -319,7 +320,7 @@ export default {
                     vidNo: null,
                     vidCode: itemPlu.visualId,
                     themePark: itemPlu.themeParkCode,
-                    themeParks: attraction[j].themeParks,
+                    themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -329,7 +330,7 @@ export default {
                     vidCode: itemPlu.visualId,
                     offerName: offers[i].offerName,
                     themePark: itemPlu.themeParkCode,
-                    themeParks: attraction[j].themeParks,
+                    themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),

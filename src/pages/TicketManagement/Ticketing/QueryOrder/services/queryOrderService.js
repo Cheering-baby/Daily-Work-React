@@ -32,7 +32,7 @@ export async function queryPluAttribute(params) {
 }
 
 export async function queryOfferBookingCategory(params) {
-  return UAAService.request(`${uaaPath}/b2c/product/v1/offer/offerBookingCategory/queryOfferBookingCategory`, {
+  return UAAService.request(`${mock}/b2c/product/v1/offer/offerBookingCategory/queryOfferBookingCategory`, {
     method: 'POST',
     body: params,
   });

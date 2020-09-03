@@ -241,7 +241,7 @@ export function checkInventory(detail, orderProducts = []) {
 
 export function checkNumOfGuestsAvailable(numOfGuests, detail) {
   let enough = true;
-  if(!detail || Object.keys(detail).length === 0) {
+  if (!detail || Object.keys(detail).length === 0) {
     return false;
   }
   const {
@@ -265,15 +265,14 @@ export function checkNumOfGuestsAvailable(numOfGuests, detail) {
     return false;
   }
   const {
-    choiceConstrain,
     products = [],
     minProductQuantity,
     maxProductQuantity,
   } = attractionGroup;
-  if (choiceConstrain === 'Fixed' || offerBundle[0].bundleName) {
-    if (offerMinQuantity > numOfGuests || offerMaxQuantity < numOfGuests) {
-      enough = false;
-    }
+  if (offerMinQuantity > numOfGuests || offerMaxQuantity < numOfGuests) {
+    enough = false;
+  }
+  if (offerBundle[0].bundleName) {
     let oneOfferTickets = 0;
     products.forEach(item => {
       const { needChoiceCount, priceRule = [] } = item;
@@ -516,3 +515,31 @@ export const sessionTimeToWholeDay = time => {
   }
   return time;
 };
+
+export function sortByArr(arr, rev) {
+  if (rev === undefined) {
+    rev = 1;
+  } else {
+    rev = rev ? 1 : -1;
+  }
+  return (a, b) => {
+    for (let i = 0; i < arr.length; i += 1) {
+      const attr = arr[i];
+      if (a[attr] === null || b[attr] === null) {
+        return rev * 1;
+      }
+      if (a[attr] !== b[attr]) {
+        return a[attr] > b[attr] ? rev * 1 : rev * -1;
+      }
+    }
+  };
+}
+
+export function sortArray(sortList, sortColumnList) {
+  sortList.sort(sortByArr(sortColumnList, true));
+  sortList.map((item, index) => {
+    item.sequence = index;
+    return item;
+  });
+  return sortList;
+}
