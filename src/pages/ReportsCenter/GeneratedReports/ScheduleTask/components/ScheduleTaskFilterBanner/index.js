@@ -7,6 +7,7 @@ import {
   EMPTY_ARR,
   PAGE_SIZE,
 } from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/consts/common';
+import styles from "./index.less";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -65,6 +66,7 @@ const ScheduleTaskFilterBanner = props => {
           defaultActiveFirstOption={false}
           loading={fetchReportNameListDataLoadingFlag}
           notFoundContent={fetchReportNameListDataLoadingFlag ? <Spin size="small" /> : null}
+          dropdownClassName={styles.reportNameSelect}
         >
           {reportNameOptions.map(item => (
             <Option key={item.value} value={item.value}>

@@ -73,9 +73,12 @@ class DailyMonthlyTable extends Component {
         totalSize,
         dataList,
         loadingStatus,
+        reportTypeOptions
       },
       dispatch,
     } = this.props;
+    const reportTypes =
+      reportTypeOptions && reportTypeOptions.length > 0 && reportTypeOptions.map(i => i.value);
     const pageOpts = {
       total: totalSize,
       current: currentPage,
@@ -84,6 +87,7 @@ class DailyMonthlyTable extends Component {
         dispatch({
           type: 'dailyAndMonthlyReport/tableChanged',
           payload: {
+            reportTypes,
             pagination: {
               currentPage: page,
               pageSize,
@@ -111,13 +115,13 @@ class DailyMonthlyTable extends Component {
         title: formatMessage({ id: 'REPORT_NAME' }),
         dataIndex: 'taskName',
         sorter: true,
-        render: text => {
-          return (
-            <Tooltip title={text} placement="topLeft">
-              {text || '-'}
-            </Tooltip>
-          );
-        },
+        className: styles.reportNameColumn,
+      },
+      {
+        title: formatMessage({ id: 'SCHEDULE_REPORT_NAME' }),
+        dataIndex: 'reportName',
+        sorter: true,
+        className: styles.reportNameColumn,
       },
       {
         title: formatMessage({ id: 'REPORT_FREQUENCY' }),
@@ -136,7 +140,7 @@ class DailyMonthlyTable extends Component {
         dataIndex: 'expectTime',
         sorter: true,
         render: text => {
-          const timeText = text ? moment(text).format('DD-MMM-YYYY') : '';
+          const timeText = text ? moment(text).format('DD-MMM-YYYY HH:mm:ss') : '';
           return (
             <Tooltip title={timeText} placement="topLeft">
               {timeText || '-'}
@@ -178,7 +182,7 @@ class DailyMonthlyTable extends Component {
         },
       },
     ];
-
+    console.log(dataList)
     return (
       <div>
         <Table

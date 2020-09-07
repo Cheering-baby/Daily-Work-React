@@ -23,6 +23,7 @@ const PopContent = ({ task, isDrawer = false, operation }) => {
       }
     : null;
   const banFlag = task.status === 'Inactive';
+  const adhocFlag = task.cronType === 'Ad-hoc' && task.status !== 'Pending';
   return (
     <div className={containerClassName}>
       <Card
@@ -50,9 +51,9 @@ const PopContent = ({ task, isDrawer = false, operation }) => {
             <Icon
               type="edit"
               key="edit"
-              className={banFlag ? styles.ban : undefined}
+              className={banFlag || adhocFlag ? styles.ban : undefined}
               onClick={() => {
-                if (banFlag) return;
+                if (banFlag || adhocFlag) return;
                 editTask(task);
               }}
             />
@@ -61,9 +62,9 @@ const PopContent = ({ task, isDrawer = false, operation }) => {
             <Icon
               type="stop"
               key="stop"
-              className={banFlag ? styles.ban : undefined}
+              className={banFlag || adhocFlag ? styles.ban : undefined}
               onClick={() => {
-                if (banFlag) return;
+                if (banFlag || adhocFlag) return;
                 disableTask(task);
               }}
             />

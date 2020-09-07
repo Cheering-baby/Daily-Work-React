@@ -22,10 +22,13 @@ import {
 import moment from 'moment';
 import { isNullOrUndefined } from 'util';
 import { reBytesStr, toThousands } from '@/utils/utils';
-import { calculateAllProductPrice, isSessionProduct, sessionTimeToWholeDay } from '../../../../utils/utils';
+import {
+  calculateAllProductPrice,
+  isSessionProduct,
+  sessionTimeToWholeDay,
+} from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
-
 
 const priceItemKey = ['price', 'subTotalPrice'];
 const FormItem = Form.Item;

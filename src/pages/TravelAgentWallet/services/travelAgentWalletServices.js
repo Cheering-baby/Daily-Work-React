@@ -55,3 +55,17 @@ export function search(params) {
     }
   );
 }
+
+export function invoiceDetail(params) {
+  return UAAService.request(`${urlPathPrefix}/invoiceDetail`, {
+    method: 'GET',
+    params,
+  });
+}
+
+export async function invoiceDownload(params) {
+  return UAAService.request(`${urlPathPrefix}/download/accountInvoice`, {
+    method: 'GET',
+    params,
+  });
+}

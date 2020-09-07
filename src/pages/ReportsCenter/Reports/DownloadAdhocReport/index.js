@@ -27,10 +27,11 @@ const formItemLayout = {
   colon: false,
 };
 @Form.create()
-@connect(({ downloadAdHocReport, reportCenter, user }) => ({
+@connect(({ downloadAdHocReport, reportCenter, user, loading }) => ({
   downloadAdHocReport,
   reportCenter,
   userAuthorities: user.userAuthorities,
+  reportFilterLoading: loading.effects['reportCenter/fetchReportFilterList'],
 }))
 class DownloadAdHocReport extends Component {
   constructor(props) {
@@ -86,6 +87,7 @@ class DownloadAdHocReport extends Component {
         openCustomerGroup: false,
         openUserRoleForCreated: false,
         openAccountManager: false,
+        openAgeGroup: false,
       },
     });
   };
@@ -105,6 +107,7 @@ class DownloadAdHocReport extends Component {
         checkUserRoleValue,
         checkCustomerGroupValue,
         checkAccountManager,
+        checkAgeGroup,
       },
       location: {
         query: { reportType },
@@ -135,7 +138,9 @@ class DownloadAdHocReport extends Component {
     const categoryTypeVal = getFieldValue('categoryType');
 
     const arr1 =
-      filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'themePark') : [];
+      filterList && filterList.length > 0
+        ? filterList.find(i => i.filterKey === 'themeParkCode')
+        : [];
     const themeParkInfos = arr1 && arr1.themeParkOptions;
 
     const arr2 =
@@ -160,6 +165,10 @@ class DownloadAdHocReport extends Component {
         : [];
     const accountManagerInfos = arr5 && arr5.accountManagerOptions;
 
+    const arr6 =
+      filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'ageGroup') : [];
+    const ageGroupInfos = arr6 && arr6.ageGroupOptions;
+
     form.validateFieldsAndScroll((err, values) => {
       if (err) {
         return;
@@ -169,31 +178,35 @@ class DownloadAdHocReport extends Component {
         filterList.forEach(item => {
           if (item.filterKey === k) {
             if (item.filterType === 'RANGE_PICKER') {
-              values[`${item.filterKey}From`] = value
-                ? new Date(
-                    moment(value[0])
-                      .format('YYYY-MM-DD 00:00:00')
-                      .replace(/-/g, '/')
-                  ).getTime()
-                : '';
-              values[`${item.filterKey}To`] = value
-                ? new Date(
-                    moment(value[1])
-                      .format('YYYY-MM-DD 23:59:59')
-                      .replace(/-/g, '/')
-                  ).getTime()
-                : '';
+              values[`${item.filterKey}From`] =
+                value && value.length > 0
+                  ? new Date(
+                      moment(value[0])
+                        .format('YYYY-MM-DD 00:00:00')
+                        .replace(/-/g, '/')
+                    ).getTime()
+                  : '';
+              values[`${item.filterKey}To`] =
+                value && value.length > 0
+                  ? new Date(
+                      moment(value[1])
+                        .format('YYYY-MM-DD 23:59:59')
+                        .replace(/-/g, '/')
+                    ).getTime()
+                  : '';
               delete values[k];
-            } else if (item.filterType === 'MULTIPLE_SELECT' && Array.isArray(value)) {
+            } else if (item.filterType === 'MULTIPLE_SELECT') {
               if (
-                k === 'themePark' &&
+                k === 'themeParkCode' &&
                 themeParkInfos &&
                 themeParkInfos.length > 0 &&
                 checkThemeParkValue &&
                 checkThemeParkValue.length > 0
               ) {
-                const res = themeParkInfos.filter(ii => checkThemeParkValue.includes(ii.itemName));
-                value = res && res.length > 0 && res.map(i => i.itemValue);
+                const res = themeParkInfos.filter(ii =>
+                  checkThemeParkValue.includes(ii.bookingCategoryName)
+                );
+                value = res && res.length > 0 && res.map(i => i.bookingCategoryCode);
               } else if (k === 'taMarket' && checkChannelValue && checkChannelValue.length > 0) {
                 const res = channelInfos.filter(ii => checkChannelValue.includes(ii.dictName));
                 value = res && res.length > 0 && res.map(i => i.dictId);
@@ -223,6 +236,9 @@ class DownloadAdHocReport extends Component {
                 );
                 const arrs = list.filter(s => s.dictSubType === categoryTypeVal);
                 value = arrs && arrs.length > 0 && arrs.map(i => i.dictId);
+              } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
+                const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
+                value = list && list.length > 0 && list.map(i => i.identifier);
               }
               values[k] = value ? value.join() : '';
               if (values[k] === 'All') {
@@ -241,15 +257,36 @@ class DownloadAdHocReport extends Component {
       });
       const list = result.filter(item => item.value);
 
-      dispatch({
-        type: 'downloadAdHocReport/fetchPreviewReport',
-        payload: {
-          reportType,
-          filterList: list,
-          displayColumnList:
-            selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
-        },
-      });
+      let sortList = [];
+      if (
+        reportType === 'ARAccountBalanceSummaryReport' ||
+        reportType === 'E-WalletBalanceSummaryReport'
+      ) {
+        sortList = [
+          { key: 'customerName', value: 'ascend' },
+          { key: 'transactionDate', value: 'descend' },
+        ];
+        dispatch({
+          type: 'downloadAdHocReport/fetchPreviewReport',
+          payload: {
+            reportType,
+            filterList: list,
+            displayColumnList:
+              selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
+            sortList,
+          },
+        });
+      } else {
+        dispatch({
+          type: 'downloadAdHocReport/fetchPreviewReport',
+          payload: {
+            reportType,
+            filterList: list,
+            displayColumnList:
+              selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
+          },
+        });
+      }
       dispatch({
         type: 'downloadAdHocReport/save',
         payload: {
@@ -297,11 +334,14 @@ class DownloadAdHocReport extends Component {
         checkUserRoleValue,
         checkCustomerGroupValue,
         checkAccountManager,
+        checkAgeGroup,
       },
     } = this.props;
 
     const arr1 =
-      filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'themePark') : [];
+      filterList && filterList.length > 0
+        ? filterList.find(i => i.filterKey === 'themeParkCode')
+        : [];
     const themeParkInfos = arr1 && arr1.themeParkOptions;
 
     const arr2 =
@@ -326,6 +366,10 @@ class DownloadAdHocReport extends Component {
         : [];
     const accountManagerInfos = arr5 && arr5.accountManagerOptions;
 
+    const arr6 =
+      filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'ageGroup') : [];
+    const ageGroupInfos = arr6 && arr6.ageGroupOptions;
+
     const categoryTypeVal = getFieldValue('categoryType');
 
     let selectList = [];
@@ -349,22 +393,24 @@ class DownloadAdHocReport extends Component {
         filterList.forEach(item => {
           if (item.filterKey === k) {
             if (item.filterType === 'RANGE_PICKER') {
-              values[`${item.filterKey}From`] = value
-                ? Date.parse(
-                    moment(value[0])
-                      .format('YYYY-MM-DD 00:00:00')
-                      .replace(/-/g, '/')
-                  )
-                : '';
-              values[`${item.filterKey}To`] = value
-                ? Date.parse(
-                    moment(value[1])
-                      .format('YYYY-MM-DD 23:59:59')
-                      .replace(/-/g, '/')
-                  )
-                : '';
+              values[`${item.filterKey}From`] =
+                value && value.length > 0
+                  ? Date.parse(
+                      moment(value[0])
+                        .format('YYYY-MM-DD 00:00:00')
+                        .replace(/-/g, '/')
+                    )
+                  : '';
+              values[`${item.filterKey}To`] =
+                value && value.length > 0
+                  ? Date.parse(
+                      moment(value[1])
+                        .format('YYYY-MM-DD 23:59:59')
+                        .replace(/-/g, '/')
+                    )
+                  : '';
               delete values[k];
-            } else if (item.filterType === 'MULTIPLE_SELECT' && Array.isArray(value)) {
+            } else if (item.filterType === 'MULTIPLE_SELECT') {
               if (
                 k === 'themeParkCode' &&
                 themeParkInfos &&
@@ -373,9 +419,9 @@ class DownloadAdHocReport extends Component {
                 checkThemeParkValue.length > 0
               ) {
                 const res = themeParkInfos.filter(ii =>
-                  checkThemeParkValue.includes(ii.attributeValue)
+                  checkThemeParkValue.includes(ii.bookingCategoryName)
                 );
-                value = res && res.length > 0 && res.map(i => i.attributeKey);
+                value = res && res.length > 0 && res.map(i => i.bookingCategoryCode);
               } else if (
                 k === 'userRoleForCreated' &&
                 userRoleInfos &&
@@ -414,6 +460,9 @@ class DownloadAdHocReport extends Component {
               ) {
                 const res = channelInfos.filter(ii => checkChannelValue.includes(ii.dictName));
                 value = res && res.length > 0 && res.map(i => i.dictId);
+              } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
+                const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
+                value = list && list.length > 0 && list.map(i => i.identifier);
               }
               values[k] = value ? value.join() : '';
               if (values[k] === 'All') {
@@ -432,23 +481,57 @@ class DownloadAdHocReport extends Component {
       });
       const list = result.filter(item => item.value);
 
-      download({
-        url: exportReportUrl,
-        method: 'POST',
-        body: { fileSuffixType: 'xlsx', filterList: list, reportType, displayColumnList },
-        loading: {
-          open: () => {
-            this.setState({
-              loadingStatus: true,
-            });
+      let sortList = [];
+      if (
+        reportType === 'ARAccountBalanceSummaryReport' ||
+        reportType === 'E-WalletBalanceSummaryReport'
+      ) {
+        sortList = [
+          { key: 'customerName', value: 'ASC' },
+          { key: 'transactionDate', value: 'DESC' },
+        ];
+        download({
+          url: exportReportUrl,
+          method: 'POST',
+          body: {
+            fileSuffixType: 'xlsx',
+            filterList: list,
+            reportType,
+            displayColumnList,
+            sortList,
           },
-          close: () => {
-            this.setState({
-              loadingStatus: false,
-            });
+          loading: {
+            open: () => {
+              this.setState({
+                loadingStatus: true,
+              });
+            },
+            close: () => {
+              this.setState({
+                loadingStatus: false,
+              });
+            },
           },
-        },
-      });
+        });
+      } else {
+        download({
+          url: exportReportUrl,
+          method: 'POST',
+          body: { fileSuffixType: 'xlsx', filterList: list, reportType, displayColumnList },
+          loading: {
+            open: () => {
+              this.setState({
+                loadingStatus: true,
+              });
+            },
+            close: () => {
+              this.setState({
+                loadingStatus: false,
+              });
+            },
+          },
+        });
+      }
     });
   };
 
@@ -496,6 +579,7 @@ class DownloadAdHocReport extends Component {
         query: { reportType, jobLogCode },
       },
       displayLoading,
+      reportFilterLoading,
     } = this.props;
 
     const breadcrumbArr = [
@@ -593,11 +677,12 @@ class DownloadAdHocReport extends Component {
         <MediaQuery minWidth={SCREEN.screenLgMin}>
           <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
         </MediaQuery>
-        <Spin spinning={loadingStatus}>
+        <Spin spinning={loadingStatus || reportFilterLoading}>
           <Card className={styles.card}>
             <p className={styles.titleStyle}>{reportType}</p>
             <Form className={styles.formStyles} onSubmit={this.downloadFileEvent}>
               {filterList.map(item => generateFilter(this.props, item))}
+
               <Form.Item {...formItemLayout} label={formatMessage({ id: 'REPORT_FIELD' })}>
                 {getFieldDecorator(
                   `field`,

@@ -1,5 +1,7 @@
 import { isEmpty } from 'lodash';
 import * as service from '../services/adhoc';
+import {privilege, REPORT_TYPE_MAP2} from "../../ScheduleTask/consts/authority";
+import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
 
 export default {
   namespace: 'adhoc',
@@ -35,6 +37,7 @@ export default {
         status: 'status',
         expectTime: 'expect_time',
         createBy: 'create_by',
+        reportName: 'schedule_desc',
       };
 
       const sortValueMap = {
@@ -101,9 +104,11 @@ export default {
           pageInfo: { currentPage, pageSize, totalSize },
           dataList,
         } = result;
-
-        if (dataList && dataList.length > 0) {
-          dataList.map((v, index) => {
+        const arr = privilege.filter(item => hasAllPrivilege([REPORT_TYPE_MAP2[item.dictDesc]]));
+        const privileges = arr && arr.length > 0 ? arr.map(i => i.dictDesc) : [];
+        const list = dataList.filter(ii => privileges.includes(ii.reportType));
+        if (list && list.length > 0) {
+          list.map((v, index) => {
             Object.assign(v, {
               key: v.reportType,
               no: (currentPage - 1) * pageSize + index + 1,
@@ -117,7 +122,7 @@ export default {
             currentPage,
             pageSize,
             totalSize,
-            dataList,
+            dataList: list,
           },
         });
       } else throw resultMsg;
@@ -171,6 +176,7 @@ export default {
     },
 
     *tableChanged({ payload }, { put }) {
+      const { reportTypes } = payload
       yield put({
         type: 'save',
         payload,
@@ -178,6 +184,9 @@ export default {
 
       yield put({
         type: 'fetch',
+        payload: {
+          reportTypes
+        }
       });
     },
   },
@@ -205,7 +214,10 @@ export default {
         }
       });
 
-      const reportTypeOptions = dictInfoMap.get('report type') || [];
+      // const reportTypeOptions = dictInfoMap.get('report type') || [];
+      const reportTypeOptions = (dictInfoMap.get('report type') || []).filter(({ text }) =>
+        hasAllPrivilege([REPORT_TYPE_MAP2[text]])
+      );
 
       return {
         ...state,

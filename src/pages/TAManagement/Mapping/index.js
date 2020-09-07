@@ -568,17 +568,32 @@ class Index extends React.PureComponent {
         </Col>
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
-            <Table
-              {...tableOpts}
-              dataSource={mappingList}
-              pagination={pagination}
-              loading={loading}
-              columns={this.columns}
-              className={`tabs-no-padding ${detailStyles.searchTitle}`}
-              onChange={this.handleTableChange}
-              rowKey={record => record.taId}
-              scroll={{ x: 660, y: this.getTableHeight() }}
-            />
+            <MediaQuery maxWidth={SCREEN.screenXsMax}>
+              <Table
+                {...tableOpts}
+                dataSource={mappingList}
+                pagination={pagination}
+                loading={loading}
+                columns={this.columns}
+                className={`tabs-no-padding ${detailStyles.searchTitle}`}
+                onChange={this.handleTableChange}
+                rowKey={record => record.taId}
+                scroll={{ x: 660 }}
+              />
+            </MediaQuery>
+            <MediaQuery minWidth={SCREEN.screenSmMin}>
+              <Table
+                {...tableOpts}
+                dataSource={mappingList}
+                pagination={pagination}
+                loading={loading}
+                columns={this.columns}
+                className={`tabs-no-padding ${detailStyles.searchTitle}`}
+                onChange={this.handleTableChange}
+                rowKey={record => record.taId}
+                scroll={{ x: 660, y: this.getTableHeight() }}
+              />
+            </MediaQuery>
           </Card>
         </Col>
       </Row>

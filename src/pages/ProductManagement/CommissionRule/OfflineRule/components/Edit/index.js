@@ -45,6 +45,7 @@ class EditCommission extends React.PureComponent {
           commissionValuePercent,
         },
         commodityList,
+        tplVersion,
       },
     } = this.props;
     if (
@@ -83,6 +84,7 @@ class EditCommission extends React.PureComponent {
         dispatch({
           type: 'offline/edit',
           payload: {
+            tplVersion,
             tplId,
             usageScope,
             commissionType,

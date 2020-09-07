@@ -34,7 +34,7 @@ const ScheduleTaskTable = ({
   const OverlayMenu = row => (
     <Menu>
       <Menu.Item
-        disabled={row.status === 'Inactive'}
+        disabled={row.status === 'Inactive' || (row.cronType === 'Ad-hoc' && row.status !== 'Pending')}
         onClick={() => {
           disableTask(row);
         }}
@@ -63,7 +63,7 @@ const ScheduleTaskTable = ({
       title: 'Schedule Report Name',
       dataIndex: 'scheduleReportName',
       sorter: true,
-      render: renderContent,
+      className: styles.reportNameColumn,
     },
     {
       key: 'reportType',
@@ -87,9 +87,9 @@ const ScheduleTaskTable = ({
       render: renderContent,
     },
     {
-      key: 'modifiedDateTime',
-      title: 'Modified Date Time',
-      dataIndex: 'modifiedDateTime',
+      key: 'generationDateTime',
+      title: 'Generation Date Time',
+      dataIndex: 'generationDateTime',
       sorter: true,
       render: renderContent,
     },
@@ -106,6 +106,7 @@ const ScheduleTaskTable = ({
       dataIndex: 'operation',
       render: (text, row) => {
         const banFlag = row.status === 'Inactive';
+        const adhocFlag = row.cronType === 'Ad-hoc' && row.status !== 'Pending';
         return (
           <>
             <Tooltip placement="top" title="View Detail">
@@ -119,9 +120,9 @@ const ScheduleTaskTable = ({
             <Tooltip placement="top" title="Edit Task">
               <Icon
                 type="edit"
-                className={banFlag ? styles.ban : undefined}
+                className={(banFlag || adhocFlag) ? styles.ban : undefined}
                 onClick={() => {
-                  if (banFlag) return;
+                  if (banFlag || adhocFlag) return;
                   editTask(row);
                 }}
               />

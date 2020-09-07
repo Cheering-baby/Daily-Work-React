@@ -51,7 +51,7 @@ class OtherInformationToSignUp extends PureComponent {
           type: 'taCommon/fetchQueryCityList',
           payload: { countryId: keyValue, isBil: true },
         });
-        const source = { city: String(keyValue) === '65' ? '65' : null };
+        const source = { bilCity: String(keyValue) === '65' ? '65' : null };
         form.setFieldsValue(source);
         Object.assign(newBillingInfo, source);
       }

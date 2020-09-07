@@ -20,21 +20,24 @@ const ScheduleDetailForm = ({ formItems }) => {
   return (
     <>
       <div className={styles.form}>
-        {formItems.map(({ label, texts = [] }) => (
-          <Col span={24} key={label}>
-            <Form.Item {...formItemLayout} label={label} style={{ marginBottom: '-15px' }}>
-              <ul className={styles.ul}>
-                {texts &&
-                  texts.length > 0 &&
-                  texts.map(item => (
-                    <li className={styles.text} key={item}>
-                      {item || <Icon type="minus" />}
-                    </li>
-                  ))}
-              </ul>
-            </Form.Item>
-          </Col>
-        ))}
+        {formItems.map(
+          ({ label, texts = [], type }) =>
+            type !== 'filter' && (
+              <Col span={24} key={label}>
+                <Form.Item {...formItemLayout} label={label} style={{ marginBottom: '-15px' }}>
+                  <ul className={styles.ul}>
+                    {texts &&
+                      texts.length > 0 &&
+                      texts.map(item => (
+                        <li className={styles.text} key={item}>
+                          {item || <Icon type="minus" />}
+                        </li>
+                      ))}
+                  </ul>
+                </Form.Item>
+              </Col>
+            )
+        )}
       </div>
     </>
   );

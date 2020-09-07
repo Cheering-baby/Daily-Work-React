@@ -7,11 +7,6 @@ import SCREEN from '@/utils/screen';
 import styles from './index.less';
 import ScheduleTaskFilterBanner from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/components/ScheduleTaskFilterBanner';
 import ScheduleTaskDisplayBanner from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/components/ScheduleTaskDisplayBanner';
-import {
-  GENERATED_REPORTS,
-  REPORT_CENTER,
-  SCHEDULE_TASK,
-} from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/consts/scheduleTaskPath';
 import BreadcrumbComp from '../../components/BreadcrumbComp';
 
 const breadcrumbArr = [
@@ -20,7 +15,7 @@ const breadcrumbArr = [
     url: null,
   },
   {
-    breadcrumbName: formatMessage({ id: 'MENU_REPORTS' }),
+    breadcrumbName: formatMessage({ id: 'MENU_GENERATED_REPORTS' }),
     url: null,
   },
   {

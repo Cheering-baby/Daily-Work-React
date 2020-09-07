@@ -161,7 +161,9 @@ class ExportVID extends React.Component {
         return (
           <Tooltip
             placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>}
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
+            }
           >
             <span>{themeParkList[i].bookingCategoryName}</span>
           </Tooltip>

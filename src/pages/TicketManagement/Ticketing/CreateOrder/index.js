@@ -13,8 +13,6 @@ import OnceAPirate from './components/OnceAPirate';
 import Attraction from './components/Attraction';
 import MyOrderButton from '@/pages/TicketManagement/components/MyOrderButton';
 
-const productPanelList = [<Attraction />, <OnceAPirate />];
-
 @connect(({ global, ticketMgr, ticketOrderCartMgr, loading }) => ({
   global,
   ticketMgr,
@@ -133,6 +131,15 @@ class CreateOrder extends PureComponent {
     router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder`);
   };
 
+  searchSuccess = () => {
+    if (this.attractionForm) {
+      const { form } = this.attractionForm.props;
+      if (form) {
+        form.resetFields();
+      }
+    }
+  };
+
   render() {
     const {
       productPanelListLoading,
@@ -148,6 +155,14 @@ class CreateOrder extends PureComponent {
     ];
     const searchPanelGrid = { xs: 24, sm: 24, md: 9, lg: 8, xl: 6, xxl: 6 };
     const infoPanelGrid = { xs: 24, sm: 24, md: 15, lg: 16, xl: 18, xxl: 18 };
+    const productPanelList = [
+      <Attraction
+        wrappedComponentRef={form => {
+          this.attractionForm = form;
+        }}
+      />,
+      <OnceAPirate />,
+    ];
 
     return (
       <Spin spinning={mainPageLoading}>
@@ -178,7 +193,7 @@ class CreateOrder extends PureComponent {
             </Col>
           </MediaQuery>
           <Col {...searchPanelGrid} className={styles.marginBottom8}>
-            <SearchPanel />
+            <SearchPanel searchSuccess={this.searchSuccess} />
           </Col>
           <Col {...infoPanelGrid} className={styles.marginBottom8}>
             <Spin spinning={!!productPanelListLoading}>

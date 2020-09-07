@@ -64,7 +64,7 @@ export default {
       } else throw resultMsg;
     },
     *queryOrderDetail({ payload }, { call, put, select }) {
-      const { searchList } = yield select(state => state.orderDetailMgr);
+      const { searchList, themeParkList } = yield select(state => state.orderDetailMgr);
       const params = { ...searchList, ...payload };
       yield put({
         type: 'save',
@@ -90,6 +90,7 @@ export default {
           type: 'saveOrderQuantity',
           payload: {
             bookingDetail,
+            themeParkList,
           },
         });
       } else throw resultMsg;
@@ -114,8 +115,7 @@ export default {
       };
     },
     saveOrderQuantity(state, { payload }) {
-      const { themeParkList = [] } = state;
-      const { bookingDetail = {} } = payload;
+      const { bookingDetail = {}, themeParkList = [] } = payload;
       const { offers = [] } = bookingDetail;
       const offerGroupList = [];
       offers.forEach(offerInfo => {
@@ -178,8 +178,14 @@ export default {
                     }
                   }
                 });
+                showName.sort((a, b) => {
+                  if (a < b) {
+                    return -1;
+                  }
+                  return a > b ? 1 : 0;
+                });
                 offerOrderQuantityItem.itemList.push({
-                  itemName: showName.join(','),
+                  itemName: showName.join(', '),
                   itemQuantity: 1,
                   configQuantity: 1,
                   numOfPax: null,
@@ -193,7 +199,7 @@ export default {
                   );
                   let showName = 'General';
                   if (themeParkObj) {
-                    showName = themeParkObj.itemName;
+                    showName = themeParkObj.bookingCategoryName;
                   }
                   const itemInfoFind = offerOrderQuantityItem.itemList.find(
                     itemInfo => itemInfo.prodNo === attractionItem.prodNo
@@ -242,7 +248,6 @@ export default {
         });
         orderQuantityList.push(offerOrderQuantityItem);
       });
-      // console.log(orderQuantityList);
       return {
         ...state,
         orderQuantityList,
@@ -297,7 +302,7 @@ export default {
                       vidNo: null,
                       vidCode: itemPlu.visualId,
                       themePark: itemPlu.themeParkCode,
-                      themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
+                      themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -307,7 +312,7 @@ export default {
                       vidCode: itemPlu.visualId,
                       offerName: offers[i].offerName,
                       themePark: itemPlu.themeParkCode,
-                      themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
+                      themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -320,7 +325,7 @@ export default {
                     vidNo: null,
                     vidCode: itemPlu.visualId,
                     themePark: itemPlu.themeParkCode,
-                    themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
+                    themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -330,7 +335,7 @@ export default {
                     vidCode: itemPlu.visualId,
                     offerName: offers[i].offerName,
                     themePark: itemPlu.themeParkCode,
-                    themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(",") : [],
+                    themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),

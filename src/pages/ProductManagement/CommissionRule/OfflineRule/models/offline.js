@@ -32,6 +32,7 @@ export default {
     drawerVisible: false,
     themeParkList: [],
     commissionList: [],
+    tplVersion: '',
   },
   effects: {
     *queryThemeParks(_, { call, put }) {
@@ -80,6 +81,7 @@ export default {
                 Object.assign(v, {
                   isChild: true,
                 });
+                return v;
               });
             }
           });
@@ -100,7 +102,7 @@ export default {
         data: { resultCode, resultMsg },
       } = res;
       if (resultCode !== '0') {
-        throw resultMsg;
+        message.warn(resultMsg, 10);
       }
       return resultCode;
     },
@@ -198,6 +200,7 @@ export default {
         // themeParkList: [],
         commissionList: [],
         recordList: [],
+        tplVersion: '',
       };
     },
   },

@@ -1,0 +1,170 @@
+@import '../../theme/screen';
+
+@prefix-cls: ~'@{ant-prefix}';
+
+.head {
+  height: 64px;
+  padding: 0 12px 0 0;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .headDiv {
+    max-width: 1240px;
+    width: 100%;
+    padding-left: 20px;
+  }
+  img {
+    width: 40px;
+  }
+  .textDiv {
+    float: right;
+    height: 40px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    a {
+      color:  #262626;
+    }
+  }
+}
+.main {
+  max-width: 1240px;
+  margin: 20px auto;
+  padding: 0 10px;
+}
+
+.cardStyle {
+  background: #fff;
+  padding: 0 !important;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  display: flex;
+  justify-content: center;
+}
+
+.recoveryTitle {
+  font-family: calibriBold;
+  font-size: 28px;
+  color: #262626;
+  letter-spacing: 0.45px;
+  text-align: center;
+  margin-top: 100px;
+}
+
+.enterTitle {
+  text-align: center;
+  color: #595959;
+  margin-top: 30px;
+  max-width: 500px;
+}
+
+.radioStyle {
+  margin-top: 50px;
+}
+
+.accountInputDiv {
+  margin-top: 10px;
+
+  .verifyButton {
+    margin-top: 50px;
+  }
+
+  :global {
+    .ant-form-item-control-wrapper {
+      text-align: center;
+    }
+    .ant-form-explain {
+      text-align: left;
+    }
+  }
+}
+
+.recoverySuccessImg {
+  margin-top: 100px;
+  text-align: center;
+  > img {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.recoverySuccessTitle {
+  font-family: Calibri;
+  font-size: 36px;
+  color: #262626;
+  letter-spacing: 0.62px;
+  text-align: center;
+  margin-top: 32px;
+}
+
+.selectAccountTitle {
+  margin-top: 100px;
+  font-family: calibriBold;
+  font-size: 18px;
+  color: #262626;
+  letter-spacing: 0.29px;
+}
+
+@media screen and (max-width: @screenXsMax) {
+  .recoveryTitle {
+    font-family: calibriBold;
+    font-size: 28px;
+    color: #262626;
+    letter-spacing: 0.45px;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .selectAccountTitle {
+    margin-top: 20px;
+    font-family: calibriBold;
+    font-size: 18px;
+    color: #262626;
+    letter-spacing: 0.29px;
+  }
+  .recoverySuccessImg {
+    margin-top: 20px;
+    text-align: center;
+    > img {
+      width: 60px;
+      height: 60px;
+    }
+  }
+}
+
+.selectDetail {
+  color: #595959;
+  margin-top: 30px;
+  max-width: 400px;
+}
+
+.userCodeItemList {
+  margin-top: 20px;
+
+  :global {
+    .ant-radio-group {
+      width: 100%;
+    }
+    .ant-list-bordered {
+      border: 1px solid #ebebeb !important;
+      border-radius: 4px !important;
+    }
+    .ant-list-items {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      max-height: 228px;
+      overflow-y: auto;
+    }
+  }
+}
+
+.continueDiv{
+  text-align: center;
+
+  .continueButton {
+    margin-top: 20px;
+  }
+}
+

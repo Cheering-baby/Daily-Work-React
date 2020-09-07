@@ -157,7 +157,7 @@ class PaymentResult extends Component {
     if (bookDetail && !isNullOrUndefined(bookDetail.totalPrice)) {
       return toThousandsByRound(bookDetail.totalPrice);
     }
-    return '-'
+    return '-';
   };
 
   getOrderDate = bookDetail => {

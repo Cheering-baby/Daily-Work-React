@@ -62,23 +62,51 @@ class ShowPreviewModal extends React.PureComponent {
       downloadAdHocReport: { filterList, displayColumnList },
       reportType,
     } = this.props;
-    download({
-      url: exportReportUrl,
-      method: 'POST',
-      body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList },
-      loading: {
-        open: () => {
-          this.setState({
-            loadingStatus: true,
-          });
+    let sortList = [];
+    if (
+      reportType === 'ARAccountBalanceSummaryReport' ||
+      reportType === 'E-WalletBalanceSummaryReport'
+    ) {
+      sortList = [
+        {key: 'customerName', value: 'ASC'},
+        {key: 'transactionDate', value: 'DESC'},
+      ];
+      download({
+        url: exportReportUrl,
+        method: 'POST',
+        body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList, sortList },
+        loading: {
+          open: () => {
+            this.setState({
+              loadingStatus: true,
+            });
+          },
+          close: () => {
+            this.setState({
+              loadingStatus: false,
+            });
+          },
         },
-        close: () => {
-          this.setState({
-            loadingStatus: false,
-          });
+      });
+    } else {
+      download({
+        url: exportReportUrl,
+        method: 'POST',
+        body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList },
+        loading: {
+          open: () => {
+            this.setState({
+              loadingStatus: true,
+            });
+          },
+          close: () => {
+            this.setState({
+              loadingStatus: false,
+            });
+          },
         },
-      },
-    });
+      });
+    }
   };
 
   render() {
@@ -96,24 +124,48 @@ class ShowPreviewModal extends React.PureComponent {
       loading,
       reportType,
     } = this.props;
+    let sortList = [];
     const pageOpts = {
       total: totalSize,
       current: currentPage,
       pageSize: nowPageSize,
       pageChange: (page, pageSize) => {
         const { dispatch } = this.props;
-        dispatch({
-          type: 'downloadAdHocReport/tableChanged',
-          payload: {
-            reportType,
-            filterList,
-            displayColumnList,
-            pagination: {
-              currentPage: page,
-              pageSize,
+        if (
+          reportType === 'ARAccountBalanceSummaryReport' ||
+          reportType === 'E-WalletBalanceSummaryReport'
+        ) {
+          sortList = [
+            {key: 'customerName', value: 'ascend'},
+            {key: 'transactionDate', value: 'descend'},
+          ];
+          dispatch({
+            type: 'downloadAdHocReport/tableChanged',
+            payload: {
+              reportType,
+              filterList,
+              sortList,
+              displayColumnList,
+              pagination: {
+                currentPage: page,
+                pageSize,
+              },
             },
-          },
-        });
+          });
+        } else {
+          dispatch({
+            type: 'downloadAdHocReport/tableChanged',
+            payload: {
+              reportType,
+              filterList,
+              displayColumnList,
+              pagination: {
+                currentPage: page,
+                pageSize,
+              },
+            },
+          });
+        }
       },
     };
     const otherProps = {
@@ -134,14 +186,6 @@ class ShowPreviewModal extends React.PureComponent {
               <Button
                 type="primary"
                 disabled={!hasAllPrivilege([REPORT_AUTHORITY_MAP.REPORT_AUTHORITY_DOWNLOAD])}
-                // onClick={() => {
-                //   download({
-                //     url: exportReportUrl,
-                //     method: 'POST',
-                //     body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList },
-                //     // loading: { open, close },
-                //   });
-                // }}
                 onClick={() => {
                   this.download();
                 }}

@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import router from 'umi/router';
-import { Button, message, Tabs } from 'antd';
+import { Button, Row, Col, message, Tabs } from 'antd';
 import classNames from 'classnames';
+import MediaQuery from 'react-responsive';
 import LoginForm from './components/LoginForm';
 import SubLoginForm from './components/SubLoginForm';
 import UAAService from '@/uaa-npm';
 import loginStyles from './login.less';
 // eslint-disable-next-line import/no-unresolved
 import Copyright from './components/Copyright';
+import SCREEN from '@/utils/screen';
 
 const {
   containerMain,
@@ -47,6 +49,10 @@ class PamsLogin extends Component {
         else selectedItem = v;
       });
     return { selectedItem, items };
+  };
+
+  linkToForgetPage = () => {
+    router.push('/ForgetIdOrPassword');
   };
 
   goSignUp = e => {
@@ -110,19 +116,58 @@ class PamsLogin extends Component {
                   this.saveOrgType(activeKey);
                 }}
               >
-                <Tabs.TabPane tab={formatMessage({ id: 'TA_RWS_USER' })} key="01">
+                <Tabs.TabPane
+                  tab={
+                    <>
+                      <MediaQuery minWidth={SCREEN.screenSm}>
+                        {formatMessage({ id: 'TA_RWS_USER' })}
+                      </MediaQuery>
+                      <MediaQuery maxWidth={SCREEN.screenXsMax}>
+                        <p>Travel Agent/</p>
+                        <p>RWS User</p>
+                      </MediaQuery>
+                    </>
+                  }
+                  key="01"
+                >
                   <LoginForm appcode={appCode} redirect={redirect} />
                 </Tabs.TabPane>
-                <Tabs.TabPane tab={formatMessage({ id: 'SUB_TA' })} key="02">
+                <Tabs.TabPane
+                  tab={
+                    <>
+                      <MediaQuery minWidth={SCREEN.screenSm}>
+                        {formatMessage({ id: 'SUB_TA' })}
+                      </MediaQuery>
+                      <MediaQuery maxWidth={SCREEN.screenXsMax}>
+                        <p>Sub-Travel</p>
+                        <p>Agent</p>
+                      </MediaQuery>
+                    </>
+                  }
+                  key="02"
+                >
                   <SubLoginForm appcode={appCode} redirect={redirect} />
                 </Tabs.TabPane>
               </Tabs>
               {String(orgType) === '01' && (
-                <div className={signUpBox}>
-                  <Button type="link" className={signUpBtn} onClick={e => this.goSignUp(e)}>
-                    {formatMessage({ id: 'SIGN_UP' })}
-                  </Button>
-                </div>
+                <Row>
+                  <Col xs={24} sm={12}>
+                    <Button
+                      type="link"
+                      className={signUpBtn}
+                      onClick={() => this.linkToForgetPage()}
+                    >
+                      {formatMessage({ id: 'FORGET_ID_PASSWORD' })}
+                    </Button>
+                  </Col>
+                  <Col xs={24} sm={12}>
+                    <div className={signUpBox}>
+                      <Button type="link" className={signUpBtn} onClick={e => this.goSignUp(e)}>
+                        {formatMessage({ id: 'SIGN_UP' })}
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
               )}
             </div>
           </div>

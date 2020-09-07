@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, List, Table, Tabs, Tooltip } from 'antd';
+import { Button, Icon, List, Table, Tabs, Tooltip, Form, Select } from 'antd';
 import {
   calculateAllProductPrice,
   calculateProductPrice,
@@ -12,6 +12,7 @@ import {
   calculateProductPriceGst,
   calculateAllProductPriceGst,
   sessionTimeToWholeDay,
+  sortArray,
 } from '../../../../utils/utils';
 import { ticketTypes } from '../../../../utils/constants';
 import { toThousands } from '@/utils/utils';
@@ -23,6 +24,7 @@ import BundleDetail from '../Detail/bundleDetail';
 import BookingVoucher from '@/assets/image/booking-voucher.jpg';
 
 const { TabPane } = Tabs;
+@Form.create()
 @connect(({ ticketMgr, global }) => ({
   ticketMgr,
   userCompanyInfo: global.userCompanyInfo,
@@ -39,23 +41,24 @@ class Attraction extends Component {
   }
 
   showToCart = record => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
     const {
       bundleName,
       offers = [],
       attractionProduct = [],
       detail,
       themeParkCode,
+      tag,
+      index,
       themeParkName,
     } = record;
+    const validFields = [];
     const { numOfGuests } = detail;
     const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(detail);
     attractionProduct.forEach(item => {
       item.minProductQuantity = minProductQuantity;
       item.maxProductQuantity = maxProductQuantity;
     });
-    const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
-    const detailCopy = JSON.parse(JSON.stringify(detail));
     let bundleOfferDetail = {};
     if (!isNullOrUndefined(bundleName)) {
       bundleOfferDetail = {
@@ -64,21 +67,42 @@ class Attraction extends Component {
         dateOfVisit: offers[0].detail.dateOfVisit,
         numOfGuests: offers[0].detail.numOfGuests,
       };
+      offers.forEach(offerItem => {
+        const {
+          detail: {
+            offerBasicInfo: { offerNo },
+          },
+        } = offerItem;
+        const label = `${themeParkCode}_${tag}_${index}_${offerNo}`;
+        validFields.push(label);
+      });
+    } else {
+      attractionProduct.forEach(itemProduct => {
+        const { productNo } = itemProduct;
+        const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
+        validFields.push(label);
+      });
     }
-    dispatch({
-      type: 'ticketMgr/save',
-      payload: {
-        attractionProduct: attractionProductCopy,
-        detail: {
-          ...detailCopy,
-          offerQuantity: numOfGuests,
-        },
-        showToCartModal: isNullOrUndefined(bundleName),
-        showBundleToCart: !isNullOrUndefined(bundleName),
-        bundleOfferDetail,
-        themeParkCode,
-        themeParkName,
-      },
+    const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
+    const detailCopy = JSON.parse(JSON.stringify(detail));
+    form.validateFields(validFields, errs => {
+      if (!errs) {
+        dispatch({
+          type: 'ticketMgr/save',
+          payload: {
+            attractionProduct: attractionProductCopy,
+            detail: {
+              ...detailCopy,
+              offerQuantity: numOfGuests,
+            },
+            showToCartModal: isNullOrUndefined(bundleName),
+            showBundleToCart: !isNullOrUndefined(bundleName),
+            bundleOfferDetail,
+            themeParkCode,
+            themeParkName,
+          },
+        });
+      }
     });
   };
 
@@ -268,7 +292,6 @@ class Attraction extends Component {
         orderData,
       },
     });
-    console.log(orderData);
     this.onClose();
   };
 
@@ -336,7 +359,6 @@ class Attraction extends Component {
         orderData,
       },
     });
-    console.log(orderData);
     this.onClose();
   };
 
@@ -393,7 +415,6 @@ class Attraction extends Component {
         orderData,
       },
     });
-    console.log(orderData);
     this.onClose();
   };
 
@@ -407,7 +428,8 @@ class Attraction extends Component {
 
   generateStyle = companyType => {
     const sessionStyle = {
-      width: '25%',
+      width: '32%',
+      paddingRight: '5px',
     };
     const ticketTypeStyle = {
       width: '40%',
@@ -416,7 +438,7 @@ class Attraction extends Component {
       wordBreak: 'normal',
       wordWrap: 'break-word',
     };
-    const priceStyle = { width: '35%', textAlign: 'right', minWidth: '115px' };
+    const priceStyle = { width: '28%', textAlign: 'right', minWidth: '115px' };
     if (companyType === '02') {
       sessionStyle.width = '40%';
       ticketTypeStyle.width = '60%';
@@ -427,6 +449,82 @@ class Attraction extends Component {
       ticketTypeStyle,
       priceStyle,
     };
+  };
+
+  productPrice = (isSessionProduct, product, priceRuleId, session) => {
+    if (isSessionProduct) {
+      // product.sessionTime = session;
+      return session
+        ? `${toThousands(calculateProductPrice(product, priceRuleId, session).toFixed(2))}/Ticket`
+        : '-/Ticket';
+    }
+    return `${toThousands(calculateProductPrice(product, priceRuleId, null).toFixed(2))}/Ticket`;
+  };
+
+  fixedOfferPrice = record => {
+    const {
+      form: { getFieldValue },
+    } = this.props;
+    const {
+      themeParkCode,
+      tag,
+      index,
+      attractionProduct,
+      detail: { priceRuleId },
+    } = record;
+    const includeSessionProduct = attractionProduct.find(
+      ({ sessionOptions = [] }) => sessionOptions.length > 0
+    );
+    if (includeSessionProduct) {
+      const validValues = [];
+      attractionProduct.forEach(itemProduct => {
+        const { sessionOptions, productNo } = itemProduct;
+        if (sessionOptions.length > 0) {
+          const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
+          // itemProduct.sessionTime = getFieldValue(label);
+          validValues.push(getFieldValue(label));
+        }
+      });
+      return validValues.includes(undefined)
+        ? '-/Package'
+        : `${toThousands(
+            calculateAllProductPrice(attractionProduct, priceRuleId, null, record.detail)
+          )}
+      /Package`;
+    }
+    return `${toThousands(
+      calculateAllProductPrice(attractionProduct, priceRuleId, null, record.detail)
+    )}
+    /Package`;
+  };
+
+  bundleOfferPrice = (record, offer) => {
+    const {
+      form: { getFieldValue },
+    } = this.props;
+    const { themeParkCode, tag, index } = record;
+    const {
+      offerSessions,
+      attractionProduct,
+      detail,
+      detail: {
+        offerBasicInfo: { offerNo },
+        priceRuleId,
+      },
+    } = offer;
+    const isSessionOffer = !(offerSessions.length === 1 && offerSessions[0] === null);
+    const label = `${themeParkCode}_${tag}_${index}_${offerNo}`;
+    if (isSessionOffer) {
+      // offer.sessionTime = getFieldValue(label);
+      return getFieldValue(label)
+        ? `${toThousands(
+            calculateAllProductPrice(attractionProduct, priceRuleId, getFieldValue(label), detail)
+          )}/Package`
+        : `-/Package`;
+    }
+
+    return `${toThousands(calculateAllProductPrice(attractionProduct, priceRuleId, null, detail))}
+    /Package`;
   };
 
   render() {
@@ -444,6 +542,7 @@ class Attraction extends Component {
         functionActive,
       },
       userCompanyInfo: { companyType },
+      form: { getFieldDecorator },
     } = this.props;
     const { clientHeight } = this.state;
     const columns = [
@@ -504,45 +603,101 @@ class Attraction extends Component {
           </div>
         ),
         key: 'Session',
-        width: '50%',
+        width: '55%',
         render: record => {
           const {
+            themeParkCode,
+            tag,
+            index,
             bundleName,
             offers = [],
             detail: { priceRuleId },
           } = record;
+          const {
+            form: { getFieldValue },
+          } = this.props;
+          offers.map(item => {
+            const {
+              detail: { offerBundle = [{}] },
+            } = item;
+            item.onlySort = offerBundle[0].bundleLabel || 'General';
+            return item;
+          });
+          sortArray(offers, ['onlySort']);
           if (isNullOrUndefined(bundleName)) {
             const offerConstrain = getOfferConstrain(record.detail);
+            record.attractionProduct.map(item => {
+              item.onlySort = item.attractionProduct.ageGroup || 'General';
+              return item;
+            });
+            sortArray(record.attractionProduct, ['onlySort']);
             return (
               <div className={styles.sessionContainer}>
-                {record.attractionProduct.map((item, index) => {
-                  const { sessionTime, productNo, needChoiceCount } = item;
+                {record.attractionProduct.map((item, attractionProductIndex) => {
+                  const { sessionTime, productNo, needChoiceCount, sessionOptions = [] } = item;
                   const { ageGroup } = item.attractionProduct;
+                  const isSessionProduct = sessionOptions.length > 0;
+                  const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
                   return (
                     <div key={productNo} className={styles.productPrice}>
                       <div style={this.generateStyle(companyType).sessionStyle}>
-                        {sessionTime ? sessionTimeToWholeDay(sessionTime) : '-'}
+                        {isSessionProduct > 0 ? (
+                          <Form.Item>
+                            {getFieldDecorator(label, {
+                              initialValue: sessionTime,
+                              rules: [
+                                {
+                                  required: true,
+                                  message: 'Required',
+                                },
+                              ],
+                            })(
+                              <Select
+                                placeholder="Please Select"
+                                allowClear
+                                onChange={value => {
+                                  item.sessionTime = value;
+                                }}
+                              >
+                                {sessionOptions.map(itemSession => (
+                                  <Select.Option value={itemSession} key={itemSession}>
+                                    {sessionTimeToWholeDay(itemSession)}
+                                  </Select.Option>
+                                ))}
+                              </Select>
+                            )}
+                          </Form.Item>
+                        ) : (
+                          '-'
+                        )}
                       </div>
-                      <div style={this.generateStyle(companyType).ticketTypeStyle}>
+                      <div
+                        style={{
+                          ...this.generateStyle(companyType).ticketTypeStyle,
+                          paddingTop: isSessionProduct ? '4px' : null,
+                        }}
+                      >
                         {ageGroup || 'General'} * {needChoiceCount}
                       </div>
-                      <div style={this.generateStyle(companyType).priceStyle}>
+                      <div
+                        style={{
+                          ...this.generateStyle(companyType).priceStyle,
+                          paddingTop: isSessionProduct ? '4px' : null,
+                        }}
+                      >
                         {offerConstrain === 'Fixed' ? (
-                          <div style={{ display: index === 0 ? null : 'none' }}>
-                            {`${toThousands(
-                              calculateAllProductPrice(
-                                record.attractionProduct,
-                                priceRuleId,
-                                null,
-                                record.detail
-                              )
-                            )}
-                            /Package`}
+                          <div style={{ display: attractionProductIndex === 0 ? null : 'none' }}>
+                            {this.fixedOfferPrice(record)}
                           </div>
                         ) : (
-                          `${toThousands(
-                            calculateProductPrice(item, priceRuleId, sessionTime).toFixed(2)
-                          )}/Ticket`
+                          <div>
+                            {this.productPrice(
+                              isSessionProduct,
+                              item,
+                              priceRuleId,
+                              getFieldValue(label)
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -556,34 +711,63 @@ class Attraction extends Component {
               {offers.map(offerItem => {
                 const {
                   sessionTime,
-                  attractionProduct: attractionProductItems = [],
+                  offerSessions = [],
                   detail: {
                     offerBasicInfo: { offerNo },
-                    priceRuleId: offerPriceRuleId,
                     offerBundle = [{}],
                   },
                 } = offerItem;
+                const isSessionOffer = !(offerSessions.length === 1 && offerSessions[0] === null);
+                const label = `${themeParkCode}_${tag}_${index}_${offerNo}`;
                 return (
                   <div key={offerNo} className={styles.productPrice}>
                     <div style={this.generateStyle(companyType).sessionStyle}>
-                      {sessionTimeToWholeDay(sessionTime) || '-'}
+                      {isSessionOffer > 0 ? (
+                        <Form.Item>
+                          {getFieldDecorator(label, {
+                            initialValue: sessionTime || undefined,
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Required',
+                              },
+                            ],
+                          })(
+                            <Select
+                              placeholder="Please Select"
+                              allowClear
+                              onChange={value => {
+                                offerItem.sessionTime = value;
+                              }}
+                            >
+                              {offerSessions.map(itemSession => (
+                                <Select.Option value={itemSession} key={itemSession}>
+                                  {sessionTimeToWholeDay(itemSession)}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          )}
+                        </Form.Item>
+                      ) : (
+                        '-'
+                      )}
                     </div>
                     <div
                       className={styles.categoryShow}
-                      style={this.generateStyle(companyType).ticketTypeStyle}
+                      style={{
+                        ...this.generateStyle(companyType).ticketTypeStyle,
+                        paddingTop: isSessionOffer ? '4px' : null,
+                      }}
                     >
                       {offerBundle[0].bundleLabel || 'General'} * 1
                     </div>
-                    <div style={this.generateStyle(companyType).priceStyle}>
-                      {toThousands(
-                        calculateAllProductPrice(
-                          attractionProductItems,
-                          offerPriceRuleId,
-                          sessionTime,
-                          offerItem.detail
-                        )
-                      )}
-                      {'/Package'}
+                    <div
+                      style={{
+                        ...this.generateStyle(companyType).priceStyle,
+                        paddingTop: isSessionOffer ? '4px' : null,
+                      }}
+                    >
+                      {this.bundleOfferPrice(record, offerItem)}
                     </div>
                   </div>
                 );
@@ -595,7 +779,7 @@ class Attraction extends Component {
       {
         title: '',
         key: 'empty',
-        width: '5%',
+        width: '10px',
         render: () => {
           return <div />;
         },
@@ -604,7 +788,7 @@ class Attraction extends Component {
         title: '',
         key: 'Operation',
         className: styles.option,
-        width: '15%',
+        width: '130px',
         render: (_, record) => {
           return (
             <div className={styles.operation}>
@@ -703,15 +887,17 @@ class Attraction extends Component {
                         </span>
                       </div>
                       {showDetail ? (
-                        <Table
-                          className={styles.table}
-                          columns={columns}
-                          dataSource={products}
-                          pagination={false}
-                          rowKey={record => record.id}
-                          size="small"
-                          bordered={false}
-                        />
+                        <Form>
+                          <Table
+                            className={styles.table}
+                            columns={columns}
+                            dataSource={products}
+                            pagination={false}
+                            rowKey={record => record.id}
+                            size="small"
+                            bordered={false}
+                          />
+                        </Form>
                       ) : null}
                     </div>
                   );

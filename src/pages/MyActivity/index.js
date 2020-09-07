@@ -78,7 +78,7 @@ class MyActivity extends React.PureComponent {
         },
       },
       {
-        title: formatMessage({ id: 'AGENT_ID' }),
+        title: formatMessage({ id: 'MY_ACTIVITY_AGENT_ID' }),
         width: '70px',
         dataIndex: 'agentId',
         sorter: (a, b) => (a.agentId > b.agentId ? -1 : 1),

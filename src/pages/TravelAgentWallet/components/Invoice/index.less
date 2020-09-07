@@ -1,0 +1,255 @@
+
+.invoice-container {
+  margin-top: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.title {
+  font-family: calibriBold,sans-serif;
+  font-size: 18px;
+  color: #3B414A;
+  text-align: right;
+}
+
+.overview {
+  position: relative;
+  height: 230px;
+  margin-right: 0;
+  margin-left: 0;
+  zoom: 1;
+  display: block;
+  box-sizing: border-box;
+}
+
+.invoice-logo {
+  height: 45px;
+  width: 132px;
+  margin: 0 0 11px 0;
+}
+
+.company-name {
+  font-family: calibriBold,sans-serif;
+  font-size: 13px;
+  color: #3B414A;
+  width: 400px;
+  word-wrap: break-word;
+  word-break:break-all
+}
+
+.company-address {
+  display: table;
+  font-family: calibri,sans-serif;
+  font-size: 13px;
+  color: #565656;
+  width: 400px;
+  //line-height: 18px;
+  word-wrap: break-word;
+  word-break:break-all;
+}
+
+
+
+.descriptions {
+  display: block;
+}
+
+.descriptions-title {
+  width: 100px;
+  font-family: calibriBold,sans-serif;
+  font-size: 18px;
+  color: #3B414A;
+  margin-bottom: 9px;
+  border-bottom: 1px solid #000;
+}
+
+.descriptions-view {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.descriptions-row {
+  border-bottom: none;
+}
+
+.descriptions-row > th, .descriptions-row > td {
+  padding-bottom: 16px;
+}
+
+.descriptions-row:last-child {
+  border-bottom: none;
+}
+
+.descriptions-item > span {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.descriptions-item-label {
+  width: calc(100% - 100px);
+  font-family: calibriBold,sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  color: #3B414A;
+  text-align: left;
+}
+
+.descriptions-item-label::after {
+  position: relative;
+  top: -0.5px;
+  margin: 0 8px 0 2px;
+  content: ' ';
+}
+
+.descriptions-item-content {
+  width: 100px;
+  text-align: left;
+  display: table-cell;
+  color: #858585;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.descriptions-item-content-pre-line{
+  white-space: pre-line;
+}
+
+.descriptions-item-colon {
+  content: ':';
+}
+
+/**
+  descriptions-table
+ */
+
+.descriptions-table{
+  display: block;
+  height: 265px;
+}
+
+
+.descriptions-table-view {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+.descriptions-table-view  table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.descriptions-table-row {
+  border-bottom: 1px solid #000;
+}
+
+.descriptions-table-item-label {
+  font-family: calibriBold, sans-serif;
+  font-size: 13px;
+  color: #3B414A;
+  padding: 16px 0 16px 0;
+  white-space: nowrap;
+}
+
+.descriptions-table-width {
+  text-align: center
+}
+
+.descriptions-table-item-content {
+  display: table-cell;
+  padding: 16px 0;
+  white-space: pre-line;
+
+  font-family: calibri,sans-serif;
+  font-size: 13px;
+  color: #171B21;
+  line-height: 22px;
+  padding-right: 40px;
+}
+
+
+.descriptions-table-item-right {
+  text-align: right;
+}
+
+.descriptions-table-item-center {
+  text-align: center;
+}
+
+.descriptions-item-content-internal-label {
+  font-family: calibriBold, sans-serif;
+  font-size: 13px;
+  color: #3B414A;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.instructions {
+    //
+}
+
+.instructions-title {
+  padding-top: 16px;
+  padding-bottom: 14px;
+
+}
+
+.instructions-title-label {
+  display: inline-block;
+  font-family: calibriBold, sans-serif;
+  font-size: 13px;
+  color: #3B414A;
+  line-height: 22px;
+  border-bottom: 1px solid #3B414A;
+}
+
+.instructions-content {
+  font-family: calibri, sans-serif;
+  font-size: 13px;
+  color: #565656;
+  letter-spacing: 0;
+  padding-bottom: 25px;
+  white-space: pre-line;
+  word-wrap:break-word;
+  word-break: break-all;
+  overflow:hidden;
+}
+.instructions-signature-line {
+  box-sizing: border-box;
+  width: 100%;
+  height: 70px;
+  //
+  .instructions-signature {
+    font-family: calibriBold, sans-serif;
+    font-size: 13px;
+    line-height: 15px;
+    color: #565656;
+    text-align: center;
+    white-space: pre-line;
+  }
+}
+
+.instructions-footer {
+  font-family: calibri, sans-serif;
+  font-size: 13px;
+  color: #565656;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+.downloadBtn {
+  background: #118AFA;
+  border-radius: 4px;
+  margin-top: 14px;
+  margin-bottom: 24px;
+  width: 102px;
+}
+
+
+.invoiceModal {
+  max-width: 750px;
+}

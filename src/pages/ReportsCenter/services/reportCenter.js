@@ -28,6 +28,13 @@ export function queryAgentDict(params) {
   });
 }
 
+export function queryAgeGroup(params) {
+  return UAAService.request(`/b2b/product/v1/dictionary/list`, {
+    method: 'GET',
+    params,
+  });
+}
+
 export function addReports(params) {
   return UAAService.request(`/b2b/report/v1/schedule/add`, {
     method: 'POST',

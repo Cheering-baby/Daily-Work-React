@@ -37,6 +37,9 @@ body {
 .containerMain {
   height: 100%;
   position: relative;
+  @media screen and (max-width: @screenSmMin) and (max-height: 748px) {
+    min-height: 748px;
+  }
 }
 
 .loginBackdropBg {
@@ -101,14 +104,6 @@ body {
     top: 20%;
     left: inherit;
   }
-  @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
-    width: 88%;
-    background: hsla(0, 0%, 100%, .7);
-    border-radius: 4px;
-    margin: 9% 6% 0 6%;
-    top: 20%;
-    left: inherit;
-  }
 
   :global {
     .@{prefix-cls}-tabs-nav {
@@ -119,11 +114,9 @@ body {
       width: 50%;
       text-align: center;
       margin: 0;
-      @media screen and (max-width: @screenXsMax) {
-        width: 78%;
-      }
-      @media screen and (min-width: @screenSmMin) and (max-height: @screenXsMax) {
-        width: 78%;
+
+      p {
+        margin: 0;
       }
     }
     .@{prefix-cls}-tabs-tabpane {
@@ -251,7 +244,6 @@ body {
 .sendPhoneCodeActive {
   color: #fff;
   background-color: #259ddb;
-  //border-color: #259ddb;
 }
 
 .wrapper {
@@ -263,6 +255,9 @@ body {
 
 .signUpBox {
   text-align: right;
+  @media screen and (max-width: @screenXsMax) {
+    text-align: left;
+  }
 }
 
 .signUpBtn {
@@ -281,16 +276,6 @@ body {
     margin: 9% 6% 0 6%;
     top: 20%;
     left: inherit;
-  }
-}
-
-@media screen and (max-width: 576px){
-  .loginContent {
-    :global {
-      .ant-tabs-tab {
-        margin: 0 10px 0 0;
-      }
-    }
   }
 }
 

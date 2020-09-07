@@ -264,11 +264,7 @@ export function checkNumOfGuestsAvailable(numOfGuests, detail) {
   if (!attractionGroup) {
     return false;
   }
-  const {
-    products = [],
-    minProductQuantity,
-    maxProductQuantity,
-  } = attractionGroup;
+  const { products = [], minProductQuantity, maxProductQuantity } = attractionGroup;
   if (offerMinQuantity > numOfGuests || offerMaxQuantity < numOfGuests) {
     enough = false;
   }

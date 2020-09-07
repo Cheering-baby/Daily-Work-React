@@ -703,7 +703,12 @@ export default {
         },
       });
       // status: WaitingForPaying
-      if (status === 'WaitingForPaying' || status === 'PendingApproval' || status === 'Paying' || status === 'Archiving') {
+      if (
+        status === 'WaitingForPaying' ||
+        status === 'PendingApproval' ||
+        status === 'Paying' ||
+        status === 'Archiving'
+      ) {
         yield put({
           type: 'ticketBookingAndPayMgr/save',
           payload: {

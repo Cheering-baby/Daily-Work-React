@@ -246,7 +246,8 @@ class CommissionRuleSetup extends React.PureComponent {
         'Calculation has been initiated based on commission rule cycle setup, hence cannot be discarded/deleted.'
       );
       return false;
-    } if (record.status === 'Inactive') {
+    }
+    if (record.status === 'Inactive') {
       message.warning('The commission rule is inactive, and cannot be deleted.');
       return false;
     }
@@ -258,7 +259,6 @@ class CommissionRuleSetup extends React.PureComponent {
         },
       },
     });
-
   };
 
   new = () => {

@@ -191,6 +191,7 @@ class ADHocReportSearchForm extends Component {
                       onSearch={this.onSearch}
                       onFocus={this.onSearch}
                       showSearch
+                      dropdownClassName={styles.reportNameSelect}
                     >
                       {taskName &&
                         reportNameOptions &&

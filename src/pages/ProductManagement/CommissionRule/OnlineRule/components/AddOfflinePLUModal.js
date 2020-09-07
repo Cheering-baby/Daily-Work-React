@@ -4,7 +4,6 @@ import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip }
 import { formatMessage } from 'umi/locale';
 import styles from './AddOnlinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
-import SortSelect from '@/components/SortSelect';
 import { objDeepCopy, formatPrice } from '../../../utils/tools';
 
 const drawWidth = 900;
@@ -436,20 +435,19 @@ class AddOfflinePLUModal extends React.PureComponent {
                     `themeParkCode`,
                     {}
                   )(
-                    <SortSelect
+                    <Select
                       placeholder={formatMessage({ id: 'THEME_PARK' })}
                       optionFilterProp="children"
                       style={{ width: '100%' }}
                       allowClear
-                      options={
-                        themeParkList &&
+                    >
+                      {themeParkList &&
                         themeParkList.map(item => (
                           <Option key={item.bookingCategoryCode} value={item.bookingCategoryCode}>
                             {item.bookingCategoryName}
                           </Option>
-                        ))
-                      }
-                    />
+                        ))}
+                    </Select>
                   )}
                 </Form.Item>
               </Col>

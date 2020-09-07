@@ -2,7 +2,9 @@ import React from 'react';
 import { Divider, Drawer, Form, Icon, Popover, Spin, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
+import { sortArray } from '@/pages/TicketManagement/utils/utils';
 import styles from './index.less';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 const FormItem = Form.Item;
 
@@ -293,17 +295,21 @@ class Detail extends React.Component {
         ),
       },
     ];
+    const { itemList = [], quantityTotal = 0 } = orderQuantityInfo;
+    if (quantityTotal > 0) {
+      sortArray(itemList, ['itemName']);
+    }
     return (
       <div>
-        <span className={styles.drawerTitleStyle}>{orderQuantityInfo.quantityTotal}</span>
-        {orderQuantityInfo.quantityTotal > 0 && (
+        <span className={styles.drawerTitleStyle}>{quantityTotal}</span>
+        {quantityTotal > 0 && (
           <Popover
             overlayStyle={{ color: '#565656', margin: 0, padding: 0 }}
             content={
               <Table
                 size="small"
                 columns={columnsInfo}
-                dataSource={orderQuantityInfo.itemList}
+                dataSource={itemList}
                 pagination={false}
                 bordered={false}
               />
@@ -399,7 +405,7 @@ class Detail extends React.Component {
         for (let j = 0; j < filterVidList.length; j += 1) {
           filterVidList[j].vidNo = (Array(3).join('0') + (j + 1)).slice(-3);
         }
-        
+
         const firstName = detailList[i].delivery ? detailList[i].delivery.firstName : '-';
         const lastName = detailList[i].delivery ? detailList[i].delivery.lastName : '-';
         const country = detailList[i].delivery ? detailList[i].delivery.country : '-';
@@ -474,10 +480,14 @@ class Detail extends React.Component {
             <Form className={styles.formStyle}>
               {this.showDelivery(formatMessage({ id: 'COUNTRY_OF_RESIDENCE' }), country)}
               {this.showDelivery(formatMessage({ id: 'TA_REFERENCE_NO' }), referenceNo || '-')}
-              {this.showDelivery(formatMessage({ id: 'GUEST_FIRST_NAME' }), firstName)}
-              {this.showDelivery(formatMessage({ id: 'GUEST_LAST_NAME' }), lastName)}
-              {this.showDelivery(formatMessage({ id: 'CUSTOMER_CONTACT_NO' }), contactNo)}
-              {this.showDelivery(formatMessage({ id: 'CUSTOMER_EMAIL_ADDRESS' }), email)}
+              {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
+                this.showDelivery(formatMessage({ id: 'GUEST_FIRST_NAME' }), firstName)}
+              {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
+                this.showDelivery(formatMessage({ id: 'GUEST_LAST_NAME' }), lastName)}
+              {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
+                this.showDelivery(formatMessage({ id: 'CUSTOMER_CONTACT_NO' }), contactNo)}
+              {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
+                this.showDelivery(formatMessage({ id: 'CUSTOMER_EMAIL_ADDRESS' }), email)}
             </Form>
             {filterVidList.length > 0 && (
               <Table
@@ -679,7 +689,8 @@ class Detail extends React.Component {
     if (text instanceof Array) {
       const resObj = text.map(item => {
         if (themeParkList.find(item2 => item === item2.bookingCategoryCode)) {
-          return themeParkList.find(item2 => item === item2.bookingCategoryCode).bookingCategoryName;
+          return themeParkList.find(item2 => item === item2.bookingCategoryCode)
+            .bookingCategoryName;
         }
         return item;
       });

@@ -4,6 +4,7 @@ export default {
   SCHEDULED_TASKS: 'Scheduled Tasks',
   SCHEDULED_TASKS_NEW: 'New Scheduled Task',
   REPORT_NAME: 'Report Name',
+  SCHEDULE_REPORT_NAME: 'Schedule Report Name',
   STATUS: 'Status',
   RECEIVER: 'Receiver',
   LAST_SEND_TIME: 'Last Send Time',

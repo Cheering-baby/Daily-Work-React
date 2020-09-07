@@ -675,18 +675,34 @@ class TableComp extends PureComponent {
             {formatMessage({ id: 'GRANT' })}
           </Button>
         ) : null}
-        <Table
-          style={{ marginTop: 10 }}
-          size="small"
-          className={`tabs-no-padding ${styles.searchTitle}`}
-          columns={this.getColumns()}
-          rowKey={record => record.taId}
-          dataSource={mainTAList}
-          loading={qryTaTableLoading}
-          scroll={{ x: 660, y: height }}
-          rowSelection={taRowSelection}
-          {...tableOpts}
-        />
+        <MediaQuery maxWidth={SCREEN.screenXsMax}>
+          <Table
+            style={{ marginTop: 10 }}
+            size="small"
+            className={`tabs-no-padding ${styles.searchTitle}`}
+            columns={this.getColumns()}
+            rowKey={record => record.taId}
+            dataSource={mainTAList}
+            loading={qryTaTableLoading}
+            scroll={{ x: 660 }}
+            rowSelection={taRowSelection}
+            {...tableOpts}
+          />
+        </MediaQuery>
+        <MediaQuery minWidth={SCREEN.screenSmMin}>
+          <Table
+            style={{ marginTop: 10 }}
+            size="small"
+            className={`tabs-no-padding ${styles.searchTitle}`}
+            columns={this.getColumns()}
+            rowKey={record => record.taId}
+            dataSource={mainTAList}
+            loading={qryTaTableLoading}
+            scroll={{ x: 660, y: height }}
+            rowSelection={taRowSelection}
+            {...tableOpts}
+          />
+        </MediaQuery>
         <Modal
           title={formatMessage({ id: 'TA_UPLOAD_CONTRACT' })}
           visible={modalVisible}

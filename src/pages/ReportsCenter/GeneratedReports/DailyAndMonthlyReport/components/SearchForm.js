@@ -181,6 +181,7 @@ class DailyMonthlySearchForm extends Component {
                       onSearch={this.onSearch}
                       onFocus={this.onSearch}
                       showSearch
+                      dropdownClassName={styles.reportNameSelect}
                     >
                       {reportNameOptions &&
                         reportNameOptions.map(item => (

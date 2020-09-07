@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState, useRef, useLayoutEffect } from 'react';
 import SCREEN from '@/utils/screen';
 import MediaQuery from 'react-responsive';
 import { Row, Col, Card, Menu } from 'antd';
@@ -9,7 +9,8 @@ import MenuItem from 'antd/lib/menu/MenuItem';
 import { ClickParam } from 'antd/lib/menu';
 import router from 'umi/router';
 import { downloadFile } from '@/services/copyright';
-import 'react-quill/dist/quill.snow.css';
+// import 'react-quill/dist/quill.snow.css';
+import { Editor } from '@tinymce/tinymce-react';
 import Link from 'umi/link';
 
 const pamsImage = require('../../assets/image/PARTNERS-LOGO.png');
@@ -23,12 +24,41 @@ const titleMap = {
 };
 const about: FC<Props> = props => {
   const selectedKey = props.location.query.key || 'termsConditions';
+  const contentIFrameRef = useRef<HTMLIFrameElement>();
+  const [iframeHeight, setIframeHeight] = useState(600);
   const [html, setHtml] = useState('');
-
   const handleMenuClick = (e: ClickParam) => {
     const { key } = e;
     router.replace({ query: { key }, pathname: '/about' });
   };
+  useLayoutEffect(() => {
+    const iframe: HTMLIFrameElement | null = contentIFrameRef.current;
+    if (iframe && iframe.contentWindow) {
+      const iframeDocument = iframe.contentWindow.document;
+      // 写入内容（这里举例的 iframe 内容是请求接口后返回 html，也就是 res，比如 res="<h1>标题</h1>"）
+      // iframeDocument.write(res)
+      // 如果需要 css，写入 css，此处的 css 是写在根目录里（与 index.html 同级）
+      const res = `<!DOCTYPE html>
+      <html>
+        <head>
+          <link type="text/css" rel="stylesheet" href="/static/tinymce/skins/ui/oxide/content.min.css">
+            <link type="text/css" rel="stylesheet" href="/static/tinymce/skins/content/default/content.min.css">
+              </head>
+              <body id="tinymce" class="mce-content-body ">
+                
+         </body></html>`;
+      iframeDocument.write(res);
+      // if (!iframeDocument.getElementsByTagName('link')[0]) {
+      //   const link = iframeDocument.createElement('link');
+      //   link.href = process.env.PUBLIC_URL + '/';
+      //   link.rel = 'stylesheet';
+      //   link.type = 'text/css';
+      //   iframeDocument.head.appendChild(link);
+      // }
+      // 这里动态计算 iframe 的 height,这里举例 300px
+      // setIframeHeight(300);
+    }
+  }, []);
   useEffect(() => {
     console.log(props.location.query.key);
     (async () => {
@@ -40,6 +70,11 @@ const about: FC<Props> = props => {
           try {
             JSON.parse(e.target.result as string);
           } catch (error) {
+            const iframe: HTMLIFrameElement | null = contentIFrameRef.current;
+            if (iframe && iframe.contentWindow) {
+              const iframeDocument = iframe.contentWindow.document;
+              iframeDocument.getElementById('tinymce').innerHTML = e.target.result as string;
+            }
             setHtml(e.target.result as string);
           }
           // setHtml(e.target.result as string);
@@ -117,9 +152,16 @@ const about: FC<Props> = props => {
                   xs={24}
                   style={{ paddingRight: 0, paddingLeft: 0 }}
                 >
-                  <div className="ql-snow">
+                  <div>
                     <header className={styles.title}>{titleMap[selectedKey]}</header>
-                    <pre className="ql-editor" dangerouslySetInnerHTML={{ __html: html }}></pre>
+                    <iframe
+                      ref={contentIFrameRef}
+                      title="iframe"
+                      style={{ width: '100%', border: 0, height: 'calc(100vh - 214px' }}
+                      sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                      scrolling="auto"
+                    ></iframe>
+                    {/* <body className="html-box mce-content-body" dangerouslySetInnerHTML={{ __html: html }}></body> */}
                   </div>
                 </Col>
               </Row>

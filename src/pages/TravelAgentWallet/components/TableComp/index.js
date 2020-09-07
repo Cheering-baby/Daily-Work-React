@@ -1,12 +1,14 @@
 import React, { PureComponent } from 'react';
-import { Badge, Button, Col, Icon, message, Modal, Row, Table, Tabs, Tooltip } from 'antd';
+import { Badge, Col, Icon, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
-import PaginationComp from '@/components/PaginationComp';
-import styles from './index.less';
-import { isNvl } from '@/utils/utils';
+import MediaQuery from 'react-responsive';
 import router from "umi/router";
+import PaginationComp from '@/components/PaginationComp';
+import { isNvl } from '@/utils/utils';
+import SCREEN from "@/utils/screen";
+import styles from './index.less';
 
 const mapStateToProps = store => {
   const {
@@ -188,17 +190,32 @@ class TableComp extends PureComponent {
 
     return (
       <Col span={24}>
-        <Table
-          style={{ marginBottom: -15 }}
-          size="small"
-          className={`tabs-no-padding ${styles.searchTitle}`}
-          columns={this.getColumns()}
-          rowKey={record => record.taId}
-          dataSource={mainTAList}
-          loading={qryTaTableLoading}
-          scroll={{ x: 660, y:height }}
-          {...tableOpts}
-        />
+        <MediaQuery maxWidth={SCREEN.screenXsMax}>
+          <Table
+            style={{ marginBottom: -15 }}
+            size="small"
+            className={`tabs-no-padding ${styles.searchTitle}`}
+            columns={this.getColumns()}
+            rowKey={record => record.taId}
+            dataSource={mainTAList}
+            loading={qryTaTableLoading}
+            scroll={{ x: 660 }}
+            {...tableOpts}
+          />
+        </MediaQuery>
+        <MediaQuery minWidth={SCREEN.screenSmMin}>
+          <Table
+            style={{ marginBottom: -15 }}
+            size="small"
+            className={`tabs-no-padding ${styles.searchTitle}`}
+            columns={this.getColumns()}
+            rowKey={record => record.taId}
+            dataSource={mainTAList}
+            loading={qryTaTableLoading}
+            scroll={{ x: 660, y:height }}
+            {...tableOpts}
+          />
+        </MediaQuery>
       </Col>
     );
   }

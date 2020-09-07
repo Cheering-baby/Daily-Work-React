@@ -198,11 +198,15 @@ export default {
         const expectTime = item.expectTime && moment(item.expectTime).format(DATE_FORMAT_WITH_TIME);
         const modifiedDateTime =
           item.updateTime && moment(item.updateTime).format(DATE_FORMAT_WITH_TIME);
+        const generationDateTime =
+          item.executeTime && moment(item.executeTime).format(DATE_FORMAT_WITH_TIME);
+
         const data = {
           ...item,
           key: item.jobLogCode,
           expectTime,
           modifiedDateTime,
+          generationDateTime,
           generatedDate: executeTime,
           status: item.jobStatus,
           reportsName: item.taskName,
@@ -238,12 +242,12 @@ export default {
         { label: 'Report Frequency', texts: [taskDetail.cronType] },
         { label: 'Report Type', texts: [taskDetail.reportType] },
       ];
-      doFilter(filterList).forEach(({ filterName: label, filterValue, keyMap }) => {
+      doFilter(filterList).forEach(({ filterName: label, filterValue, keyMap, type }) => {
         let texts = filterValue && filterValue.split(',');
         if (keyMap) {
           texts = texts.map(item => keyMap[item] || item);
         }
-        detailFormItems.push({ label, texts });
+        detailFormItems.push({ label, texts, type });
       });
 
       const fields = [];
@@ -267,6 +271,12 @@ export default {
           label: 'Modified Date Time',
           texts: [
             taskDetail.updateTime && moment(taskDetail.updateTime).format(DATE_FORMAT_WITH_TIME),
+          ],
+        },
+        {
+          label: 'Generation Date Time',
+          texts: [
+            taskDetail.executeTime && moment(taskDetail.executeTime).format(DATE_FORMAT_WITH_TIME),
           ],
         }
       );

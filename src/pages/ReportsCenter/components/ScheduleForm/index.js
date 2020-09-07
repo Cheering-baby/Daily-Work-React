@@ -104,6 +104,7 @@ class ScheduleTransaction extends Component {
         openCustomerGroup: false,
         openUserRoleForCreated: false,
         openAccountManager: false,
+        openAgeGroup: false,
       },
     });
   };
@@ -146,6 +147,7 @@ class ScheduleTransaction extends Component {
         checkUserRoleValue,
         checkCustomerGroupValue,
         checkAccountManager,
+        checkAgeGroup,
       },
       type,
       sourcePage,
@@ -154,7 +156,9 @@ class ScheduleTransaction extends Component {
     } = this.props;
 
     const arr1 =
-      filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'themePark') : [];
+      filterList && filterList.length > 0
+        ? filterList.find(i => i.filterKey === 'themeParkCode')
+        : [];
     const themeParkInfos = arr1 && arr1.themeParkOptions;
 
     const arr2 =
@@ -178,6 +182,10 @@ class ScheduleTransaction extends Component {
         ? filterList.find(i => i.filterKey === 'accountManager')
         : [];
     const accountManagerInfos = arr5 && arr5.accountManagerOptions;
+
+    const arr6 =
+      filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'ageGroup') : [];
+    const ageGroupInfos = arr6 && arr6.ageGroupOptions;
 
     let cType = '';
     // let types = '';
@@ -273,9 +281,9 @@ class ScheduleTransaction extends Component {
                 checkThemeParkValue.length > 0
               ) {
                 const res = themeParkInfos.filter(ii =>
-                  checkThemeParkValue.includes(ii.attributeValue)
+                  checkThemeParkValue.includes(ii.bookingCategoryName)
                 );
-                value = res && res.length > 0 && res.map(i => i.attributeKey);
+                value = res && res.length > 0 && res.map(i => i.bookingCategoryCode);
               } else if (checkChannelValue && checkChannelValue.length > 0) {
                 const res = channelInfos.filter(ii => checkChannelValue.includes(ii.dictName));
                 value = res && res.length > 0 && res.map(i => i.dictId);
@@ -305,6 +313,9 @@ class ScheduleTransaction extends Component {
                 );
                 const arrs = list.filter(s => s.dictSubType === categoryTypeVal);
                 value = arrs && arrs.length > 0 && arrs.map(i => i.dictId);
+              } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
+                const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
+                value = list && list.length > 0 && list.map(i => i.identifier);
               }
               values[k] = value ? value.join() : '';
               if (values[k] === 'All') {
@@ -353,10 +364,23 @@ class ScheduleTransaction extends Component {
       }
 
       const list = result.filter(item => item.value);
+
+      let sortList = [];
+      if (
+        reportType === 'ARAccountBalanceSummaryReport' ||
+        reportType === 'E-WalletBalanceSummaryReport'
+      ) {
+        sortList = [
+          { key: 'customerName', value: 'ASC' },
+          { key: 'transactionDate', value: 'DESC' },
+        ];
+      }
+
       if (type === 'edit') {
         dispatch({
           type: 'reportCenter/edit',
           payload: {
+            sortList,
             jobCode,
             reportName: report,
             reportType: reportTypeVal.replace(/\s+/g, ''),
@@ -374,6 +398,7 @@ class ScheduleTransaction extends Component {
         dispatch({
           type: 'reportCenter/add',
           payload: {
+            sortList,
             sourcePage,
             reportName: report,
             reportType,
@@ -391,6 +416,7 @@ class ScheduleTransaction extends Component {
         dispatch({
           type: 'reportCenter/add',
           payload: {
+            sortList,
             sourcePage,
             reportName: report,
             reportType: reportTypeVal,
@@ -797,7 +823,7 @@ class ScheduleTransaction extends Component {
                     ? getFieldDecorator('monthlyExecuteDay', {
                         initialValue:
                           detailList && detailList.monthlyExecuteDay
-                            ? moment(detailList.monthlyExecuteDay)
+                            ? detailList.monthlyExecuteDay
                             : '',
                       })(
                         <Select

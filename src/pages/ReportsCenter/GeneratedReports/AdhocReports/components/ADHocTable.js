@@ -94,13 +94,13 @@ class DailyMonthlyTable extends Component {
         title: formatMessage({ id: 'REPORT_NAME' }),
         dataIndex: 'taskName',
         sorter: true,
-        render: text => {
-          return (
-            <Tooltip title={text} placement="topLeft">
-              {text || '-'}
-            </Tooltip>
-          );
-        },
+        className: styles.reportNameColumn,
+      },
+      {
+        title: formatMessage({ id: 'SCHEDULE_REPORT_NAME' }),
+        dataIndex: 'reportName',
+        sorter: true,
+        className: styles.reportNameColumn,
       },
       {
         title: formatMessage({ id: 'REPORT_FREQUENCY' }),
@@ -119,7 +119,7 @@ class DailyMonthlyTable extends Component {
         dataIndex: 'expectTime',
         sorter: true,
         render: text => {
-          const timeText = text ? moment(text).format('DD-MMM-YYYY') : '';
+          const timeText = text ? moment(text).format('DD-MMM-YYYY HH:mm:ss') : '';
           return (
             <Tooltip title={timeText} placement="topLeft">
               {timeText || '-'}
@@ -170,6 +170,7 @@ class DailyMonthlyTable extends Component {
         dispatch({
           type: 'adhoc/tableChanged',
           payload: {
+            reportTypes,
             pagination: {
               currentPage: page,
               pageSize,
@@ -193,6 +194,7 @@ class DailyMonthlyTable extends Component {
           rowKey={record => record.dictId}
           scroll={{ x: 660 }}
           onChange={(pagination, filters, sorter) => {
+            console.log(sorter)
             if (JSON.stringify(sorter) !== '{}') {
               dispatch({
                 type: 'adhoc/fetch',

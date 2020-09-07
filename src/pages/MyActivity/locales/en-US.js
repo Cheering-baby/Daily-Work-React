@@ -18,6 +18,7 @@ export default {
   APPROVAL_APPROVER: 'Approver',
   SALE_MANAGER: 'Sale Manager',
   KEYWORD: 'Agent ID/Company Name',
+  MY_ACTIVITY_AGENT_ID: 'Agent ID',
   AGENT_ID: 'Agent ID',
   COMPANY_NAME: 'Company Name',
   ORDER_INFORMATION: 'ORDER INFORMATION',

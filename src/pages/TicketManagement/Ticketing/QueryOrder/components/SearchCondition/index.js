@@ -306,7 +306,7 @@ class SearchCondition extends Component {
               <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
                 <DatePicker
                   allowClear
-                  showTime
+                  showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                   placeholder={formatMessage({ id: 'ORDER_DATE_FROM' })}
                   className={styles.inputStyle}
                   format="DD-MMM-YYYY HH:mm:ss"
@@ -317,7 +317,7 @@ class SearchCondition extends Component {
               <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
                 <DatePicker
                   allowClear
-                  showTime
+                  showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                   placeholder={formatMessage({ id: 'ORDER_DATE_TO' })}
                   className={styles.inputStyle}
                   format="DD-MMM-YYYY HH:mm:ss"

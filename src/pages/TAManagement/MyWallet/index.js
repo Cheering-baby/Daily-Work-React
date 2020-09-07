@@ -3,7 +3,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
-import {Button, Card, Col, Form, Row, Spin, Table, Tooltip, Modal, Collapse} from 'antd';
+import { Button, Card, Col, Form, Row, Spin, Table, Tooltip, Modal, Collapse } from 'antd';
 import CurrencyFormatter from 'currencyformatter.js';
 import BreadcrumbComp from '../../../components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
@@ -130,11 +130,15 @@ class MyWallet extends React.PureComponent {
   };
 
   getTableHeight = () => {
-    const {offsetHeight: layoutHeight} = document.getElementById('layout');
-    if (document.getElementById('pageHeaderTitle') && document.getElementById('walletCard') && document.getElementById('pageSearchCard')) {
-      const {offsetHeight: pageHeaderTitleHeight} = document.getElementById('pageHeaderTitle');
-      const {offsetHeight: walletCardHeight} = document.getElementById('walletCard');
-      const {offsetHeight: pageSearchCardHeight} = document.getElementById('pageSearchCard');
+    const { offsetHeight: layoutHeight } = document.getElementById('layout');
+    if (
+      document.getElementById('pageHeaderTitle') &&
+      document.getElementById('walletCard') &&
+      document.getElementById('pageSearchCard')
+    ) {
+      const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
+      const { offsetHeight: walletCardHeight } = document.getElementById('walletCard');
+      const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
       return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 320;
     }
     return layoutHeight;
@@ -196,6 +200,7 @@ class MyWallet extends React.PureComponent {
         render: text => {
           return <Tooltip title={text}>{text}</Tooltip>;
         },
+        width: 200,
       },
       {
         title: formatMessage({ id: 'TRANSACTION_TYPE' }),
@@ -204,6 +209,7 @@ class MyWallet extends React.PureComponent {
         render: text => {
           return <Tooltip title={transactionTypesMap[text]}>{transactionTypesMap[text]}</Tooltip>;
         },
+        width: 120,
       },
       {
         title: 'Transaction Date',
@@ -216,6 +222,7 @@ class MyWallet extends React.PureComponent {
             </Tooltip>
           );
         },
+        width: 170,
       },
       {
         title: 'Amount',
@@ -226,6 +233,7 @@ class MyWallet extends React.PureComponent {
             CurrencyFormatter.format(record.charge, CURRENCY_FORMATTER_OPTIONS_DECIMAL);
           return <Tooltip title={chargeText}>{chargeText}</Tooltip>;
         },
+        width: 100,
       },
       {
         title: 'Invoice No.',
@@ -235,6 +243,7 @@ class MyWallet extends React.PureComponent {
             (record.sourceSystem ? record.sourceInvoiceNo : record.invoiceNo) || '-';
           return <Tooltip title={invoiceText}>{invoiceText}</Tooltip>;
         },
+        width: 100,
       },
       {
         title: 'Partners Order No.',
@@ -243,6 +252,7 @@ class MyWallet extends React.PureComponent {
         render: text => {
           return <Tooltip title={text || '-'}>{text || '-'}</Tooltip>;
         },
+        width: 120,
       },
       {
         title: 'Galaxy Order No.',
@@ -251,6 +261,7 @@ class MyWallet extends React.PureComponent {
         render: text => {
           return <Tooltip title={text || '-'}>{text || '-'}</Tooltip>;
         },
+        width: 120,
       },
       {
         title: 'Travel Agent Reference No.',
@@ -259,6 +270,7 @@ class MyWallet extends React.PureComponent {
         render: text => {
           return <Tooltip title={text || '-'}>{text || '-'}</Tooltip>;
         },
+        width: 120,
       },
       {
         title: formatMessage({ id: 'STATUS' }),
@@ -274,6 +286,7 @@ class MyWallet extends React.PureComponent {
             </Tooltip>
           );
         },
+        width: 120,
       },
       {
         title: formatMessage({ id: 'OPERATION' }),
@@ -293,6 +306,7 @@ class MyWallet extends React.PureComponent {
             );
           }
         },
+        width: 90,
       },
     ];
     const breadcrumbArr = [
@@ -317,7 +331,7 @@ class MyWallet extends React.PureComponent {
     };
     return (
       <Col lg={24} md={24}>
-        <div id='pageHeaderTitle'>
+        <div id="pageHeaderTitle">
           <MediaQuery
             maxWidth={SCREEN.screenMdMax}
             minWidth={SCREEN.screenSmMin}
@@ -329,34 +343,43 @@ class MyWallet extends React.PureComponent {
             <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
           </MediaQuery>
         </div>
-        <div id='walletCard' style={{marginBottom:16}}>
-          <Collapse activeKey={activeKey} onChange={(key)=>this.changePanel(key)}>
-            <Collapse.Panel header={activeKey.length===0?'Show balance widget':'Hide balance widget'} key="1">
+        <div id="walletCard" style={{ marginBottom: 16 }}>
+          <Collapse activeKey={activeKey} onChange={key => this.changePanel(key)}>
+            <Collapse.Panel
+              header={activeKey.length === 0 ? 'Show balance widget' : 'Hide balance widget'}
+              key="1"
+            >
               <Row gutter={24}>
                 <Col lg={12} md={12}>
                   <div className={`${styles.flexBetween} ${styles.walletCard}`}>
                     <div style={{ height: '100%' }} className={styles.flexCenter}>
-                      <div className={styles.lighthouse} />
                       <div className={styles.account}>
                         <div className={styles.label}>{formatMessage({ id: 'EW' })}:</div>
                         {eWallet && (
                           <div className={`${styles.labelValue} ${styles.colorBlack}`}>
                             <span className={styles.symbolPart}>$</span>
                             <span className={styles.integerPart}>
-                              {CurrencyFormatter.format(eWallet.balance, CURRENCY_FORMATTER_OPTIONS)}
+                              {CurrencyFormatter.format(
+                                eWallet.balance,
+                                CURRENCY_FORMATTER_OPTIONS
+                              )}
                             </span>
                             <span className={styles.decimalPart}>.{eWallet.decimal}</span>
                           </div>
                         )}
                       </div>
                     </div>
-                    <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <Topup />}</div>
+                    <div style={{ padding: '0px 24px 0 14px' }}>
+                      {taUserStatus === '0' && <Topup />}
+                    </div>
                   </div>
                 </Col>
                 <Col lg={12} md={12}>
-                  <div className={`${styles.flexBetween} ${styles.walletCard}`}>
+                  <div
+                    className={`${styles.flexBetween} ${styles.walletCard}`}
+                    style={{ borderLeftColor: 'orange' }}
+                  >
                     <div style={{ height: '100%' }} className={styles.flexCenter}>
-                      <div className={styles.lighthouseOrange} />
                       <div className={styles.account}>
                         <div className={styles.label}>{formatMessage({ id: 'AR' })}:</div>
                         {ar && (
@@ -384,12 +407,17 @@ class MyWallet extends React.PureComponent {
                         {!ar && arActivity.status === ACTIVITY_STATUS.Approved && <Approval />}
                       </div>
                     </div>
-                    {!ar && (!arActivity.status || arActivity.status === ACTIVITY_STATUS.Rejected) && (
-                      <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <ARApply />}</div>
-                    )}
+                    {!ar &&
+                      (!arActivity.status || arActivity.status === ACTIVITY_STATUS.Rejected) && (
+                        <div style={{ padding: '0px 24px 0 14px' }}>
+                          {taUserStatus === '0' && <ARApply />}
+                        </div>
+                      )}
 
                     {!ar && arActivity.status === ACTIVITY_STATUS.PendingOthersReview && (
-                      <div style={{ paddingRight: '24px' }}>{taUserStatus === '0' && <More />}</div>
+                      <div style={{ padding: '0px 24px 0 14px' }}>
+                        {taUserStatus === '0' && <More />}
+                      </div>
                     )}
                   </div>
                 </Col>
@@ -398,21 +426,34 @@ class MyWallet extends React.PureComponent {
           </Collapse>
         </div>
         <Card>
-          <div id='pageSearchCard'>
+          <div id="pageSearchCard">
             <Filter />
           </div>
         </Card>
         <Card>
           <Spin spinning={loading}>
-            <Table
-              size="small"
-              className={styles.tableStyle}
-              dataSource={dataSource}
-              columns={columns}
-              pagination={paginationSetting}
-              onChange={this.handleTableChange}
-              scroll={{y: this.getTableHeight()}}
-            />
+            <MediaQuery maxWidth={SCREEN.screenXsMax}>
+              <Table
+                size="small"
+                className={styles.tableStyle}
+                dataSource={dataSource}
+                columns={columns}
+                pagination={paginationSetting}
+                onChange={this.handleTableChange}
+                scroll={{ x: 800 }}
+              />
+            </MediaQuery>
+            <MediaQuery minWidth={SCREEN.screenSmMin}>
+              <Table
+                size="small"
+                className={styles.tableStyle}
+                dataSource={dataSource}
+                columns={columns}
+                pagination={paginationSetting}
+                onChange={this.handleTableChange}
+                scroll={{ x: 800, y: this.getTableHeight() }}
+              />
+            </MediaQuery>
           </Spin>
         </Card>
         <Invoice

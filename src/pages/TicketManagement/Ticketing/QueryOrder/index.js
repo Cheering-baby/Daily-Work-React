@@ -194,9 +194,7 @@ class QueryOrder extends Component {
             placement="topLeft"
             title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
           >
-            <span>
-              {offInstancesFilter.length > 1 ? `${firstOffer}...` : firstOffer}
-            </span>
+            <span>{offInstancesFilter.length > 1 ? `${firstOffer}...` : firstOffer}</span>
           </Tooltip>
         );
       },
@@ -709,30 +707,31 @@ class QueryOrder extends Component {
   openDetailDrawer = selectedBookings => {
     const { dispatch } = this.props;
     if (selectedBookings.length === 1) {
-      dispatch({ type: 'orderDetailMgr/queryThemePark' });
-      const { bookingNo, productInstances = [], transType } = selectedBookings[0];
-      dispatch({
-        type: 'orderDetailMgr/save',
-        payload: {
-          orderDetailVisible: true,
-          detailType: 'Booking',
-          revalidationVidListVisible: transType === 'revalidation' && productInstances.length > 0,
-        },
-      });
-      dispatch({
-        type: 'orderDetailMgr/queryOrderDetail',
-        payload: {
-          bookingNo,
-        },
-      });
-      if (transType === 'revalidation' && productInstances.length > 0) {
+      dispatch({ type: 'orderDetailMgr/queryThemePark' }).then(() => {
+        const { bookingNo, productInstances = [], transType } = selectedBookings[0];
         dispatch({
-          type: 'orderDetailMgr/queryVid',
+          type: 'orderDetailMgr/save',
           payload: {
-            orderNo: bookingNo,
+            orderDetailVisible: true,
+            detailType: 'Booking',
+            revalidationVidListVisible: transType === 'revalidation' && productInstances.length > 0,
           },
         });
-      }
+        dispatch({
+          type: 'orderDetailMgr/queryOrderDetail',
+          payload: {
+            bookingNo,
+          },
+        });
+        if (transType === 'revalidation' && productInstances.length > 0) {
+          dispatch({
+            type: 'orderDetailMgr/queryVid',
+            payload: {
+              orderNo: bookingNo,
+            },
+          });
+        }
+      });
     }
   };
 
@@ -797,6 +796,21 @@ class QueryOrder extends Component {
         selectedBooking.status === 'Complete' &&
         selectedBooking.offInstances.length > 0 &&
         selectedBooking.offInstances[0].deliveryMode === 'e-Ticket'
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  ifCanOperateCollectionLetter = selectedBookings => {
+    if (selectedBookings.length === 1) {
+      const selectedBooking = selectedBookings[0];
+      if (
+        selectedBooking.transType === 'booking' &&
+        selectedBooking.status === 'Complete' &&
+        selectedBooking.offInstances.length > 0 &&
+        selectedBooking.offInstances[0].deliveryMode === 'BOCA'
       ) {
         return false;
       }
@@ -1087,6 +1101,13 @@ class QueryOrder extends Component {
                       onClick={() => this.openSendETicketModel(selectedBookings)}
                     >
                       {formatMessage({ id: 'SEND_ETICKET' })}
+                    </Button>
+                    <Button
+                      disabled={this.ifCanOperateCollectionLetter(selectedBookings)}
+                      className={styles.buttonStyle}
+                      onClick={() => this.downloadETicket(selectedBookings)}
+                    >
+                      {formatMessage({ id: 'DOWNLOAD_COLLECTION_LETTER' })}
                     </Button>
                     {userType === '01' && (
                       <Button

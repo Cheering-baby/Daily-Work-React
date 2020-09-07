@@ -6,7 +6,6 @@ import styles from './AddOfflinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
 import { objDeepCopy } from '@/pages/ProductManagement/utils/tools';
 import { formatPrice } from '../../../utils/tools';
-import SortSelect from '@/components/SortSelect';
 
 const drawWidth = 900;
 const { Option } = Select;
@@ -498,20 +497,14 @@ class AddOfflinePLUModal extends React.PureComponent {
                     },
                   ],
                 })(
-                  <SortSelect
-                    showSearch
-                    placeholder="Theme Park"
-                    allowClear
-                    style={{ width: '100%' }}
-                    options={
-                      themeParkList &&
+                  <Select showSearch placeholder="Theme Park" allowClear style={{ width: '100%' }}>
+                    {themeParkList &&
                       themeParkList.map(item => (
                         <Option key={item.bookingCategoryCode} value={item.bookingCategoryCode}>
                           {item.bookingCategoryName}
                         </Option>
-                      ))
-                    }
-                  />
+                      ))}
+                  </Select>
                 )}
               </Col>
               <Col xs={12} sm={12} md={6} className={styles.searchReset}>

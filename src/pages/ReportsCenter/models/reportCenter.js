@@ -10,6 +10,7 @@ import {
   queryScheduleTaskDetail,
   queryPluAttribute,
   queryAgentDict,
+  queryAgeGroup,
   queryUserRolesByCondition,
   querySalePersons,
 } from '../services/reportCenter';
@@ -53,6 +54,8 @@ export default {
     checkChannelValueInit: false,
     selectPark: [],
     categoryTypeList: [],
+    checkAgeGroup: [],
+    openAgeGroup: false,
   },
   effects: {
     *fetchDisplay({ payload }, { call, put }) {
@@ -145,21 +148,17 @@ export default {
               data: { resultCode: code, resultMsg: resMsg, result: eleRes },
             } = res;
             if (+code === 0) {
-              list.forEach(i => {
-                if (i.filterType === 'MULTIPLE_SELECT') {
-                  eleRes.forEach(t => {
-                    list.map(v => {
-                      Object.assign(v, {
-                        key: v.filterKey,
-                        mulOptions:
-                          v.filterType === 'MULTIPLE_SELECT' && t.dictSubType === v.dictSubType
-                            ? eleRes
-                            : null,
-                      });
-                      return v;
+              eleRes.forEach(k => {
+                list.forEach(v => {
+                  if (v.dictSubType === k.dictSubType) {
+                    Object.assign(v, {
+                      key: v.filterKey,
+                      // options: v.filterType === 'SELECT' ? eleRes : null,
+                      mulOptions: v.filterType === 'MULTIPLE_SELECT' ? eleRes : null,
                     });
-                  });
-                }
+                    mulArr.push([index, k]);
+                  }
+                });
               });
             } else {
               throw resMsg;
@@ -233,6 +232,24 @@ export default {
               throw resMsg;
             }
           }
+          if (element.filterKey === 'ageGroup') {
+            const params = { type: 'ageGroup' };
+            const res = yield call(queryAgeGroup, params);
+            const {
+              data: { resultCode: code, resultMsg: resMsg, result: eleRes },
+            } = res;
+            if (+code === 0) {
+              const { dictionaries } = eleRes;
+              list.forEach(v => {
+                Object.assign(v, {
+                  key: v.filterKey,
+                  ageGroupOptions: v.filterKey === 'ageGroup' ? dictionaries : null,
+                });
+              });
+            } else {
+              throw resMsg;
+            }
+          }
           if (element.filterKey === 'userRoleForCreated') {
             let params = {};
             if (userType === '01') {
@@ -271,30 +288,12 @@ export default {
               throw resMsg;
             }
           }
-          if (element.dictType && element.dictSubType && element.filterType === 'MULTIPLE_SELECT') {
-            const params = { dictType: element.dictType, dictSubType: element.dictSubType };
-            const res = yield call(queryDict, params);
-            const {
-              data: { resultCode: code, resultMsg: resMsg, result: eleRes },
-            } = res;
-            if (+code === 0) {
-              eleRes.forEach(k => {
-                list.forEach(v => {
-                  if (v.dictSubType === k.dictSubType) {
-                    const item = Object.assign(v, {
-                      key: v.filterKey,
-                      // options: v.filterType === 'SELECT' ? eleRes : null,
-                      mulOptions: v.filterType === 'MULTIPLE_SELECT' ? eleRes : null,
-                    });
-                    mulArr.push([index, k]);
-                  }
-                });
-              });
-            } else {
-              throw resMsg;
-            }
-          }
-          if (element.dictType && element.dictSubType && element.filterType === 'SELECT') {
+          if (
+            element.dictType &&
+            element.dictSubType &&
+            element.filterType === 'SELECT' &&
+            element.dictDbName !== 'AGENT'
+          ) {
             const params = { dictType: element.dictType, dictSubType: element.dictSubType };
             const res = yield call(queryDict, params);
             const {
@@ -365,6 +364,7 @@ export default {
     },
     *add({ payload }, { call, put }) {
       const {
+        sortList,
         reportName,
         reportType,
         cronType,
@@ -376,17 +376,36 @@ export default {
         scheduleDesc,
         monthlyExecuteDay,
       } = payload;
-      const reqParams = {
-        reportName,
-        reportType,
-        cronType,
-        filterList,
-        createBy,
-        displayColumnList,
-        executeOnceTime,
-        scheduleDesc,
-        monthlyExecuteDay,
-      };
+      let reqParams = [];
+      if (
+        reportType === 'ARAccountBalanceSummaryReport' ||
+        reportType === 'E-WalletBalanceSummaryReport'
+      ) {
+        reqParams = {
+          sortList,
+          reportName,
+          reportType,
+          cronType,
+          filterList,
+          createBy,
+          displayColumnList,
+          executeOnceTime,
+          scheduleDesc,
+          monthlyExecuteDay,
+        };
+      } else {
+        reqParams = {
+          reportName,
+          reportType,
+          cronType,
+          filterList,
+          createBy,
+          displayColumnList,
+          executeOnceTime,
+          scheduleDesc,
+          monthlyExecuteDay,
+        };
+      }
 
       const {
         data: { resultCode, resultMsg },
@@ -412,6 +431,7 @@ export default {
     },
     *edit({ payload }, { call, put }) {
       const {
+        sortList,
         reportName,
         reportType,
         cronType,
@@ -423,18 +443,54 @@ export default {
         scheduleDesc,
         monthlyExecuteDay,
       } = payload;
-      const reqParams = {
-        jobCode,
-        reportName,
-        reportType,
-        cronType,
-        filterList,
-        updateBy,
-        displayColumnList,
-        executeOnceTime,
-        scheduleDesc,
-        monthlyExecuteDay,
-      };
+
+      let reqParams = [];
+      if (
+        reportType === 'ARAccountBalanceSummaryReport' ||
+        reportType === 'E-WalletBalanceSummaryReport'
+      ) {
+        reqParams = {
+          jobCode,
+          reportName,
+          reportType,
+          cronType,
+          filterList,
+          updateBy,
+          displayColumnList,
+          executeOnceTime,
+          scheduleDesc,
+          monthlyExecuteDay,
+          sortList: [
+            { key: 'customerName', value: 'ASC' },
+            { key: 'transactionDate', value: 'DESC' },
+          ],
+        };
+      } else {
+        reqParams = {
+          jobCode,
+          reportName,
+          reportType,
+          cronType,
+          filterList,
+          updateBy,
+          displayColumnList,
+          executeOnceTime,
+          scheduleDesc,
+          monthlyExecuteDay,
+        };
+      }
+      // const reqParams = {
+      //   jobCode,
+      //   reportName,
+      //   reportType,
+      //   cronType,
+      //   filterList,
+      //   updateBy,
+      //   displayColumnList,
+      //   executeOnceTime,
+      //   scheduleDesc,
+      //   monthlyExecuteDay,
+      // };
       const {
         data: { resultCode, resultMsg },
       } = yield call(editReports, reqParams);
@@ -553,6 +609,8 @@ export default {
         checkChannelValueInit: false,
         selectPark: [],
         categoryTypeList: [],
+        checkAgeGroup: [],
+        openAgeGroup: false,
       };
     },
     saveFilterList(state, { payload }) {

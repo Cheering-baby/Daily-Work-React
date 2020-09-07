@@ -12,6 +12,7 @@ const sortMap = {
   cronType: 'report_frequency',
   updateBy: 'update_by',
   modifiedDateTime: 'update_time',
+  generationDateTime: 'execute_time',
   status: 'status',
 };
 
@@ -172,6 +173,7 @@ export const doFilter = _filterList => {
         filterList.push({
           filterName: item.filterName,
           filterValue: `${formatFrom} ~ ${formatTo}`,
+          type: from === 'All' || to === 'All' ? 'filter' : '',
         });
         delete filterMap[item.filterName];
       }
@@ -181,6 +183,5 @@ export const doFilter = _filterList => {
       filterList.push(item);
     }
   });
-
   return filterList;
 };

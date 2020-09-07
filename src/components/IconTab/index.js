@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Icon, Popover, Tabs } from 'antd';
 import { formatMessage } from 'umi/locale';
+import IconFont from '@/components/IconFont';
 
 const { TabPane } = Tabs;
 const DEFAULT = formatMessage({ id: 'COMMON_SELECT_ICON' });
@@ -59,9 +60,24 @@ class IconTab extends Component {
                 <div className="well">
                   {item.list &&
                     item.list.length > 0 &&
-                    item.list.map(icon => (
-                      <Icon key={`icon_${icon}`} type={icon} onClick={() => this.tabClick(icon)} />
-                    ))}
+                    item.list.map(icon => {
+                      if (icon.startsWith('icon-')) {
+                        return (
+                          <IconFont
+                            type={icon}
+                            style={{ fontSize: '20px' }}
+                            onClick={() => this.tabClick(icon)}
+                          />
+                        );
+                      }
+                      return (
+                        <Icon
+                          key={`icon_${icon}`}
+                          type={icon}
+                          onClick={() => this.tabClick(icon)}
+                        />
+                      );
+                    })}
                 </div>
               </TabPane>
             ))}

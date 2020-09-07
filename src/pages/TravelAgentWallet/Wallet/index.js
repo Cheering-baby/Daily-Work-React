@@ -15,12 +15,13 @@ import {
   Spin,
   Table,
   Tooltip,
-  Modal, Collapse,
+  Collapse,
 } from 'antd';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
+import WalletInvoice from "@/pages/TravelAgentWallet/components/Invoice";
 
 const ACTIVITY_STATUS = {
   Approved: '00',
@@ -42,19 +43,24 @@ class Wallet extends React.PureComponent {
     const { dispatch, location } = this.props;
     dispatch({ type: 'taWalletMgr/clear' });
     dispatch({ type: 'taWalletMgr/fetchTransactionTypes' });
-    const {query: { taId }} = location;
-    if(taId){
+    const {
+      query: { taId },
+    } = location;
+    if (taId) {
       dispatch({
         type: 'taWalletMgr/effectSave',
         payload: {
-          taId
-        }
-      }).then(()=> {
-        dispatch({type: 'taWalletMgr/fetchAccountDetail',}).then(() => {
-          dispatch({type: 'taWalletMgr/fetchMyActivityList',});
+          taId,
+        },
+      }).then(() => {
+        dispatch({ type: 'taWalletMgr/fetchAccountDetail' }).then(() => {
+          dispatch({ type: 'taWalletMgr/fetchMyActivityList' });
         });
         dispatch({ type: 'taWalletMgr/fetchAccountFlowList' });
-        this.interval = setInterval(() => dispatch({ type: 'taWalletMgr/fetchAccountDetail' }), 1000 * 5);
+        this.interval = setInterval(
+          () => dispatch({ type: 'taWalletMgr/fetchAccountDetail' }),
+          1000 * 5
+        );
       });
     }
   }
@@ -106,11 +112,15 @@ class Wallet extends React.PureComponent {
   };
 
   getTableHeight = () => {
-    const {offsetHeight: layoutHeight} = document.getElementById('layout');
-    if (document.getElementById('pageHeaderTitle') && document.getElementById('walletCard') && document.getElementById('pageSearchCard')) {
-      const {offsetHeight: pageHeaderTitleHeight} = document.getElementById('pageHeaderTitle');
-      const {offsetHeight: walletCardHeight} = document.getElementById('walletCard');
-      const {offsetHeight: pageSearchCardHeight} = document.getElementById('pageSearchCard');
+    const { offsetHeight: layoutHeight } = document.getElementById('layout');
+    if (
+      document.getElementById('pageHeaderTitle') &&
+      document.getElementById('walletCard') &&
+      document.getElementById('pageSearchCard')
+    ) {
+      const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
+      const { offsetHeight: walletCardHeight } = document.getElementById('walletCard');
+      const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
       return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 320;
     }
     return layoutHeight;
@@ -124,6 +134,10 @@ class Wallet extends React.PureComponent {
         activeKey: key,
       },
     });
+  };
+
+  invoiceDetail = id => {
+    this.invoice.open(id);
   };
 
   render() {
@@ -250,6 +264,25 @@ class Wallet extends React.PureComponent {
           );
         },
       },
+      {
+        title: formatMessage({ id: 'OPERATION' }),
+        key: 'operation',
+        render: (text, record) => {
+          if (record.tranType === 'ONLINE_TOPUP' || record.tranType === 'OFFLINE_TOPUP') {
+            return (
+              <Tooltip title={formatMessage({ id: 'INVOICE' })}>
+                <span>
+                  <Button
+                    type="link"
+                    icon="printer"
+                    onClick={() => this.invoiceDetail(record.accountBookFlowId)}
+                  />
+                </span>
+              </Tooltip>
+            );
+          }
+        },
+      },
     ];
     const breadcrumbArr = [
       {
@@ -274,7 +307,7 @@ class Wallet extends React.PureComponent {
     };
     return (
       <Col lg={24} md={24}>
-        <div id='pageHeaderTitle'>
+        <div id="pageHeaderTitle">
           <MediaQuery
             maxWidth={SCREEN.screenMdMax}
             minWidth={SCREEN.screenSmMin}
@@ -286,9 +319,12 @@ class Wallet extends React.PureComponent {
             <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
           </MediaQuery>
         </div>
-        <div id='walletCard' style={{marginBottom:16}}>
-          <Collapse activeKey={activeKey} onChange={(key)=>this.changePanel(key)}>
-            <Collapse.Panel header={activeKey.length===0?'Show balance widget':'Hide balance widget'} key="1">
+        <div id="walletCard" style={{ marginBottom: 16 }}>
+          <Collapse activeKey={activeKey} onChange={key => this.changePanel(key)}>
+            <Collapse.Panel
+              header={activeKey.length === 0 ? 'Show balance widget' : 'Hide balance widget'}
+              key="1"
+            >
               <Row gutter={24}>
                 <Col lg={12} md={12}>
                   <div className={`${styles.flexBetween} ${styles.walletCard}`}>
@@ -344,7 +380,7 @@ class Wallet extends React.PureComponent {
           </Collapse>
         </div>
         <Card>
-          <div id='pageSearchCard'>
+          <div id="pageSearchCard">
             <Form onSubmit={this.handleSearch}>
               <Row justify="space-around" gutter={24}>
                 <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
@@ -385,7 +421,7 @@ class Wallet extends React.PureComponent {
                       rules: [{ required: false, message: '' }],
                     })(
                       <DatePicker.RangePicker
-                        style={{width: '100%'}}
+                        style={{ width: '100%' }}
                         format="DD-MMM-YYYY"
                         allowClear
                         disabledDate={current => current && current > moment().endOf('day')}
@@ -425,7 +461,15 @@ class Wallet extends React.PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right', float: 'right' }}>
+                <Col
+                  xs={24}
+                  sm={12}
+                  md={12}
+                  lg={6}
+                  xl={6}
+                  xxl={6}
+                  style={{ textAlign: 'right', float: 'right' }}
+                >
                   <Button
                     type="primary"
                     htmlType="submit"
@@ -446,17 +490,35 @@ class Wallet extends React.PureComponent {
         </Card>
         <Card>
           <Spin spinning={loading}>
-            <Table
-              size="small"
-              className={styles.tableStyle}
-              dataSource={dataSource}
-              columns={columns}
-              pagination={paginationSetting}
-              onChange={this.handleTableChange}
-              scroll={{y: this.getTableHeight()}}
-            />
+            <MediaQuery maxWidth={SCREEN.screenXsMax}>
+              <Table
+                size="small"
+                className={styles.tableStyle}
+                dataSource={dataSource}
+                columns={columns}
+                pagination={paginationSetting}
+                onChange={this.handleTableChange}
+                scroll={{x: 1200}}
+              />
+            </MediaQuery>
+            <MediaQuery minWidth={SCREEN.screenSmMin}>
+              <Table
+                size="small"
+                className={styles.tableStyle}
+                dataSource={dataSource}
+                columns={columns}
+                pagination={paginationSetting}
+                onChange={this.handleTableChange}
+                scroll={{x: 1200, y: this.getTableHeight()}}
+              />
+            </MediaQuery>
           </Spin>
         </Card>
+        <WalletInvoice
+          onRef={ref => {
+            this.invoice = ref;
+          }}
+        />
       </Col>
     );
   }

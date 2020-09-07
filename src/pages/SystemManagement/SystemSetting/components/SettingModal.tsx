@@ -1,11 +1,10 @@
-import React, { FC, useRef, useLayoutEffect, ReactNode } from 'react';
+import React, { FC, useRef, useLayoutEffect, ReactNode, useState } from 'react';
 import { Modal, Form, Button, Input, message } from 'antd';
 import { useModalForm } from '@/hooks/useModal';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
-
-import ReactQuill from 'react-quill';
+import { Editor } from '@tinymce/tinymce-react';
+// import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import styles from './SettingModal.less';
 import { setDictionary, downloadFile, upload } from '@/services/copyright';
 import { SettingResult } from '@/types/settingResult';
 
@@ -21,6 +20,12 @@ interface Props {
 }
 const SettingModal: FC<Props> = props => {
   const { visible, title, onVisible, onChange, data, showModalKey, setShowModalKey } = props;
+  const [_, setUpdate] = useState(false);
+  const forceUpdate = () => {
+    setUpdate(v => !v);
+  };
+
+  const editContent = useRef('');
   const { getFieldDecorator } = props.form;
   const saveDictionary = async (params: any) => {
     const { success } = await setDictionary(params);
@@ -29,7 +34,7 @@ const SettingModal: FC<Props> = props => {
     }
     return false;
   };
-  const reactQuillRef = useRef<ReactQuill>();
+
   useLayoutEffect(() => {
     if (visible) {
       (async () => {
@@ -38,45 +43,26 @@ const SettingModal: FC<Props> = props => {
           if (success) {
             const reader = new FileReader();
             reader.addEventListener('loadend', function(e) {
-              if (reactQuillRef.current) {
-                try {
-                  JSON.parse(e.target.result as string);
-                } catch (error) {
-                  const delta = [{ insert: ''}, { insert: '\n'}]
-                  reactQuillRef.current.getEditor().setContents(delta as any);
-                  reactQuillRef.current.getEditor().pasteHTML(e.target.result as string);
-                }
+              try {
+                JSON.parse(e.target.result as string);
+              } catch (error) {
+                // const delta = [{ insert: ''}, { insert: '\n'}]
+                editContent.current = e.target.result as string;
+                forceUpdate();
               }
             });
             reader.readAsText(file);
-
           }
         }
       })();
     }
   }, [visible]);
-  const modules = {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'], // toggled buttons
-      [
-        { list: 'ordered' },
-        { list: 'bullet' },
-        { indent: '-1' },
-        { indent: '+1' },
-        { align: [] as any[] },
-      ],
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ color: [] as any[] }, { background: [] as any[] }], // dropdown with defaults from theme
-      ['link', 'image'],
-    ],
-  };
+
   const { modalProps, loading } = useModalForm(props.form, {
     async onOk(values) {
       const params = { ...values };
       if (['termsConditions', 'frequentlyAskedQuestions', 'contactUs'].includes(showModalKey)) {
-        const editor = reactQuillRef.current.getEditor();
-        const unprivilegedEditor = (reactQuillRef.current as any).makeUnprivilegedEditor(editor);
-        const content = unprivilegedEditor.getHTML();
+        const content = editContent.current;
         let errMsg = '';
         console.log(content);
         if (
@@ -128,80 +114,14 @@ const SettingModal: FC<Props> = props => {
     visible,
     afterClose() {
       setShowModalKey('');
-      setTimeout(() => {
-        if (reactQuillRef.current) {
-          const delta = [{ insert: ''}, { insert: '\n'}]
-          reactQuillRef.current.getEditor().setContents(delta as any);
-          reactQuillRef.current.getEditor().pasteHTML('<p><br></p>');
-        }
-      }, 100);
+      editContent.current = '';
     },
     setVisible: () => onVisible(),
   });
 
-  const preview = () => {
-    if (window.previewWindow) {
-      window.previewWindow.close();
-    }
-    const editor = reactQuillRef.current.getEditor();
-    const unprivilegedEditor = (reactQuillRef.current as any).makeUnprivilegedEditor(editor);
-    const content = unprivilegedEditor.getHTML();
-    window.previewWindow = window.open();
-    window.previewWindow.document.write(buildPreviewHtml(content));
-    window.previewWindow.document.close();
-  };
-
-  const buildPreviewHtml = (html: string) => {
-    return `
-      <!Doctype html>
-      <html>
-        <head>
-          <title>Preview Content</title>
-          <link rel="stylesheet" href="https://unpkg.com/react-quill@1.3.3/dist/quill.snow.css">
-          <style>
-          h1,
-          h3,
-          h4 {
-            font-size: 14px;
-          }
-          h2 {
-            font-size: 15px;
-          }
-          h2,
-          h3,
-          h4 {
-            font-weight: normal;
-          }
-          h1,
-          h2,
-          h3 {
-            color: #000;
-          }
-          h4 {
-            color: #858585;
-          }
-          </style>
-        </head>
-        <body>
-        <div class="ql-snow">
-        <pre class="ql-editor">${html}</pre>
-        </div>
-        </body>
-      </html>
-    `;
-  };
-
   let edTitle: ReactNode = `${title} SETTING`;
   if (['termsConditions', 'frequentlyAskedQuestions', 'contactUs'].includes(showModalKey)) {
     modalProps.width = 800;
-    edTitle = (
-      <span>
-        {edTitle}{' '}
-        <Button type="link" onClick={preview}>
-          preview
-        </Button>{' '}
-      </span>
-    );
   }
   return (
     <Modal
@@ -243,17 +163,22 @@ const SettingModal: FC<Props> = props => {
           </Form.Item>
         )}
         {['termsConditions', 'frequentlyAskedQuestions', 'contactUs'].includes(showModalKey) && (
-          <ReactQuill
-            //   placeholder={formatMessage({ id: 'NOTICE_PLEASE_ENTER' })}
-            id="noticeViewEditQuill"
-            bounds="#noticeViewEditQuill"
-            className={styles.reactQuillStyle}
-            //   defaultValue={notificationInfo.content || null}
-            ref={el => {
-              reactQuillRef.current = el;
+          <Editor
+            tinymceScriptSrc="/static/tinymce/tinymce.min.js"
+            onEditorChange={(content, editor) => {
+              // setContent(content)
+              editContent.current = content;
             }}
-            theme="snow"
-            modules={modules}
+            value={editContent.current}
+            // apiKey="0lqk1naukvtphya9f0y4pumhomv7fxewx79g9yakj3n4npm3"
+            init={{
+              height: 500,
+              menubar: 'file edit view insert format tools table tc help',
+              plugins: [
+                'print preview  importcss  searchreplace autolink autosave save directionality  visualblocks visualchars fullscreen image link media  codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists  wordcount imagetools textpattern noneditable help charmap quickbars emoticons ',
+              ],
+              toolbar: `undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media link anchor codesample | ltr rtl `,
+            }}
           />
         )}
       </Form>

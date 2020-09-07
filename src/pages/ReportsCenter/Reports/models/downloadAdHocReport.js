@@ -104,7 +104,7 @@ export default {
       }
     },
     *tableChanged({ payload }, { put }) {
-      const { reportType, displayColumnList, filterList } = payload;
+      const { reportType, displayColumnList, filterList, sortList } = payload;
       yield put({
         type: 'save',
         payload,
@@ -116,6 +116,7 @@ export default {
           reportType,
           filterList,
           displayColumnList,
+          sortList
         },
       });
     },

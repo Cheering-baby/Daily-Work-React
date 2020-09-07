@@ -1,4 +1,4 @@
-import { DatePicker, Form, Input, Select, Row, Col, Checkbox } from 'antd';
+import { Checkbox, Col, DatePicker, Form, Input, Row, Select } from 'antd';
 import moment from 'moment';
 import React from 'react';
 import styles from './index.less';
@@ -39,11 +39,13 @@ const generateFilter = (props, filterItem) => {
       reportFrequency,
       openThemePark,
       openChannel,
+      openAgeGroup,
       openCustomerGroup,
       checkThemeParkValue,
       checkChannelValue,
       checkAccountManager,
       checkCustomerGroupValue,
+      checkAgeGroup,
       checkChannelValueInit,
       categoryTypeList,
       openUserRoleForCreated,
@@ -67,6 +69,7 @@ const generateFilter = (props, filterItem) => {
     userRoleOptions = [],
     taMarketOptions = [],
     accountManagerOptions = [],
+    ageGroupOptions = [],
   } = filterItem;
 
   const categoryType = getFieldValue('categoryType');
@@ -110,7 +113,7 @@ const generateFilter = (props, filterItem) => {
           }
           if (filterKey === 'taMarket') {
             if (!checkChannelValueInit) {
-              const num = `,${val},`
+              const num = `,${val},`;
               const res =
                 Array.isArray(taMarketOptions) && taMarketOptions.length > 0
                   ? taMarketOptions.filter(ii => num.includes(ii.dictId))
@@ -126,10 +129,13 @@ const generateFilter = (props, filterItem) => {
             }
           } else if (result.filterKey === 'themeParkCode') {
             if (!checkChannelValueInit) {
-              val = val ? val.split(',') : []
-              const res = Array.isArray(themeParkOptions) && themeParkOptions.length > 0 ? themeParkOptions.filter(ii => val.includes(ii.attributeKey)) : []
-              val = res && res.length > 0 && res.map(i => i.attributeValue)
-              val = val ? val : [];
+              val = val ? val.split(',') : [];
+              const res =
+                Array.isArray(themeParkOptions) && themeParkOptions.length > 0
+                  ? themeParkOptions.filter(ii => val.includes(ii.bookingCategoryCode))
+                  : [];
+              val = res && res.length > 0 && res.map(i => i.bookingCategoryName);
+              val = val || [];
               dispatch({
                 type: 'reportCenter/save',
                 payload: {
@@ -145,7 +151,7 @@ const generateFilter = (props, filterItem) => {
                   ? userRoleOptions.filter(ii => val.includes(ii.roleCode))
                   : [];
               val = res && res.length > 0 && res.map(i => i.roleName);
-              val = val ? val : [];
+              val = val || [];
               dispatch({
                 type: 'reportCenter/save',
                 payload: {
@@ -156,13 +162,13 @@ const generateFilter = (props, filterItem) => {
             }
           } else if (result.filterKey === 'customerGroup') {
             if (!checkChannelValueInit) {
-              const num = `,${val},`
+              const num = `,${val},`;
               const res =
                 Array.isArray(customerGroupOptions) && customerGroupOptions.length > 0
                   ? customerGroupOptions.filter(ii => num.includes(ii.dictId))
                   : [];
               val = res && res.length > 0 && res.map(i => i.dictName);
-              val = val ? val : [];
+              val = val || [];
               dispatch({
                 type: 'reportCenter/save',
                 payload: {
@@ -178,7 +184,7 @@ const generateFilter = (props, filterItem) => {
                   ? accountManagerOptions.filter(ii => val.includes(ii.userType))
                   : [];
               val = res && res.length > 0 && res.map(i => i.userCode);
-              val = val ? val : [];
+              val = val || [];
               dispatch({
                 type: 'reportCenter/save',
                 payload: {
@@ -187,6 +193,26 @@ const generateFilter = (props, filterItem) => {
                 },
               });
             }
+          } else if (result.filterKey === 'ageGroup') {
+            if (!checkChannelValueInit) {
+              const res =
+                Array.isArray(ageGroupOptions) && ageGroupOptions.length > 0
+                  ? ageGroupOptions.filter(ii => val.includes(ii.identifier))
+                  : [];
+              val = res && res.length > 0 && res.map(i => i.name);
+              val = val || [];
+              dispatch({
+                type: 'reportCenter/save',
+                payload: {
+                  checkAgeGroup: val,
+                  checkChannelValueInit: true,
+                },
+              });
+            }
+          }
+        } else if (result.filterType === 'INPUT') {
+          if (val === 'All') {
+            return '';
           }
         }
         return val;
@@ -290,7 +316,7 @@ const generateFilter = (props, filterItem) => {
   if (reportFrequency && +isRequiredWhere === 1) {
     dateDisable =
       reportFrequency === 'Daily' || (reportFrequency === 'Monthly' && +isRequiredWhere === 1);
-  } else if (detailList && detailList.cronType !== '') {
+  } else if (detailList && detailList.cronType !== '' && +isRequiredWhere === 1) {
     dateDisable = detailList.cronType === 'Daily' || detailList.cronType === 'Monthly';
   }
 
@@ -328,6 +354,7 @@ const generateFilter = (props, filterItem) => {
           openThemePark: false,
           openUserRoleForCreated: true,
           openAccountManager: false,
+          openAgeGroup: false,
         },
       });
     } else if (filterKey === 'accountManager') {
@@ -339,6 +366,19 @@ const generateFilter = (props, filterItem) => {
           openThemePark: false,
           openUserRoleForCreated: false,
           openAccountManager: true,
+          openAgeGroup: false,
+        },
+      });
+    } else if (filterKey === 'ageGroup') {
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          openCustomerGroup: false,
+          openChannel: false,
+          openThemePark: false,
+          openUserRoleForCreated: false,
+          openAccountManager: false,
+          openAgeGroup: true,
         },
       });
     } else if (dictSubType && dictType) {
@@ -350,6 +390,7 @@ const generateFilter = (props, filterItem) => {
           openCustomerGroup: false,
           openUserRoleForCreated: false,
           openAccountManager: false,
+          openAgeGroup: false,
         },
       });
     }
@@ -451,6 +492,24 @@ const generateFilter = (props, filterItem) => {
     });
   };
 
+  const ageGroupAll = e => {
+    let arr6 = [];
+    if (e.target.checked === true) {
+      arr6 = ageGroupOptions && ageGroupOptions.length > 0 && ageGroupOptions.map(i => i.name);
+    } else {
+      arr6 = [];
+    }
+    dispatch({
+      type: 'reportCenter/save',
+      payload: {
+        checkAgeGroup: arr6,
+      },
+    });
+    setFieldsValue({
+      checkAgeGroup: arr6,
+    });
+  };
+
   const itemChange = value => {
     dispatch({
       type: 'reportCenter/save',
@@ -509,6 +568,18 @@ const generateFilter = (props, filterItem) => {
     });
     setFieldsValue({
       accountManager: value,
+    });
+  };
+
+  const itemChange6 = value => {
+    dispatch({
+      type: 'reportCenter/save',
+      payload: {
+        checkAgeGroup: value,
+      },
+    });
+    setFieldsValue({
+      ageGroup: value,
     });
   };
 
@@ -627,6 +698,29 @@ const generateFilter = (props, filterItem) => {
     return <div />;
   };
 
+  const ageGroupDropDown = () => {
+    if (ageGroupOptions && ageGroupOptions.length > 0) {
+      const arrsAge = ageGroupOptions.map(i => i.name);
+      const matchAll =
+        checkAgeGroup && checkAgeGroup.length > 0
+          ? ageGroupOptions.length === ageGroupOptions.length
+          : false;
+      return (
+        <div className={styles.dropDownContainer}>
+          <div style={{ maxHeight: '150px', overflow: 'auto' }}>
+            <div style={{ marginTop: '5px' }}>
+              <Checkbox onChange={ageGroupAll} checked={matchAll}>
+                Select All
+              </Checkbox>
+            </div>
+            <CheckboxGroup options={arrsAge} onChange={itemChange6} value={checkAgeGroup} />
+          </div>
+        </div>
+      );
+    }
+    return <div />;
+  };
+
   const themeParkDelete = value => {
     if (filterKey === 'themeParkCode') {
       dispatch({
@@ -678,6 +772,16 @@ const generateFilter = (props, filterItem) => {
       setFieldsValue({
         accountManager: value,
       });
+    } else if (filterKey === 'ageGroup') {
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          checkAgeGroup: value,
+        },
+      });
+      setFieldsValue({
+        ageGroup: value,
+      });
     }
   };
 
@@ -726,11 +830,11 @@ const generateFilter = (props, filterItem) => {
             onChange={categoryTypeChange}
           >
             {options &&
-            options.map(item => (
-              <Select.Option key={item.dictId} value={item.dictId}>
-                {item.dictName}
-              </Select.Option>
-            ))}
+              options.map(item => (
+                <Select.Option key={item.dictId} value={item.dictId}>
+                  {item.dictName}
+                </Select.Option>
+              ))}
           </Select>
         )}
       </Form.Item>
@@ -758,7 +862,8 @@ const generateFilter = (props, filterItem) => {
                 filterKey === 'themeParkCode' ||
                 filterKey === 'taMarket' ||
                 filterKey === 'userRoleForCreated' ||
-                filterKey === 'accountManager'
+                filterKey === 'accountManager' ||
+                filterKey === 'ageGroup'
                   ? 'All'
                   : filterName
               }
@@ -828,6 +933,8 @@ const generateFilter = (props, filterItem) => {
     open = openUserRoleForCreated;
   } else if (filterKey === 'accountManager') {
     open = openAccountManager;
+  } else if (filterKey === 'ageGroup') {
+    open = openAgeGroup;
   } else {
     open = false;
   }
@@ -843,6 +950,8 @@ const generateFilter = (props, filterItem) => {
     dropDown = userRoleForCreatedDropDown();
   } else if (filterKey === 'accountManager') {
     dropDown = accountManagerDropDown();
+  } else if (filterKey === 'ageGroup') {
+    dropDown = ageGroupDropDown();
   } else {
     dropDown = '';
   }
@@ -858,33 +967,37 @@ const generateFilter = (props, filterItem) => {
     val = checkChannelValue;
   } else if (filterKey === 'accountManager') {
     val = checkAccountManager;
+  } else if (filterKey === 'ageGroup') {
+    val = checkAgeGroup;
   } else {
     val = [];
   }
 
   return comp
     ? comp({
-      label: filterName,
-      required: isRequiredWhere === '1',
-      name: filterKey,
-      options,
-      isOpen: open,
-      isDropDown: dropDown,
-      selectValue: val,
-      onFocus() {
-        if (filterKey === 'themeParkCode') {
-          open = openThemePark;
-        } else if (filterKey === 'customerGroup') {
-          open = openCustomerGroup;
-        } else if (filterKey === 'taMarket') {
-          open = openChannel;
-        } else if (filterKey === 'userRoleForCreated') {
-          open = openUserRoleForCreated;
-        } else if (filterKey === 'accountManager') {
-          open = openUserRoleForCreated;
-        }
-      },
-    })
+        label: filterName,
+        required: isRequiredWhere === '1',
+        name: filterKey,
+        options,
+        isOpen: open,
+        isDropDown: dropDown,
+        selectValue: val,
+        onFocus() {
+          if (filterKey === 'themeParkCode') {
+            open = openThemePark;
+          } else if (filterKey === 'customerGroup') {
+            open = openCustomerGroup;
+          } else if (filterKey === 'taMarket') {
+            open = openChannel;
+          } else if (filterKey === 'ageGroup') {
+            open = openAgeGroup;
+          } else if (filterKey === 'userRoleForCreated') {
+            open = openUserRoleForCreated;
+          } else if (filterKey === 'accountManager') {
+            open = openUserRoleForCreated;
+          }
+        },
+      })
     : null;
 };
 
