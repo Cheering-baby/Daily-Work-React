@@ -241,7 +241,7 @@ class Invoice extends React.PureComponent {
                   </table>
                 </div>
               </div>
-              <div style={{ width: '100%', marginTop: '260px' }}>
+              <div style={{ width: '100%', marginTop: '260px', borderTop: '1px solid #000' }}>
                 <div className={styles['instructions-title']}>
                   <div className={styles['instructions-title-label']}>Payment Instructions</div>
                 </div>

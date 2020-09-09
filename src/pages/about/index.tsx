@@ -17,11 +17,6 @@ const pamsImage = require('../../assets/image/PARTNERS-LOGO.png');
 interface Props {
   location: any;
 }
-const titleMap = {
-  termsConditions: 'Terms and Conditions',
-  frequentlyAskedQuestions: 'FAQs',
-  contactUs: 'Contact Us',
-};
 const about: FC<Props> = props => {
   const selectedKey = props.location.query.key || 'termsConditions';
   const contentIFrameRef = useRef<HTMLIFrameElement>();
@@ -153,11 +148,10 @@ const about: FC<Props> = props => {
                   style={{ paddingRight: 0, paddingLeft: 0 }}
                 >
                   <div>
-                    <header className={styles.title}>{titleMap[selectedKey]}</header>
                     <iframe
                       ref={contentIFrameRef}
                       title="iframe"
-                      style={{ width: '100%', border: 0, height: 'calc(100vh - 214px' }}
+                      style={{ width: '100%', border: 0, height: 'calc(100vh - 114px' }}
                       sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                       scrolling="auto"
                     ></iframe>

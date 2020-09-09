@@ -180,6 +180,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'TRANSACTION_NO' }),
+        width: 200,
         dataIndex: 'transactionId',
         key: 'transactionId',
         render: text => {
@@ -188,6 +189,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'TRANSACTION_TYPE' }),
+        width: 120,
         dataIndex: 'tranType',
         key: 'tranType',
         render: text => {
@@ -196,6 +198,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: 'Transaction Date',
+        width: 170,
         key: 'time',
         render: (text, record) => {
           const timeText = record.sourceSystem ? record.sourceTransactionTime : record.createTime;
@@ -208,6 +211,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: 'Amount',
+        width: 100,
         key: 'charge',
         render: (text, record) => {
           const chargeText =
@@ -218,6 +222,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: 'Invoice No.',
+        width: 100,
         key: 'invoiceNo',
         render: (text, record) => {
           const invoiceText =
@@ -227,6 +232,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: 'Partners Order No.',
+        width: 120,
         key: 'referenceNo',
         dataIndex: 'referenceNo',
         render: text => {
@@ -235,6 +241,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: 'Galaxy Order No.',
+        width: 120,
         key: 'galaxyOrderNo',
         dataIndex: 'galaxyOrderNo',
         render: text => {
@@ -243,6 +250,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: 'Travel Agent Reference No.',
+        width: 120,
         key: 'taReferenceNo',
         dataIndex: 'taReferenceNo',
         render: text => {
@@ -251,6 +259,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'STATUS' }),
+        width: 120,
         dataIndex: 'status',
         key: 'status',
         render: text => {
@@ -266,6 +275,7 @@ class Wallet extends React.PureComponent {
       },
       {
         title: formatMessage({ id: 'OPERATION' }),
+        width: 90,
         key: 'operation',
         render: (text, record) => {
           if (record.tranType === 'ONLINE_TOPUP' || record.tranType === 'OFFLINE_TOPUP') {
@@ -498,7 +508,7 @@ class Wallet extends React.PureComponent {
                 columns={columns}
                 pagination={paginationSetting}
                 onChange={this.handleTableChange}
-                scroll={{x: 1200}}
+                scroll={{x: 800}}
               />
             </MediaQuery>
             <MediaQuery minWidth={SCREEN.screenSmMin}>
@@ -509,7 +519,7 @@ class Wallet extends React.PureComponent {
                 columns={columns}
                 pagination={paginationSetting}
                 onChange={this.handleTableChange}
-                scroll={{x: 1200, y: this.getTableHeight()}}
+                scroll={{x: 800, y: this.getTableHeight()}}
               />
             </MediaQuery>
           </Spin>

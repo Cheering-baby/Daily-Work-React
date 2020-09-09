@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import { isNullOrUndefined } from 'util';
-import { Button, Icon, List, Table, Tabs, Tooltip, Form, Select } from 'antd';
+import { Button, Icon, List, Table, Tabs, Tooltip, Form, Select, message } from 'antd';
 import {
   calculateAllProductPrice,
   calculateProductPrice,
@@ -59,31 +59,57 @@ class Attraction extends Component {
       item.minProductQuantity = minProductQuantity;
       item.maxProductQuantity = maxProductQuantity;
     });
+    let attractionProductCopy = [];
     let bundleOfferDetail = {};
     if (!isNullOrUndefined(bundleName)) {
-      bundleOfferDetail = {
-        bundleName,
-        offers,
-        dateOfVisit: offers[0].detail.dateOfVisit,
-        numOfGuests: offers[0].detail.numOfGuests,
-      };
-      offers.forEach(offerItem => {
+
+      const offerFilter = offers.filter(offerItem => {
         const {
-          detail: {
-            offerBasicInfo: { offerNo },
-          },
+          offerSessions = [],
+          sessionTime,
         } = offerItem;
-        const label = `${themeParkCode}_${tag}_${index}_${offerNo}`;
-        validFields.push(label);
+        const isSessionOffer = !(offerSessions.length === 1 && offerSessions[0] === null);
+        if(isSessionOffer) {
+          return !isNullOrUndefined(sessionTime);
+        }
+        return true;
       });
+      if(offerFilter.length > 0) {
+        bundleOfferDetail = {
+          bundleName,
+          offers: offerFilter,
+          dateOfVisit: offerFilter[0].detail.dateOfVisit,
+          numOfGuests: offerFilter[0].detail.numOfGuests,
+        };
+      } else {
+        message.warning('Please select one session at lease.');
+        return false;
+      }
+
     } else {
-      attractionProduct.forEach(itemProduct => {
-        const { productNo } = itemProduct;
-        const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
-        validFields.push(label);
-      });
+      const offerConstrain = getOfferConstrain(detail);
+      if (offerConstrain === 'Fixed') {
+        attractionProduct.forEach(itemProduct => {
+          const { productNo } = itemProduct;
+          const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
+          validFields.push(label);
+        });
+        attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
+      } else {
+        attractionProductCopy = attractionProduct.filter(itemProduct => {
+          const { sessionOptions = [], sessionTime } = itemProduct;
+          const isSessionProduct = sessionOptions.length > 0;
+          if(isSessionProduct) {
+            return !isNullOrUndefined(sessionTime);
+          }
+          return true;
+        })
+        if(attractionProductCopy.length === 0) {
+          message.warning('Please select one session at lease.');
+          return false;
+        }
+      }
     }
-    const attractionProductCopy = JSON.parse(JSON.stringify(attractionProduct));
     const detailCopy = JSON.parse(JSON.stringify(detail));
     form.validateFields(validFields, errs => {
       if (!errs) {
@@ -647,7 +673,7 @@ class Attraction extends Component {
                               initialValue: sessionTime,
                               rules: [
                                 {
-                                  required: true,
+                                  required: offerConstrain === 'Fixed',
                                   message: 'Required',
                                 },
                               ],
@@ -728,7 +754,7 @@ class Attraction extends Component {
                             initialValue: sessionTime || undefined,
                             rules: [
                               {
-                                required: true,
+                                required: false,
                                 message: 'Required',
                               },
                             ],
