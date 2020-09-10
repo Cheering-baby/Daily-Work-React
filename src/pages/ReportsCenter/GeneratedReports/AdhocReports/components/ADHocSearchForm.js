@@ -174,13 +174,7 @@ class ADHocReportSearchForm extends Component {
             <Row>
               <Col className={styles.inputColStyle} xs={12} sm={12} md={6}>
                 <FormItem>
-                  {getFieldDecorator('reportName', {
-                    rules: [
-                      {
-                        required: false,
-                      },
-                    ],
-                  })(
+                  {getFieldDecorator('reportName')(
                     <Select
                       notFoundContent={reportNameLoadingFlag ? <Spin size="small" /> : null}
                       loading={reportNameLoadingFlag}
@@ -206,18 +200,13 @@ class ADHocReportSearchForm extends Component {
               </Col>
               <Col className={styles.inputColStyle} xs={12} sm={12} md={6}>
                 <FormItem>
-                  {getFieldDecorator('reportType', {
-                    rules: [
-                      {
-                        required: false,
-                      },
-                    ],
-                  })(
+                  {getFieldDecorator('reportType')(
                     <Select
                       placeholder={formatMessage({ id: 'REPORT_TYPE' })}
                       className={styles.inputStyle}
                       allowClear
                       showSearch
+                      dropdownClassName={styles.reportNameSelect}
                     >
                       {reportTypeOptions &&
                         reportTypeOptions.map(item => (
@@ -231,13 +220,7 @@ class ADHocReportSearchForm extends Component {
               </Col>
               <Col className={styles.inputColStyle} xs={12} sm={12} md={6}>
                 <FormItem>
-                  {getFieldDecorator('cronTypeList', {
-                    rules: [
-                      {
-                        required: false,
-                      },
-                    ],
-                  })(
+                  {getFieldDecorator('cronTypeList')(
                     <Select
                       placeholder={formatMessage({ id: 'REPORT_FREQUENCEY' })}
                       className={styles.inputStyle}
@@ -256,13 +239,7 @@ class ADHocReportSearchForm extends Component {
               </Col>
               <Col className={styles.inputColStyle} xs={12} sm={12} md={6}>
                 <FormItem>
-                  {getFieldDecorator('generateDate', {
-                    rules: [
-                      {
-                        required: false,
-                      },
-                    ],
-                  })(
+                  {getFieldDecorator('generateDate')(
                     <RangePicker
                       placeholder={['Generated Date Start', 'Generated Date End']}
                       format="DD-MMM-YYYY"

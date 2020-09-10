@@ -34,7 +34,9 @@ const ScheduleTaskTable = ({
   const OverlayMenu = row => (
     <Menu>
       <Menu.Item
-        disabled={row.status === 'Inactive' || (row.cronType === 'Ad-hoc' && row.status !== 'Pending')}
+        disabled={
+          row.status === 'Inactive' || (row.cronType === 'Ad-hoc' && row.status !== 'Pending')
+        }
         onClick={() => {
           disableTask(row);
         }}
@@ -70,7 +72,7 @@ const ScheduleTaskTable = ({
       title: 'Report Type',
       dataIndex: 'reportType',
       sorter: true,
-      render: renderContent,
+      className: styles.reportNameColumn,
     },
     {
       key: 'cronType',
@@ -88,7 +90,7 @@ const ScheduleTaskTable = ({
     },
     {
       key: 'generationDateTime',
-      title: 'Generation Date Time',
+      title: 'Schedule Date Time',
       dataIndex: 'generationDateTime',
       sorter: true,
       render: renderContent,

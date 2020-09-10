@@ -102,6 +102,7 @@ class DailyMonthlyTable extends Component {
       {
         title: formatMessage({ id: 'REPORT_NO' }),
         dataIndex: 'no',
+        width: 60,
         render: text =>
           text ? (
             <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
@@ -112,14 +113,14 @@ class DailyMonthlyTable extends Component {
           ),
       },
       {
-        title: formatMessage({ id: 'REPORT_NAME' }),
-        dataIndex: 'taskName',
+        title: formatMessage({ id: 'SCHEDULE_REPORT_NAME' }),
+        dataIndex: 'reportName',
         sorter: true,
         className: styles.reportNameColumn,
       },
       {
-        title: formatMessage({ id: 'SCHEDULE_REPORT_NAME' }),
-        dataIndex: 'reportName',
+        title: formatMessage({ id: 'REPORT_NAME' }),
+        dataIndex: 'taskName',
         sorter: true,
         className: styles.reportNameColumn,
       },
@@ -163,6 +164,7 @@ class DailyMonthlyTable extends Component {
       {
         title: formatMessage({ id: 'REPORT_OPERATION' }),
         dataIndex: 'operation',
+        width: 100,
         render: (_, record) => {
           return (
             <div>

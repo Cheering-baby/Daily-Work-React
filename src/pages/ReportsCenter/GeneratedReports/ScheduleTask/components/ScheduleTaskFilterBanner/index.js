@@ -80,7 +80,7 @@ const ScheduleTaskFilterBanner = props => {
       name: 'reportType',
       text: 'Report Type',
       WrappedComponent: (
-        <Select placeholder="Report Type" allowClear>
+        <Select placeholder="Report Type" allowClear dropdownClassName={styles.reportNameSelect}>
           {reportTypeOptions.map(item => (
             <Option key={item.value} value={item.value}>
               {item.text}

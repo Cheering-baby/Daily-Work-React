@@ -80,3 +80,12 @@ export function querySalePersons() {
     method: 'GET',
   });
 }
+
+export async function queryMappingList(params) {
+  return UAAService.request(`/b2b/agent/v1/profile/queryMappingList`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}

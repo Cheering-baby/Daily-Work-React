@@ -62,6 +62,7 @@ const ScheduleTaskDetailDrawer = ({
         onClose={() => setVisible(false)}
         visible={visible}
         width={isMobile ? window.innerWidth - 40 : 520}
+        zIndex={999999}
       >
         <Row style={{ padding: '16px 24px' }}>
           <Row style={{ marginBottom: 5 }}>

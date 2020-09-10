@@ -12,7 +12,7 @@ const sortMap = {
   cronType: 'report_frequency',
   updateBy: 'update_by',
   modifiedDateTime: 'update_time',
-  generationDateTime: 'execute_time',
+  generationDateTime: 'expect_time',
   status: 'status',
 };
 

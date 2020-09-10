@@ -88,6 +88,7 @@ class DownloadAdHocReport extends Component {
         openUserRoleForCreated: false,
         openAccountManager: false,
         openAgeGroup: false,
+        openCustomerName: false,
       },
     });
   };
@@ -108,6 +109,7 @@ class DownloadAdHocReport extends Component {
         checkCustomerGroupValue,
         checkAccountManager,
         checkAgeGroup,
+        checkCustomerName,
       },
       location: {
         query: { reportType },
@@ -168,6 +170,12 @@ class DownloadAdHocReport extends Component {
     const arr6 =
       filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'ageGroup') : [];
     const ageGroupInfos = arr6 && arr6.ageGroupOptions;
+
+    const arr7 =
+      filterList && filterList.length > 0
+        ? filterList.find(i => i.filterKey === 'customerName')
+        : [];
+    const customerNameInfos = arr7 && arr7.customerNameOptions;
 
     form.validateFieldsAndScroll((err, values) => {
       if (err) {
@@ -239,6 +247,13 @@ class DownloadAdHocReport extends Component {
               } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
                 const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
                 value = list && list.length > 0 && list.map(i => i.identifier);
+              } else if (
+                k === 'customerName' &&
+                checkCustomerName &&
+                checkCustomerName.length > 0
+              ) {
+                const list = customerNameInfos.filter(ii => checkCustomerName.includes(ii.taId));
+                value = list && list.length > 0 && list.map(i => i.taId);
               }
               values[k] = value ? value.join() : '';
               if (values[k] === 'All') {
@@ -335,6 +350,7 @@ class DownloadAdHocReport extends Component {
         checkCustomerGroupValue,
         checkAccountManager,
         checkAgeGroup,
+        checkCustomerName,
       },
     } = this.props;
 
@@ -369,6 +385,12 @@ class DownloadAdHocReport extends Component {
     const arr6 =
       filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'ageGroup') : [];
     const ageGroupInfos = arr6 && arr6.ageGroupOptions;
+
+    const arr7 =
+      filterList && filterList.length > 0
+        ? filterList.find(i => i.filterKey === 'customerName')
+        : [];
+    const customerNameInfos = arr7 && arr7.customerNameOptions;
 
     const categoryTypeVal = getFieldValue('categoryType');
 
@@ -463,6 +485,13 @@ class DownloadAdHocReport extends Component {
               } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
                 const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
                 value = list && list.length > 0 && list.map(i => i.identifier);
+              } else if (
+                k === 'customerName' &&
+                checkCustomerName &&
+                checkCustomerName.length > 0
+              ) {
+                const list = customerNameInfos.filter(ii => checkCustomerName.includes(ii.taId));
+                value = list && list.length > 0 && list.map(i => i.taId);
               }
               values[k] = value ? value.join() : '';
               if (values[k] === 'All') {

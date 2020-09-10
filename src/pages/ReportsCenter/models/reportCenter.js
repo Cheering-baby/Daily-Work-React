@@ -13,6 +13,7 @@ import {
   queryAgeGroup,
   queryUserRolesByCondition,
   querySalePersons,
+  queryMappingList,
 } from '../services/reportCenter';
 import { REPORT_TYPE_MAP2 } from '../GeneratedReports/ScheduleTask/consts/authority';
 import * as service from '../GeneratedReports/DailyAndMonthlyReport/services/dailyAndMonthlyReport';
@@ -56,6 +57,9 @@ export default {
     categoryTypeList: [],
     checkAgeGroup: [],
     openAgeGroup: false,
+    checkCustomerName: [],
+    openCustomerName: false,
+    searchCustomerNames: [],
   },
   effects: {
     *fetchDisplay({ payload }, { call, put }) {
@@ -309,6 +313,27 @@ export default {
                     });
                     mergeArr.push([index, k]);
                   }
+                });
+              });
+            } else {
+              throw resMsg;
+            }
+          }
+          if (element.filterKey === 'customerName') {
+            const pageInfo = {
+              currentPage: 1,
+              pageSize: 1000,
+            };
+            const res = yield call(queryMappingList, { status: '0', pageInfo });
+            const {
+              data: { resultCode: code, resultMsg: resMsg, result: eleRes },
+            } = res;
+            const { mappingList: customerMappingList } = eleRes;
+            if (+code === 0) {
+              list.forEach(v => {
+                Object.assign(v, {
+                  key: v.filterKey,
+                  customerNameOptions: v.filterKey === 'customerName' ? customerMappingList : null,
                 });
               });
             } else {
@@ -611,6 +636,9 @@ export default {
         categoryTypeList: [],
         checkAgeGroup: [],
         openAgeGroup: false,
+        checkCustomerName: [],
+        openCustomerName: false,
+        searchCustomerNames: [],
       };
     },
     saveFilterList(state, { payload }) {

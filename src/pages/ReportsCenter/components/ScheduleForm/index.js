@@ -14,6 +14,7 @@ import {
   Table,
   Select,
   message,
+  Spin,
 } from 'antd';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
@@ -53,6 +54,7 @@ const formItemHalfLayout = {
   displayLoading: loading.effects['reportCenter/fetchDisplay'],
   addLoading: loading.effects['reportCenter/add'],
   editLoading: loading.effects['reportCenter/edit'],
+  configFilterLoadingFlag: loading.effects['reportCenter/fetchReportFilterList'],
 }))
 class ScheduleTransaction extends Component {
   componentDidMount() {
@@ -105,6 +107,7 @@ class ScheduleTransaction extends Component {
         openUserRoleForCreated: false,
         openAccountManager: false,
         openAgeGroup: false,
+        openCustomerName: false,
       },
     });
   };
@@ -148,6 +151,7 @@ class ScheduleTransaction extends Component {
         checkCustomerGroupValue,
         checkAccountManager,
         checkAgeGroup,
+        checkCustomerName,
       },
       type,
       sourcePage,
@@ -186,6 +190,12 @@ class ScheduleTransaction extends Component {
     const arr6 =
       filterList && filterList.length > 0 ? filterList.find(i => i.filterKey === 'ageGroup') : [];
     const ageGroupInfos = arr6 && arr6.ageGroupOptions;
+
+    const arr7 =
+      filterList && filterList.length > 0
+        ? filterList.find(i => i.filterKey === 'customerName')
+        : [];
+    const customerNameInfos = arr7 && arr7.customerNameOptions;
 
     let cType = '';
     // let types = '';
@@ -284,7 +294,7 @@ class ScheduleTransaction extends Component {
                   checkThemeParkValue.includes(ii.bookingCategoryName)
                 );
                 value = res && res.length > 0 && res.map(i => i.bookingCategoryCode);
-              } else if (checkChannelValue && checkChannelValue.length > 0) {
+              } else if (k === 'taMarket' && checkChannelValue && checkChannelValue.length > 0) {
                 const res = channelInfos.filter(ii => checkChannelValue.includes(ii.dictName));
                 value = res && res.length > 0 && res.map(i => i.dictId);
               } else if (
@@ -316,6 +326,13 @@ class ScheduleTransaction extends Component {
               } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
                 const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
                 value = list && list.length > 0 && list.map(i => i.identifier);
+              } else if (
+                k === 'customerName' &&
+                checkCustomerName &&
+                checkCustomerName.length > 0
+              ) {
+                const list = customerNameInfos.filter(ii => checkCustomerName.includes(ii.taId));
+                value = list && list.length > 0 && list.map(i => i.taId);
               }
               values[k] = value ? value.join() : '';
               if (values[k] === 'All') {
@@ -662,6 +679,7 @@ class ScheduleTransaction extends Component {
       detailList,
       editLoading,
       addLoading,
+      configFilterLoadingFlag,
       form: { getFieldValue },
     } = this.props;
     const cronTypes = getFieldValue('cronType');
@@ -738,129 +756,47 @@ class ScheduleTransaction extends Component {
     }
 
     return (
-      <Card className={styles.card}>
-        {sourcePage === 'reports' ? (
-          <p className={styles.titleStyle}>{formatMessage({ id: 'SCHEDULED_REPORTS_NAME' })}</p>
-        ) : (
-          <p className={styles.titleStyle}>Basic Information</p>
-        )}
-        <Form className={styles.formStyles} onSubmit={this.handleSubmit}>
-          <Form.Item
-            style={{ display: 'none' }}
-            {...formItemLayout}
-            label={formatMessage({ id: 'SCHEDULED_REPORTS_NAME' })}
-          >
-            {getFieldDecorator(`reportName`, {
-              initialValue: detailList && detailList.taskName ? detailList.taskName : '',
-              rules: [
-                {
-                  required: true,
-                  message: 'Required',
-                },
-              ],
-            })(<Input placeholder="Please Enter" disabled />)}
-          </Form.Item>
-          <Form.Item {...formItemLayout} label={formatMessage({ id: 'SCHEDULED_REPORTS_NAME' })}>
-            {getFieldDecorator(`scheduleDesc`, {
-              initialValue: detailList && detailList.reportName ? detailList.reportName : '',
-              rules: [
-                {
-                  required: true,
-                  message: 'Required',
-                },
-              ],
-            })(<Input placeholder="Please Enter" />)}
-          </Form.Item>
-          <Form.Item
-            {...formItemLayout}
-            className={styles.AdhocSchedule}
-            label={formatMessage({ id: 'REPORT_FREQUENCY' })}
-          >
-            {getFieldDecorator(`cronType`, {
-              initialValue: detailList && detailList.cronType ? detailList.cronType : '',
-              rules: [
-                {
-                  required: true,
-                  message: 'Required',
-                },
-              ],
-            })(
-              <Radio.Group onChange={this.radioChange}>
-                <div className={styles.AdhocScheduleStyle}>
-                  <Radio value="Ad-hoc" name="03">
-                    {formatMessage({ id: 'REPORT_ADHOC_REPORT' })}
-                  </Radio>
-                  {cronTypes === 'Ad-hoc'
-                    ? getFieldDecorator(`executeOnceTime`, {
-                        initialValue:
-                          detailList && detailList.executeOnceTime
-                            ? moment(detailList.executeOnceTime)
-                            : '',
-                      })(
-                        <DatePicker
-                          showToday={false}
-                          style={{ width: '60%' }}
-                          format="DD-MMM-YYYY HH:mm:ss"
-                          placeholder="Generated Date&Time"
-                          onChange={this.onDateChange}
-                          disabledDate={this.disabledDate}
-                          disabledTime={this.disabledDateTime}
-                          showTime={{ format: 'HH:mm:ss' }}
-                        />
-                      )
-                    : null}
-                </div>
-                <div className={styles.dailyStyle}>
-                  <Radio value="Daily" name="01">
-                    {formatMessage({ id: 'REPORT_DAILY' })}
-                  </Radio>
-                </div>
-                <div>
-                  <Radio value="Monthly" name="02">
-                    {formatMessage({ id: 'REPORT_MONTHLY' })}
-                  </Radio>
-                  {cronTypes === 'Monthly'
-                    ? getFieldDecorator('monthlyExecuteDay', {
-                        initialValue:
-                          detailList && detailList.monthlyExecuteDay
-                            ? detailList.monthlyExecuteDay
-                            : '',
-                      })(
-                        <Select
-                          allowClear
-                          placeholder="Monthly Execute Day"
-                          style={{ width: '15%' }}
-                        >
-                          {selectArr.map(i => (
-                            <Option value={i} key={i}>
-                              {i}
-                            </Option>
-                          ))}
-                        </Select>
-                      )
-                    : null}
-                </div>
-              </Radio.Group>
-            )}
-          </Form.Item>
-          {sourcePage === 'reports' || type === 'edit' ? (
+      <Spin spinning={!!configFilterLoadingFlag}>
+        <Card className={styles.card}>
+          {sourcePage === 'reports' ? (
+            <p className={styles.titleStyle}>{formatMessage({ id: 'SCHEDULED_REPORTS_NAME' })}</p>
+          ) : (
+            <p className={styles.titleStyle}>Basic Information</p>
+          )}
+          <Form className={styles.formStyles} onSubmit={this.handleSubmit}>
             <Form.Item
-              {...formItemHalfLayout}
-              label={formatMessage({ id: 'REPORTS_TYPE' })}
-              style={{ paddingTop: '10px' }}
+              style={{ display: 'none' }}
+              {...formItemLayout}
+              label={formatMessage({ id: 'SCHEDULED_REPORTS_NAME' })}
             >
-              {getFieldDecorator(`reportType`, {
-                initialValue: reportType2,
+              {getFieldDecorator(`reportName`, {
+                initialValue: detailList && detailList.taskName ? detailList.taskName : '',
+                rules: [
+                  {
+                    required: true,
+                    message: 'Required',
+                  },
+                ],
               })(<Input placeholder="Please Enter" disabled />)}
             </Form.Item>
-          ) : (
+            <Form.Item {...formItemLayout} label={formatMessage({ id: 'SCHEDULED_REPORTS_NAME' })}>
+              {getFieldDecorator(`scheduleDesc`, {
+                initialValue: detailList && detailList.reportName ? detailList.reportName : '',
+                rules: [
+                  {
+                    required: true,
+                    message: 'Required',
+                  },
+                ],
+              })(<Input placeholder="Please Enter" />)}
+            </Form.Item>
             <Form.Item
-              {...formItemHalfLayout}
-              label={formatMessage({ id: 'REPORTS_TYPE' })}
-              style={{ paddingTop: '10px' }}
+              {...formItemLayout}
+              className={styles.AdhocSchedule}
+              label={formatMessage({ id: 'REPORT_FREQUENCY' })}
             >
-              {getFieldDecorator(`reportType`, {
-                initialValue: type === 'edit' ? reportType2 : '',
+              {getFieldDecorator(`cronType`, {
+                initialValue: detailList && detailList.cronType ? detailList.cronType : '',
                 rules: [
                   {
                     required: true,
@@ -868,57 +804,141 @@ class ScheduleTransaction extends Component {
                   },
                 ],
               })(
-                <Select placeholder="Please Enter" onChange={this.reportNameChange}>
-                  {reportTypeList &&
-                    reportTypeList.map(item => (
-                      <Option key={item.value} value={item.value}>
-                        {item.text}
-                      </Option>
-                    ))}
-                </Select>
+                <Radio.Group onChange={this.radioChange}>
+                  <div className={styles.AdhocScheduleStyle}>
+                    <Radio value="Ad-hoc" name="03">
+                      {formatMessage({ id: 'REPORT_ADHOC_REPORT' })}
+                    </Radio>
+                    {cronTypes === 'Ad-hoc'
+                      ? getFieldDecorator(`executeOnceTime`, {
+                          initialValue:
+                            detailList && detailList.executeOnceTime
+                              ? moment(detailList.executeOnceTime)
+                              : '',
+                        })(
+                          <DatePicker
+                            showToday={false}
+                            style={{ width: '60%' }}
+                            format="DD-MMM-YYYY HH:mm:ss"
+                            placeholder="Generated Date&Time"
+                            onChange={this.onDateChange}
+                            disabledDate={this.disabledDate}
+                            disabledTime={this.disabledDateTime}
+                            showTime={{ format: 'HH:mm:ss' }}
+                          />
+                        )
+                      : null}
+                  </div>
+                  <div className={styles.dailyStyle}>
+                    <Radio value="Daily" name="01">
+                      {formatMessage({ id: 'REPORT_DAILY' })}
+                    </Radio>
+                  </div>
+                  <div>
+                    <Radio value="Monthly" name="02">
+                      {formatMessage({ id: 'REPORT_MONTHLY' })}
+                    </Radio>
+                    {cronTypes === 'Monthly'
+                      ? getFieldDecorator('monthlyExecuteDay', {
+                          initialValue:
+                            detailList && detailList.monthlyExecuteDay
+                              ? detailList.monthlyExecuteDay
+                              : '',
+                        })(
+                          <Select
+                            allowClear
+                            placeholder="Monthly Execute Day"
+                            style={{ width: '15%' }}
+                          >
+                            {selectArr.map(i => (
+                              <Option value={i} key={i}>
+                                {i}
+                              </Option>
+                            ))}
+                          </Select>
+                        )
+                      : null}
+                  </div>
+                </Radio.Group>
               )}
             </Form.Item>
-          )}
-          <div
-            className={
-              sourcePage !== 'reports' && filterList && filterList.length > 0
-                ? styles.grayBg
-                : undefined
-            }
-          >
-            {filterList.length > 0 && filterList.map(item => generateFilter(this.props, item))}
-          </div>
-          {fieldList && fieldList.length > 0 ? (
-            <Form.Item {...formItemLayout} label={formatMessage({ id: 'REPORT_FIELD' })}>
-              {getFieldDecorator(
-                `field`,
-                {}
-              )(
-                <Table
-                  loading={displayLoading || editLoading || addLoading}
-                  className={`tabs-no-padding ${styles.searchTitle}`}
-                  style={{ marginTop: 10 }}
-                  bordered={false}
-                  size="small"
-                  columns={columns}
-                  dataSource={fieldList}
-                  pagination={false}
-                  scroll={{ x: 660 }}
-                  rowKey={record => record.columnName}
-                  rowSelection={rowSelection}
-                />
-              )}
-            </Form.Item>
-          ) : null}
-          <Divider />
-          <div style={{ float: 'right' }}>
-            <Button onClick={this.cancel}>{formatMessage({ id: 'COMMON_CANCEL' })}</Button>
-            <Button style={{ marginLeft: '10px' }} type="primary" htmlType="submit">
-              {formatMessage({ id: 'COMMON_OK' })}
-            </Button>
-          </div>
-        </Form>
-      </Card>
+            {sourcePage === 'reports' || type === 'edit' ? (
+              <Form.Item
+                {...formItemHalfLayout}
+                label={formatMessage({ id: 'REPORTS_TYPE' })}
+                style={{ paddingTop: '10px' }}
+              >
+                {getFieldDecorator(`reportType`, {
+                  initialValue: reportType2,
+                })(<Input placeholder="Please Enter" disabled />)}
+              </Form.Item>
+            ) : (
+              <Form.Item
+                {...formItemHalfLayout}
+                label={formatMessage({ id: 'REPORTS_TYPE' })}
+                style={{ paddingTop: '10px' }}
+              >
+                {getFieldDecorator(`reportType`, {
+                  initialValue: type === 'edit' ? reportType2 : '',
+                  rules: [
+                    {
+                      required: true,
+                      message: 'Required',
+                    },
+                  ],
+                })(
+                  <Select placeholder="Please Enter" onChange={this.reportNameChange}>
+                    {reportTypeList &&
+                      reportTypeList.map(item => (
+                        <Option key={item.value} value={item.value}>
+                          {item.text}
+                        </Option>
+                      ))}
+                  </Select>
+                )}
+              </Form.Item>
+            )}
+            <div
+              className={
+                sourcePage !== 'reports' && filterList && filterList.length > 0
+                  ? styles.grayBg
+                  : undefined
+              }
+            >
+              {filterList.length > 0 && filterList.map(item => generateFilter(this.props, item))}
+            </div>
+            {fieldList && fieldList.length > 0 ? (
+              <Form.Item {...formItemLayout} label={formatMessage({ id: 'REPORT_FIELD' })}>
+                {getFieldDecorator(
+                  `field`,
+                  {}
+                )(
+                  <Table
+                    loading={displayLoading || editLoading || addLoading}
+                    className={`tabs-no-padding ${styles.searchTitle}`}
+                    style={{ marginTop: 10 }}
+                    bordered={false}
+                    size="small"
+                    columns={columns}
+                    dataSource={fieldList}
+                    pagination={false}
+                    scroll={{ x: 660 }}
+                    rowKey={record => record.columnName}
+                    rowSelection={rowSelection}
+                  />
+                )}
+              </Form.Item>
+            ) : null}
+            <Divider />
+            <div style={{ float: 'right' }}>
+              <Button onClick={this.cancel}>{formatMessage({ id: 'COMMON_CANCEL' })}</Button>
+              <Button style={{ marginLeft: '10px' }} type="primary" htmlType="submit">
+                {formatMessage({ id: 'COMMON_OK' })}
+              </Button>
+            </div>
+          </Form>
+        </Card>
+      </Spin>
     );
   }
 }

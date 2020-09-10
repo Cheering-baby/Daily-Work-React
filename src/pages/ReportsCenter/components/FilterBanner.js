@@ -51,6 +51,9 @@ const generateFilter = (props, filterItem) => {
       openUserRoleForCreated,
       openAccountManager,
       checkUserRoleValue,
+      checkCustomerName,
+      openCustomerName,
+      searchCustomerNames = [],
     },
     detailList,
   } = props;
@@ -70,6 +73,7 @@ const generateFilter = (props, filterItem) => {
     taMarketOptions = [],
     accountManagerOptions = [],
     ageGroupOptions = [],
+    customerNameOptions = [],
   } = filterItem;
 
   const categoryType = getFieldValue('categoryType');
@@ -209,6 +213,22 @@ const generateFilter = (props, filterItem) => {
                 },
               });
             }
+          } else if (result.filterKey === 'customerName') {
+            if (!checkChannelValueInit) {
+              const res =
+                Array.isArray(customerNameOptions) && customerNameOptions.length > 0
+                  ? customerNameOptions.filter(ii => val.includes(ii.taId))
+                  : [];
+              val = res && res.length > 0 && res.map(i => i.taId);
+              val = val || [];
+              dispatch({
+                type: 'reportCenter/save',
+                payload: {
+                  checkCustomerName: val,
+                  checkChannelValueInit: true,
+                },
+              });
+            }
           }
         } else if (result.filterType === 'INPUT') {
           if (val === 'All') {
@@ -332,6 +352,7 @@ const generateFilter = (props, filterItem) => {
           openCustomerGroup: false,
           openUserRoleForCreated: false,
           openAccountManager: false,
+          openCustomerName: false,
         },
       });
     } else if (filterKey === 'customerGroup') {
@@ -343,6 +364,7 @@ const generateFilter = (props, filterItem) => {
           openThemePark: false,
           openUserRoleForCreated: false,
           openAccountManager: false,
+          openCustomerName: false,
         },
       });
     } else if (filterKey === 'userRoleForCreated') {
@@ -355,6 +377,7 @@ const generateFilter = (props, filterItem) => {
           openUserRoleForCreated: true,
           openAccountManager: false,
           openAgeGroup: false,
+          openCustomerName: false,
         },
       });
     } else if (filterKey === 'accountManager') {
@@ -367,6 +390,7 @@ const generateFilter = (props, filterItem) => {
           openUserRoleForCreated: false,
           openAccountManager: true,
           openAgeGroup: false,
+          openCustomerName: false,
         },
       });
     } else if (filterKey === 'ageGroup') {
@@ -379,6 +403,7 @@ const generateFilter = (props, filterItem) => {
           openUserRoleForCreated: false,
           openAccountManager: false,
           openAgeGroup: true,
+          openCustomerName: false,
         },
       });
     } else if (dictSubType && dictType) {
@@ -391,6 +416,21 @@ const generateFilter = (props, filterItem) => {
           openUserRoleForCreated: false,
           openAccountManager: false,
           openAgeGroup: false,
+          openCustomerName: false,
+        },
+      });
+    } else if (filterKey === 'customerName') {
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          openThemePark: false,
+          openChannel: false,
+          openCustomerGroup: false,
+          openUserRoleForCreated: false,
+          openAccountManager: false,
+          openAgeGroup: false,
+          openCustomerName: true,
+          searchCustomerNames: [],
         },
       });
     }
@@ -510,6 +550,27 @@ const generateFilter = (props, filterItem) => {
     });
   };
 
+  const customerNameAll = e => {
+    let arr7 = [];
+    if (e.target.checked === true) {
+      arr7 =
+        customerNameOptions &&
+        customerNameOptions.length > 0 &&
+        customerNameOptions.map(i => i.taId);
+    } else {
+      arr7 = [];
+    }
+    dispatch({
+      type: 'reportCenter/save',
+      payload: {
+        checkCustomerName: arr7,
+      },
+    });
+    setFieldsValue({
+      customerName: arr7,
+    });
+  };
+
   const itemChange = value => {
     dispatch({
       type: 'reportCenter/save',
@@ -580,6 +641,18 @@ const generateFilter = (props, filterItem) => {
     });
     setFieldsValue({
       ageGroup: value,
+    });
+  };
+  const itemChange7 = value => {
+    dispatch({
+      type: 'reportCenter/save',
+      payload: {
+        checkCustomerName: value,
+        searchCustomerNames: [],
+      },
+    });
+    setFieldsValue({
+      customerName: value,
     });
   };
 
@@ -721,6 +794,47 @@ const generateFilter = (props, filterItem) => {
     return <div />;
   };
 
+  const customerNameDropDown = () => {
+    if (customerNameOptions && customerNameOptions.length > 0) {
+      let customerNameArray;
+      customerNameArray = customerNameOptions.map(item => {
+        return {
+          label: item.companyName,
+          value: item.taId,
+        };
+      });
+      if (searchCustomerNames && searchCustomerNames.length > 0) {
+        customerNameArray = searchCustomerNames.map(item => {
+          return {
+            label: item.companyName,
+            value: item.taId,
+          };
+        });
+      }
+      const matchAll =
+        checkCustomerName && checkCustomerName.length > 0
+          ? checkCustomerName.length === customerNameOptions.length
+          : false;
+      return (
+        <div className={styles.dropDownContainer}>
+          <div style={{ maxHeight: '150px', overflow: 'auto' }}>
+            <div style={{ marginTop: '5px' }}>
+              <Checkbox onChange={customerNameAll} checked={matchAll}>
+                Select All
+              </Checkbox>
+            </div>
+            <CheckboxGroup
+              options={customerNameArray}
+              onChange={itemChange7}
+              value={checkCustomerName}
+            />
+          </div>
+        </div>
+      );
+    }
+    return <div />;
+  };
+
   const themeParkDelete = value => {
     if (filterKey === 'themeParkCode') {
       dispatch({
@@ -781,6 +895,31 @@ const generateFilter = (props, filterItem) => {
       });
       setFieldsValue({
         ageGroup: value,
+      });
+    } else if (filterKey === 'customerName') {
+      const customerValue = value.map(i => i.key);
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          checkCustomerName: customerValue,
+        },
+      });
+      setFieldsValue({
+        customerName: customerValue,
+      });
+    }
+  };
+
+  const multipleSelectSearch = value => {
+    if (filterKey === 'customerName') {
+      const searchCustomerNameList = customerNameOptions.filter(
+        item => item.companyName.toLowerCase().indexOf(value.toLowerCase()) >= 0
+      );
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          searchCustomerNames: searchCustomerNameList,
+        },
       });
     }
   };
@@ -854,16 +993,19 @@ const generateFilter = (props, filterItem) => {
             <Select
               optionFilterProp="children"
               allowClear
+              labelInValue={filterKey === 'customerName'}
               mode="multiple"
               open={false}
               ref={themeParkSelect}
               showSearch
+              onSearch={multipleSelectSearch}
               placeholder={
                 filterKey === 'themeParkCode' ||
                 filterKey === 'taMarket' ||
                 filterKey === 'userRoleForCreated' ||
                 filterKey === 'accountManager' ||
-                filterKey === 'ageGroup'
+                filterKey === 'ageGroup' ||
+                filterKey === 'customerName'
                   ? 'All'
                   : filterName
               }
@@ -935,6 +1077,8 @@ const generateFilter = (props, filterItem) => {
     open = openAccountManager;
   } else if (filterKey === 'ageGroup') {
     open = openAgeGroup;
+  } else if (filterKey === 'customerName') {
+    open = openCustomerName;
   } else {
     open = false;
   }
@@ -952,6 +1096,8 @@ const generateFilter = (props, filterItem) => {
     dropDown = accountManagerDropDown();
   } else if (filterKey === 'ageGroup') {
     dropDown = ageGroupDropDown();
+  } else if (filterKey === 'customerName') {
+    dropDown = customerNameDropDown();
   } else {
     dropDown = '';
   }
@@ -969,6 +1115,21 @@ const generateFilter = (props, filterItem) => {
     val = checkAccountManager;
   } else if (filterKey === 'ageGroup') {
     val = checkAgeGroup;
+  } else if (filterKey === 'customerName') {
+    const customerNameList = [];
+    for (let i = 0; i < checkCustomerName.length; i++) {
+      for (let j = 0; j < customerNameOptions.length; j++) {
+        if (checkCustomerName[i] === customerNameOptions[j].taId) {
+          customerNameList.push({
+            label: customerNameOptions[j].companyName,
+            value: customerNameOptions[j].taId,
+            key: customerNameOptions[j].taId,
+          });
+          break;
+        }
+      }
+    }
+    val = customerNameList;
   } else {
     val = [];
   }
@@ -995,6 +1156,8 @@ const generateFilter = (props, filterItem) => {
             open = openUserRoleForCreated;
           } else if (filterKey === 'accountManager') {
             open = openUserRoleForCreated;
+          } else if (filterKey === 'customerName') {
+            open = openCustomerName;
           }
         },
       })

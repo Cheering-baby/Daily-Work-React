@@ -18,8 +18,8 @@ export default {
     'Your application has been submitted. It will take 5 working days to process your application.',
   SUB_STATUS:
     'Your application has been submitted. It will take 5 working days to process your application.',
-  REGISTRATION_FAILED: 'Oh!! Registration failed',
-  SUB_REGISTRATION_FAILED: "It doesn't matter. One more time.",
+  REGISTRATION_FAILED: 'Registration failed.',
+  SUB_REGISTRATION_FAILED: "Please check your internet connection and try again.",
   CUSTOMER_INFORMATION: 'Step 1',
   CUSTOMER_INFORMATION_NAME: 'Company Information',
   OTHER_INFORMATION: 'Step 2',

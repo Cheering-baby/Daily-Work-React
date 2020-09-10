@@ -106,7 +106,7 @@ const ScheduleTaskLog = props => {
     },
     {
       key: 'generatedDate',
-      title: 'Generated Date',
+      title: 'Generated Date Time',
       dataIndex: 'generatedDate',
       sorter: true,
       render: renderContent,

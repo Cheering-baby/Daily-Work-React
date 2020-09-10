@@ -27,5 +27,5 @@ export default {
   REPORTS_TYPE: 'Reports Type',
   REPORTS_NAME: 'Name',
   REPORT_NAME: 'Report Name',
-  GENERATED_DATE: 'Generated Date',
+  GENERATED_DATE: 'Generated Date Time',
 };

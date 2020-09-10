@@ -198,15 +198,12 @@ export default {
         const expectTime = item.expectTime && moment(item.expectTime).format(DATE_FORMAT_WITH_TIME);
         const modifiedDateTime =
           item.updateTime && moment(item.updateTime).format(DATE_FORMAT_WITH_TIME);
-        const generationDateTime =
-          item.executeTime && moment(item.executeTime).format(DATE_FORMAT_WITH_TIME);
-
         const data = {
           ...item,
           key: item.jobLogCode,
           expectTime,
           modifiedDateTime,
-          generationDateTime,
+          generationDateTime: expectTime,
           generatedDate: executeTime,
           status: item.jobStatus,
           reportsName: item.taskName,
@@ -277,6 +274,12 @@ export default {
           label: 'Generation Date Time',
           texts: [
             taskDetail.executeTime && moment(taskDetail.executeTime).format(DATE_FORMAT_WITH_TIME),
+          ],
+        },
+        {
+          label: 'Schedule Date Time',
+          texts: [
+            taskDetail.expectTime && moment(taskDetail.expectTime).format(DATE_FORMAT_WITH_TIME),
           ],
         }
       );
