@@ -66,6 +66,7 @@ class PLUTable extends Component {
       {
         title: formatMessage({ id: 'REPORT_NO' }),
         dataIndex: 'no',
+        width: 80,
         render: (text, row, index) => index + (currentPage - 1) * nowPageSize + 1,
       },
       {
@@ -73,17 +74,12 @@ class PLUTable extends Component {
         dataIndex: 'dictDesc',
         sorter: (a, b) => (a.dictName > b.dictName ? -1 : 1),
         sortDirections: ['descend', 'ascend'],
-        render: text => {
-          return (
-            <Tooltip title={text} placement="topLeft">
-              {text || '-'}
-            </Tooltip>
-          );
-        },
+        className: styles.reportNameColumn,
       },
       {
         title: formatMessage({ id: 'REPORT_OPERATION' }),
         dataIndex: 'operation',
+        width: 140,
         render: (_, record) => {
           return (
             <div>
@@ -126,7 +122,6 @@ class PLUTable extends Component {
           pagination={false}
           rowKey={record => record.jobCode}
           scroll={{ x: 660 }}
-          // onChange={this.tableChange}
         />
         <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
       </div>

@@ -41,10 +41,12 @@ const generateFilter = (props, filterItem) => {
       openChannel,
       openAgeGroup,
       openCustomerGroup,
+      openCategoryType,
       checkThemeParkValue,
       checkChannelValue,
       checkAccountManager,
-      checkCustomerGroupValue,
+      checkCategoryTypeValue,
+      checkCustomerGroupValue = [],
       checkAgeGroup,
       checkChannelValueInit,
       categoryTypeList,
@@ -53,7 +55,9 @@ const generateFilter = (props, filterItem) => {
       checkUserRoleValue,
       checkCustomerName,
       openCustomerName,
-      searchCustomerNames = [],
+      searchCustomerNames,
+      searchCategoryTypeList,
+      customerGroupList,
     },
     detailList,
   } = props;
@@ -73,20 +77,30 @@ const generateFilter = (props, filterItem) => {
     taMarketOptions = [],
     accountManagerOptions = [],
     ageGroupOptions = [],
+    categoryTypeOptions = [],
     customerNameOptions = [],
   } = filterItem;
 
-  const categoryType = getFieldValue('categoryType');
-  const categoryTypeArr =
-    categoryTypeList && categoryTypeList.length > 0
-      ? categoryTypeList.filter(i => i.dictSubType === '1004')
-      : [];
-  const arr = categoryTypeArr.filter(t => t.dictId === categoryType);
-  const arr1 = Array.isArray(arr) && arr.length > 0 ? arr.map(i => i.dictName) : [];
-  const customerOptions =
-    customerGroupOptions && customerGroupOptions.length > 0
-      ? customerGroupOptions.filter(i => i.dictSubTypeName === arr1.join())
-      : [];
+  // const categoryType = getFieldValue('categoryType');
+  // const categoryTypeArr =
+  //   categoryTypeList && categoryTypeList.length > 0
+  //     ? categoryTypeList.filter(i => i.dictSubType === '1004')
+  //     : [];
+  // const arr = categoryTypeArr.filter(t => t.dictId === categoryType);
+  // const arr1 = Array.isArray(arr) && arr.length > 0 ? arr.map(i => i.dictName) : [];
+  // const customerOptions =
+  //   customerGroupOptions && customerGroupOptions.length > 0
+  //     ? customerGroupOptions.filter(i => checkCategoryTypeValue && checkCategoryTypeValue.includes(i.dictSubType))
+  //     : [];
+
+  const customerOptions = customerGroupOptions && checkCategoryTypeValue && checkCategoryTypeValue.map(i => {
+    const  title =  categoryTypeList.find(j => j.dictId === i)
+     return {
+       title,
+       options: customerGroupOptions.filter(j => j.dictSubType === i)
+     } 
+  }) || [];
+
 
   const themeParkSelect = React.createRef();
 
@@ -102,11 +116,17 @@ const generateFilter = (props, filterItem) => {
       if (result) {
         let val = result.filterValue;
         if (result.filterType === 'RANGE_PICKER' || result.filterType === 'DATE_PICKER') {
-          if (cronTypeVal === 'Daily' || cronTypeVal === 'Monthly') {
+          if (
+            cronTypeVal === 'Daily' ||
+            (cronTypeVal === 'Monthly' && +result.isRequiredWhere === 1)
+          ) {
             val = '';
-          } else if (cronTypeValue && reportFrequency === '') {
+          } else if (cronTypeValue && reportFrequency === '' && +result.isRequiredWhere === 1) {
             val = '';
-          } else if (reportFrequency === 'Daily' || reportFrequency === 'Monthly') {
+          } else if (
+            reportFrequency === 'Daily' ||
+            (reportFrequency === 'Monthly' && +result.isRequiredWhere === 1)
+          ) {
             val = '';
           } else {
             val = val ? moment(+val) : '';
@@ -133,7 +153,7 @@ const generateFilter = (props, filterItem) => {
             }
           } else if (result.filterKey === 'themeParkCode') {
             if (!checkChannelValueInit) {
-              val = val ? val.split(',') : [];
+              val = val ? val.split(',') : undefined;
               const res =
                 Array.isArray(themeParkOptions) && themeParkOptions.length > 0
                   ? themeParkOptions.filter(ii => val.includes(ii.bookingCategoryCode))
@@ -214,12 +234,13 @@ const generateFilter = (props, filterItem) => {
               });
             }
           } else if (result.filterKey === 'customerName') {
-            if (!checkChannelValueInit) {
-              const res =
+            if (!checkChannelValueInit && val) {
+              val = val.split(',');
+              const existValue =
                 Array.isArray(customerNameOptions) && customerNameOptions.length > 0
                   ? customerNameOptions.filter(ii => val.includes(ii.taId))
                   : [];
-              val = res && res.length > 0 && res.map(i => i.taId);
+              val = existValue && existValue.length > 0 && existValue.map(i => i.taId);
               val = val || [];
               dispatch({
                 type: 'reportCenter/save',
@@ -343,97 +364,39 @@ const generateFilter = (props, filterItem) => {
   const showSelectOpen = e => {
     e.nativeEvent.stopImmediatePropagation();
     themeParkSelect.current.focus();
-    if (filterKey === 'themeParkCode') {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          openThemePark: true,
-          openChannel: false,
-          openCustomerGroup: false,
-          openUserRoleForCreated: false,
-          openAccountManager: false,
-          openCustomerName: false,
-        },
-      });
-    } else if (filterKey === 'customerGroup') {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          openCustomerGroup: true,
-          openChannel: false,
-          openThemePark: false,
-          openUserRoleForCreated: false,
-          openAccountManager: false,
-          openCustomerName: false,
-        },
-      });
-    } else if (filterKey === 'userRoleForCreated') {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          openCustomerGroup: false,
-          openChannel: false,
-          openThemePark: false,
-          openUserRoleForCreated: true,
-          openAccountManager: false,
-          openAgeGroup: false,
-          openCustomerName: false,
-        },
-      });
-    } else if (filterKey === 'accountManager') {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          openCustomerGroup: false,
-          openChannel: false,
-          openThemePark: false,
-          openUserRoleForCreated: false,
-          openAccountManager: true,
-          openAgeGroup: false,
-          openCustomerName: false,
-        },
-      });
-    } else if (filterKey === 'ageGroup') {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          openCustomerGroup: false,
-          openChannel: false,
-          openThemePark: false,
-          openUserRoleForCreated: false,
-          openAccountManager: false,
-          openAgeGroup: true,
-          openCustomerName: false,
-        },
-      });
-    } else if (dictSubType && dictType) {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          openThemePark: false,
-          openChannel: true,
-          openCustomerGroup: false,
-          openUserRoleForCreated: false,
-          openAccountManager: false,
-          openAgeGroup: false,
-          openCustomerName: false,
-        },
-      });
-    } else if (filterKey === 'customerName') {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          openThemePark: false,
-          openChannel: false,
-          openCustomerGroup: false,
-          openUserRoleForCreated: false,
-          openAccountManager: false,
-          openAgeGroup: false,
-          openCustomerName: true,
-          searchCustomerNames: [],
-        },
-      });
+    const data = {
+      openThemePark: false,
+      openChannel: false,
+      openCustomerGroup: false,
+      openUserRoleForCreated: false,
+      openAccountManager: false,
+      openCustomerName: false,
+      openAgeGroup: false,
+      openCategoryType: false,
     }
+    if (filterKey === 'themeParkCode') {
+      data.openThemePark = true;
+    } else if (filterKey === 'customerGroup') {
+      data.openCustomerGroup = true;
+    } else if (filterKey === 'userRoleForCreated') {
+      data.openUserRoleForCreated = true;
+    } else if (filterKey === 'accountManager') {
+      data.openAccountManager = true;
+    } else if (filterKey === 'ageGroup') {
+      data.openAgeGroup = true;
+    } else if (filterKey === 'customerName') {
+      data.openCustomerName = true;
+      data.searchCustomerNames = null;
+    } else if (filterKey === 'taMarket') {
+      data.openChannel = true;
+    } else if (filterKey === 'categoryType') {
+      data.openCategoryType = true;
+      data.searchCategoryTypeList = null;
+    }
+    dispatch({
+      type: 'reportCenter/save',
+      payload: data
+    });
   };
 
   const themeParkChangeAll = e => {
@@ -478,7 +441,11 @@ const generateFilter = (props, filterItem) => {
   const customerGroupAll = e => {
     let arr3 = [];
     if (e.target.checked === true) {
-      arr3 = customerOptions && customerOptions.length > 0 && customerOptions.map(i => i.dictName);
+      customerOptions.forEach(({options: itemOption}) => {
+        itemOption.forEach(item => {
+          arr3.push(item.dictId);
+        })
+       })
     } else {
       arr3 = [];
     }
@@ -596,18 +563,6 @@ const generateFilter = (props, filterItem) => {
     });
   };
 
-  const itemChange3 = value => {
-    dispatch({
-      type: 'reportCenter/save',
-      payload: {
-        checkCustomerGroupValue: value,
-      },
-    });
-    setFieldsValue({
-      customerGroup: value,
-    });
-  };
-
   const itemChange4 = value => {
     dispatch({
       type: 'reportCenter/save',
@@ -648,13 +603,84 @@ const generateFilter = (props, filterItem) => {
       type: 'reportCenter/save',
       payload: {
         checkCustomerName: value,
-        searchCustomerNames: [],
+        searchCustomerNames: null,
       },
     });
     setFieldsValue({
       customerName: value,
     });
   };
+
+  const changeCategoryType = value => {
+    const checkCustomerGroupValueFilter = checkCustomerGroupValue.filter(i => {
+      return (
+        customerGroupList.find(j => j.dictId === i) &&
+        value.includes(customerGroupList.find(j => j.dictId === i).dictSubType)
+      );
+    });
+
+    dispatch({
+      type: 'reportCenter/save',
+      payload: {
+        checkCategoryTypeValue: value,
+        checkCustomerGroupValue: checkCustomerGroupValueFilter,
+      },
+    });
+    setFieldsValue({
+      categoryType: value,
+      customerGroup: checkCustomerGroupValueFilter,
+    });
+  };
+
+  const changeCategoryTypeAll = e => {
+    let arr3 = [];
+    if (e.target.checked === true) {
+      arr3 = categoryTypeOptions && categoryTypeOptions.length > 0 && categoryTypeOptions.map(i => i.dictId);
+    } else {
+      arr3 = [];
+    }
+    dispatch({
+      type: 'reportCenter/save',
+      payload: {
+        checkCategoryTypeValue: arr3,
+        checkCustomerGroupValue: arr3.length === 0 ? [] : checkCustomerGroupValue,
+      },
+    });
+    setFieldsValue({
+      categoryType: arr3,
+      customerGroup: arr3.length === 0 ? [] : checkCustomerGroupValue,
+    });
+  };
+
+  const changeCustomerGroup = (e, key) => {
+    let newVal = [];
+    if(typeof(key) === 'object') {
+      const { itemOption } = key;
+      const keyItems = [];
+      itemOption.forEach(item => {
+        keyItems.push(item.dictId);
+      })
+      if(e.target.checked) {
+          newVal = Array.from(new Set([...checkCustomerGroupValue, ...keyItems]));
+      } else {
+        newVal = checkCustomerGroupValue.filter(i => !keyItems.includes(i));
+      }
+    } else if(e.target.checked) {
+        newVal = Array.from(new Set([...checkCustomerGroupValue, key]));
+    } else {
+      newVal = checkCustomerGroupValue.filter(i => i !== key);
+    }
+
+    dispatch({
+      type: 'reportCenter/save',
+      payload: {
+        checkCustomerGroupValue: newVal
+      },
+    });
+    setFieldsValue({
+      customerGroup: newVal,
+    });
+  }
 
   const themeParkDropDown = () => {
     if (themeParkOptions && themeParkOptions.length > 0) {
@@ -681,20 +707,63 @@ const generateFilter = (props, filterItem) => {
 
   const customerGroupDropDown = () => {
     if (customerOptions && customerOptions.length > 0) {
-      const arr1s = customerOptions.map(i => i.dictName);
-      const matchAll =
-        checkCustomerGroupValue && checkCustomerGroupValue.length > 0
-          ? customerOptions.length === checkCustomerGroupValue.length
-          : false;
+      let keyLen = 0;
+      customerOptions.forEach(({options: itemOption}) => {
+        keyLen += itemOption.length;
+      })
+
+      // eslint-disable-next-line no-inner-declarations
+      function matchItem(itemOption) {
+        let matchItemOption = true;
+        itemOption.forEach(item => {
+          const key = item.dictId;
+          if(!checkCustomerGroupValue.includes(key)) {
+            matchItemOption = false;
+          }
+        })
+        return matchItemOption;
+      }
+
       return (
         <div className={styles.dropDownContainer}>
-          <div style={{ maxHeight: '150px', overflow: 'auto' }}>
-            <div style={{ marginTop: '5px' }}>
-              <Checkbox onChange={customerGroupAll} checked={matchAll}>
+          <div style={{ maxHeight: '200px', overflow: 'auto' }}>
+            <div style={{ marginTop: '5px', marginBottom: '5px' }}>
+              {/* <Checkbox onChange={customerGroupAll} checked={matchAll}> */}
+              <Checkbox
+                onChange={customerGroupAll}
+                checked={keyLen === checkCustomerGroupValue.length}
+                disabled={keyLen === 0}
+              >
                 Select All
               </Checkbox>
             </div>
-            <CheckboxGroup options={arr1s} onChange={itemChange3} value={checkCustomerGroupValue} />
+            {customerOptions.map(({ title, options: itemOption }) => {
+              return (
+                <div className={styles.customerOptionsItem}>
+                  <Checkbox
+                    checked={matchItem(itemOption)}
+                    disabled={itemOption.length === 0}
+                    onChange={e => changeCustomerGroup(e, { title, itemOption })}
+                  >
+                    <span className={styles.customerGroupDictName}>{title.dictName}</span>
+                  </Checkbox>
+                  <div className={styles.customerGroupOptions}>
+                    {itemOption.map(item => {
+                      const key = item.dictId;
+                      return (
+                        <Checkbox
+                          key={key}
+                          checked={checkCustomerGroupValue.includes(key)}
+                          onChange={e => changeCustomerGroup(e, key)}
+                        >
+                          {item.dictName}
+                        </Checkbox>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       );
@@ -776,7 +845,7 @@ const generateFilter = (props, filterItem) => {
       const arrsAge = ageGroupOptions.map(i => i.name);
       const matchAll =
         checkAgeGroup && checkAgeGroup.length > 0
-          ? ageGroupOptions.length === ageGroupOptions.length
+          ? checkAgeGroup.length === ageGroupOptions.length
           : false;
       return (
         <div className={styles.dropDownContainer}>
@@ -803,7 +872,7 @@ const generateFilter = (props, filterItem) => {
           value: item.taId,
         };
       });
-      if (searchCustomerNames && searchCustomerNames.length > 0) {
+      if (searchCustomerNames && Array.isArray(searchCustomerNames)) {
         customerNameArray = searchCustomerNames.map(item => {
           return {
             label: item.companyName,
@@ -835,6 +904,47 @@ const generateFilter = (props, filterItem) => {
     return <div />;
   };
 
+  const categoryTypeDropDown = () => {
+    // categoryTypeOptions
+    if (categoryTypeOptions && categoryTypeOptions.length > 0) {
+      let categoryTypeArray = categoryTypeOptions.map(item => {
+        return {
+          label: item.dictName,
+          value: item.dictId,
+        };
+      });
+      if (searchCategoryTypeList && Array.isArray(searchCategoryTypeList)) {
+        categoryTypeArray = searchCategoryTypeList.map(item => {
+          return {
+            label: item.dictName,
+            value: item.dictId,
+          };
+        });
+      }
+      const matchAll =
+        categoryTypeOptions && categoryTypeOptions.length > 0
+          ? categoryTypeOptions.length === checkCategoryTypeValue.length
+          : false;
+      return (
+        <div className={styles.dropDownContainer}>
+          <div style={{ maxHeight: '150px', overflow: 'auto' }}>
+            <div style={{ marginTop: '5px' }}>
+              <Checkbox onChange={changeCategoryTypeAll} checked={matchAll}>
+                Select All
+              </Checkbox>
+            </div>
+            <CheckboxGroup
+              options={categoryTypeArray}
+              onChange={changeCategoryType}
+              value={checkCategoryTypeValue}
+            />
+          </div>
+        </div>
+      );
+    }
+    return <div />;
+  }
+
   const themeParkDelete = value => {
     if (filterKey === 'themeParkCode') {
       dispatch({
@@ -850,11 +960,11 @@ const generateFilter = (props, filterItem) => {
       dispatch({
         type: 'reportCenter/save',
         payload: {
-          checkCustomerGroupValue: value,
+          checkCustomerGroupValue: value.map(({key}) => key),
         },
       });
       setFieldsValue({
-        customerGroup: value,
+        customerGroup: value.map(({key}) => key),
       });
     } else if (filterKey === 'userRoleForCreated') {
       dispatch({
@@ -907,6 +1017,25 @@ const generateFilter = (props, filterItem) => {
       setFieldsValue({
         customerName: customerValue,
       });
+    } else if(filterKey === 'categoryType') {
+      const mapValue = value.map(({key}) => key);
+      const checkCustomerGroupValueFilter = checkCustomerGroupValue.filter(i => {
+        return (
+          customerGroupList.find(j => j.dictId === i) &&
+          mapValue.includes(customerGroupList.find(j => j.dictId === i).dictSubType)
+        );
+      });
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          checkCategoryTypeValue: mapValue,
+          checkCustomerGroupValue: checkCustomerGroupValueFilter
+        },
+      });
+      setFieldsValue({
+        categoryType: mapValue,
+        customerGroup: checkCustomerGroupValueFilter
+      });
     }
   };
 
@@ -919,6 +1048,16 @@ const generateFilter = (props, filterItem) => {
         type: 'reportCenter/save',
         payload: {
           searchCustomerNames: searchCustomerNameList,
+        },
+      });
+    } else if(filterKey === 'categoryType') {
+      const searchCategoryTypeListFilter = categoryTypeOptions.filter(
+        item => item.dictName.toLowerCase().indexOf(value.toLowerCase()) >= 0
+      );
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          searchCategoryTypeList: searchCategoryTypeListFilter,
         },
       });
     }
@@ -993,19 +1132,21 @@ const generateFilter = (props, filterItem) => {
             <Select
               optionFilterProp="children"
               allowClear
-              labelInValue={filterKey === 'customerName'}
+              labelInValue={['customerName', 'categoryType', 'customerGroup'].includes(filterKey)}
               mode="multiple"
               open={false}
               ref={themeParkSelect}
               showSearch
               onSearch={multipleSelectSearch}
               placeholder={
-                filterKey === 'themeParkCode' ||
-                filterKey === 'taMarket' ||
-                filterKey === 'userRoleForCreated' ||
-                filterKey === 'accountManager' ||
-                filterKey === 'ageGroup' ||
-                filterKey === 'customerName'
+                [
+                  'themeParkCode',
+                  'taMarket',
+                  'userRoleForCreated',
+                  'accountManager',
+                  'ageGroup',
+                  'customerName',
+                ].includes(filterKey)
                   ? 'All'
                   : filterName
               }
@@ -1021,7 +1162,7 @@ const generateFilter = (props, filterItem) => {
               <div className={styles.mutilSelectAbsolute}>{isDropDown}</div>
             </Col>
           </Row>
-        ) : null}
+        ) : <Row><Col><div /></Col></Row>}
       </Form.Item>
     ),
     DATE_PICKER: ({ required }) => (
@@ -1065,60 +1206,45 @@ const generateFilter = (props, filterItem) => {
   const comp = FILTER_DICT[filterType];
 
   let open;
-  if (filterKey === 'themeParkCode') {
-    open = openThemePark;
-  } else if (filterKey === 'customerGroup') {
-    open = openCustomerGroup;
-  } else if (filterKey === 'taMarket') {
-    open = openChannel;
-  } else if (filterKey === 'userRoleForCreated') {
-    open = openUserRoleForCreated;
-  } else if (filterKey === 'accountManager') {
-    open = openAccountManager;
-  } else if (filterKey === 'ageGroup') {
-    open = openAgeGroup;
-  } else if (filterKey === 'customerName') {
-    open = openCustomerName;
-  } else {
-    open = false;
-  }
-
   let dropDown;
-  if (filterKey === 'themeParkCode') {
-    dropDown = themeParkDropDown();
-  } else if (filterKey === 'customerGroup') {
-    dropDown = customerGroupDropDown();
-  } else if (filterKey === 'taMarket') {
-    dropDown = channelDropDown();
-  } else if (filterKey === 'userRoleForCreated') {
-    dropDown = userRoleForCreatedDropDown();
-  } else if (filterKey === 'accountManager') {
-    dropDown = accountManagerDropDown();
-  } else if (filterKey === 'ageGroup') {
-    dropDown = ageGroupDropDown();
-  } else if (filterKey === 'customerName') {
-    dropDown = customerNameDropDown();
-  } else {
-    dropDown = '';
-  }
-
   let val;
   if (filterKey === 'themeParkCode') {
+    open = openThemePark;
+    dropDown = themeParkDropDown();
     val = checkThemeParkValue;
   } else if (filterKey === 'customerGroup') {
-    val = checkCustomerGroupValue;
-  } else if (filterKey === 'userRoleForCreated') {
-    val = checkUserRoleValue;
+    open = openCustomerGroup;
+    dropDown = customerGroupDropDown();
+    val = checkCustomerGroupValue
+    ? checkCustomerGroupValue.map(value => {
+        if (customerGroupOptions.find(item => item.dictId === value)) {
+          return { label: customerGroupOptions.find(item => item.dictId === value).dictName, key: value };
+        }
+        return { label: value, key: value };
+      })
+    : null;
   } else if (filterKey === 'taMarket') {
+    open = openChannel;
+    dropDown = channelDropDown();
     val = checkChannelValue;
+  } else if (filterKey === 'userRoleForCreated') {
+    open = openUserRoleForCreated;
+    dropDown = userRoleForCreatedDropDown();
+    val = checkUserRoleValue;
   } else if (filterKey === 'accountManager') {
+    open = openAccountManager;
+    dropDown = accountManagerDropDown();
     val = checkAccountManager;
   } else if (filterKey === 'ageGroup') {
+    open = openAgeGroup;
+    dropDown = ageGroupDropDown();
     val = checkAgeGroup;
   } else if (filterKey === 'customerName') {
+    open = openCustomerName;
+    dropDown = customerNameDropDown();
     const customerNameList = [];
-    for (let i = 0; i < checkCustomerName.length; i++) {
-      for (let j = 0; j < customerNameOptions.length; j++) {
+    for (let i = 0; i < checkCustomerName.length; i += 1) {
+      for (let j = 0; j < customerNameOptions.length; j += 1) {
         if (checkCustomerName[i] === customerNameOptions[j].taId) {
           customerNameList.push({
             label: customerNameOptions[j].companyName,
@@ -1130,7 +1256,20 @@ const generateFilter = (props, filterItem) => {
       }
     }
     val = customerNameList;
+  } else if (filterKey === 'categoryType') {
+    open = openCategoryType;
+    dropDown = categoryTypeDropDown();
+    val = checkCategoryTypeValue
+      ? checkCategoryTypeValue.map(value => {
+          if (categoryTypeOptions.find(item => item.dictId === value)) {
+            return { label: categoryTypeOptions.find(item => item.dictId === value).dictName, key: value };
+          }
+          return { label: value, key: value };
+        })
+      : null;
   } else {
+    open = false;
+    dropDown = '';
     val = [];
   }
 
@@ -1158,6 +1297,8 @@ const generateFilter = (props, filterItem) => {
             open = openUserRoleForCreated;
           } else if (filterKey === 'customerName') {
             open = openCustomerName;
+          } else if (filterKey === 'categoryType') {
+            open = openCategoryType
           }
         },
       })

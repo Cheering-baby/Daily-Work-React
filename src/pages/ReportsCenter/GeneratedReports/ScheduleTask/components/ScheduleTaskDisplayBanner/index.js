@@ -47,7 +47,7 @@ const ScheduleTaskDisplayBanner = props => {
   const editTask = task => {
     history.push({
       pathname: PATH_REPORT_CENTER_GENERATED_SCHEDULE_TASK_EDIT,
-      query: { jobCode: task.jobCode, reportType: task.reportType, editTask: task.reportType },
+      query: { jobCode: task.jobCode, reportType: task.reportTypeName, editTask: task.reportType },
     });
   };
 

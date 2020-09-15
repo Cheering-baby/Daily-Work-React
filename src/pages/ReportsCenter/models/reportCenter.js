@@ -59,7 +59,8 @@ export default {
     openAgeGroup: false,
     checkCustomerName: [],
     openCustomerName: false,
-    searchCustomerNames: [],
+    searchCustomerNames: null,
+    openCategoryType: false,
   },
   effects: {
     *fetchDisplay({ payload }, { call, put }) {
@@ -145,7 +146,7 @@ export default {
               throw themeParkResMsg;
             }
           }
-          if (element.dictType && element.dictSubType && element.filterType === 'MULTIPLE_SELECT') {
+          if (element.filterKey !== 'categoryType' && element.dictType && element.dictSubType && element.filterType === 'MULTIPLE_SELECT') {
             const params = { dictType: element.dictType, dictSubType: element.dictSubType };
             const res = yield call(queryDict, params);
             const {
@@ -169,10 +170,10 @@ export default {
             }
           }
           if (
-            element.dictDbName === 'AGENT' &&
+            (element.dictDbName === 'AGENT' &&
             element.dictType &&
             element.dictSubType &&
-            element.filterType === 'SELECT'
+            element.filterType === 'SELECT') || (element.filterKey === 'categoryType')
           ) {
             const params = { dictType: element.dictType, dictSubType: element.dictSubType };
             const res = yield call(queryAgentDict, params);
@@ -186,6 +187,7 @@ export default {
                     Object.assign(v, {
                       key: v.filterKey,
                       options: v.filterType === 'SELECT' ? eleRes : null,
+                      categoryTypeOptions: element.filterKey === 'categoryType' ? eleRes : null,
                       // mulOptions: v.filterType === 'MULTIPLE_SELECT' ? eleRes : null,
                     });
                     mergeArr.push([index, k]);
@@ -214,6 +216,12 @@ export default {
                   key: v.filterKey,
                   customerGroupOptions: v.filterKey === 'customerGroup' ? eleRes : null,
                 });
+              });
+              yield put({
+                type: 'save',
+                payload: {
+                  customerGroupList: eleRes,
+                },
               });
             } else {
               throw resMsg;
@@ -389,7 +397,6 @@ export default {
     },
     *add({ payload }, { call, put }) {
       const {
-        sortList,
         reportName,
         reportType,
         cronType,
@@ -402,36 +409,32 @@ export default {
         monthlyExecuteDay,
       } = payload;
       let reqParams = [];
+      let sortList=[];
       if (
         reportType === 'ARAccountBalanceSummaryReport' ||
         reportType === 'E-WalletBalanceSummaryReport'
       ) {
-        reqParams = {
-          sortList,
-          reportName,
-          reportType,
-          cronType,
-          filterList,
-          createBy,
-          displayColumnList,
-          executeOnceTime,
-          scheduleDesc,
-          monthlyExecuteDay,
-        };
-      } else {
-        reqParams = {
-          reportName,
-          reportType,
-          cronType,
-          filterList,
-          createBy,
-          displayColumnList,
-          executeOnceTime,
-          scheduleDesc,
-          monthlyExecuteDay,
-        };
+        sortList = [
+          { key: 'customerName', value: 'ASC' },
+          { key: 'transactionDate', value: 'ASC' },
+        ];
+      }else {
+        sortList = [
+          { key: 'transactionDate', value: 'ASC' },
+        ];
       }
-
+      reqParams = {
+        sortList,
+        reportName,
+        reportType,
+        cronType,
+        filterList,
+        createBy,
+        displayColumnList,
+        executeOnceTime,
+        scheduleDesc,
+        monthlyExecuteDay,
+      };
       const {
         data: { resultCode, resultMsg },
       } = yield call(addReports, reqParams);
@@ -468,59 +471,25 @@ export default {
         scheduleDesc,
         monthlyExecuteDay,
       } = payload;
-
       let reqParams = [];
-      if (
-        reportType === 'ARAccountBalanceSummaryReport' ||
-        reportType === 'E-WalletBalanceSummaryReport'
-      ) {
-        reqParams = {
-          jobCode,
-          reportName,
-          reportType,
-          cronType,
-          filterList,
-          updateBy,
-          displayColumnList,
-          executeOnceTime,
-          scheduleDesc,
-          monthlyExecuteDay,
-          sortList: [
-            { key: 'customerName', value: 'ASC' },
-            { key: 'transactionDate', value: 'DESC' },
-          ],
-        };
-      } else {
-        reqParams = {
-          jobCode,
-          reportName,
-          reportType,
-          cronType,
-          filterList,
-          updateBy,
-          displayColumnList,
-          executeOnceTime,
-          scheduleDesc,
-          monthlyExecuteDay,
-        };
-      }
-      // const reqParams = {
-      //   jobCode,
-      //   reportName,
-      //   reportType,
-      //   cronType,
-      //   filterList,
-      //   updateBy,
-      //   displayColumnList,
-      //   executeOnceTime,
-      //   scheduleDesc,
-      //   monthlyExecuteDay,
-      // };
+      reqParams = {
+        jobCode,
+        reportName,
+        reportType,
+        cronType,
+        filterList,
+        updateBy,
+        displayColumnList,
+        executeOnceTime,
+        scheduleDesc,
+        monthlyExecuteDay,
+        sortList,
+      };
       const {
         data: { resultCode, resultMsg },
       } = yield call(editReports, reqParams);
       if (resultCode === '0' || resultCode === 0) {
-        message.success(formatMessage({ id: 'UPDATE_SUCCESS' }));
+        message.success(formatMessage({ id: 'MODIFY_SUCCESS' }));
         router.push({
           pathname: '/ReportsCenter/GeneratedReports/ScheduleTask',
         });
@@ -638,7 +607,9 @@ export default {
         openAgeGroup: false,
         checkCustomerName: [],
         openCustomerName: false,
-        searchCustomerNames: [],
+        searchCustomerNames: null,
+        checkCategoryTypeValue: [],
+        openCategoryType: false,
       };
     },
     saveFilterList(state, { payload }) {

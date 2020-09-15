@@ -21,6 +21,11 @@ import {
 import FetchFilterResponseProcessor from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/utils/Processor/Fetch/FetchFilterResponseProcessor';
 import { REPORT_TYPE_MAP2 } from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/consts/authority';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
+import {
+  queryAgeGroup,
+  queryMappingList,
+  queryPluAttribute,
+} from '@/pages/ReportsCenter/services/reportCenter';
 
 const defaultState = {
   reportList: EMPTY_ARR,
@@ -37,6 +42,9 @@ const defaultState = {
   },
   detailList: [],
   reportTypeOptions: EMPTY_ARR,
+  queryTaMappingList: [],
+  themeParkList: [],
+  ageGroupList: [],
 };
 
 export default {
@@ -178,6 +186,62 @@ export default {
       });
       return true;
     },
+    *fetchQueryTaMappingInfoList(_, { call, put }) {
+      const pageInfo = {
+        currentPage: 1,
+        pageSize: 1000,
+      };
+      const response = yield call(queryMappingList, { pageInfo });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({
+          type: 'save',
+          payload: {
+            queryTaMappingList: result && result.mappingList ? result.mappingList : [],
+          },
+        });
+      } else {
+        message.error(resultMsg);
+      }
+    },
+    *fetchQueryThemeParkList(_, { call, put }) {
+      const response = yield call(queryPluAttribute);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({
+          type: 'save',
+          payload: {
+            themeParkList:
+              result && result.offerBookingCategoryList ? result.offerBookingCategoryList : [],
+          },
+        });
+      } else {
+        message.error(resultMsg);
+      }
+    },
+    *fetchQueryAgeGroupList(_, { call, put }) {
+      const params = { type: 'ageGroup' };
+      const response = yield call(queryAgeGroup, params);
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0' || resultCode === 0) {
+        yield put({
+          type: 'save',
+          payload: {
+            ageGroupList: result && result.dictionaries ? result.dictionaries : [],
+          },
+        });
+      } else {
+        message.error(resultMsg);
+      }
+    },
   },
 
   reducers: {
@@ -244,8 +308,9 @@ export default {
         if (keyMap) {
           texts = texts.map(item => keyMap[item] || item);
         }
-        detailFormItems.push({ label, texts, type });
-      });
+          detailFormItems.push({ label, texts, type });
+        }
+      );
 
       const fields = [];
       displayColumnList
@@ -271,15 +336,15 @@ export default {
           ],
         },
         {
-          label: 'Generation Date Time',
+          label: 'Scheduled Date Time',
           texts: [
-            taskDetail.executeTime && moment(taskDetail.executeTime).format(DATE_FORMAT_WITH_TIME),
+            taskDetail.expectTime && moment(taskDetail.expectTime).format(DATE_FORMAT_WITH_TIME),
           ],
         },
         {
-          label: 'Schedule Date Time',
+          label: 'Generated Date Time',
           texts: [
-            taskDetail.expectTime && moment(taskDetail.expectTime).format(DATE_FORMAT_WITH_TIME),
+            taskDetail.executeTime && moment(taskDetail.executeTime).format(DATE_FORMAT_WITH_TIME),
           ],
         }
       );

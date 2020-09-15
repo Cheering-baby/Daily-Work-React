@@ -910,6 +910,7 @@ class NewCommission extends React.PureComponent {
                   onChange={e => this.radioChange(tplId, e.target.value)}
                 >
                   <Radio value="Amount">{formatMessage({ id: 'COMMISSION_AMOUNT' })}</Radio>
+                  <Radio value="Percentage">{formatMessage({ id: 'COMMISSION_PERCENTAGE' })}</Radio>
                   <Tooltip
                     placement="top"
                     overlayClassName="searchTip"
@@ -922,7 +923,6 @@ class NewCommission extends React.PureComponent {
                       // className={styles.iconPosition}
                     />
                   </Tooltip>
-                  <Radio value="Percentage">{formatMessage({ id: 'COMMISSION_PERCENTAGE' })}</Radio>
                 </Radio.Group>
               )}
             </Form.Item>

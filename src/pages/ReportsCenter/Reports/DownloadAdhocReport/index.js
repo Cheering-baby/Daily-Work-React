@@ -89,6 +89,7 @@ class DownloadAdHocReport extends Component {
         openAccountManager: false,
         openAgeGroup: false,
         openCustomerName: false,
+        openCategoryType: false,
       },
     });
   };
@@ -279,7 +280,7 @@ class DownloadAdHocReport extends Component {
       ) {
         sortList = [
           { key: 'customerName', value: 'ascend' },
-          { key: 'transactionDate', value: 'descend' },
+          { key: 'transactionDate', value: 'ascend' },
         ];
         dispatch({
           type: 'downloadAdHocReport/fetchPreviewReport',
@@ -292,6 +293,7 @@ class DownloadAdHocReport extends Component {
           },
         });
       } else {
+        sortList = [{ key: 'transactionDate', value: 'ascend' }];
         dispatch({
           type: 'downloadAdHocReport/fetchPreviewReport',
           payload: {
@@ -299,6 +301,7 @@ class DownloadAdHocReport extends Component {
             filterList: list,
             displayColumnList:
               selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
+            sortList,
           },
         });
       }
@@ -517,7 +520,7 @@ class DownloadAdHocReport extends Component {
       ) {
         sortList = [
           { key: 'customerName', value: 'ASC' },
-          { key: 'transactionDate', value: 'DESC' },
+          { key: 'transactionDate', value: 'ASC' },
         ];
         download({
           url: exportReportUrl,
@@ -543,10 +546,17 @@ class DownloadAdHocReport extends Component {
           },
         });
       } else {
+        sortList = [{ key: 'transactionDate', value: 'ASC' }];
         download({
           url: exportReportUrl,
           method: 'POST',
-          body: { fileSuffixType: 'xlsx', filterList: list, reportType, displayColumnList },
+          body: {
+            fileSuffixType: 'xlsx',
+            filterList: list,
+            reportType,
+            displayColumnList,
+            sortList,
+          },
           loading: {
             open: () => {
               this.setState({

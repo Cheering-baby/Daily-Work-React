@@ -68,8 +68,8 @@ class ShowPreviewModal extends React.PureComponent {
       reportType === 'E-WalletBalanceSummaryReport'
     ) {
       sortList = [
-        {key: 'customerName', value: 'ASC'},
-        {key: 'transactionDate', value: 'DESC'},
+        { key: 'customerName', value: 'ASC' },
+        { key: 'transactionDate', value: 'ASC' },
       ];
       download({
         url: exportReportUrl,
@@ -89,10 +89,11 @@ class ShowPreviewModal extends React.PureComponent {
         },
       });
     } else {
+      sortList = [{ key: 'transactionDate', value: 'ASC' }];
       download({
         url: exportReportUrl,
         method: 'POST',
-        body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList },
+        body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList, sortList },
         loading: {
           open: () => {
             this.setState({
@@ -136,8 +137,8 @@ class ShowPreviewModal extends React.PureComponent {
           reportType === 'E-WalletBalanceSummaryReport'
         ) {
           sortList = [
-            {key: 'customerName', value: 'ascend'},
-            {key: 'transactionDate', value: 'descend'},
+            { key: 'customerName', value: 'ascend' },
+            { key: 'transactionDate', value: 'ascend' },
           ];
           dispatch({
             type: 'downloadAdHocReport/tableChanged',
@@ -153,6 +154,7 @@ class ShowPreviewModal extends React.PureComponent {
             },
           });
         } else {
+          sortList = [{ key: 'transactionDate', value: 'ascend' }];
           dispatch({
             type: 'downloadAdHocReport/tableChanged',
             payload: {
@@ -163,6 +165,7 @@ class ShowPreviewModal extends React.PureComponent {
                 currentPage: page,
                 pageSize,
               },
+              sortList,
             },
           });
         }

@@ -127,7 +127,7 @@ const about: FC<Props> = props => {
                               className={styles.menuItemStyle}
                               key="frequentlyAskedQuestions"
                             >
-                              <span className={styles.itemSpan}>FAQs</span>
+                              <span className={styles.itemSpan}>Frequently Asked Questions</span>
                             </MenuItem>
                             <MenuItem className={styles.menuItemStyle} key="contactUs">
                               <span className={styles.itemSpan}>Contact Us</span>

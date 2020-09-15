@@ -108,6 +108,7 @@ class ScheduleTransaction extends Component {
         openAccountManager: false,
         openAgeGroup: false,
         openCustomerName: false,
+        openCategoryType: false,
       },
     });
   };
@@ -196,7 +197,7 @@ class ScheduleTransaction extends Component {
         ? filterList.find(i => i.filterKey === 'customerName')
         : [];
     const customerNameInfos = arr7 && arr7.customerNameOptions;
-
+    
     let cType = '';
     // let types = '';
 
@@ -318,11 +319,7 @@ class ScheduleTransaction extends Component {
                 checkCustomerGroupValue &&
                 checkCustomerGroupValue.length > 0
               ) {
-                const list = customerGroupInfos.filter(ii =>
-                  checkCustomerGroupValue.includes(ii.dictName)
-                );
-                const arrs = list.filter(s => s.dictSubType === categoryTypeVal);
-                value = arrs && arrs.length > 0 && arrs.map(i => i.dictId);
+                value = checkCustomerGroupValue;
               } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
                 const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
                 value = list && list.length > 0 && list.map(i => i.identifier);
@@ -366,6 +363,8 @@ class ScheduleTransaction extends Component {
           delete values[k];
         }
       });
+
+      
       const result = Object.entries(values).map(([key, value]) => {
         return { key, value };
       });
@@ -373,6 +372,13 @@ class ScheduleTransaction extends Component {
       if (cType === '03' && !executeOnce) {
         message.warning('Please select the generated date and time.');
         return false;
+      }
+      if (cType === '03' && executeOnce) {
+        const diffTime = executeOnce.diff(moment(),'seconds');
+        if (diffTime < 60 * 5) {
+          message.warning('Generation Date Time has passed, please re-schedule to a later time.');
+          return false;
+        }
       }
 
       if (cType === '02' && !monthlyExecuteDay) {
@@ -389,7 +395,11 @@ class ScheduleTransaction extends Component {
       ) {
         sortList = [
           { key: 'customerName', value: 'ASC' },
-          { key: 'transactionDate', value: 'DESC' },
+          { key: 'transactionDate', value: 'ASC' },
+        ];
+      }else {
+        sortList = [
+          { key: 'transactionDate', value: 'ASC' },
         ];
       }
 
@@ -843,7 +853,7 @@ class ScheduleTransaction extends Component {
                           initialValue:
                             detailList && detailList.monthlyExecuteDay
                               ? detailList.monthlyExecuteDay
-                              : '',
+                              : [],
                         })(
                           <Select
                             allowClear
@@ -879,7 +889,7 @@ class ScheduleTransaction extends Component {
                 style={{ paddingTop: '10px' }}
               >
                 {getFieldDecorator(`reportType`, {
-                  initialValue: type === 'edit' ? reportType2 : '',
+                  initialValue: type === 'edit' ? reportType2 : [],
                   rules: [
                     {
                       required: true,
@@ -924,6 +934,7 @@ class ScheduleTransaction extends Component {
                     pagination={false}
                     scroll={{ x: 660 }}
                     rowKey={record => record.columnName}
+                    // rowKey={record => record.no}
                     rowSelection={rowSelection}
                   />
                 )}

@@ -90,7 +90,7 @@ const ScheduleTaskTable = ({
     },
     {
       key: 'generationDateTime',
-      title: 'Schedule Date Time',
+      title: 'Scheduled Date Time',
       dataIndex: 'generationDateTime',
       sorter: true,
       render: renderContent,
