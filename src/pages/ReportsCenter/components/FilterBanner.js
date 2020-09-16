@@ -49,6 +49,7 @@ const generateFilter = (props, filterItem) => {
       checkCustomerGroupValue = [],
       checkAgeGroup,
       checkChannelValueInit,
+      checkCategoryTypeValueInit,
       categoryTypeList,
       openUserRoleForCreated,
       openAccountManager,
@@ -184,15 +185,20 @@ const generateFilter = (props, filterItem) => {
                 },
               });
             }
+          } else if (result.filterKey === 'categoryType') {
+            if(!checkCategoryTypeValueInit) {
+              val = val ? val.split(',') : [];
+              dispatch({
+                type: 'reportCenter/save',
+                payload: {
+                  checkCategoryTypeValue: val,
+                  checkCategoryTypeValueInit: true,
+                },
+              });
+            }
           } else if (result.filterKey === 'customerGroup') {
             if (!checkChannelValueInit) {
-              const num = `,${val},`;
-              const res =
-                Array.isArray(customerGroupOptions) && customerGroupOptions.length > 0
-                  ? customerGroupOptions.filter(ii => num.includes(ii.dictId))
-                  : [];
-              val = res && res.length > 0 && res.map(i => i.dictName);
-              val = val || [];
+              val = val ? val.split(',') : [];
               dispatch({
                 type: 'reportCenter/save',
                 payload: {

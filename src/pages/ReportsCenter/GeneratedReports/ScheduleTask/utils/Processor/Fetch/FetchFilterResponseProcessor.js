@@ -3,6 +3,7 @@ import {
   queryChannels,
   queryPluAttribute,
   queryReportDictionary,
+  queryAgentDict,
 } from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/services/scheduledTaskService';
 import {
   EXTRA_FILTER_TYPE,
@@ -18,12 +19,13 @@ const {
 
 const DictionaryProcessor = {
   [DATABASE_NAME.REPORT]: queryReportDictionary,
+  [DATABASE_NAME.AGENT]: queryAgentDict,
 };
 
 const NormalSelect = (store, filter) => ({
   preprocess: () => true,
   service: DictionaryProcessor[filter.dictDbName] || DictionaryProcessor[DATABASE_NAME.REPORT],
-  params: { dictType: filter.dictType, dictSubType: filter.dictSubType },
+  params: { dictType: filter.dictType, dictSubType: filter.dictSubType},
   process: _store => {
     const { _response, filterList, index } = _store;
     const {

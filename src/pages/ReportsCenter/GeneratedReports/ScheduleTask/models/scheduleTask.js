@@ -153,7 +153,14 @@ export default {
           {},
           filterList[index]
         );
-        if (preprocess && preprocess()) {
+        if(params) {
+          Object.keys(params).forEach(item => {
+            if(!params[item])  {
+              delete params[item];
+            }
+          })
+        }
+        if (preprocess && preprocess() && params && Object.keys(params).length > 0) {
           try {
             const res = yield call(service, params);
             if (res) {

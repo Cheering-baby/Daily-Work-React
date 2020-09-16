@@ -61,6 +61,7 @@ export default {
     openCustomerName: false,
     searchCustomerNames: null,
     openCategoryType: false,
+    checkCategoryTypeValueInit: false,
   },
   effects: {
     *fetchDisplay({ payload }, { call, put }) {
@@ -610,6 +611,7 @@ export default {
         searchCustomerNames: null,
         checkCategoryTypeValue: [],
         openCategoryType: false,
+        checkCategoryTypeValueInit: false,
       };
     },
     saveFilterList(state, { payload }) {

@@ -12,6 +12,7 @@ const queryDictionaryUrl = `${rwsUrl}/b2b/report/v1/common/queryDictionary`;
 const queryPluAttributeUrl = `${rwsUrl}/b2c/product/v1/dictionary/attraction/list`;
 const queryChannelsUrl = `${rwsUrl}/b2c/report/v1/channel/queryChannels`;
 const queryReportNameListUrl = `${rwsUrl}/b2c/report/v1/schedule/fuzzySearchReportName`;
+const queryAgentDictUrl = `${rwsUrl}/agent/common/queryDictionary`;
 
 export function queryScheduleTaskList(params) {
   return UAAService.request(queryScheduleTaskListUrl, {
@@ -78,6 +79,13 @@ export function queryChannels(params) {
 
 export function queryReportNameList(params) {
   return UAAService.request(queryReportNameListUrl, {
+    method: 'GET',
+    params,
+  });
+}
+
+export function queryAgentDict(params) {
+  return UAAService.request(queryAgentDictUrl, {
     method: 'GET',
     params,
   });
