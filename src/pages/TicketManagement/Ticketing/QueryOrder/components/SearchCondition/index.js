@@ -224,6 +224,7 @@ class SearchCondition extends Component {
           createTimeTo,
           agentType,
           agentValue,
+          taReferenceNo,
         },
       },
       global: {
@@ -235,16 +236,16 @@ class SearchCondition extends Component {
     const mainTaLogin = companyType === '01';
     const searchColLayout = {
       xs: 24,
-      sm: 24,
-      md: 8,
-      lg: 24,
+      sm: 12,
+      md: 24,
+      lg: 18,
     };
     if (rwsLogin) {
-      searchColLayout.md = 16;
-      searchColLayout.lg = 12;
+      searchColLayout.md = 8;
+      searchColLayout.lg = 6;
     } else if (mainTaLogin) {
       searchColLayout.md = 24;
-      searchColLayout.lg = 6;
+      searchColLayout.lg = 24;
     }
     if (!isQueryExpand) {
       searchColLayout.lg = 6;
@@ -361,6 +362,14 @@ class SearchCondition extends Component {
                     <Option value="ArchiveFailed">ArchiveFailed</Option>,
                     <Option value="CommissionFail">CommissionFail</Option>,
                   ]}
+                />
+              </Col>
+              <Col className={styles.inputColStyle} xs={24} sm={12} md={8} lg={6}>
+                <Input
+                  allowClear
+                  placeholder={formatMessage({ id: 'TA_REFERENCE_NO' })}
+                  onChange={e => this.inputChange(e.target.value, 'taReferenceNo')}
+                  value={taReferenceNo}
                 />
               </Col>
               {(rwsLogin || mainTaLogin) && (

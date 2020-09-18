@@ -1,8 +1,6 @@
 import UAAService from '@/uaa-npm';
 
 const localPath = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
-const dev = 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams';
-const mock = 'http://easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e854bf1f8436f0020822df9/PAMS';
 
 export async function queryAgentOpt(params) {
   return UAAService.request(`/agent/common/queryAgentOpt?queryType=${params.queryType}`, {
@@ -21,7 +19,7 @@ export async function queryCountry(params) {
 }
 
 export async function queryPluAttribute(params) {
-  return UAAService.request(`${dev}/b2c/product/v1/dictionary/attraction/list`, {
+  return UAAService.request(`${localPath}/b2c/product/v1/dictionary/attraction/list`, {
     method: 'POST',
     body: {
       ...params,

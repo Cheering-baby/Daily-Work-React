@@ -743,6 +743,7 @@ export function putCommonOffersByOfferFixed(
     offerInfo,
     deliveryInfo = {},
     orderSummary,
+    orderInfo,
   } = orderOffer;
 
   const deliveryInfoData = {
@@ -777,16 +778,30 @@ export function putCommonOffersByOfferFixed(
   const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
   const attractionProductList = getAttractionProductList(offerInfo, validTimeFrom);
 
-  let timingStr = null;
-  if (orderSummary.sessionTime) {
-    const dateOfVisitTime = moment(queryInfo.dateOfVisit, 'x');
-    let dateOfVisitTimeStr = dateOfVisitTime.format('YYYY-MM-DD');
-    dateOfVisitTimeStr = `${dateOfVisitTimeStr} ${orderSummary.sessionTime}`;
-    const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
-    timingStr = dateOfVisitTimeMoment.format('HH:mm');
-  }
-
   attractionProductList.forEach(productInfo => {
+    let timingStr = null;
+    if (orderSummary.sessionTime) {
+      const dateOfVisitTime = moment(queryInfo.dateOfVisit, 'x');
+      let dateOfVisitTimeStr = dateOfVisitTime.format('YYYY-MM-DD');
+      dateOfVisitTimeStr = `${dateOfVisitTimeStr} ${orderSummary.sessionTime}`;
+      const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
+      timingStr = dateOfVisitTimeMoment.format('HH:mm');
+    }
+    if (orderInfo) {
+      orderInfo.forEach(orderInfoItem => {
+        if (
+          orderInfoItem.sessionTime &&
+          orderInfoItem.productInfo &&
+          orderInfoItem.productInfo.productNo === productInfo.productNo
+        ) {
+          const dateOfVisitTime = moment(queryInfo.dateOfVisit, 'x');
+          let dateOfVisitTimeStr = dateOfVisitTime.format('YYYY-MM-DD');
+          dateOfVisitTimeStr = `${dateOfVisitTimeStr} ${orderInfoItem.sessionTime}`;
+          const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
+          timingStr = dateOfVisitTimeMoment.format('HH:mm');
+        }
+      });
+    }
     ifGroupTicket = checkIfGroupTicketByProduct(productInfo);
     if (!ifGroupTicket) {
       const attractionProduct = {
