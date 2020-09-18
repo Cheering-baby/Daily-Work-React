@@ -703,6 +703,7 @@ class ScheduleTransaction extends Component {
       {
         title: formatMessage({ id: 'REPORT_NO' }),
         dataIndex: 'no',
+        width: 100,
         render: text => {
           return (
             <div>
@@ -716,6 +717,7 @@ class ScheduleTransaction extends Component {
       {
         title: formatMessage({ id: 'REPORTS_NAME' }),
         dataIndex: 'displayName',
+        width: '60%',
         render: text => {
           return (
             <div>

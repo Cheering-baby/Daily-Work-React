@@ -1066,6 +1066,12 @@ const generateFilter = (props, filterItem) => {
           searchCategoryTypeList: searchCategoryTypeListFilter,
         },
       });
+    } else if(filterKey === 'customerGroup') { 
+      console.log(value,customerOptions)
+      const customerOptionsFilter = customerOptions.filter(i =>
+        i.options.find(({ j }) => j.dictName.toLowerCase().indexOf(value.toLowerCase()) >= 0)
+      );
+      console.log(customerOptionsFilter)
     }
   };
 
@@ -1144,18 +1150,7 @@ const generateFilter = (props, filterItem) => {
               ref={themeParkSelect}
               showSearch
               onSearch={multipleSelectSearch}
-              placeholder={
-                [
-                  'themeParkCode',
-                  'taMarket',
-                  'userRoleForCreated',
-                  'accountManager',
-                  'ageGroup',
-                  'customerName',
-                ].includes(filterKey)
-                  ? 'All'
-                  : filterName
-              }
+              placeholder='All'
               value={selectValue}
               onChange={themeParkDelete}
               {...ommit}

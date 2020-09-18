@@ -463,11 +463,7 @@ class DownloadAdHocReport extends Component {
                 checkCustomerGroupValue &&
                 checkCustomerGroupValue.length > 0
               ) {
-                const res = customerGroupInfos.filter(ii =>
-                  checkCustomerGroupValue.includes(ii.dictName)
-                );
-                const arrs = res.filter(a => a.dictSubType === categoryTypeVal);
-                value = arrs && arrs.length > 0 && arrs.map(i => i.dictId);
+                value = checkCustomerGroupValue;
               } else if (
                 k === 'accountManager' &&
                 checkAccountManager &&
@@ -641,6 +637,7 @@ class DownloadAdHocReport extends Component {
         title: formatMessage({ id: 'REPORT_NO' }),
         key: 'no',
         dataIndex: 'no',
+        width: 100,
         render: text =>
           text ? (
             <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
@@ -653,6 +650,7 @@ class DownloadAdHocReport extends Component {
       {
         title: formatMessage({ id: 'REPORTS_NAME' }),
         dataIndex: 'displayName',
+        width: '60%',
         render: text => {
           return (
             <div>
