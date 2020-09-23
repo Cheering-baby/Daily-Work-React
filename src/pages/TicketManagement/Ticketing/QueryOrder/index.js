@@ -33,7 +33,8 @@ function transferModeOfPayment(type) {
   return type;
 }
 
-@connect(({ queryOrderMgr, loading, global }) => ({
+@connect(({ revalidationRequestMgr, queryOrderMgr, loading, global }) => ({
+  bookingDetail: revalidationRequestMgr.bookingDetail,
   queryOrderMgr,
   global,
   tableLoading: loading.effects['queryOrderMgr/queryTransactions'],
@@ -537,11 +538,19 @@ class QueryOrder extends Component {
   };
 
   ifShowAllowedModel = (bookingNo, isSubOrder, vidList, flag) => {
+    const { bookingDetail, dispatch } = this.props;
     let ifAllowed = false;
+    let contentText = 'The tickets in the order have already been used.';
     for (let i = 0; i < vidList.length; i += 1) {
       if (vidList[i].status === 'false' && vidList[i].hadRefunded !== 'Yes') {
         ifAllowed = true;
       }
+    }
+    if (flag === 'Revalidation' && bookingDetail && bookingDetail.refundSuccessFlag === 'Yes') {
+      ifAllowed = false;
+      contentText = `The tickets in the order have already been ${
+        vidList.find(i => i.status === 'false' && i.hadRefunded !== 'Yes') ? 'used' : 'refunded'
+      }.`;
     }
     if (ifAllowed) {
       this.jumpToOperation(bookingNo, isSubOrder, flag);
@@ -552,12 +561,18 @@ class QueryOrder extends Component {
         content: (
           <div>
             <div style={{ marginBottom: 32 }}>
-              <span>The tickets in the order have already been used.</span>
+              <span>{contentText}</span>
             </div>
             <div className={styles.operateButtonDivStyle}>
               <Button
                 onClick={() => {
                   Modal.destroyAll();
+                  dispatch({
+                    type: 'revalidationRequestMgr/save',
+                    payload: {
+                      bookingDetail: null,
+                    }
+                  })
                 }}
                 style={{ marginRight: 8 }}
               >
@@ -566,6 +581,12 @@ class QueryOrder extends Component {
               <Button
                 onClick={() => {
                   Modal.destroyAll();
+                  dispatch({
+                    type: 'revalidationRequestMgr/save',
+                    payload: {
+                      bookingDetail: null,
+                    }
+                  })
                 }}
                 type="primary"
                 style={{ width: 60 }}
