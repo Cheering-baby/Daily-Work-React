@@ -117,12 +117,10 @@ class QueryOrder extends Component {
       dataIndex: 'paymentModel',
       key: 'paymentModel',
       width: '140px',
-      render: (text, record) => (
+      render: (text) => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>
-            {['refund', 'revalidation'].includes(record.transType)
-              ? null
-              : transferModeOfPayment(text)}
+            {transferModeOfPayment(text)}
           </span>
         </Tooltip>
       ),
