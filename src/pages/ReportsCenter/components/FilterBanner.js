@@ -1066,12 +1066,6 @@ const generateFilter = (props, filterItem) => {
           searchCategoryTypeList: searchCategoryTypeListFilter,
         },
       });
-    } else if(filterKey === 'customerGroup') { 
-      console.log(value,customerOptions)
-      const customerOptionsFilter = customerOptions.filter(i =>
-        i.options.find(({ j }) => j.dictName.toLowerCase().indexOf(value.toLowerCase()) >= 0)
-      );
-      console.log(customerOptionsFilter)
     }
   };
 

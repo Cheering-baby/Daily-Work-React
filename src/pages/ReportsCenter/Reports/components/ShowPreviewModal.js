@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Modal, Table, Button, Form, Tooltip } from 'antd';
+import { Modal, Table, Button, Form } from 'antd';
 import { formatMessage } from 'umi/locale';
 import download from '../utils/downLoad';
 import styles from './ShowPreviewModal.less';
@@ -8,6 +8,10 @@ import PaginationComp from '../../components/PaginationComp';
 import { exportReportUrl } from '../services/report';
 import { REPORT_AUTHORITY_MAP } from '../../GeneratedReports/ScheduleTask/consts/authority';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
+import {
+  sortListByReportTypeForCommon,
+  sortListByReportTypeForPreview,
+} from '@/pages/ReportsCenter/utils/reportTypeUtil';
 
 const drawWidth = '60%';
 @Form.create()
@@ -62,52 +66,24 @@ class ShowPreviewModal extends React.PureComponent {
       downloadAdHocReport: { filterList, displayColumnList },
       reportType,
     } = this.props;
-    let sortList = [];
-    if (
-      reportType === 'ARAccountBalanceSummaryReport' ||
-      reportType === 'E-WalletBalanceSummaryReport'
-    ) {
-      sortList = [
-        { key: 'customerName', value: 'ASC' },
-        { key: 'transactionDate', value: 'ASC' },
-      ];
-      download({
-        url: exportReportUrl,
-        method: 'POST',
-        body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList, sortList },
-        loading: {
-          open: () => {
-            this.setState({
-              loadingStatus: true,
-            });
-          },
-          close: () => {
-            this.setState({
-              loadingStatus: false,
-            });
-          },
+    const sortList = sortListByReportTypeForCommon(reportType);
+    download({
+      url: exportReportUrl,
+      method: 'POST',
+      body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList, sortList },
+      loading: {
+        open: () => {
+          this.setState({
+            loadingStatus: true,
+          });
         },
-      });
-    } else {
-      sortList = [{ key: 'transactionDate', value: 'ASC' }];
-      download({
-        url: exportReportUrl,
-        method: 'POST',
-        body: { fileSuffixType: 'xlsx', reportType, filterList, displayColumnList, sortList },
-        loading: {
-          open: () => {
-            this.setState({
-              loadingStatus: true,
-            });
-          },
-          close: () => {
-            this.setState({
-              loadingStatus: false,
-            });
-          },
+        close: () => {
+          this.setState({
+            loadingStatus: false,
+          });
         },
-      });
-    }
+      },
+    });
   };
 
   render() {
@@ -125,50 +101,26 @@ class ShowPreviewModal extends React.PureComponent {
       loading,
       reportType,
     } = this.props;
-    let sortList = [];
+    const sortList = sortListByReportTypeForPreview(reportType);
     const pageOpts = {
       total: totalSize,
       current: currentPage,
       pageSize: nowPageSize,
       pageChange: (page, pageSize) => {
         const { dispatch } = this.props;
-        if (
-          reportType === 'ARAccountBalanceSummaryReport' ||
-          reportType === 'E-WalletBalanceSummaryReport'
-        ) {
-          sortList = [
-            { key: 'customerName', value: 'ascend' },
-            { key: 'transactionDate', value: 'ascend' },
-          ];
-          dispatch({
-            type: 'downloadAdHocReport/tableChanged',
-            payload: {
-              reportType,
-              filterList,
-              sortList,
-              displayColumnList,
-              pagination: {
-                currentPage: page,
-                pageSize,
-              },
+        dispatch({
+          type: 'downloadAdHocReport/tableChanged',
+          payload: {
+            reportType,
+            filterList,
+            sortList,
+            displayColumnList,
+            pagination: {
+              currentPage: page,
+              pageSize,
             },
-          });
-        } else {
-          sortList = [{ key: 'transactionDate', value: 'ascend' }];
-          dispatch({
-            type: 'downloadAdHocReport/tableChanged',
-            payload: {
-              reportType,
-              filterList,
-              displayColumnList,
-              pagination: {
-                currentPage: page,
-                pageSize,
-              },
-              sortList,
-            },
-          });
-        }
+          },
+        });
       },
     };
     const otherProps = {

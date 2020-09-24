@@ -73,7 +73,7 @@ class DailyMonthlyTable extends Component {
         totalSize,
         dataList,
         loadingStatus,
-        reportTypeOptions
+        reportTypeOptions,
       },
       dispatch,
     } = this.props;
@@ -184,7 +184,6 @@ class DailyMonthlyTable extends Component {
         },
       },
     ];
-    console.log(dataList)
     return (
       <div>
         <Table

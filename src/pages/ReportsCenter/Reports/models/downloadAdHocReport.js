@@ -1,8 +1,6 @@
 import { message } from 'antd';
 import * as service from '../services/report';
 import { renderContent } from '../components/BasicTableBanner';
-import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
-import { REPORT_TYPE_MAP } from '../../GeneratedReports/ScheduleTask/consts/authority';
 
 export default {
   namespace: 'downloadAdHocReport',
@@ -116,7 +114,7 @@ export default {
           reportType,
           filterList,
           displayColumnList,
-          sortList
+          sortList,
         },
       });
     },

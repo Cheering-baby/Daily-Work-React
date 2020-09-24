@@ -9,12 +9,14 @@ import {
   EXTRA_FILTER_TYPE,
   FILTER_TYPE,
 } from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/consts/filterType';
+import { queryAllCompany } from '@/pages/SubTAManagement/SubTAManagement/services/subTAManagement';
 
 const { SELECT, MULTIPLE_SELECT } = FILTER_TYPE;
 const {
   MULTIPLE_SELECT_THEME_PARK_CODE,
   MULTIPLE_SELECT_AGE_GROUP,
   MULTIPLE_SELECT_CHANNEL,
+  MULTIPLE_SELECT_CUSTOMER_NAME,
 } = EXTRA_FILTER_TYPE;
 
 const DictionaryProcessor = {
@@ -25,7 +27,7 @@ const DictionaryProcessor = {
 const NormalSelect = (store, filter) => ({
   preprocess: () => true,
   service: DictionaryProcessor[filter.dictDbName] || DictionaryProcessor[DATABASE_NAME.REPORT],
-  params: { dictType: filter.dictType, dictSubType: filter.dictSubType},
+  params: { dictType: filter.dictType, dictSubType: filter.dictSubType },
   process: _store => {
     const { _response, filterList, index } = _store;
     const {
@@ -86,12 +88,33 @@ const ChannelSelect = () => ({
   },
 });
 
+const customerNameSelect = showColumnName => ({
+  preprocess: () => true,
+  service: queryAllCompany,
+  params: { showColumnName },
+  process: _store => {
+    const { _response, filterList, index } = _store;
+    const {
+      data: { result, resultCode },
+    } = _response;
+    if (resultCode !== '0') return;
+    const taList = result || [];
+    const keyMap = {};
+    const options = taList.map(({ value, key }) => {
+      Object.assign(keyMap, { [key]: value });
+      return { text: value, value: key };
+    });
+    Object.assign(filterList[index], { options, keyMap });
+  },
+});
+
 const BaseProcessor = {
   [SELECT]: NormalSelect,
   [MULTIPLE_SELECT]: NormalSelect,
   [MULTIPLE_SELECT_THEME_PARK_CODE]: () => PluAttributeSelect('THEME_PARK'),
   [MULTIPLE_SELECT_AGE_GROUP]: () => PluAttributeSelect('AGE_GROUP'),
   [MULTIPLE_SELECT_CHANNEL]: ChannelSelect,
+  [MULTIPLE_SELECT_CUSTOMER_NAME]: () => customerNameSelect('companyName'),
 };
 
 const FetchFilterResponseProcessor = (store, filter) => {

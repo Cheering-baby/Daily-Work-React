@@ -385,29 +385,11 @@ class ScheduleTransaction extends Component {
         message.warning('Please select the Monthly Execute Day.');
         return false;
       }
-
       const list = result.filter(item => item.value);
-
-      let sortList = [];
-      if (
-        reportType === 'ARAccountBalanceSummaryReport' ||
-        reportType === 'E-WalletBalanceSummaryReport'
-      ) {
-        sortList = [
-          { key: 'customerName', value: 'ASC' },
-          { key: 'transactionDate', value: 'ASC' },
-        ];
-      }else {
-        sortList = [
-          { key: 'transactionDate', value: 'ASC' },
-        ];
-      }
-
       if (type === 'edit') {
         dispatch({
           type: 'reportCenter/edit',
           payload: {
-            sortList,
             jobCode,
             reportName: report,
             reportType: reportTypeVal.replace(/\s+/g, ''),
@@ -425,7 +407,6 @@ class ScheduleTransaction extends Component {
         dispatch({
           type: 'reportCenter/add',
           payload: {
-            sortList,
             sourcePage,
             reportName: report,
             reportType,
@@ -443,7 +424,6 @@ class ScheduleTransaction extends Component {
         dispatch({
           type: 'reportCenter/add',
           payload: {
-            sortList,
             sourcePage,
             reportName: report,
             reportType: reportTypeVal,

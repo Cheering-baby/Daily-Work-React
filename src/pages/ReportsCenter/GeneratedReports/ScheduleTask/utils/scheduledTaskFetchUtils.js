@@ -151,7 +151,6 @@ const indexOfKey = filterKey => {
 };
 
 export const doFilter = _filterList => {
-  
   const filterMap = {};
   _filterList.forEach(({ filterName = '', filterKey = '', filterValue, filterType }) => {
     if (filterType === FILTER_TYPE.RANGE_PICKER) {

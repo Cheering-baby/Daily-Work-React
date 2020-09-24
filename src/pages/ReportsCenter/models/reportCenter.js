@@ -13,11 +13,12 @@ import {
   queryAgeGroup,
   queryUserRolesByCondition,
   querySalePersons,
-  queryMappingList,
 } from '../services/reportCenter';
 import { REPORT_TYPE_MAP2 } from '../GeneratedReports/ScheduleTask/consts/authority';
 import * as service from '../GeneratedReports/DailyAndMonthlyReport/services/dailyAndMonthlyReport';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
+import { sortListByReportTypeForCommon } from '@/pages/ReportsCenter/utils/reportTypeUtil';
+import { queryAllCompany } from '@/pages/SubTAManagement/SubTAManagement/services/subTAManagement';
 
 export default {
   namespace: 'reportCenter',
@@ -113,7 +114,7 @@ export default {
           const element = list[index];
           if (element.filterKey === 'themeParkCode') {
             // const params = {attributeType: "Attraction",attributeCode:"THEME_PARK"}
-            const res = yield call(queryPluAttribute, { status: 'Active' });
+            const res = yield call(queryPluAttribute);
             const {
               data: {
                 resultCode: themeParkCode,
@@ -147,7 +148,12 @@ export default {
               throw themeParkResMsg;
             }
           }
-          if (element.filterKey !== 'categoryType' && element.dictType && element.dictSubType && element.filterType === 'MULTIPLE_SELECT') {
+          if (
+            element.filterKey !== 'categoryType' &&
+            element.dictType &&
+            element.dictSubType &&
+            element.filterType === 'MULTIPLE_SELECT'
+          ) {
             const params = { dictType: element.dictType, dictSubType: element.dictSubType };
             const res = yield call(queryDict, params);
             const {
@@ -172,9 +178,10 @@ export default {
           }
           if (
             (element.dictDbName === 'AGENT' &&
-            element.dictType &&
-            element.dictSubType &&
-            element.filterType === 'SELECT') || (element.filterKey === 'categoryType')
+              element.dictType &&
+              element.dictSubType &&
+              element.filterType === 'SELECT') ||
+            element.filterKey === 'categoryType'
           ) {
             const params = { dictType: element.dictType, dictSubType: element.dictSubType };
             const res = yield call(queryAgentDict, params);
@@ -329,15 +336,17 @@ export default {
             }
           }
           if (element.filterKey === 'customerName') {
-            const pageInfo = {
-              currentPage: 1,
-              pageSize: 1000,
-            };
-            const res = yield call(queryMappingList, { status: '0', pageInfo });
+            const res = yield call(queryAllCompany, { showColumnName: 'companyName' });
             const {
-              data: { resultCode: code, resultMsg: resMsg, result: eleRes },
+              data: { resultCode: code, resultMsg: resMsg, result: allTaList },
             } = res;
-            const { mappingList: customerMappingList } = eleRes;
+            const customerMappingList = [];
+            allTaList.forEach(item => {
+              customerMappingList.push({
+                taId: item.key,
+                companyName: item.value,
+              });
+            });
             if (+code === 0) {
               list.forEach(v => {
                 Object.assign(v, {
@@ -410,20 +419,7 @@ export default {
         monthlyExecuteDay,
       } = payload;
       let reqParams = [];
-      let sortList=[];
-      if (
-        reportType === 'ARAccountBalanceSummaryReport' ||
-        reportType === 'E-WalletBalanceSummaryReport'
-      ) {
-        sortList = [
-          { key: 'customerName', value: 'ASC' },
-          { key: 'transactionDate', value: 'ASC' },
-        ];
-      }else {
-        sortList = [
-          { key: 'transactionDate', value: 'ASC' },
-        ];
-      }
+      const sortList = sortListByReportTypeForCommon(reportType);
       reqParams = {
         sortList,
         reportName,
@@ -460,7 +456,6 @@ export default {
     },
     *edit({ payload }, { call, put }) {
       const {
-        sortList,
         reportName,
         reportType,
         cronType,
@@ -473,6 +468,7 @@ export default {
         monthlyExecuteDay,
       } = payload;
       let reqParams = [];
+      const sortList = sortListByReportTypeForCommon(reportType);
       reqParams = {
         jobCode,
         reportName,

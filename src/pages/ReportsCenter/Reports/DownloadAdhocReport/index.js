@@ -14,6 +14,10 @@ import ShowPreviewModal from '../components/ShowPreviewModal';
 import generateFilter from '../../components/FilterBanner';
 import { exportReportUrl } from '../services/report';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
+import {
+  sortListByReportTypeForCommon,
+  sortListByReportTypeForPreview
+} from "@/pages/ReportsCenter/utils/reportTypeUtil";
 
 const formItemLayout = {
   labelCol: {
@@ -93,6 +97,8 @@ class DownloadAdHocReport extends Component {
       },
     });
   };
+
+
 
   preview = () => {
     const {
@@ -273,38 +279,19 @@ class DownloadAdHocReport extends Component {
       });
       const list = result.filter(item => item.value);
 
-      let sortList = [];
-      if (
-        reportType === 'ARAccountBalanceSummaryReport' ||
-        reportType === 'E-WalletBalanceSummaryReport'
-      ) {
-        sortList = [
-          { key: 'customerName', value: 'ascend' },
-          { key: 'transactionDate', value: 'ascend' },
-        ];
-        dispatch({
-          type: 'downloadAdHocReport/fetchPreviewReport',
-          payload: {
-            reportType,
-            filterList: list,
-            displayColumnList:
-              selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
-            sortList,
-          },
-        });
-      } else {
-        sortList = [{ key: 'transactionDate', value: 'ascend' }];
-        dispatch({
-          type: 'downloadAdHocReport/fetchPreviewReport',
-          payload: {
-            reportType,
-            filterList: list,
-            displayColumnList:
-              selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
-            sortList,
-          },
-        });
-      }
+      const sortList = sortListByReportTypeForPreview(reportType);
+
+      dispatch({
+        type: 'downloadAdHocReport/fetchPreviewReport',
+        payload: {
+          reportType,
+          filterList: list,
+          displayColumnList:
+            selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
+          sortList,
+        },
+      });
+
       dispatch({
         type: 'downloadAdHocReport/save',
         payload: {
@@ -509,64 +496,33 @@ class DownloadAdHocReport extends Component {
       });
       const list = result.filter(item => item.value);
 
-      let sortList = [];
-      if (
-        reportType === 'ARAccountBalanceSummaryReport' ||
-        reportType === 'E-WalletBalanceSummaryReport'
-      ) {
-        sortList = [
-          { key: 'customerName', value: 'ASC' },
-          { key: 'transactionDate', value: 'ASC' },
-        ];
-        download({
-          url: exportReportUrl,
-          method: 'POST',
-          body: {
-            fileSuffixType: 'xlsx',
-            filterList: list,
-            reportType,
-            displayColumnList,
-            sortList,
+      const sortList = sortListByReportTypeForCommon(reportType);
+
+
+      download({
+        url: exportReportUrl,
+        method: 'POST',
+        body: {
+          fileSuffixType: 'xlsx',
+          filterList: list,
+          reportType,
+          displayColumnList,
+          sortList,
+        },
+        loading: {
+          open: () => {
+            this.setState({
+              loadingStatus: true,
+            });
           },
-          loading: {
-            open: () => {
-              this.setState({
-                loadingStatus: true,
-              });
-            },
-            close: () => {
-              this.setState({
-                loadingStatus: false,
-              });
-            },
+          close: () => {
+            this.setState({
+              loadingStatus: false,
+            });
           },
-        });
-      } else {
-        sortList = [{ key: 'transactionDate', value: 'ASC' }];
-        download({
-          url: exportReportUrl,
-          method: 'POST',
-          body: {
-            fileSuffixType: 'xlsx',
-            filterList: list,
-            reportType,
-            displayColumnList,
-            sortList,
-          },
-          loading: {
-            open: () => {
-              this.setState({
-                loadingStatus: true,
-              });
-            },
-            close: () => {
-              this.setState({
-                loadingStatus: false,
-              });
-            },
-          },
-        });
-      }
+        },
+      });
+
     });
   };
 
