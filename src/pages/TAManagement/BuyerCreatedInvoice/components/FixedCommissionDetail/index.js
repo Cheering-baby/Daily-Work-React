@@ -13,7 +13,7 @@ const mapStateToProps = ({ buyerCreatedInvoice, loading }) => ({
 
 const FixedCommissionDetail = ({
   dispatch,
-  selectedInvoice: { transactionDateFrom, transactionDateTo, accountBookId },
+  selectedInvoice: { transactionDateFrom, transactionDateTo, accountBookId, filename },
   buyerCreatedInvoice: {
     commissionTable: { totalSize, pageSize = PAGE_SIZE, currentPage, dataList, columns },
   },
@@ -23,10 +23,11 @@ const FixedCommissionDetail = ({
     if (accountBookId) {
       dispatch({
         type: 'buyerCreatedInvoice/fetchFixedCommissionList',
-        payload: { transactionDateFrom, transactionDateTo, accountBookId },
+
+        payload: { transactionDateFrom, transactionDateTo, accountBookId, bciNo: filename },
       });
     }
-  }, [dispatch, transactionDateFrom, transactionDateTo, accountBookId]);
+  }, [dispatch, transactionDateFrom, transactionDateTo, accountBookId, filename]);
 
   return (
     <>
@@ -54,6 +55,7 @@ const FixedCommissionDetail = ({
                   transactionDateFrom,
                   transactionDateTo,
                   accountBookId,
+                  bciNo: filename,
                   currentPage: current,
                   pageSize: size,
                 },

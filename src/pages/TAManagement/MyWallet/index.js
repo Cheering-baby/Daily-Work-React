@@ -292,7 +292,7 @@ class MyWallet extends React.PureComponent {
         title: formatMessage({ id: 'OPERATION' }),
         key: 'operation',
         render: (text, record) => {
-          // if (record.tranType === 'ONLINE_TOPUP' || record.tranType === 'OFFLINE_TOPUP') {
+          if (record.tranType === 'ONLINE_TOPUP' || record.tranType === 'OFFLINE_TOPUP') {
             return (
               <Tooltip title={formatMessage({ id: 'INVOICE' })}>
                 <span>
@@ -304,7 +304,7 @@ class MyWallet extends React.PureComponent {
                 </span>
               </Tooltip>
             );
-          // }
+          }
         },
         width: 90,
       },
@@ -385,7 +385,9 @@ class MyWallet extends React.PureComponent {
                         {ar && (
                           <div className={`${styles.labelValue} ${styles.colorOrange}`}>
                             <span className={styles.symbolPart}>$</span>
-                            <span className={styles.integerPart}>{ar.integer}</span>
+                            <span className={styles.integerPart}>
+                              {CurrencyFormatter.format(ar.integer, CURRENCY_FORMATTER_OPTIONS)}
+                            </span>
                             <span className={styles.decimalPart}>.{ar.decimal}</span>
                           </div>
                         )}

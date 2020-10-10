@@ -105,6 +105,7 @@ export default {
         transactionDateFrom,
         transactionDateTo,
         accountBookId,
+        bciNo,
       } = payload;
       const { commissionTable } = yield select(({ buyerCreatedInvoice }) => buyerCreatedInvoice);
       const current = currentPage || commissionTable.currentPage;
@@ -115,6 +116,7 @@ export default {
           { key: 'accountBookId', value: accountBookId },
           { key: 'transactionDateFrom', value: transactionDateFrom },
           { key: 'transactionDateTo', value: transactionDateTo },
+          { key: 'bciNo', value: bciNo },
         ],
         reportType: 'FixedCommissionReport',
       });

@@ -172,7 +172,7 @@ class FileUploadToFrom extends PureComponent {
           url: n.path,
           response: {
             result: {
-              filePath: n.filePath,
+              filePath: n.path,
               fileName: n.name,
               fileSourceName: n.sourceName,
             },

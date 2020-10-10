@@ -70,19 +70,13 @@ export default {
         bean.accountBookBeanList.forEach(item => {
           if (item.accountBookType === 'E_WALLET') {
             const strs = item.balance
-              .toFixed(3)
+              .toFixed(2)
               .toString()
               .split('.');
-            strs[0] =
-              strs[0].length > 3
-                ? `${strs[0].substring(0, strs[0].length - 3)},${strs[0].substring(
-                strs[0].length - 3
-                )}`
-                : strs[0];
             bean.eWallet = {
               balance: item.balance.toFixed(2),
               integer: strs[0],
-              decimal: strs[1].substring(0, 2),
+              decimal: strs[1],
             };
           }
           if (item.accountBookType === 'AR_CREDIT') {
@@ -91,19 +85,13 @@ export default {
               return;
             }
             const strs = item.balance
-              .toFixed(3)
+              .toFixed(2)
               .toString()
               .split('.');
-            strs[0] =
-              strs[0].length > 3
-                ? `${strs[0].substring(0, strs[0].length - 3)},${strs[0].substring(
-                strs[0].length - 3
-                )}`
-                : strs[0];
             bean.ar = {
               balance: item.balance,
               integer: strs[0],
-              decimal: strs[1].substring(0, 2),
+              decimal: strs[1],
             };
           }
         });

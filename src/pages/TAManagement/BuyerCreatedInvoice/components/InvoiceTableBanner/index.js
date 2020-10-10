@@ -25,13 +25,14 @@ const CommissionDetailModal = ({
   const handleCancel = () => {
     setVisible(false);
   };
-  const { accountBookId, transactionDateFrom, transactionDateTo } = selectedInvoice;
+  const { accountBookId, transactionDateFrom, transactionDateTo, filename } = selectedInvoice;
 
   const downloadBody = {
     filterList: [
       { key: 'accountBookId', value: accountBookId },
       { key: 'transactionDateFrom', value: transactionDateFrom },
       { key: 'transactionDateTo', value: transactionDateTo },
+      { key: 'bciNo', value: filename },
     ],
     reportType: 'FixedCommissionReport',
     fileSuffixType: 'xlsx',

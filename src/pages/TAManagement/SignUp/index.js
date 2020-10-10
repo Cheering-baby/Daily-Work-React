@@ -113,19 +113,19 @@ class SignUp extends PureComponent {
   getPageHeader = (currentStep, status) => {
     let pageHeaderTitle = formatMessage({ id: 'WELCOME_TO_SIGN_UP' });
     let pageHeaderSubTitle = formatMessage({ id: 'SUB_WELCOME_TO_SIGN_UP' });
-    // if (!isNvl(status) && String(status).toUpperCase() === 'REJECTED') {
+    if (!isNvl(status) && String(status).toUpperCase() === 'REJECTED') {
       pageHeaderTitle = formatMessage({ id: 'REGISTRATION_FAILED' });
       pageHeaderSubTitle = formatMessage({ id: 'SUB_REGISTRATION_FAILED' });
-    // }
-    // if (!isNvl(status) && String(status).toUpperCase() !== 'REJECTED') {
-    //   // 05：Reject
-    //   pageHeaderTitle = formatMessage({ id: 'STATUS' });
-    //   pageHeaderSubTitle = formatMessage({ id: 'SUB_STATUS' });
-    // }
-    // if (isNvl(status) && String(currentStep) === '2') {
-    //   pageHeaderTitle = formatMessage({ id: 'PENDING_APPROVAL' });
-    //   pageHeaderSubTitle = formatMessage({ id: 'SUB_PENDING_APPROVAL' });
-    // }
+    }
+    if (!isNvl(status) && String(status).toUpperCase() !== 'REJECTED') {
+      // 05：Reject
+      pageHeaderTitle = formatMessage({ id: 'STATUS' });
+      pageHeaderSubTitle = formatMessage({ id: 'SUB_STATUS' });
+    }
+    if (isNvl(status) && String(currentStep) === '2') {
+      pageHeaderTitle = formatMessage({ id: 'PENDING_APPROVAL' });
+      pageHeaderSubTitle = formatMessage({ id: 'SUB_PENDING_APPROVAL' });
+    }
     return <PageHeader title={pageHeaderTitle} breadcrumb={null} subTitle={pageHeaderSubTitle} />;
   };
 

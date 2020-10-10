@@ -3,6 +3,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
+import CurrencyFormatter from 'currencyformatter.js';
 import {
   Button,
   Card,
@@ -21,7 +22,21 @@ import BreadcrumbComp from '@/components/BreadcrumbComp';
 import SCREEN from '@/utils/screen';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
-import WalletInvoice from "@/pages/TravelAgentWallet/components/Invoice";
+import WalletInvoice from '@/pages/TravelAgentWallet/components/Invoice';
+
+const CURRENCY_FORMATTER_OPTIONS = {
+  symbol: '', // Overrides the currency's default symbol
+  decimal: '.', // Overrides the locale's decimal character
+  group: ',', // Overrides the locale's group character (thousand separator)
+  pattern: '#,##0', // Overrides the locale's default display pattern
+};
+
+const CURRENCY_FORMATTER_OPTIONS_DECIMAL = {
+  symbol: '', // Overrides the currency's default symbol
+  decimal: '.', // Overrides the locale's decimal character
+  group: ',', // Overrides the locale's group character (thousand separator)
+  pattern: '#,##0.00', // Overrides the locale's default display pattern
+};
 
 const ACTIVITY_STATUS = {
   Approved: '00',
@@ -216,7 +231,7 @@ class Wallet extends React.PureComponent {
         render: (text, record) => {
           const chargeText =
             (record.flow === 0 ? '+' : '-') +
-            record.charge.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            CurrencyFormatter.format(record.charge, CURRENCY_FORMATTER_OPTIONS_DECIMAL);
           return <Tooltip title={chargeText}>{chargeText}</Tooltip>;
         },
       },
@@ -345,7 +360,12 @@ class Wallet extends React.PureComponent {
                         {eWallet && (
                           <div className={`${styles.labelValue} ${styles.colorBlack}`}>
                             <span className={styles.symbolPart}>$</span>
-                            <span className={styles.integerPart}>{eWallet.integer}</span>
+                            <span className={styles.integerPart}>
+                              {CurrencyFormatter.format(
+                                eWallet.balance,
+                                CURRENCY_FORMATTER_OPTIONS
+                              )}
+                            </span>
                             <span className={styles.decimalPart}>.{eWallet.decimal}</span>
                           </div>
                         )}
@@ -362,7 +382,9 @@ class Wallet extends React.PureComponent {
                         {ar && (
                           <div className={`${styles.labelValue} ${styles.colorOrange}`}>
                             <span className={styles.symbolPart}>$</span>
-                            <span className={styles.integerPart}>{ar.integer}</span>
+                            <span className={styles.integerPart}>
+                              {CurrencyFormatter.format(ar.integer, CURRENCY_FORMATTER_OPTIONS)}
+                            </span>
                             <span className={styles.decimalPart}>.{ar.decimal}</span>
                           </div>
                         )}
@@ -508,7 +530,7 @@ class Wallet extends React.PureComponent {
                 columns={columns}
                 pagination={paginationSetting}
                 onChange={this.handleTableChange}
-                scroll={{x: 800}}
+                scroll={{ x: 800 }}
               />
             </MediaQuery>
             <MediaQuery minWidth={SCREEN.screenSmMin}>
@@ -519,7 +541,7 @@ class Wallet extends React.PureComponent {
                 columns={columns}
                 pagination={paginationSetting}
                 onChange={this.handleTableChange}
-                scroll={{x: 800, y: this.getTableHeight()}}
+                scroll={{ x: 800, y: this.getTableHeight() }}
               />
             </MediaQuery>
           </Spin>
