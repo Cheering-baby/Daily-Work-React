@@ -171,6 +171,8 @@ export const doFilter = _filterList => {
         const formatFrom = from ? moment(parseInt(from, 10)).format(DATE_FORMAT) : '';
         const formatTo = to ? moment(parseInt(to, 10)).format(DATE_FORMAT) : '';
         filterList.push({
+          isRequiredWhere: item.isRequiredWhere,
+          filterType: item.filterType,
           filterName: item.filterName,
           filterValue: `${formatFrom} ~ ${formatTo}`,
           type: from === 'All' || to === 'All' ? 'filter' : '',

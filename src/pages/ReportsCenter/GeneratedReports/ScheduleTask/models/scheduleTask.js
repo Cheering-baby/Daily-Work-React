@@ -239,17 +239,22 @@ export default {
 
     saveScheduledTaskDetail(state, { payload }) {
       const { taskDetail } = payload;
-      const { displayColumnList = [], filterList = [] } = taskDetail;
+      const { cronType, displayColumnList = [], filterList = [] } = taskDetail;
       const detailFormItems = [
         { label: 'Schedule Report Name', texts: [taskDetail.reportName] },
         { label: 'Reports Name', texts: [taskDetail.taskName] },
         { label: 'Report Frequency', texts: [taskDetail.cronType] },
         { label: 'Report Type', texts: [taskDetail.reportType] },
       ];
-      doFilter(filterList).forEach(({ filterName: label, filterValue, keyMap, type }) => {
+      doFilter(filterList).forEach(({ filterName: label, filterValue, keyMap, type, filterType, isRequiredWhere }) => {
         let texts = filterValue && filterValue.split(',');
-        if (keyMap) {
-          texts = texts.map(item => keyMap[item] || item);
+        // RANGE_PICKER special deal
+        if(['Daily', 'Monthly'].includes(cronType) && filterType === 'RANGE_PICKER' && isRequiredWhere === '1') {
+          const reportNameSplit = taskDetail.taskName.split('_')[1].split('-');
+          const text = `${moment(reportNameSplit[0], 'YYYYMMDD').format('DD-MMM-YYYY')} ~ ${moment(reportNameSplit[1], 'YYYYMMDD').format('DD-MMM-YYYY')}`;
+          texts = [text];
+        } else if (keyMap) {
+            texts = texts.map(item => keyMap[item] || item);
         }
         detailFormItems.push({ label, texts, type });
       });
