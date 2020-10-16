@@ -5,6 +5,7 @@ const urlPathPrefix = '/b2b/account';
 // const test = 'http://10.25.159.214:18091/pams';
 // const urlPathPrefix = 'http://10.25.159.214:18091/pams/account';
 // const urlPathPrefix = 'http://localhost:8000/pams/account';
+const mock = 'http://easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e854bf1f8436f0020822df9/PAMS/b2b/account';
 
 export function queryAccount(params) {
   //
@@ -36,7 +37,7 @@ export function queryWalletTypes() {
 }
 
 export function invoiceDetail(params) {
-  return UAAService.request(`${urlPathPrefix}/invoiceDetail`, {
+  return UAAService.request(`${mock}/invoiceDetail`, {
     method: 'GET',
     params,
   });

@@ -8,7 +8,7 @@ const uaaPath =
     : '';
 
 export async function queryOrder(params) {
-  return UAAService.request(`${mock}/b2b/transaction/v1/booking/list${params}`, {
+  return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/list${params}`, {
     method: 'GET',
   });
 }

@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import { sortArray } from '@/pages/TicketManagement/utils/utils';
 import styles from './index.less';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
+import { sessionTimeToWholeDay } from '@/pages/TicketManagement/utils/utils';
 
 const FormItem = Form.Item;
 
@@ -271,14 +272,53 @@ class Detail extends React.Component {
         title: 'Ticket Type',
         dataIndex: 'itemName',
         key: 'itemName',
-        render: text => (
-          <Tooltip
-            placement="topLeft"
-            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
-          >
-            <span>{text}</span>
-          </Tooltip>
-        ),
+        render: text => {
+          if (Array.isArray(text)) {
+            return (
+              <div>
+                {text.map(i => (
+                  <div>{i || '-'}</div>
+                ))}
+              </div>
+            );
+          }
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+            >
+              <span>{text}</span>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        title: 'Session',
+        dataIndex: 'session',
+        key: 'session',
+        render: text => {
+          if (Array.isArray(text)) {
+            return (
+              <div>
+                {text.map(i => (
+                  <div>{sessionTimeToWholeDay(i.session) || '-'}</div>
+                ))}
+              </div>
+            );
+          }
+          let show = '-';
+          if (text) {
+            show = sessionTimeToWholeDay(text);
+          }
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{show}</span>}
+            >
+              <span>{show}</span>
+            </Tooltip>
+          );
+        },
       },
       {
         title: 'Quantity',

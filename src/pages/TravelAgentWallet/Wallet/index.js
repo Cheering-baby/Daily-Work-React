@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
+import router from 'umi/router';
 import moment from 'moment';
 import MediaQuery from 'react-responsive';
 import CurrencyFormatter from 'currencyformatter.js';
@@ -251,7 +252,22 @@ class Wallet extends React.PureComponent {
         key: 'referenceNo',
         dataIndex: 'referenceNo',
         render: text => {
-          return <Tooltip title={text || '-'}>{text || '-'}</Tooltip>;
+          return (
+            <Tooltip title={text || '-'}>
+              <span
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  if (text) {
+                    router.push(
+                      `/TicketManagement/Ticketing/QueryOrder?backFlag=payment&orderNo=${text}`
+                    );
+                  }
+                }}
+              >
+                {text || '-'}
+              </span>
+            </Tooltip>
+          );
         },
       },
       {

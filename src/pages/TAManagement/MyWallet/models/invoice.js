@@ -46,6 +46,9 @@ const InvoiceModel = {
       { label: 'Co. Reg No:', dataKey: 'Co_Reg_No' },
       { label: 'Payment Term:', dataKey: 'Payment_Term' },
       { label: 'Page:', dataKey: 'Page' },
+      { label: 'Payment Mode:', dataKey: 'Payment_Mode' },
+      { label: 'Credit Card Type:', dataKey: 'Credit_Card_Type' },
+      { label: 'Payment Reference NO:', dataKey: 'Payment_Reference_NO' },
     ],
     descriptionsData: DEFAULT_DESCRIPTIONS_DATA,
     details: DEFAULT_DETAILS,
@@ -76,6 +79,7 @@ const InvoiceModel = {
               postalCode: billingInfo.postalCode,
               countryName: billingInfo.countryName,
               primaryFinanceContactName: primaryFinanceContact.contactPerson,
+              taId: companyInfo.taId,
             }),
             descriptionsData: Object.assign(DEFAULT_DESCRIPTIONS_DATA, {
               AR_NO: mappingInfo.peoplesoftEwalletId,
@@ -83,6 +87,9 @@ const InvoiceModel = {
               Date: moment(flow.createTime)
                 .format('DD/MM/YYYY')
                 .toString(),
+              Payment_Mode: flow.paymentMode,
+              Credit_Card_Type: flow.paymentCardType,
+              Payment_Reference_NO: flow.paymentReferenceNo,
             }),
             details: Object.assign(DEFAULT_DETAILS, {
               id: flow.accountBookFlowId,

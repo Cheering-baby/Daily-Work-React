@@ -76,6 +76,7 @@ class WalletInvoice extends React.PureComponent {
       visible,
       width: 760,
       onCancel: this.handleCancel,
+      maskClosable: false,
       footer: [
         <Button
           key="download"
@@ -114,6 +115,7 @@ class WalletInvoice extends React.PureComponent {
                   <div className={styles['invoice-logo']}>
                     <img src={logoImage} alt="logo" width="100%" height="auto" />
                   </div>
+                  <div className={styles['company-address']}>{profile.taId}</div>
                   <div className={styles['company-name']}>{profile.name}</div>
                   <div className={styles['company-address']}>
                     {profile.address} <br />
@@ -248,7 +250,7 @@ class WalletInvoice extends React.PureComponent {
                   </table>
                 </div>
               </div>
-              <div style={{ width: '100%', marginTop: '230px', borderTop: '1px solid #000' }}>
+              <div style={{ width: '100%', marginTop: '190px', borderTop: '1px solid #000' }}>
                 <div className={styles['instructions-title']}>
                   <div className={styles['instructions-title-label']}>Payment Instructions</div>
                 </div>

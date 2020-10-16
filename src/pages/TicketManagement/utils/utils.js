@@ -506,7 +506,7 @@ export function findArrSame(arr = []) {
 }
 
 export const sessionTimeToWholeDay = time => {
-  if (time === '03:00:00') {
+  if (['03:00', '03:00:00'].includes(time)) {
     return 'Whole Day';
   }
   return time;
