@@ -152,18 +152,11 @@ export default {
             if (findQuantityItem) {
               findQuantityItem.itemQuantity += 1;
             } else {
-              let session = null;
-              if(offerItem.attraction) {
-                offerItem.attraction.forEach(i => {
-                  session = i.validTimes ? i.validTimes[0].validTimeFrom : null;
-                })
-              }
               offerOrderQuantityItem.itemList.push({
                 itemName: offerItem.bundleLabel,
                 itemQuantity: 1,
                 configQuantity: 1,
                 numOfPax: null,
-                session,
               });
             }
           } else {
@@ -174,7 +167,6 @@ export default {
               } else {
                 const showName = [];
                 const productNoList = [];
-                const session = [];
                 attraction.forEach(attractionItem => {
                   if (attractionItem.ticketType !== 'Voucher') {
                     const productNoFind = productNoList.find(
@@ -183,13 +175,6 @@ export default {
                     if (!productNoFind) {
                       productNoList.push(attractionItem.prodNo);
                       showName.push(attractionItem.ticketGroup || 'General');
-                      session.push({
-                        ticketGroup: attractionItem.ticketGroup || 'General',
-                        session:
-                        attractionItem.validTimes && attractionItem.validTimes.length > 0
-                          ? attractionItem.validTimes[0].validTimeFrom
-                          : null,
-                      })
                     }
                   }
                 });
@@ -199,18 +184,11 @@ export default {
                   }
                   return a > b ? 1 : 0;
                 });
-                session.sort((a, b) => {
-                  if (a.ticketGroup < b.ticketGroup) {
-                    return -1;
-                  }
-                  return a.ticketGroup > b.ticketGroup ? 1 : 0;
-                });
                 offerOrderQuantityItem.itemList.push({
-                  itemName: showName,
+                  itemName: showName.join(', '),
                   itemQuantity: 1,
                   configQuantity: 1,
                   numOfPax: null,
-                  session,
                 });
               }
             } else {
@@ -235,10 +213,6 @@ export default {
                       configQuantity: attractionItem.configQuantity,
                       prodNo: attractionItem.prodNo,
                       numOfPax: attractionItem.numOfPax,
-                      session:
-                        attractionItem.validTimes && attractionItem.validTimes.length > 0
-                          ? attractionItem.validTimes[0].validTimeFrom
-                          : null,
                     });
                   }
                 } else if (voucherOnly !== 'Yes' && attractionItem.ticketType !== 'Voucher') {
@@ -255,10 +229,6 @@ export default {
                       configQuantity: attractionItem.configQuantity,
                       prodNo: attractionItem.prodNo,
                       numOfPax: attractionItem.numOfPax,
-                      session:
-                        attractionItem.validTimes && attractionItem.validTimes.length > 0
-                          ? attractionItem.validTimes[0].validTimeFrom
-                          : null,
                     });
                   }
                 }
