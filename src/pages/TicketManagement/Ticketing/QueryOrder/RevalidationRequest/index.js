@@ -543,7 +543,11 @@ class RevalidationRequest extends Component {
                             className={styles.selectStyle}
                             value={deliveryMode !== null ? deliveryMode : undefined}
                             onChange={value => this.changeDeliveryMode(value)}
-                            options={[<Option value="VID">VID</Option>]}
+                            options={[
+                              <Option value="BOCA">BOCA</Option>,
+                              <Option value="VID">VID</Option>,
+                              <Option value="e-Ticket">e-Ticket</Option>,
+                            ]}
                           />
                         </div>
                       )}

@@ -200,8 +200,8 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
-      dataIndex: 'ticketType',
-      key: 'ticketType',
+      dataIndex: 'ticketTypes',
+      key: 'ticketTypes',
       render: text => this.showVidType(text),
     },
   ];

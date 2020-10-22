@@ -2,7 +2,9 @@ import React from 'react';
 import { formatMessage } from 'umi/locale';
 import { Button, Drawer, Table, Tooltip } from 'antd';
 import { connect } from 'dva';
+import { isNullOrUndefined } from 'util';
 import styles from './index.less';
+import { changeThemeParkDisplay } from '@/pages/ProductManagement/utils/tools';
 
 @connect(({ exportVIDMgr, loading }) => ({
   exportVIDMgr,
@@ -72,7 +74,7 @@ class ExportVID extends React.Component {
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
       width: '15%',
-      dataIndex: 'themePark',
+      dataIndex: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
@@ -156,19 +158,17 @@ class ExportVID extends React.Component {
     const {
       exportVIDMgr: { themeParkList = [] },
     } = this.props;
-    for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].bookingCategoryCode === text) {
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={
-              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
-            }
-          >
-            <span>{themeParkList[i].bookingCategoryName}</span>
-          </Tooltip>
-        );
-      }
+
+    const showThemeParkName = changeThemeParkDisplay(text, themeParkList);
+    if (!isNullOrUndefined(showThemeParkName)) {
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showThemeParkName}</span>}
+        >
+          <span>{showThemeParkName}</span>
+        </Tooltip>
+      );
     }
   };
 
