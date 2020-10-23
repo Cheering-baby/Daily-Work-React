@@ -176,12 +176,6 @@ class ScheduleTransaction extends Component {
         : [];
     const userRoleInfos = arr3 && arr3.userRoleOptions;
 
-    const arr4 =
-      filterList && filterList.length > 0
-        ? filterList.find(i => i.filterKey === 'customerGroup')
-        : [];
-    const customerGroupInfos = arr4 && arr4.customerGroupOptions;
-
     const arr5 =
       filterList && filterList.length > 0
         ? filterList.find(i => i.filterKey === 'accountManager')
@@ -197,7 +191,7 @@ class ScheduleTransaction extends Component {
         ? filterList.find(i => i.filterKey === 'customerName')
         : [];
     const customerNameInfos = arr7 && arr7.customerNameOptions;
-    
+
     let cType = '';
     // let types = '';
 
@@ -207,7 +201,6 @@ class ScheduleTransaction extends Component {
     const scheduleDesc = getFieldValue('scheduleDesc');
     const monthlyExecuteDay = getFieldValue('monthlyExecuteDay');
     const reportTypeVal = getFieldValue('reportType');
-    const categoryTypeVal = getFieldValue('categoryType');
 
     form.validateFields((errors, values) => {
       if (errors) {
@@ -364,7 +357,6 @@ class ScheduleTransaction extends Component {
         }
       });
 
-      
       const result = Object.entries(values).map(([key, value]) => {
         return { key, value };
       });
@@ -374,7 +366,7 @@ class ScheduleTransaction extends Component {
         return false;
       }
       if (cType === '03' && executeOnce) {
-        const diffTime = executeOnce.diff(moment(),'seconds');
+        const diffTime = executeOnce.diff(moment(), 'seconds');
         if (diffTime < 60 * 5) {
           message.warning('Generation Date Time has passed, please re-schedule to a later time.');
           return false;
@@ -916,7 +908,6 @@ class ScheduleTransaction extends Component {
                     pagination={false}
                     scroll={{ x: 660 }}
                     rowKey={record => record.columnName}
-                    // rowKey={record => record.no}
                     rowSelection={rowSelection}
                   />
                 )}

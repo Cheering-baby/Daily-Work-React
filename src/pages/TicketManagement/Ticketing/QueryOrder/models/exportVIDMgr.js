@@ -179,6 +179,7 @@ export default {
                   offerName:
                     offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                   themePark: attraction[j].themePark,
+                  themeParks: attraction[j].themeParks,
                   status: attraction[j].visualIdStatus,
                   hadRefunded: attraction[j].hadRefunded,
                   ticketGroup: attraction[j].ticketGroup,
@@ -195,6 +196,7 @@ export default {
                       offerName:
                         offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                       themePark: itemPlu.themeParkCode,
+                      themeParks: attraction[j].themeParks,
                       status: attraction[j].visualIdStatus,
                       hadRefunded: attraction[j].hadRefunded,
                       ticketGroup: itemPlu.ageGroup,
@@ -213,6 +215,7 @@ export default {
                     offerName:
                       offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                     themePark: itemPlu.themeParkCode,
+                    themeParks: attraction[j].themeParks,
                     status: attraction[j].visualIdStatus,
                     hadRefunded: attraction[j].hadRefunded,
                     ticketGroup: itemPlu.ageGroup,
@@ -230,6 +233,7 @@ export default {
                 offerName:
                   offers[i].bundleName !== null ? offers[i].bundleName : offers[i].offerName,
                 themePark: attraction[j].themePark,
+                themeParks: attraction[j].themeParks,
                 status: attraction[j].visualIdStatus,
                 hadRefunded: attraction[j].hadRefunded,
                 ticketGroup: attraction[j].ticketGroup,

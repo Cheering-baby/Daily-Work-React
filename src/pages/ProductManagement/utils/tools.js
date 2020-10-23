@@ -38,3 +38,22 @@ export function formatPrice(text) {
   text = text.match(/\d+\.\d{2}/)[0];
   return `$ ${text}`;
 }
+
+export function changeThemeParkDisplay(text, themeParkList) {
+  let themeParkCodeList = [];
+  if (Array.isArray(text)) {
+    themeParkCodeList = text;
+  } else {
+    themeParkCodeList = text ? text.split(',').sort((a, b) => a.localeCompare(b)) : [];
+  }
+  const changeThemeParkList = themeParkCodeList.map(item => {
+    if (themeParkList.find(themePark => item === themePark.bookingCategoryCode)) {
+      return themeParkList.find(item2 => item === item2.bookingCategoryCode).bookingCategoryName;
+    }
+    return item;
+  });
+  if (changeThemeParkList.length > 0) {
+    return changeThemeParkList.join(',');
+  }
+  return null;
+}

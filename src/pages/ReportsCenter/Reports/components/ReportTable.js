@@ -43,7 +43,6 @@ class PLUTable extends Component {
         currentUser: { userType },
       },
     } = this.props;
-
     const pageOpts = {
       total: totalSize,
       current: currentPage,
