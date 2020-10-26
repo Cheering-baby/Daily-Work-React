@@ -62,19 +62,15 @@ class Attraction extends Component {
     let attractionProductCopy = [];
     let bundleOfferDetail = {};
     if (!isNullOrUndefined(bundleName)) {
-
       const offerFilter = offers.filter(offerItem => {
-        const {
-          offerSessions = [],
-          sessionTime,
-        } = offerItem;
+        const { offerSessions = [], sessionTime } = offerItem;
         const isSessionOffer = !(offerSessions.length === 1 && offerSessions[0] === null);
-        if(isSessionOffer) {
+        if (isSessionOffer) {
           return !isNullOrUndefined(sessionTime);
         }
         return true;
       });
-      if(offerFilter.length > 0) {
+      if (offerFilter.length > 0) {
         bundleOfferDetail = {
           bundleName,
           offers: offerFilter,
@@ -82,10 +78,9 @@ class Attraction extends Component {
           numOfGuests: offerFilter[0].detail.numOfGuests,
         };
       } else {
-        message.warning('Please select one session at lease.');
+        message.warning('Please select one session at least.');
         return false;
       }
-
     } else {
       const offerConstrain = getOfferConstrain(detail);
       if (offerConstrain === 'Fixed') {
@@ -99,12 +94,12 @@ class Attraction extends Component {
         attractionProductCopy = attractionProduct.filter(itemProduct => {
           const { sessionOptions = [], sessionTime } = itemProduct;
           const isSessionProduct = sessionOptions.length > 0;
-          if(isSessionProduct) {
+          if (isSessionProduct) {
             return !isNullOrUndefined(sessionTime);
           }
           return true;
-        })
-        if(attractionProductCopy.length === 0) {
+        });
+        if (attractionProductCopy.length === 0) {
           message.warning('Please select one session at lease.');
           return false;
         }
@@ -667,7 +662,7 @@ class Attraction extends Component {
                   return (
                     <div key={productNo} className={styles.productPrice}>
                       <div style={this.generateStyle(companyType).sessionStyle}>
-                        {isSessionProduct > 0 ? (
+                        {isSessionProduct ? (
                           <Form.Item>
                             {getFieldDecorator(label, {
                               initialValue: sessionTime,
@@ -678,19 +673,23 @@ class Attraction extends Component {
                                 },
                               ],
                             })(
-                              <Select
-                                placeholder="Please Select"
-                                allowClear
-                                onChange={value => {
-                                  item.sessionTime = value;
-                                }}
-                              >
-                                {sessionOptions.map(itemSession => (
-                                  <Select.Option value={itemSession} key={itemSession}>
-                                    {sessionTimeToWholeDay(itemSession)}
-                                  </Select.Option>
-                                ))}
-                              </Select>
+                              sessionOptions.length === 1 && sessionOptions[0] === '03:00:00' ? (
+                                <div className={styles.wholeDay}>Whole Day</div>
+                              ) : (
+                                <Select
+                                  placeholder="Please Select"
+                                  allowClear
+                                  onChange={value => {
+                                    item.sessionTime = value;
+                                  }}
+                                >
+                                  {sessionOptions.map(itemSession => (
+                                    <Select.Option value={itemSession} key={itemSession}>
+                                      {sessionTimeToWholeDay(itemSession)}
+                                    </Select.Option>
+                                  ))}
+                                </Select>
+                              )
                             )}
                           </Form.Item>
                         ) : (
@@ -748,7 +747,7 @@ class Attraction extends Component {
                 return (
                   <div key={offerNo} className={styles.productPrice}>
                     <div style={this.generateStyle(companyType).sessionStyle}>
-                      {isSessionOffer > 0 ? (
+                      {isSessionOffer ? (
                         <Form.Item>
                           {getFieldDecorator(label, {
                             initialValue: sessionTime || undefined,
@@ -759,19 +758,23 @@ class Attraction extends Component {
                               },
                             ],
                           })(
-                            <Select
-                              placeholder="Please Select"
-                              allowClear
-                              onChange={value => {
-                                offerItem.sessionTime = value;
-                              }}
-                            >
-                              {offerSessions.map(itemSession => (
-                                <Select.Option value={itemSession} key={itemSession}>
-                                  {sessionTimeToWholeDay(itemSession)}
-                                </Select.Option>
-                              ))}
-                            </Select>
+                            offerSessions.length === 1 && offerSessions[0] === '03:00:00' ? (
+                              <div className={styles.wholeDay}>Whole Day</div>
+                            ) : (
+                              <Select
+                                placeholder="Please Select"
+                                allowClear
+                                onChange={value => {
+                                  offerItem.sessionTime = value;
+                                }}
+                              >
+                                {offerSessions.map(itemSession => (
+                                  <Select.Option value={itemSession} key={itemSession}>
+                                    {sessionTimeToWholeDay(itemSession)}
+                                  </Select.Option>
+                                ))}
+                              </Select>
+                            )
                           )}
                         </Form.Item>
                       ) : (

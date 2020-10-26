@@ -12,7 +12,7 @@ export async function queryOrder(params) {
 }
 
 export async function queryRevalidationVids(params) {
-  return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/queryVid${params}`, {
+  return UAAService.request(`${mock}/b2b/transaction/v1/booking/queryVid${params}`, {
     method: 'GET',
   });
 }

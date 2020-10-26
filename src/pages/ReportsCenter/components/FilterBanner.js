@@ -59,6 +59,7 @@ const generateFilter = (props, filterItem) => {
       searchCustomerNames,
       searchCategoryTypeList,
       customerGroupList,
+      searchCustomerGroup,
     },
     detailList,
   } = props;
@@ -94,15 +95,26 @@ const generateFilter = (props, filterItem) => {
   //     ? customerGroupOptions.filter(i => checkCategoryTypeValue && checkCategoryTypeValue.includes(i.dictSubType))
   //     : [];
 
-  const customerOptions = customerGroupOptions && checkCategoryTypeValue && checkCategoryTypeValue.map(i => {
-    const  title =  categoryTypeList.find(j => j.dictId === i)
-     return {
-       title,
-       options: customerGroupOptions.filter(j => j.dictSubType === i)
-     } 
-  }) || [];
+  const customerOptions =
+    (customerGroupOptions &&
+      checkCategoryTypeValue &&
+      checkCategoryTypeValue.map(i => {
+        const title = categoryTypeList.find(j => j.dictId === i);
+        return {
+          title,
+          options: customerGroupOptions.filter(j => j.dictSubType === i),
+          originalOptions: customerGroupOptions.filter(j => j.dictSubType === i),
+        };
+      })) ||
+    [];
 
-
+  if (searchCustomerGroup) {
+    customerOptions.forEach(item => {
+      item.options = item.options.filter(
+        i => i.dictName.toLowerCase().indexOf(searchCustomerGroup.toLowerCase()) >= 0
+      );
+    });
+  }
   const themeParkSelect = React.createRef();
 
   const whereColumnList = detailList ? detailList.whereColumnList : [];
@@ -186,7 +198,7 @@ const generateFilter = (props, filterItem) => {
               });
             }
           } else if (result.filterKey === 'categoryType') {
-            if(!checkCategoryTypeValueInit) {
+            if (!checkCategoryTypeValueInit) {
               val = val ? val.split(',') : [];
               dispatch({
                 type: 'reportCenter/save',
@@ -379,7 +391,8 @@ const generateFilter = (props, filterItem) => {
       openCustomerName: false,
       openAgeGroup: false,
       openCategoryType: false,
-    }
+      searchCustomerGroup: null,
+    };
     if (filterKey === 'themeParkCode') {
       data.openThemePark = true;
     } else if (filterKey === 'customerGroup') {
@@ -401,7 +414,7 @@ const generateFilter = (props, filterItem) => {
     }
     dispatch({
       type: 'reportCenter/save',
-      payload: data
+      payload: data,
     });
   };
 
@@ -447,11 +460,11 @@ const generateFilter = (props, filterItem) => {
   const customerGroupAll = e => {
     let arr3 = [];
     if (e.target.checked === true) {
-      customerOptions.forEach(({options: itemOption}) => {
+      customerOptions.forEach(({ options: itemOption }) => {
         itemOption.forEach(item => {
           arr3.push(item.dictId);
-        })
-       })
+        });
+      });
     } else {
       arr3 = [];
     }
@@ -641,7 +654,10 @@ const generateFilter = (props, filterItem) => {
   const changeCategoryTypeAll = e => {
     let arr3 = [];
     if (e.target.checked === true) {
-      arr3 = categoryTypeOptions && categoryTypeOptions.length > 0 && categoryTypeOptions.map(i => i.dictId);
+      arr3 =
+        categoryTypeOptions &&
+        categoryTypeOptions.length > 0 &&
+        categoryTypeOptions.map(i => i.dictId);
     } else {
       arr3 = [];
     }
@@ -660,19 +676,19 @@ const generateFilter = (props, filterItem) => {
 
   const changeCustomerGroup = (e, key) => {
     let newVal = [];
-    if(typeof(key) === 'object') {
+    if (typeof key === 'object') {
       const { itemOption } = key;
       const keyItems = [];
       itemOption.forEach(item => {
         keyItems.push(item.dictId);
-      })
-      if(e.target.checked) {
-          newVal = Array.from(new Set([...checkCustomerGroupValue, ...keyItems]));
+      });
+      if (e.target.checked) {
+        newVal = Array.from(new Set([...checkCustomerGroupValue, ...keyItems]));
       } else {
         newVal = checkCustomerGroupValue.filter(i => !keyItems.includes(i));
       }
-    } else if(e.target.checked) {
-        newVal = Array.from(new Set([...checkCustomerGroupValue, key]));
+    } else if (e.target.checked) {
+      newVal = Array.from(new Set([...checkCustomerGroupValue, key]));
     } else {
       newVal = checkCustomerGroupValue.filter(i => i !== key);
     }
@@ -680,13 +696,13 @@ const generateFilter = (props, filterItem) => {
     dispatch({
       type: 'reportCenter/save',
       payload: {
-        checkCustomerGroupValue: newVal
+        checkCustomerGroupValue: newVal,
       },
     });
     setFieldsValue({
       customerGroup: newVal,
     });
-  }
+  };
 
   const themeParkDropDown = () => {
     if (themeParkOptions && themeParkOptions.length > 0) {
@@ -714,19 +730,19 @@ const generateFilter = (props, filterItem) => {
   const customerGroupDropDown = () => {
     if (customerOptions && customerOptions.length > 0) {
       let keyLen = 0;
-      customerOptions.forEach(({options: itemOption}) => {
+      customerOptions.forEach(({ options: itemOption }) => {
         keyLen += itemOption.length;
-      })
+      });
 
       // eslint-disable-next-line no-inner-declarations
       function matchItem(itemOption) {
         let matchItemOption = true;
         itemOption.forEach(item => {
           const key = item.dictId;
-          if(!checkCustomerGroupValue.includes(key)) {
+          if (!checkCustomerGroupValue.includes(key)) {
             matchItemOption = false;
           }
-        })
+        });
         return matchItemOption;
       }
 
@@ -743,11 +759,11 @@ const generateFilter = (props, filterItem) => {
                 Select All
               </Checkbox>
             </div>
-            {customerOptions.map(({ title, options: itemOption }) => {
+            {customerOptions.map(({ title, options: itemOption, originalOptions }) => {
               return (
                 <div className={styles.customerOptionsItem}>
                   <Checkbox
-                    checked={matchItem(itemOption)}
+                    checked={matchItem(originalOptions)}
                     disabled={itemOption.length === 0}
                     onChange={e => changeCustomerGroup(e, { title, itemOption })}
                   >
@@ -949,7 +965,7 @@ const generateFilter = (props, filterItem) => {
       );
     }
     return <div />;
-  }
+  };
 
   const themeParkDelete = value => {
     if (filterKey === 'themeParkCode') {
@@ -966,11 +982,11 @@ const generateFilter = (props, filterItem) => {
       dispatch({
         type: 'reportCenter/save',
         payload: {
-          checkCustomerGroupValue: value.map(({key}) => key),
+          checkCustomerGroupValue: value.map(({ key }) => key),
         },
       });
       setFieldsValue({
-        customerGroup: value.map(({key}) => key),
+        customerGroup: value.map(({ key }) => key),
       });
     } else if (filterKey === 'userRoleForCreated') {
       dispatch({
@@ -1023,8 +1039,8 @@ const generateFilter = (props, filterItem) => {
       setFieldsValue({
         customerName: customerValue,
       });
-    } else if(filterKey === 'categoryType') {
-      const mapValue = value.map(({key}) => key);
+    } else if (filterKey === 'categoryType') {
+      const mapValue = value.map(({ key }) => key);
       const checkCustomerGroupValueFilter = checkCustomerGroupValue.filter(i => {
         return (
           customerGroupList.find(j => j.dictId === i) &&
@@ -1035,12 +1051,12 @@ const generateFilter = (props, filterItem) => {
         type: 'reportCenter/save',
         payload: {
           checkCategoryTypeValue: mapValue,
-          checkCustomerGroupValue: checkCustomerGroupValueFilter
+          checkCustomerGroupValue: checkCustomerGroupValueFilter,
         },
       });
       setFieldsValue({
         categoryType: mapValue,
-        customerGroup: checkCustomerGroupValueFilter
+        customerGroup: checkCustomerGroupValueFilter,
       });
     }
   };
@@ -1056,7 +1072,7 @@ const generateFilter = (props, filterItem) => {
           searchCustomerNames: searchCustomerNameList,
         },
       });
-    } else if(filterKey === 'categoryType') {
+    } else if (filterKey === 'categoryType') {
       const searchCategoryTypeListFilter = categoryTypeOptions.filter(
         item => item.dictName.toLowerCase().indexOf(value.toLowerCase()) >= 0
       );
@@ -1064,6 +1080,13 @@ const generateFilter = (props, filterItem) => {
         type: 'reportCenter/save',
         payload: {
           searchCategoryTypeList: searchCategoryTypeListFilter,
+        },
+      });
+    } else if (filterKey === 'customerGroup') {
+      dispatch({
+        type: 'reportCenter/save',
+        payload: {
+          searchCustomerGroup: value,
         },
       });
     }
@@ -1144,7 +1167,7 @@ const generateFilter = (props, filterItem) => {
               ref={themeParkSelect}
               showSearch
               onSearch={multipleSelectSearch}
-              placeholder='All'
+              placeholder="All"
               value={selectValue}
               onChange={themeParkDelete}
               {...ommit}
@@ -1157,7 +1180,13 @@ const generateFilter = (props, filterItem) => {
               <div className={styles.mutilSelectAbsolute}>{isDropDown}</div>
             </Col>
           </Row>
-        ) : <Row><Col><div /></Col></Row>}
+        ) : (
+          <Row>
+            <Col>
+              <div />
+            </Col>
+          </Row>
+        )}
       </Form.Item>
     ),
     DATE_PICKER: ({ required }) => (
@@ -1211,13 +1240,16 @@ const generateFilter = (props, filterItem) => {
     open = openCustomerGroup;
     dropDown = customerGroupDropDown();
     val = checkCustomerGroupValue
-    ? checkCustomerGroupValue.map(value => {
-        if (customerGroupOptions.find(item => item.dictId === value)) {
-          return { label: customerGroupOptions.find(item => item.dictId === value).dictName, key: value };
-        }
-        return { label: value, key: value };
-      })
-    : null;
+      ? checkCustomerGroupValue.map(value => {
+          if (customerGroupOptions.find(item => item.dictId === value)) {
+            return {
+              label: customerGroupOptions.find(item => item.dictId === value).dictName,
+              key: value,
+            };
+          }
+          return { label: value, key: value };
+        })
+      : null;
   } else if (filterKey === 'taMarket') {
     open = openChannel;
     dropDown = channelDropDown();
@@ -1257,7 +1289,10 @@ const generateFilter = (props, filterItem) => {
     val = checkCategoryTypeValue
       ? checkCategoryTypeValue.map(value => {
           if (categoryTypeOptions.find(item => item.dictId === value)) {
-            return { label: categoryTypeOptions.find(item => item.dictId === value).dictName, key: value };
+            return {
+              label: categoryTypeOptions.find(item => item.dictId === value).dictName,
+              key: value,
+            };
           }
           return { label: value, key: value };
         })
@@ -1293,7 +1328,7 @@ const generateFilter = (props, filterItem) => {
           } else if (filterKey === 'customerName') {
             open = openCustomerName;
           } else if (filterKey === 'categoryType') {
-            open = openCategoryType
+            open = openCategoryType;
           }
         },
       })

@@ -20,6 +20,7 @@ import {
   checkNumOfGuestsAvailable,
   findArrSame,
   multiplePromise,
+  isSessionProduct,
 } from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
@@ -519,6 +520,29 @@ export default {
                       priceRuleId = attractionProduct[0].priceRule[1].priceRuleId;
                     }
                     const productSessions = [];
+                    // filter product has not enough inventory(multiple or single) fixed has filter in checkNumOfGuestsAvailable
+                    attractionProduct = attractionProduct.filter(itemProduct => {
+                      let enough = true;
+                      const { needChoiceCount, priceRule = [] } = itemProduct;
+                      const { productPrice } = priceRule[1];
+                      let inventory = 0;
+                      if (isSessionProduct(priceRuleId, itemProduct)) {
+                        const productInventoryItems = productPrice.map(({ productInventory }) => productInventory);
+                        productInventoryItems.forEach(
+                          // eslint-disable-next-line no-return-assign
+                          itemInventory =>
+                            (inventory =
+                              itemInventory > inventory || itemInventory === -1 ? itemInventory : inventory)
+                        );
+                      } else {
+                        inventory = productPrice[0].productInventory;
+                      }
+                      if (inventory !== -1 && inventory / needChoiceCount < numOfGuests) {
+                          enough = false;
+                      }
+                      return enough;
+                    });
+                    // get session
                     attractionProduct.forEach(itemProduct => {
                       const { priceRule } = itemProduct;
                       const sessions = [];
@@ -534,6 +558,9 @@ export default {
                       sessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
                       includeSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
                       itemProduct.sessionOptions = sessions;
+                      if(sessions.includes('03:00:00')) {
+                        itemProduct.sessionTime = '03:00:00'
+                      }
                       productSessions.push(includeSessions);
                     });
                     let offerSessions = [];
@@ -551,6 +578,7 @@ export default {
                       }
                     }
                     offerSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
+
                     if (
                       noMatchPriceRule ||
                       (offerBundle[0].bundleName && offerSessions.length === 0)
@@ -572,6 +600,9 @@ export default {
                           themeParkList[index4].offerNos.push(offerNo);
                           if (offerBundle[0].bundleName) {
                             data.offerSessions = offerSessions;
+                            if(offerSessions.includes('03:00:00')) {
+                              data.sessionTime = '03:00:00';
+                            }
                           }
                           data.attractionProduct = attractionProduct;
                           themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));

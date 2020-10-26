@@ -45,7 +45,9 @@ const formLayout = {
   revalidationRequestMgr,
   global,
   tableLoading: loading.effects['revalidationRequestMgr/queryBookingDetail'],
-  pageLoading: loading.effects['revalidationRequestMgr/revalidationTicket'],
+  pageLoading:
+    loading.effects['revalidationRequestMgr/revalidationTicket'] ||
+    loading.effects['revalidationRequestMgr/queryPluAttribute'],
 }))
 class RevalidationRequest extends Component {
   columns = [
@@ -134,8 +136,11 @@ class RevalidationRequest extends Component {
         query: { bookingNo },
       },
     } = this.props;
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'revalidationRequestMgr/queryPluAttribute',
+    });
     if (bookingNo !== undefined) {
-      const { dispatch } = this.props;
       dispatch({
         type: 'revalidationRequestMgr/queryBookingDetail',
         payload: {
@@ -253,7 +258,7 @@ class RevalidationRequest extends Component {
         })
         .map(obj => obj.vidGroup);
       const {
-        revalidationRequestMgr: { wholeVidList },
+        revalidationRequestMgr: { wholeVidList, revalidationFee },
       } = this.props;
       const wholeSelectList = wholeVidList.filter(item => selectVidGroup.includes(item.vidGroup));
       const filterSelect = wholeSelectList.filter(
@@ -270,7 +275,7 @@ class RevalidationRequest extends Component {
           if (!err) {
             Modal.warning({
               title:
-                'There’s $2 modification service fee. Revalidation only allowed once per order. Proceed or Not?',
+                `There’s $${revalidationFee} modification service fee. Revalidation only allowed once per order. Proceed or Not?`,
               centered: true,
               content: (
                 <div style={{ marginBottom: 20 }}>
@@ -543,11 +548,7 @@ class RevalidationRequest extends Component {
                             className={styles.selectStyle}
                             value={deliveryMode !== null ? deliveryMode : undefined}
                             onChange={value => this.changeDeliveryMode(value)}
-                            options={[
-                              <Option value="BOCA">BOCA</Option>,
-                              <Option value="VID">VID</Option>,
-                              <Option value="e-Ticket">e-Ticket</Option>,
-                            ]}
+                            options={[<Option value="VID">VID</Option>]}
                           />
                         </div>
                       )}

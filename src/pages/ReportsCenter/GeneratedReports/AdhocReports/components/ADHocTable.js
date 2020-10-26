@@ -94,18 +94,21 @@ class DailyMonthlyTable extends Component {
       {
         title: formatMessage({ id: 'SCHEDULE_REPORT_NAME' }),
         dataIndex: 'reportName',
+        width: 180,
         sorter: true,
         className: styles.reportNameColumn,
       },
       {
         title: formatMessage({ id: 'REPORT_NAME' }),
         dataIndex: 'taskName',
+        width: 200,
         sorter: true,
         className: styles.reportNameColumn,
       },
       {
         title: formatMessage({ id: 'REPORT_FREQUENCY' }),
         dataIndex: 'cronType',
+        width: 150,
         sorter: true,
         render: text => {
           return (
@@ -118,6 +121,7 @@ class DailyMonthlyTable extends Component {
       {
         title: formatMessage({ id: 'GENERATED_DATE' }),
         dataIndex: 'expectTime',
+        width: 180,
         sorter: true,
         render: text => {
           const timeText = text ? moment(text).format('DD-MMM-YYYY HH:mm:ss') : '';
@@ -131,6 +135,7 @@ class DailyMonthlyTable extends Component {
       {
         title: 'Request By',
         dataIndex: 'createBy',
+        width: 120,
         sorter: true,
         render: text => {
           return (
@@ -194,9 +199,9 @@ class DailyMonthlyTable extends Component {
           dataSource={dataList}
           pagination={false}
           rowKey={record => record.dictId}
-          scroll={{ x: 660 }}
+          scroll={{ x: 890 }}
           onChange={(pagination, filters, sorter) => {
-            console.log(sorter)
+            // console.log(sorter)
             if (JSON.stringify(sorter) !== '{}') {
               dispatch({
                 type: 'adhoc/fetch',

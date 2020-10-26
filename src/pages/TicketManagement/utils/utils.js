@@ -251,12 +251,15 @@ export function checkNumOfGuestsAvailable(numOfGuests, detail) {
     offerBasicInfo: { offerMinQuantity, offerMaxQuantity },
   } = detail;
   const { available } = inventories[0];
+  let choiceConstrain;
   let attractionGroup;
   productGroup.forEach(item => {
     if (item.productType === 'Attraction') {
       item.productGroup.forEach(item2 => {
         if (item2.groupName === 'Attraction') {
           attractionGroup = item2;
+          // eslint-disable-next-line prefer-destructuring
+          choiceConstrain = item2.choiceConstrain;
         }
       });
     }
@@ -296,6 +299,7 @@ export function checkNumOfGuestsAvailable(numOfGuests, detail) {
   } else {
     let min = 1;
     let minNeedChoiceCount = 1;
+    let leastOneInventory = false;
     if (numOfGuests < minProductQuantity || numOfGuests > maxProductQuantity) {
       enough = false;
     }
@@ -315,13 +319,20 @@ export function checkNumOfGuestsAvailable(numOfGuests, detail) {
         inventory = productPrice[0].productInventory;
       }
       if (inventory !== -1 && inventory / needChoiceCount < numOfGuests) {
-        enough = false;
+        if (choiceConstrain === 'Fixed') {
+          enough = false;
+        }
+      } else if (choiceConstrain !== 'Fixed') {
+        leastOneInventory = true;
       }
       if (inventory / needChoiceCount > min) {
         min = inventory / needChoiceCount;
         minNeedChoiceCount = needChoiceCount;
       }
     });
+    if(choiceConstrain !== 'Fixed' && !leastOneInventory) {
+      enough = false;
+    }
     if (available !== -1 && available / minNeedChoiceCount < numOfGuests) {
       enough = false;
     }
@@ -495,6 +506,13 @@ export function getProductLimitInventory(detail) {
   return [min, max];
 }
 
+export const sessionTimeToWholeDay = time => {
+  if (['03:00', '03:00:00'].includes(time)) {
+    return 'Whole Day';
+  }
+  return time;
+};
+
 export function findArrSame(arr = []) {
   let temArr = arr[0] || [];
   for (let j = 1; j < arr.length; j += 1) {
@@ -504,13 +522,6 @@ export function findArrSame(arr = []) {
   }
   return temArr;
 }
-
-export const sessionTimeToWholeDay = time => {
-  if (time === '03:00:00') {
-    return 'Whole Day';
-  }
-  return time;
-};
 
 export function sortByArr(arr, rev) {
   if (rev === undefined) {

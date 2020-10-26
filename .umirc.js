@@ -7,6 +7,7 @@ export default {
   // https://umijs.org/zh/config/#minimizer
   // hash --> Type: Boolean Default: false
   // 是否开启 hash 文件后缀。
+  base: '/dist',
   hash: true,
   publicPath: defaultSettings.publicPath,
   history: 'hash',

@@ -4,6 +4,7 @@ import serialize from '../utils/utils';
 import {
   queryBookingDetail,
   revalidationTicket,
+  queryPluAttribute,
 } from '@/pages/TicketManagement/Ticketing/QueryOrder/services/queryOrderService';
 
 export default {
@@ -28,6 +29,26 @@ export default {
   },
 
   effects: {
+    *queryPluAttribute(_, { call, put } ) {
+      const response = yield call(queryPluAttribute, {
+        attributeItem: 'REVALIDATION_CONFIG'
+      });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') { 
+        const { items = [] } = result;
+        if(Array.isArray(items) && items.length > 0) {
+          yield put({
+            type: 'save',
+            payload: {
+              revalidationFee: items[0].itemValue,
+            },
+          })
+        }
+      } else throw resultMsg;
+    },
     *queryBookingDetail({ payload }, { call, put, select }) {
       const { searchList } = yield select(state => state.revalidationRequestMgr);
       const params = { ...searchList, ...payload };
