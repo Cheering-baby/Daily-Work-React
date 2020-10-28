@@ -305,7 +305,7 @@ export default {
             }
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
-              console.log(packageSpecObj)
+              
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
               if (attraction[j].ticketType === 'MPP') {
                 vidList.push({
@@ -313,6 +313,7 @@ export default {
                   vidCode: attraction[j].visualID,
                   themePark: attraction[j].themePark,
                   themeParks: attraction[j].themeParks,
+                  pluName: attraction[j].pluName,
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
                   numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -322,6 +323,7 @@ export default {
                   vidCode: attraction[j].visualID,
                   themePark: attraction[j].themePark,
                   themeParks: attraction[j].themeParks,
+                  pluName: attraction[j].pluName,
                   offerName: offers[i].offerName,
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
@@ -334,6 +336,7 @@ export default {
                       vidCode: itemPlu.visualId,
                       themePark: itemPlu.themeParkCode,
                       themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
+                      pluName: itemPlu.pluName,
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -344,6 +347,7 @@ export default {
                       offerName: offers[i].offerName,
                       themePark: itemPlu.themeParkCode,
                       themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
+                      pluName: itemPlu.pluName,
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -351,12 +355,14 @@ export default {
                   }
                 });
               } else {
+                
                 itemPluList.forEach(itemPlu => {
                   vidList.push({
                     vidNo: null,
                     vidCode: itemPlu.visualId,
                     themePark: itemPlu.themeParkCode,
                     themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
+                    pluName: itemPlu.pluName,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -367,6 +373,7 @@ export default {
                     offerName: offers[i].offerName,
                     themePark: itemPlu.themeParkCode,
                     themeParks: itemPlu.themeParks ? itemPlu.themeParks.split(',') : [],
+                    pluName: itemPlu.pluName,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -379,6 +386,7 @@ export default {
                 vidCode: attraction[j].visualID,
                 themePark: attraction[j].themePark,
                 themeParks: attraction[j].themeParks,
+                pluName: attraction[j].pluName,
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
                 numOfPax: getNumOfPaxInPackage(attraction[j]),
@@ -388,6 +396,7 @@ export default {
                 vidCode: attraction[j].visualID,
                 themePark: attraction[j].themePark,
                 themeParks: attraction[j].themeParks,
+                pluName: attraction[j].pluName,
                 offerName: offers[i].offerName,
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
@@ -405,6 +414,7 @@ export default {
           offerGroup: offers[i].offerGroup,
         });
       }
+      
       for (let i = 0; i < vidResultList.length; i += 1) {
         vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
       }

@@ -30,7 +30,7 @@ class Detail extends React.Component {
   revalidationVidColumns = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width: '10%',
+      width: '9%',
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -41,7 +41,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '30%',
+      width: '20%',
       dataIndex: 'vid',
       key: 'vid',
       render: text => (
@@ -52,10 +52,21 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '30%',
+      width: '20%',
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'PLU_NAME' })}</span>,
+      width: '20%',
+      dataIndex: 'pluName',
+      key: 'pluName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
@@ -72,6 +83,7 @@ class Detail extends React.Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
       dataIndex: 'ticketType',
       key: 'ticketType',
+      width: '15%',
       render: text => this.showVidType(text),
     },
   ];
@@ -90,7 +102,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '20%',
+      width: '15%',
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -100,8 +112,8 @@ class Detail extends React.Component {
       ),
     },
     {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' })}</span>,
-      width: '18%',
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' }) + '123'}</span>,
+      width: '15%',
       dataIndex: 'offerName',
       key: 'offerName',
       render: text => (
@@ -112,7 +124,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '18%',
+      width: '15%',
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
@@ -143,6 +155,7 @@ class Detail extends React.Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
       dataIndex: 'ticketType',
       key: 'ticketType',
+      width: '15%',
       render: text => this.showVidType(text),
     },
   ];
@@ -150,7 +163,7 @@ class Detail extends React.Component {
   columns = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width: '10%',
+      width: '8%',
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -161,7 +174,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '22%',
+      width: '17%',
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -172,14 +185,25 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '22%',
+      width: '18%',
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'PLU_NAME' })}</span>,
+      width: '17%',
+      dataIndex: 'pluName',
+      key: 'pluName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
+    },
+    {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO_OF_PAX' })}</span>,
-      width: '16%',
+      width: '14%',
       dataIndex: 'numOfPax',
       key: 'numOfPax',
       render: text => (
@@ -190,7 +214,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
-      width: '15%',
+      width: '13%',
       dataIndex: 'ticketGroup',
       key: 'ticketGroup',
       render: text => (
@@ -201,6 +225,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
+      width: '15%',
       dataIndex: 'ticketType',
       key: 'ticketType',
       render: text => this.showVidType(text),
@@ -210,7 +235,7 @@ class Detail extends React.Component {
   columnsTwo = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width: '10%',
+      width: '9%',
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -221,7 +246,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '30%',
+      width: '20%',
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -232,10 +257,21 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '30%',
+      width: '20%',
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'PLU_NAME' })}</span>,
+      width: '20%',
+      dataIndex: 'pluName',
+      key: 'pluName',
+      render: text => (
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+          <span>{text}</span>
+        </Tooltip>
+      ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
@@ -252,6 +288,7 @@ class Detail extends React.Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
       dataIndex: 'ticketType',
       key: 'ticketType',
+      width: '15%',
       render: text => this.showVidType(text),
     },
   ];

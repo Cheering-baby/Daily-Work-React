@@ -131,6 +131,7 @@ export default {
   FAILED_TO_REPRINT: 'Failed to reprint.',
   YEAR: 'Year',
   THEME_PARK: 'Theme Park',
+  PLU_NAME: 'PLU Name',
   RESUBMIT_SUCCESSFULLY: 'Resubmitted successfully.',
   FAILED_TO_RESUBMIT: 'Failed to resubmit.',
   AUDIT_ORDER_TITLE: 'APPROVE ORDER',
