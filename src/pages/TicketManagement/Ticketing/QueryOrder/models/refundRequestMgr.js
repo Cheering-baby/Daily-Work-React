@@ -320,7 +320,7 @@ export default {
           },
         });
       } else {
-        message.error(resultMsg);
+        throw resultMsg;
       }
       return vidResultList;
     },
