@@ -6,6 +6,7 @@ import { sortArray } from '@/pages/TicketManagement/utils/utils';
 import styles from './index.less';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
 import { sessionTimeToWholeDay } from '@/pages/TicketManagement/utils/utils';
+import moment from 'moment';
 
 const FormItem = Form.Item;
 
@@ -112,7 +113,9 @@ class Detail extends React.Component {
       ),
     },
     {
-      title: <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' }) + '123'}</span>,
+      title: (
+        <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' }) + '123'}</span>
+      ),
       width: '15%',
       dataIndex: 'offerName',
       key: 'offerName',
@@ -565,6 +568,17 @@ class Detail extends React.Component {
                 this.showDelivery(formatMessage({ id: 'CUSTOMER_CONTACT_NO' }), contactNo)}
               {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
                 this.showDelivery(formatMessage({ id: 'CUSTOMER_EMAIL_ADDRESS' }), email)}
+              {transTypeStr === 'revalidation' &&
+                this.showDelivery(
+                  formatMessage({ id: 'NEW_VISIT_DATE' }),
+                  bookingDetail.newVisitDate
+                    ? moment(bookingDetail.newVisitDate).format('DD-MMM-YYYY')
+                    : null
+                )}
+              {['revalidation', 'refund'].includes(transTypeStr) &&
+                this.showDelivery(formatMessage({ id: 'REASON' }), bookingDetail.reason)}
+              {['revalidation', 'refund'].includes(transTypeStr) &&
+                this.showDelivery(formatMessage({ id: 'TA_EMAIL' }), bookingDetail.taEmail)}
             </Form>
             {filterVidList.length > 0 && (
               <Table

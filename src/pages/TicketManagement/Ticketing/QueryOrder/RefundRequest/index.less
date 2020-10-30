@@ -21,8 +21,17 @@
   width: 100%;
 }
 
+.formLabelStyle {
+  font-family: Calibri;
+  font-size: 15px;
+  color: #262626;
+  letter-spacing: 0.24px;
+  text-align: right;
+  line-height: 22px;
+}
+
 .inputStyle {
-  width: inherit;
+  width: 190px;
   margin-right: 10px;
   margin-bottom: 10px;
 
@@ -31,6 +40,15 @@
     .ant-input {
       border: 1px #d9d9d9 solid;
       border-radius: 4px;
+    }
+  }
+}
+
+.formContainer {
+  :global {
+    .ant-form-item {
+      display: inline-block;
+      margin-top: -4px;
     }
   }
 }

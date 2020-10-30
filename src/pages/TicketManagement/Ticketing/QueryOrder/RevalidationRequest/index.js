@@ -32,12 +32,12 @@ const { Search } = Input;
 
 const formLayout = {
   labelCol: {
-    span: 8,
+    span: 10,
   },
   wrapperCol: {
-    span: 16,
+    span: 14,
   },
-  colon: false,
+  // colon: false,
 };
 
 @Form.create()
@@ -274,8 +274,7 @@ class RevalidationRequest extends Component {
         form.validateFields(err => {
           if (!err) {
             Modal.warning({
-              title:
-                `There’s $${revalidationFee} modification service fee. Revalidation only allowed once per order. Proceed or Not?`,
+              title: `There’s $${revalidationFee} modification service fee. Revalidation only allowed once per order. Proceed or Not?`,
               centered: true,
               content: (
                 <div style={{ marginBottom: 20 }}>
@@ -324,7 +323,8 @@ class RevalidationRequest extends Component {
     userType,
     submitVidList
   ) => {
-    const { dispatch } = this.props;
+    const { dispatch, form } = this.props;
+    const { newVisitDate, reason } = form.getFieldsValue();
     Modal.destroyAll();
     const selectVidGroups = Array.from(new Set(selectedVidList.map(item => item.vidGroup)));
     const visualIds = submitVidList
@@ -341,6 +341,8 @@ class RevalidationRequest extends Component {
           deliveryMode,
           collectionDate,
         },
+        newVisitDate: moment(newVisitDate).format('YYYY-MM-DD'),
+        reason,
       },
     }).then(resultCode => {
       if (resultCode === '0') {
@@ -350,6 +352,7 @@ class RevalidationRequest extends Component {
         if (userType === '03') {
           message.success(formatMessage({ id: 'SUB_TA_REQUESTED_SUCCESSFULLY' }));
         }
+        form.resetFields();
       } else {
         message.warning(resultCode);
       }
@@ -528,7 +531,7 @@ class RevalidationRequest extends Component {
               </span>
               <Form>
                 <Row>
-                  <Col md={24} lg={12}>
+                  <Col md={24} lg={8}>
                     <FormItem
                       label={
                         <span className={styles.formLabelStyle}>
@@ -548,14 +551,18 @@ class RevalidationRequest extends Component {
                             className={styles.selectStyle}
                             value={deliveryMode !== null ? deliveryMode : undefined}
                             onChange={value => this.changeDeliveryMode(value)}
-                            options={[<Option value="VID">VID</Option>]}
+                            options={[
+                              <Option value="BOCA">BOCA</Option>,
+                              <Option value="VID">VID</Option>,
+                              <Option value="e-Ticket">e-Ticket</Option>,
+                            ]}
                           />
                         </div>
                       )}
                     </FormItem>
                   </Col>
                   {deliveryMode === 'BOCA' ? (
-                    <Col md={24} lg={12}>
+                    <Col md={24} lg={8}>
                       <FormItem
                         label={
                           <span className={styles.formLabelStyle}>
@@ -582,6 +589,42 @@ class RevalidationRequest extends Component {
                       </FormItem>
                     </Col>
                   ) : null}
+                  <Col md={24} lg={8}>
+                    <FormItem
+                      label={
+                        <span className={styles.formLabelStyle}>
+                          {formatMessage({ id: 'NEW_VISIT_DATE' })}
+                        </span>
+                      }
+                      {...formLayout}
+                    >
+                      {getFieldDecorator('newVisitDate', {
+                        rules: [{ required: true, message: 'Required' }],
+                      })(
+                        <DatePicker
+                          allowClear
+                          placeholder="Please Select"
+                          className={styles.selectStyle}
+                          disabledDate={current => current < moment().startOf('day')}
+                          format="DD-MMM-YYYY"
+                        />
+                      )}
+                    </FormItem>
+                  </Col>
+                  <Col md={24} lg={8}>
+                    <FormItem
+                      label={
+                        <span className={styles.formLabelStyle}>
+                          {formatMessage({ id: 'REASON' })}
+                        </span>
+                      }
+                      {...formLayout}
+                    >
+                      {getFieldDecorator('reason', {
+                        rules: [{ required: false, message: 'Required' }],
+                      })(<Input placeholder="Please Enter" allowClear autoComplete={false} />)}
+                    </FormItem>
+                  </Col>
                 </Row>
               </Form>
             </Card>

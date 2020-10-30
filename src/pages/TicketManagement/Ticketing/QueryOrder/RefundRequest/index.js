@@ -14,6 +14,7 @@ import {
   Tooltip,
   Upload,
   Modal,
+  Form,
 } from 'antd';
 import moment from 'moment';
 import SCREEN from '@/utils/screen';
@@ -23,7 +24,19 @@ import Card from '../../../components/Card';
 import PaginationComp from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaginationComp';
 
 const { Search } = Input;
+const FormItem = Form.Item;
 
+const formLayout = {
+  labelCol: {
+    span: 8,
+  },
+  wrapperCol: {
+    span: 16,
+  },
+  // colon: false,
+};
+
+@Form.create()
 @connect(({ refundRequestMgr, loading, global }) => ({
   refundRequestMgr,
   global,
@@ -192,7 +205,9 @@ class RefundRequest extends Component {
       const {
         dispatch,
         refundRequestMgr: { wholeVidList },
+        form,
       } = this.props;
+      const { reason } = form.getFieldsValue();
       const wholeSelectList = wholeVidList.filter(item => selectVidGroup.includes(item.vidGroup));
       const filterSelect = wholeSelectList.filter(
         item => !selectedVidList.map(obj => obj.vidCode).includes(item.vidCode)
@@ -216,6 +231,7 @@ class RefundRequest extends Component {
           payload: {
             bookingNo,
             visualIds,
+            reason,
           },
         }).then(resultCode => {
           if (resultCode === '0') {
@@ -225,6 +241,7 @@ class RefundRequest extends Component {
             if (userType === '03') {
               message.success(formatMessage({ id: 'SUB_TA_REQUESTED_SUCCESSFULLY' }));
             }
+            form.resetFields();
           }
         });
       }
@@ -357,6 +374,7 @@ class RefundRequest extends Component {
       global: {
         currentUser: { userType },
       },
+      form: { getFieldDecorator },
     } = this.props;
 
     const title = [
@@ -412,7 +430,7 @@ class RefundRequest extends Component {
           <Col span={24}>
             <Card>
               <Row>
-                <Col md={24} lg={12}>
+                <Col md={24} lg={18} className={styles.formContainer}>
                   <Upload
                     action=""
                     beforeUpload={file => this.getRefundUploadProps(file, nowPageSize)}
@@ -436,8 +454,27 @@ class RefundRequest extends Component {
                   >
                     {formatMessage({ id: 'RESET' })}
                   </Button>
+                  <FormItem
+                    label={
+                      <span className={styles.formLabelStyle}>
+                        {formatMessage({ id: 'REASON' })}
+                      </span>
+                    }
+                    {...formLayout}
+                  >
+                    {getFieldDecorator('reason', {
+                      rules: [{ required: false, message: 'Required' }],
+                    })(
+                      <Input
+                        placeholder="Please Enter"
+                        allowClear
+                        autoComplete={false}
+                        style={{ width: '190px' }}
+                      />
+                    )}
+                  </FormItem>
                 </Col>
-                <Col md={24} lg={12}>
+                <Col md={24} lg={6}>
                   <div className={styles.selectedDiv}>
                     <Checkbox
                       disabled={vidResultList.filter(item => item.disabled === false).length === 0}

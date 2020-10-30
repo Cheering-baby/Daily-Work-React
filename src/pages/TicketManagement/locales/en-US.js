@@ -27,7 +27,7 @@ export default {
   DATE_OF_VISIT: 'Visit Date (Ticket Validity Start Date)',
   DELIVER_INFORMATION: 'MODE OF DELIVERY SELECTION',
   DINING_SETTING: 'Dining Setting',
-  DELIVERY_MODE: 'Mode of delivery:',
+  DELIVERY_MODE: 'Mode of delivery',
   DETAIL: 'DETAIL',
   DETAILS: 'DETAILS',
   DOWNLOAD_ETICKET: 'Download e-Ticket',
@@ -143,4 +143,7 @@ export default {
   FAILED_TO_UPDATE: 'Failed to update.',
   SENT_SUCCESSFULLY: 'Send successfully.',
   NO_OF_PAX: 'No. of Pax',
+  REASON: 'Reason',
+  NEW_VISIT_DATE: 'New Visit Date',
+  TA_EMAIL: 'TA Email',
 };
