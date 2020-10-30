@@ -18,6 +18,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import SCREEN from '@/utils/screen';
+import { reBytesStr } from '@/utils/utils';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
 import Card from '../../../components/Card';
@@ -374,7 +375,7 @@ class RefundRequest extends Component {
       global: {
         currentUser: { userType },
       },
-      form: { getFieldDecorator },
+      form: { getFieldDecorator, setFieldsValue },
     } = this.props;
 
     const title = [
@@ -463,13 +464,26 @@ class RefundRequest extends Component {
                     {...formLayout}
                   >
                     {getFieldDecorator('reason', {
-                      rules: [{ required: false, message: 'Required' }],
+                      rules: [
+                        { required: false, message: 'Required' },
+                        {
+                          validator: (rule, value, callback) => {
+                            if (value && value.replace(/[\u0391-\uFFE5]/g, 'aa').length > 500) {
+                              setFieldsValue({
+                                reason: reBytesStr(value, 500),
+                              });
+                              message.warning('Max characters 500 for reason.');
+                            }
+                            callback();
+                          },
+                        },
+                      ],
                     })(
                       <Input
                         placeholder="Please Enter"
                         allowClear
                         autoComplete={false}
-                        style={{ width: '190px' }}
+                        style={{ width: '300px' }}
                       />
                     )}
                   </FormItem>
