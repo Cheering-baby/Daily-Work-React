@@ -41,7 +41,7 @@ const ColProps = {
 };
 
 const BtnColProps = {
-  span: 12,
+  span: 6,
 };
 
 @Form.create()
@@ -298,6 +298,7 @@ class MyActivity extends React.PureComponent {
               activityId: values.activityId,
               agentId: values.agentId,
               companyName: values.companyName,
+              partnersOrderNo: values.partnersOrderNo,
             },
           },
         });
@@ -699,7 +700,7 @@ class MyActivity extends React.PureComponent {
                     )(
                       <Input
                         allowClear
-                        placeholder={formatMessage({ id: 'AGENT_ID' })}
+                        placeholder={formatMessage({ id: 'MY_ACTIVITY_AGENT_ID' })}
                         autoComplete="off"
                       />
                     )}
@@ -714,6 +715,20 @@ class MyActivity extends React.PureComponent {
                       <Input
                         allowClear
                         placeholder={formatMessage({ id: 'COMPANY_NAME' })}
+                        autoComplete="off"
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col {...ColProps}>
+                  <Form.Item {...formItemLayout}>
+                    {getFieldDecorator(
+                      'partnersOrderNo',
+                      {}
+                    )(
+                      <Input
+                        allowClear
+                        placeholder={formatMessage({ id: 'MY_ACTIVITY_PARTNERS_ORDER_NO' })}
                         autoComplete="off"
                       />
                     )}

@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import { getAllChildrenTargetList, getAllTargetList } from '../utils/pubUtils';
 import styles from '../index.less';
 import SortSelect from '@/components/SortSelect';
+import { hasAnyPrivilege } from '@/utils/PrivilegeUtil';
 
 const { Option } = Select;
 
@@ -58,7 +59,14 @@ class NotificationSearchForm extends PureComponent {
     dispatch({
       type: 'notificationSearchForm/queryStatusList',
     });
-    dispatch({ type: 'notificationSearchForm/queryAllCompanyConfig' });
+    if (
+      hasAnyPrivilege([
+        'NOTIFICATION_CIRCULAR_MANAGE_PRIVILEGE',
+        'NOTIFICATION_BULLETIN_MANAGE_PRIVILEGE',
+      ])
+    ) {
+      dispatch({ type: 'notificationSearchForm/queryAllCompanyConfig' });
+    }
   }
 
   handleReset = () => {
@@ -126,15 +134,15 @@ class NotificationSearchForm extends PureComponent {
     return statusTxt;
   };
 
-  onLoadData = treeNode  => {
+  onLoadData = treeNode => {
     return new Promise(resolve => {
       const { children, value } = treeNode.props;
-      if(children && children.length > 0) {
+      if (children && children.length > 0) {
         resolve();
         return;
       }
-      const{ dispatch } = this.props;
-      if(value.indexOf('role') === 0) {
+      const { dispatch } = this.props;
+      if (value.indexOf('role') === 0) {
         setTimeout(() => {
           dispatch({
             type: 'notificationSearchForm/queryAllUserByRole',

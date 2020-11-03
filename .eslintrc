@@ -40,15 +40,7 @@
         ]
       }
     ],
-    "import/extensions": [
-      2,
-      {
-        "ignore": [
-          "^@/",
-          "^umi/"
-        ]
-      }
-    ],
+    "import/extensions": 0,
     "import/no-extraneous-dependencies": [
       2,
       {

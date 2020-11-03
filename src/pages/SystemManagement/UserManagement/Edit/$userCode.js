@@ -6,6 +6,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
 import MediaQuery from 'react-responsive';
+import { Base64 } from 'js-base64';
 import styles from '../index.less';
 import UserForm from '../components/UserForm';
 import constants from '@/pages/SystemManagement/UserManagement/constants';
@@ -19,7 +20,8 @@ import PrivilegeUtil from '@/utils/PrivilegeUtil';
 class UserCode extends React.PureComponent {
   componentDidMount() {
     const { dispatch, match, userMgr } = this.props;
-    const { userCode } = match.params;
+    let { userCode } = match.params;
+    userCode = Base64.decode(userCode);
     const { currentUserProfile = {} } = userMgr;
     if (Object.keys(currentUserProfile).length === 0) {
       // get detail

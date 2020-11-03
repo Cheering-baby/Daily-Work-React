@@ -211,7 +211,7 @@ class RefundRequest extends Component {
       const { reason } = form.getFieldsValue();
       const wholeSelectList = wholeVidList.filter(item => selectVidGroup.includes(item.vidGroup));
       const filterSelect = wholeSelectList.filter(
-        item => !selectedVidList.map(obj => obj.vidCode).includes(item.vidCode)
+        item => !selectedVidList.map(obj => obj.vidCode).includes(item.vidCode) && !item.disabled
       );
       if (filterSelect.length > 0) {
         const unUnploadVidString = filterSelect.map(obj => obj.vidCode).join(', ');
@@ -224,7 +224,8 @@ class RefundRequest extends Component {
         const visualIds = submitVidList
           .filter(
             item =>
-              selectVidGroups.filter(selectedItem => selectedItem === item.vidGroup).length > 0
+              selectVidGroups.filter(selectedItem => selectedItem === item.vidGroup).length > 0 &&
+              !item.disabled
           )
           .map(item => item.vidCode);
         dispatch({
@@ -295,7 +296,7 @@ class RefundRequest extends Component {
     const selectVidGroup = vidResultList.filter(item => record.vidGroup === item.vidGroup);
     vidResultList.forEach(item => {
       selectVidGroup.forEach(selectedItem => {
-        if (item.vidCode === selectedItem.vidCode) {
+        if (item.vidCode === selectedItem.vidCode && !item.disabled) {
           item.selected = selected;
         }
       });
@@ -308,7 +309,7 @@ class RefundRequest extends Component {
       const selectVidGroup = vidResultList.filter(item => e.vidGroup === item.vidGroup);
       vidResultList.forEach(item => {
         selectVidGroup.forEach(selectedItem => {
-          if (item.vidCode === selectedItem.vidCode) {
+          if (item.vidCode === selectedItem.vidCode && !item.disabled) {
             item.selected = selected;
           }
         });

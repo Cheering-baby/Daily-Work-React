@@ -7,6 +7,7 @@ import UAAService from '@/uaa-npm';
 import loginSession from './loginSession';
 import 'isomorphic-fetch';
 import defaultSettings from '@/defaultSettings';
+import { globalConst } from '@/uaa-npm/constant';
 
 export const colLayOut = {
   xs: 24,
@@ -499,6 +500,7 @@ export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown
     credentials: 'include',
     headers: new Headers({
       Accept: 'application/json',
+      [globalConst.HEADER_AUTHORIZATION]: globalConst.TOKEN_PREFIX + UAAService.axiosConfig.RT,
       'Content-Type': 'application/json',
       'App-Code': 'PAMS',
     }),

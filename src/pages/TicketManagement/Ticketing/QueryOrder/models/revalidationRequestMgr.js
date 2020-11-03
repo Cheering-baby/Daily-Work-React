@@ -1,6 +1,10 @@
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
-import serialize from '../utils/utils';
+import serialize, {
+  checkFixOfferRefund,
+  checkVoucherByTicketOrByPackage,
+  getRefundThemePark,
+} from '../utils/utils';
 import {
   queryBookingDetail,
   revalidationTicket,
@@ -29,23 +33,23 @@ export default {
   },
 
   effects: {
-    *queryPluAttribute(_, { call, put } ) {
+    *queryPluAttribute(_, { call, put }) {
       const response = yield call(queryPluAttribute, {
-        attributeItem: 'REVALIDATION_CONFIG'
+        attributeItem: 'REVALIDATION_CONFIG',
       });
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
       } = response;
-      if (resultCode === '0') { 
+      if (resultCode === '0') {
         const { items = [] } = result;
-        if(Array.isArray(items) && items.length > 0) {
+        if (Array.isArray(items) && items.length > 0) {
           yield put({
             type: 'save',
             payload: {
               revalidationFee: items[0].itemValue,
             },
-          })
+          });
         }
       } else throw resultMsg;
     },
@@ -76,32 +80,6 @@ export default {
           if (offers[i].bundleName && offers[i].bundleName !== '') {
             offers[i].offerName = offers[i].bundleLabel;
           }
-          const { attraction = [] } = offers[i];
-          if (attraction) {
-            for (let j = 0; j < attraction.length; j += 1) {
-              let isPackage = false;
-              if (attraction[j].packageSpec) {
-                isPackage = true;
-              }
-              if (isPackage) {
-                const packageSpecObj = JSON.parse(attraction[j].packageSpec);
-                const itemPluList = packageSpecObj.packageSpecAttributes || [];
-                itemPluList.forEach(itemPlu => {
-                  submitVidList.push({
-                    vidCode: itemPlu.visualId,
-                    vidGroup: attraction[j].vidGroup,
-                  });
-                });
-              } else {
-                submitVidList.push({
-                  vidCode: attraction[j].visualID,
-                  vidGroup: attraction[j].vidGroup,
-                });
-              }
-            }
-          }
-        }
-        for (let i = 0; i < offers.length; i += 1) {
           const { attraction = [] } = offers[i];
           if (attraction) {
             let existVidUsedForPackage = false;
@@ -181,6 +159,10 @@ export default {
                             attraction[j].hadRefunded !== 'Yes'
                           ),
                       });
+                      submitVidList.push({
+                        vidCode: itemPlu.visualId,
+                        vidGroup: attraction[j].vidGroup,
+                      });
                     }
                   });
                 } else {
@@ -218,6 +200,10 @@ export default {
                           attraction[j].hadRefunded !== 'Yes'
                         ),
                     });
+                    submitVidList.push({
+                      vidCode: itemPlu.visualId,
+                      vidGroup: attraction[j].vidGroup,
+                    });
                   });
                 }
               } else {
@@ -237,19 +223,38 @@ export default {
                       attraction[j].visualIdStatus === 'false' &&
                       attraction[j].hadRefunded !== 'Yes'
                     ),
+                  isNotPackage: true,
+                  ticketType: attraction[j].ticketType,
+                  visualIdStatus: attraction[j].visualIdStatus,
+                  themeParks: attraction[j].themeParks,
+                  attractionGroupType: offers[i].attractionGroupType,
+                  voucherQtyType: attraction[j].voucherQtyType,
+                });
+                submitVidList.push({
+                  vidCode: attraction[j].visualID,
+                  vidGroup: attraction[j].vidGroup,
+                  disabled:
+                    existVidUsedForPackage ||
+                    !(
+                      attraction[j].visualIdStatus === 'false' &&
+                      attraction[j].hadRefunded !== 'Yes'
+                    ),
                 });
               }
             }
           }
         }
         const groupList = vidResultList.filter(item => item.disabled === true);
+        const refundDolList = [];
         vidResultList.forEach(item => {
           groupList.forEach(e => {
             if (e.vidGroup === item.vidGroup) {
               item.disabled = true;
             }
           });
+          checkFixOfferRefund(groupList, item, refundDolList);
         });
+        checkVoucherByTicketOrByPackage(refundDolList, vidResultList);
         vidResultList.sort((a, b) => a.vidGroup - b.vidGroup);
         for (let i = 0; i < vidResultList.length; i += 1) {
           vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);

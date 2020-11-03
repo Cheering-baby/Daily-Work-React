@@ -43,6 +43,9 @@ class CommissionDetail extends React.PureComponent {
           usageScope: 'Offline',
         },
       });
+      dispatch({
+        type: 'commissionNew/queryThemeParks',
+      });
     }
   }
 

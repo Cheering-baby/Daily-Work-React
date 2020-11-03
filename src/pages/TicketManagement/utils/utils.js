@@ -330,7 +330,7 @@ export function checkNumOfGuestsAvailable(numOfGuests, detail) {
         minNeedChoiceCount = needChoiceCount;
       }
     });
-    if(choiceConstrain !== 'Fixed' && !leastOneInventory) {
+    if (choiceConstrain !== 'Fixed' && !leastOneInventory) {
       enough = false;
     }
     if (available !== -1 && available / minNeedChoiceCount < numOfGuests) {

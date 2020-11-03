@@ -70,7 +70,7 @@ export default {
       } else message.warn(resultMsg, 10);
     },
     *fetchSendInvitation(_, { call, put, select }) {
-      const { taId, companyName, searchForm, searchList, emailList } = yield select(
+      const { taId, searchForm, searchList, emailList } = yield select(
         state => state.generateInvitation
       );
       const nowEmailList = [];
@@ -78,8 +78,6 @@ export default {
         emailList.forEach(n => nowEmailList.push(n.email));
       }
       const reqParam = {
-        taId,
-        companyName,
         emailList: nowEmailList,
       };
       yield put({ type: 'save', payload: { sendInvitationLoading: true } });

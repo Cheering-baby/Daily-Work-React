@@ -21,7 +21,7 @@ import styles from '../../OnlineRule/New/index.less';
 import AddOfflinePLUModal from '../components/AddOfflinePLUModal';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
-import { formatPrice } from '../../../utils/tools';
+import { changeThemeParkDisplay, formatPrice } from '../../../utils/tools';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -178,21 +178,18 @@ class OfflineNew extends React.PureComponent {
     const {
       offlineNew: { themeParkList },
     } = this.props;
-    for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].bookingCategoryCode === text) {
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={
-              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
-            }
-          >
-            <span>{themeParkList[i].bookingCategoryName}</span>
-          </Tooltip>
-        );
-      }
+    const showThemeParks = changeThemeParkDisplay(text, themeParkList);
+    if (showThemeParks !== null) {
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showThemeParks}</span>}
+        >
+          <span>{showThemeParks}</span>
+        </Tooltip>
+      );
     }
-    return null;
+    return showThemeParks;
   };
 
   delete = record => {

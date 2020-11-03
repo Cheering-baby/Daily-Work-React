@@ -11,6 +11,8 @@ import {
   queryUsersInCompany,
   resetPassword,
   sendEmail,
+  checkUserCode,
+  addRWSUser,
 } from '../service/userService';
 import constants from '../constants';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
@@ -145,6 +147,28 @@ export default {
       const {
         data: { resultCode, resultMsg },
       } = yield call(addTAUser, { ...payload });
+      if (resultCode === '0') {
+        message.success(formatMessage({ id: 'ADD_SUCCESS' }), 10);
+        return true;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+    *checkUserCode({ payload }, { call }) {
+      const { userCode } = payload;
+      const response = yield call(checkUserCode, { userCode });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, resultData },
+      } = response;
+      if (resultCode !== '0') {
+        message.warn(resultMsg);
+      } else return resultData;
+    },
+    *addRWSUser({ payload }, { call }) {
+      const {
+        data: { resultCode, resultMsg },
+      } = yield call(addRWSUser, { ...payload });
       if (resultCode === '0') {
         message.success(formatMessage({ id: 'ADD_SUCCESS' }), 10);
         return true;

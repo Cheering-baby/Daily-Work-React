@@ -1,4 +1,6 @@
 export default {
+  COMMON_NEW_TA: 'New TA',
+  COMMON_NEW_RWS_USER: 'New RWS User',
   NAME: 'NAME',
   USER_LOGIN: 'User Login',
   USER_LOGIN_TIPS: 'User Login is case sensitive.',
@@ -23,6 +25,7 @@ export default {
   REMARKS: 'Remarks',
   MARKET: 'Market',
   EFFECTIVE_DATE: 'Effective Date',
+  EXPIRY_DATE: 'Expire Date',
   END_DATE: 'End Date',
   SALES_PERSON: 'Sales Person',
   CATEGORY_AND_CUSTOMER_GROUP: 'Category And Customer Group',
@@ -75,4 +78,6 @@ export default {
     'This travel agent already has main user, you might not need to create this travel agent profile and user account. ',
   SUB_TA_HAS_USER_TIPS:
     'This subs travel agent already has main user, you might not need to create this sub travel agent profile and user account. This information will be automatically tie to your travel agent account.',
+  SET_EMAIL_ON_AD_SERVER: 'Please set email for this user on AD server.',
+  USER_NO_EXIST_ON_AD_SERVER: 'The user does not exist on the AD server.',
 };

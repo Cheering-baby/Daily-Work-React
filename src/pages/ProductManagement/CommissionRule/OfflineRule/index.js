@@ -11,7 +11,7 @@ import Edit from './components/Edit';
 import { isNvl } from '@/utils/utils';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
-import { formatPrice } from '../../utils/tools';
+import { changeThemeParkDisplay, formatPrice } from '../../utils/tools';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -192,9 +192,9 @@ class Offline extends React.PureComponent {
       return (
         <Tooltip
           placement="topLeft"
-          title={<span style={{ whiteSpace: 'pre-wrap' }}>{ modifyStaff }</span>}
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{modifyStaff}</span>}
         >
-          <span>{ modifyStaff }</span>
+          <span>{modifyStaff}</span>
         </Tooltip>
       );
     }
@@ -254,21 +254,18 @@ class Offline extends React.PureComponent {
     const {
       offline: { themeParkList },
     } = this.props;
-    for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].bookingCategoryCode === text) {
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={
-              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
-            }
-          >
-            <span>{themeParkList[i].bookingCategoryName}</span>
-          </Tooltip>
-        );
-      }
+    const showThemeParks = changeThemeParkDisplay(text, themeParkList);
+    if (showThemeParks !== null) {
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showThemeParks}</span>}
+        >
+          <span>{showThemeParks}</span>
+        </Tooltip>
+      );
     }
-    return null;
+    return showThemeParks;
   };
 
   getContent = record => {
@@ -547,11 +544,11 @@ class Offline extends React.PureComponent {
                         allowClear
                       >
                         {themeParkList &&
-                        themeParkList.map(item => (
-                          <Option key={item.bookingCategoryCode} value={item.bookingCategoryCode}>
-                            {item.bookingCategoryName}
-                          </Option>
-                        ))}
+                          themeParkList.map(item => (
+                            <Option key={item.bookingCategoryCode} value={item.bookingCategoryCode}>
+                              {item.bookingCategoryName}
+                            </Option>
+                          ))}
                       </Select>
                     )}
                   </Form.Item>

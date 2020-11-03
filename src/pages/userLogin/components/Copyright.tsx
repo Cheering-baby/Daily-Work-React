@@ -9,11 +9,11 @@ const Copyright: FC<any> = () => {
   const [data, setData] = useState({} as SettingResult);
 
   useEffect(() => {
-    queryDictionary().then(({ data: { result }, success}) => {
-      if(success) {
+    queryDictionary().then(({ data: { resultCode, result }, success}) => {
+      if(success && resultCode === '0') {
         setData(result);
       }
-      
+
     });
   }, []);
   const {
@@ -36,7 +36,7 @@ const Copyright: FC<any> = () => {
     <footer className={styles.foot}>
       Copyright © {companyName} All Rights Reserved.
       <a  {...legalInformationProps} target="_blank" > Legal Information </a> | <a {...dataProtectionProps} target="_blank" >Data Protection</a> |
-      
+
       <Link to="/about?key=termsConditions">Terms and Conditions</Link> |
       <Link to="/about?key=frequentlyAskedQuestions">Frequently Asked Questions</Link> |
       <Link to="/about?key=contactUs">Contact Us</Link>

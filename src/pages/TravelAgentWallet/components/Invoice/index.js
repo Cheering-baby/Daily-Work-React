@@ -25,13 +25,16 @@ class WalletInvoice extends React.PureComponent {
   }
 
   open = id => {
-    const { dispatch, taWalletMgr: { taId } } = this.props;
+    const {
+      dispatch,
+      taWalletMgr: { taId },
+    } = this.props;
     dispatch({
       type: 'walletInvoice/fetchInvoiceDetail',
       payload: {
         accountBookFlowId: id,
-        taId
-      }
+        taId,
+      },
     });
     this.setState({
       visible: true,
@@ -144,30 +147,30 @@ class WalletInvoice extends React.PureComponent {
                     <div className={styles['descriptions-view']}>
                       <table style={{ width: '100%' }}>
                         <tbody>
-                        {descriptions.map((item, index) => {
-                          return (
-                            // eslint-disable-next-line react/no-array-index-key
-                            <tr
-                              className={styles['description-row']}
-                              key={`description-row_${index}`}
-                            >
-                              <td colSpan={1} className={styles['descriptions-item']}>
+                          {descriptions.map((item, index) => {
+                            return (
+                              // eslint-disable-next-line react/no-array-index-key
+                              <tr
+                                className={styles['description-row']}
+                                key={`description-row_${index}`}
+                              >
+                                <td colSpan={1} className={styles['descriptions-item']}>
                                   <span
                                     className={styles['descriptions-item-label']}
                                     key={`descriptions-item-label_${item.label}`}
                                   >
                                     {item.label}
                                   </span>
-                                <span
-                                  className={`${styles['descriptions-item-content']} ${styles['descriptions-item-content-pre-line']}`}
-                                  key={`descriptions-item-content_${item.dataKey}`}
-                                >
+                                  <span
+                                    className={`${styles['descriptions-item-content']} ${styles['descriptions-item-content-pre-line']}`}
+                                    key={`descriptions-item-content_${item.dataKey}`}
+                                  >
                                     {descriptionsData[item.dataKey]}
                                   </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -178,74 +181,74 @@ class WalletInvoice extends React.PureComponent {
                 <div className={styles['descriptions-table-view']}>
                   <table style={{ tableLayout: 'auto' }}>
                     <tbody>
-                    <tr className={styles['descriptions-table-row']}>
-                      <th colSpan={1} className={styles['descriptions-table-item-label']}>
-                        Date
-                      </th>
-                      <th colSpan={1} className={styles['descriptions-table-item-label']}>
-                        Line Description
-                      </th>
-                      <th
-                        className={`${styles['descriptions-table-item-label']} ${styles['descriptions-table-item-right']}`}
-                      >
-                        <div className={styles['descriptions-table-width']}>
-                          <span>{'Total Amount'}</span>
-                        </div>
-                        <div className={styles['descriptions-table-width']}>
-                          <span>{'(SGD)'}</span>
-                        </div>
-                      </th>
-                    </tr>
-                    <tr className={styles['descriptions-table-row']}>
-                      <td colSpan={1} className={styles['descriptions-table-item-content']}>
-                        {details.Date}
-                      </td>
-                      <td colSpan={1} className={styles['descriptions-table-item-content']}>
-                        {details.Line_Description}
-                      </td>
-                      <td
-                        colSpan={1}
-                        className={`${styles['descriptions-table-item-content']} ${styles['descriptions-table-item-right']}`}
-                      >
-                        {Number(details.Total_Amount)
-                          .toFixed(2)
-                          .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td />
-                      <td className={styles['descriptions-table-item-content']}>
-                        <div className={styles['descriptions-item-content-internal-label']}>
-                          Total Amount Before GST
-                        </div>
-                        <div className={styles['descriptions-item-content-internal-label']}>
-                          GST ({details.taxRatio})
-                        </div>
-                        <div className={styles['descriptions-item-content-internal-label']}>
-                          Total Amount Inclusive GST
-                        </div>
-                      </td>
-                      <td
-                        colSpan={1}
-                        className={`${styles['descriptions-table-item-content']} ${styles['descriptions-table-item-right']}`}
-                      >
-                        <div>
-                          {Number(details.internal.befGstAmount)
+                      <tr className={styles['descriptions-table-row']}>
+                        <th colSpan={1} className={styles['descriptions-table-item-label']}>
+                          Date
+                        </th>
+                        <th colSpan={1} className={styles['descriptions-table-item-label']}>
+                          Line Description
+                        </th>
+                        <th
+                          className={`${styles['descriptions-table-item-label']} ${styles['descriptions-table-item-right']}`}
+                        >
+                          <div className={styles['descriptions-table-width']}>
+                            <span>{'Total Amount'}</span>
+                          </div>
+                          <div className={styles['descriptions-table-width']}>
+                            <span>{'(SGD)'}</span>
+                          </div>
+                        </th>
+                      </tr>
+                      <tr className={styles['descriptions-table-row']}>
+                        <td colSpan={1} className={styles['descriptions-table-item-content']}>
+                          {details.Date}
+                        </td>
+                        <td colSpan={1} className={styles['descriptions-table-item-content']}>
+                          {details.Line_Description}
+                        </td>
+                        <td
+                          colSpan={1}
+                          className={`${styles['descriptions-table-item-content']} ${styles['descriptions-table-item-right']}`}
+                        >
+                          {Number(details.Total_Amount)
                             .toFixed(2)
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        </div>
-                        <div>
-                          {Number(details.internal.gstAmount)
-                            .toFixed(2)
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        </div>
-                        <div>
-                          {Number(details.internal.totalAmount)
-                            .toFixed(2)
-                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td />
+                        <td className={styles['descriptions-table-item-content']}>
+                          <div className={styles['descriptions-item-content-internal-label']}>
+                            Total Amount Before GST
+                          </div>
+                          <div className={styles['descriptions-item-content-internal-label']}>
+                            GST ({details.taxRatio})
+                          </div>
+                          <div className={styles['descriptions-item-content-internal-label']}>
+                            Total Amount Inclusive GST
+                          </div>
+                        </td>
+                        <td
+                          colSpan={1}
+                          className={`${styles['descriptions-table-item-content']} ${styles['descriptions-table-item-right']}`}
+                        >
+                          <div>
+                            {Number(details.internal.befGstAmount)
+                              .toFixed(2)
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          </div>
+                          <div>
+                            {Number(details.internal.gstAmount)
+                              .toFixed(2)
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          </div>
+                          <div>
+                            {Number(details.internal.totalAmount)
+                              .toFixed(2)
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          </div>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>

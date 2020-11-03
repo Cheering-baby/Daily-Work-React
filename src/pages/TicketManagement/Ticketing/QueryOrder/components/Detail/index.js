@@ -2,10 +2,9 @@ import React from 'react';
 import { Divider, Drawer, Form, Icon, Popover, Spin, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { sortArray } from '@/pages/TicketManagement/utils/utils';
+import { sortArray , sessionTimeToWholeDay } from '@/pages/TicketManagement/utils/utils';
 import styles from './index.less';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
-import { sessionTimeToWholeDay } from '@/pages/TicketManagement/utils/utils';
 import moment from 'moment';
 
 const FormItem = Form.Item;
@@ -114,7 +113,7 @@ class Detail extends React.Component {
     },
     {
       title: (
-        <span className={styles.tableTitle}>{formatMessage({ id: 'OFFER_NAME' }) + '123'}</span>
+        <span className={styles.tableTitle}>{`${formatMessage({ id: 'OFFER_NAME' })  }123`}</span>
       ),
       width: '15%',
       dataIndex: 'offerName',

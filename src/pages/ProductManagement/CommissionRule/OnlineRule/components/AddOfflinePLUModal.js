@@ -4,7 +4,7 @@ import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip }
 import { formatMessage } from 'umi/locale';
 import styles from './AddOnlinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
-import { objDeepCopy, formatPrice } from '../../../utils/tools';
+import { objDeepCopy, formatPrice, changeThemeParkDisplay } from '../../../utils/tools';
 
 const drawWidth = 900;
 const { Option } = Select;
@@ -124,21 +124,18 @@ class AddOfflinePLUModal extends React.PureComponent {
     const {
       commissionNew: { themeParkList },
     } = this.props;
-    for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].bookingCategoryCode === text) {
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={
-              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
-            }
-          >
-            <span>{themeParkList[i].bookingCategoryName}</span>
-          </Tooltip>
-        );
-      }
+    const showThemeParks = changeThemeParkDisplay(text, themeParkList);
+    if (showThemeParks !== null) {
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showThemeParks}</span>}
+        >
+          <span>{showThemeParks}</span>
+        </Tooltip>
+      );
     }
-    return null;
+    return showThemeParks;
   };
 
   handleSearch = e => {

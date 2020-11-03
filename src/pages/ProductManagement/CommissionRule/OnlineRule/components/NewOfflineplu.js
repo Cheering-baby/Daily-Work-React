@@ -6,7 +6,7 @@ import { router } from 'umi';
 import styles from '../New/index.less';
 import AddOfflinePLUModal from './AddOfflinePLUModal';
 import PaginationComp from '../../../components/PaginationComp';
-import { formatPrice } from '../../../utils/tools';
+import { changeThemeParkDisplay, formatPrice } from '../../../utils/tools';
 
 @Form.create()
 @connect(({ commissionNew, detail }) => ({
@@ -153,21 +153,18 @@ class NewOfflineplu extends React.PureComponent {
     const {
       commissionNew: { themeParkList },
     } = this.props;
-    for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].bookingCategoryCode === text) {
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={
-              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
-            }
-          >
-            <span>{themeParkList[i].bookingCategoryName}</span>
-          </Tooltip>
-        );
-      }
+    const showThemeParks = changeThemeParkDisplay(text, themeParkList);
+    if (showThemeParks !== null) {
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showThemeParks}</span>}
+        >
+          <span>{showThemeParks}</span>
+        </Tooltip>
+      );
     }
-    return null;
+    return showThemeParks;
   };
 
   delete = record => {

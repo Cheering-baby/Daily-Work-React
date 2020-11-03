@@ -37,7 +37,7 @@ class Index extends React.PureComponent {
           {formatMessage({ id: 'USER_MANAGEMENT' })}
         </Breadcrumb.Item>
         <Breadcrumb.Item className={styles.breadCrumbBold}>
-          {formatMessage({ id: 'COMMON_NEW' })}
+          {formatMessage({ id: 'COMMON_NEW_TA' })}
         </Breadcrumb.Item>
       </Breadcrumb>
     );

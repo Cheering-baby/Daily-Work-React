@@ -14,6 +14,20 @@ export async function addTAUser(params) {
   });
 }
 
+export async function checkUserCode(params) {
+  return UAAService.request(`/b2b/user/v1/user/checkUserCode`, {
+    params,
+    method: 'GET',
+  });
+}
+
+export async function addRWSUser(params) {
+  return UAAService.request(`/b2b/user/v1/user/addRWSUser`, {
+    body: params,
+    method: 'POST',
+  });
+}
+
 export async function modifyUser(params) {
   return UAAService.request(`/b2b/user/v1/user/modifyUser`, {
     body: params,

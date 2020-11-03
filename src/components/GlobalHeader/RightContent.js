@@ -122,7 +122,7 @@ class GlobalHeaderRight extends PureComponent {
           <div className={styles.avatarInfo} id="currentUser">
             {companyType === '02' ? (
               <React.Fragment>
-                <h4>{`Main TA: "${mainTAInfo.companyName}"`}</h4>
+                <h4>{`Main TA: ${mainTAInfo.companyName}`}</h4>
                 <h4>{userName}</h4>
               </React.Fragment>
             ) : (

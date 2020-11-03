@@ -5,6 +5,7 @@ import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen'*;
 import { connect } from 'dva';
 import router from 'umi/router';
+import { Base64 } from 'js-base64';
 import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '../../../../utils/PrivilegeUtil';
@@ -38,10 +39,24 @@ class Index extends React.PureComponent {
           taInfo = taInfo || {};
           if (userType === '01') {
             const { fullName = '' } = rwsInfo;
-            return fullName || '';
+            return (
+              <Tooltip
+                placement="topLeft"
+                title={<span style={{ whiteSpace: 'pre-wrap' }}>{fullName || ''}</span>}
+              >
+                <span>{fullName || ''}</span>
+              </Tooltip>
+            );
           }
           const { fullName = '' } = taInfo;
-          return fullName || '';
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{fullName || ''}</span>}
+            >
+              <span>{fullName || ''}</span>
+            </Tooltip>
+          );
         },
       },
       {
@@ -321,7 +336,8 @@ class Index extends React.PureComponent {
         currentUserProfile: userInfo,
       },
     }).then(() => {
-      router.push(`/SystemManagement/UserManagement/Edit/${userInfo.userCode}`);
+      const encryptUserCode = Base64.encode(userInfo.userCode);
+      router.push(`/SystemManagement/UserManagement/Edit/${encryptUserCode}`);
     });
   };
 
@@ -333,7 +349,8 @@ class Index extends React.PureComponent {
         currentUserProfile: userInfo,
       },
     }).then(() => {
-      router.push(`/SystemManagement/UserManagement/Detail/${userInfo.userCode}`);
+      const encryptUserCode = Base64.encode(userInfo.userCode);
+      router.push(`/SystemManagement/UserManagement/Detail/${encryptUserCode}`);
     });
   };
 
@@ -392,6 +409,11 @@ class Index extends React.PureComponent {
     }).then(() => {
       router.push(`/SystemManagement/UserManagement/New`);
     });
+  };
+
+  addRWSUser = e => {
+    e.preventDefault();
+    router.push(`/SystemManagement/UserManagement/NewRWSUser`);
   };
 
   showTotal = total => {
@@ -458,7 +480,15 @@ class Index extends React.PureComponent {
                 ])
               }
             >
-              {formatMessage({ id: 'COMMON_NEW' })}
+              {formatMessage({ id: 'COMMON_NEW_TA' })}
+            </Button>
+            <Button
+              type="primary"
+              style={{ marginLeft: 10 }}
+              onClick={e => this.addRWSUser(e)}
+              disabled={!PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.CREATE_RWS_USER_PRIVILEGE])}
+            >
+              {formatMessage({ id: 'COMMON_NEW_RWS_USER' })}
             </Button>
           </Col>
         </Row>

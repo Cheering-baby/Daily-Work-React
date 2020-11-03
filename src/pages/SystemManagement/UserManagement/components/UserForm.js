@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Button, Col, Form, Icon, Input, Row, Select, Tooltip } from 'antd';
+import { Button, Col, DatePicker, Form, Icon, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import TextArea from 'antd/es/input/TextArea';
@@ -91,7 +91,12 @@ class Index extends React.PureComponent {
           values.userType = userType;
 
           if (userType === '01') {
+            const { userEffDate, userExpDate } = values;
+            values.effectiveDate = userEffDate ? moment(userEffDate).format('YYYY-MM-DD') : null;
+            values.expiryDate = userExpDate ? moment(userExpDate).format('YYYY-MM-DD') : '';
             delete values.companyId;
+            delete values.userEffDate;
+            delete values.userExpDate;
           }
         }
         dispatch({
@@ -266,7 +271,7 @@ class Index extends React.PureComponent {
     if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE])) {
       flag = true;
     }
-    
+
     if (flag && value) {
       dispatch({
         type: 'userMgr/checkHasMasterUser',
@@ -426,6 +431,34 @@ class Index extends React.PureComponent {
     return moment(value).format('YYYY-MM-DD HH:mm:ss');
   };
 
+  disableStartDate = current => {
+    const { form } = this.props;
+    const data = current ? current.valueOf() : '';
+    const userExpDate = form.getFieldValue('userExpDate');
+    if (!current || !userExpDate) {
+      return false;
+    }
+    return moment(data).startOf('day') >= moment(userExpDate).startOf('day');
+  };
+
+  disableEndDate = current => {
+    const { form } = this.props;
+    const data = current ? current.valueOf() : '';
+    const userEffDate = form.getFieldValue('userEffDate');
+    if (!current || !userEffDate) {
+      return false;
+    }
+    return moment(data).startOf('day') <= moment(userEffDate).startOf('day');
+  };
+
+  checkUserCode = (rule, value, callback) => {
+    const pattern = new RegExp("[`~!#$^&*=|{}':;,\\[\\]<>/?！@￥…（）—【】‘；：”“。，、？%+]");
+    if (pattern.test(value)) {
+      callback("User Login can not contain `~!#$^&*=|{}':;,[]<>/?！@￥…（）—【】‘；：”“。，、？%+");
+    }
+    callback();
+  };
+
   render() {
     const {
       type = 'NEW',
@@ -438,7 +471,11 @@ class Index extends React.PureComponent {
 
     const { userType: loginUserType = '' } = currentUser;
 
-    const { userType = '' } = currentUserProfile;
+    const {
+      userType = '',
+      effectiveDate: userEffDate,
+      expiryDate: userExpDate,
+    } = currentUserProfile;
     const userInfo = this.getUserInfo();
     const {
       userCode,
@@ -454,8 +491,8 @@ class Index extends React.PureComponent {
       marketName = '',
       categoryName = '',
       customerGroupName = '',
-      effectiveDate,
-      endDate,
+      effectiveDate: effectiveStartDate,
+      endDate: effectiveEndDate,
       salesPerson = '',
     } = companyDetailInfo;
 
@@ -471,7 +508,7 @@ class Index extends React.PureComponent {
               </Col>
             </Row>
             <Row {...rowLayOut}>
-              <Col {...colLayOut} style={{minHeight: '75px'}}>
+              <Col {...colLayOut} style={{ minHeight: '75px' }}>
                 <Form.Item
                   label={
                     PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SUB_TA_ADMIN_PRIVILEGE]) ||
@@ -508,7 +545,7 @@ class Index extends React.PureComponent {
                 PrivilegeUtil.PAMS_ADMIN_PRIVILEGE,
                 PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE,
               ]) && type === 'NEW' ? (
-                <Col {...colLayOut} style={{minHeight: '75px'}}>
+                <Col {...colLayOut} style={{ minHeight: '75px' }}>
                   <Form.Item label={formatMessage({ id: 'SUB_COMPANY_NAME' })}>
                     {getFieldDecorator(`subCompanyId`, {
                       initialValue: type === 'NEW' ? undefined : String(subCompanyId),
@@ -546,6 +583,11 @@ class Index extends React.PureComponent {
                         required: true,
                         message: formatMessage({ id: 'REQUIRED' }),
                       },
+                      {
+                        validator: (rule, value, callback) => {
+                          this.checkUserCode(rule, value, callback);
+                        },
+                      },
                     ],
                   })(
                     <Input
@@ -569,17 +611,32 @@ class Index extends React.PureComponent {
                       },
                     ],
                   })(
-                    <Input
-                      disabled={type === 'DETAIL'}
-                      maxLength={100}
-                      allowClear
-                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      autoComplete="off"
-                    />
+                    type === 'DETAIL' ? (
+                      <Tooltip
+                        placement="topLeft"
+                        title={<span style={{ whiteSpace: 'pre-wrap' }}>{userName || ''}</span>}
+                      >
+                        <Input
+                          disabled
+                          maxLength={80}
+                          allowClear
+                          value={userName}
+                          placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                          autoComplete="off"
+                        />
+                      </Tooltip>
+                    ) : (
+                      <Input
+                        maxLength={80}
+                        allowClear
+                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        autoComplete="off"
+                      />
+                    )
                   )}
                 </Form.Item>
               </Col>
-              <Col {...colLayOut} style={{minHeight: '75px'}}>
+              <Col {...colLayOut} style={{ minHeight: '75px' }}>
                 <Form.Item label={formatMessage({ id: 'ROLE' })}>
                   {getFieldDecorator(`roleCodes`, {
                     initialValue: this.getRoleCodes(currentUserProfile),
@@ -606,14 +663,31 @@ class Index extends React.PureComponent {
                   {getFieldDecorator(`phone`, {
                     initialValue: phone,
                   })(
-                    <Input
-                      disabled={type === 'DETAIL'}
-                      type="tel"
-                      allowClear
-                      maxLength={255}
-                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
-                      autoComplete="off"
-                    />
+                    type === 'DETAIL' ? (
+                      <Tooltip
+                        placement="topLeft"
+                        title={<span style={{ whiteSpace: 'pre-wrap' }}>{phone || ''}</span>}
+                      >
+                        <Input
+                          disabled
+                          type="tel"
+                          value={phone}
+                          allowClear
+                          maxLength={80}
+                          placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                          autoComplete="off"
+                        />
+                      </Tooltip>
+                    ) : (
+                      <Input
+                        disabled={userType === constants.RWS_USER_TYPE}
+                        type="tel"
+                        allowClear
+                        maxLength={80}
+                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        autoComplete="off"
+                      />
+                    )
                   )}
                 </Form.Item>
               </Col>
@@ -633,7 +707,7 @@ class Index extends React.PureComponent {
                     ],
                   })(
                     <Input
-                      disabled={type === 'DETAIL'}
+                      disabled={type === 'DETAIL' || userType === constants.RWS_USER_TYPE}
                       allowClear
                       maxLength={200}
                       placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
@@ -642,6 +716,44 @@ class Index extends React.PureComponent {
                   )}
                 </Form.Item>
               </Col>
+              {userType === constants.RWS_USER_TYPE && (
+                <React.Fragment>
+                  <Col {...colLayOut}>
+                    <Form.Item label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
+                      {getFieldDecorator('userEffDate', {
+                        initialValue: userEffDate ? moment(userEffDate) : null,
+                        rules: [
+                          {
+                            required: true,
+                            message: formatMessage({ id: 'REQUIRED' }),
+                          },
+                        ],
+                      })(
+                        <DatePicker
+                          disabled={type === 'DETAIL'}
+                          style={{ width: '100%' }}
+                          placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                          disabledDate={this.disableStartDate}
+                        />
+                      )}
+                    </Form.Item>
+                  </Col>
+                  <Col {...colLayOut}>
+                    <Form.Item label={formatMessage({ id: 'EXPIRY_DATE' })}>
+                      {getFieldDecorator('userExpDate', {
+                        initialValue: userExpDate ? moment(userExpDate) : null,
+                      })(
+                        <DatePicker
+                          disabled={type === 'DETAIL'}
+                          style={{ width: '100%' }}
+                          placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                          disabledDate={this.disableEndDate}
+                        />
+                      )}
+                    </Form.Item>
+                  </Col>
+                </React.Fragment>
+              )}
               <Col span={24}>
                 <Form.Item label={formatMessage({ id: 'ADDRESS' })}>
                   {getFieldDecorator(`address`, {
@@ -699,15 +811,15 @@ class Index extends React.PureComponent {
                   )}
                     <Col {...colLayOut}>
                       <Form.Item label={formatMessage({ id: 'EFFECTIVE_DATE' })}>
-                        {getFieldDecorator(`effectiveDate`, {
-                        initialValue: this.toDateTime(effectiveDate),
+                        {getFieldDecorator(`effectiveStartDate`, {
+                        initialValue: this.toDateTime(effectiveStartDate),
                       })(<Input disabled />)}
                       </Form.Item>
                     </Col>
                     <Col {...colLayOut}>
                       <Form.Item label={formatMessage({ id: 'END_DATE' })}>
-                        {getFieldDecorator(`endDate`, {
-                        initialValue: this.toDateTime(endDate),
+                        {getFieldDecorator(`effectiveEndDate`, {
+                        initialValue: this.toDateTime(effectiveEndDate),
                       })(<Input disabled />)}
                       </Form.Item>
                     </Col>

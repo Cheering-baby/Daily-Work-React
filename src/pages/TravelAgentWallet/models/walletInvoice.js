@@ -58,7 +58,7 @@ const WalletInvoiceModel = {
   effects: {
     *fetchInvoiceDetail({ payload }, { call, put }) {
       yield put({ type: 'clear' });
-      const { accountBookFlowId, taId } =  payload;
+      const { accountBookFlowId, taId } = payload;
       const params = { accountBookFlowId, taId };
       const {
         data: { resultCode, resultMsg, result = {} },

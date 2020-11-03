@@ -19,6 +19,7 @@ import PaymentModal from './components/PaymentModal';
 import PaginationComp from './components/PaginationComp';
 import Audit from './components/Audit';
 import PaymentPromptModal from '@/pages/TicketManagement/Ticketing/QueryOrder/components/PaymentPromptModal';
+import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
 function transferModeOfPayment(type) {
   if (type && type.toUpperCase() === 'EWALLET') {
@@ -46,6 +47,7 @@ function transferModeOfPayment(type) {
     loading.effects['exportVIDMgr/downloadETicket'] ||
     loading.effects['updateOrderMgr/update'] ||
     loading.effects['sendETicketMgr/sendEmail'] ||
+    loading.effects['orderDetailMgr/queryOrderDetail'] ||
     loading.effects['auditOrderMgr/audit'],
   downloadFileLoading: loading.effects['queryOrderMgr/download'],
 }))
@@ -117,11 +119,9 @@ class QueryOrder extends Component {
       dataIndex: 'paymentModel',
       key: 'paymentModel',
       width: '140px',
-      render: (text) => (
+      render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span>
-            {transferModeOfPayment(text)}
-          </span>
+          <span>{transferModeOfPayment(text)}</span>
         </Tooltip>
       ),
     },
@@ -569,8 +569,8 @@ class QueryOrder extends Component {
                     type: 'revalidationRequestMgr/save',
                     payload: {
                       bookingDetail: null,
-                    }
-                  })
+                    },
+                  });
                 }}
                 style={{ marginRight: 8 }}
               >
@@ -583,8 +583,8 @@ class QueryOrder extends Component {
                     type: 'revalidationRequestMgr/save',
                     payload: {
                       bookingDetail: null,
-                    }
-                  })
+                    },
+                  });
                 }}
                 type="primary"
                 style={{ width: 60 }}
@@ -1099,35 +1099,43 @@ class QueryOrder extends Component {
                         {formatMessage({ id: 'AUDIT' })}
                       </Button>
                     )}
-                    <Button
-                      disabled={this.ifCanExportVID(selectedBookings)}
-                      className={styles.buttonStyle}
-                      onClick={() => this.openExportVIDDrawer(selectedBookings)}
-                    >
-                      {formatMessage({ id: 'EXPORT_VID' })}
-                    </Button>
-                    <Button
-                      disabled={this.ifCanOperateETicket(selectedBookings)}
-                      className={styles.buttonStyle}
-                      onClick={() => this.downloadETicket(selectedBookings)}
-                      loading={!!downloadFileLoading}
-                    >
-                      {formatMessage({ id: 'DOWNLOAD_ETICKET' })}
-                    </Button>
-                    <Button
-                      disabled={this.ifCanOperateETicket(selectedBookings)}
-                      className={styles.buttonStyle}
-                      onClick={() => this.openSendETicketModel(selectedBookings)}
-                    >
-                      {formatMessage({ id: 'SEND_ETICKET' })}
-                    </Button>
-                    <Button
-                      disabled={this.ifCanOperateCollectionLetter(selectedBookings)}
-                      className={styles.buttonStyle}
-                      onClick={() => this.downloadETicket(selectedBookings)}
-                    >
-                      {formatMessage({ id: 'DOWNLOAD_COLLECTION_LETTER' })}
-                    </Button>
+                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_EXPORT_VID']) && (
+                      <Button
+                        disabled={this.ifCanExportVID(selectedBookings)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.openExportVIDDrawer(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'EXPORT_VID' })}
+                      </Button>
+                    )}
+                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_DOWNLOAD_E_TICKET']) && (
+                      <Button
+                        disabled={this.ifCanOperateETicket(selectedBookings)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.downloadETicket(selectedBookings)}
+                        loading={!!downloadFileLoading}
+                      >
+                        {formatMessage({ id: 'DOWNLOAD_ETICKET' })}
+                      </Button>
+                    )}
+                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_SEND_E_TICKET']) && (
+                      <Button
+                        disabled={this.ifCanOperateETicket(selectedBookings)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.openSendETicketModel(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'SEND_ETICKET' })}
+                      </Button>
+                    )}
+                    {PrivilegeUtil.hasAnyPrivilege(['QUERY_ORDER_DOWNLOAD_COLLECTION_LETTER']) && (
+                      <Button
+                        disabled={this.ifCanOperateCollectionLetter(selectedBookings)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.downloadETicket(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'DOWNLOAD_COLLECTION_LETTER' })}
+                      </Button>
+                    )}
                     {userType === '01' && (
                       <Button
                         disabled={this.ifCanUpdate(selectedBookings, userType)}

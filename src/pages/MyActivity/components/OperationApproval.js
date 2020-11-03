@@ -146,11 +146,14 @@ class OperationApproval extends React.PureComponent {
       approveLoading,
     } = this.props;
     const isTaRegistrationAllowedRole = hasAllPrivilege(['TA_REGISTRATION_NOT_ALLOWED_PRIVILEGE']);
-    const rerouteSelectList = rerouteList.map(item => (
-      <Option key={item} value={item}>
-        {item}
-      </Option>
-    ));
+    const rerouteSelectList =
+      rerouteList === null
+        ? []
+        : rerouteList.map(item => (
+          <Option key={item} value={item}>
+            {item}
+          </Option>
+          ));
     const saleManagerSelectList = saleManagerList.map(user => (
       <Option key={`option_${user.id}`} value={user.userCode}>
         {user.userCode}

@@ -4,6 +4,7 @@ import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../Detail/$detail/index.less';
 import PaginationComp from '../../../components/PaginationComp';
+import { changeThemeParkDisplay } from '@/pages/ProductManagement/utils/tools';
 
 @Form.create()
 @connect(({ commissionNew, loading }) => ({
@@ -152,21 +153,18 @@ class DetailForBinding extends React.PureComponent {
     const {
       commissionNew: { themeParkList },
     } = this.props;
-    for (let i = 0; i < themeParkList.length; i += 1) {
-      if (themeParkList[i].bookingCategoryCode === text) {
-        return (
-          <Tooltip
-            placement="topLeft"
-            title={
-              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
-            }
-          >
-            <span>{themeParkList[i].bookingCategoryName}</span>
-          </Tooltip>
-        );
-      }
+    const showThemeParks = changeThemeParkDisplay(text, themeParkList);
+    if (showThemeParks !== null) {
+      return (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showThemeParks}</span>}
+        >
+          <span>{showThemeParks}</span>
+        </Tooltip>
+      );
     }
-    return null;
+    return showThemeParks;
   };
 
   subExpandedRowRender = record => {
@@ -353,7 +351,7 @@ class DetailForBinding extends React.PureComponent {
                 columns={this.pluColumns}
                 dataSource={displayOfflineList}
                 className={`tabs-no-padding ${styles.searchTitle}`}
-                rowClassName={(record, index) => this.getRowSelectedClassName(record, index)}
+                rowClassName={record => this.getRowSelectedClassName2(record)}
                 expandedRowRender={this.offlineExpandedRowRender}
                 pagination={false}
               />

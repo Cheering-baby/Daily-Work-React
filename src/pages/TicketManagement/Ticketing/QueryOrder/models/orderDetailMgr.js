@@ -153,10 +153,10 @@ export default {
               findQuantityItem.itemQuantity += 1;
             } else {
               let session = null;
-              if(offerItem.attraction) {
+              if (offerItem.attraction) {
                 offerItem.attraction.forEach(i => {
                   session = i.validTimes ? i.validTimes[0].validTimeFrom : null;
-                })
+                });
               }
               offerOrderQuantityItem.itemList.push({
                 itemName: offerItem.bundleLabel,
@@ -186,10 +186,10 @@ export default {
                       session.push({
                         ticketGroup: attractionItem.ticketGroup || 'General',
                         session:
-                        attractionItem.validTimes && attractionItem.validTimes.length > 0
-                          ? attractionItem.validTimes[0].validTimeFrom
-                          : null,
-                      })
+                          attractionItem.validTimes && attractionItem.validTimes.length > 0
+                            ? attractionItem.validTimes[0].validTimeFrom
+                            : null,
+                      });
                     }
                   }
                 });
@@ -305,7 +305,7 @@ export default {
             }
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
-              
+
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
               if (attraction[j].ticketType === 'MPP') {
                 vidList.push({
@@ -355,7 +355,6 @@ export default {
                   }
                 });
               } else {
-                
                 itemPluList.forEach(itemPlu => {
                   vidList.push({
                     vidNo: null,
@@ -414,7 +413,7 @@ export default {
           offerGroup: offers[i].offerGroup,
         });
       }
-      
+
       for (let i = 0; i < vidResultList.length; i += 1) {
         vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
       }
