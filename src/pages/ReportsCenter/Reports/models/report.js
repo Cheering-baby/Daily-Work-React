@@ -51,9 +51,11 @@ export default {
           reportDictionaryResultList,
         } = result;
 
-        if (Array.isArray(reportDictionaryResultList)) {
-          reportDictionaryResultList.map((v, index) => {
-            Object.assign(v, { reportIndex: index });
+        if (reportDictionaryResultList && reportDictionaryResultList.length > 0) {
+          reportDictionaryResultList.map(v => {
+            Object.assign(v, {
+              key: v.jobCode,
+            });
             return v;
           });
         }

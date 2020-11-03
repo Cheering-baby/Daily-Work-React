@@ -811,7 +811,7 @@ class QueryOrder extends Component {
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
       if (
-        selectedBooking.transType === 'booking' &&
+        ['booking', 'revalidation'].includes(selectedBooking.transType) &&
         selectedBooking.status === 'Complete' &&
         selectedBooking.offInstances.length > 0 &&
         selectedBooking.offInstances[0].deliveryMode === 'e-Ticket'
@@ -826,7 +826,7 @@ class QueryOrder extends Component {
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
       if (
-        selectedBooking.transType === 'booking' &&
+        ['booking', 'revalidation'].includes(selectedBooking.transType) &&
         selectedBooking.status === 'Complete' &&
         selectedBooking.offInstances.length > 0 &&
         selectedBooking.offInstances[0].deliveryMode === 'BOCA'

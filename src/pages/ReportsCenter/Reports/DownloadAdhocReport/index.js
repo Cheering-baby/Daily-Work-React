@@ -1,18 +1,7 @@
 import React, { Component } from 'react';
 import MediaQuery from 'react-responsive';
 import { connect } from 'dva';
-import {
-  Button,
-  Form,
-  Divider,
-  Card,
-  Table,
-  Tooltip,
-  Icon,
-  message,
-  Spin,
-  Radio,
-} from 'antd';
+import { Button, Form, Divider, Card, Table, Tooltip, Icon, message, Spin } from 'antd';
 import { formatMessage } from 'umi/locale';
 import router from 'umi/router';
 import moment from 'moment';
@@ -27,9 +16,8 @@ import { exportReportUrl } from '../services/report';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
 import {
   sortListByReportTypeForCommon,
-  sortListByReportTypeForPreview,
-  reportViewList,
-} from '@/pages/ReportsCenter/utils/reportTypeUtil';
+  sortListByReportTypeForPreview
+} from "@/pages/ReportsCenter/utils/reportTypeUtil";
 
 const formItemLayout = {
   labelCol: {
@@ -43,9 +31,10 @@ const formItemLayout = {
   colon: false,
 };
 @Form.create()
-@connect(({ downloadAdHocReport, reportCenter, loading }) => ({
+@connect(({ downloadAdHocReport, reportCenter, user, loading }) => ({
   downloadAdHocReport,
   reportCenter,
+  userAuthorities: user.userAuthorities,
   reportFilterLoading: loading.effects['reportCenter/fetchReportFilterList'],
 }))
 class DownloadAdHocReport extends Component {
@@ -53,7 +42,6 @@ class DownloadAdHocReport extends Component {
     super(props);
     this.state = {
       loadingStatus: false,
-      size: 'RWS',
     };
   }
 
@@ -110,6 +98,8 @@ class DownloadAdHocReport extends Component {
     });
   };
 
+
+
   preview = () => {
     const {
       form,
@@ -127,7 +117,6 @@ class DownloadAdHocReport extends Component {
         checkAccountManager,
         checkAgeGroup,
         checkCustomerName,
-        userType,
       },
       location: {
         query: { reportType },
@@ -295,7 +284,7 @@ class DownloadAdHocReport extends Component {
       dispatch({
         type: 'downloadAdHocReport/fetchPreviewReport',
         payload: {
-          reportType: userType && userType === 'TA' ? `${reportType}Ta` : reportType,
+          reportType,
           filterList: list,
           displayColumnList:
             selectList && selectList.length > 0 ? selectList.map(item => item.columnName) : [],
@@ -338,6 +327,7 @@ class DownloadAdHocReport extends Component {
     e.preventDefault();
     const {
       form,
+      form: { getFieldValue },
       location: {
         query: { reportType },
       },
@@ -351,7 +341,6 @@ class DownloadAdHocReport extends Component {
         checkAccountManager,
         checkAgeGroup,
         checkCustomerName,
-        userType,
       },
     } = this.props;
 
@@ -392,6 +381,8 @@ class DownloadAdHocReport extends Component {
         ? filterList.find(i => i.filterKey === 'customerName')
         : [];
     const customerNameInfos = arr7 && arr7.customerNameOptions;
+
+    const categoryTypeVal = getFieldValue('categoryType');
 
     let selectList = [];
     if (Array.isArray(fieldList)) {
@@ -507,13 +498,14 @@ class DownloadAdHocReport extends Component {
 
       const sortList = sortListByReportTypeForCommon(reportType);
 
+
       download({
         url: exportReportUrl,
         method: 'POST',
         body: {
           fileSuffixType: 'xlsx',
           filterList: list,
-          reportType: userType && userType === 'TA' ? `${reportType}Ta` : reportType,
+          reportType,
           displayColumnList,
           sortList,
         },
@@ -530,6 +522,7 @@ class DownloadAdHocReport extends Component {
           },
         },
       });
+
     });
   };
 
@@ -568,49 +561,6 @@ class DownloadAdHocReport extends Component {
     });
   };
 
-  onUserChange = e => {
-    const {
-      dispatch,
-      location: {
-        query: { reportType },
-      },
-    } = this.props;
-    if (e.target.checked) {
-      this.setState({ size: e.target.value });
-      dispatch({
-        type: 'reportCenter/save',
-        payload: { userType: e.target.value },
-      });
-      if (e.target.value === 'TA') {
-        dispatch({
-          type: 'reportCenter/fetchDisplay',
-          payload: {
-            reportType: `${reportType.replace(/\s+/g, '')}Ta`,
-          },
-        });
-        dispatch({
-          type: 'reportCenter/fetchReportFilterList',
-          payload: {
-            reportType: `${reportType.replace(/\s+/g, '')}Ta`,
-          },
-        });
-      } else if (e.target.value === 'RWS') {
-        dispatch({
-          type: 'reportCenter/fetchDisplay',
-          payload: {
-            reportType: reportType.replace(/\s+/g, ''),
-          },
-        });
-        dispatch({
-          type: 'reportCenter/fetchReportFilterList',
-          payload: {
-            reportType: reportType.replace(/\s+/g, ''),
-          },
-        });
-      }
-    }
-  };
-
   render() {
     const {
       form: { getFieldDecorator },
@@ -622,8 +572,6 @@ class DownloadAdHocReport extends Component {
       displayLoading,
       reportFilterLoading,
     } = this.props;
-
-    const { size } = this.state;
 
     const breadcrumbArr = [
       {
@@ -710,10 +658,6 @@ class DownloadAdHocReport extends Component {
 
     const { loadingStatus } = this.state;
 
-    const isRWSTAView = hasAllPrivilege(['Report_Widget_RWS_TA_View']);
-    const isShow =
-      reportViewList && reportViewList.length > 0 && reportViewList.includes(reportType);
-
     return (
       <div>
         <MediaQuery
@@ -730,15 +674,8 @@ class DownloadAdHocReport extends Component {
           <Card className={styles.card}>
             <p className={styles.titleStyle}>{reportType}</p>
             <Form className={styles.formStyles} onSubmit={this.downloadFileEvent}>
-              {isShow && isRWSTAView && (
-                <Form.Item {...formItemLayout} label="&nbsp;" style={{ paddingBottom: 15 }}>
-                  <Radio.Group onChange={this.onUserChange} value={size}>
-                    <Radio.Button value="RWS">RWS User View</Radio.Button>
-                    <Radio.Button value="TA">TA View</Radio.Button>
-                  </Radio.Group>
-                </Form.Item>
-              )}
               {filterList.map(item => generateFilter(this.props, item))}
+
               <Form.Item {...formItemLayout} label={formatMessage({ id: 'REPORT_FIELD' })}>
                 {getFieldDecorator(
                   `field`,
