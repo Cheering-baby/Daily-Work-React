@@ -62,7 +62,7 @@ const ScheduleTaskTable = ({
     },
     {
       key: 'scheduleReportName',
-      title: 'Schedule Report Name',
+      title: 'Scheduled Report Name',
       dataIndex: 'scheduleReportName',
       sorter: true,
       className: styles.reportNameColumn,

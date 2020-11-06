@@ -15,6 +15,8 @@ let timeout;
   dailyAndMonthlyReport,
   user,
   reportNameLoadingFlag: loading.effects['dailyAndMonthlyReport/fetchReportNameListData'],
+  fetchScheduledReportNameListDataLoadingFlag:
+    loading.effects['dailyAndMonthlyReport/fetchScheduledReportNameListData'],
 }))
 class DailyMonthlySearchForm extends Component {
   componentDidMount() {
@@ -67,6 +69,7 @@ class DailyMonthlySearchForm extends Component {
         payload: {
           filter: {
             likeParam: {
+              reportName: values.scheduledReportName,
               taskName: values.reportName,
               reportTypes: values.reportType ? [values.reportType] : reportTypes,
               cronTypeList: values.cronTypeList ? [values.cronTypeList] : ['01', '02'],
@@ -146,6 +149,36 @@ class DailyMonthlySearchForm extends Component {
     }, 300);
   };
 
+  onSearchSchedule = value => {
+    const {
+      dispatch,
+      dailyAndMonthlyReport: { reportTypeOptions },
+    } = this.props;
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    if (!value || value === '') {
+      return;
+    }
+    timeout = setTimeout(() => {
+      dispatch({
+        type: 'dailyAndMonthlyReport/save',
+        payload: { scheduledReportName: [] },
+      });
+      dispatch({
+        type: 'dailyAndMonthlyReport/fetchScheduledReportNameListData',
+        payload: {
+          scheduleDesc: value ? value.trim() : '',
+          reportTypes: reportTypeOptions
+            ? reportTypeOptions.map(item => item.value).join(',')
+            : undefined,
+          cronTypeList: "02,03",
+        },
+      });
+    }, 300);
+  };
+
   render() {
     const {
       form: { getFieldDecorator },
@@ -154,8 +187,10 @@ class DailyMonthlySearchForm extends Component {
         cronTypeOptions,
         loadingStatus,
         reportNameOptions,
+        scheduledReportName,
       },
       reportNameLoadingFlag,
+      fetchScheduledReportNameListDataLoadingFlag,
     } = this.props;
 
     const cronTypeOptionsList = cronTypeOptions.filter(item => item.dictName !== 'Ad-hoc');
@@ -164,6 +199,32 @@ class DailyMonthlySearchForm extends Component {
         <Form onSubmit={this.handleSearch}>
           <div className={styles.searchDiv}>
             <Row>
+              <Col className={styles.inputColStyle} xs={12} sm={12} md={6}>
+                <FormItem>
+                  {getFieldDecorator('scheduledReportName')(
+                    <Select
+                      placeholder="Search Scheduled Report Name"
+                      allowClear
+                      showSearch
+                      showArrow={false}
+                      onSearch={this.onSearchSchedule}
+                      filterOption={false}
+                      defaultActiveFirstOption={false}
+                      loading={fetchScheduledReportNameListDataLoadingFlag}
+                      notFoundContent={
+                        fetchScheduledReportNameListDataLoadingFlag ? <Spin size="small" /> : null
+                      }
+                      dropdownClassName={styles.reportNameSelect}
+                    >
+                      {scheduledReportName.map(item => (
+                        <Option key={item.value} value={item.value}>
+                          {item.text}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
               <Col className={styles.inputColStyle} xs={12} sm={12} md={6}>
                 <FormItem>
                   {getFieldDecorator('reportName')(

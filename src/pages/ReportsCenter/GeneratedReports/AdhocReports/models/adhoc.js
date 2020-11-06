@@ -22,6 +22,7 @@ export default {
     isExecute: '1',
     loadingStatus: false,
     reportNameOptions: [],
+    scheduledReportName: [],
     isSearch: false,
     taskName: '',
   },
@@ -153,6 +154,24 @@ export default {
       } else throw resultMsg;
     },
 
+    *fetchScheduledReportNameListData({ payload }, { call, put }) {
+      const response = yield call(service.searchReportName, payload);
+      if (!response || !response.data || response.data.resultCode !== '0') return false;
+      const {
+        data: { result = [] },
+      } = response;
+      yield put({
+        type: 'save',
+        payload: {
+          scheduledReportName: result.map(item => ({
+            value: item.value,
+            text: item.value,
+          })),
+        },
+      });
+      return true;
+    },
+
     *search({ payload }, { put }) {
       yield put({
         type: 'clear',
@@ -238,6 +257,7 @@ export default {
         dataList: [],
         loadingStatus: false,
         reportNameOptions: [],
+        scheduledReportName: [],
         isSearch: false,
         taskName: '',
       };

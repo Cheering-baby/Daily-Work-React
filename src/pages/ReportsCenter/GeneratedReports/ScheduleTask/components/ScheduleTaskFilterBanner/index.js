@@ -57,7 +57,7 @@ const ScheduleTaskFilterBanner = props => {
       text: 'Schedule Report Name',
       WrappedComponent: (
         <Select
-          placeholder="Schedule Report Name"
+          placeholder="Search Scheduled Report Name"
           allowClear
           showSearch
           showArrow={false}
@@ -93,7 +93,7 @@ const ScheduleTaskFilterBanner = props => {
       name: 'cronType',
       text: 'Report Frequency',
       WrappedComponent: (
-        <Select placeholder="Report Frequency" allowClear>
+        <Select placeholder="Report Frequency" allowClear mode="multiple">
           {cronTypeOptions.map(item => (
             <Option key={item.dictId} value={item.dictId}>
               {item.dictName}
@@ -130,7 +130,6 @@ const ScheduleTaskFilterBanner = props => {
   ];
 
   const filterProps = useFilterProps(fetchDataList, PAGE_SIZE, 1);
-
   return (
     <>
       <FilterBanner filterItems={filterItems} {...filterProps} />

@@ -79,7 +79,7 @@ export default {
   REVALIDATION_VID: 'Revalidation VID',
   REVALIDATION_VID_TITLE: 'REVALIDATION VID',
   RESUBMIT: 'Resubmit',
-  REPRINT: 'Reprint',
+  REPRINT: 'Print Confirmation',
   RECEIVED_AMOUNT: 'RECEIVED AMOUNT',
   REFUNDED_AMOUNT: 'REFUNDED AMOUNT',
   SELECT_INDIVIDUALLY_TIP: '* Can only be selected individually',

@@ -113,7 +113,7 @@ export const transform2ListParams = ({
   }
 
   if (cronType) {
-    Object.assign(params, { cronTypeList: [cronType] });
+    Object.assign(params, { cronTypeList: cronType.length > 0 ? cronType : null });
   }
 
   if (status) {
