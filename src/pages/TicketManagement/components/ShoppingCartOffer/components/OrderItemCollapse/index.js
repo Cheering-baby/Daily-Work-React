@@ -237,7 +237,6 @@ class OrderItemCollapse extends Component {
     if (!offerProfile || !offerProfile.productGroup) {
       return null;
     }
-
     offerProfile.productGroup.forEach(productGroupInfo => {
       if (productGroupInfo.productType === 'Attraction') {
         productGroupInfo.productGroup.forEach(productGroupItem => {
@@ -250,10 +249,11 @@ class OrderItemCollapse extends Component {
                 ticketType: `Voucher(${productObj.attractionProduct.voucherQtyType})`,
                 price: '0.00/Ticket',
                 quantity: this.getVoucherTicketQuantity(
+                  offerProfile.offerNo,
                   productObj.needChoiceCount,
                   orderOfferItem,
                   bookingCategory,
-                  productObj.attractionProduct.voucherQtyType
+                  productObj.attractionProduct.voucherQtyType,
                 ),
                 subTotal: '0.00',
               };
@@ -265,13 +265,14 @@ class OrderItemCollapse extends Component {
     });
   };
 
-  getVoucherTicketQuantity = (needChoiceCount, orderOfferItem, bookingCategory, voucherQtyType) => {
+  getVoucherTicketQuantity = (offerNo, needChoiceCount, orderOfferItem, bookingCategory, voucherQtyType) => {
     let quantitySum = 0;
     let voucherTicketQuantity = 0;
     if (bookingCategory !== 'OAP') {
-      const quantityList = this.getQuantityPax(orderOfferItem, bookingCategory);
-  
+      let quantityList = this.getQuantityPax(orderOfferItem, bookingCategory);
       if (orderOfferItem.orderType === 'offerBundle') {
+        const matchOffer = orderOfferItem.orderInfo.filter(i => i.offerInfo.offerNo === offerNo);
+        quantityList = this.getQuantityPax({...orderOfferItem, orderInfo: matchOffer}, bookingCategory);
         if (voucherQtyType === 'By Package') {
           quantityList.forEach(quantityV => {
             quantitySum += quantityV;
@@ -966,7 +967,7 @@ class OrderItemCollapse extends Component {
                   );
                 })}
             </Collapse.Panel>
-          </Collapse>
+          </Collapse>s
         </Col>
       </Row>
     );

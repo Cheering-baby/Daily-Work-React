@@ -4,7 +4,6 @@ import moment from 'moment';
 import serialize, {
   checkFixOfferRefund,
   checkVoucherByTicketOrByPackage,
-  getRefundThemePark,
 } from '../utils/utils';
 import {
   queryBookingDetail,
@@ -85,7 +84,7 @@ export default {
       }
     },
     *queryBookingDetail({ payload }, { call, put, select }) {
-      const { searchList, themeParkRefundList } = yield select(state => state.refundRequestMgr);
+      const { searchList } = yield select(state => state.refundRequestMgr);
       const params = { ...searchList, ...payload };
       yield put({
         type: 'save',

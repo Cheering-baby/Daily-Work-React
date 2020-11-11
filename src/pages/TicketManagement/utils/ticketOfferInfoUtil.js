@@ -437,3 +437,27 @@ export function getOfferCategory(themeparkCode) {
   }));
   return categories;
 }
+
+export function sortAgeGroupByYouth(products = []) {
+  const ageGroups = {
+    'Adult': 0,
+    'Youth': 1,
+    'Child': 2,
+    'Senior': 3,
+    'Student': 4,
+    'Helper': 5,
+    null: 6,
+  }
+  const compare = (obj1, obj2) => {
+    const a = obj1.attractionProduct.ageGroup;
+    const b = obj2.attractionProduct.ageGroup;
+    if (ageGroups[a] < ageGroups[b]) {
+      return -1;
+    }
+    if (ageGroups[a] > ageGroups[b]) {
+      return 1;
+    }
+    return 0;
+  };
+  return products.sort(compare);
+}

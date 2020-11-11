@@ -159,11 +159,11 @@ export default {
                             attraction[j].hadRefunded !== 'Yes'
                           ),
                       });
-                      submitVidList.push({
-                        vidCode: itemPlu.visualId,
-                        vidGroup: attraction[j].vidGroup,
-                      });
                     }
+                    submitVidList.push({
+                      vidCode: itemPlu.visualId,
+                      vidGroup: attraction[j].vidGroup,
+                    });
                   });
                 } else {
                   itemPluList.forEach(itemPlu => {

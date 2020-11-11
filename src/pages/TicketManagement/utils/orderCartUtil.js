@@ -512,10 +512,10 @@ export function getCheckTicketAmount(
                 ticketAmount += quantity * attractionProduct.needChoiceCount;
               });
             }
-            if(includeVouchers && orderOffer.orderAll) {
-              ticketAmount += getVoucherTicketQuantity(orderOffer);
-            }
           });
+          if(includeVouchers && orderOffer.orderAll) {
+            ticketAmount += getVoucherTicketQuantity(orderOffer);
+          }
         } else if (listIndex < 2 && orderOffer.orderInfo && orderOffer.orderType === 'offerFixed') {
           let offerTicketPax = 0;
           orderOffer.orderInfo.forEach(info => {

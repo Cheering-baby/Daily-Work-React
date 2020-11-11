@@ -393,7 +393,6 @@ class Attraction extends Component {
         themeParkName,
       },
     } = this.props;
-
     const orderInfo = offers.map(item => {
       const {
         sessionTime,
@@ -402,7 +401,6 @@ class Attraction extends Component {
         detail: { priceRuleId },
         attractionProduct = [],
       } = item;
-      console.log(attractionProduct)
       return {
         sessionTime,
         quantity: ticketNumber || 0,
