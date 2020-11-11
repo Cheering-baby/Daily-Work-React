@@ -308,7 +308,7 @@ class MyWallet extends React.PureComponent {
         title: formatMessage({ id: 'OPERATION' }),
         key: 'operation',
         render: (text, record) => {
-          if (record.tranType === 'ONLINE_TOPUP' || record.tranType === 'OFFLINE_TOPUP') {
+          // if (record.tranType === 'ONLINE_TOPUP' || record.tranType === 'OFFLINE_TOPUP') {
             return (
               <Tooltip title={formatMessage({ id: 'INVOICE' })}>
                 <span>
@@ -320,7 +320,7 @@ class MyWallet extends React.PureComponent {
                 </span>
               </Tooltip>
             );
-          }
+          // }
         },
         width: 90,
       },

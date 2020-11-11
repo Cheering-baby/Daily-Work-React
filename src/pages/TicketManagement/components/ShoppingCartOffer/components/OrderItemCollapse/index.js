@@ -8,6 +8,9 @@ import Voucher from '../../assets/Voucher.png';
 import { toThousandsByRound } from '@/pages/TicketManagement/utils/orderCartUtil';
 import { getProductLimitInventory } from '@/pages/TicketManagement/utils/utils';
 import { sessionTimeToWholeDay } from '../../../../utils/utils';
+import {
+  getAttractionProductList,
+} from '@/pages/TicketManagement/utils/ticketOfferInfoUtil';
 
 const { confirm } = Modal;
 
@@ -267,7 +270,7 @@ class OrderItemCollapse extends Component {
     let voucherTicketQuantity = 0;
     if (bookingCategory !== 'OAP') {
       const quantityList = this.getQuantityPax(orderOfferItem, bookingCategory);
-
+  
       if (orderOfferItem.orderType === 'offerBundle') {
         if (voucherQtyType === 'By Package') {
           quantityList.forEach(quantityV => {
@@ -278,8 +281,12 @@ class OrderItemCollapse extends Component {
           const ticketTypeList = [];
           orderOfferItem.orderInfo.forEach(orderInfoItem => {
             if (orderInfoItem.quantity > 0) {
+              const itemQuantity = getAttractionProductList(
+                orderInfoItem.offerInfo,
+                moment(orderOfferItem.queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
+              ).reduce((total,i) => total + i.needChoiceCount, 0);
               const ticketType = {
-                itemQuantity: orderInfoItem.ageGroupQuantity || 1,
+                itemQuantity: itemQuantity || 1,
               };
               ticketTypeList.push(ticketType);
             }

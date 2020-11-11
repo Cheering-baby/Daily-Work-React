@@ -118,7 +118,10 @@ class WalletInvoice extends React.PureComponent {
                   <div className={styles['invoice-logo']}>
                     <img src={logoImage} alt="logo" width="100%" height="auto" />
                   </div>
-                  <div className={styles['company-address']}>{profile.taId}</div>
+                  <div className={styles['company-address']}>
+                    <b> PARTNERS Agent ID: </b>
+                    <span>{profile.taId}</span>
+                  </div>
                   <div className={styles['company-name']}>{profile.name}</div>
                   <div className={styles['company-address']}>
                     {profile.address} <br />

@@ -416,13 +416,37 @@ export function getCheckOapOrderData(onceAPirateOrderData) {
 
 function getVoucherTicketQuantity(orderOffer) {
   let voucherTicketQuantity = 0;
+  const dateOfVisit = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
   if (orderOffer.orderType === 'offerBundle') {
-    console.log(orderOffer, 'bundle')
-    console.log(voucherTicketQuantity)
+    orderOffer.orderInfo.forEach(orderInfoItem => {
+      if (orderInfoItem.quantity > 0) {
+        const voucherProductList = getVoucherProductList(
+          orderInfoItem.offerInfo,
+          dateOfVisit
+        );
+        const itemQuantity = getAttractionProductList(
+          orderInfoItem.offerInfo,
+          dateOfVisit
+        ).reduce((total,i) => total + i.needChoiceCount, 0);
+        voucherProductList.forEach(item => {
+          const {
+            attractionProduct: { voucherQtyType },
+            needChoiceCount,
+          } = item;
+          if (voucherQtyType === 'By Package') {
+            voucherTicketQuantity += orderInfoItem.quantity * needChoiceCount;
+          } else if (voucherQtyType === 'By Ticket') {
+            voucherTicketQuantity += itemQuantity * orderInfoItem.quantity * needChoiceCount;
+          } else {
+            voucherTicketQuantity += 1;
+          }
+        });
+      }
+    });
   } else {
     const voucherProductList = getVoucherProductList(
       orderOffer.offerInfo,
-      moment(orderOffer.queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
+      dateOfVisit
     );
     let fixedProductTickets = 0;
     if(orderOffer.orderType === 'offerFixed'){
