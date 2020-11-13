@@ -8,9 +8,6 @@ import Voucher from '../../assets/Voucher.png';
 import { toThousandsByRound } from '@/pages/TicketManagement/utils/orderCartUtil';
 import { getProductLimitInventory } from '@/pages/TicketManagement/utils/utils';
 import { sessionTimeToWholeDay } from '../../../../utils/utils';
-import {
-  getAttractionProductList,
-} from '@/pages/TicketManagement/utils/ticketOfferInfoUtil';
 
 const { confirm } = Modal;
 
@@ -237,6 +234,7 @@ class OrderItemCollapse extends Component {
     if (!offerProfile || !offerProfile.productGroup) {
       return null;
     }
+
     offerProfile.productGroup.forEach(productGroupInfo => {
       if (productGroupInfo.productType === 'Attraction') {
         productGroupInfo.productGroup.forEach(productGroupItem => {
@@ -249,11 +247,10 @@ class OrderItemCollapse extends Component {
                 ticketType: `Voucher(${productObj.attractionProduct.voucherQtyType})`,
                 price: '0.00/Ticket',
                 quantity: this.getVoucherTicketQuantity(
-                  offerProfile.offerNo,
                   productObj.needChoiceCount,
                   orderOfferItem,
                   bookingCategory,
-                  productObj.attractionProduct.voucherQtyType,
+                  productObj.attractionProduct.voucherQtyType
                 ),
                 subTotal: '0.00',
               };
@@ -265,14 +262,13 @@ class OrderItemCollapse extends Component {
     });
   };
 
-  getVoucherTicketQuantity = (offerNo, needChoiceCount, orderOfferItem, bookingCategory, voucherQtyType) => {
+  getVoucherTicketQuantity = (needChoiceCount, orderOfferItem, bookingCategory, voucherQtyType) => {
     let quantitySum = 0;
     let voucherTicketQuantity = 0;
     if (bookingCategory !== 'OAP') {
-      let quantityList = this.getQuantityPax(orderOfferItem, bookingCategory);
+      const quantityList = this.getQuantityPax(orderOfferItem, bookingCategory);
+
       if (orderOfferItem.orderType === 'offerBundle') {
-        const matchOffer = orderOfferItem.orderInfo.filter(i => i.offerInfo.offerNo === offerNo);
-        quantityList = this.getQuantityPax({...orderOfferItem, orderInfo: matchOffer}, bookingCategory);
         if (voucherQtyType === 'By Package') {
           quantityList.forEach(quantityV => {
             quantitySum += quantityV;
@@ -282,12 +278,8 @@ class OrderItemCollapse extends Component {
           const ticketTypeList = [];
           orderOfferItem.orderInfo.forEach(orderInfoItem => {
             if (orderInfoItem.quantity > 0) {
-              const itemQuantity = getAttractionProductList(
-                orderInfoItem.offerInfo,
-                moment(orderOfferItem.queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
-              ).reduce((total,i) => total + i.needChoiceCount, 0);
               const ticketType = {
-                itemQuantity: itemQuantity || 1,
+                itemQuantity: orderInfoItem.ageGroupQuantity || 1,
               };
               ticketTypeList.push(ticketType);
             }

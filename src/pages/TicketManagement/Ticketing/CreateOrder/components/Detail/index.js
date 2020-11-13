@@ -9,7 +9,7 @@ import {
   calculateProductPrice,
   calculateAllProductPrice,
 } from '../../../../utils/utils';
-import { ticketTypesDetail } from '../../../../utils/constants';
+import { ticketTypes, ticketTypesDetail } from '../../../../utils/constants';
 import { sortAgeGroupByYouth } from '../../../../utils/ticketOfferInfoUtil';
 import styles from './index.less';
 
@@ -70,8 +70,10 @@ class Detail extends Component {
       }
     });
     const youthAgeGroup = attractionProduct.find(i => i.attractionProduct.ageGroup === 'Youth');
+    let ticketTypesReally = ticketTypes;
     if (youthAgeGroup) {
-      sortAgeGroupByYouth(attractionProduct)
+      sortAgeGroupByYouth(attractionProduct);
+      ticketTypesReally = ticketTypesDetail;
     }
     return (
       <div>
@@ -114,7 +116,7 @@ class Detail extends Component {
                         <div className={styles.fixedPriceContainer}>
                           <div style={{ marginRight: '20px' }}>
                             {attractionProduct.map((item, index) => {
-                              const ticketTypeShow = ticketTypesDetail.filter(
+                              const ticketTypeShow = ticketTypesReally.filter(
                                 ({ value }) => item.attractionProduct.ageGroup === value
                               );
                               return (
@@ -143,7 +145,7 @@ class Detail extends Component {
                         </div>
                       ) : (
                         attractionProduct.map((item, index) => {
-                          const ticketTypeShow = ticketTypesDetail.filter(
+                          const ticketTypeShow = ticketTypesReally.filter(
                             ({ value }) => item.attractionProduct.ageGroup === value
                           );
                           return (

@@ -413,88 +413,10 @@ export function getCheckOapOrderData(onceAPirateOrderData) {
   return orderList;
 }
 
-
-function getVoucherTicketQuantity(orderOffer) {
-  let voucherTicketQuantity = 0;
-  const dateOfVisit = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
-  if (orderOffer.orderType === 'offerBundle') {
-    orderOffer.orderInfo.forEach(orderInfoItem => {
-      if (orderInfoItem.quantity > 0) {
-        const voucherProductList = getVoucherProductList(
-          orderInfoItem.offerInfo,
-          dateOfVisit
-        );
-        const itemQuantity = getAttractionProductList(
-          orderInfoItem.offerInfo,
-          dateOfVisit
-        ).reduce((total,i) => total + i.needChoiceCount, 0);
-        voucherProductList.forEach(item => {
-          const {
-            attractionProduct: { voucherQtyType },
-            needChoiceCount,
-          } = item;
-          if (voucherQtyType === 'By Package') {
-            voucherTicketQuantity += orderInfoItem.quantity * needChoiceCount;
-          } else if (voucherQtyType === 'By Ticket') {
-            voucherTicketQuantity += itemQuantity * orderInfoItem.quantity * needChoiceCount;
-          } else {
-            voucherTicketQuantity += 1;
-          }
-        });
-      }
-    });
-  } else {
-    const voucherProductList = getVoucherProductList(
-      orderOffer.offerInfo,
-      dateOfVisit
-    );
-    let fixedProductTickets = 0;
-    if(orderOffer.orderType === 'offerFixed'){
-      orderOffer.orderInfo.forEach(info => {
-        if (info.orderCheck) {
-          const needChoiceCount = info.productInfo.needChoiceCount || 1;
-          fixedProductTickets += 1 * needChoiceCount;
-        }
-      });
-    }
-    voucherProductList.forEach(item => {
-      const {
-        attractionProduct: { voucherQtyType },
-        needChoiceCount,
-      } = item;
-      if (voucherQtyType === 'By Package') {
-        if (orderOffer.orderType === 'offerFixed') {
-          voucherTicketQuantity += orderOffer.orderSummary.quantity * needChoiceCount;
-        } else {
-          voucherTicketQuantity += 1 * needChoiceCount;
-        }
-      } else if (voucherQtyType === 'By Ticket') {
-        if (orderOffer.orderType === 'offerFixed') {
-          voucherTicketQuantity += fixedProductTickets * orderOffer.orderSummary.quantity * needChoiceCount;
-        } else {
-          let ticketAmount = 0;
-          orderOffer.orderInfo.forEach(info => {
-            if (info.orderCheck) {
-              const needChoiceCountProduct = info.productInfo.needChoiceCount || 1;
-              ticketAmount += info.quantity * needChoiceCountProduct;
-            }
-          });
-          voucherTicketQuantity += ticketAmount * needChoiceCount;
-        }
-      } else {
-        voucherTicketQuantity += 1;
-      }
-    });
-  }
-  return voucherTicketQuantity;
-}
-
-
 export function getCheckTicketAmount(
   packageOrderData,
   generalTicketOrderData,
-  onceAPirateOrderData,
-  includeVouchers,
+  onceAPirateOrderData
 ) {
   const orderArray = [packageOrderData, generalTicketOrderData, onceAPirateOrderData];
   let ticketAmount = 0;
@@ -513,9 +435,6 @@ export function getCheckTicketAmount(
               });
             }
           });
-          if(includeVouchers && orderOffer.orderAll) {
-            ticketAmount += getVoucherTicketQuantity(orderOffer);
-          }
         } else if (listIndex < 2 && orderOffer.orderInfo && orderOffer.orderType === 'offerFixed') {
           let offerTicketPax = 0;
           orderOffer.orderInfo.forEach(info => {
@@ -525,9 +444,6 @@ export function getCheckTicketAmount(
             }
           });
           ticketAmount += offerTicketPax * orderOffer.orderSummary.quantity;
-          if(includeVouchers && orderOffer.orderAll) {
-            ticketAmount += getVoucherTicketQuantity(orderOffer);
-          }
         } else if (listIndex < 2 && orderOffer.orderInfo) {
           orderOffer.orderInfo.forEach(info => {
             if (info.orderCheck) {
@@ -535,16 +451,10 @@ export function getCheckTicketAmount(
               ticketAmount += info.quantity * needChoiceCount;
             }
           });
-          if(includeVouchers && orderOffer.orderAll) {
-            ticketAmount += getVoucherTicketQuantity(orderOffer);
-          }
         } else if (listIndex === 2) {
           if (orderOffer.orderCheck) {
             const needChoiceCount = 1;
             ticketAmount += orderOffer.orderInfo.orderQuantity * needChoiceCount;
-            if(includeVouchers && orderOffer.orderCheck) {
-              ticketAmount += 1;
-            }
           }
         }
       });
@@ -1187,8 +1097,7 @@ export function transBookingToPayTotalPrice(
     const ticketAmount = getCheckTicketAmount(
       packageOrderData,
       generalTicketOrderData,
-      onceAPirateOrderData,
-      true
+      onceAPirateOrderData
     );
     totalPrice += ticketAmount * bocaFeePax;
   }

@@ -843,7 +843,7 @@ class QueryOrder extends Component {
       if (transType === 'refund' && status === 'Confirmed') {
         return false;
       }
-      if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
+      if (transType === 'revalidation' && status === 'Confirmed' ) {
         return false;
       }
     }
@@ -944,7 +944,11 @@ class QueryOrder extends Component {
   revalidationVIDDisable = selectedBookings => {
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
-      if (selectedBooking.transType === 'revalidation' && selectedBooking.status === 'Complete') {
+      if (
+        selectedBooking.transType === 'revalidation' &&
+        selectedBooking.status === 'Complete' &&
+        selectedBooking.offInstances[0].deliveryMode === 'VID'
+      ) {
         return false;
       }
     }
