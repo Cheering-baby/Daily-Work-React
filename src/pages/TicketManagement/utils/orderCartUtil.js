@@ -542,7 +542,7 @@ export function getCheckTicketAmount(
           if (orderOffer.orderCheck) {
             const needChoiceCount = 1;
             ticketAmount += orderOffer.orderInfo.orderQuantity * needChoiceCount;
-            if(includeVouchers && orderOffer.orderAll) {
+            if(includeVouchers && orderOffer.orderCheck) {
               ticketAmount += 1;
             }
           }

@@ -967,7 +967,7 @@ class OrderItemCollapse extends Component {
                   );
                 })}
             </Collapse.Panel>
-          </Collapse>s
+          </Collapse>
         </Col>
       </Row>
     );
