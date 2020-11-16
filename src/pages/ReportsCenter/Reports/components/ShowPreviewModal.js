@@ -15,8 +15,9 @@ import {
 
 const drawWidth = '60%';
 @Form.create()
-@connect(({ downloadAdHocReport, loading }) => ({
+@connect(({ downloadAdHocReport, loading, reportCenter }) => ({
   downloadAdHocReport,
+  userType: reportCenter.userType,
   loading: loading.effects['downloadAdHocReport/fetchPreviewReport'],
 }))
 class ShowPreviewModal extends React.PureComponent {
@@ -98,6 +99,7 @@ class ShowPreviewModal extends React.PureComponent {
         filterList,
         displayColumnList,
       },
+      userType,
       loading,
       reportType,
     } = this.props;
@@ -111,7 +113,7 @@ class ShowPreviewModal extends React.PureComponent {
         dispatch({
           type: 'downloadAdHocReport/tableChanged',
           payload: {
-            reportType,
+            reportType: userType && userType === 'TA' ? `${reportType}Ta` : reportType,
             filterList,
             sortList,
             displayColumnList,

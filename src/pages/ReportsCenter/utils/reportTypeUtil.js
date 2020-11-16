@@ -12,7 +12,6 @@ export function sortListByReportTypeForPreview(reportType) {
       break;
     case 'ARAccountBalanceSummaryReport':
       sortList = [
-        { key: 'customerName', value: 'ascend' },
         { key: 'transactionDate', value: 'ascend' },
       ];
       break;
@@ -35,7 +34,7 @@ export function sortListByReportTypeForPreview(reportType) {
       sortList = [{ key: 'transactionDate', value: 'ascend' }];
       break;
     case 'AttractionsSalesReport':
-      sortList = [{ key: 'orderDate', value: 'ascend' }];
+      sortList = [{ key: 'pamsBookingId', value: 'ascend' }];
       break;
     case 'TaxInvoiceReport':
       sortList = [{ key: 'invoiceDate', value: 'ascend' }];
@@ -69,7 +68,6 @@ export function sortListByReportTypeForCommon(reportType) {
       break;
     case 'ARAccountBalanceSummaryReport':
       sortList = [
-        { key: 'customerName', value: 'ASC' },
         { key: 'transactionDate', value: 'ASC' },
       ];
       break;
@@ -92,7 +90,7 @@ export function sortListByReportTypeForCommon(reportType) {
       sortList = [{ key: 'transactionDate', value: 'ASC' }];
       break;
     case 'AttractionsSalesReport':
-      sortList = [{ key: 'orderDate', value: 'ASC' }];
+      sortList = [{ key: 'pamsBookingId', value: 'ASC' }];
       break;
     case 'TaxInvoiceReport':
       sortList = [{ key: 'invoiceDate', value: 'ASC' }];
