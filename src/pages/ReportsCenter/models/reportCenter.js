@@ -63,6 +63,7 @@ export default {
     searchCustomerNames: null,
     openCategoryType: false,
     checkCategoryTypeValueInit: false,
+    userType: '',
   },
   effects: {
     *fetchDisplay({ payload }, { call, put }) {
@@ -608,6 +609,7 @@ export default {
         checkCategoryTypeValue: [],
         openCategoryType: false,
         checkCategoryTypeValueInit: false,
+        userType: '',
       };
     },
     saveFilterList(state, { payload }) {

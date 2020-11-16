@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash';
 import * as service from '../services/dailyAndMonthlyReport';
-import {privilege, REPORT_TYPE_MAP2} from "../../ScheduleTask/consts/authority";
+import { privilege, REPORT_TYPE_MAP2 } from '../../ScheduleTask/consts/authority';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
 
 export default {
@@ -202,8 +202,8 @@ export default {
       yield put({
         type: 'fetch',
         payload: {
-          reportTypes
-        }
+          reportTypes,
+        },
       });
     },
   },

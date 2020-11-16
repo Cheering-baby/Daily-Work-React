@@ -33,7 +33,7 @@ const formItemLayout2 = {
 const generateFilter = (props, filterItem) => {
   const {
     dispatch,
-    form: { getFieldDecorator, setFieldsValue, getFieldValue, getFieldsValue },
+    form: { getFieldDecorator, setFieldsValue, getFieldsValue },
     reportCenter: {
       page,
       reportFrequency,
@@ -50,7 +50,6 @@ const generateFilter = (props, filterItem) => {
       checkAgeGroup,
       checkChannelValueInit,
       checkCategoryTypeValueInit,
-      categoryTypeList,
       openUserRoleForCreated,
       openAccountManager,
       checkUserRoleValue,
@@ -72,8 +71,6 @@ const generateFilter = (props, filterItem) => {
     options = [],
     // mulOptions = [],
     themeParkOptions = [],
-    dictType,
-    dictSubType,
     customerGroupOptions = [],
     userRoleOptions = [],
     taMarketOptions = [],
@@ -83,38 +80,20 @@ const generateFilter = (props, filterItem) => {
     customerNameOptions = [],
   } = filterItem;
 
-  // const categoryType = getFieldValue('categoryType');
-  // const categoryTypeArr =
-  //   categoryTypeList && categoryTypeList.length > 0
-  //     ? categoryTypeList.filter(i => i.dictSubType === '1004')
-  //     : [];
-  // const arr = categoryTypeArr.filter(t => t.dictId === categoryType);
-  // const arr1 = Array.isArray(arr) && arr.length > 0 ? arr.map(i => i.dictName) : [];
-  // const customerOptions =
-  //   customerGroupOptions && customerGroupOptions.length > 0
-  //     ? customerGroupOptions.filter(i => checkCategoryTypeValue && checkCategoryTypeValue.includes(i.dictSubType))
-  //     : [];
-
-  const customerOptions =
-    (customerGroupOptions &&
-      checkCategoryTypeValue &&
-      checkCategoryTypeValue.map(i => {
-        const title = categoryTypeList.find(j => j.dictId === i);
-        return {
-          title,
-          options: customerGroupOptions.filter(j => j.dictSubType === i),
-          originalOptions: customerGroupOptions.filter(j => j.dictSubType === i),
-        };
-      })) ||
-    [];
-
-  if (searchCustomerGroup) {
-    customerOptions.forEach(item => {
-      item.options = item.options.filter(
-        i => i.dictName.toLowerCase().indexOf(searchCustomerGroup.toLowerCase()) >= 0
-      );
-    });
+  let customerOptions = [];
+  if (customerGroupOptions && checkCategoryTypeValue && checkCategoryTypeValue.length > 0) {
+    const customerOptionsVal = customerGroupOptions.filter(i =>
+      checkCategoryTypeValue.find(j => j === i.dictSubType)
+    );
+    customerOptions = Array.from(new Set(customerOptionsVal.map(i => i.dictName))).map(j =>
+      customerOptionsVal.find(k => j === k.dictName)
+    );
+  } else if (customerGroupOptions && customerGroupOptions.length > 0) {
+    customerOptions = Array.from(new Set(customerGroupOptions.map(i => i.dictName))).map(j =>
+      customerGroupOptions.find(k => k.dictName === j)
+    );
   }
+
   const themeParkSelect = React.createRef();
 
   const whereColumnList = detailList ? detailList.whereColumnList : [];
@@ -460,14 +439,11 @@ const generateFilter = (props, filterItem) => {
   const customerGroupAll = e => {
     let arr3 = [];
     if (e.target.checked === true) {
-      customerOptions.forEach(({ options: itemOption }) => {
-        itemOption.forEach(item => {
-          arr3.push(item.dictId);
-        });
-      });
+      arr3 = customerOptions && customerOptions.length > 0 && customerOptions.map(i => i.dictName);
     } else {
       arr3 = [];
     }
+
     dispatch({
       type: 'reportCenter/save',
       payload: {
@@ -631,13 +607,21 @@ const generateFilter = (props, filterItem) => {
   };
 
   const changeCategoryType = value => {
-    const checkCustomerGroupValueFilter = checkCustomerGroupValue.filter(i => {
-      return (
-        customerGroupList.find(j => j.dictId === i) &&
-        value.includes(customerGroupList.find(j => j.dictId === i).dictSubType)
+    const checkCustomerGroupValueFilter = [];
+    if (value.length > 0) {
+      checkCustomerGroupValueFilter.push(
+        ...checkCustomerGroupValue.filter(i => {
+          const tempArray = customerGroupList.filter(j => j.dictName === i);
+          if (tempArray.length === 0) {
+            return false;
+          }
+          const resultArray = value.filter(item => tempArray.find(x => x.dictSubType === item));
+          return resultArray.length > 0;
+        })
       );
-    });
-
+    } else {
+      checkCustomerGroupValueFilter.push(...checkCustomerGroupValue);
+    }
     dispatch({
       type: 'reportCenter/save',
       payload: {
@@ -676,18 +660,7 @@ const generateFilter = (props, filterItem) => {
 
   const changeCustomerGroup = (e, key) => {
     let newVal = [];
-    if (typeof key === 'object') {
-      const { itemOption } = key;
-      const keyItems = [];
-      itemOption.forEach(item => {
-        keyItems.push(item.dictId);
-      });
-      if (e.target.checked) {
-        newVal = Array.from(new Set([...checkCustomerGroupValue, ...keyItems]));
-      } else {
-        newVal = checkCustomerGroupValue.filter(i => !keyItems.includes(i));
-      }
-    } else if (e.target.checked) {
+    if (e.target.checked) {
       newVal = Array.from(new Set([...checkCustomerGroupValue, key]));
     } else {
       newVal = checkCustomerGroupValue.filter(i => i !== key);
@@ -729,63 +702,39 @@ const generateFilter = (props, filterItem) => {
 
   const customerGroupDropDown = () => {
     if (customerOptions && customerOptions.length > 0) {
-      let keyLen = 0;
-      customerOptions.forEach(({ options: itemOption }) => {
-        keyLen += itemOption.length;
-      });
+      let arr12 = customerOptions.map(i => i.dictName);
 
-      // eslint-disable-next-line no-inner-declarations
-      function matchItem(itemOption) {
-        let matchItemOption = true;
-        itemOption.forEach(item => {
-          const key = item.dictId;
-          if (!checkCustomerGroupValue.includes(key)) {
-            matchItemOption = false;
-          }
-        });
-        return matchItemOption;
+      if (searchCustomerGroup) {
+        arr12 = arr12.filter(
+          item => item.toLowerCase().indexOf(searchCustomerGroup.toLowerCase()) > -1
+        );
       }
 
+      const matchAll =
+        checkCustomerGroupValue && checkCustomerGroupValue.length > 0
+          ? customerOptions.length === checkCustomerGroupValue.length
+          : false;
       return (
         <div className={styles.dropDownContainer}>
-          <div style={{ maxHeight: '200px', overflow: 'auto' }}>
-            <div style={{ marginTop: '5px', marginBottom: '5px' }}>
-              {/* <Checkbox onChange={customerGroupAll} checked={matchAll}> */}
-              <Checkbox
-                onChange={customerGroupAll}
-                checked={keyLen === checkCustomerGroupValue.length}
-                disabled={keyLen === 0}
-              >
+          <div style={{ maxHeight: '150px', overflow: 'auto' }}>
+            <div style={{ marginTop: '5px' }}>
+              <Checkbox onChange={customerGroupAll} checked={matchAll}>
                 Select All
               </Checkbox>
-            </div>
-            {customerOptions.map(({ title, options: itemOption, originalOptions }) => {
-              return (
-                <div className={styles.customerOptionsItem}>
+              {arr12.map(item => {
+                const key = item;
+                return (
                   <Checkbox
-                    checked={matchItem(originalOptions)}
-                    disabled={itemOption.length === 0}
-                    onChange={e => changeCustomerGroup(e, { title, itemOption })}
+                    key={key}
+                    checked={checkCustomerGroupValue.includes(key)}
+                    onChange={e => changeCustomerGroup(e, key)}
+                    className={styles.checkBoxClass}
                   >
-                    <span className={styles.customerGroupDictName}>{title.dictName}</span>
+                    {item}
                   </Checkbox>
-                  <div className={styles.customerGroupOptions}>
-                    {itemOption.map(item => {
-                      const key = item.dictId;
-                      return (
-                        <Checkbox
-                          key={key}
-                          checked={checkCustomerGroupValue.includes(key)}
-                          onChange={e => changeCustomerGroup(e, key)}
-                        >
-                          {item.dictName}
-                        </Checkbox>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       );
@@ -1041,12 +990,24 @@ const generateFilter = (props, filterItem) => {
       });
     } else if (filterKey === 'categoryType') {
       const mapValue = value.map(({ key }) => key);
-      const checkCustomerGroupValueFilter = checkCustomerGroupValue.filter(i => {
-        return (
-          customerGroupList.find(j => j.dictId === i) &&
-          mapValue.includes(customerGroupList.find(j => j.dictId === i).dictSubType)
+      const checkCustomerGroupValueFilter = [];
+      if (value.length > 0) {
+        checkCustomerGroupValueFilter.push(
+          ...checkCustomerGroupValue.filter(i => {
+            const tempArray = customerGroupList.filter(j => j.dictName === i);
+            if (tempArray.length === 0) {
+              return false;
+            }
+            const resultArray = mapValue.filter(item =>
+              tempArray.find(x => x.dictSubType === item)
+            );
+            return resultArray.length > 0;
+          })
         );
-      });
+      } else {
+        checkCustomerGroupValueFilter.push(...checkCustomerGroupValue);
+      }
+
       dispatch({
         type: 'reportCenter/save',
         payload: {
@@ -1092,18 +1053,6 @@ const generateFilter = (props, filterItem) => {
     }
   };
 
-  const categoryTypeChange = () => {
-    const customerGroupVal = getFieldValue('customerGroup');
-    if (filterKey === 'categoryType' && customerGroupVal && customerGroupVal.length > 0) {
-      dispatch({
-        type: 'reportCenter/save',
-        payload: {
-          checkCustomerGroupValue: [],
-        },
-      });
-    }
-  };
-
   const FILTER_DICT = {
     INPUT: () => (
       <Form.Item {...formItemLayout} label={filterName}>
@@ -1129,13 +1078,7 @@ const generateFilter = (props, filterItem) => {
             },
           ],
         })(
-          <Select
-            optionFilterProp="children"
-            showSearch
-            allowClear
-            placeholder={filterName}
-            onChange={categoryTypeChange}
-          >
+          <Select optionFilterProp="children" showSearch allowClear placeholder={filterName}>
             {options &&
               options.map(item => (
                 <Select.Option key={item.dictId} value={item.dictId}>

@@ -160,6 +160,8 @@ class ScheduleTransaction extends Component {
       form: { getFieldValue },
     } = this.props;
 
+    const categoryTypeVal = getFieldValue('categoryType');
+
     const arr1 =
       filterList && filterList.length > 0
         ? filterList.find(i => i.filterKey === 'themeParkCode')
@@ -182,6 +184,18 @@ class ScheduleTransaction extends Component {
         : [];
     const customerGroupInfos = arr4 && arr4.customerGroupOptions;
 
+    let customerOptionsVal = customerGroupInfos;
+    if (
+      customerGroupInfos &&
+      customerGroupInfos.length > 0 &&
+      categoryTypeVal &&
+      categoryTypeVal.length > 0
+    ) {
+      customerOptionsVal = customerGroupInfos.filter(i =>
+        categoryTypeVal.find(j => j === i.dictSubType)
+      );
+    }
+
     const arr5 =
       filterList && filterList.length > 0
         ? filterList.find(i => i.filterKey === 'accountManager')
@@ -197,7 +211,7 @@ class ScheduleTransaction extends Component {
         ? filterList.find(i => i.filterKey === 'customerName')
         : [];
     const customerNameInfos = arr7 && arr7.customerNameOptions;
-    
+
     let cType = '';
     // let types = '';
 
@@ -207,7 +221,6 @@ class ScheduleTransaction extends Component {
     const scheduleDesc = getFieldValue('scheduleDesc');
     const monthlyExecuteDay = getFieldValue('monthlyExecuteDay');
     const reportTypeVal = getFieldValue('reportType');
-    const categoryTypeVal = getFieldValue('categoryType');
 
     form.validateFields((errors, values) => {
       if (errors) {
@@ -319,7 +332,10 @@ class ScheduleTransaction extends Component {
                 checkCustomerGroupValue &&
                 checkCustomerGroupValue.length > 0
               ) {
-                value = checkCustomerGroupValue;
+                const list = customerOptionsVal.filter(ii =>
+                  checkCustomerGroupValue.includes(ii.dictName)
+                );
+                value = list.map(i => i.dictId);
               } else if (k === 'ageGroup' && checkAgeGroup && checkAgeGroup.length > 0) {
                 const list = ageGroupInfos.filter(ii => checkAgeGroup.includes(ii.name));
                 value = list && list.length > 0 && list.map(i => i.identifier);
@@ -364,7 +380,6 @@ class ScheduleTransaction extends Component {
         }
       });
 
-      
       const result = Object.entries(values).map(([key, value]) => {
         return { key, value };
       });
@@ -374,7 +389,7 @@ class ScheduleTransaction extends Component {
         return false;
       }
       if (cType === '03' && executeOnce) {
-        const diffTime = executeOnce.diff(moment(),'seconds');
+        const diffTime = executeOnce.diff(moment(), 'seconds');
         if (diffTime < 60 * 5) {
           message.warning('Generation Date Time has passed, please re-schedule to a later time.');
           return false;
@@ -660,7 +675,6 @@ class ScheduleTransaction extends Component {
   render() {
     const {
       displayLoading,
-      form: { getFieldDecorator },
       reportCenter: { fieldList, filterList, reportTypeList },
       // reportType,
       reportType2,
@@ -670,8 +684,9 @@ class ScheduleTransaction extends Component {
       editLoading,
       addLoading,
       configFilterLoadingFlag,
-      form: { getFieldValue },
+      form: { getFieldValue, getFieldDecorator },
     } = this.props;
+
     const cronTypes = getFieldValue('cronType');
 
     const rowSelection = {

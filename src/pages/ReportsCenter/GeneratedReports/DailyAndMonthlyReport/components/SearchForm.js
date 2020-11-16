@@ -173,7 +173,7 @@ class DailyMonthlySearchForm extends Component {
           reportTypes: reportTypeOptions
             ? reportTypeOptions.map(item => item.value).join(',')
             : undefined,
-          cronTypeList: "02,03",
+          cronTypeList: "01,02",
         },
       });
     }, 300);

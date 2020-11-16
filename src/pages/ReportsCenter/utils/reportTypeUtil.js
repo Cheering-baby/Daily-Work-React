@@ -111,3 +111,15 @@ export function sortListByReportTypeForCommon(reportType) {
   }
   return sortList;
 }
+
+export const reportViewList = [
+  'SalesIncentiveReport',
+  'AttendanceIncentiveReport',
+  'FixedCommissionReport',
+  'AttractionsSalesReport',
+  'ARAccountBalanceSummaryReport',
+  'E-WalletBalanceSummaryReport',
+  'ARAccountBalanceDetailReport',
+  'E-WalletAccountBalanceDetailReport',
+  'TaxInvoiceReport',
+];

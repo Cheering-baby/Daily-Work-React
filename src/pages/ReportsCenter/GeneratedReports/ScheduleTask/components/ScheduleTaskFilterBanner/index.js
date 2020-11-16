@@ -7,7 +7,7 @@ import {
   EMPTY_ARR,
   PAGE_SIZE,
 } from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/consts/common';
-import styles from "./index.less";
+import styles from './index.less';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;

@@ -122,7 +122,7 @@ const ScheduleTaskTable = ({
             <Tooltip placement="top" title="Edit Task">
               <Icon
                 type="edit"
-                className={(banFlag || adhocFlag) ? styles.ban : undefined}
+                className={banFlag || adhocFlag ? styles.ban : undefined}
                 onClick={() => {
                   if (banFlag || adhocFlag) return;
                   editTask(row);

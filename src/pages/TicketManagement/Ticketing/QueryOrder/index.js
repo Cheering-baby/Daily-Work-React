@@ -258,7 +258,6 @@ class QueryOrder extends Component {
       },
       queryOrderMgr: { searchConditions },
     } = this.props;
-
     if (orderNo) {
       dispatch({
         type: 'queryOrderMgr/save',
@@ -271,6 +270,20 @@ class QueryOrder extends Component {
       });
       dispatch({
         type: 'queryOrderMgr/queryTransactions',
+      }).then(() => {
+        const {
+          queryOrderMgr: { transactionList },
+        } = this.props;
+        const findIndex =
+          transactionList && transactionList.findIndex(i => i.bookingNo === orderNo);
+        if(findIndex !== undefined){
+          dispatch({
+            type: 'queryOrderMgr/save',
+            payload: {
+              selectedRowKeys: [findIndex],
+            },
+          });
+        }
       });
     } else {
       dispatch({
@@ -843,7 +856,7 @@ class QueryOrder extends Component {
       if (transType === 'refund' && status === 'Confirmed') {
         return false;
       }
-      if (transType === 'revalidation' && status === 'Confirmed' ) {
+      if (transType === 'revalidation' && status === 'Confirmed') {
         return false;
       }
     }

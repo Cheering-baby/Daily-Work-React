@@ -184,7 +184,7 @@ class ADHocReportSearchForm extends Component {
           reportTypes: reportTypeOptions
             ? reportTypeOptions.map(item => item.value).join(',')
             : undefined,
-          cronTypeList: "01",
+          cronTypeList: "03",
         },
       });
     }, 300);

@@ -258,7 +258,7 @@ class MyWallet extends React.PureComponent {
                 onClick={() => {
                   if (text) {
                     router.push(
-                      `/TicketManagement/Ticketing/QueryOrder?backFlag=payment&orderNo=${text}`
+                      `/TicketManagement/Ticketing/QueryOrder?backFlag=payment&orderNo=${text}&checked=true`
                     );
                   }
                 }}

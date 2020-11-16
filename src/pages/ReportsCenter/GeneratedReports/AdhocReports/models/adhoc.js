@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash';
 import * as service from '../services/adhoc';
-import {privilege, REPORT_TYPE_MAP2} from "../../ScheduleTask/consts/authority";
+import { privilege, REPORT_TYPE_MAP2 } from '../../ScheduleTask/consts/authority';
 import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
 
 export default {
@@ -195,7 +195,7 @@ export default {
     },
 
     *tableChanged({ payload }, { put }) {
-      const { reportTypes } = payload
+      const { reportTypes } = payload;
       yield put({
         type: 'save',
         payload,
@@ -204,8 +204,8 @@ export default {
       yield put({
         type: 'fetch',
         payload: {
-          reportTypes
-        }
+          reportTypes,
+        },
       });
     },
   },

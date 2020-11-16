@@ -1,6 +1,24 @@
 import { message } from 'antd';
 import * as service from '../services/report';
-import { renderContent } from '../components/BasicTableBanner';
+
+const renderContent = (text = '', formatType = '') => {
+  if (!text) {
+    return '';
+  }
+
+  if (formatType && formatType === 'money') {
+    const value = Number.parseFloat(text.replace(/,/g, ''));
+    if (Number.isNaN(value)) {
+      return text;
+    }
+    if (value >= 0) {
+      return value;
+    }
+    return `(${Math.abs(value)})`;
+  }
+
+  return text;
+};
 
 export default {
   namespace: 'downloadAdHocReport',
@@ -36,7 +54,7 @@ export default {
         descend: 'DESC',
       };
       if (sortList && sortList.length > 0) {
-        sortList.map(v => {
+        sortList.forEach(v => {
           const orderBy2 = sortValueMap[v.value];
           Object.assign(v, {
             value: orderBy2,
@@ -64,13 +82,15 @@ export default {
           pageInfo: { currentPage, pageSize, totalSize },
           dataList,
           column,
+          columnType = {},
         } = data;
+
         const keys = Object.keys(column);
         const columns = keys.map(item => ({
           key: item,
           title: column[item],
           dataIndex: item,
-          render: renderContent,
+          render: text => renderContent(text, columnType[item]),
           sorter: true,
         }));
         yield put({
