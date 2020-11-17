@@ -12,6 +12,7 @@ export function sortListByReportTypeForPreview(reportType) {
       break;
     case 'ARAccountBalanceSummaryReport':
       sortList = [
+        { key: 'customerName', value: 'ascend' },
         { key: 'transactionDate', value: 'ascend' },
       ];
       break;
@@ -22,7 +23,10 @@ export function sortListByReportTypeForPreview(reportType) {
       ];
       break;
     case 'ARAccountBalanceDetailReport':
-      sortList = [{ key: 'transactionDate', value: 'ascend' }];
+      sortList = [
+        { key: 'transactionDate', value: 'ascend' },
+        { key: 'invoiceDate', value: 'ascend' }
+      ];
       break;
     case 'E-WalletAccountBalanceDetailReport':
       sortList = [{ key: 'transactionDate', value: 'ascend' }];
@@ -47,7 +51,7 @@ export function sortListByReportTypeForPreview(reportType) {
       break;
     case 'BuyerCreatedTaxInvoiceReport':
       sortList = [{ key: 'bciTaxInvoiceDate', value: 'ascend' }];
-      break;
+      break; 
     default:
       break;
   }
@@ -68,6 +72,7 @@ export function sortListByReportTypeForCommon(reportType) {
       break;
     case 'ARAccountBalanceSummaryReport':
       sortList = [
+        { key: 'customerName', value: 'ASC' },
         { key: 'transactionDate', value: 'ASC' },
       ];
       break;
@@ -78,7 +83,10 @@ export function sortListByReportTypeForCommon(reportType) {
       ];
       break;
     case 'ARAccountBalanceDetailReport':
-      sortList = [{ key: 'transactionDate', value: 'ASC' }];
+      sortList = [
+        { key: 'transactionDate', value: 'ASC' },
+        { key: 'invoiceDate', value: 'ASC' }
+      ];
       break;
     case 'E-WalletAccountBalanceDetailReport':
       sortList = [{ key: 'transactionDate', value: 'ASC' }];
