@@ -60,7 +60,7 @@ const DetailForTaFinanceContact = props => {
               {getTelStr(countryList, financeInfoOne.country, financeInfoOne.contactNo)}
             </Descriptions.Item>
             <Descriptions.Item label={formatMessage({ id: 'TA_FINANCE_PRIMARY_CONTACT_EMAIL' })}>
-              {!isNvl(financeInfoTwo.contactEmail) ? financeInfoTwo.contactEmail : '-'}
+              {!isNvl(financeInfoOne.contactEmail) ? financeInfoOne.contactEmail : '-'}
             </Descriptions.Item>
           </Descriptions>
         </Col>

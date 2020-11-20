@@ -628,7 +628,7 @@ class TAFinanceContactToFrom extends PureComponent {
                     : null,
                   rules: [
                     {
-                      required: isAllInformationToRws || false,
+                      required: !isAllDisabled || false ,
                       message: formatMessage({ id: 'REQUIRED' }),
                     },
                     {
@@ -658,7 +658,7 @@ class TAFinanceContactToFrom extends PureComponent {
                       )
                     }
                     style={{ width: '100%' }}
-                    disabled={isMappingDisabled}
+                    disabled={isAllDisabled}
                   />
                 )}
               </Form.Item>
@@ -675,7 +675,7 @@ class TAFinanceContactToFrom extends PureComponent {
                     : null,
                   rules: [
                     {
-                      required: isAllInformationToRws || false,
+                      required: !isMappingDisabled || false,
                       message: formatMessage({ id: 'REQUIRED' }),
                     },
                     {

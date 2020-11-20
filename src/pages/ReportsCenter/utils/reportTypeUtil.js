@@ -29,7 +29,10 @@ export function sortListByReportTypeForPreview(reportType) {
       ];
       break;
     case 'E-WalletAccountBalanceDetailReport':
-      sortList = [{ key: 'transactionDate', value: 'ascend' }];
+      sortList = [
+        { key: 'transactionDate', value: 'ascend' },
+        { key: 'invoiceDate', value: 'ascend' }
+      ];
       break;
     case 'DetailedTransactionReport':
       sortList = [{ key: 'transactionDate', value: 'ascend' }];
@@ -89,7 +92,10 @@ export function sortListByReportTypeForCommon(reportType) {
       ];
       break;
     case 'E-WalletAccountBalanceDetailReport':
-      sortList = [{ key: 'transactionDate', value: 'ASC' }];
+      sortList = [
+        { key: 'transactionDate', value: 'ASC' },
+        { key: 'invoiceDate', value: 'ASC' }
+      ];
       break;
     case 'DetailedTransactionReport':
       sortList = [{ key: 'transactionDate', value: 'ASC' }];
