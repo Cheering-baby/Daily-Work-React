@@ -1,9 +1,31 @@
 import { Badge, Dropdown, Icon, Menu, Row, Table, Tooltip } from 'antd';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Resizable } from 'react-resizable';
 import styles from './index.less';
 import { PAGE_SIZE } from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/consts/common';
 import ResponsivePagination from '@/components/ResponsivePagination';
 import STATUS_COLOR_MAP from '@/pages/ReportsCenter/GeneratedReports/ScheduleTask/consts/scheduleTaskStatus';
+
+const ResizeableTitle = props => {
+  const {  setResize, onResize, width, ...restProps } = props;
+
+  if (!width) {
+    return <th {...restProps} />;
+  }
+
+  return (
+    <Resizable
+      width={width}
+      height={0}
+      onResize={onResize}
+      draggableOpts={{ enableUserSelectHack: false }}
+      onResizeStart={() => setResize(true)}
+      onResizeStop={() => setResize(false)}
+    >
+      <th {...restProps} />
+    </Resizable>
+  );
+};
 
 export const ScheduleTaskStatusBadge = ({ status }) => {
   const backgroundColor = useMemo(() => STATUS_COLOR_MAP[status], [status]);
@@ -53,11 +75,12 @@ const ScheduleTaskTable = ({
     </Menu>
   );
 
-  const columns = [
+  const columnsInitial = [
     {
       key: 'no',
       title: 'No.',
       dataIndex: 'no',
+      width: 50,
       render: (text, row, index) => index + (currentPage - 1) * pageSize + 1,
     },
     {
@@ -66,6 +89,7 @@ const ScheduleTaskTable = ({
       dataIndex: 'scheduleReportName',
       sorter: true,
       className: styles.reportNameColumn,
+      width: 150,
     },
     {
       key: 'reportType',
@@ -73,12 +97,14 @@ const ScheduleTaskTable = ({
       dataIndex: 'reportType',
       sorter: true,
       className: styles.reportNameColumn,
+      width: 100,
     },
     {
       key: 'cronType',
       title: 'Report Frequency',
       dataIndex: 'cronType',
       sorter: true,
+      width: 120,
       render: renderContent,
     },
     {
@@ -86,6 +112,7 @@ const ScheduleTaskTable = ({
       title: 'Last Modified By',
       dataIndex: 'updateBy',
       sorter: true,
+      width: 120,
       render: renderContent,
     },
     {
@@ -93,6 +120,7 @@ const ScheduleTaskTable = ({
       title: 'Scheduled Date Time',
       dataIndex: 'generationDateTime',
       sorter: true,
+      width: 150,
       render: renderContent,
     },
     {
@@ -100,12 +128,14 @@ const ScheduleTaskTable = ({
       title: 'Status',
       dataIndex: 'status',
       sorter: true,
+      width: 80,
       render: text => <ScheduleTaskStatusBadge status={text} />,
     },
     {
       key: 'operation',
       title: 'Operation',
       dataIndex: 'operation',
+      width: 100,
       render: (text, row) => {
         const banFlag = row.status === 'Inactive';
         const adhocFlag = row.cronType === 'Ad-hoc' && row.status !== 'Pending';
@@ -138,24 +168,52 @@ const ScheduleTaskTable = ({
     },
   ];
 
+  const [columns, setColumns] = useState(columnsInitial);
+  const [resize, setResize] = useState(false);
+  const components = {
+    header: {
+      cell: ResizeableTitle,
+    },
+  };
+  const handleResize = index => (e, { size }) => {
+    const nextColumns = [...columns];
+    nextColumns[index] = {
+      ...nextColumns[index],
+      width: size.width,
+    };
+    setColumns(nextColumns);
+  };
+
+  const columnsResize = columns.map((col, index) => ({
+    ...col,
+    onHeaderCell: column => ({
+      width: column.width,
+      setResize: (value) => setResize(value),
+      onResize: handleResize(index),
+    }),
+  }));
+
   return (
     <>
       <Row style={{ marginTop: '10px' }}>
         <Table
           bordered
           size="small"
-          columns={columns}
+          columns={columnsResize}
           dataSource={dataList}
-          scroll={{ x: true }}
+          scroll={{ x: 970 }}
           onChange={(pagination, filters, sorter) => {
-            dispatch({
-              type: 'scheduleTask/fetchScheduleTaskLogList',
-              payload: { sortOptions: { [sorter.field]: sorter.order } },
-            });
+            if (!resize) {
+              dispatch({
+                type: 'scheduleTask/fetchScheduleTaskLogList',
+                payload: { sortOptions: { [sorter.field]: sorter.order } },
+              });
+            }
           }}
           pagination={false}
-          className={styles.tableStyles}
+          className={`${styles.tableStyles} ${resize ? styles.resize : null}`}
           rowKey={r => r.key}
+          components={components}
         />
       </Row>
       <Row style={{ marginTop: '10px', textAlign: 'right' }}>
