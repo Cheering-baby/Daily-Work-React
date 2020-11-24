@@ -40,6 +40,9 @@ export default {
     },
     grantOfferList: [],
     checkedListLength: '',
+    searchType: false,
+    searchCheckList: [],
+    searchVal: undefined,
   },
   effects: {
     *effectSave({ payload }, { put }) {
@@ -185,6 +188,7 @@ export default {
         subBindingList.push({
           bindingId: checkedList[i].bindingId,
           bindingType: 'Offer',
+          operationType: 'A',
         });
       }
       const reqParams = {
@@ -395,24 +399,26 @@ export default {
     },
     changePage(state, { payload }) {
       const {
+        searchType,
         grantPagination: { currentPage, pageSize },
       } = state;
-      const { checkedList } = payload;
+      const { checkedList, searchCheckList = [] } = payload;
       const displayGrantOfferList = [];
-      if (currentPage * pageSize < checkedList.length) {
+      const targetList = searchType ? searchCheckList : checkedList;
+      if (currentPage * pageSize < targetList.length) {
         for (let i = (currentPage - 1) * pageSize; i < currentPage * pageSize; i += 1) {
-          displayGrantOfferList.push(checkedList[i]);
+          displayGrantOfferList.push(targetList[i]);
         }
       } else {
-        for (let i = (currentPage - 1) * pageSize; i < checkedList.length; i += 1) {
-          displayGrantOfferList.push(checkedList[i]);
+        for (let i = (currentPage - 1) * pageSize; i < targetList.length; i += 1) {
+          displayGrantOfferList.push(targetList[i]);
         }
       }
-
       return {
         ...state,
         displayGrantOfferList,
         checkedList,
+        searchCheckList,
       };
     },
     resetAddOffer(state) {
@@ -469,6 +475,9 @@ export default {
         selectedRowKeys: [],
         filter: {},
         grantOfferList: [],
+        searchType: false,
+        searchCheckList: [],
+        searchVal: undefined,
       };
     },
   },

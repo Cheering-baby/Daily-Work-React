@@ -138,6 +138,8 @@ class AddOfferModal extends React.PureComponent {
       payload: {
         checkedList,
         displayGrantOfferList,
+        searchVal: undefined,
+        searchType: false,
       },
     });
     this.cancel();

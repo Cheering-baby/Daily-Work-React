@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip, Button, Input, Col, Row, Table, Card, Icon, message, Popover } from 'antd';
+import { Tooltip, Button, Input, Col, Row, Table, Card, Icon, message, Popover, Spin } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import router from 'umi/router';
@@ -183,6 +183,8 @@ class NewGrant extends React.PureComponent {
       grant: {
         checkedList,
         grantPagination: { currentPage, pageSize },
+        searchType,
+        searchCheckList,
       },
       dispatch,
     } = this.props;
@@ -190,7 +192,12 @@ class NewGrant extends React.PureComponent {
       const { bindingId } = item;
       return bindingId !== record.bindingId;
     });
-    if ((currentPage - 1) * pageSize >= filterCheckedList.length && currentPage > 1) {
+    const filterSearchCheckList = searchCheckList.filter(item => {
+      const { bindingId } = item;
+      return bindingId !== record.bindingId;
+    });
+    const targetList = searchType ? filterSearchCheckList : filterCheckedList;
+    if ((currentPage - 1) * pageSize >= targetList.length && currentPage > 1) {
       dispatch({
         type: 'grant/effectSave',
         payload: {
@@ -205,6 +212,7 @@ class NewGrant extends React.PureComponent {
             type: 'grant/changePage',
             payload: {
               checkedList: filterCheckedList,
+              searchCheckList: filterSearchCheckList,
             },
           });
         }, 500);
@@ -214,6 +222,7 @@ class NewGrant extends React.PureComponent {
         type: 'grant/changePage',
         payload: {
           checkedList: filterCheckedList,
+          searchCheckList: filterSearchCheckList,
         },
       });
     }
@@ -507,6 +516,8 @@ class NewGrant extends React.PureComponent {
     //   }
     // }
 
+
+
     dispatch({
       type: 'grant/add',
       payload: {
@@ -596,20 +607,49 @@ class NewGrant extends React.PureComponent {
       location: {
         query: { taIdList },
       },
+      grant: { checkedList },
     } = this.props;
     const newTaIdList = taIdList.split(',');
     if (newTaIdList.length === 1) {
+      const val = value.trim();
       dispatch({
-        type: 'grant/searchOffer',
+        type: 'grant/save',
         payload: {
-          agentId: newTaIdList[0],
-          filter: {
-            likeParam: value.trim(),
-          },
+          searchType: true,
+        },
+      });
+      let searchCheckList = [];
+      searchCheckList = checkedList.filter(
+        ({ bindingIdentifier, bindingName, bindingDescription }) =>
+          (bindingIdentifier && bindingIdentifier.toLowerCase().indexOf(val.toLowerCase()) >= 0) ||
+          (bindingName && bindingName.toLowerCase().indexOf(val.toLowerCase()) >= 0) ||
+          (bindingDescription && bindingDescription.toLowerCase().indexOf(val.toLowerCase()) >= 0)
+      );
+      const displayGrantOfferList = searchCheckList.filter((_, index) => index <= 9);
+      dispatch({
+        type: 'grant/save',
+        payload: {
+          searchType: true,
+          searchCheckList,
+          displayGrantOfferList,
+          grantPagination: {
+            currentPage: 1,
+            pageSize: 10,
+          }
         },
       });
     }
   };
+
+  searchSearchValue = e => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'grant/save',
+      payload: {
+        searchVal: e.target.value,
+      },
+    });
+  }
 
   render() {
     const {
@@ -621,6 +661,9 @@ class NewGrant extends React.PureComponent {
         grantPagination,
         displayGrantOfferList = [],
         subPLUList = [],
+        searchType,
+        searchCheckList,
+        searchVal,
       },
       location: {
         query: { taLength },
@@ -643,7 +686,7 @@ class NewGrant extends React.PureComponent {
       },
     ];
     const pageOpts = {
-      total: checkedList.length,
+      total: searchType ? searchCheckList.length : checkedList.length,
       current: currentPage,
       pageSize: nowPageSize,
       pageChange: (page, pageSize) => {
@@ -662,6 +705,7 @@ class NewGrant extends React.PureComponent {
               type: 'grant/changePage',
               payload: {
                 checkedList,
+                searchCheckList,
               },
             });
           }, 500);
@@ -670,79 +714,82 @@ class NewGrant extends React.PureComponent {
     };
 
     return (
-      <div>
-        <MediaQuery
-          maxWidth={SCREEN.screenMdMax}
-          minWidth={SCREEN.screenSmMin}
-          minHeight={SCREEN.screenSmMin}
-        >
-          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-        </MediaQuery>
-        <MediaQuery minWidth={SCREEN.screenLgMin}>
-          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
-        </MediaQuery>
-        <Card
-          className={styles.cardClass}
-          // title={<div className={styles.DetailTitle}>{formatMessage({ id: 'NEW_GRANT' })}</div>}
-        >
-          <div style={{ padding: 15 }}>
-            <Row style={{ padding: '10px 10px 0' }}>
-              <Col className={styles.DetailTitle} xs={12} sm={12} md={18}>
-                {taLength === 1
-                  ? formatMessage({ id: 'NEW_GRANT_OFFER' })
-                  : formatMessage({ id: 'NEW_GRANT' })}
-              </Col>
-              {taLength === 1 ? (
-                <Col xs={12} sm={12} md={6}>
-                  <Search
-                    placeholder="Search(Identifier/Name/Description)"
-                    allowClear
-                    onSearch={this.search}
-                    // onChange={this.searchReportType}
-                  />
+      <Spin spinning={!!loading}>
+        <div>
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <Card
+            className={styles.cardClass}
+            // title={<div className={styles.DetailTitle}>{formatMessage({ id: 'NEW_GRANT' })}</div>}
+          >
+            <div style={{ padding: 15 }}>
+              <Row style={{ padding: '10px 10px 0' }}>
+                <Col className={styles.DetailTitle} xs={12} sm={12} md={18}>
+                  {taLength === 1
+                    ? formatMessage({ id: 'NEW_GRANT_OFFER' })
+                    : formatMessage({ id: 'NEW_GRANT' })}
                 </Col>
-              ) : null}
-            </Row>
-            <Row style={{ marginBottom: 40 }}>
-              <Col span={24}>
-                <Table
-                  size="small"
-                  dataSource={[
-                    {
-                      key: 'addOption',
-                      bindingName: <a onClick={() => this.add()}>+ Add</a>,
-                    },
-                  ].concat(displayGrantOfferList)}
-                  columns={this.columns}
-                  className={`tabs-no-padding ${styles.searchTitle}`}
-                  rowClassName={(_, index) => (index === 0 ? styles.hideIcon : undefined)}
-                  pagination={false}
-                  loading={loading}
-                  expandedRowRender={record =>
-                    this.expandedRowRender(record, subPLUList, pluLoading)
-                  }
-                  onExpand={(_, record) => this.openRow(record, subPLUList)}
-                />
-                <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
-              </Col>
-            </Row>
-            {addOfferModal ? <AddOfferModal /> : null}
-            <div className={styles.operateButtonDivStyle}>
-              <Button
-                style={{ marginRight: 8 }}
-                onClick={() => {
-                  this.cancel();
-                }}
-              >
-                {formatMessage({ id: 'COMMON_CANCEL' })}
-              </Button>
-              <Button style={{ width: 60 }} onClick={this.handleSubmit} type="primary">
-                {formatMessage({ id: 'COMMON_OK' })}
-              </Button>
+                {taLength === 1 ? (
+                  <Col xs={12} sm={12} md={6}>
+                    <Search
+                      placeholder="Search(Identifier/Name/Description)"
+                      allowClear
+                      onSearch={this.search}
+                      value={searchVal}
+                      onChange={this.searchSearchValue}
+                    />
+                  </Col>
+                ) : null}
+              </Row>
+              <Row style={{ marginBottom: 40 }}>
+                <Col span={24}>
+                  <Table
+                    size="small"
+                    dataSource={[
+                      {
+                        key: 'addOption',
+                        bindingName: <a onClick={() => this.add()}>+ Add</a>,
+                      },
+                    ].concat(displayGrantOfferList)}
+                    columns={this.columns}
+                    className={`tabs-no-padding ${styles.searchTitle}`}
+                    rowClassName={(_, index) => (index === 0 ? styles.hideIcon : undefined)}
+                    pagination={false}
+                    // loading={loading}
+                    expandedRowRender={record =>
+                      this.expandedRowRender(record, subPLUList, pluLoading)
+                    }
+                    onExpand={(_, record) => this.openRow(record, subPLUList)}
+                  />
+                  <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
+                </Col>
+              </Row>
+              {addOfferModal ? <AddOfferModal /> : null}
+              <div className={styles.operateButtonDivStyle}>
+                <Button
+                  style={{ marginRight: 8 }}
+                  onClick={() => {
+                    this.cancel();
+                  }}
+                >
+                  {formatMessage({ id: 'COMMON_CANCEL' })}
+                </Button>
+                <Button style={{ width: 60 }} onClick={this.handleSubmit} type="primary">
+                  {formatMessage({ id: 'COMMON_OK' })}
+                </Button>
+              </div>
             </div>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
+      </Spin>
     );
   }
 }
