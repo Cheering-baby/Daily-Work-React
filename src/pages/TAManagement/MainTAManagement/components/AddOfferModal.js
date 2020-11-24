@@ -140,6 +140,7 @@ class AddOfferModal extends React.PureComponent {
         displayGrantOfferList,
         searchVal: undefined,
         searchType: false,
+        expandedRowKeys: [],
       },
     });
     this.cancel();

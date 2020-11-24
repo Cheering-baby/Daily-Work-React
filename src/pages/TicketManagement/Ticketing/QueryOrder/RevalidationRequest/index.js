@@ -190,9 +190,9 @@ class RevalidationRequest extends Component {
     });
   };
 
-  disabledCollectionDate = (current, orderCreateTime) => {
+  disabledCollectionDate = (current, newVisitDate) => {
     return (
-      current && current < moment(orderCreateTime.substring(0, 10), 'YYYY-MM-DD').add(3, 'days')
+      current && current >= moment(newVisitDate, 'YYYY-MM-DD').endOf('day')
     );
   };
 
@@ -456,7 +456,7 @@ class RevalidationRequest extends Component {
     const {
       tableLoading,
       pageLoading,
-      form: { getFieldDecorator, setFieldsValue },
+      form: { getFieldDecorator, setFieldsValue, getFieldValue },
       revalidationRequestMgr: {
         orderCreateTime,
         deliveryMode,
@@ -564,34 +564,6 @@ class RevalidationRequest extends Component {
                       )}
                     </FormItem>
                   </Col>
-                  {deliveryMode === 'BOCA' ? (
-                    <Col md={24} lg={8}>
-                      <FormItem
-                        label={
-                          <span className={styles.formLabelStyle}>
-                            {formatMessage({ id: 'COLLECTION_DATE' })}
-                          </span>
-                        }
-                        {...formLayout}
-                      >
-                        {getFieldDecorator('collectionDate', {
-                          rules: [{ required: true, message: 'Required' }],
-                          initialValue: this.showCollectionDate(collectionDate),
-                        })(
-                          <DatePicker
-                            allowClear
-                            placeholder="Please Select"
-                            className={styles.selectStyle}
-                            format="DD-MMM-YYYY"
-                            disabledDate={current =>
-                              this.disabledCollectionDate(current, orderCreateTime)
-                            }
-                            onChange={this.collectionDateChange}
-                          />
-                        )}
-                      </FormItem>
-                    </Col>
-                  ) : null}
                   <Col md={24} lg={8}>
                     <FormItem
                       label={
@@ -614,6 +586,35 @@ class RevalidationRequest extends Component {
                       )}
                     </FormItem>
                   </Col>
+                  {deliveryMode === 'BOCA' && (
+                    <Col md={24} lg={8}>
+                      <FormItem
+                        label={
+                          <span className={styles.formLabelStyle}>
+                            {formatMessage({ id: 'COLLECTION_DATE' })}
+                          </span>
+                        }
+                        {...formLayout}
+                      >
+                        {getFieldDecorator('collectionDate', {
+                          rules: [{ required: true, message: 'Required' }],
+                          initialValue: this.showCollectionDate(collectionDate),
+                        })(
+                          <DatePicker
+                            allowClear
+                            placeholder="Please Select"
+                            className={styles.selectStyle}
+                            format="DD-MMM-YYYY"
+                            disabled={!getFieldValue('newVisitDate')}
+                            disabledDate={current =>
+                              this.disabledCollectionDate(current, getFieldValue('newVisitDate'))
+                            }
+                            onChange={this.collectionDateChange}
+                          />
+                        )}
+                      </FormItem>
+                    </Col>
+                  )}
                   <Col md={24} lg={8}>
                     <FormItem
                       label={

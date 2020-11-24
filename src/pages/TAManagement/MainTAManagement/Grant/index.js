@@ -516,8 +516,6 @@ class NewGrant extends React.PureComponent {
     //   }
     // }
 
-
-
     dispatch({
       type: 'grant/add',
       payload: {
@@ -533,15 +531,30 @@ class NewGrant extends React.PureComponent {
     });
   };
 
-  openRow = (record, subPLUList) => {
-    const { dispatch } = this.props;
+  openRow = (expanded, record, subPLUList) => {
+    const {
+      dispatch,
+      grant: { expandedRowKeys },
+    } = this.props;
     const { bindingId } = record;
     let flag = true;
+    let newExpandEdRowKeys = JSON.parse(JSON.stringify(expandedRowKeys));
+    if (expanded) {
+      newExpandEdRowKeys.push(record.bindingId);
+    } else {
+      newExpandEdRowKeys = newExpandEdRowKeys.filter(i => i !== record.bindingId);
+    }
     for (let i = 0; i < subPLUList.length; i += 1) {
       if (subPLUList[i].commoditySpecId === bindingId) {
         flag = false;
       }
     }
+    dispatch({
+      type: 'grant/save',
+      payload: {
+        expandedRowKeys: newExpandEdRowKeys,
+      },
+    });
     if (flag) {
       dispatch({
         type: 'grant/queryCommodityBindingList',
@@ -632,10 +645,11 @@ class NewGrant extends React.PureComponent {
           searchType: true,
           searchCheckList,
           displayGrantOfferList,
+          expandedRowKeys: [],
           grantPagination: {
             currentPage: 1,
             pageSize: 10,
-          }
+          },
         },
       });
     }
@@ -649,7 +663,7 @@ class NewGrant extends React.PureComponent {
         searchVal: e.target.value,
       },
     });
-  }
+  };
 
   render() {
     const {
@@ -664,6 +678,7 @@ class NewGrant extends React.PureComponent {
         searchType,
         searchCheckList,
         searchVal,
+        expandedRowKeys,
       },
       location: {
         query: { taLength },
@@ -764,10 +779,12 @@ class NewGrant extends React.PureComponent {
                     rowClassName={(_, index) => (index === 0 ? styles.hideIcon : undefined)}
                     pagination={false}
                     // loading={loading}
+                    rowKey={i => i.bindingId}
+                    expandedRowKeys={expandedRowKeys}
                     expandedRowRender={record =>
                       this.expandedRowRender(record, subPLUList, pluLoading)
                     }
-                    onExpand={(_, record) => this.openRow(record, subPLUList)}
+                    onExpand={(expanded, record) => this.openRow(expanded, record, subPLUList)}
                   />
                   <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
                 </Col>

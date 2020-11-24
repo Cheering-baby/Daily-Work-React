@@ -419,6 +419,7 @@ export default {
         displayGrantOfferList,
         checkedList,
         searchCheckList,
+        expandedRowKeys: [],
       };
     },
     resetAddOffer(state) {
