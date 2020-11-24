@@ -2,10 +2,11 @@ import React from 'react';
 import { Divider, Drawer, Form, Icon, Popover, Spin, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { sortArray , sessionTimeToWholeDay } from '@/pages/TicketManagement/utils/utils';
+import { isNullOrUndefined } from 'util';
+import moment from 'moment';
+import { sortArray, sessionTimeToWholeDay } from '@/pages/TicketManagement/utils/utils';
 import styles from './index.less';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
-import moment from 'moment';
 
 const FormItem = Form.Item;
 
@@ -113,7 +114,7 @@ class Detail extends React.Component {
     },
     {
       title: (
-        <span className={styles.tableTitle}>{`${formatMessage({ id: 'OFFER_NAME' })  }123`}</span>
+        <span className={styles.tableTitle}>{`${formatMessage({ id: 'OFFER_NAME' })}123`}</span>
       ),
       width: '15%',
       dataIndex: 'offerName',
@@ -422,15 +423,18 @@ class Detail extends React.Component {
     let userRolesStr = '-';
     let transTypeStr = 'booking';
     let refundAmountStr = 0;
+    let detailStatus = '-';
+    let confirmedVisitDate = null;
     const { orderSourceChannel, externalOrderNo } = bookingDetail || {};
     if (bookingDetail) {
-      const { approveBy, paymentMode } = bookingDetail;
+      const { approveBy, paymentMode, status } = bookingDetail;
       approveByStr = approveBy;
       if (paymentMode === 'eWallet') {
         paymentModeStr = 'e-Wallet';
       } else if (paymentMode === 'CreditCard') {
         paymentModeStr = 'Credit Card';
       }
+      detailStatus = status;
 
       bookingDetail.offers.forEach(offerItem => {
         if (offerItem.deliveryInfo) {
@@ -450,6 +454,19 @@ class Detail extends React.Component {
       }
       transTypeStr = bookingDetail.transType;
       refundAmountStr = bookingDetail.refundAmount;
+    }
+
+    if (revalidationVidList.length > 0) {
+      for (let i = 0; i < revalidationVidList.length; i += 1) {
+        if (isNullOrUndefined(confirmedVisitDate)) {
+          if (
+            revalidationVidList[i].validFrom !== '' &&
+            revalidationVidList[i].validFrom !== null
+          ) {
+            confirmedVisitDate = moment(revalidationVidList[i].validFrom).format('DD-MMM-YYYY');
+          }
+        }
+      }
     }
 
     if (detailType !== 'Revalidation' && detailType !== 'Refund') {
@@ -681,7 +698,7 @@ class Detail extends React.Component {
                 </FormItem>
               </div>
             )}
-            {(userType === '02' || userType === '01') && (
+            {transTypeStr !== 'revalidation' && (userType === '02' || userType === '01') && (
               <FormItem
                 label={
                   <span className={styles.drawerTitleStyle}>
@@ -704,6 +721,25 @@ class Detail extends React.Component {
                   <span className={styles.drawerTitleStyle}>
                     {`$ ${String(Number(netAmt).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`}
                   </span>
+                </Tooltip>
+              </FormItem>
+            )}
+            {transTypeStr === 'revalidation' && detailStatus === 'Complete' && (
+              <FormItem
+                label={
+                  <span className={styles.drawerTitleStyle}>
+                    {formatMessage({ id: 'CONFIRMED_VISIT_DATE' })}
+                  </span>
+                }
+                {...formLayout}
+              >
+                <Tooltip
+                  placement="topLeft"
+                  title={
+                    <span style={{ whiteSpace: 'pre-wrap' }}>{confirmedVisitDate || '-'}</span>
+                  }
+                >
+                  <span className={styles.drawerTitleStyle}>{confirmedVisitDate || '-'}</span>
                 </Tooltip>
               </FormItem>
             )}

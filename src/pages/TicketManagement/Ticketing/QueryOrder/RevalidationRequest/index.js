@@ -649,7 +649,7 @@ class RevalidationRequest extends Component {
             <Card>
               <Row>
                 <Col md={24} lg={12}>
-                  <Upload
+                  {/* <Upload
                     action=""
                     beforeUpload={file => this.getUploadProps(file, nowPageSize)}
                     showUploadList={false}
@@ -657,7 +657,7 @@ class RevalidationRequest extends Component {
                     <Button type="primary" style={{ marginRight: 10, marginBottom: 10 }}>
                       {formatMessage({ id: 'UPLOAD' })}
                     </Button>
-                  </Upload>
+                  </Upload> */}
                   <Search
                     allowClear
                     placeholder={formatMessage({ id: 'VID_CODE' })}

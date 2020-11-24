@@ -146,4 +146,5 @@ export default {
   REASON: 'Reason',
   NEW_VISIT_DATE: 'New Visit Date',
   TA_EMAIL: 'TA Email',
+  CONFIRMED_VISIT_DATE: 'CONFIRMED VISIT DATE',
 };

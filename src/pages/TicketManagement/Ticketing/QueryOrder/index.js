@@ -131,15 +131,24 @@ class QueryOrder extends Component {
       key: 'totalPrice',
       align: 'right',
       width: '150px',
-      render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span>
-            {!isNullOrUndefined(text)
-              ? `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
-              : text}
-          </span>
-        </Tooltip>
-      ),
+      render: (_, record) => {
+        const { totalPrice, transType } = record;
+        if (transType !== 'revalidation') {
+          return (
+            <Tooltip
+              placement="topLeft"
+              title={<span style={{ whiteSpace: 'pre-wrap' }}>{totalPrice}</span>}
+            >
+              <span>
+                {!isNullOrUndefined(totalPrice)
+                  ? `${String(Number(totalPrice).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+                  : totalPrice}
+              </span>
+            </Tooltip>
+          );
+        }
+        return null;
+      },
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'ORDER_DATE' })}</span>,
@@ -258,6 +267,7 @@ class QueryOrder extends Component {
       },
       queryOrderMgr: { searchConditions },
     } = this.props;
+
     if (orderNo) {
       dispatch({
         type: 'queryOrderMgr/save',
@@ -270,20 +280,6 @@ class QueryOrder extends Component {
       });
       dispatch({
         type: 'queryOrderMgr/queryTransactions',
-      }).then(() => {
-        const {
-          queryOrderMgr: { transactionList },
-        } = this.props;
-        const findIndex =
-          transactionList && transactionList.findIndex(i => i.bookingNo === orderNo);
-        if(findIndex !== undefined){
-          dispatch({
-            type: 'queryOrderMgr/save',
-            payload: {
-              selectedRowKeys: [findIndex],
-            },
-          });
-        }
       });
     } else {
       dispatch({
@@ -418,7 +414,7 @@ class QueryOrder extends Component {
   };
 
   expandedRowRender = (record, userType) => {
-    const { offInstances, productInstances } = record;
+    const { offInstances, productInstances, transType } = record;
     if (productInstances.length === 0) {
       return null;
     }
@@ -475,7 +471,7 @@ class QueryOrder extends Component {
         dataIndex: 'totalAmount',
         align: 'right',
         render: text => {
-          if (text !== null) {
+          if (text !== null && transType !== 'revalidation') {
             return `${String(Number(text).toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
           }
           return '';

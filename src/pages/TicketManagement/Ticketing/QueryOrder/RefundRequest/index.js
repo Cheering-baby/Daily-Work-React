@@ -433,7 +433,7 @@ class RefundRequest extends Component {
             <Card>
               <Row>
                 <Col md={24} lg={18} className={styles.formContainer}>
-                  <Upload
+                  {/* <Upload
                     action=""
                     beforeUpload={file => this.getRefundUploadProps(file, nowPageSize)}
                     showUploadList={false}
@@ -441,7 +441,7 @@ class RefundRequest extends Component {
                     <Button type="primary" style={{ marginRight: 10, marginBottom: 10 }}>
                       {formatMessage({ id: 'UPLOAD' })}
                     </Button>
-                  </Upload>
+                  </Upload> */}
                   <Search
                     allowClear
                     placeholder={formatMessage({ id: 'VID_CODE' })}
