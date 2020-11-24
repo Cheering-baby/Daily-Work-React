@@ -76,6 +76,7 @@ export default {
               currentPage: Number(pageInfo.currentPage || '1'),
               pageSize: Number(pageInfo.pageSize || '10'),
             },
+            taSelectedRowKeys: [],
           },
         });
       } else message.warn(resultMsg, 10);
