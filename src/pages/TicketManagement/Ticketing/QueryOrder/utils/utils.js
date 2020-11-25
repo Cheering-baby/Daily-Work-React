@@ -102,3 +102,16 @@ export function checkVoucherByTicketOrByPackage(refundDolList, vidResultList) {
     }
   }
 }
+
+export function transferModeOfPayment(type) {
+  if (type && type.toUpperCase() === 'EWALLET') {
+    return 'e-Wallet';
+  }
+  if (type && type.toUpperCase() === 'CREDITCARD') {
+    return 'Credit Card';
+  }
+  if (type && type.toUpperCase() === 'AR') {
+    return 'AR';
+  }
+  return type;
+}

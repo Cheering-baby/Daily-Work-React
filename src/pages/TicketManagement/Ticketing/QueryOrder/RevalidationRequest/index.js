@@ -203,14 +203,15 @@ class RevalidationRequest extends Component {
     );
   };
 
-  disabledNewVisitDate = (current, deliveryMode) => {
+  disabledNewVisitDate = (current, deliveryMode, collectionDate) => {
     if (deliveryMode === 'BOCA') {
       return (
         current &&
-        current <
+        (current <
           moment()
             .startOf('day')
-            .add(3, 'd')
+            .add(3, 'd') ||
+          (collectionDate && current < moment(collectionDate, 'YYYY-MM-DD').startOf('day')))
       );
     }
     return current && current < moment().startOf('day');
@@ -600,7 +601,13 @@ class RevalidationRequest extends Component {
                           allowClear
                           placeholder="Please Select"
                           className={styles.selectStyle}
-                          disabledDate={current => this.disabledNewVisitDate(current, deliveryMode)}
+                          disabledDate={current =>
+                            this.disabledNewVisitDate(
+                              current,
+                              deliveryMode,
+                              getFieldValue('collectionDate')
+                            )
+                          }
                           format="DD-MMM-YYYY"
                         />
                       )}
@@ -627,10 +634,7 @@ class RevalidationRequest extends Component {
                             format="DD-MMM-YYYY"
                             disabled={!getFieldValue('newVisitDate')}
                             disabledDate={current =>
-                              this.disabledCollectionDate(
-                                current,
-                                getFieldValue('newVisitDate'),
-                              )
+                              this.disabledCollectionDate(current, getFieldValue('newVisitDate'))
                             }
                             onChange={this.collectionDateChange}
                           />

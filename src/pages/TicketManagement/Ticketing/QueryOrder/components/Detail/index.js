@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import { isNullOrUndefined } from 'util';
 import moment from 'moment';
 import { sortArray, sessionTimeToWholeDay } from '@/pages/TicketManagement/utils/utils';
+import { transferModeOfPayment } from '../../utils/utils';
 import styles from './index.less';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
 
@@ -418,7 +419,7 @@ class Detail extends React.Component {
     bookingDetail
   ) => {
     let deliveryModeStr = 'e-Ticket';
-    let paymentModeStr = 'AR';
+    let paymentModeStr = '';
     let approveByStr = '-';
     let userRolesStr = '-';
     let transTypeStr = 'booking';
@@ -429,13 +430,8 @@ class Detail extends React.Component {
     if (bookingDetail) {
       const { approveBy, paymentMode, status } = bookingDetail;
       approveByStr = approveBy;
-      if (paymentMode === 'eWallet') {
-        paymentModeStr = 'e-Wallet';
-      } else if (paymentMode === 'CreditCard') {
-        paymentModeStr = 'Credit Card';
-      }
+      paymentModeStr = transferModeOfPayment(paymentMode);
       detailStatus = status;
-
       bookingDetail.offers.forEach(offerItem => {
         if (offerItem.deliveryInfo) {
           deliveryModeStr = offerItem.deliveryInfo.deliveryMode;
