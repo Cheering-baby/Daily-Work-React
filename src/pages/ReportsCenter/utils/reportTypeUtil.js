@@ -5,10 +5,7 @@ export function sortListByReportTypeForPreview(reportType) {
       sortList = [{ key: 'orderOpenDate', value: 'ascend' }];
       break;
     case 'AttendanceIncentiveReport':
-      sortList = [
-        { key: 'orderOpenDate', value: 'ascend' },
-        { key: 'pamsBookingId', value: 'ascend' },
-      ];
+      sortList = [{ key: 'orderOpenDate', value: 'ascend' }];
       break;
     case 'FixedCommissionReport':
       sortList = [{ key: 'transactionDate', value: 'ascend' }];
@@ -28,13 +25,13 @@ export function sortListByReportTypeForPreview(reportType) {
     case 'ARAccountBalanceDetailReport':
       sortList = [
         { key: 'transactionDate', value: 'ascend' },
-        { key: 'invoiceDate', value: 'ascend' }
+        { key: 'invoiceDate', value: 'ascend' },
       ];
       break;
     case 'E-WalletAccountBalanceDetailReport':
       sortList = [
         { key: 'transactionDate', value: 'ascend' },
-        { key: 'invoiceDate', value: 'ascend' }
+        { key: 'invoiceDate', value: 'ascend' },
       ];
       break;
     case 'DetailedTransactionReport':
@@ -47,10 +44,7 @@ export function sortListByReportTypeForPreview(reportType) {
       sortList = [{ key: 'transactionDate', value: 'ascend' }];
       break;
     case 'AttractionsSalesReport':
-      sortList = [
-        { key: 'orderDate', value: 'ascend' },
-        { key: 'pamsBookingId', value: 'ascend' },
-      ];
+      sortList = [{ key: 'pamsBookingId', value: 'ascend' }];
       break;
     case 'TaxInvoiceReport':
       sortList = [{ key: 'invoiceDate', value: 'ascend' }];
@@ -63,7 +57,7 @@ export function sortListByReportTypeForPreview(reportType) {
       break;
     case 'BuyerCreatedTaxInvoiceReport':
       sortList = [{ key: 'bciTaxInvoiceDate', value: 'ascend' }];
-      break; 
+      break;
     default:
       break;
   }
@@ -77,10 +71,7 @@ export function sortListByReportTypeForCommon(reportType) {
       sortList = [{ key: 'orderOpenDate', value: 'ASC' }];
       break;
     case 'AttendanceIncentiveReport':
-      sortList = [
-        { key: 'orderOpenDate', value: 'ASC' },
-        { key: 'pamsBookingId', value: 'ASC' },
-      ];
+      sortList = [{ key: 'orderOpenDate', value: 'ASC' }];
       break;
     case 'FixedCommissionReport':
       sortList = [{ key: 'transactionDate', value: 'ASC' }];
@@ -100,13 +91,13 @@ export function sortListByReportTypeForCommon(reportType) {
     case 'ARAccountBalanceDetailReport':
       sortList = [
         { key: 'transactionDate', value: 'ASC' },
-        { key: 'invoiceDate', value: 'ASC' }
+        { key: 'invoiceDate', value: 'ASC' },
       ];
       break;
     case 'E-WalletAccountBalanceDetailReport':
       sortList = [
         { key: 'transactionDate', value: 'ASC' },
-        { key: 'invoiceDate', value: 'ASC' }
+        { key: 'invoiceDate', value: 'ASC' },
       ];
       break;
     case 'DetailedTransactionReport':
@@ -119,10 +110,7 @@ export function sortListByReportTypeForCommon(reportType) {
       sortList = [{ key: 'transactionDate', value: 'ASC' }];
       break;
     case 'AttractionsSalesReport':
-      sortList = [
-        { key: 'orderDate', value: 'ASC' },
-        { key: 'pamsBookingId', value: 'ASC' }
-      ];
+      sortList = [{ key: 'pamsBookingId', value: 'ASC' }];
       break;
     case 'TaxInvoiceReport':
       sortList = [{ key: 'invoiceDate', value: 'ASC' }];

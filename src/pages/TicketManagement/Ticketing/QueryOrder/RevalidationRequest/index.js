@@ -187,13 +187,33 @@ class RevalidationRequest extends Component {
     form.setFieldsValue({
       deliveryMode: value !== undefined ? value : null,
       collectionDate: null,
+      newVisitDate: null,
     });
   };
 
   disabledCollectionDate = (current, newVisitDate) => {
     return (
-      current && current >= moment(newVisitDate, 'YYYY-MM-DD').endOf('day')
+      current &&
+      (current < moment().startOf('day') ||
+        current >= moment(newVisitDate, 'YYYY-MM-DD').endOf('day') ||
+        current <
+          moment()
+            .startOf('day')
+            .add(3, 'd'))
     );
+  };
+
+  disabledNewVisitDate = (current, deliveryMode) => {
+    if (deliveryMode === 'BOCA') {
+      return (
+        current &&
+        current <
+          moment()
+            .startOf('day')
+            .add(3, 'd')
+      );
+    }
+    return current && current < moment().startOf('day');
   };
 
   showCollectionDate = collectionDate => {
@@ -532,7 +552,7 @@ class RevalidationRequest extends Component {
               <span className={styles.cardTitleStyle}>
                 {formatMessage({ id: 'DELIVERY_INFORMATION' })}
               </span>
-              <Form>
+              <Form className={styles.form}>
                 <Row>
                   <Col md={24} lg={8}>
                     <FormItem
@@ -580,7 +600,7 @@ class RevalidationRequest extends Component {
                           allowClear
                           placeholder="Please Select"
                           className={styles.selectStyle}
-                          disabledDate={current => current < moment().startOf('day')}
+                          disabledDate={current => this.disabledNewVisitDate(current, deliveryMode)}
                           format="DD-MMM-YYYY"
                         />
                       )}
@@ -607,7 +627,10 @@ class RevalidationRequest extends Component {
                             format="DD-MMM-YYYY"
                             disabled={!getFieldValue('newVisitDate')}
                             disabledDate={current =>
-                              this.disabledCollectionDate(current, getFieldValue('newVisitDate'))
+                              this.disabledCollectionDate(
+                                current,
+                                getFieldValue('newVisitDate'),
+                              )
                             }
                             onChange={this.collectionDateChange}
                           />
