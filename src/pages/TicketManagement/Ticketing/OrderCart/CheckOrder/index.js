@@ -379,7 +379,7 @@ class CheckOrder extends Component {
     });
   };
 
-  getTicketAmount = () => {
+  getTicketAmount = (includeVouchers = false) => {
     const {
       ticketOrderCartMgr: {
         packageOrderData = [],
@@ -391,7 +391,8 @@ class CheckOrder extends Component {
     const ticketAmount = getCheckTicketAmount(
       packageOrderData,
       generalTicketOrderData,
-      onceAPirateOrderData
+      onceAPirateOrderData,
+      includeVouchers,
     );
     return ticketAmount || 0;
   };
@@ -700,7 +701,6 @@ class CheckOrder extends Component {
     const priceGrid4 = { xs: 24, sm: 24, md: 22, lg: 22, xl: 22, xxl: 22 };
 
     this.pageDataCheck();
-
     return (
       <Spin spinning={checkOutLoading}>
         <MediaQuery minWidth={SCREEN.screenSm}>
@@ -872,7 +872,7 @@ class CheckOrder extends Component {
                 <BOCAOfferCollapse
                   form={form}
                   companyType={companyType}
-                  quantity={this.getTicketAmount()}
+                  quantity={this.getTicketAmount(true)}
                   pricePax={bocaFeePax}
                 />
               </Col>
@@ -893,7 +893,7 @@ class CheckOrder extends Component {
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>
-                          {this.getProductFeeExclude(bocaFeePax, this.getTicketAmount())}
+                          {this.getProductFeeExclude(bocaFeePax, this.getTicketAmount(true))}
                         </span>
                       </Col>
                     </Row>
@@ -908,7 +908,7 @@ class CheckOrder extends Component {
                             <span className={styles.priceValueSpan}>
                               {this.getBocaFeeExclude(
                                 bocaFeePax,
-                                this.getTicketAmount(),
+                                this.getTicketAmount(true),
                                 bocaFeeGst
                               )}
                             </span>
@@ -921,7 +921,7 @@ class CheckOrder extends Component {
                       </Col>
                       <Col span={8}>
                         <span className={styles.priceValueSpan}>
-                          {this.getServiceTax(bocaFeePax, this.getTicketAmount(), bocaFeeGst)}
+                          {this.getServiceTax(bocaFeePax, this.getTicketAmount(true), bocaFeeGst)}
                         </span>
                       </Col>
                     </Row>

@@ -482,7 +482,8 @@ export default {
       const ticketAmount = getCheckTicketAmount(
         packageOrderData,
         generalTicketOrderData,
-        onceAPirateOrderData
+        onceAPirateOrderData,
+        true,
       );
 
       yield put({

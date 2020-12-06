@@ -79,7 +79,7 @@ export default {
   REVALIDATION_VID: 'Revalidation VID',
   REVALIDATION_VID_TITLE: 'REVALIDATION VID',
   RESUBMIT: 'Resubmit',
-  REPRINT: 'Reprint',
+  REPRINT: 'Print Confirmation',
   RECEIVED_AMOUNT: 'RECEIVED AMOUNT',
   REFUNDED_AMOUNT: 'REFUNDED AMOUNT',
   SELECT_INDIVIDUALLY_TIP: '* Can only be selected individually',
@@ -147,4 +147,7 @@ export default {
   NEW_VISIT_DATE: 'New Visit Date',
   TA_EMAIL: 'TA Email',
   CONFIRMED_VISIT_DATE: 'CONFIRMED VISIT DATE',
+  SUB_TA_EMAIL: 'Sub TA Email',
+  REDRESS_BCINPCC: 'Redress BCInPCC',
+  REDRESS_SUCCESSFULLY: 'Redressed successfully.'
 };

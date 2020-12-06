@@ -591,6 +591,9 @@ class Detail extends React.Component {
                 this.showDelivery(formatMessage({ id: 'REASON' }), bookingDetail.reason)}
               {['revalidation', 'refund'].includes(transTypeStr) &&
                 this.showDelivery(formatMessage({ id: 'TA_EMAIL' }), bookingDetail.taEmail)}
+              {['revalidation', 'refund'].includes(transTypeStr) &&
+                !isNullOrUndefined(bookingDetail.subTaEmail) &&
+                this.showDelivery(formatMessage({ id: 'SUB_TA_EMAIL' }), bookingDetail.subTaEmail)}
             </Form>
             {filterVidList.length > 0 && (
               <Table

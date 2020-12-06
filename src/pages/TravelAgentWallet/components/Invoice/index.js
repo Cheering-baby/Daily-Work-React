@@ -262,7 +262,7 @@ class WalletInvoice extends React.PureComponent {
                 </div>
                 <div className={styles['instructions-content']}>
                   Payment should be made by cheque, GIRO or T/T quoting invoice numbers being paid
-                  to "Resorts World at Sentosa Pte Ltd";
+                  to "Resorts World at Sentosa Pte Ltd"
                   <br />
                   Bank: DBS Bank Ltd, Address: 12 Marina Boulevard, Marina Bay Financial Centre
                   Tower 3, Singapore 018982

@@ -127,3 +127,12 @@ export async function queryTask(params) {
     params,
   });
 }
+
+export async function orderRedress(params) {
+  return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/orderRedress`, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}

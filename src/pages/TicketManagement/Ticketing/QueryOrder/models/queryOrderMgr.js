@@ -1,13 +1,13 @@
 import { formatMessage } from 'umi/locale';
 import { message } from 'antd';
 import serialize from '../utils/utils';
-import moment from 'moment';
 import {
   attractionTaConfirm,
   downloadETicket,
   downloadInvoice,
   queryOrder,
   queryTask,
+  orderRedress,
 } from '../services/queryOrderService';
 
 export default {
@@ -234,6 +234,18 @@ export default {
         message.error(resultMsg);
       }
       return resultCode;
+    },
+    *redressBCInPCC({ payload }, { call }) {
+      const response = yield call(orderRedress, payload);
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg },
+      } = response;
+      if (resultCode === '0') {
+        message.success(formatMessage({ id: 'REDRESS_SUCCESSFULLY' }));
+      } else {
+        message.error(resultMsg);
+      }
     },
   },
 

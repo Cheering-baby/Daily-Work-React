@@ -36,6 +36,7 @@ const columnsInitial = [
     title: formatMessage({ id: 'REPORT_NO' }),
     dataIndex: 'no',
     width: 60,
+    minConstraints: [30, 50],
     render: text =>
       text ? (
         <Tooltip placement="topLeft" title={text} overlayStyle={{ whiteSpace: 'pre-wrap' }}>
@@ -102,7 +103,7 @@ const columnsInitial = [
   {
     title: formatMessage({ id: 'REPORT_OPERATION' }),
     dataIndex: 'operation',
-    width: 100,
+    // width: 100,
   },
 ];
 
@@ -229,6 +230,7 @@ class DailyMonthlyTable extends Component {
             resize: value,
           }),
         onResize: this.handleResize(zIndex),
+        minConstraints: column.minConstraints ? column.minConstraints : [60, 50],
       });
       if (i.dataIndex === 'no') {
         return {
@@ -272,7 +274,7 @@ class DailyMonthlyTable extends Component {
           dataSource={dataList}
           pagination={false}
           rowKey={record => record.dictId}
-          scroll={{ x: 660 }}
+          scroll={{ x: 920 }}
           onChange={(pagination, filters, sorter) => {
             if (!resize) {
               if (JSON.stringify(sorter) !== '{}') {

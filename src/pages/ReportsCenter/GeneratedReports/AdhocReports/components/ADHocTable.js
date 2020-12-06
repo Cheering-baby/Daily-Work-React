@@ -35,26 +35,26 @@ const columnsInitial = [
   {
     title: formatMessage({ id: 'REPORT_NO' }),
     dataIndex: 'no',
-    width: 60,
+    width: 80,
   },
   {
     title: formatMessage({ id: 'SCHEDULE_REPORT_NAME' }),
     dataIndex: 'reportName',
-    width: 180,
+    width: 200,
     sorter: true,
     className: styles.reportNameColumn,
   },
   {
     title: formatMessage({ id: 'REPORT_NAME' }),
     dataIndex: 'taskName',
-    width: 200,
+    width: 150,
     sorter: true,
     className: styles.reportNameColumn,
   },
   {
     title: formatMessage({ id: 'REPORT_FREQUENCY' }),
     dataIndex: 'cronType',
-    width: 150,
+    width: 200,
     sorter: true,
     render: text => {
       return (
@@ -67,7 +67,7 @@ const columnsInitial = [
   {
     title: formatMessage({ id: 'GENERATED_DATE' }),
     dataIndex: 'expectTime',
-    width: 180,
+    width: 200,
     sorter: true,
     render: text => {
       const timeText = text ? moment(text).format('DD-MMM-YYYY HH:mm:ss') : '';
@@ -81,7 +81,7 @@ const columnsInitial = [
   {
     title: 'Request By',
     dataIndex: 'createBy',
-    width: 120,
+    width: 150,
     sorter: true,
     render: text => {
       return (
@@ -94,7 +94,7 @@ const columnsInitial = [
   {
     title: formatMessage({ id: 'REPORT_OPERATION' }),
     dataIndex: 'operation',
-    width: 100,
+    // width: 100,
   },
 ];
 
@@ -268,7 +268,7 @@ class DailyMonthlyTable extends Component {
           dataSource={dataList}
           pagination={false}
           rowKey={record => record.dictId}
-          scroll={{ x: 880 }}
+          scroll={{ x: 920 }}
           onChange={(pagination, filters, sorter) => {
             if (!resize) {
               if (JSON.stringify(sorter) !== '{}') {

@@ -267,7 +267,6 @@ class QueryOrder extends Component {
       },
       queryOrderMgr: { searchConditions },
     } = this.props;
-
     if (orderNo) {
       dispatch({
         type: 'queryOrderMgr/save',
@@ -280,6 +279,23 @@ class QueryOrder extends Component {
       });
       dispatch({
         type: 'queryOrderMgr/queryTransactions',
+      }).then(() => {
+        const {
+          queryOrderMgr: { transactionList },
+        } = this.props;
+        const findIndex =
+          transactionList && transactionList.findIndex(i => i.bookingNo === orderNo);
+        const selectedBooking =
+          transactionList && transactionList.find(i => i.bookingNo === orderNo);
+        if (findIndex !== undefined) {
+          dispatch({
+            type: 'queryOrderMgr/save',
+            payload: {
+              selectedRowKeys: [findIndex],
+              selectedBookings: [selectedBooking],
+            },
+          });
+        }
       });
     } else {
       dispatch({
@@ -964,6 +980,28 @@ class QueryOrder extends Component {
     return true;
   };
 
+  redressBCInPCCDisable = selectedBookings => {
+    if (selectedBookings.length >= 1) {
+      return selectedBookings.find(
+        ({ transType, status }) =>
+          !['booking', 'refund'].includes(transType) || status !== 'Complete'
+      );
+    }
+    return true;
+  };
+
+  redressBCInPCC = selectedBookings => {
+    const { dispatch } = this.props;
+    const orderNoList = selectedBookings.map(i => i.bookingNo);
+    dispatch({
+      type: 'queryOrderMgr/redressBCInPCC',
+      payload: {
+        orderNoList,
+        redressType: "redressBCInPCC",
+      },
+    });
+  };
+
   exportRevalidationVID = selectedBookings => {
     if (selectedBookings.length === 1) {
       const selectedBooking = selectedBookings[0];
@@ -1192,6 +1230,16 @@ class QueryOrder extends Component {
                         onClick={() => this.reprint(selectedBookings)}
                       >
                         {formatMessage({ id: 'REPRINT' })}
+                      </Button>
+                    )}
+                    {userType === '01' && (
+                      PrivilegeUtil.hasAnyPrivilege(['TRAN_ORDER_REDRESS_BCINPCC_PRIVILEGE']) &&
+                      <Button
+                        disabled={this.redressBCInPCCDisable(selectedBookings)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.redressBCInPCC(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'REDRESS_BCINPCC' })}
                       </Button>
                     )}
                   </Col>
