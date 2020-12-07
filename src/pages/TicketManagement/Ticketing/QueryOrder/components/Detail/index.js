@@ -313,6 +313,7 @@ class Detail extends React.Component {
         title: 'Ticket Type',
         dataIndex: 'itemName',
         key: 'itemName',
+        width: '55%',
         render: text => {
           if (Array.isArray(text)) {
             return (
@@ -341,12 +342,17 @@ class Detail extends React.Component {
         title: 'Session',
         dataIndex: 'session',
         key: 'session',
+        width: '23%',
         render: text => {
           if (Array.isArray(text)) {
             return (
               <div>
                 {text.map(i => (
-                  <div>{sessionTimeToWholeDay(i.session) || '-'}</div>
+                  <div
+                    style={{ whiteSpace: 'normal', wordBreak: 'break-all', wordWrap: 'break-word' }}
+                  >
+                    {sessionTimeToWholeDay(i.session) || '-'}
+                  </div>
                 ))}
               </div>
             );
@@ -370,6 +376,7 @@ class Detail extends React.Component {
         dataIndex: 'itemQuantity',
         key: 'itemQuantity',
         align: 'right',
+        width: '27%',
         render: text => (
           <Tooltip
             placement="topLeft"
@@ -389,7 +396,8 @@ class Detail extends React.Component {
         <span className={styles.drawerTitleStyle}>{quantityTotal}</span>
         {quantityTotal > 0 && (
           <Popover
-            overlayStyle={{ color: '#565656', margin: 0, padding: 0 }}
+            overlayStyle={{ color: '#565656', margin: 0, padding: 0, width: '400px' }}
+            mouseLeaveDelay={50}
             content={
               <Table
                 size="small"

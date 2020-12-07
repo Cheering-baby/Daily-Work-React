@@ -467,13 +467,26 @@ class ToCart extends Component {
         render: (_, record) => {
           return (
             <div>
-              {record.attractionProduct.map(itemProduct => (
-                <div key={Math.random()} className={styles.tableText}>
-                  {`${itemProduct.attractionProduct.ageGroup || 'General'} * ${
-                    itemProduct.needChoiceCount
-                  }`}
-                </div>
-              ))}
+              {record.attractionProduct.map(itemProduct => {
+                const {
+                  needChoiceCount,
+                  onlyVoucher,
+                  attractionProduct: { itemPlus, ageGroup },
+                } = itemProduct;
+                let ageGroupShow = 'General';
+                if (!onlyVoucher && Array.isArray(itemPlus)) {
+                  ageGroupShow = itemPlus
+                    .map(i => `${i.ageGroup || 'General'} * ${i.itemQty || 1}`)
+                    .join(', ');
+                } else {
+                  ageGroupShow = `${ageGroup || 'General'} * ${needChoiceCount}`;
+                }
+                return (
+                  <div key={Math.random()} className={styles.tableText}>
+                    {ageGroupShow}
+                  </div>
+                );
+              })}
             </div>
           );
         },

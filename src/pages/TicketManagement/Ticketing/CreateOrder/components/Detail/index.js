@@ -119,6 +119,10 @@ class Detail extends Component {
                               let ticketTypeShow = ticketTypesReally.filter(
                                 ({ value }) => item.attractionProduct.ageGroup === value
                               );
+                              ticketTypeShow = ticketTypeShow.map(i => ({
+                                ...i,
+                                text: `${i.text} * ${item.needChoiceCount}`,
+                              }));
                               if (
                                 !item.onlyVoucher &&
                                 Array.isArray(item.attractionProduct.itemPlus)
@@ -143,7 +147,9 @@ class Detail extends Component {
                                 >
                                   {ticketTypeShow.length > 0
                                     ? ticketTypeShow.map(i => i.text).join(', ')
-                                    : item.attractionProduct.ageGroup || 'General'}
+                                    : `${item.attractionProduct.ageGroup || 'General'} * ${
+                                        item.needChoiceCount
+                                      }`}
                                 </div>
                               );
                             })}
@@ -166,6 +172,10 @@ class Detail extends Component {
                           let ticketTypeShow = ticketTypesReally.filter(
                             ({ value }) => item.attractionProduct.ageGroup === value
                           );
+                          ticketTypeShow = ticketTypeShow.map(i => ({
+                            ...i,
+                            text: `${i.text} * ${item.needChoiceCount}`,
+                          }));
                           if (!item.onlyVoucher && Array.isArray(item.attractionProduct.itemPlus)) {
                             ticketTypeShow = item.attractionProduct.itemPlus.map(i => {
                               const targetText =
@@ -187,7 +197,9 @@ class Detail extends Component {
                             >
                               {ticketTypeShow.length > 0
                                 ? ticketTypeShow.map(i => i.text).join(', ')
-                                : item.attractionProduct.ageGroup || 'General'}{' '}
+                                : `${item.attractionProduct.ageGroup || 'General'} * ${
+                                    item.needChoiceCount
+                                  }`}
                               -{' '}
                               {toThousands(
                                 calculateProductPrice(

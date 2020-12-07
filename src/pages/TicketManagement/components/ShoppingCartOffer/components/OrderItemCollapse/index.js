@@ -263,7 +263,7 @@ class OrderItemCollapse extends Component {
                 visitDate: this.getOrderTime(orderOfferItem, bookingCategory),
                 session: '-',
                 ticketType: `Voucher(${productObj.attractionProduct.voucherQtyType})`,
-                price: '0.00/Ticket',
+                price: '0.00/Voucher',
                 quantity: this.getVoucherTicketQuantity(
                   offerProfile.offerNo,
                   productObj.needChoiceCount,

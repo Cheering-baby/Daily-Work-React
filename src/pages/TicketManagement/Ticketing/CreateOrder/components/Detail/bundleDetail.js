@@ -148,7 +148,7 @@ class Detail extends Component {
                             className={styles.detailLabel}
                             style={{ marginTop: index !== 0 ? '5px' : null }}
                           >
-                            {offerBundle[0].bundleLabel || '-'}
+                            {offerBundle[0].bundleLabel || '-'} * 1
                             {' - '}
                             {toThousands(
                               calculateAllProductPrice(
