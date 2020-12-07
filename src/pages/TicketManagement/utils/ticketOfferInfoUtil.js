@@ -307,6 +307,7 @@ export function changeVoucherToAttraction(offerProfile) {
             productGroupItemNew.products = productGroupItem.products.map(item => {
               const itemNew = {
                 ...item,
+                onlyVoucher: true,
               };
               if (itemNew.attractionProduct.themeParkName) {
                 // No. of Vouchers

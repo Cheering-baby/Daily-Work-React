@@ -116,16 +116,33 @@ class Detail extends Component {
                         <div className={styles.fixedPriceContainer}>
                           <div style={{ marginRight: '20px' }}>
                             {attractionProduct.map((item, index) => {
-                              const ticketTypeShow = ticketTypesReally.filter(
+                              let ticketTypeShow = ticketTypesReally.filter(
                                 ({ value }) => item.attractionProduct.ageGroup === value
                               );
+                              if (
+                                !item.onlyVoucher &&
+                                Array.isArray(item.attractionProduct.itemPlus)
+                              ) {
+                                ticketTypeShow = item.attractionProduct.itemPlus.map(i => {
+                                  const targetText =
+                                    i.ageGroup &&
+                                    ticketTypesReally.find(({ value }) => i.ageGroup === value);
+                                  const text = `${
+                                    targetText ? targetText.text : i.ageGroup || 'General'
+                                  } * ${i.itemQty || 1}`;
+                                  return {
+                                    ...i,
+                                    text,
+                                  };
+                                });
+                              }
                               return (
                                 <div
                                   className={styles.detailText}
                                   style={{ marginTop: index !== 0 ? '5px' : null }}
                                 >
                                   {ticketTypeShow.length > 0
-                                    ? ticketTypeShow[0].text
+                                    ? ticketTypeShow.map(i => i.text).join(', ')
                                     : item.attractionProduct.ageGroup || 'General'}
                                 </div>
                               );
@@ -145,16 +162,31 @@ class Detail extends Component {
                         </div>
                       ) : (
                         attractionProduct.map((item, index) => {
-                          const ticketTypeShow = ticketTypesReally.filter(
+                          const priceTag = item.onlyVoucher ? 'Voucher' : 'Ticket';
+                          let ticketTypeShow = ticketTypesReally.filter(
                             ({ value }) => item.attractionProduct.ageGroup === value
                           );
+                          if (!item.onlyVoucher && Array.isArray(item.attractionProduct.itemPlus)) {
+                            ticketTypeShow = item.attractionProduct.itemPlus.map(i => {
+                              const targetText =
+                                i.ageGroup &&
+                                ticketTypesReally.find(({ value }) => i.ageGroup === value);
+                              const text = `${
+                                targetText ? targetText.text : i.ageGroup || 'General'
+                              } * ${i.itemQty || 1}`;
+                              return {
+                                ...i,
+                                text,
+                              };
+                            });
+                          }
                           return (
                             <div
                               className={styles.detailText}
                               style={{ marginTop: index !== 0 ? '5px' : null }}
                             >
                               {ticketTypeShow.length > 0
-                                ? ticketTypeShow[0].text
+                                ? ticketTypeShow.map(i => i.text).join(', ')
                                 : item.attractionProduct.ageGroup || 'General'}{' '}
                               -{' '}
                               {toThousands(
@@ -164,7 +196,7 @@ class Detail extends Component {
                                   item.sessionTime
                                 ).toFixed(2)
                               )}
-                              /Ticket
+                              /{priceTag}
                             </div>
                           );
                         })

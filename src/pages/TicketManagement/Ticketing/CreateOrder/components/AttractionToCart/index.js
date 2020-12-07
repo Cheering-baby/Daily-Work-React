@@ -615,10 +615,24 @@ class ToCart extends Component {
     const bookingInformation = [];
     attractionProduct.forEach((item, index) => {
       const priceShow = calculateProductPrice(item, priceRuleId, item.sessionTime);
+      const {
+        onlyVoucher,
+        needChoiceCount,
+        attractionProduct: { itemPlus, ageGroup },
+      } = item;
+      const priceTag = onlyVoucher ? 'Voucher' : 'Ticket';
+      let ageGroupShow = 'General';
+      if (!onlyVoucher && Array.isArray(itemPlus)) {
+        ageGroupShow = itemPlus
+          .map(i => `${i.ageGroup || 'General'} * ${i.itemQty || 1}`)
+          .join(', ');
+      } else {
+        ageGroupShow = `${ageGroup || 'General'} * ${needChoiceCount}`;
+      }
       bookingInformation.push({
         index,
-        ticketType: `${item.attractionProduct.ageGroup || 'General'} * ${item.needChoiceCount}`,
-        price: `${toThousands(priceShow.toFixed(2))}/Ticket`,
+        ticketType: ageGroupShow,
+        price: `${toThousands(priceShow.toFixed(2))}/${priceTag}`,
         quantity: item.ticketNumber,
         ticketNumberLabel: `attractionProduct${index}`,
         subTotalPrice: `${toThousands((priceShow * (item.ticketNumber || 0)).toFixed(2))}`,

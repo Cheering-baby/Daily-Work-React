@@ -473,13 +473,19 @@ class Attraction extends Component {
   };
 
   productPrice = (isSessionProduct, product, priceRuleId, session) => {
+    const { onlyVoucher } = product;
+    const priceTag = onlyVoucher ? 'Voucher' : 'Ticket';
     if (isSessionProduct) {
       // product.sessionTime = session;
       return session
-        ? `${toThousands(calculateProductPrice(product, priceRuleId, session).toFixed(2))}/Ticket`
-        : '-/Ticket';
+        ? `${toThousands(
+            calculateProductPrice(product, priceRuleId, session).toFixed(2)
+          )}/${priceTag}`
+        : `-/${priceTag}`;
     }
-    return `${toThousands(calculateProductPrice(product, priceRuleId, null).toFixed(2))}/Ticket`;
+    return `${toThousands(
+      calculateProductPrice(product, priceRuleId, null).toFixed(2)
+    )}/${priceTag}`;
   };
 
   fixedOfferPrice = record => {
@@ -544,8 +550,9 @@ class Attraction extends Component {
         : `-/Package`;
     }
 
-    return `${toThousands(calculateAllProductPrice(attractionProduct, priceRuleId, null, detail))}
-    /Package`;
+    return `${toThousands(
+      calculateAllProductPrice(attractionProduct, priceRuleId, null, detail)
+    )}/Package`;
   };
 
   render() {
@@ -655,10 +662,24 @@ class Attraction extends Component {
             return (
               <div className={styles.sessionContainer}>
                 {record.attractionProduct.map((item, attractionProductIndex) => {
-                  const { sessionTime, productNo, needChoiceCount, sessionOptions = [] } = item;
-                  const { ageGroup } = item.attractionProduct;
+                  const {
+                    sessionTime,
+                    productNo,
+                    needChoiceCount,
+                    sessionOptions = [],
+                    onlyVoucher,
+                  } = item;
+                  const { ageGroup, itemPlus } = item.attractionProduct;
                   const isSessionProduct = sessionOptions.length > 0;
                   const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
+                  let ageGroupShow = 'General';
+                  if (!onlyVoucher && Array.isArray(itemPlus)) {
+                    ageGroupShow = itemPlus
+                      .map(i => `${i.ageGroup || 'General'} * ${i.itemQty || 1}`)
+                      .join(', ');
+                  } else {
+                    ageGroupShow = `${ageGroup || 'General'} * ${needChoiceCount}`;
+                  }
                   return (
                     <div key={productNo} className={styles.productPrice}>
                       <div style={this.generateStyle(companyType).sessionStyle}>
@@ -702,7 +723,7 @@ class Attraction extends Component {
                           paddingTop: isSessionProduct ? '4px' : null,
                         }}
                       >
-                        {ageGroup || 'General'} * {needChoiceCount}
+                        {ageGroupShow}
                       </div>
                       <div
                         style={{

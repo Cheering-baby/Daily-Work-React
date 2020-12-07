@@ -318,7 +318,11 @@ class Detail extends React.Component {
             return (
               <div>
                 {text.map(i => (
-                  <div>{i || '-'}</div>
+                  <div
+                    style={{ whiteSpace: 'normal', wordBreak: 'break-all', wordWrap: 'break-word' }}
+                  >
+                    {i || '-'}
+                  </div>
                 ))}
               </div>
             );
