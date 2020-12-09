@@ -675,7 +675,7 @@ class Attraction extends Component {
                   let ageGroupShow = 'General';
                   if (!onlyVoucher && Array.isArray(itemPlus)) {
                     ageGroupShow = itemPlus
-                      .map(i => `${i.ageGroup || 'General'} * ${i.itemQty || 1}`)
+                      .map(i => `${i.ageGroup || 'General'} * ${(i.itemQty || 1) * needChoiceCount}`)
                       .join(', ');
                   } else {
                     ageGroupShow = `${ageGroup || 'General'} * ${needChoiceCount}`;

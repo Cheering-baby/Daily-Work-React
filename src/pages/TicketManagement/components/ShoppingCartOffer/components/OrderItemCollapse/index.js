@@ -123,6 +123,7 @@ class OrderItemCollapse extends Component {
           const {
             productInfo: {
               attractionProduct: { itemPlus },
+              needChoiceCount,
             },
             quantity,
             onlyVoucher,
@@ -135,7 +136,7 @@ class OrderItemCollapse extends Component {
             if (!onlyVoucher && Array.isArray(itemPlus)) {
               ticketType = {
                 itemName: itemPlus
-                  .map(i => `${i.ageGroup || 'General'} * ${i.itemQty || 1}`)
+                  .map(i => `${i.ageGroup || 'General'} * ${(i.itemQty || 1) * needChoiceCount}`)
                   .join(', '),
                 itemQuantity: null,
                 itemPlus,

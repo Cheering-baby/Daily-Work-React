@@ -133,7 +133,7 @@ class Detail extends Component {
                                     ticketTypesReally.find(({ value }) => i.ageGroup === value);
                                   const text = `${
                                     targetText ? targetText.text : i.ageGroup || 'General'
-                                  } * ${i.itemQty || 1}`;
+                                  } * ${(i.itemQty || 1) * item.needChoiceCount}`;
                                   return {
                                     ...i,
                                     text,
@@ -183,7 +183,7 @@ class Detail extends Component {
                                 ticketTypesReally.find(({ value }) => i.ageGroup === value);
                               const text = `${
                                 targetText ? targetText.text : i.ageGroup || 'General'
-                              } * ${i.itemQty || 1}`;
+                              } * ${(i.itemQty || 1) * item.needChoiceCount} `;
                               return {
                                 ...i,
                                 text,

@@ -30,7 +30,7 @@ export async function createShoppingCart(params) {
 }
 
 export async function queryShoppingCart(params) {
-  return UAAService.request(`${mock}/b2c/transaction/v1/shoppingcart/query`, {
+  return UAAService.request(`${localPath}/b2c/transaction/v1/shoppingcart/query`, {
     method: 'GET',
     params,
     body: {
