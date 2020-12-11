@@ -9,7 +9,7 @@ import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
 import SortSelect from '@/components/SortSelect';
-import { colLayOut, rowLayOut } from '@/utils/utils';
+import { colLayOut, rowLayOut, isNvl } from '@/utils/utils';
 
 const { Option } = Select;
 
@@ -185,7 +185,7 @@ class Index extends React.PureComponent {
   companyChange = value => {
     const {
       dispatch,
-      form: { setFields },
+      form: { setFields, setFieldsValue },
     } = this.props;
     let flag = false;
     if (
@@ -260,12 +260,67 @@ class Index extends React.PureComponent {
         this.getUserRoles('02');
       }
     }
+
+    const clearData = {
+      userName: undefined,
+      email: undefined,
+      address: undefined,
+      phone: undefined,
+      officeNumber: undefined,
+    };
+    setFieldsValue(clearData);
+    // if ta do not have user, then set basic info from sub ta company info.
+    if (value) {
+      dispatch({
+        type: 'userMgr/fetchFirstUser',
+        payload: {
+          companyId: value,
+          companyType: '01',
+        },
+      }).then(result => {
+        if (result) {
+          dispatch({
+            type: 'userMgr/fetchTaDetail',
+            payload: {
+              taId: value,
+            },
+          }).then(res => {
+            if (res) {
+              const {
+                email,
+                phone,
+                country,
+                mobileNumber,
+                mobileCountry,
+                firstName,
+                lastName,
+              } = res;
+              const {
+                userMgr: {
+                  companyDetailInfo: { address },
+                },
+              } = this.props;
+              const companyData = {
+                userName: firstName + lastName,
+                email,
+                address,
+                phone: (isNvl(country) ? '' : country) + (isNvl(phone) ? '' : phone),
+                officeNumber:
+                  (isNvl(mobileCountry) ? '' : mobileCountry) +
+                  (isNvl(mobileNumber) ? '' : mobileNumber),
+              };
+              setFieldsValue(companyData);
+            }
+          });
+        }
+      });
+    }
   };
 
   subCompanyChange = value => {
     const {
       dispatch,
-      form: { setFields },
+      form: { setFields, setFieldsValue },
     } = this.props;
     let flag = false;
     if (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.MAIN_TA_ADMIN_PRIVILEGE])) {
@@ -308,6 +363,55 @@ class Index extends React.PureComponent {
         },
       });
     }
+
+    const clearData = {
+      userName: undefined,
+      email: undefined,
+      address: undefined,
+      phone: undefined,
+      officeNumber: undefined,
+    };
+    // if sub ta do not have user, then set basic info from sub ta company info.
+    if (value) {
+      dispatch({
+        type: 'userMgr/fetchFirstUser',
+        payload: {
+          companyId: value,
+          companyType: '02',
+        },
+      }).then(result => {
+        if (result) {
+          const {
+            userMgr: { formSubTaCompanies = [] },
+          } = this.props;
+          const subTaInfo = formSubTaCompanies.find(item => item.id === value);
+          const {
+            fullName,
+            email,
+            address,
+            phone,
+            phoneCountry,
+            mobileNumber,
+            mobileCountry,
+          } = subTaInfo;
+          const companyData = {
+            userName: fullName,
+            email,
+            address,
+            phone: (isNvl(phoneCountry) ? '' : phoneCountry) + (isNvl(phone) ? '' : phone),
+            officeNumber:
+              (isNvl(mobileCountry) ? '' : mobileCountry) +
+              (isNvl(mobileNumber) ? '' : mobileNumber),
+          };
+          setFieldsValue(companyData);
+        } else {
+          setFieldsValue(clearData);
+        }
+      });
+    } else {
+      setFieldsValue(clearData);
+    }
+
     dispatch({
       type: 'userMgr/saveData',
       payload: {
@@ -404,7 +508,15 @@ class Index extends React.PureComponent {
     let { taInfo = {}, rwsInfo = {} } = currentUserProfile;
     taInfo = taInfo || {};
     rwsInfo = rwsInfo || {};
-    const { companyId, fullName = '', phone = '', email = '', address = '', remarks = '' } = taInfo;
+    const {
+      companyId,
+      fullName = '',
+      phone = '',
+      email = '',
+      address = '',
+      remarks = '',
+      officeNumber = '',
+    } = taInfo;
     const {
       address: rwsAddress = '',
       remarks: rwsRemarks = '',
@@ -421,6 +533,7 @@ class Index extends React.PureComponent {
       email: userType === constants.RWS_USER_TYPE ? rwsEmail : email,
       address: userType === constants.RWS_USER_TYPE ? rwsAddress : address,
       remarks: userType === constants.RWS_USER_TYPE ? rwsRemarks : remarks,
+      officeNumber: userType === constants.RWS_USER_TYPE ? '' : officeNumber,
     };
   };
 
@@ -482,6 +595,7 @@ class Index extends React.PureComponent {
       companyId,
       userName = '',
       phone = '',
+      officeNumber = '',
       email = '',
       address = '',
       remarks = '',
@@ -627,6 +741,7 @@ class Index extends React.PureComponent {
                       </Tooltip>
                     ) : (
                       <Input
+                        disabled={userType === constants.RWS_USER_TYPE}
                         maxLength={80}
                         allowClear
                         placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
@@ -672,6 +787,39 @@ class Index extends React.PureComponent {
                           disabled
                           type="tel"
                           value={phone}
+                          allowClear
+                          maxLength={80}
+                          placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                          autoComplete="off"
+                        />
+                      </Tooltip>
+                    ) : (
+                      <Input
+                        disabled={userType === constants.RWS_USER_TYPE}
+                        type="tel"
+                        allowClear
+                        maxLength={80}
+                        placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                        autoComplete="off"
+                      />
+                    )
+                  )}
+                </Form.Item>
+              </Col>
+              <Col {...colLayOut}>
+                <Form.Item label={formatMessage({ id: 'OFFICE_NUMBER' })}>
+                  {getFieldDecorator(`officeNumber`, {
+                    initialValue: officeNumber,
+                  })(
+                    type === 'DETAIL' ? (
+                      <Tooltip
+                        placement="topLeft"
+                        title={<span style={{ whiteSpace: 'pre-wrap' }}>{officeNumber || ''}</span>}
+                      >
+                        <Input
+                          disabled
+                          type="tel"
+                          value={officeNumber}
                           allowClear
                           maxLength={80}
                           placeholder={formatMessage({ id: 'PLEASE_ENTER' })}

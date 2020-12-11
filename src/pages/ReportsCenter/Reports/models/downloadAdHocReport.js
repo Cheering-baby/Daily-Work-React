@@ -41,7 +41,6 @@ export default {
     *fetchPreviewReport({ payload = {} }, { put, call, select }) {
       const { pagination } = yield select(state => state.downloadAdHocReport);
       const { reportType, displayColumnList, filterList, sortList } = payload;
-      console.log(payload)
       yield put({
         type: 'save',
         payload: {

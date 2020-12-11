@@ -13,6 +13,7 @@ import {
   sendEmail,
   checkUserCode,
   addRWSUser,
+  queryTaInfo,
 } from '../service/userService';
 import constants from '../constants';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
@@ -375,6 +376,36 @@ export default {
       message.warn(resultMsg, 10);
       return false;
     },
+
+    *fetchTaDetail({ payload }, { call }) {
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryTaInfo, { ...payload });
+      if (resultCode === '0' || resultCode === 0) {
+        if (result.customerInfo && result.customerInfo.companyInfo) {
+          return result.customerInfo.contactInfo;
+        }
+        return false;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+
+    *fetchFirstUser({ payload }, { call }) {
+      const {
+        data: {
+          resultCode,
+          resultMsg,
+          resultData: { userProfiles = [] },
+        },
+      } = yield call(queryUsersInCompany, { ...payload, pageSize: 1, currentPage: 1 });
+      if (resultCode === '0') {
+        return userProfiles.length <= 0;
+      }
+      message.warn(resultMsg, 10);
+      return false;
+    },
+
     *queryUserRoles({ payload }, { call, put }) {
       const {
         data: {

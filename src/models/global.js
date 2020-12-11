@@ -206,17 +206,18 @@ export default {
           });
           // postLogin 接口调用成功，通知 privilege 接口调用
           watchObj.refreshed = true;
-          if (
-            String(data.needChangePassword) !== '01' &&
-            String(data.needChangePassword) !== '02'
-          ) {
-            yield put({
-              type: 'fetchCurrentUserMenu',
-              payload: {
-                ...payload,
-              },
-            });
-          }
+          // if (
+          //   String(data.needChangePassword) !== '01' &&
+          //   String(data.needChangePassword) !== '02'
+          // ) {
+          //
+          // }
+          yield put({
+            type: 'fetchCurrentUserMenu',
+            payload: {
+              ...payload,
+            },
+          });
         }
       } else {
         watchObj.refreshed = false;
@@ -345,6 +346,30 @@ export default {
           },
         });
       }
+    },
+    *getSessionTime(_, { call }) {
+      const { success: aheadTimeSuccess, errorMsg: aheadTimeError, data: noticeTime } = yield call(
+        CommonService.getAheadOfTime
+      );
+      const {
+        success: intervalTimeSuccess,
+        errorMsg: intervalTimeError,
+        data: interval,
+      } = yield call(CommonService.getIntervalTime);
+      if (aheadTimeSuccess && intervalTimeSuccess) {
+        return { noticeTime, interval };
+      }
+      if (!aheadTimeSuccess) {
+        throw aheadTimeError;
+      }
+      throw intervalTimeError;
+    },
+    *getSessionRemainTime(_, { call }) {
+      const { data } = yield call(CommonService.getRemainingTime);
+      return Number(data);
+    },
+    *refreshSessionTime(_, { call }) {
+      yield call(CommonService.refreshToken);
     },
   },
 

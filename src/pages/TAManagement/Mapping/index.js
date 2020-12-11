@@ -40,6 +40,13 @@ const ColProps = {
   xl: 6,
 };
 
+const BtnColProps = {
+  xs: 24,
+  sm: 12,
+  md: 6,
+  xl: 6,
+};
+
 @Form.create()
 @connect(({ mapping, loading }) => ({
   mapping,
@@ -554,7 +561,7 @@ class Index extends React.PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col span={24} className={detailStyles.buttonStyle}>
+                <Col {...BtnColProps} className={detailStyles.buttonStyle}>
                   <Button type="primary" htmlType="submit">
                     {formatMessage({ id: 'BTN_SEARCH' })}
                   </Button>

@@ -134,6 +134,16 @@ export default {
     *doCleanData({ payload }, { put }) {
       yield put({ type: 'clean', payload });
     },
+    *fetchEmailInSubTa({ payload }, { call }) {
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(service.querySubTaInfoWithEmail, { ...payload });
+      if (resultCode === '0' || resultCode === 0) {
+        return result;
+      }
+      message.warn(resultMsg, 10);
+      return true;
+    },
   },
   reducers: {
     save(state, { payload }) {

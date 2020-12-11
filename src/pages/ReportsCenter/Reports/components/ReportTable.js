@@ -91,7 +91,7 @@ class PLUTable extends Component {
                   onClick={() => {
                     this.schedule(record);
                   }}
-                  // className={userType !== '01' ? styles.hideIcon : undefined}
+                  className={userType !== '01' ? styles.hideIcon : undefined}
                 />
               </Tooltip>
               <Tooltip title="Ad-hoc Download">

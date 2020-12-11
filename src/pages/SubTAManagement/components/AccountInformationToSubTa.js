@@ -1,15 +1,17 @@
 import React, { PureComponent } from 'react';
-import { Card, Col, Form, Input, Row, Select } from 'antd';
+import { Card, Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { colLayOut, rowLayOut } from '../utils/pubUtils';
+import SortSelect from '@/components/SortSelect';
+import styles from './SubTaInfoCommon.less';
 
 const addressLayOut = {
   xs: 24,
   sm: 24,
   md: 24,
   lg: 24,
-  xl: 16,
-  xxl: 16,
+  xl: 24,
+  xxl: 24,
   style: {
     height: '75px',
   },
@@ -22,6 +24,8 @@ class AccountInformationToSubTa extends PureComponent {
       form,
       subTaInfo = {},
       countryList = [],
+      phoneCountryList = [],
+      mobileCountryList = [],
       onHandleChange,
       viewId,
       hasSubTaWithEmail,
@@ -39,9 +43,7 @@ class AccountInformationToSubTa extends PureComponent {
             <Card title={formatMessage({ id: 'SUB_TA_ACCOUNT_INFORMATION' })}>
               <Row {...rowLayOut}>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })}>
                     {getFieldDecorator('mainCompanyName', {
                       initialValue: subTaInfo.mainCompanyName || null,
                       rules: [
@@ -64,9 +66,7 @@ class AccountInformationToSubTa extends PureComponent {
               </Row>
               <Row {...rowLayOut}>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_FULL_NAME' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_FULL_NAME' })}>
                     {getFieldDecorator('fullName', {
                       initialValue: subTaInfo.fullName || null,
                       rules: [
@@ -84,9 +84,7 @@ class AccountInformationToSubTa extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_EMAIL' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_EMAIL' })}>
                     {getFieldDecorator('email', {
                       initialValue: subTaInfo.email || null,
                       rules: [
@@ -104,9 +102,7 @@ class AccountInformationToSubTa extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_COMPANY_NAME' })}>
                     {getFieldDecorator('companyName', {
                       initialValue: subTaInfo.companyName || null,
                       rules: [
@@ -130,10 +126,7 @@ class AccountInformationToSubTa extends PureComponent {
                   </Form.Item>
                 </Col>
                 <Col {...colLayOut}>
-                  <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}
-
-                  >
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_COUNTRY_INCORPORATION' })}>
                     {getFieldDecorator('country', {
                       initialValue: subTaInfo.country || [],
                       rules: [
@@ -157,16 +150,142 @@ class AccountInformationToSubTa extends PureComponent {
                             >
                               {item.dictName}
                             </Select.Option>
-                          ))
+                            ))
                           : null}
                       </Select>
                     )}
                   </Form.Item>
                 </Col>
-                <Col {...addressLayOut}>
+                <Col {...colLayOut}>
                   <Form.Item
-                    label={formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}
+                    label={formatMessage({ id: 'SUB_TA_TEL' })}
+                    colon={false}
+                    className={styles.telItem}
                   >
+                    <Input.Group compact>
+                      <Form.Item colon={false} style={{ width: '35%' }}>
+                        {getFieldDecorator('phoneCountry', {
+                          initialValue: subTaInfo.phoneCountry || [],
+                          rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                        })(
+                          <SortSelect
+                            showSearch
+                            placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                            optionFilterProp="label"
+                            getPopupContainer={() => document.getElementById(`${viewId}`)}
+                            onChange={value =>
+                              onHandleChange('phoneCountry', value, 'phoneCountry')
+                            }
+                            disabled={isDisabled}
+                            options={
+                              phoneCountryList && phoneCountryList.length > 0
+                                ? phoneCountryList.map(item => (
+                                  <Select.Option
+                                    key={`countryPhoneList${item.dictId}`}
+                                    value={`${item.dictId}`}
+                                    label={`${item.dictName} +${item.dictId}`}
+                                  >
+                                    <Tooltip
+                                      placement="topLeft"
+                                      title={
+                                        <span style={{ whiteSpace: 'pre-wrap' }}>
+                                          {`${item.dictName} +${item.dictId}`}
+                                        </span>
+                                        }
+                                    >
+                                      {`${item.dictName} +${item.dictId}`}
+                                    </Tooltip>
+                                  </Select.Option>
+                                  ))
+                                : null
+                            }
+                          />
+                        )}
+                      </Form.Item>
+                      <Form.Item colon={false} style={{ width: '65%' }}>
+                        {getFieldDecorator('phone', {
+                          initialValue: subTaInfo.phone || null,
+                          rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                        })(
+                          <Input
+                            placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                            onChange={e => onHandleChange('phone', e.target.value, 'phone')}
+                            onPressEnter={e => onHandleChange('phone', e.target.value, 'phone')}
+                            disabled={isDisabled}
+                          />
+                        )}
+                      </Form.Item>
+                    </Input.Group>
+                  </Form.Item>
+                </Col>
+                <Col {...colLayOut}>
+                  <Form.Item
+                    label={formatMessage({ id: 'SUB_TA_MOBILE_NO' })}
+                    colon={false}
+                    className={styles.telItem}
+                  >
+                    <Input.Group compact>
+                      <Form.Item colon={false} style={{ width: '35%' }}>
+                        {getFieldDecorator('mobileCountry', {
+                          initialValue: subTaInfo.mobileCountry || [],
+                          rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                        })(
+                          <SortSelect
+                            showSearch
+                            placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                            optionFilterProp="label"
+                            getPopupContainer={() => document.getElementById(`${viewId}`)}
+                            onChange={value =>
+                              onHandleChange('mobileCountry', value, 'mobileCountry')
+                            }
+                            disabled={isDisabled}
+                            options={
+                              mobileCountryList && mobileCountryList.length > 0
+                                ? mobileCountryList.map(item => (
+                                  <Select.Option
+                                    key={`mobileCountryList${item.dictId}`}
+                                    value={`${item.dictId}`}
+                                    label={`${item.dictName} +${item.dictId}`}
+                                  >
+                                    <Tooltip
+                                      placement="topLeft"
+                                      title={
+                                        <span style={{ whiteSpace: 'pre-wrap' }}>
+                                          {`${item.dictName} +${item.dictId}`}
+                                        </span>
+                                        }
+                                    >
+                                      {`${item.dictName} +${item.dictId}`}
+                                    </Tooltip>
+                                  </Select.Option>
+                                  ))
+                                : null
+                            }
+                          />
+                        )}
+                      </Form.Item>
+                      <Form.Item colon={false} style={{ width: '65%' }}>
+                        {getFieldDecorator('mobileNumber', {
+                          initialValue: subTaInfo.mobileNumber || null,
+                          rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                        })(
+                          <Input
+                            placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                            onChange={e =>
+                              onHandleChange('mobileNumber', e.target.value, 'mobileNumber')
+                            }
+                            onPressEnter={e =>
+                              onHandleChange('mobileNumber', e.target.value, 'mobileNumber')
+                            }
+                            disabled={isDisabled}
+                          />
+                        )}
+                      </Form.Item>
+                    </Input.Group>
+                  </Form.Item>
+                </Col>
+                <Col {...addressLayOut}>
+                  <Form.Item label={formatMessage({ id: 'SUB_TA_COMPANY_ADDRESS' })}>
                     {getFieldDecorator('address', {
                       initialValue: subTaInfo.address || null,
                       rules: [

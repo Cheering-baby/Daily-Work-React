@@ -1,9 +1,11 @@
 import { cloneDeep } from 'lodash';
+import { message } from 'antd';
 import {
   queryTransactonTypes,
   queryAccount,
   queryActivityList,
   search,
+  queryMainTAList,
 } from '../services/travelAgentWalletServices';
 import { ERROR_CODE_SUCCESS } from '@/utils/commonResultCode';
 
@@ -19,6 +21,7 @@ export default {
   namespace: 'taWalletMgr',
   state: {
     taId: null,
+    companyName: null,
     filter: {
       transactionId: DEFAULTS.transactionId,
       transactionType: DEFAULTS.transactionType,
@@ -43,6 +46,33 @@ export default {
         type: 'save',
         payload,
       });
+    },
+    *fetchTAName(_, { call, put, select }) {
+      const { taId } = yield select(state => state.taWalletMgr);
+      const reqParam = {
+        idOrName: taId,
+        pageInfo: {
+          currentPage: 1,
+          pageSize: 1000,
+        },
+      };
+      const {
+        data: { resultCode, resultMsg, result },
+      } = yield call(queryMainTAList, { ...reqParam });
+      if (resultCode === '0') {
+        const { taList } = result;
+        if (taList && taList.length > 0) {
+          const thisTaList = taList.filter(item => item.taId === taId);
+          if (thisTaList.length > 0) {
+            yield put({
+              type: 'save',
+              payload: {
+                companyName: thisTaList[0].companyName,
+              },
+            });
+          }
+        }
+      } else message.warn(resultMsg, 10);
     },
     *fetchTransactionTypes(_, { call, put }) {
       const {

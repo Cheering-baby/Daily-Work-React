@@ -292,7 +292,7 @@ class Restmodal extends Component {
                       message: formatMessage({ id: 'PWD_OLD_PWD_REQUIRED' }),
                     },
                   ],
-                })(<Input type="password" />)}
+                })(<Input.Password type="password" />)}
               </FormItem>
             </Col>
             <Col {...ColProps}>
@@ -307,7 +307,7 @@ class Restmodal extends Component {
                       validator: this.checkPwd,
                     },
                   ],
-                })(<Input type="password" onKeyUp={this.calculate} />)}
+                })(<Input.Password type="password" onKeyUp={this.calculate} />)}
               </FormItem>
             </Col>
             <Col {...ColProps}>
@@ -322,7 +322,7 @@ class Restmodal extends Component {
                       validator: this.compareToPwd,
                     },
                   ],
-                })(<Input type="password" onBlur={this.handleConfirmBlur} />)}
+                })(<Input.Password type="password" onBlur={this.handleConfirmBlur} />)}
               </FormItem>
             </Col>
           </div>

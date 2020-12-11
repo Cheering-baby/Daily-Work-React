@@ -23,6 +23,7 @@ export default {
       },
     },
     otherInfo: {},
+    salesPersonInfo:{},
     mappingInfo: {},
     accountInfo: {},
     taId: null,
@@ -121,6 +122,7 @@ export default {
           payload: {
             customerInfo: result.customerInfo || {},
             otherInfo: result.otherInfo || {},
+            salesPersonInfo: result.salesPersonInfo || {},
             status: result.status,
             remark: result.remark,
           },

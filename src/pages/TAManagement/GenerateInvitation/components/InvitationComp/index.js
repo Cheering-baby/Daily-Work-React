@@ -17,6 +17,7 @@ const mapStateToProps = store => {
     invitationVisible = false,
     sendInvitationLoading = false,
   } = store.generateInvitation;
+  const { loading } = store;
   return {
     taId,
     companyName,
@@ -26,6 +27,7 @@ const mapStateToProps = store => {
     emailContent,
     invitationVisible,
     sendInvitationLoading,
+    checkEmailLoading: loading.effects['generateInvitation/fetchEmailInSubTa'],
   };
 };
 
@@ -89,13 +91,28 @@ class InvitationComp extends PureComponent {
 
   sendToChange = value => {
     const values = [];
+    const { emailList = [] } = this.props;
     if (value !== null && value.length <= 999) {
       for (let i = 0; i < value.length; i += 1) {
         if (value[i].trim() !== '') {
           values.push({ key: `emailList${i}`, email: value[i].trim() });
         }
       }
-      const { dispatch } = this.props;
+      const { dispatch, form } = this.props;
+      if (values.length > emailList.length) {
+        const newValue = values.find(item => item.key === `emailList${values.length - 1}`);
+        dispatch({
+          type: 'generateInvitation/fetchEmailInSubTa',
+          payload: {
+            email: newValue.email,
+          },
+        }).then(res => {
+          if (res) {
+            values.length -= 1;
+            form.setFieldsValue({ emailList: this.getEmailVal(values) || [] });
+          }
+        });
+      }
       dispatch({
         type: 'generateInvitation/save',
         payload: {
@@ -106,19 +123,24 @@ class InvitationComp extends PureComponent {
   };
 
   onSend = () => {
-    const { dispatch, form, emailList } = this.props;
-    form.validateFieldsAndScroll(error => {
-      if (error) {
-        return;
-      }
-      if (isNvl(emailList) || emailList.length <= 0) {
-        message.warn(formatMessage({ id: 'SEND_EMAIL_IS_NULL' }), 10);
-        return;
-      }
-      dispatch({ type: 'generateInvitation/fetchSendInvitation' }).then(flag => {
-        if (flag) form.resetFields();
+    setTimeout(() => {
+      const { dispatch, form, emailList, checkEmailLoading = false } = this.props;
+      form.validateFieldsAndScroll(error => {
+        if (error) {
+          return;
+        }
+        if (checkEmailLoading) {
+          return;
+        }
+        if (isNvl(emailList) || emailList.length <= 0) {
+          message.warn(formatMessage({ id: 'SEND_EMAIL_IS_NULL' }), 10);
+          return;
+        }
+        dispatch({ type: 'generateInvitation/fetchSendInvitation' }).then(flag => {
+          if (flag) form.resetFields();
+        });
       });
-    });
+    }, 500);
   };
 
   showHtml = htmlString => {
@@ -162,15 +184,15 @@ class InvitationComp extends PureComponent {
                     <SortSelect
                       mode="tags"
                       maxTagCount={999}
-                      onChange={this.sendToChange}
+                      onChange={e => this.sendToChange(e)}
                       open={false}
                       style={{ width: '100%' }}
                       options={
                         emailList && emailList.length > 0
                           ? emailList.map(item => (
-                              <Select.Option key={`${item.key}`} value={`${item.email}`}>
-                                {`${item.email}`}
-                              </Select.Option>
+                            <Select.Option key={`${item.key}`} value={`${item.email}`}>
+                              {`${item.email}`}
+                            </Select.Option>
                             ))
                           : null
                       }
@@ -183,7 +205,7 @@ class InvitationComp extends PureComponent {
           <Row type="flex" justify="space-around">
             <Col span={24}>
               <Card
-                style={{margin: '0 -10px'}}
+                style={{ margin: '0 -10px' }}
                 title={
                   <span className={styles.userPerspectiveTitle}>
                     {formatMessage({ id: 'GI_USER_PERSPECTIVE' })}

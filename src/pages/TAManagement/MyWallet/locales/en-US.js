@@ -45,6 +45,7 @@ export default {
 
   'MyWallet.flow.filter.transactionId.placeholder': 'PARTNERS Transaction No.',
   'MyWallet.flow.filter.transactionType.placeholder': 'Transaction Type',
+  'MyWallet.flow.filter.partnersOrderNo.placeholder': 'PARTNERS Order No.',
   'MyWallet.flow.filter.dateRange.placeholder': 'DateRange',
   'MyWallet.flow.filter.galaxyOrderNo.placeholder': 'Galaxy Order No.',
   'MyWallet.flow.filter.invoiceNo.placeholder': 'Invoice No.',

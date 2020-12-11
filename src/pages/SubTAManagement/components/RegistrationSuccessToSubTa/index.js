@@ -12,7 +12,7 @@ class RegistrationSuccessToSubTa extends PureComponent {
   };
 
   render() {
-    const { showViewInformation, successText } = this.props;
+    const { showViewInformation } = this.props;
     return (
       <React.Fragment>
         <Row type="flex" justify="space-around" className={styles.registrationSuccessfullyRow}>
@@ -20,7 +20,7 @@ class RegistrationSuccessToSubTa extends PureComponent {
             <img src={successURL} alt="" />
           </Col>
           <Col span={24} className={styles.registrationSuccessfullyContent}>
-            <h3>{successText}</h3>
+            <h3>{formatMessage({ id: 'SUB_TA_REGISTRATION_SUBMITTED_SUCCESS' })}</h3>
             <p>{formatMessage({ id: 'SUB_TA_SUCCESS_MESSAGE' })}</p>
           </Col>
           <Col span={24} className={styles.registrationSuccessfullyBottom}>

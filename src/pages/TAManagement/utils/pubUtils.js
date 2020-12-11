@@ -140,32 +140,23 @@ export function getCategoryAndCustomerGroupStr(
   return !isNvl(categoryAndCustomerGroupStr) ? categoryAndCustomerGroupStr : '-';
 }
 
-export function getSalesPersonStr(salesPersonList, salesPerson) {
-  let salesPersonStr = '';
-  if (salesPerson && salesPersonList && salesPersonList.length) {
-    const salesPersonInfo =
-      salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
-    if (!isNvl(salesPersonInfo) && !isNvl(salesPersonInfo.userCode)) {
-      salesPersonStr += `${salesPersonInfo.userCode}`;
-      return salesPersonStr;
-    }
+export function getSalesPersonStr(salesPersonInfo) {
+  if (salesPersonInfo.userCode){
+    return salesPersonInfo.userCode;
   }
   return '-';
 }
 
-export function getSalesPersonEmailStr(salesPersonList, salesPerson) {
-  let salesPersonEmailStr = '';
-  if (salesPerson && salesPersonList && salesPersonList.length) {
-    const salesPersonInfo =
-      salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
-    if (
-      !isNvl(salesPersonInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo.email)
-    ) {
-      salesPersonEmailStr += `${salesPersonInfo.rwsInfo.email}`;
-      return salesPersonEmailStr;
-    }
+export function getSalesPersonEmailStr(salesPersonInfo) {
+  if (salesPersonInfo && salesPersonInfo.rwsInfo && salesPersonInfo.rwsInfo.email){
+    return salesPersonInfo.rwsInfo.email;
+  }
+  return '-';
+}
+
+export function getSalesPersonContactNumberStr(salesPersonInfo={}) {
+  if (salesPersonInfo && salesPersonInfo.rwsInfo && salesPersonInfo.rwsInfo.phone){
+    return salesPersonInfo.rwsInfo.phone;
   }
   return '-';
 }
@@ -175,23 +166,6 @@ export function getSalesPersonProductEligibility(queryMappingInfo) {
     return queryMappingInfo.productName
       .replace('hotel', 'Rooms')
       .replace('attractions', 'Attractions');
-  }
-  return '-';
-}
-
-export function getSalesPersonContactNumberStr(salesPersonList, salesPerson) {
-  let salesPersonContactNumberStr = '';
-  if (salesPerson && salesPersonList && salesPersonList.length) {
-    const salesPersonInfo =
-      salesPersonList.find(n => String(n.userCode) === String(salesPerson)) || {};
-    if (
-      !isNvl(salesPersonInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo) &&
-      !isNvl(salesPersonInfo.rwsInfo.phone)
-    ) {
-      salesPersonContactNumberStr += `${salesPersonInfo.rwsInfo.phone}`;
-      return salesPersonContactNumberStr;
-    }
   }
   return '-';
 }

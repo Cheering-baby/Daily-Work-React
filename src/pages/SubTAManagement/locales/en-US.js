@@ -5,7 +5,8 @@ export default {
   SUB_TA_WELCOME_TO_SIGN_UP: 'Welcome to sign up',
   SUB_TA_SUB_WELCOME_TO_SIGN_UP: 'Please fill in your registration information',
   SUB_TA_PENDING_APPROVAL: 'PENDING APPROVAL',
-  SUB_TA_SUB_PENDING_APPROVAL: 'Your information has been submitted. Please wait for 1-2 days.',
+  SUB_TA_SUB_PENDING_APPROVAL:
+    'Your application has been submitted. It will take 5 working days to process your application.',
   SUB_TA_STATE: 'State',
   SUB_TA_STATE_SUB: 'information submitted successfully, please wait patiently for 1-3 days',
   SUB_TA_STATUS_PENDING: 'PENDING OPERATION',
@@ -27,9 +28,10 @@ export default {
   SUB_TA_INPUT_ONLY_ENGLISH: 'Only accept in English language.',
   SUB_TA_INPUT_EMAIL: 'The input is not valid E-mail!',
 
-  SUB_TA_REGISTRATION_SUBMITTED_SUCCESS: 'Registration submitted successfully!',
+  SUB_TA_REGISTRATION_SUBMITTED_SUCCESS: 'Application submitted successfully!',
   SUB_TA_EDIT_SUBMITTED_SUCCESS: 'Edit submitted successfully!',
-  SUB_TA_SUCCESS_MESSAGE: 'Your information has been submitted. Please wait for 1-2 days.',
+  SUB_TA_SUCCESS_MESSAGE:
+    'Your application has been submitted. It will take 5 working days to process your application. An email will be sent to you shortly to confirm that we have received your application.',
   SUB_TA_LOSE: 'Close',
   SUB_TA_VIEW_INFORMATION: 'View Information',
 
@@ -70,4 +72,10 @@ export default {
   ENABLE_SUB_TA_PROFILE_SUCCESS: 'Activate Sub-Travel Agent profile successfully.',
   EDIT_SUB_TA_SUCCESS: 'Modify Sub-Travel Agent success.',
   EDIT_CHECK_EMAIL: 'Email has registered other Sub-Travel Agent',
+
+  SUB_TA_REGISTRATION_EMAIL_EXIST_ERROR: 'email already exist',
+  SUB_TA_REGISTRATION_COMPANY_NAME_EXIST_ERROR: 'companyName already exist',
+
+  SUB_TA_TEL: 'Office Tel Number',
+  SUB_TA_MOBILE_NO: 'Mobile Number',
 };

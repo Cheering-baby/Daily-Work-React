@@ -17,8 +17,8 @@ class DetailForAdditionalInformation extends PureComponent {
   render() {
     const {
       customerInfo = {},
+      salesPersonInfo = {},
       marketList = [],
-      salesPersonList = [],
       categoryList = [],
       customerGroupList = [],
     } = this.props;
@@ -46,15 +46,15 @@ class DetailForAdditionalInformation extends PureComponent {
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER' })}>
-              {getSalesPersonStr(salesPersonList, companyInfo.salesPerson)}
+              {getSalesPersonStr(salesPersonInfo)}
             </Descriptions.Item>
             <Descriptions.Item label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER_EMAIL' })}>
-              {getSalesPersonEmailStr(salesPersonList, companyInfo.salesPerson)}
+              {getSalesPersonEmailStr(salesPersonInfo)}
             </Descriptions.Item>
             <Descriptions.Item
               label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER_CONTACT_NUMBER' })}
             >
-              {getSalesPersonContactNumberStr(salesPersonList, companyInfo.salesPerson)}
+              {getSalesPersonContactNumberStr(salesPersonInfo)}
             </Descriptions.Item>
             <Descriptions.Item
               label={formatMessage({ id: 'ADDITIONAL_CATEGORY_AND_CUSTOMER_GROUP' })}

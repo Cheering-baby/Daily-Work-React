@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { BackTop, Layout, Spin } from 'antd';
+import { BackTop, Layout, Spin, Modal } from 'antd';
 import DocumentTitle from 'react-document-title';
 import memoizeOne from 'memoize-one';
 import { connect } from 'dva';
@@ -7,6 +7,7 @@ import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
 import withRouter from 'umi/withRouter';
 import Redirect from 'umi/redirect';
+import { formatMessage } from 'umi/locale';
 import pathToRegexp from 'path-to-regexp';
 import { forEach, isEqual } from 'lodash';
 import MediaQuery from 'react-responsive';
@@ -21,6 +22,9 @@ import Context from './MenuContext';
 import Exception403 from '../pages/Exception/403';
 import ResetPwd from '../pages/userLogin/components/ResetPwd';
 import SCREEN from '../utils/screen';
+import 'isomorphic-fetch';
+import UAAService from '@/uaa-npm';
+import { refreshFc, LOGOUT_TIME } from '../utils/loadScript';
 
 const { Content } = Layout;
 
@@ -115,28 +119,114 @@ class BasicLayout extends React.PureComponent {
     window.addEventListener('resize', this.handleResize.bind(this));
     window.portal_react_version = '0.0.10';
     if (!menuLoaded && !isSignUp) {
-      dispatch({
-        type: 'global/logged',
-        payload: {
-          redirect,
-        },
-      }).then(() => {
-        const { currentUserGlobal } = this.props;
-        if (currentUserGlobal) {
-          const { _csrf } = currentUserGlobal;
-          if (_csrf) {
-            dispatch({
-              type: 'global/fetchDefaultMenu',
-            });
-          }
+      let isLog = true;
+      refreshFc();
+      const time = localStorage.getItem('unloadTime');
+      if (time) {
+        const diffTime = new Date().getTime() - parseInt(time, 10);
+        if (diffTime > LOGOUT_TIME) {
+          UAAService.logout();
+          isLog = false;
         }
-      });
+        localStorage.setItem('unloadTime', null);
+      }
+      if (isLog) {
+        dispatch({
+          type: 'global/logged',
+          payload: {
+            redirect,
+          },
+        }).then(() => {
+          const { currentUserGlobal } = this.props;
+          if (currentUserGlobal) {
+            const { _csrf } = currentUserGlobal;
+            if (_csrf) {
+              dispatch({
+                type: 'global/fetchDefaultMenu',
+              });
+            }
+          }
+        });
+      }
     }
     if (!isSignUp) {
       dispatch({
         type: 'global/fetchDefaultMenu',
       });
     }
+    dispatch({
+      type: 'global/getSessionTime',
+    }).then(data => {
+      const { noticeTime = 100, interval = 20 } = data;
+      delete window.openFlag;
+      clearInterval(window.timeoutExit);
+      window.openFlag = true;
+      window.timeoutExit = setInterval(() => {
+        let routePath = window.location.hash.includes('/')
+          ? window.location.hash.split('/')[1]
+          : '';
+        routePath = routePath.includes('?') ? routePath.split('?')[0] : routePath;
+
+        if (routePath === 'userLogin') return;
+
+        dispatch({
+          type: 'global/getSessionRemainTime',
+        }).then(remainTime => {
+          routePath = window.location.hash.includes('/') ? window.location.hash.split('/')[1] : '';
+          routePath = routePath.includes('?') ? routePath.split('?')[0] : routePath;
+
+          if (routePath === 'userLogin') return;
+
+          // If it already pops up, skip it
+          if (!window.openFlag) return;
+
+          // For example, the 100-second prompt sessionTime has 120 seconds and needs to pop up after 20 seconds
+          const diff = remainTime - noticeTime;
+          if (diff < interval) return;
+          clearTimeout(window.tipsModel);
+          window.tipsModel = setTimeout(() => {
+            window.openFlag = false;
+            // Than the modal dialog to remind
+            let secondsToGo = noticeTime;
+            const modal = Modal.warning({
+              width: 650,
+              title: formatMessage({ id: 'SYSTEM_AUTO_LOGOUT' }),
+              content: `${formatMessage({
+                id: 'SYSTEM_SESSION_EXPIRE_NOTICE',
+              })}${secondsToGo} ${formatMessage({ id: 'SECONDS' })}.`,
+              okText: formatMessage({ id: 'SYSTEM_SESSION_CONTINUE' }),
+              onOk: () => {
+                dispatch({
+                  type: 'global/refreshSessionTime',
+                }).then(() => {
+                  window.openFlag = true;
+                  clearInterval(window.countdown);
+                  clearTimeout(window.exit);
+                });
+              },
+            });
+            window.countdown = setInterval(() => {
+              secondsToGo -= 1;
+              modal.update({
+                content: `${formatMessage({
+                  id: 'SYSTEM_SESSION_EXPIRE_NOTICE',
+                })}${secondsToGo} ${formatMessage({ id: 'SECONDS' })}.`,
+              });
+            }, 1000);
+            window.exit = setTimeout(() => {
+              modal.destroy();
+              window.openFlag = true;
+              clearInterval(window.countdown);
+              clearTimeout(window.exit);
+
+              window.g_app._store.dispatch({
+                type: 'login/logout',
+              });
+            }, secondsToGo * 1000);
+          }, diff * 1000);
+        });
+      }, interval * 1000);
+    });
   }
 
   componentDidUpdate(preProps) {
@@ -424,7 +514,7 @@ class BasicLayout extends React.PureComponent {
             currentUserRole={currentUserRole}
             {...this.props}
           />
-          <Content style={this.getContentStyle()} className="main-layout-content" id="main-layout-content">
+          <Content style={this.getContentStyle()} className="main-layout-content">
             <Fragment>
               {!menuLoaded || privilegeLoading ? (
                 <Spin />

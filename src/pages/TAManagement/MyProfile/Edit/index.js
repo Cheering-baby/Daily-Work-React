@@ -58,7 +58,6 @@ class Edit extends PureComponent {
       type: 'myProfile/doCleanData',
       payload: { taId: !isNvl(taId) ? taId : null },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
       dispatch({ type: 'taCommon/fetchQueryCreateTeam' });
       dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
         if (!isNvl(taId)) {

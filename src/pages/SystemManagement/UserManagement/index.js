@@ -9,9 +9,9 @@ import UserSearchTable from './components/UserSearchTable';
 import styles from './index.less';
 import SCREEN from '@/utils/screen';
 
-// RWS 用户进来 只能查看 rws用户 和 TA公司的主用户
-// TA 用户进来，只能看到该公司的用户 和 SUB TA 公司的主用户
-// SUB TA 用户进来， 只能看到该公司的用户
+// RWS user login: can see rws's user and TA company's main user
+// Main TA user login: can see user in ta company 和 SUB TA company's main user
+// Sub TA user login: can see user in sub ta company
 
 class Index extends React.PureComponent {
   render() {

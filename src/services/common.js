@@ -48,3 +48,37 @@ export function queryOrgListByUser(userCode) {
     method: 'GET',
   });
 }
+
+/**
+ * get ahead of time
+ * @returns {Promise<*>}
+ */
+export async function getAheadOfTime() {
+  return UAAService.request('/online/getAheadOfTime', {});
+}
+
+/**
+ * get interval time
+ * @returns {Promise<*>}
+ */
+export async function getIntervalTime() {
+  return UAAService.request('/online/getIntervalTime', {});
+}
+
+/**
+ * The rest of the session
+ * @returns {Promise<*>}
+ */
+export async function getRemainingTime() {
+  return UAAService.request('/online/refresh', {});
+}
+
+/**
+ * refresh token
+ * @returns {Promise<*>}
+ */
+export async function refreshToken() {
+  return UAAService.request('/refreshToken', {
+    method: 'POST',
+  });
+}

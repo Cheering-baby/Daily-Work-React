@@ -4,8 +4,7 @@ import { formatMessage } from 'umi/locale';
 import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 import { getCountryStr, colLayOut, rowLayOut } from '../../utils/pubUtils';
-
-
+import { getTelStr } from '@/pages/TAManagement/utils/pubUtils';
 
 class RegistrationInformationToSubTa extends PureComponent {
   render() {
@@ -20,9 +19,7 @@ class RegistrationInformationToSubTa extends PureComponent {
                 <span>{formatMessage({ id: 'SUB_TA_MAIN_TA_NAME' })} :</span>
               </div>
               <div className={styles.detailLeftStyle}>
-                <span>
-                  {!isNvl(subTaInfo.mainCompanyName) ? subTaInfo.mainCompanyName : '-'}
-                </span>
+                <span>{!isNvl(subTaInfo.mainCompanyName) ? subTaInfo.mainCompanyName : '-'}</span>
               </div>
             </Col>
           )}
@@ -56,6 +53,22 @@ class RegistrationInformationToSubTa extends PureComponent {
             </div>
             <div className={styles.detailLeftStyle}>
               <span>{getCountryStr(countryList, subTaInfo.country)}</span>
+            </div>
+          </Col>
+          <Col {...colLayOut}>
+            <div className={styles.detailLeftStyle}>
+              <span>{formatMessage({ id: 'SUB_TA_TEL' })}:</span>
+            </div>
+            <div className={styles.detailLeftStyle}>
+              <span>{getTelStr(countryList, subTaInfo.phoneCountry, subTaInfo.phone)}</span>
+            </div>
+          </Col>
+          <Col {...colLayOut}>
+            <div className={styles.detailLeftStyle}>
+              <span>{formatMessage({ id: 'SUB_TA_MOBILE_NO' })}:</span>
+            </div>
+            <div className={styles.detailLeftStyle}>
+              <span>{getTelStr(countryList, subTaInfo.mobileCountry, subTaInfo.mobileNumber)}</span>
             </div>
           </Col>
           <Col span={24}>

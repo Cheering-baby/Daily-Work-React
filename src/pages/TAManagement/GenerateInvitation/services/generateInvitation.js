@@ -28,3 +28,8 @@ export async function generateContent(params) {
     },
   });
 }
+
+export async function querySubTaInfoWithEmail(params) {
+  let emailUrl = `/b2b/agent/v1/subprofile/fetchInfoByMail?email=${params.email}&scene=sendInvitation`;
+  return UAAService.requestByRT(emailUrl, { method: 'GET' });
+}

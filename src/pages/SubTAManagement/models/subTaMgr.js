@@ -10,7 +10,13 @@ export default {
     subTaInfo: {},
     subTaInfoLoadingFlag: false,
     countryList: [],
+    phoneCountryList: [],
+    mobileCountryList: [],
     hasSubTaWithEmail: false,
+    isEmailError: false,
+    isCompanyNameError: false,
+    signature: '',
+    mainTaId: '',
   },
   effects: {
     *fetchSubTARegistration({ payload }, { call, put }) {
@@ -113,8 +119,10 @@ export default {
       return false;
     },
     *fetchQrySubTaInfoWithEmail({ payload }, { call, put, select }) {
-      const { hasSubTaWithEmail, subTaInfo } = yield select(state => state.subTaMgr);
-      if (isNvl(payload.email)) {
+      const { hasSubTaWithEmail, subTaInfo, signature, mainTaId } = yield select(
+        state => state.subTaMgr
+      );
+      if (isNvl(payload.email) && isNvl(payload.companyName)) {
         const returnDate = hasSubTaWithEmail ? {} : false;
         yield put({
           type: 'save',
@@ -124,9 +132,15 @@ export default {
         });
         return returnDate;
       }
+      if (isNvl(payload.email)) {
+        payload.email = null;
+      }
+      if (isNvl(payload.companyName)) {
+        payload.companyName = null;
+      }
       const {
         data: { resultCode, resultMsg, result },
-      } = yield call(service.querySubTaInfoWithEmail, { ...payload });
+      } = yield call(service.querySubTaInfoWithEmail, { ...payload, signature, taId: mainTaId });
       if (resultCode === '0' || resultCode === 0) {
         if (result) {
           yield put({
@@ -153,7 +167,7 @@ export default {
         return hasSubTaWithEmail ? {} : false;
       }
       message.warn(resultMsg, 10);
-      return false;
+      return -1;
     },
     *fetchQueryAgentOpt(_, { call, put }) {
       const {
@@ -167,6 +181,12 @@ export default {
               {}
             ).dictionaryList || [];
           countryList.sort((a, b) => {
+            if (String(a.dictId) === '65' || String(a.dictId) === '86') {
+              return -1;
+            }
+            if (String(b.dictId) === '65' || String(b.dictId) === '86') {
+              return -1;
+            }
             if (a.dictName > b.dictName) {
               return 1;
             }
@@ -175,7 +195,14 @@ export default {
             }
             return 0;
           });
-          yield put({ type: 'save', payload: { countryList: countryList || [] } });
+          yield put({
+            type: 'save',
+            payload: {
+              countryList: countryList || [],
+              phoneCountryList: countryList || [],
+              mobileCountryList: countryList || [],
+            },
+          });
         }
         return true;
       }
@@ -193,6 +220,12 @@ export default {
       if (resultCode === '0' || resultCode === 0) {
         if (result) {
           result.sort((a, b) => {
+            if (String(a.dictId) === '86' || String(a.dictId) === '65') {
+              return -1;
+            }
+            if (String(b.dictId) === '86' || String(b.dictId) === '65') {
+              return -1;
+            }
             if (a.dictName > b.dictName) {
               return 1;
             }
@@ -202,7 +235,14 @@ export default {
             return 0;
           });
         }
-        yield put({ type: 'save', payload: { countryList: result || [] } });
+        yield put({
+          type: 'save',
+          payload: {
+            countryList: result || [],
+            phoneCountryList: result || [],
+            mobileCountryList: result || [],
+          },
+        });
         return true;
       }
       message.warn(resultMsg, 10);

@@ -18,6 +18,8 @@ import {
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import moment from 'moment';
+import MediaQuery from 'react-responsive';
+import SCREEN from '@/utils/screen';
 import detailStyles from './index.less';
 import BreadcrumbComp from '@/components/BreadcrumbComp';
 import UploadContract from '@/pages/MyActivity/components/UploadContract';
@@ -37,11 +39,17 @@ const formItemLayout = {
 };
 
 const ColProps = {
-  span: 6,
+  xs: 24,
+  sm: 12,
+  md: 6,
+  xl: 6,
 };
 
 const BtnColProps = {
-  span: 6,
+  xs: 24,
+  sm: 12,
+  md: 6,
+  xl: 6,
 };
 
 @Form.create()
@@ -159,53 +167,55 @@ class MyActivity extends React.PureComponent {
                   }}
                 />
               </Tooltip>
-              {record.activityTplCode === 'TA-SIGN-UP' &&
-              record.status === '00' &&
-              PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ? (
-                <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
-                  <Icon
-                    type="upload"
-                    onClick={() => {
-                      this.detail('upload', record);
-                    }}
-                  />
-                </Tooltip>
-              ) : null}
-              {record.activityTplCode === 'TA-SIGN-UP' &&
-              record.status === '00' &&
-              (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ||
-                PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.AR_ACCOUNT_PRIVILEGE])) ? (
-                  <Tooltip title={formatMessage({ id: 'COMMON_REDIRECT_MAPPING' })}>
+              <MediaQuery minWidth={SCREEN.screenSmMin}>
+                {record.activityTplCode === 'TA-SIGN-UP' &&
+                record.status === '00' &&
+                PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ? (
+                  <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
                     <Icon
-                      type="block"
+                      type="upload"
                       onClick={() => {
-                      this.detail('block', record);
-                    }}
+                        this.detail('upload', record);
+                      }}
                     />
                   </Tooltip>
-              ) : null}
-              {record.status === '02' && !this.checkIsTransactionType(record) ? (
-                <Tooltip title={formatMessage({ id: 'COMMON_OPERATION' })}>
-                  <Icon
-                    type="audit"
-                    onClick={() => {
-                      this.detail('audit', record);
-                    }}
-                  />
-                </Tooltip>
-              ) : null}
-              {record.activityTplCode === 'ACCOUNT_AR_APPLY' &&
-              (record.status === '00' || record.status === '01') &&
-              PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.AR_ACCOUNT_PRIVILEGE]) ? (
-                <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
-                  <Icon
-                    type="upload"
-                    onClick={() => {
-                      this.detail('upload_credit_application_documents', record);
-                    }}
-                  />
-                </Tooltip>
-              ) : null}
+                ) : null}
+                {record.activityTplCode === 'TA-SIGN-UP' &&
+                record.status === '00' &&
+                (PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.SALES_SUPPORT_PRIVILEGE]) ||
+                  PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.AR_ACCOUNT_PRIVILEGE])) ? (
+                    <Tooltip title={formatMessage({ id: 'COMMON_REDIRECT_MAPPING' })}>
+                      <Icon
+                        type="block"
+                        onClick={() => {
+                        this.detail('block', record);
+                      }}
+                      />
+                    </Tooltip>
+                ) : null}
+                {record.status === '02' && !this.checkIsTransactionType(record) ? (
+                  <Tooltip title={formatMessage({ id: 'COMMON_OPERATION' })}>
+                    <Icon
+                      type="audit"
+                      onClick={() => {
+                        this.detail('audit', record);
+                      }}
+                    />
+                  </Tooltip>
+                ) : null}
+                {record.activityTplCode === 'ACCOUNT_AR_APPLY' &&
+                (record.status === '00' || record.status === '01') &&
+                PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.AR_ACCOUNT_PRIVILEGE]) ? (
+                  <Tooltip title={formatMessage({ id: 'COMMON_UPLOAD' })}>
+                    <Icon
+                      type="upload"
+                      onClick={() => {
+                        this.detail('upload_credit_application_documents', record);
+                      }}
+                    />
+                  </Tooltip>
+                ) : null}
+              </MediaQuery>
             </div>
           );
         },
@@ -605,7 +615,16 @@ class MyActivity extends React.PureComponent {
     return (
       <Row type="flex" justify="space-around" id="myActivity">
         <Col id="pageHeaderTitle" span={24} className={detailStyles.pageHeaderTitle}>
-          <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          <MediaQuery
+            maxWidth={SCREEN.screenMdMax}
+            minWidth={SCREEN.screenSmMin}
+            minHeight={SCREEN.screenSmMin}
+          >
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
+          <MediaQuery minWidth={SCREEN.screenLgMin}>
+            <BreadcrumbComp breadcrumbArr={breadcrumbArr} />
+          </MediaQuery>
         </Col>
         <Col id="pageSearchCard" span={24} className={detailStyles.pageSearchCard}>
           <Card>
@@ -690,8 +709,6 @@ class MyActivity extends React.PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row gutter={24} style={{ paddingTop: '15px' }}>
                 <Col {...ColProps}>
                   <Form.Item {...formItemLayout}>
                     {getFieldDecorator(
@@ -734,7 +751,7 @@ class MyActivity extends React.PureComponent {
                     )}
                   </Form.Item>
                 </Col>
-                <Col {...BtnColProps} style={{ textAlign: 'right', paddingRight: '24px' }}>
+                <Col {...BtnColProps} style={{ textAlign: 'right' }}>
                   <Button type="primary" htmlType="submit" style={{ marginRight: 15 }}>
                     {formatMessage({ id: 'BTN_SEARCH' })}
                   </Button>
@@ -768,19 +785,36 @@ class MyActivity extends React.PureComponent {
         </Modal>
         <Col span={24} className={detailStyles.pageTableCard}>
           <Card>
-            <Table
-              rowKey={record => `activityList${record.activityId}`}
-              bordered={false}
-              size="small"
-              dataSource={approvalList}
-              pagination={pagination}
-              loading={loading}
-              columns={this.columns}
-              className={detailStyles.tableStyle}
-              onChange={this.handleTableChange}
-              scroll={{ x: 1200, y: this.getTableHeight() }}
-              {...tableOpts}
-            />
+            <MediaQuery maxWidth={SCREEN.screenXsMax}>
+              <Table
+                rowKey={record => `activityList${record.activityId}`}
+                bordered={false}
+                size="small"
+                dataSource={approvalList}
+                pagination={pagination}
+                loading={loading}
+                columns={this.columns}
+                className={detailStyles.tableStyle}
+                onChange={this.handleTableChange}
+                scroll={{ x: 1200 }}
+                {...tableOpts}
+              />
+            </MediaQuery>
+            <MediaQuery minWidth={SCREEN.screenSmMin}>
+              <Table
+                rowKey={record => `activityList${record.activityId}`}
+                bordered={false}
+                size="small"
+                dataSource={approvalList}
+                pagination={pagination}
+                loading={loading}
+                columns={this.columns}
+                className={detailStyles.tableStyle}
+                onChange={this.handleTableChange}
+                scroll={{ x: 1200, y: this.getTableHeight() }}
+                {...tableOpts}
+              />
+            </MediaQuery>
           </Card>
         </Col>
       </Row>

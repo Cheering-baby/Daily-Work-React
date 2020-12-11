@@ -7,7 +7,6 @@ import AccountInformationToSubTaWithDrawer from '../../components/AccountInforma
 import styles from '../index.less';
 import { isNvl } from '@/utils/utils';
 import { getFormKeyValue } from '../../utils/pubUtils';
-import {hasAllPrivilege, SUB_TA_ADMIN_PRIVILEGE} from "@/utils/PrivilegeUtil";
 
 const mapStateToProps = store => {
   const {
@@ -15,6 +14,8 @@ const mapStateToProps = store => {
     subTaInfo,
     subTaInfoLoadingFlag,
     countryList,
+    phoneCountryList,
+    mobileCountryList,
     hasSubTaWithEmail,
   } = store.subTaMgr;
   const { editVisible } = store.subTaProfile;
@@ -23,6 +24,8 @@ const mapStateToProps = store => {
     subTaInfo,
     subTaInfoLoadingFlag,
     countryList,
+    phoneCountryList,
+    mobileCountryList,
     editVisible,
     hasSubTaWithEmail,
   };
@@ -122,7 +125,14 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
   };
 
   render() {
-    const { countryList, editVisible, subTaInfoLoadingFlag, hasSubTaWithEmail } = this.props;
+    const {
+      countryList,
+      phoneCountryList,
+      mobileCountryList,
+      editVisible,
+      subTaInfoLoadingFlag,
+      hasSubTaWithEmail,
+    } = this.props;
     return (
       <div>
         <Drawer
@@ -131,7 +141,7 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
           className={styles.subTaDrawer}
           onClose={this.onClose}
           visible={editVisible}
-          bodyStyle={{ padding: '8px' }}
+          bodyStyle={{ padding: '8px', height: '100%' }}
         >
           <Row type="flex" justify="space-around">
             <Col span={24}>
@@ -142,6 +152,8 @@ class RegistrationInformationToSubTaEdit extends PureComponent {
                   }}
                   subTaInfo={this.initState(this.state, this.props) || {}}
                   countryList={countryList || []}
+                  phoneCountryList={phoneCountryList || []}
+                  mobileCountryList={mobileCountryList || []}
                   onHandleChange={this.onHandleChange}
                   detailOpt={{
                     formItemLayout: {

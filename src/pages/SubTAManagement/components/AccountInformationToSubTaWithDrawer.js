@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Col, Form, Input, Row, Select } from 'antd';
+import { Col, Form, Input, Row, Select, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import SortSelect from '@/components/SortSelect';
-import {isNvl} from "@/utils/utils";
+import { isNvl } from '@/utils/utils';
+import styles from './SubTaInfoCommon.less';
 
 @Form.create()
 class AccountInformationToSubTaWithDrawer extends PureComponent {
@@ -11,6 +12,8 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
       form,
       subTaInfo = {},
       countryList = [],
+      phoneCountryList = [],
+      mobileCountryList = [],
       onHandleChange,
       detailOpt,
       viewId,
@@ -31,17 +34,17 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                 rules: [{ required: true, message: formatMessage({ id: 'SUB_TA_REQUIRED' }) }],
               })(
                 <div>
-                  {!isNvl(subTaInfo.relativeTaList) && subTaInfo.relativeTaList.length > 0 &&
-                  subTaInfo.relativeTaList.map(name => {
-                    return(
-                      <Input
-                        placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
-                        value={!isNvl(name) ? name.mainCompanyName : null}
-                        disabled
-                      />
-                    );
-                  })
-                  }
+                  {!isNvl(subTaInfo.relativeTaList) &&
+                    subTaInfo.relativeTaList.length > 0 &&
+                    subTaInfo.relativeTaList.map(name => {
+                      return (
+                        <Input
+                          placeholder={formatMessage({ id: 'SUB_TA_PLEASE_ENTER' })}
+                          value={!isNvl(name) ? name.mainCompanyName : null}
+                          disabled
+                        />
+                      );
+                    })}
                 </div>
               )}
             </Form.Item>
@@ -142,6 +145,128 @@ class AccountInformationToSubTaWithDrawer extends PureComponent {
                   }
                 />
               )}
+            </Form.Item>
+          </Col>
+          <Col span={24} style={{ marginBottom: '8px' }}>
+            <Form.Item
+              label={formatMessage({ id: 'SUB_TA_TEL' })}
+              colon={false}
+              className={styles.telItem}
+              {...detailOpt.formItemLayout}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} style={{ width: '35%' }}>
+                  {getFieldDecorator('phoneCountry', {
+                    initialValue: subTaInfo.phoneCountry || [],
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <SortSelect
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                      onChange={value => onHandleChange('phoneCountry', value, 'phoneCountry')}
+                      style={{ width: '100%' }}
+                      options={
+                        phoneCountryList && phoneCountryList.length > 0
+                          ? phoneCountryList.map(item => (
+                            <Select.Option
+                              key={`countryPhoneList${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
+                            >
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
+                  )}
+                </Form.Item>
+                <Form.Item colon={false} style={{ width: '65%' }}>
+                  {getFieldDecorator('phone', {
+                    initialValue: subTaInfo.phone || null,
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e => onHandleChange('phone', e.target.value, 'phone')}
+                      onPressEnter={e => onHandleChange('phone', e.target.value, 'phone')}
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
+          </Col>
+          <Col span={24} style={{ marginBottom: '8px' }}>
+            <Form.Item
+              label={formatMessage({ id: 'SUB_TA_MOBILE_NO' })}
+              colon={false}
+              className={styles.telItem}
+              {...detailOpt.formItemLayout}
+            >
+              <Input.Group compact>
+                <Form.Item colon={false} style={{ width: '35%' }}>
+                  {getFieldDecorator('mobileCountry', {
+                    initialValue: subTaInfo.mobileCountry || [],
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <SortSelect
+                      showSearch
+                      placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
+                      optionFilterProp="label"
+                      getPopupContainer={() => document.getElementById(`${viewId}`)}
+                      onChange={value => onHandleChange('mobileCountry', value, 'mobileCountry')}
+                      style={{ width: '100%' }}
+                      options={
+                        mobileCountryList && mobileCountryList.length > 0
+                          ? mobileCountryList.map(item => (
+                            <Select.Option
+                              key={`mobileCountryList${item.dictId}`}
+                              value={`${item.dictId}`}
+                              label={`${item.dictName} +${item.dictId}`}
+                            >
+                              <Tooltip
+                                placement="topLeft"
+                                title={
+                                  <span style={{ whiteSpace: 'pre-wrap' }}>
+                                    {`${item.dictName} +${item.dictId}`}
+                                  </span>
+                                  }
+                              >
+                                {`${item.dictName} +${item.dictId}`}
+                              </Tooltip>
+                            </Select.Option>
+                            ))
+                          : null
+                      }
+                    />
+                  )}
+                </Form.Item>
+                <Form.Item colon={false} style={{ width: '65%' }}>
+                  {getFieldDecorator('mobileNumber', {
+                    initialValue: subTaInfo.mobileNumber || null,
+                    rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
+                  })(
+                    <Input
+                      placeholder={formatMessage({ id: 'PLEASE_ENTER' })}
+                      onChange={e => onHandleChange('mobileNumber', e.target.value, 'mobileNumber')}
+                      onPressEnter={e =>
+                        onHandleChange('mobileNumber', e.target.value, 'mobileNumber')
+                      }
+                    />
+                  )}
+                </Form.Item>
+              </Input.Group>
             </Form.Item>
           </Col>
           <Col span={24}>

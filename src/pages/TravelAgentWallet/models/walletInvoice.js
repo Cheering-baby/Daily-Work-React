@@ -39,7 +39,7 @@ const WalletInvoiceModel = {
   state: {
     profile: DEFAULT_PROFILE,
     descriptions: [
-      { label: 'AR NO:', dataKey: 'AR_NO' },
+      { label: 'AR No:', dataKey: 'AR_NO' },
       { label: 'Tax Invoice:', dataKey: 'Tax_Invoice' },
       { label: 'Date:', dataKey: 'Date' },
       { label: 'GST Reg No:', dataKey: 'GST_Reg_No' },
@@ -48,7 +48,7 @@ const WalletInvoiceModel = {
       { label: 'Page:', dataKey: 'Page' },
       { label: 'Payment Mode:', dataKey: 'Payment_Mode' },
       { label: 'Credit Card Type:', dataKey: 'Credit_Card_Type' },
-      { label: 'Payment Reference NO:', dataKey: 'Payment_Reference_NO' },
+      { label: 'Payment Reference No:', dataKey: 'Payment_Reference_NO' },
     ],
     descriptionsData: DEFAULT_DESCRIPTIONS_DATA,
     details: DEFAULT_DETAILS,
@@ -97,16 +97,19 @@ const WalletInvoiceModel = {
               Date: moment(flow.createTime)
                 .format('DD/MM/YYYY')
                 .toString(),
-              Total_Amount: flow.charge.toFixed(2),
+              Total_Amount: flow.flow === 1 ? -flow.charge.toFixed(2) : flow.charge.toFixed(2),
               Line_Description: `${
                 mappingInfo.peoplesoftEwalletId
               } - Top up prepayment for ${moment(flow.createTime)
                 .format('MMM YYYY')
                 .toString()}`,
               internal: {
-                befGstAmount: Number(flow.befGstAmount.toFixed(2)),
-                gstAmount: flow.gstAmount.toFixed(2),
-                totalAmount: flow.charge.toFixed(2),
+                befGstAmount:
+                  flow.flow === 1
+                    ? -Number(flow.befGstAmount.toFixed(2))
+                    : Number(flow.befGstAmount.toFixed(2)),
+                gstAmount: flow.flow === 1 ? -flow.gstAmount.toFixed(2) : flow.gstAmount.toFixed(2),
+                totalAmount: flow.flow === 1 ? -flow.charge.toFixed(2) : flow.charge.toFixed(2),
               },
               taxRatio: `${(flow.taxRatio * 100).toFixed(2)} %`,
             }),

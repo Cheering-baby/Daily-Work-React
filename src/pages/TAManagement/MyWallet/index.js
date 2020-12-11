@@ -140,7 +140,7 @@ class MyWallet extends React.PureComponent {
       const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
       const { offsetHeight: walletCardHeight } = document.getElementById('walletCard');
       const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
-      return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 320;
+      return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 120;
     }
     return layoutHeight;
   };
@@ -258,7 +258,7 @@ class MyWallet extends React.PureComponent {
                 onClick={() => {
                   if (text) {
                     router.push(
-                      `/TicketManagement/Ticketing/QueryOrder?backFlag=payment&orderNo=${text}&checked=true`
+                      `/TicketManagement/Ticketing/QueryOrder?backFlag=payment&orderNo=${text}`
                     );
                   }
                 }}
@@ -376,7 +376,7 @@ class MyWallet extends React.PureComponent {
                             <span className={styles.symbolPart}>$</span>
                             <span className={styles.integerPart}>
                               {CurrencyFormatter.format(
-                                eWallet.balance,
+                                eWallet.integer,
                                 CURRENCY_FORMATTER_OPTIONS
                               )}
                             </span>

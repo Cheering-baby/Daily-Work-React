@@ -61,25 +61,30 @@ class index extends React.PureComponent {
         },
       }).then(resultData => {
         if (resultData) {
-          const { email, phone } = resultData;
+          const { email, officeTelephone, phone, fullName } = resultData;
           if (email) {
-            this.resetEmailAndPhone(form, email, phone);
+            this.resetEmailAndPhone(form, email, officeTelephone, phone, fullName);
           } else {
-            this.resetEmailAndPhone(form, null, null);
+            this.resetEmailAndPhone(form, null, null, null, null);
             message.warn(formatMessage({ id: 'SET_EMAIL_ON_AD_SERVER' }));
           }
         } else if (resultData === null) {
-          this.resetEmailAndPhone(form, null, null);
+          this.resetEmailAndPhone(form, null, null, null, null);
           message.warn(formatMessage({ id: 'USER_NO_EXIST_ON_AD_SERVER' }));
         }
       });
     }
   };
 
-  resetEmailAndPhone = (form, email, phone) => {
+  resetEmailAndPhone = (form, email, officeTelephone, phone, fullName) => {
+    let phoneResult = officeTelephone ? officeTelephone.trim() : null;
+    if (!phoneResult) {
+      phoneResult = phone ? phone.trim() : null;
+    }
     form.setFieldsValue({
       email: email ? email.trim() : null,
-      phone,
+      phone: phoneResult,
+      userName: fullName ? fullName.trim() : null,
     });
   };
 
@@ -199,6 +204,7 @@ class index extends React.PureComponent {
                         ],
                       })(
                         <Input
+                          disabled
                           maxLength={80}
                           allowClear
                           placeholder={formatMessage({ id: 'PLEASE_ENTER' })}

@@ -71,7 +71,9 @@ const ContactInformation = props => {
             <span>{formatMessage({ id: 'MOBILE_NO' })}:</span>
           </div>
           <div className={styles.detailLeftStyle}>
-            <span>{getTelStr(countryList, contactInfo.country, contactInfo.phone)}</span>
+            <span>
+              {getTelStr(countryList, contactInfo.mobileCountry, contactInfo.mobileNumber)}
+            </span>
           </div>
         </Col>
       </Row>

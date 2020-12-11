@@ -16,7 +16,12 @@ const mapStateToProps = store => {
     subTaInfo,
     subTaInfoLoadingFlag,
     countryList,
+    phoneCountryList,
+    mobileCountryList,
     hasSubTaWithEmail,
+    isEmailError,
+    isCompanyNameError,
+    signature,
   } = store.subTaMgr;
   const { currentStep, isShowDetail } = store.subTaSignUp;
   return {
@@ -27,6 +32,11 @@ const mapStateToProps = store => {
     currentStep,
     isShowDetail,
     hasSubTaWithEmail,
+    isEmailError,
+    isCompanyNameError,
+    phoneCountryList,
+    mobileCountryList,
+    signature,
   };
 };
 
@@ -53,6 +63,22 @@ class SignUp extends PureComponent {
       );
       dispatch({ type: 'subTaMgr/fetchQueryAgentOpt' });
     });
+    const {
+      location: { query, search },
+    } = this.props;
+    if (query && search) {
+      const { taId: mainTaId } = query;
+      const paramArray = search.split('&');
+      const signatureStr = paramArray.filter(item => String(item).startsWith('signature'));
+      const signature = String(signatureStr).substr(10);
+      dispatch({
+        type: 'subTaMgr/save',
+        payload: {
+          signature: isNvl(signature) ? null : signature,
+          mainTaId: isNvl(mainTaId) ? null : mainTaId,
+        },
+      });
+    }
   };
 
   getPageHeader = (currentStep, statusName) => {
@@ -105,9 +131,10 @@ class SignUp extends PureComponent {
     const {
       dispatch,
       location: {
-        query: { taId, companyName, signature },
+        query: { taId, companyName },
       },
       subTaInfo,
+      signature,
     } = this.props;
     const { form } = this.accountRef.props;
     form.validateFieldsAndScroll(error => {
@@ -135,6 +162,7 @@ class SignUp extends PureComponent {
   onHandleChange = (key, keyValue, fieldKey) => {
     const { dispatch, subTaInfo } = this.props;
     const { form } = this.accountRef.props;
+    const { setFields } = form;
     let newSubTaInfo = {};
     if (!isNvl(subTaInfo)) {
       newSubTaInfo = { ...subTaInfo };
@@ -142,17 +170,70 @@ class SignUp extends PureComponent {
     const noVal = getFormKeyValue(keyValue);
     if (String(key).toLowerCase() === 'email') {
       dispatch({
+        type: 'subTaMgr/save',
+        payload: {
+          isEmailError: false,
+        },
+      });
+      dispatch({
         type: 'subTaMgr/fetchQrySubTaInfoWithEmail',
         payload: {
           email: keyValue,
         },
       }).then(res => {
-        if (res) {
+        if (res === -1) {
+          setFields({
+            email: {
+              value: keyValue,
+              errors: [new Error(formatMessage({ id: 'SUB_TA_REGISTRATION_EMAIL_EXIST_ERROR' }))],
+            },
+          });
+          dispatch({
+            type: 'subTaMgr/save',
+            payload: {
+              isEmailError: true,
+            },
+          });
+        } else if (res) {
           const { country, address, fullName, companyName } = res;
           form.setFieldsValue({ country, address, fullName, companyName });
         }
       });
     }
+
+    if (String(key).toLowerCase() === 'companyname') {
+      dispatch({
+        type: 'subTaMgr/fetchQrySubTaInfoWithEmail',
+        payload: {
+          companyName: keyValue,
+        },
+      }).then(res => {
+        if (res === -1) {
+          dispatch({
+            type: 'subTaMgr/save',
+            payload: {
+              isCompanyNameError: true,
+            },
+          });
+          setFields({
+            companyName: {
+              value: keyValue,
+              errors: [
+                new Error(formatMessage({ id: 'SUB_TA_REGISTRATION_COMPANY_NAME_EXIST_ERROR' })),
+              ],
+            },
+          });
+        } else {
+          dispatch({
+            type: 'subTaMgr/save',
+            payload: {
+              isCompanyNameError: false,
+            },
+          });
+        }
+      });
+    }
+
     form.setFieldsValue(JSON.parse(`{"${fieldKey}":"${noVal}"}`));
     const source = JSON.parse(`{"${key}":"${noVal}"}`);
     Object.assign(newSubTaInfo, source);
@@ -197,7 +278,11 @@ class SignUp extends PureComponent {
       subTaInfo = {},
       subTaInfoLoadingFlag = false,
       countryList = [],
+      phoneCountryList = [],
+      mobileCountryList = [],
       hasSubTaWithEmail = false,
+      isEmailError = false,
+      isCompanyNameError = false,
     } = this.props;
     if (isShowDetail) {
       return (
@@ -211,7 +296,6 @@ class SignUp extends PureComponent {
                 <RegistrationInformationToSubTa
                   subTaInfo={subTaInfo || {}}
                   countryList={countryList || []}
-                  successText={formatMessage({ id: 'SUB_TA_REGISTRATION_SUBMITTED_SUCCESS' })}
                 />
               </Card>
             </Col>
@@ -225,31 +309,32 @@ class SignUp extends PureComponent {
         actions={
           String(currentStep) === '0'
             ? [
-                <Row
-                  type="flex"
-                  justify="space-around"
-                  className={styles.subTaInformationButtonRow}
-                >
-                  <Col span={24}>
-                    <Button
-                      htmlType="button"
-                      className={styles.subTaInformationButton}
-                      loading={subTaInfoLoadingFlag}
-                      onClick={e => this.giveUpRegister(e)}
-                    >
-                      {formatMessage({ id: 'COMMON_CANCEL' })}
-                    </Button>
-                    <Button
-                      htmlType="button"
-                      type="primary"
-                      className={styles.subTaInformationButton}
-                      loading={subTaInfoLoadingFlag}
-                      onClick={this.onHandleSubmit}
-                    >
-                      {formatMessage({ id: 'COMMON_OK' })}
-                    </Button>
-                  </Col>
-                </Row>,
+              <Row
+                type="flex"
+                justify="space-around"
+                className={styles.subTaInformationButtonRow}
+              >
+                <Col span={24}>
+                  <Button
+                    htmlType="button"
+                    className={styles.subTaInformationButton}
+                    loading={subTaInfoLoadingFlag}
+                    onClick={e => this.giveUpRegister(e)}
+                  >
+                    {formatMessage({ id: 'COMMON_CANCEL' })}
+                  </Button>
+                  <Button
+                    htmlType="button"
+                    type="primary"
+                    className={styles.subTaInformationButton}
+                    loading={subTaInfoLoadingFlag}
+                    onClick={this.onHandleSubmit}
+                    disabled={isEmailError || isCompanyNameError}
+                  >
+                    {formatMessage({ id: 'COMMON_OK' })}
+                  </Button>
+                </Col>
+              </Row>,
               ]
             : []
         }
@@ -265,6 +350,8 @@ class SignUp extends PureComponent {
                 subTaInfo={subTaInfo || {}}
                 hasSubTaWithEmail={hasSubTaWithEmail || false}
                 countryList={countryList || []}
+                phoneCountryList={phoneCountryList || []}
+                mobileCountryList={mobileCountryList || []}
                 onHandleChange={this.onHandleChange}
                 detailOpt={getFormLayout()}
                 viewId="subTaSignUpView"

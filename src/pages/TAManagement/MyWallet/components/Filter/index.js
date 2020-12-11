@@ -47,26 +47,16 @@ const Filter = props => {
         <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6}>
           <Form.Item>
             {getFieldDecorator(
-              'transactionType',
+              'referenceNo',
               {}
             )(
-              <Select
+              <Input
                 allowClear
                 disabled={loading}
-                getPopupContainer={() =>
-                  document.getElementById('MyWallet')
-                }
-                dropdownClassName={styles.SelectTransactionType}
                 placeholder={formatMessage({
-                  id: 'MyWallet.flow.filter.transactionType.placeholder',
+                  id: 'MyWallet.flow.filter.partnersOrderNo.placeholder',
                 })}
-              >
-                {transactionTypes.map(({ label, value }) => (
-                  <Option key={value} value={value}>
-                    {label}
-                  </Option>
-                ))}
-              </Select>
+              />
             )}
           </Form.Item>
         </Col>
@@ -77,7 +67,7 @@ const Filter = props => {
               {}
             )(
               <DatePicker.RangePicker
-                style={{width: '100%'}}
+                style={{ width: '100%' }}
                 allowClear
                 disabled={loading}
                 placeholder={formatMessage({ id: 'MyWallet.flow.filter.dateRange.placeholder' })}
@@ -119,7 +109,41 @@ const Filter = props => {
             )}
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} style={{ textAlign: 'right', float: 'right' }}>
+        <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6}>
+          <Form.Item>
+            {getFieldDecorator(
+              'transactionType',
+              {}
+            )(
+              <Select
+                allowClear
+                disabled={loading}
+                getPopupContainer={() =>
+                  document.getElementById('MyWallet')
+                }
+                dropdownClassName={styles.SelectTransactionType}
+                placeholder={formatMessage({
+                  id: 'MyWallet.flow.filter.transactionType.placeholder',
+                })}
+              >
+                {transactionTypes.map(({ label, value }) => (
+                  <Option key={value} value={value}>
+                    {label}
+                  </Option>
+                ))}
+              </Select>
+            )}
+          </Form.Item>
+        </Col>
+        <Col
+          xs={24}
+          sm={12}
+          md={12}
+          lg={6}
+          xl={6}
+          xxl={6}
+          style={{ textAlign: 'right', float: 'right' }}
+        >
           <Button
             type="primary"
             onClick={search}

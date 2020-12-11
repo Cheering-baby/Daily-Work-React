@@ -85,3 +85,9 @@ export async function resetPassword(params) {
     method: 'POST',
   });
 }
+
+export async function queryTaInfo(params) {
+  return UAAService.requestByRT(`/b2b/agent/v1/profile/queryTaInfo?taId=${params.taId}`, {
+    method: 'GET',
+  });
+}

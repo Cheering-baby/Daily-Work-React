@@ -27,18 +27,25 @@ const ColProps = {
 };
 
 @Form.create()
-@connect(({ operationApproval }) => ({
+@connect(({ operationApproval, global }) => ({
   operationApproval,
+  global,
 }))
 class OperationApproval extends React.PureComponent {
   componentDidMount() {
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+      global: { currentUser = {} },
+    } = this.props;
+    const { userType = '' } = currentUser;
     dispatch({
       type: 'operationApproval/queryRerouteList',
     });
-    dispatch({
-      type: 'operationApproval/querySalePerson',
-    });
+    if (userType === '01') {
+      dispatch({
+        type: 'operationApproval/querySalePerson',
+      });
+    }
   }
 
   reroute = checked => {

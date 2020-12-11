@@ -37,6 +37,7 @@ const mapStateToProps = store => {
   const {
     otherInfo,
     customerInfo,
+    salesPersonInfo,
     mappingInfo,
     accountInfo,
     taId,
@@ -53,6 +54,7 @@ const mapStateToProps = store => {
   return {
     otherInfo,
     customerInfo,
+    salesPersonInfo,
     mappingInfo,
     accountInfo,
     taId,
@@ -94,7 +96,6 @@ class MyProfile extends PureComponent {
       type: 'myProfile/doCleanData',
       payload: { taId: !isNvl(taInfo.companyId) ? taInfo.companyId : null },
     }).then(() => {
-      dispatch({ type: 'taCommon/fetchQrySalesPersonList' });
       dispatch({ type: 'taCommon/fetchQueryCreateTeam' });
       dispatch({ type: 'taCommon/fetchQueryAgentOpt' }).then(() => {
         if (!isNvl(taInfo.companyId)) {
@@ -130,6 +131,7 @@ class MyProfile extends PureComponent {
     const {
       otherInfo = {},
       customerInfo = {},
+      salesPersonInfo = {},
       mappingInfo = {},
       accountInfo = {},
       organizationRoleList = [],
@@ -237,20 +239,17 @@ class MyProfile extends PureComponent {
                           <Descriptions.Item
                             label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER' })}
                           >
-                            {getSalesPersonStr(salesPersonList, companyInfo.salesPerson)}
+                            {getSalesPersonStr(salesPersonInfo)}
                           </Descriptions.Item>
                           <Descriptions.Item
                             label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER_EMAIL' })}
                           >
-                            {getSalesPersonEmailStr(salesPersonList, companyInfo.salesPerson)}
+                            {getSalesPersonEmailStr(salesPersonInfo)}
                           </Descriptions.Item>
                           <Descriptions.Item
                             label={formatMessage({ id: 'ADDITIONAL_SALES_MANAGER_CONTACT_NUMBER' })}
                           >
-                            {getSalesPersonContactNumberStr(
-                              salesPersonList,
-                              companyInfo.salesPerson
-                            )}
+                            {getSalesPersonContactNumberStr(salesPersonInfo)}
                           </Descriptions.Item>
                           <Descriptions.Item label={formatMessage({ id: 'PRODUCT_ELIGIBILITY' })}>
                             {getSalesPersonProductEligibility(queryMappingInfo)}

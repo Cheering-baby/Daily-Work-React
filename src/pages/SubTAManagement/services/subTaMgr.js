@@ -44,9 +44,12 @@ export async function querySubTaInfoWithMask(params) {
 }
 
 export async function querySubTaInfoWithEmail(params) {
-  let emailUrl = `/b2b/agent/v1/subprofile/fetchInfoByMail?email=${params.email}`;
-  if (!isNvl(params.subTaId)) {
-    emailUrl += `&subTaId=${params.subTaId}`;
+  let emailUrl = `/b2b/agent/v1/subprofile/fetchInfoByMail?taId=${params.taId}&signature=${params.signature}&scene=sendInvitation`;
+  if (!isNvl(params.email)) {
+    emailUrl += `&email=${params.email}`;
+  }
+  if (!isNvl(params.companyName)) {
+    emailUrl += `&companyName=${params.companyName}`;
   }
   return UAAService.requestByRT(emailUrl, { method: 'GET' });
 }
