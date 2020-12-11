@@ -1096,7 +1096,7 @@ class QueryOrder extends Component {
         <PaymentModal />
         <PaymentPromptModal />
         <Audit />
-        <div>
+        <div id="Ticketing-Query-Order">
           <MediaQuery minWidth={SCREEN.screenSm}>
             <BreadcrumbCompForPams title={title} />
           </MediaQuery>

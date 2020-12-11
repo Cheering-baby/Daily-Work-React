@@ -120,28 +120,12 @@ class OrderItemCollapse extends Component {
         });
       } else {
         orderOfferItem.orderInfo.forEach(orderInfoItem => {
-          const {
-            productInfo: {
-              attractionProduct: { itemPlus },
-              needChoiceCount,
-            },
-            quantity,
-            onlyVoucher,
-          } = orderInfoItem;
+          const { quantity } = orderInfoItem;
           if (quantity > 0) {
-            let ticketType = {
+            const ticketType = {
               itemName: orderInfoItem.ageGroup || 'General',
               itemQuantity: orderInfoItem.ageGroupQuantity || 1,
             };
-            if (!onlyVoucher && Array.isArray(itemPlus)) {
-              ticketType = {
-                itemName: itemPlus
-                  .map(i => `${i.ageGroup || 'General'} * ${(i.itemQty || 1) * needChoiceCount}`)
-                  .join(', '),
-                itemQuantity: null,
-                itemPlus,
-              };
-            }
             ticketTypeList.push(ticketType);
           }
         });
@@ -811,10 +795,7 @@ class OrderItemCollapse extends Component {
                               const indexS = `ticketType${itemIndex}${indexV}`;
                               return (
                                 <p key={indexS} className={styles.ticketSpan}>
-                                  {ticketTypeItem.itemName}{' '}
-                                  {ticketTypeItem.itemPlus
-                                    ? null
-                                    : `* ${ticketTypeItem.itemQuantity}`}
+                                  {ticketTypeItem.itemName} * {ticketTypeItem.itemQuantity}
                                 </p>
                               );
                             })}

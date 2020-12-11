@@ -334,6 +334,10 @@ class SearchCondition extends Component {
                   className={styles.inputStyle}
                   onChange={value => this.selectChange(value, 'orderType')}
                   value={orderType === null ? [] : orderType.split(',')}
+                  getPopupContainer={() =>
+                    document.getElementById('Ticketing-Query-Order')
+                  }
+                  dropdownClassName={styles.queryType}
                   options={[
                     <Option value="Booking">Booking</Option>,
                     <Option value="Revalidation">Revalidation</Option>,
@@ -349,6 +353,10 @@ class SearchCondition extends Component {
                   className={styles.inputStyle}
                   onChange={value => this.selectChange(value, 'status')}
                   value={status === null ? undefined : status}
+                  getPopupContainer={() =>
+                    document.getElementById('Ticketing-Query-Order')
+                  }
+                  dropdownClassName={styles.queryType}
                   options={[
                     <Option value="Confirmed">Confirmed</Option>,
                     <Option value="WaitingForPaying">Pending Payment</Option>,

@@ -518,7 +518,7 @@ class RevalidationRequest extends Component {
     };
 
     return (
-      <Spin spinning={!!pageLoading}>
+      <Spin spinning={!!pageLoading} wrapperClassName="Ticketing-Revalidation">
         <Row gutter={12}>
           <Col span={12}>
             <MediaQuery minWidth={SCREEN.screenSm}>
@@ -575,6 +575,10 @@ class RevalidationRequest extends Component {
                             className={styles.selectStyle}
                             value={deliveryMode !== null ? deliveryMode : undefined}
                             onChange={value => this.changeDeliveryMode(value)}
+                            getPopupContainer={() =>
+                              document.getElementsByClassName('Ticketing-Revalidation')[0]
+                            }
+                            dropdownClassName={styles.deliveryMode}
                             options={[
                               <Option value="BOCA">BOCA</Option>,
                               <Option value="VID">VID</Option>,
