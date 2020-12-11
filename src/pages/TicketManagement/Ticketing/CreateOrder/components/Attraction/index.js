@@ -700,9 +700,11 @@ class Attraction extends Component {
                                 <Select
                                   placeholder="Please Select"
                                   allowClear
+                                  getPopupContainer={() => document.getElementById('Ticketing-Create-Order')}
                                   onChange={value => {
                                     item.sessionTime = value;
                                   }}
+                                  
                                 >
                                   {sessionOptions.map(itemSession => (
                                     <Select.Option value={itemSession} key={itemSession}>

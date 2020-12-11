@@ -61,10 +61,22 @@ class ToCart extends Component {
   }
 
   changeTicketNumber = (index, value, offerConstrain) => {
-    const { form, changeTicketNumber } = this.props;
+    const { form, changeTicketNumber, attractionProduct } = this.props;
+
+    if (offerConstrain === 'Single') {
+      const hasTicketNumbers = attractionProduct.find(
+        (item, itemIndex) => itemIndex !== index && item.ticketNumber
+      );
+
+      if (hasTicketNumbers) {
+        value = 0;
+      }
+    }
+
     changeTicketNumber(index, value, offerConstrain).then(res => {
       const data = {};
       const ticketNumberLabel = `attractionProduct${index}`;
+
       if (res !== '') {
         data[ticketNumberLabel] = res;
         form.setFieldsValue(data);
@@ -135,7 +147,7 @@ class ToCart extends Component {
       guestFirstName,
     };
     let allTicketNumbers = 0;
-    let validFields = ['country'];
+    let validFields = ['country', 'checkTermsAndCondition'];
     const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(detail);
     const hasApspTicket = this.hasApspTicket(offerConstrain);
     if (hasApspTicket) {
@@ -235,9 +247,10 @@ class ToCart extends Component {
       return false;
     }
     form.setFieldsValue(data);
-    form.validateFields(validFields, err => {
+    form.validateFields(validFields, (err, values) => {
       if (!err) {
         // eslint-disable-next-line no-useless-escape
+
         const emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
         if (customerEmailAddress && !emailReg.test(customerEmailAddress)) {
           message.warning('Customer email address is invalid.');
@@ -267,6 +280,8 @@ class ToCart extends Component {
             message.warning('There is not enough stock to book.');
           }
         });
+      } else {
+        form.validateFieldsAndScroll({});
       }
     });
   };
@@ -336,7 +351,7 @@ class ToCart extends Component {
     let hasTicketNumbers = false;
     attractionProduct.forEach(item => {
       const { ticketNumber } = item;
-      if (!isNullOrUndefined(ticketNumber) && ticketNumber !== '') {
+      if (!isNullOrUndefined(ticketNumber) && ticketNumber !== '' && ticketNumber !== 0) {
         hasTicketNumbers = true;
       }
     });
@@ -1173,23 +1188,38 @@ class ToCart extends Component {
                   </FormItem>
                 </Col>
               </Form>
-              <div className={styles.itemTC}>
-                <Checkbox
-                  checked={checkTermsAndCondition}
-                  onChange={this.changeCheckTermsAndCondition}
-                />{' '}
-                <span className={styles.termsAndConditionIconText}>*</span>
-                <span>
-                  Please tick (<Icon type="check" />) to accept{' '}
-                </span>
-                <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
-                  Terms and Conditions
-                </span>
-                <span> and </span>
-                <span className={styles.TC} onClick={() => this.toShowDataProtectionPolicy()}>
-                  Data Protection Policy.
-                </span>
-              </div>
+              <Col span={24} className={styles.itemTC}>
+                <FormItem className={styles.label} colon={false}>
+                  {getFieldDecorator('checkTermsAndCondition', {
+                    initialValue: checkTermsAndCondition,
+                    valuePropName: 'checked',
+                    rules: [
+                      {
+                        required: true,
+                        message: 'Required',
+                        validator: 'boolean',
+                      },
+                    ],
+                  })(
+                    <Checkbox onChange={this.changeCheckTermsAndCondition}>
+                      <span className={styles.termsAndConditionIconText}>*</span>
+                      <span>
+                        Please tick (<Icon type="check" />) to accept{' '}
+                      </span>
+                      <span
+                        className={styles.TC}
+                        onClick={() => this.toShowTermsAndCondition(true)}
+                      >
+                        Terms and Conditions
+                      </span>
+                      <span> and </span>
+                      <span className={styles.TC} onClick={() => this.toShowDataProtectionPolicy()}>
+                        Data Protection Policy.
+                      </span>
+                    </Checkbox>
+                  )}
+                </FormItem>
+              </Col>
             </Spin>
           </div>
           <div className={styles.formControl}>

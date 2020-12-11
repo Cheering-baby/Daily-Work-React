@@ -79,10 +79,10 @@ class CreateOrder extends PureComponent {
         });
       }
     } else {
-      // dispatch({
-      //   type: 'ticketMgr/resetData',
-      //   payload: {},
-      // });
+      dispatch({
+        type: 'ticketMgr/resetData',
+        payload: {},
+      });
       dispatch({
         type: 'onceAPirateTicketMgr/resetData',
         payload: {},
@@ -166,7 +166,7 @@ class CreateOrder extends PureComponent {
 
     return (
       <Spin spinning={mainPageLoading}>
-        <Row gutter={12} style={{ fontSize: '15px' }}>
+        <Row gutter={12} style={{ fontSize: '15px' }} id="Ticketing-Create-Order">
           <MediaQuery minWidth={SCREEN.screenSm}>
             <Col span={24} className={styles.top}>
               <BreadcrumbCompForPams title={title} />
