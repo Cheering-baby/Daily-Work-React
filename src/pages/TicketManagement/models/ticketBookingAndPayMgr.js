@@ -59,7 +59,7 @@ export default {
     taDetailInfo: null,
     accountInfo: null,
     bookDetail: {
-      totalPrice: 0,
+      totalPrice: null,
     },
     downloadFileLoading: false,
     paymentResultLoading: false,
@@ -599,7 +599,7 @@ export default {
         taDetailInfo: null,
         accountInfo: null,
         bookDetail: {
-          totalPrice: 20000.0,
+          totalPrice: null,
         },
         downloadFileLoading: false,
         paymentResultLoading: false,

@@ -147,7 +147,7 @@ class ToCart extends Component {
       guestFirstName,
     };
     let allTicketNumbers = 0;
-    let validFields = ['country', 'checkTermsAndCondition'];
+    let validFields = ['country'];
     const [minProductQuantity, maxProductQuantity] = getProductLimitInventory(detail);
     const hasApspTicket = this.hasApspTicket(offerConstrain);
     if (hasApspTicket) {
@@ -247,10 +247,9 @@ class ToCart extends Component {
       return false;
     }
     form.setFieldsValue(data);
-    form.validateFields(validFields, (err, values) => {
+    form.validateFields(validFields, err => {
       if (!err) {
         // eslint-disable-next-line no-useless-escape
-
         const emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
         if (customerEmailAddress && !emailReg.test(customerEmailAddress)) {
           message.warning('Customer email address is invalid.');
@@ -280,8 +279,6 @@ class ToCart extends Component {
             message.warning('There is not enough stock to book.');
           }
         });
-      } else {
-        form.validateFieldsAndScroll({});
       }
     });
   };
@@ -1188,38 +1185,23 @@ class ToCart extends Component {
                   </FormItem>
                 </Col>
               </Form>
-              <Col span={24} className={styles.itemTC}>
-                <FormItem className={styles.label} colon={false}>
-                  {getFieldDecorator('checkTermsAndCondition', {
-                    initialValue: checkTermsAndCondition,
-                    valuePropName: 'checked',
-                    rules: [
-                      {
-                        required: true,
-                        message: 'Required',
-                        validator: 'boolean',
-                      },
-                    ],
-                  })(
-                    <Checkbox onChange={this.changeCheckTermsAndCondition}>
-                      <span className={styles.termsAndConditionIconText}>*</span>
-                      <span>
-                        Please tick (<Icon type="check" />) to accept{' '}
-                      </span>
-                      <span
-                        className={styles.TC}
-                        onClick={() => this.toShowTermsAndCondition(true)}
-                      >
-                        Terms and Conditions
-                      </span>
-                      <span> and </span>
-                      <span className={styles.TC} onClick={() => this.toShowDataProtectionPolicy()}>
-                        Data Protection Policy.
-                      </span>
-                    </Checkbox>
-                  )}
-                </FormItem>
-              </Col>
+              <div className={styles.itemTC}>
+                <Checkbox
+                  checked={checkTermsAndCondition}
+                  onChange={this.changeCheckTermsAndCondition}
+                />{' '}
+                <span className={styles.termsAndConditionIconText}>*</span>
+                <span>
+                  Please tick (<Icon type="check" />) to accept{' '}
+                </span>
+                <span className={styles.TC} onClick={() => this.toShowTermsAndCondition(true)}>
+                  Terms and Conditions
+                </span>
+                <span> and </span>
+                <span className={styles.TC} onClick={() => this.toShowDataProtectionPolicy()}>
+                  Data Protection Policy.
+                </span>
+              </div>
             </Spin>
           </div>
           <div className={styles.formControl}>
