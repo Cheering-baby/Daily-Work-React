@@ -424,7 +424,7 @@ class BasicLayout extends React.PureComponent {
             currentUserRole={currentUserRole}
             {...this.props}
           />
-          <Content style={this.getContentStyle()} className="main-layout-content">
+          <Content style={this.getContentStyle()} className="main-layout-content" id="main-layout-content">
             <Fragment>
               {!menuLoaded || privilegeLoading ? (
                 <Spin />
