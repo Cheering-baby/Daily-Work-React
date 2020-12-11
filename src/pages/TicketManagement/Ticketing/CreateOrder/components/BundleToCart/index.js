@@ -544,7 +544,7 @@ class ToCart extends Component {
           onClose={() => onClose()}
         >
           <div className={styles.bodyContainer}>
-            <Spin spinning={loading}>
+            <Spin spinning={loading} wrapperClassName="AttractionToCart">
               <div>
                 <Row>
                   <Row className={styles.orderInformation}>
@@ -764,6 +764,9 @@ class ToCart extends Component {
                           filterOption={(input, option) =>
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
+                          getPopupContainer={() =>
+                            document.getElementsByClassName('AttractionToCart')[0]
+                          }
                           options={countrys.map((item, index) => {
                             const key = `country_${index}`;
                             const { lookupName } = item;
@@ -886,6 +889,9 @@ class ToCart extends Component {
                             onChange={value => {
                               this.changeDeliveryInformation('customerContactNoCountry', value);
                             }}
+                            getPopupContainer={() =>
+                              document.getElementsByClassName('AttractionToCart')[0]
+                            }
                             options={countrys.map(item => (
                               <Select.Option
                                 key={`countryPhoneList${item.dictId}`}

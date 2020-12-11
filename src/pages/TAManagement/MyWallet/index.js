@@ -346,7 +346,7 @@ class MyWallet extends React.PureComponent {
       total: pagination.total,
     };
     return (
-      <Col lg={24} md={24}>
+      <Col lg={24} md={24} id="MyWallet">
         <div id="pageHeaderTitle">
           <MediaQuery
             maxWidth={SCREEN.screenMdMax}

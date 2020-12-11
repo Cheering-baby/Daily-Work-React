@@ -392,7 +392,7 @@ class CheckOrder extends Component {
       packageOrderData,
       generalTicketOrderData,
       onceAPirateOrderData,
-      includeVouchers,
+      includeVouchers
     );
     return ticketAmount || 0;
   };
@@ -702,7 +702,7 @@ class CheckOrder extends Component {
 
     this.pageDataCheck();
     return (
-      <Spin spinning={checkOutLoading}>
+      <Spin spinning={checkOutLoading} wrapperClassName="CheckOrder">
         <MediaQuery minWidth={SCREEN.screenSm}>
           <BreadcrumbCompForPams title={title} />
         </MediaQuery>
@@ -811,6 +811,7 @@ class CheckOrder extends Component {
                         style={{ width: '100%' }}
                         onChange={this.changeDeliveryMode}
                         disabled={this.deliveryModeDisabled()}
+                        getPopupContainer={() => document.getElementsByClassName('CheckOrder')[0]}
                         options={[
                           <Select.Option
                             key="deliveryMode1"

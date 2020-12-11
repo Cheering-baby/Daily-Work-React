@@ -123,23 +123,6 @@ class Detail extends Component {
                                 ...i,
                                 text: `${i.text} * ${item.needChoiceCount}`,
                               }));
-                              if (
-                                !item.onlyVoucher &&
-                                Array.isArray(item.attractionProduct.itemPlus)
-                              ) {
-                                ticketTypeShow = item.attractionProduct.itemPlus.map(i => {
-                                  const targetText =
-                                    i.ageGroup &&
-                                    ticketTypesReally.find(({ value }) => i.ageGroup === value);
-                                  const text = `${
-                                    targetText ? targetText.text : i.ageGroup || 'General'
-                                  } * ${(i.itemQty || 1) * item.needChoiceCount}`;
-                                  return {
-                                    ...i,
-                                    text,
-                                  };
-                                });
-                              }
                               return (
                                 <div
                                   className={styles.detailText}
@@ -176,20 +159,6 @@ class Detail extends Component {
                             ...i,
                             text: `${i.text} * ${item.needChoiceCount}`,
                           }));
-                          if (!item.onlyVoucher && Array.isArray(item.attractionProduct.itemPlus)) {
-                            ticketTypeShow = item.attractionProduct.itemPlus.map(i => {
-                              const targetText =
-                                i.ageGroup &&
-                                ticketTypesReally.find(({ value }) => i.ageGroup === value);
-                              const text = `${
-                                targetText ? targetText.text : i.ageGroup || 'General'
-                              } * ${(i.itemQty || 1) * item.needChoiceCount} `;
-                              return {
-                                ...i,
-                                text,
-                              };
-                            });
-                          }
                           return (
                             <div
                               className={styles.detailText}

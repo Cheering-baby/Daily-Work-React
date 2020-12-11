@@ -73,6 +73,7 @@ class Wallet extends React.PureComponent {
           dispatch({ type: 'taWalletMgr/fetchMyActivityList' });
         });
         dispatch({ type: 'taWalletMgr/fetchAccountFlowList' });
+        dispatch({ type: 'taWalletMgr/fetchTAName' });
         this.interval = setInterval(
           () => dispatch({ type: 'taWalletMgr/fetchAccountDetail' }),
           1000 * 5
@@ -137,7 +138,7 @@ class Wallet extends React.PureComponent {
       const { offsetHeight: pageHeaderTitleHeight } = document.getElementById('pageHeaderTitle');
       const { offsetHeight: walletCardHeight } = document.getElementById('walletCard');
       const { offsetHeight: pageSearchCardHeight } = document.getElementById('pageSearchCard');
-      return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 320;
+      return layoutHeight - pageHeaderTitleHeight - walletCardHeight - pageSearchCardHeight - 80;
     }
     return layoutHeight;
   };
@@ -161,6 +162,7 @@ class Wallet extends React.PureComponent {
       loading,
       form: { getFieldDecorator },
       taWalletMgr: {
+        companyName = '-',
         dataSource = [],
         transactionTypes = [],
         account = {},
@@ -347,7 +349,7 @@ class Wallet extends React.PureComponent {
       total: pagination.total,
     };
     return (
-      <Col lg={24} md={24}>
+      <Col lg={24} md={24} id="TAWallet">
         <div id="pageHeaderTitle">
           <MediaQuery
             maxWidth={SCREEN.screenMdMax}
@@ -366,6 +368,7 @@ class Wallet extends React.PureComponent {
               header={activeKey.length === 0 ? 'Show balance widget' : 'Hide balance widget'}
               key="1"
             >
+              <div className={styles.companyNameDiv}>Company Name: {companyName}</div>
               <Row gutter={24}>
                 <Col lg={12} md={12}>
                   <div className={`${styles.flexBetween} ${styles.walletCard}`}>
@@ -378,7 +381,7 @@ class Wallet extends React.PureComponent {
                             <span className={styles.symbolPart}>$</span>
                             <span className={styles.integerPart}>
                               {CurrencyFormatter.format(
-                                eWallet.balance,
+                                eWallet.integer,
                                 CURRENCY_FORMATTER_OPTIONS
                               )}
                             </span>
@@ -445,22 +448,14 @@ class Wallet extends React.PureComponent {
                 </Col>
                 <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
                   <Form.Item>
-                    {getFieldDecorator(`transactionType`, {
-                      rules: [{ required: false, message: '' }],
-                    })(
-                      <SortSelect
-                        placeholder="Transaction Type"
-                        allowClear
-                        options={transactionTypes.map((item, index) => {
-                          return (
-                            // eslint-disable-next-line react/no-array-index-key
-                            <Select.Option value={item.value} key={`tr_options_${index}`}>
-                              {item.label}
-                            </Select.Option>
-                          );
-                        })}
-                      />
-                    )}
+                    {getFieldDecorator(`referenceNo`, {
+                      rules: [
+                        {
+                          required: false,
+                          message: '',
+                        },
+                      ],
+                    })(<Input placeholder="PARTNERS Order No." allowClear />)}
                   </Form.Item>
                 </Col>
                 <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
@@ -504,6 +499,30 @@ class Wallet extends React.PureComponent {
                         disabled={loading}
                         placeholder={formatMessage({
                           id: 'MyWallet.flow.filter.invoiceNo.placeholder',
+                        })}
+                      />
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} xxl={6} className={styles.searchCompCol}>
+                  <Form.Item>
+                    {getFieldDecorator(`transactionType`, {
+                      rules: [{ required: false, message: '' }],
+                    })(
+                      <SortSelect
+                        placeholder="Transaction Type"
+                        allowClear
+                        getPopupContainer={() =>
+                          document.getElementById('TAWallet')
+                        }
+                        dropdownClassName={styles.SelectTransactionType}
+                        options={transactionTypes.map((item, index) => {
+                          return (
+                            // eslint-disable-next-line react/no-array-index-key
+                            <Select.Option value={item.value} key={`tr_options_${index}`}>
+                              {item.label}
+                            </Select.Option>
+                          );
                         })}
                       />
                     )}

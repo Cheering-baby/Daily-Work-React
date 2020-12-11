@@ -479,26 +479,13 @@ class ToCart extends Component {
         render: (_, record) => {
           return (
             <div>
-              {record.attractionProduct.map(itemProduct => {
-                const {
-                  needChoiceCount,
-                  onlyVoucher,
-                  attractionProduct: { itemPlus, ageGroup },
-                } = itemProduct;
-                let ageGroupShow = 'General';
-                if (!onlyVoucher && Array.isArray(itemPlus)) {
-                  ageGroupShow = itemPlus
-                    .map(i => `${i.ageGroup || 'General'} * ${(i.itemQty || 1) * needChoiceCount}`)
-                    .join(', ');
-                } else {
-                  ageGroupShow = `${ageGroup || 'General'} * ${needChoiceCount}`;
-                }
-                return (
-                  <div key={Math.random()} className={styles.tableText}>
-                    {ageGroupShow}
-                  </div>
-                );
-              })}
+              {record.attractionProduct.map(itemProduct => (
+                <div key={Math.random()} className={styles.tableText}>
+                  {`${itemProduct.attractionProduct.ageGroup || 'General'} * ${
+                    itemProduct.needChoiceCount
+                  }`}
+                </div>
+              ))}
             </div>
           );
         },
@@ -640,23 +627,10 @@ class ToCart extends Component {
     const bookingInformation = [];
     attractionProduct.forEach((item, index) => {
       const priceShow = calculateProductPrice(item, priceRuleId, item.sessionTime);
-      const {
-        onlyVoucher,
-        needChoiceCount,
-        attractionProduct: { itemPlus, ageGroup },
-      } = item;
-      const priceTag = onlyVoucher ? 'Voucher' : 'Ticket';
-      let ageGroupShow = 'General';
-      if (!onlyVoucher && Array.isArray(itemPlus)) {
-        ageGroupShow = itemPlus
-          .map(i => `${i.ageGroup || 'General'} * ${(i.itemQty || 1) * needChoiceCount}`)
-          .join(', ');
-      } else {
-        ageGroupShow = `${ageGroup || 'General'} * ${needChoiceCount}`;
-      }
+      const priceTag = item.onlyVoucher ? 'Voucher' : 'Ticket';
       bookingInformation.push({
         index,
-        ticketType: ageGroupShow,
+        ticketType: `${item.attractionProduct.ageGroup || 'General'} * ${item.needChoiceCount}`,
         price: `${toThousands(priceShow.toFixed(2))}/${priceTag}`,
         quantity: item.ticketNumber,
         ticketNumberLabel: `attractionProduct${index}`,
@@ -728,7 +702,7 @@ class ToCart extends Component {
           onClose={() => onClose()}
         >
           <div className={styles.bodyContainer}>
-            <Spin spinning={loading}>
+            <Spin spinning={loading} wrapperClassName="AttractionToCart">
               <div>
                 <Row>
                   <Row className={styles.orderInformation}>
@@ -992,6 +966,9 @@ class ToCart extends Component {
                           filterOption={(input, option) =>
                             option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                           }
+                          getPopupContainer={() =>
+                            document.getElementsByClassName('AttractionToCart')[0]
+                          }
                           options={countrys.map((item, index) => {
                             const key = `country_${index}`;
                             const { lookupName } = item;
@@ -1114,6 +1091,9 @@ class ToCart extends Component {
                             onChange={value => {
                               this.changeDeliveryInformation('customerContactNoCountry', value);
                             }}
+                            getPopupContainer={() =>
+                              document.getElementsByClassName('AttractionToCart')[0]
+                            }
                             options={countrys.map(item => (
                               <Select.Option
                                 key={`countryPhoneList${item.dictId}`}

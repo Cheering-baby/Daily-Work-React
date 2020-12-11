@@ -4,6 +4,7 @@ import { formatMessage } from 'umi/locale';
 import { Button, Form, Select, DatePicker, Input, Col, Row } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
+import styles from '../../index.less';
 
 const { Option } = Select;
 
@@ -52,6 +53,10 @@ const Filter = props => {
               <Select
                 allowClear
                 disabled={loading}
+                getPopupContainer={() =>
+                  document.getElementById('MyWallet')
+                }
+                dropdownClassName={styles.SelectTransactionType}
                 placeholder={formatMessage({
                   id: 'MyWallet.flow.filter.transactionType.placeholder',
                 })}

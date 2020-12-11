@@ -662,24 +662,10 @@ class Attraction extends Component {
             return (
               <div className={styles.sessionContainer}>
                 {record.attractionProduct.map((item, attractionProductIndex) => {
-                  const {
-                    sessionTime,
-                    productNo,
-                    needChoiceCount,
-                    sessionOptions = [],
-                    onlyVoucher,
-                  } = item;
-                  const { ageGroup, itemPlus } = item.attractionProduct;
+                  const { sessionTime, productNo, needChoiceCount, sessionOptions = [] } = item;
+                  const { ageGroup } = item.attractionProduct;
                   const isSessionProduct = sessionOptions.length > 0;
                   const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
-                  let ageGroupShow = 'General';
-                  if (!onlyVoucher && Array.isArray(itemPlus)) {
-                    ageGroupShow = itemPlus
-                      .map(i => `${i.ageGroup || 'General'} * ${(i.itemQty || 1) * needChoiceCount}`)
-                      .join(', ');
-                  } else {
-                    ageGroupShow = `${ageGroup || 'General'} * ${needChoiceCount}`;
-                  }
                   return (
                     <div key={productNo} className={styles.productPrice}>
                       <div style={this.generateStyle(companyType).sessionStyle}>
@@ -700,11 +686,13 @@ class Attraction extends Component {
                                 <Select
                                   placeholder="Please Select"
                                   allowClear
-                                  getPopupContainer={() => document.getElementById('Ticketing-Create-Order')}
+                                  getPopupContainer={() =>
+                                    document.getElementById('Ticketing-Create-Order')
+                                  }
+                                  dropdownClassName={styles.selectSession}
                                   onChange={value => {
                                     item.sessionTime = value;
                                   }}
-                                  
                                 >
                                   {sessionOptions.map(itemSession => (
                                     <Select.Option value={itemSession} key={itemSession}>
@@ -725,7 +713,7 @@ class Attraction extends Component {
                           paddingTop: isSessionProduct ? '4px' : null,
                         }}
                       >
-                        {ageGroupShow}
+                        {ageGroup || 'General'} * {needChoiceCount}
                       </div>
                       <div
                         style={{
