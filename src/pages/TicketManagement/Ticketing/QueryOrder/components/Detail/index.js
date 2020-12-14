@@ -397,7 +397,6 @@ class Detail extends React.Component {
         {quantityTotal > 0 && (
           <Popover
             overlayStyle={{ color: '#565656', margin: 0, padding: 0, width: '410px' }}
-            mouseLeaveDelay={50}
             content={
               <Table
                 size="small"
