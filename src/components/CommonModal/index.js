@@ -36,7 +36,7 @@ export default class CommonModal extends PureComponent {
   render() {
     const { modalOpts, children } = this.props;
     return (
-      <Modal {...modalCommonProps} {...modalOpts}>
+      <Modal {...modalCommonProps} {...modalOpts} maskClosable>
         {children}
       </Modal>
     );

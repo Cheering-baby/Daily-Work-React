@@ -10,6 +10,7 @@ import { getKeyValue } from '../../../utils/pubUtils';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
 const downUrl = `${getUrl()}/common/downloadFile`;
+const downAllFilesUrl = `${getUrl()}/b2b/agent/common/downloadAllFiles`;
 
 const mapStateToProps = store => {
   const { selectTaId } = store.mainTAManagement;
@@ -71,7 +72,14 @@ class UploadContractHistoryComp extends PureComponent {
       },
     },
     {
-      title: formatMessage({ id: 'TA_TABLE_CONTACT_CONTACT_LIST' }),
+      title: () => (
+        <div className={styles.fileList}>
+          <span>{formatMessage({ id: 'TA_TABLE_CONTACT_CONTACT_LIST' })}</span>
+          <Button type="primary" onClick={this.downloadAllFiles}>
+            {formatMessage({ id: 'DOWNLOAD_ALL_FILES' })}
+          </Button>
+        </div>
+      ),
       dataIndex: 'fileList',
       width: '50%',
       render: (text, record) => {
@@ -120,6 +128,20 @@ class UploadContractHistoryComp extends PureComponent {
     //   dataIndex: '',
     // },
   ];
+
+  downloadAllFiles = () => {
+    const { selectTaId } = this.props;
+    handleDownFile(
+      downAllFilesUrl,
+      {
+        taId: selectTaId,
+        type: "TA_CONTRACT_HISTORY"
+      },
+      `TA_CONTRACT_HISTORY-${selectTaId}-AllFiles.zip`,
+      () => this.updateDownFileLoading(true),
+      () => this.updateDownFileLoading(false),
+    );
+  };
 
   updateDownFileLoading = flag => {
     const { dispatch } = this.props;

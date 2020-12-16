@@ -494,6 +494,7 @@ export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown
   if (beforeDown) {
     beforeDown();
   }
+  console.log(apiUrl)
   fetch(apiUrl, {
     method: 'post',
     body: JSON.stringify(reqParamJson),
@@ -519,19 +520,21 @@ export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown
           return;
         }
         let fileName = response.headers.get('Content-Disposition');
+        console.log(response.headers.get('Set-Cookie'))
         fileName = !isNvl(fileName) ? fileName : defaultFileName;
         fileName = fileName.replace('attachment;filename=', '');
+        console.log(fileName)
         if (window.navigator.msSaveOrOpenBlob) {
           navigator.msSaveBlob(blob, fileName);
         } else {
-          const blobUrl = window.URL.createObjectURL(blob);
-          const aElement = document.createElement('a');
-          document.body.appendChild(aElement);
-          aElement.style.display = 'none';
-          aElement.href = blobUrl;
-          aElement.download = !isNvl(fileName) ? fileName : 'test.xlsx';
-          aElement.click();
-          document.body.removeChild(aElement);
+          // const blobUrl = window.URL.createObjectURL(blob);
+          // const aElement = document.createElement('a');
+          // document.body.appendChild(aElement);
+          // aElement.style.display = 'none';
+          // aElement.href = blobUrl;
+          // aElement.download = !isNvl(fileName) ? fileName : 'test.xlsx';
+          // aElement.click();
+          // document.body.removeChild(aElement);
         }
       });
     })
