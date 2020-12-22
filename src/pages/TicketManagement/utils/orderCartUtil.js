@@ -291,7 +291,6 @@ export function transGetOrderList(offerInstanceList) {
     }
   });
 
-  console.log(resultData);
   return resultData;
 }
 
@@ -637,7 +636,6 @@ export function putAttractionProductsByOffer(
     address: deliveryInfoData.address,
     gender: deliveryInfoData.gender,
   };
-
   orderInfoList.forEach(orderInfo => {
     let timingStr = null;
     if (orderInfo.sessionTime) {
@@ -659,6 +657,7 @@ export function putAttractionProductsByOffer(
           timing: timingStr,
           numOfPax: null,
           cardDisplayName: deliveryInfoData.cardDisplayName,
+          language: orderInfo.language,
         };
         attractionProducts.push(attractionProduct);
       } else {
@@ -670,6 +669,7 @@ export function putAttractionProductsByOffer(
           timing: timingStr,
           numOfPax: orderInfo.quantity,
           cardDisplayName: deliveryInfoData.cardDisplayName,
+          language: orderInfo.language,
         };
         attractionProducts.push(attractionProduct);
       }
@@ -867,9 +867,9 @@ export function putCommonOffersByOfferFixed(
   let ifGroupTicket = false;
   const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
   const attractionProductList = getAttractionProductList(offerInfo, validTimeFrom);
-
   attractionProductList.forEach(productInfo => {
     let timingStr = null;
+    let language;
     if (orderSummary.sessionTime) {
       const dateOfVisitTime = moment(queryInfo.dateOfVisit, 'x');
       let dateOfVisitTimeStr = dateOfVisitTime.format('YYYY-MM-DD');
@@ -889,6 +889,8 @@ export function putCommonOffersByOfferFixed(
           dateOfVisitTimeStr = `${dateOfVisitTimeStr} ${orderInfoItem.sessionTime}`;
           const dateOfVisitTimeMoment = moment(dateOfVisitTimeStr, 'YYYY-MM-DD HH:mm:ss');
           timingStr = dateOfVisitTimeMoment.format('HH:mm');
+          // eslint-disable-next-line prefer-destructuring
+          language = orderInfoItem.language;
         }
       });
     }
@@ -902,6 +904,7 @@ export function putCommonOffersByOfferFixed(
         visitDate: validTimeFrom,
         numOfPax: null,
         cardDisplayName: deliveryInfo.cardDisplayName,
+        language,
       };
       attractionProducts.push(attractionProduct);
     } else {
@@ -913,6 +916,7 @@ export function putCommonOffersByOfferFixed(
         visitDate: validTimeFrom,
         numOfPax: orderSummary.quantity,
         cardDisplayName: deliveryInfo.cardDisplayName,
+        language,
       };
       attractionProducts.push(attractionProduct);
     }

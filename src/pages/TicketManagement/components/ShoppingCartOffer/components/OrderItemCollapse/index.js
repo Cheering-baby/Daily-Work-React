@@ -7,14 +7,15 @@ import styles from './index.less';
 import Voucher from '../../assets/Voucher.png';
 import { toThousandsByRound } from '@/pages/TicketManagement/utils/orderCartUtil';
 import { getProductLimitInventory } from '@/pages/TicketManagement/utils/utils';
-import { sessionTimeToWholeDay } from '../../../../utils/utils';
+import { sessionTimeToWholeDay, matchDictionaryName } from '../../../../utils/utils';
 import { getAttractionProductList } from '@/pages/TicketManagement/utils/ticketOfferInfoUtil';
 
 const { confirm } = Modal;
 
-@connect(({ global, ticketOrderCartMgr }) => ({
+@connect(({ global, ticketOrderCartMgr, ticketMgr }) => ({
   global,
   ticketOrderCartMgr,
+  languageEnum: ticketMgr.languageEnum,
 }))
 class OrderItemCollapse extends Component {
   getOfferName = (orderOfferItem, bookingCategory) => {
@@ -720,6 +721,7 @@ class OrderItemCollapse extends Component {
       },
       ticketOrderCartMgr: { functionActive },
       editModal,
+      languageEnum = [],
     } = this.props;
     const showDataList = this.transOfferDataToShowData();
 
@@ -770,7 +772,16 @@ class OrderItemCollapse extends Component {
                           )}
                         </Col>
                         <Col span={4}>
-                          <span className={styles.offerSpan}>{showItem.offerName}</span>
+                          <div className={styles.offerSpan}>{showItem.offerName}</div>
+                          {showItem.orderOffer.offerInfo.language && (
+                            <div className={styles.ticketSpan}>
+                              Language:{' '}
+                              {matchDictionaryName(
+                                languageEnum,
+                                showItem.orderOffer.offerInfo.language
+                              )}
+                            </div>
+                          )}
                         </Col>
                         <Col span={3} className={styles.dateCol}>
                           <span className={styles.titleSpan}>{showItem.visitDate}</span>

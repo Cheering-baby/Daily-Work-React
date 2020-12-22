@@ -371,6 +371,7 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
+                    min={0}
                     value={text}
                     onChange={value =>
                       this.changeTicketNumber(record.index, value, record.priceShow)

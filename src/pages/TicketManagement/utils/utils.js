@@ -196,15 +196,27 @@ export function checkInventory(detail, orderProducts = []) {
       item.productGroup.forEach(item2 => {
         if (item2.groupName === 'Attraction') {
           orderProducts.forEach(orderProductItem => {
-            const { ticketNumber, productNo, session } = orderProductItem;
+            const { ticketNumber, productNo, session, language } = orderProductItem;
             item2.products.forEach(item3 => {
               if (item3.productNo === productNo) {
                 const { priceRule, needChoiceCount } = item3;
                 const { productPrice, priceRuleId } = priceRule[1];
                 let inventory = 0;
                 if (session) {
-                  inventory = productPrice.find(({ priceTimeFrom }) => priceTimeFrom === session)
-                    .productInventory;
+                  if (language) {
+                    productPrice.forEach(({ priceTimeFrom, inventoryLanguageGroups }) => {
+                      if (priceTimeFrom === session) {
+                        inventoryLanguageGroups.forEach(languageItem => {
+                          if (languageItem.language === language) {
+                            inventory = languageItem.available;
+                          }
+                        });
+                      }
+                    });
+                  } else {
+                    inventory = productPrice.find(({ priceTimeFrom }) => priceTimeFrom === session)
+                      .productInventory;
+                  }
                 } else if (isSessionProduct(priceRuleId, item3)) {
                   const productInventoryItems = productPrice.map(
                     ({ productInventory }) => productInventory
@@ -217,6 +229,14 @@ export function checkInventory(detail, orderProducts = []) {
                           ? itemInventory
                           : inventory)
                   );
+                } else if (language) {
+                  productPrice.forEach(({ inventoryLanguageGroups }) => {
+                    inventoryLanguageGroups.forEach(languageItem => {
+                      if (languageItem.language === language) {
+                        inventory = languageItem.available;
+                      }
+                    });
+                  });
                 } else {
                   inventory = productPrice[0].productInventory;
                 }
@@ -514,6 +534,7 @@ export const sessionTimeToWholeDay = time => {
 };
 
 export function findArrSame(arr = []) {
+  if (arr.length === 1) return arr[0];
   let temArr = arr[0] || [];
   for (let j = 1; j < arr.length; j += 1) {
     const arr1 = temArr;
@@ -549,4 +570,39 @@ export function sortArray(sortList, sortColumnList) {
     return item;
   });
   return sortList;
+}
+
+export function matchDictionaryName(dictionary = [], val) {
+  const target = dictionary.find(i => i.item === val);
+  return target ? target.itemName : val;
+}
+
+export function filterProductByLanguage(product, language, numOfGuests) {
+  const { priceRule } = product;
+  return priceRule[1].productPrice.find(({ inventoryLanguageGroups }) => {
+    return (
+      inventoryLanguageGroups.find(i => i.language === language && i.available >= numOfGuests) ||
+      (inventoryLanguageGroups.length === 1 && !inventoryLanguageGroups[0].language)
+    );
+  });
+}
+
+export function filterSessionByLanguage(product, language, sessions) {
+  const { priceRule } = product;
+  const sessionsFilter = [];
+  priceRule[1].productPrice.forEach(({ priceTimeFrom, inventoryLanguageGroups }) => {
+    if (sessions && priceTimeFrom && sessions.includes(priceTimeFrom)) {
+      if (inventoryLanguageGroups.length === 1 && !inventoryLanguageGroups[0].language) {
+        if (!sessionsFilter.includes(priceTimeFrom)) {
+          sessionsFilter.push(priceTimeFrom);
+        }
+      } else if (
+        inventoryLanguageGroups.find(i => i.language === language) &&
+        !sessionsFilter.includes(priceTimeFrom)
+      ) {
+        sessionsFilter.push(priceTimeFrom);
+      }
+    }
+  });
+  return sessionsFilter;
 }

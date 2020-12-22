@@ -27,6 +27,7 @@ import {
   calculateProductPrice,
   getProductLimitInventory,
   sessionTimeToWholeDay,
+  matchDictionaryName,
 } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
@@ -40,6 +41,7 @@ const { Option } = Select;
   countrys: ticketMgr.countrys,
   ticketTypesEnums: ticketMgr.ticketTypesEnums,
   ticketConfig: ticketMgr.ticketConfig,
+  languageEnum: ticketMgr.languageEnum,
 }))
 class ToCart extends Component {
   constructor(props) {
@@ -124,6 +126,8 @@ class ToCart extends Component {
         dateOfVisit,
         numOfGuests,
         productGroup = [],
+        language,
+        // isIncludeLanguage,
         offerBasicInfo: { offerNo, offerMinQuantity, offerMaxQuantity },
       },
       deliverInformation: {
@@ -202,10 +206,18 @@ class ToCart extends Component {
       const { ticketNumber, productNo, sessionTime: session } = item;
       const ticketNumberLabel = `attractionProduct${index}`;
       data[ticketNumberLabel] = ticketNumber;
+
       orderProducts.push({
         ticketNumber: offerConstrain === 'Fixed' ? offerQuantity : ticketNumber || 0,
         productNo,
         session,
+        language: item.priceRule[0].productPrice.find(
+          ({ inventoryLanguageGroups }) =>
+            inventoryLanguageGroups &&
+            inventoryLanguageGroups.find(({ language: languageItem }) => languageItem === language)
+        )
+          ? language
+          : undefined,
       });
       if (item.attractionProduct.ageGroup) {
         ageGroups.push(item.attractionProduct.ageGroup);
@@ -423,8 +435,9 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
-                    disabled={this.disabledProduct(record.index, offerConstrain)}
+                    min={0}
                     value={text}
+                    disabled={this.disabledProduct(record.index, offerConstrain)}
                     onChange={value => this.changeTicketNumber(record.index, value, offerConstrain)}
                     parser={value => this.formatInputValue(record.index, value)}
                   />
@@ -518,6 +531,7 @@ class ToCart extends Component {
               })(
                 <div>
                   <InputNumber
+                    min={0}
                     value={text}
                     disabled={!modify}
                     onChange={value => this.changeFixedOfferNumbers(value)}
@@ -558,11 +572,13 @@ class ToCart extends Component {
         offerContentList = [],
         productGroup = [],
         offerQuantity,
+        language,
         offerBasicInfo: { offerName, offerMinQuantity, offerMaxQuantity },
       },
       onClose,
       countrys = [],
       ticketTypesEnums = [],
+      languageEnum = [],
       deliverInformation: {
         country,
         taNo,
@@ -745,6 +761,18 @@ class ToCart extends Component {
                   >
                     BOOKING INFORMATION
                   </Col>
+                  {language ? (
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>Language :</span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>
+                          {matchDictionaryName(languageEnum, language)}
+                        </span>
+                      </Col>
+                    </Col>
+                  ) : null}
                   {offerConstrain === 'Fixed' ? (
                     <div className={styles.tableFormStyle}>
                       <Form hideRequiredMark colon={false}>

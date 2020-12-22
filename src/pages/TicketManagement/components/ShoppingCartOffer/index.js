@@ -184,11 +184,12 @@ class ShoppingCartOffer extends Component {
       this.orderFixedOffer();
       return true;
     }
-    const { dateOfVisit, numOfGuests, priceRuleId } = detail;
+    const { dateOfVisit, numOfGuests, priceRuleId, language } = detail;
     const orderInfo = [];
     attractionProduct.forEach(item => {
       const { ticketNumber } = item;
       orderInfo.push({
+        language,
         sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         quantity: ticketNumber || 0,
@@ -240,12 +241,13 @@ class ShoppingCartOffer extends Component {
     const orderDataGroup = generalTicketOrderData[orderIndex];
     const { themeParkCode, themeParkName } = orderDataGroup;
     const detail = editOrderOffer.offerInfo;
-    const { dateOfVisit, numOfGuests } = detail;
+    const { dateOfVisit, numOfGuests, language } = detail;
     const { offerQuantity } = editOrderOffer.offerInfo;
     const priceRuleId = editOrderOffer.orderSummary.selectPriceRuleId;
     const orderInfo = [];
     attractionProduct.forEach(item => {
       orderInfo.push({
+        language,
         sessionTime: item.sessionTime,
         numOfPax: item.numOfPax,
         ageGroup: item.attractionProduct.ageGroup,

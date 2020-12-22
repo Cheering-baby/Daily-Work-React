@@ -40,20 +40,16 @@ class CreateOrder extends PureComponent {
       },
     } = this.props;
     dispatch({
-      type: 'ticketMgr/queryPluAttribute',
-      payload: {
-        attributeItem: 'TICKET_TYPE',
-      },
+      type: 'ticketMgr/queryTicketTypesEnums',
     });
     dispatch({
       type: 'ticketMgr/queryTicketConfig',
-      payload: {
-        attributeItem: 'TICKET_TYPE',
-      },
+    });
+    dispatch({
+      type: 'ticketMgr/queryLanguageEnum',
     });
     dispatch({
       type: 'ticketMgr/queryOfferBookingCategory',
-      payload: {},
     });
     dispatch({
       type: 'ticketOrderCartMgr/createShoppingCart',
@@ -79,10 +75,10 @@ class CreateOrder extends PureComponent {
         });
       }
     } else {
-      dispatch({
-        type: 'ticketMgr/resetData',
-        payload: {},
-      });
+      // dispatch({
+      //   type: 'ticketMgr/resetData',
+      //   payload: {},
+      // });
       dispatch({
         type: 'onceAPirateTicketMgr/resetData',
         payload: {},

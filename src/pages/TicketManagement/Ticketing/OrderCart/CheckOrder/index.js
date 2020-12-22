@@ -74,15 +74,12 @@ class CheckOrder extends Component {
     });
     dispatch({
       type: 'ticketMgr/queryPluAttribute',
-      payload: {
-        attributeItem: 'TICKET_TYPE',
-      },
     });
     dispatch({
       type: 'ticketMgr/queryTicketConfig',
-      payload: {
-        attributeItem: 'TICKET_TYPE',
-      },
+    });
+    dispatch({
+      type: 'ticketMgr/queryLanguageEnum',
     });
     dispatch({
       type: 'ticketOrderCartMgr/queryPluAttribute',

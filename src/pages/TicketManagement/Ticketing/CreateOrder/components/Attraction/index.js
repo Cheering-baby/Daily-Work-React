@@ -12,6 +12,7 @@ import {
   calculateProductPriceGst,
   calculateAllProductPriceGst,
   sessionTimeToWholeDay,
+  matchDictionaryName,
   sortArray,
 } from '../../../../utils/utils';
 import { ticketTypes } from '../../../../utils/constants';
@@ -269,7 +270,7 @@ class Attraction extends Component {
         deliverInformation = {},
         attractionProduct = [],
         detail,
-        detail: { dateOfVisit, numOfGuests, priceRuleId, offerQuantity },
+        detail: { dateOfVisit, numOfGuests, priceRuleId, offerQuantity, language },
         themeParkCode,
         themeParkName,
       },
@@ -277,6 +278,7 @@ class Attraction extends Component {
     const orderInfo = [];
     attractionProduct.forEach(item => {
       orderInfo.push({
+        language,
         sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         ageGroupQuantity: item.needChoiceCount,
@@ -323,7 +325,7 @@ class Attraction extends Component {
         deliverInformation = {},
         attractionProduct = [],
         detail,
-        detail: { dateOfVisit, numOfGuests, priceRuleId, productGroup = [] },
+        detail: { dateOfVisit, numOfGuests, priceRuleId, productGroup = [], language },
         themeParkCode,
         themeParkName,
       },
@@ -346,6 +348,7 @@ class Attraction extends Component {
     attractionProduct.forEach(item => {
       const { ticketNumber } = item;
       orderInfo.push({
+        language,
         sessionTime: item.sessionTime,
         ageGroup: item.attractionProduct.ageGroup,
         ageGroupQuantity: item.needChoiceCount,
@@ -568,6 +571,7 @@ class Attraction extends Component {
         bundleOfferDetail = {},
         showBundleDetailModal,
         functionActive,
+        languageEnum = [],
       },
       userCompanyInfo: { companyType },
       form: { getFieldDecorator },
@@ -578,11 +582,13 @@ class Attraction extends Component {
         title: () => <div style={{ minWidth: '122px' }}>Offer Name</div>,
         key: 'name',
         width: '30%',
-        render: record => {
+        render: (_, record) => {
           const {
             bundleName,
             offers = [],
             detail: {
+              language,
+              isIncludeLanguage,
               offerBasicInfo: { offerName },
             },
           } = record;
@@ -598,6 +604,7 @@ class Attraction extends Component {
           return (
             <div>
               <div className={styles.offerName}>{bundleName || offerName}</div>
+              {isIncludeLanguage && <div>Language: {matchDictionaryName(languageEnum, language)}</div>}
               {includesVoucher ? (
                 <div className={styles.includesVoucher}>
                   <img src={BookingVoucher} alt="" width={16} height={16} />
@@ -632,7 +639,7 @@ class Attraction extends Component {
         ),
         key: 'Session',
         width: '55%',
-        render: record => {
+        render: (_, record) => {
           const {
             themeParkCode,
             tag,
@@ -667,7 +674,7 @@ class Attraction extends Component {
                   const isSessionProduct = sessionOptions.length > 0;
                   const label = `${themeParkCode}_${tag}_${index}_${productNo}`;
                   return (
-                    <div key={productNo} className={styles.productPrice}>
+                    <div key={label} className={styles.productPrice}>
                       <div style={this.generateStyle(companyType).sessionStyle}>
                         {isSessionProduct ? (
                           <Form.Item>
@@ -819,6 +826,7 @@ class Attraction extends Component {
       {
         title: '',
         key: 'empty',
+        dataIndex: 'empty',
         width: '10px',
         render: () => {
           return <div />;

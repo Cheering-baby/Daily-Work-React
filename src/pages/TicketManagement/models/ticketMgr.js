@@ -21,6 +21,8 @@ import {
   findArrSame,
   multiplePromise,
   isSessionProduct,
+  filterSessionByLanguage,
+  filterProductByLanguage,
 } from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
@@ -60,6 +62,18 @@ export default {
     // eslint-disable-next-line require-yield
     *backRouterEventOnMobile() {
       router.push(`/TicketManagement/Ticketing/CreateOrder`);
+    },
+    *queryLanguageEnum(_, { call, put }) {
+      const response = yield call(queryPluAttribute, { attributeItem: 'TICKET_STOCK_LANGUAGE' });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        yield put({ type: 'save', payload: { languageEnum: result.items } });
+      } else {
+        message.error(resultMsg);
+      }
     },
     *fetchQueryAgentOpt(_, { call, put }) {
       const param = { queryType: 'signUp' };
@@ -493,14 +507,13 @@ export default {
 
           for (let i = 0; i < offerDetailList.length; i += 1) {
             const resultDetail = offerDetailList[i];
-            const { offerNo } = resultDetail.offerProfile;
             let attractionProduct;
             let noMatchPriceRule = false;
             let priceRuleId;
             resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
             // resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
             const {
-              offerProfile: { bookingCategory = [], offerBundle = [{}] },
+              offerProfile: { bookingCategory = [], offerBundle = [{}], offerNo, offerIdentifier },
             } = resultDetail;
             if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
               // eslint-disable-next-line no-continue
@@ -519,7 +532,7 @@ export default {
                       // eslint-disable-next-line prefer-destructuring
                       priceRuleId = attractionProduct[0].priceRule[1].priceRuleId;
                     }
-                    const productSessions = [];
+
                     // filter product has not enough inventory(multiple or single) fixed has filter in checkNumOfGuestsAvailable
                     attractionProduct = attractionProduct.filter(itemProduct => {
                       let enough = true;
@@ -546,19 +559,60 @@ export default {
                       }
                       return enough;
                     });
-                    // get session
+
+                    // get session and language
+                    let productLanguage = [];
+                    let isIncludeLanguage = false;
+                    const productSessions = [];
                     attractionProduct.forEach(itemProduct => {
                       const { priceRule } = itemProduct;
                       const sessions = [];
                       const includeSessions = [];
-                      priceRule[0].productPrice.forEach(({ priceTimeFrom }) => {
-                        if (sessions.indexOf(priceTimeFrom) === -1 && priceTimeFrom !== null) {
-                          sessions.push(priceTimeFrom);
+                      const currentProductLanguage = [];
+                      priceRule[0].productPrice.forEach(
+                        ({ priceTimeFrom, inventoryLanguageGroups }) => {
+                          if (!isIncludeLanguage) {
+                            isIncludeLanguage =
+                              inventoryLanguageGroups &&
+                              inventoryLanguageGroups.find(({ language }) => !!language);
+                          }
+
+                          if (sessions.indexOf(priceTimeFrom) === -1 && priceTimeFrom !== null) {
+                            sessions.push(priceTimeFrom);
+                          }
+
+                          if (includeSessions.indexOf(priceTimeFrom) === -1) {
+                            includeSessions.push(priceTimeFrom);
+                          }
+
+                          // Language
+                          if (
+                            (item2.choiceConstrain === 'Fixed' || offerBundle[0].bundleName) &&
+                            inventoryLanguageGroups
+                          ) {
+                            inventoryLanguageGroups.forEach(({ language }) => {
+                              if (language && !currentProductLanguage.includes(language)) {
+                                currentProductLanguage.push(language);
+                              }
+                            });
+                          } else if (item2.choiceConstrain !== 'Fixed' && inventoryLanguageGroups) {
+                            inventoryLanguageGroups.forEach(({ language }) => {
+                              if (language && !productLanguage.includes(language)) {
+                                productLanguage.push(language);
+                              }
+                            });
+                          }
                         }
-                        if (includeSessions.indexOf(priceTimeFrom) === -1) {
-                          includeSessions.push(priceTimeFrom);
-                        }
-                      });
+                      );
+
+                      if (
+                        item2.choiceConstrain === 'Fixed' &&
+                        isIncludeLanguage &&
+                        currentProductLanguage.length > 0
+                      ) {
+                        productLanguage.push(currentProductLanguage);
+                      }
+
                       sessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
                       includeSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
                       itemProduct.sessionOptions = sessions;
@@ -567,6 +621,15 @@ export default {
                       }
                       productSessions.push(includeSessions);
                     });
+
+                    // Fixed, if there is not some language in product, it will not show
+                    if (item2.choiceConstrain === 'Fixed' && isIncludeLanguage) {
+                      productLanguage = findArrSame(productLanguage);
+                      if (productLanguage.length === 0) {
+                        return false;
+                      }
+                    }
+
                     let offerSessions = [];
                     if (offerBundle[0].bundleName) {
                       const existProductSession = [];
@@ -583,33 +646,87 @@ export default {
                     }
                     offerSessions.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
 
+                    // When offer is bundle, if no session, offerSessions will be [null];
                     if (
                       noMatchPriceRule ||
                       (offerBundle[0].bundleName && offerSessions.length === 0)
                     ) {
                       return false;
                     }
+
+                    // eslint-disable-next-line no-inner-declarations
+                    function dealData(products, otherInfo) {
+                      const data = {};
+                      data.detail = resultDetail.offerProfile;
+                      data.detail.priceRuleId = priceRuleId;
+                      data.detail.offerPrice = offerList[i].offerPrice;
+                      data.detail.dateOfVisit = dateOfVisit;
+                      data.detail.numOfGuests = numOfGuests;
+                      data.attractionProduct = products;
+
+                      if (otherInfo) {
+                        Object.assign(data.detail, otherInfo);
+                      }
+
+                      if (offerBundle[0].bundleName) {
+                        data.offerSessions = offerSessions;
+                        // If session include 03:00:00， page will show it default.
+                        if (offerSessions.includes('03:00:00')) {
+                          data.sessionTime = '03:00:00';
+                        }
+                      }
+                      return JSON.parse(JSON.stringify(data));
+                    }
+
                     bookingCategory.forEach(item3 => {
                       themeParkList.forEach((item4, index4) => {
                         if (
                           item4.themeparkCode === item3 &&
                           item4.offerNos.indexOf(offerNo) === -1
                         ) {
-                          const data = {};
-                          data.detail = resultDetail.offerProfile;
-                          data.detail.priceRuleId = priceRuleId;
-                          data.detail.offerPrice = offerList[i].offerPrice;
-                          data.detail.dateOfVisit = dateOfVisit;
-                          data.detail.numOfGuests = numOfGuests;
                           themeParkList[index4].offerNos.push(offerNo);
-                          if (offerBundle[0].bundleName) {
-                            data.offerSessions = offerSessions;
-                            if (offerSessions.includes('03:00:00')) {
-                              data.sessionTime = '03:00:00';
-                            }
+                          if (isIncludeLanguage) {
+                            productLanguage.forEach(language => {
+                              const attractionProductFilter = attractionProduct.filter(
+                                itemProduct =>
+                                  filterProductByLanguage(itemProduct, language, numOfGuests)
+                              );
+
+                              if (
+                                item.choiceConstrain === 'Fixed' &&
+                                attractionProductFilter.length !== attractionProduct.length
+                              ) {
+                                return false;
+                              }
+
+                              if (attractionProductFilter.length > 0) {
+                                const attractionProductDealByLanguage = attractionProductFilter.map(
+                                  itemProduct => {
+                                    const sessionOptions = filterSessionByLanguage(
+                                      itemProduct,
+                                      language,
+                                      itemProduct.sessionOptions
+                                    );
+                                    return {
+                                      ...itemProduct,
+                                      sessionOptions,
+                                      sessionTime: sessionOptions.includes('03:00:00')
+                                        ? '03:00:00'
+                                        : undefined,
+                                    };
+                                  }
+                                );
+                                themeParkList[index4].products.push(
+                                  dealData(attractionProductDealByLanguage, {
+                                    language,
+                                    isIncludeLanguage: true,
+                                  })
+                                );
+                              }
+                            });
+                          } else {
+                            themeParkList[index4].products.push(dealData(attractionProduct));
                           }
-                          data.attractionProduct = attractionProduct;
-                          themeParkList[index4].products.push(JSON.parse(JSON.stringify(data)));
                         }
                       });
                     });
@@ -704,6 +821,7 @@ export default {
               }
             });
           });
+
           yield put({
             type: 'save',
             payload: {
@@ -755,8 +873,8 @@ export default {
       return false;
     },
 
-    *queryPluAttribute({ payload }, { call, put }) {
-      const response = yield call(queryPluAttribute, payload);
+    *queryTicketTypesEnums(_, { call, put }) {
+      const response = yield call(queryPluAttribute, { attributeItem: 'TICKET_TYPE' });
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },
