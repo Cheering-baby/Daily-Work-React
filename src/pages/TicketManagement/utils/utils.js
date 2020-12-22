@@ -578,10 +578,13 @@ export function matchDictionaryName(dictionary = [], val) {
 }
 
 export function filterProductByLanguage(product, language, numOfGuests) {
-  const { priceRule } = product;
+  const { priceRule, needChoiceCount } = product;
   return priceRule[1].productPrice.find(({ inventoryLanguageGroups }) => {
+    if (!inventoryLanguageGroups) return true;
     return (
-      inventoryLanguageGroups.find(i => i.language === language && i.available >= numOfGuests) ||
+      inventoryLanguageGroups.find(
+        i => i.language === language && i.available >= numOfGuests * needChoiceCount
+      ) ||
       (inventoryLanguageGroups.length === 1 && !inventoryLanguageGroups[0].language)
     );
   });
@@ -592,7 +595,10 @@ export function filterSessionByLanguage(product, language, sessions) {
   const sessionsFilter = [];
   priceRule[1].productPrice.forEach(({ priceTimeFrom, inventoryLanguageGroups }) => {
     if (sessions && priceTimeFrom && sessions.includes(priceTimeFrom)) {
-      if (inventoryLanguageGroups.length === 1 && !inventoryLanguageGroups[0].language) {
+      if (
+        !inventoryLanguageGroups ||
+        (inventoryLanguageGroups.length === 1 && !inventoryLanguageGroups[0].language)
+      ) {
         if (!sessionsFilter.includes(priceTimeFrom)) {
           sessionsFilter.push(priceTimeFrom);
         }
@@ -603,6 +609,33 @@ export function filterSessionByLanguage(product, language, sessions) {
         sessionsFilter.push(priceTimeFrom);
       }
     }
+  });
+  return sessionsFilter;
+}
+
+export function filterBundleSessionByLanguage(offer, language, sessions) {
+  const { detail } = offer;
+  const attractionProducts = getAttractionProducts(detail);
+  const sessionsFilter = [];
+  attractionProducts.forEach(itemProduct => {
+    const { priceRule } = itemProduct;
+    priceRule[1].productPrice.forEach(({ priceTimeFrom, inventoryLanguageGroups }) => {
+      if (sessions && priceTimeFrom && sessions.includes(priceTimeFrom)) {
+        if (
+          !inventoryLanguageGroups ||
+          (inventoryLanguageGroups.length === 1 && !inventoryLanguageGroups[0].language)
+        ) {
+          if (!sessionsFilter.includes(priceTimeFrom)) {
+            sessionsFilter.push(priceTimeFrom);
+          }
+        } else if (
+          inventoryLanguageGroups.find(i => i.language === language) &&
+          !sessionsFilter.includes(priceTimeFrom)
+        ) {
+          sessionsFilter.push(priceTimeFrom);
+        }
+      }
+    });
   });
   return sessionsFilter;
 }

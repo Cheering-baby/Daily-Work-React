@@ -23,6 +23,7 @@ import {
   isSessionProduct,
   filterSessionByLanguage,
   filterProductByLanguage,
+  filterBundleSessionByLanguage,
 } from '../utils/utils';
 
 const takeLatest = { type: 'takeLatest' };
@@ -513,7 +514,7 @@ export default {
             resultDetail.offerProfile = changeVoucherToAttraction(resultDetail.offerProfile);
             // resultDetail.offerProfile = sortAttractionByAgeGroup(resultDetail.offerProfile);
             const {
-              offerProfile: { bookingCategory = [], offerBundle = [{}], offerNo, offerIdentifier },
+              offerProfile: { bookingCategory = [], offerBundle = [{}], offerNo },
             } = resultDetail;
             if (!checkNumOfGuestsAvailable(numOfGuests, resultDetail.offerProfile)) {
               // eslint-disable-next-line no-continue
@@ -670,6 +671,7 @@ export default {
 
                       if (offerBundle[0].bundleName) {
                         data.offerSessions = offerSessions;
+                        data.offerLanguages = productLanguage;
                         // If session include 03:00:00， page will show it default.
                         if (offerSessions.includes('03:00:00')) {
                           data.sessionTime = '03:00:00';
@@ -685,7 +687,7 @@ export default {
                           item4.offerNos.indexOf(offerNo) === -1
                         ) {
                           themeParkList[index4].offerNos.push(offerNo);
-                          if (isIncludeLanguage) {
+                          if (isIncludeLanguage && !offerBundle[0].bundleName) {
                             productLanguage.forEach(language => {
                               const attractionProductFilter = attractionProduct.filter(
                                 itemProduct =>
@@ -736,6 +738,7 @@ export default {
             });
           }
 
+          // Classify offer
           const themeParkList2 = JSON.parse(JSON.stringify(themeParkList));
           themeParkList.forEach((item, index) => {
             const {
@@ -802,6 +805,77 @@ export default {
             });
           });
 
+          // spread out bundle include language
+          themeParkList2.forEach((itemThemePark, index) => {
+            themeParkList2[index].categories = itemThemePark.categories.filter(
+              ({ products }) => products.length > 0
+            );
+            itemThemePark.categories.forEach((category, categoryIndex) => {
+              if (category.products) {
+                category.products.forEach(product => {
+                  const { bundleName, offers } = product;
+                  const languages = [];
+
+                  if (bundleName) {
+                    offers.forEach(itemOffer => {
+                      itemOffer.offerLanguages.forEach(itemLanguage => {
+                        if (!languages.includes(itemLanguage)) {
+                          languages.push(itemLanguage);
+                        }
+                      });
+                    });
+
+                    if (languages.length > 0) {
+                      languages.forEach((language, languageIndex) => {
+                        const findIndex = themeParkList2[index].categories[
+                          categoryIndex
+                        ].products.findIndex(i => i.bundleName === bundleName);
+                        if (languageIndex === 0) {
+                          Object.assign(
+                            themeParkList2[index].categories[categoryIndex].products[findIndex],
+                            {
+                              language,
+                              offers: product.offers
+                                .filter(i => i.offerLanguages.includes(language))
+                                .map(j => ({
+                                  ...j,
+                                  offerSessions: filterBundleSessionByLanguage(
+                                    j,
+                                    language,
+                                    j.offerSessions
+                                  ),
+                                })),
+                            }
+                          );
+                        } else {
+                          themeParkList2[index].categories[categoryIndex].products.splice(
+                            findIndex + languageIndex - 1,
+                            0,
+                            {
+                              ...product,
+                              language,
+                              offers: product.offers
+                                .filter(i => i.offerLanguages.includes(language))
+                                .map(j => ({
+                                  ...j,
+                                  offerSessions: filterBundleSessionByLanguage(
+                                    j,
+                                    language,
+                                    j.offerSessions
+                                  ),
+                                })),
+                            }
+                          );
+                        }
+                      });
+                    }
+                  }
+                });
+              }
+            });
+          });
+
+          // sort bundle offer
           themeParkList2.forEach((itemThemePark, index) => {
             themeParkList2[index].categories = itemThemePark.categories.filter(
               ({ products }) => products.length > 0
@@ -809,7 +883,7 @@ export default {
             itemThemePark.categories.forEach(category => {
               if (category.products) {
                 category.products.forEach((product, productIndex) => {
-                  if (product.bundleName && product.bundleName !== '') {
+                  if (product.bundleName) {
                     product.offers.sort((a, b) => {
                       const aName = a.detail.offerBundle[0].bundleLabel || '';
                       const bName = b.detail.offerBundle[0].bundleLabel || '';

@@ -85,7 +85,9 @@ export function demolitionBundleOrder(orderItemId, orderData, orderInfo) {
     queryInfo,
     bundleName,
     deliveryInfo,
+    language,
   } = orderData;
+
 
   return {
     packageId: orderItemId,
@@ -99,6 +101,7 @@ export function demolitionBundleOrder(orderItemId, orderData, orderInfo) {
       queryInfo,
       bundleName,
       deliveryInfo,
+      language,
     },
     orderDetail: orderInfo,
   };
@@ -731,8 +734,9 @@ export function putAttractionProductsByOfferBundle(
     address: deliveryInfoData.address,
     gender: deliveryInfoData.gender,
   };
+  console.log(orderInfoItem)
   const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
-  const { offerInfo, sessionTime } = orderInfoItem;
+  const { offerInfo, sessionTime, language } = orderInfoItem;
   let timingStr = null;
   if (sessionTime) {
     const dateOfVisitTime = moment(queryInfo.dateOfVisit, 'x');
@@ -753,6 +757,7 @@ export function putAttractionProductsByOfferBundle(
         visitDate: validTimeFrom,
         numOfPax: null,
         cardDisplayName: deliveryInfoData.cardDisplayName,
+        language,
       };
       attractionProducts.push(attractionProduct);
     } else {
@@ -764,6 +769,7 @@ export function putAttractionProductsByOfferBundle(
         visitDate: validTimeFrom,
         numOfPax: quantity,
         cardDisplayName: deliveryInfoData.cardDisplayName,
+        language,
       };
       attractionProducts.push(attractionProduct);
     }
@@ -979,7 +985,7 @@ export function putCommonOffersByOffer(commonOffers, orderOffer, collectionDate,
 
 export function transBookingCommonOffers(ticketOrderData, collectionDate, deliveryMode) {
   const commonOffers = [];
-
+  console.log(ticketOrderData)
   ticketOrderData.forEach(orderData => {
     orderData.orderOfferList.forEach(orderOffer => {
       const { orderType } = orderOffer;

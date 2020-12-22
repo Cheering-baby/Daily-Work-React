@@ -296,7 +296,7 @@ class ShoppingCartOffer extends Component {
         orderIndex,
         offerIndex,
         deliverInformation = {},
-        bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
+        bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName, language },
         generalTicketOrderData,
       },
     } = this.props;
@@ -309,6 +309,7 @@ class ShoppingCartOffer extends Component {
         attractionProduct = [],
       } = item;
       return {
+        language,
         sessionTime,
         quantity,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
@@ -325,6 +326,7 @@ class ShoppingCartOffer extends Component {
       themeParkName,
       orderType: 'offerBundle',
       bundleName,
+      language,
       queryInfo: {
         dateOfVisit,
         numOfGuests,

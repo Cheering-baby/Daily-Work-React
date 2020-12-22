@@ -26,6 +26,7 @@ import {
   calculateAllProductPrice,
   isSessionProduct,
   sessionTimeToWholeDay,
+  matchDictionaryName,
 } from '../../../../utils/utils';
 import styles from './index.less';
 import SortSelect from '@/components/SortSelect';
@@ -39,6 +40,7 @@ const { Option } = Select;
   countrys: ticketMgr.countrys,
   ticketTypesEnums: ticketMgr.ticketTypesEnums,
   ticketConfig: ticketMgr.ticketConfig,
+  languageEnum: ticketMgr.languageEnum,
 }))
 class ToCart extends Component {
   constructor(props) {
@@ -110,6 +112,7 @@ class ToCart extends Component {
       order,
       offers = [],
       numOfGuests,
+      language,
       deliverInformation: {
         country,
         birth,
@@ -229,6 +232,15 @@ class ToCart extends Component {
               session: isSessionProduct(priceRuleId, orderProductItem) ? sessionTime : null,
               ticketNumber,
               productNo,
+              language: orderProductItem.priceRule[1].productPrice.find(
+                ({ inventoryLanguageGroups }) =>
+                  inventoryLanguageGroups &&
+                  inventoryLanguageGroups.find(
+                    ({ language: languageItem }) => languageItem === language
+                  )
+              )
+                ? language
+                : undefined,
             };
           });
           // eslint-disable-next-line no-await-in-loop
@@ -408,8 +420,10 @@ class ToCart extends Component {
       onClose,
       ticketTypesEnums = [],
       countrys = [],
+      languageEnum = [],
       offers,
       bundleName,
+      language,
       deliverInformation: {
         country,
         taNo,
@@ -592,6 +606,18 @@ class ToCart extends Component {
                   >
                     BOOKING INFORMATION
                   </Col>
+                  {language ? (
+                    <Col span={24} className={styles.orderInformationItem}>
+                      <Col span={24}>
+                        <span className={styles.detailLabel}>Language :</span>
+                      </Col>
+                      <Col span={24}>
+                        <span className={styles.detailText}>
+                          {matchDictionaryName(languageEnum, language)}
+                        </span>
+                      </Col>
+                    </Col>
+                  ) : null}
                   <div className={styles.tableFormStyle}>
                     <Form hideRequiredMark colon={false}>
                       <Table

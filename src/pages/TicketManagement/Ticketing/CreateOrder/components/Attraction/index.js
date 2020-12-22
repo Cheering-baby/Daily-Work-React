@@ -44,14 +44,15 @@ class Attraction extends Component {
   showToCart = record => {
     const { dispatch, form } = this.props;
     const {
+      tag,
+      index,
+      themeParkName,
       bundleName,
       offers = [],
       attractionProduct = [],
       detail,
+      language,
       themeParkCode,
-      tag,
-      index,
-      themeParkName,
     } = record;
     const validFields = [];
     const { numOfGuests } = detail;
@@ -74,6 +75,7 @@ class Attraction extends Component {
       if (offerFilter.length > 0) {
         bundleOfferDetail = {
           bundleName,
+          language,
           offers: offerFilter,
           dateOfVisit: offerFilter[0].detail.dateOfVisit,
           numOfGuests: offerFilter[0].detail.numOfGuests,
@@ -391,7 +393,7 @@ class Attraction extends Component {
       dispatch,
       ticketMgr: {
         deliverInformation = {},
-        bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName },
+        bundleOfferDetail: { offers = [], dateOfVisit, numOfGuests, bundleName, language },
         themeParkCode,
         themeParkName,
       },
@@ -405,6 +407,7 @@ class Attraction extends Component {
         attractionProduct = [],
       } = item;
       return {
+        language,
         sessionTime,
         quantity: ticketNumber || 0,
         pricePax: calculateAllProductPrice(attractionProduct, priceRuleId, sessionTime, detail),
@@ -425,6 +428,7 @@ class Attraction extends Component {
       themeParkName,
       orderType: 'offerBundle',
       bundleName,
+      language,
       queryInfo: {
         dateOfVisit,
         numOfGuests,
@@ -586,6 +590,7 @@ class Attraction extends Component {
           const {
             bundleName,
             offers = [],
+            language: offerLanguage,
             detail: {
               language,
               isIncludeLanguage,
@@ -604,7 +609,9 @@ class Attraction extends Component {
           return (
             <div>
               <div className={styles.offerName}>{bundleName || offerName}</div>
-              {isIncludeLanguage && <div>Language: {matchDictionaryName(languageEnum, language)}</div>}
+              {(offerLanguage || isIncludeLanguage) && (
+                <div>Language: {matchDictionaryName(languageEnum, offerLanguage || language)}</div>
+              )}
               {includesVoucher ? (
                 <div className={styles.includesVoucher}>
                   <img src={BookingVoucher} alt="" width={16} height={16} />

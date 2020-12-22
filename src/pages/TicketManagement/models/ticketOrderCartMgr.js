@@ -605,7 +605,6 @@ export default {
           null
         );
       }
-      // console.log(bookingParam);
 
       const { data } = yield call(createBooking, bookingParam);
       if (data) {

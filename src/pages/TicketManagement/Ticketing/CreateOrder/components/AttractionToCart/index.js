@@ -211,7 +211,7 @@ class ToCart extends Component {
         ticketNumber: offerConstrain === 'Fixed' ? offerQuantity : ticketNumber || 0,
         productNo,
         session,
-        language: item.priceRule[0].productPrice.find(
+        language: item.priceRule[1].productPrice.find(
           ({ inventoryLanguageGroups }) =>
             inventoryLanguageGroups &&
             inventoryLanguageGroups.find(({ language: languageItem }) => languageItem === language)

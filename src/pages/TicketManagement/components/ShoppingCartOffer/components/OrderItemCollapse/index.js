@@ -387,18 +387,28 @@ class OrderItemCollapse extends Component {
     return oapOfferList;
   };
 
+  getLanguage = (orderOfferItem) => {
+    if(orderOfferItem.orderType === 'offerBundle'){
+      return orderOfferItem.language;
+    }
+
+    return orderOfferItem.offerInfo.language;
+  }
+
   transOfferDataToShowData = () => {
     const { orderDataItemIndex, bookingCategory, orderData } = this.props;
     if (!orderData || orderData.orderOfferList.length < 1) {
       return [];
     }
     const showDataList = [];
+    
     orderData.orderOfferList.forEach((orderOfferItem, orderOfferItemIndex) => {
       const showDataItem = {
         orderDataItemIndex,
         orderOfferItemIndex,
         orderDisabled: orderOfferItem.orderDisabled,
         offerNo: 0,
+        language: this.getLanguage(orderOfferItem),
         offerName: this.getOfferName(orderOfferItem, bookingCategory),
         visitDate: this.getOrderTime(orderOfferItem, bookingCategory),
         session: this.getSessionTime(orderOfferItem, bookingCategory),
@@ -500,7 +510,7 @@ class OrderItemCollapse extends Component {
     } else if (opType === 'edit') {
       const editOrderOffer = generalTicketOrderData[orderIndex].orderOfferList[offerIndex];
       if (editOrderOffer.orderType === 'offerBundle') {
-        const { bundleName, queryInfo, orderInfo } = editOrderOffer;
+        const { bundleName, queryInfo, orderInfo, language } = editOrderOffer;
         const offers = [];
         orderInfo.forEach(orderInfoItem => {
           let attractionProduct;
@@ -529,6 +539,7 @@ class OrderItemCollapse extends Component {
         const bundleOfferDetail = {
           bundleName,
           offers,
+          language,
           dateOfVisit: queryInfo.dateOfVisit,
           numOfGuests: queryInfo.numOfGuests,
         };
@@ -773,12 +784,12 @@ class OrderItemCollapse extends Component {
                         </Col>
                         <Col span={4}>
                           <div className={styles.offerSpan}>{showItem.offerName}</div>
-                          {showItem.orderOffer.offerInfo.language && (
+                          {showItem.language && (
                             <div className={styles.ticketSpan}>
                               Language:{' '}
                               {matchDictionaryName(
                                 languageEnum,
-                                showItem.orderOffer.offerInfo.language
+                                showItem.language
                               )}
                             </div>
                           )}
