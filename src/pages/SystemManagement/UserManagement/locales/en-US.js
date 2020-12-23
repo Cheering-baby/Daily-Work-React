@@ -1,5 +1,5 @@
 export default {
-  COMMON_NEW_TA: 'New TA',
+  COMMON_NEW_TA: 'New TA User',
   COMMON_NEW_RWS_USER: 'New RWS User',
   NAME: 'NAME',
   USER_LOGIN: 'User Login',

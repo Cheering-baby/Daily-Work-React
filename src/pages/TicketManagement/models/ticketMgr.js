@@ -809,11 +809,17 @@ export default {
             });
           });
 
-          // spread out bundle include language
+          // filter categories no product
           themeParkList2.forEach((itemThemePark, index) => {
             themeParkList2[index].categories = itemThemePark.categories.filter(
               ({ products }) => products.length > 0
             );
+          });
+
+          const themeParkList3 = JSON.parse(JSON.stringify(themeParkList2));
+
+          // spread out bundle include language
+          themeParkList2.forEach((itemThemePark, index) => {
             itemThemePark.categories.forEach((category, categoryIndex) => {
               if (category.products) {
                 category.products.forEach(product => {
@@ -828,9 +834,11 @@ export default {
                         }
                       });
                     });
-                    const findIndex = themeParkList2[index].categories[
+
+                    const findIndex = themeParkList3[index].categories[
                       categoryIndex
                     ].products.findIndex(i => i.bundleName === bundleName);
+
                     if (languages.length > 0) {
                       languages.forEach((language, languageIndex) => {
                         const filterOffers = product.offers
@@ -853,25 +861,24 @@ export default {
                               j.offerSessions
                             ),
                           }));
-                        console.log(filterOffers);
+
                         if (languageIndex === 0) {
                           if (filterOffers.length === 0) {
-                            themeParkList2[index].categories[categoryIndex].products.splice(
+                            themeParkList3[index].categories[categoryIndex].products.splice(
                               findIndex,
                               1
                             );
                           } else {
-                            Object.assign(
-                              themeParkList2[index].categories[categoryIndex].products[findIndex],
-                              {
-                                language,
-                                offers: filterOffers,
-                              }
-                            );
+                            themeParkList3[index].categories[categoryIndex].products[
+                              findIndex
+                            ].language = language;
+                            themeParkList3[index].categories[categoryIndex].products[
+                              findIndex
+                            ].offers = filterOffers;
                           }
                         } else if (filterOffers.length > 0) {
-                          themeParkList2[index].categories[categoryIndex].products.splice(
-                            findIndex - 1,
+                          themeParkList3[index].categories[categoryIndex].products.splice(
+                            findIndex,
                             0,
                             {
                               ...product,
@@ -889,8 +896,8 @@ export default {
           });
 
           // sort bundle offer
-          themeParkList2.forEach((itemThemePark, index) => {
-            themeParkList2[index].categories = itemThemePark.categories.filter(
+          themeParkList3.forEach((itemThemePark, index) => {
+            themeParkList3[index].categories = itemThemePark.categories.filter(
               ({ products }) => products.length > 0
             );
             itemThemePark.categories.forEach(category => {
@@ -912,7 +919,7 @@ export default {
           yield put({
             type: 'save',
             payload: {
-              themeParkListByCode: themeParkList2,
+              themeParkListByCode: themeParkList3,
             },
           });
         } else {
