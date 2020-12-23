@@ -1,4 +1,5 @@
 import { isNullOrUndefined } from 'util';
+import moment from 'moment';
 import { Attraction, Voucher } from './constants';
 
 export function arrToString(arr = []) {
@@ -590,8 +591,8 @@ export function filterProductByLanguage(product, language, numOfGuests) {
   });
 }
 
-export function filterSessionByLanguage(product, language, sessions) {
-  const { priceRule } = product;
+export function filterSessionByLanguage(product, language, sessions, numOfGuests) {
+  const { priceRule, needChoiceCount } = product;
   const sessionsFilter = [];
   priceRule[1].productPrice.forEach(({ priceTimeFrom, inventoryLanguageGroups }) => {
     if (sessions && priceTimeFrom && sessions.includes(priceTimeFrom)) {
@@ -603,22 +604,25 @@ export function filterSessionByLanguage(product, language, sessions) {
           sessionsFilter.push(priceTimeFrom);
         }
       } else if (
-        inventoryLanguageGroups.find(i => i.language === language) &&
+        inventoryLanguageGroups.find(
+          i => i.language === language && i.available >= numOfGuests * needChoiceCount
+        ) &&
         !sessionsFilter.includes(priceTimeFrom)
       ) {
         sessionsFilter.push(priceTimeFrom);
       }
     }
   });
+  sessionsFilter.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
   return sessionsFilter;
 }
 
-export function filterBundleSessionByLanguage(offer, language, sessions) {
+export function filterBundleSessionByLanguage(offer, language, numOfGuests, sessions) {
   const { detail } = offer;
   const attractionProducts = getAttractionProducts(detail);
   const sessionsFilter = [];
   attractionProducts.forEach(itemProduct => {
-    const { priceRule } = itemProduct;
+    const { priceRule, needChoiceCount } = itemProduct;
     priceRule[1].productPrice.forEach(({ priceTimeFrom, inventoryLanguageGroups }) => {
       if (sessions && priceTimeFrom && sessions.includes(priceTimeFrom)) {
         if (
@@ -629,7 +633,9 @@ export function filterBundleSessionByLanguage(offer, language, sessions) {
             sessionsFilter.push(priceTimeFrom);
           }
         } else if (
-          inventoryLanguageGroups.find(i => i.language === language) &&
+          inventoryLanguageGroups.find(
+            i => i.language === language && i.available >= numOfGuests * needChoiceCount
+          ) &&
           !sessionsFilter.includes(priceTimeFrom)
         ) {
           sessionsFilter.push(priceTimeFrom);
@@ -637,5 +643,6 @@ export function filterBundleSessionByLanguage(offer, language, sessions) {
       }
     });
   });
+  sessionsFilter.sort((a, b) => moment(a, 'HH:mm:ss') - moment(b, 'HH:mm:ss'));
   return sessionsFilter;
 }

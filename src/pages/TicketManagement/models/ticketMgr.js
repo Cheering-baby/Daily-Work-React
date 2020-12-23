@@ -624,7 +624,10 @@ export default {
                     });
 
                     // Fixed, if there is not some language in product, it will not show
-                    if (item2.choiceConstrain === 'Fixed' && isIncludeLanguage) {
+                    if (
+                      (item2.choiceConstrain === 'Fixed' || offerBundle[0].bundleName) &&
+                      isIncludeLanguage
+                    ) {
                       productLanguage = findArrSame(productLanguage);
                       if (productLanguage.length === 0) {
                         return false;
@@ -707,7 +710,8 @@ export default {
                                     const sessionOptions = filterSessionByLanguage(
                                       itemProduct,
                                       language,
-                                      itemProduct.sessionOptions
+                                      itemProduct.sessionOptions,
+                                      numOfGuests
                                     );
                                     return {
                                       ...itemProduct,
@@ -824,46 +828,55 @@ export default {
                         }
                       });
                     });
-
+                    const findIndex = themeParkList2[index].categories[
+                      categoryIndex
+                    ].products.findIndex(i => i.bundleName === bundleName);
                     if (languages.length > 0) {
                       languages.forEach((language, languageIndex) => {
-                        const findIndex = themeParkList2[index].categories[
-                          categoryIndex
-                        ].products.findIndex(i => i.bundleName === bundleName);
-                        if (languageIndex === 0) {
-                          Object.assign(
-                            themeParkList2[index].categories[categoryIndex].products[findIndex],
-                            {
+                        const filterOffers = product.offers
+                          .filter(
+                            i =>
+                              i.offerLanguages.includes(language) &&
+                              filterBundleSessionByLanguage(
+                                i,
+                                language,
+                                numOfGuests,
+                                i.offerSessions
+                              ).length > 0
+                          )
+                          .map(j => ({
+                            ...j,
+                            offerSessions: filterBundleSessionByLanguage(
+                              j,
                               language,
-                              offers: product.offers
-                                .filter(i => i.offerLanguages.includes(language))
-                                .map(j => ({
-                                  ...j,
-                                  offerSessions: filterBundleSessionByLanguage(
-                                    j,
-                                    language,
-                                    j.offerSessions
-                                  ),
-                                })),
-                            }
-                          );
-                        } else {
+                              numOfGuests,
+                              j.offerSessions
+                            ),
+                          }));
+                        console.log(filterOffers);
+                        if (languageIndex === 0) {
+                          if (filterOffers.length === 0) {
+                            themeParkList2[index].categories[categoryIndex].products.splice(
+                              findIndex,
+                              1
+                            );
+                          } else {
+                            Object.assign(
+                              themeParkList2[index].categories[categoryIndex].products[findIndex],
+                              {
+                                language,
+                                offers: filterOffers,
+                              }
+                            );
+                          }
+                        } else if (filterOffers.length > 0) {
                           themeParkList2[index].categories[categoryIndex].products.splice(
-                            findIndex + languageIndex - 1,
+                            findIndex - 1,
                             0,
                             {
                               ...product,
                               language,
-                              offers: product.offers
-                                .filter(i => i.offerLanguages.includes(language))
-                                .map(j => ({
-                                  ...j,
-                                  offerSessions: filterBundleSessionByLanguage(
-                                    j,
-                                    language,
-                                    j.offerSessions
-                                  ),
-                                })),
+                              offers: filterOffers,
                             }
                           );
                         }
