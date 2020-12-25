@@ -695,10 +695,10 @@ export default {
                               const attractionProductFilter = attractionProduct.filter(
                                 itemProduct =>
                                   filterProductByLanguage(itemProduct, language, numOfGuests)
-                              );
+                              );                            
 
                               if (
-                                item.choiceConstrain === 'Fixed' &&
+                                item2.choiceConstrain === 'Fixed' &&
                                 attractionProductFilter.length !== attractionProduct.length
                               ) {
                                 return false;
