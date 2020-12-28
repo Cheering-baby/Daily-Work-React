@@ -3,6 +3,7 @@ import {
   getAttractionProductList,
   getVoucherProductList,
 } from '@/pages/TicketManagement/utils/ticketOfferInfoUtil';
+import { ProgramFee } from './constants';
 
 export function checkDateOfVisitForOutTime(dateOfVisit) {
   let checkPass = false;
@@ -87,7 +88,6 @@ export function demolitionBundleOrder(orderItemId, orderData, orderInfo) {
     deliveryInfo,
     language,
   } = orderData;
-
 
   return {
     packageId: orderItemId,
@@ -415,30 +415,64 @@ export function getCheckOapOrderData(onceAPirateOrderData) {
   return orderList;
 }
 
+function getProductTicketQuantity(quantity, product, forBocaFee) {
+  const {
+    attractionProduct: { ticketType, itemPlus, isGroupTicket, maxGroupAdmits },
+    needChoiceCount,
+  } = product;
+  let ticketAmount = 0;
+  if (ticketType === ProgramFee) {
+    if (!forBocaFee) {
+      ticketAmount += quantity * needChoiceCount;
+    }
+  } else if (isGroupTicket === 'Yes') {
+    ticketAmount += Math.ceil(quantity / maxGroupAdmits) * needChoiceCount;
+  } else if (itemPlus && itemPlus.length > 0) {
+    if (ticketType === 'MPP') {
+      ticketAmount += quantity * needChoiceCount;
+      itemPlus.forEach(itemPlu => {
+        if (itemPlu.ticketType === 'Voucher') {
+          ticketAmount += quantity * itemPlu.itemQty;
+        }
+      });
+    } else {
+      itemPlus.forEach(itemPlu => {
+        if (itemPlu.ticketType !== ProgramFee) {
+          ticketAmount += quantity * itemPlu.itemQty;
+        }
+      });
+    }
+  } else {
+    ticketAmount += quantity * needChoiceCount;
+  }
+  return ticketAmount;
+}
 
-function getVoucherTicketQuantity(orderOffer) {
+function getVoucherTicketQuantity(orderOffer, forBocaFee) {
   let voucherTicketQuantity = 0;
-  const dateOfVisit = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD')
+  const dateOfVisit = moment(orderOffer.queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
   if (orderOffer.orderType === 'offerBundle') {
     orderOffer.orderInfo.forEach(orderInfoItem => {
       if (orderInfoItem.quantity > 0) {
-        const voucherProductList = getVoucherProductList(
-          orderInfoItem.offerInfo,
-          dateOfVisit
+        const voucherProductList = getVoucherProductList(orderInfoItem.offerInfo, dateOfVisit);
+        // let itemQuantity = 0;
+        const itemQuantity = getAttractionProductList(orderInfoItem.offerInfo, dateOfVisit).reduce(
+          (total, i) => total + i.needChoiceCount,
+          0
         );
-        const itemQuantity = getAttractionProductList(
-          orderInfoItem.offerInfo,
-          dateOfVisit
-        ).reduce((total,i) => total + i.needChoiceCount, 0);
+        // getAttractionProductList(orderInfoItem.offerInfo, dateOfVisit).forEach(itemProduct => {
+        //   itemQuantity += getProductTicketQuantity(orderInfoItem.quantity, itemProduct, forBocaFee);
+        // });
         voucherProductList.forEach(item => {
           const {
             attractionProduct: { voucherQtyType },
-            needChoiceCount,
+            // needChoiceCount,
           } = item;
+          const ticketQuantity = getProductTicketQuantity(1, item, forBocaFee);
           if (voucherQtyType === 'By Package') {
-            voucherTicketQuantity += orderInfoItem.quantity * needChoiceCount;
+            voucherTicketQuantity += orderInfoItem.quantity * ticketQuantity;
           } else if (voucherQtyType === 'By Ticket') {
-            voucherTicketQuantity += itemQuantity * orderInfoItem.quantity * needChoiceCount;
+            voucherTicketQuantity += itemQuantity * orderInfoItem.quantity * ticketQuantity;
           } else {
             voucherTicketQuantity += 1;
           }
@@ -446,33 +480,38 @@ function getVoucherTicketQuantity(orderOffer) {
       }
     });
   } else {
-    const voucherProductList = getVoucherProductList(
-      orderOffer.offerInfo,
-      dateOfVisit
-    );
+    const voucherProductList = getVoucherProductList(orderOffer.offerInfo, dateOfVisit);
     let fixedProductTickets = 0;
-    if(orderOffer.orderType === 'offerFixed'){
+    if (orderOffer.orderType === 'offerFixed') {
       orderOffer.orderInfo.forEach(info => {
         if (info.orderCheck) {
           const needChoiceCount = info.productInfo.needChoiceCount || 1;
           fixedProductTickets += 1 * needChoiceCount;
+          // fixedProductTickets += getProductTicketQuantity(
+          //   orderOffer.orderSummary.quantity,
+          //   info.productInfo,
+          //   forBocaFee
+          // );
         }
       });
     }
+
     voucherProductList.forEach(item => {
       const {
         attractionProduct: { voucherQtyType },
         needChoiceCount,
       } = item;
+      const ticketQuantity = getProductTicketQuantity(1, item, forBocaFee);
       if (voucherQtyType === 'By Package') {
         if (orderOffer.orderType === 'offerFixed') {
-          voucherTicketQuantity += orderOffer.orderSummary.quantity * needChoiceCount;
+          voucherTicketQuantity += orderOffer.orderSummary.quantity * ticketQuantity;
         } else {
-          voucherTicketQuantity += 1 * needChoiceCount;
+          voucherTicketQuantity += 1 * ticketQuantity;
         }
       } else if (voucherQtyType === 'By Ticket') {
         if (orderOffer.orderType === 'offerFixed') {
-          voucherTicketQuantity += fixedProductTickets * orderOffer.orderSummary.quantity * needChoiceCount;
+          voucherTicketQuantity +=
+            fixedProductTickets * orderOffer.orderSummary.quantity * ticketQuantity;
         } else {
           let ticketAmount = 0;
           orderOffer.orderInfo.forEach(info => {
@@ -481,7 +520,7 @@ function getVoucherTicketQuantity(orderOffer) {
               ticketAmount += info.quantity * needChoiceCountProduct;
             }
           });
-          voucherTicketQuantity += ticketAmount * needChoiceCount;
+          voucherTicketQuantity += ticketAmount * ticketQuantity;
         }
       } else {
         voucherTicketQuantity += 1;
@@ -491,12 +530,15 @@ function getVoucherTicketQuantity(orderOffer) {
   return voucherTicketQuantity;
 }
 
+/**
+ * @param forBocaFee is for ticket amount on BOCA Fee
+ */
 
 export function getCheckTicketAmount(
   packageOrderData,
   generalTicketOrderData,
   onceAPirateOrderData,
-  includeVouchers,
+  forBocaFee
 ) {
   const orderArray = [packageOrderData, generalTicketOrderData, onceAPirateOrderData];
   let ticketAmount = 0;
@@ -511,40 +553,48 @@ export function getCheckTicketAmount(
               const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
               const attractionProductList = getAttractionProductList(offerInfo, validTimeFrom);
               attractionProductList.forEach(attractionProduct => {
-                ticketAmount += quantity * attractionProduct.needChoiceCount;
+                // ticketAmount += quantity * attractionProduct.needChoiceCount;
+                ticketAmount += getProductTicketQuantity(quantity, attractionProduct, forBocaFee);
               });
             }
           });
-          if(includeVouchers && orderOffer.orderAll) {
-            ticketAmount += getVoucherTicketQuantity(orderOffer);
+          if (forBocaFee && orderOffer.orderAll) {
+            ticketAmount += getVoucherTicketQuantity(orderOffer, forBocaFee);
           }
         } else if (listIndex < 2 && orderOffer.orderInfo && orderOffer.orderType === 'offerFixed') {
-          let offerTicketPax = 0;
+          // let offerTicketPax = 0;
           orderOffer.orderInfo.forEach(info => {
             if (info.orderCheck) {
-              const needChoiceCount = info.productInfo.needChoiceCount || 1;
-              offerTicketPax += 1 * needChoiceCount;
+              // const needChoiceCount = info.productInfo.needChoiceCount || 1;
+              // offerTicketPax += 1 * needChoiceCount;
+              ticketAmount += getProductTicketQuantity(
+                orderOffer.orderSummary.quantity,
+                info.productInfo,
+                forBocaFee
+              );
             }
           });
-          ticketAmount += offerTicketPax * orderOffer.orderSummary.quantity;
-          if(includeVouchers && orderOffer.orderAll) {
-            ticketAmount += getVoucherTicketQuantity(orderOffer);
+
+          // ticketAmount += offerTicketPax * orderOffer.orderSummary.quantity;
+          if (forBocaFee && orderOffer.orderAll) {
+            ticketAmount += getVoucherTicketQuantity(orderOffer, forBocaFee);
           }
         } else if (listIndex < 2 && orderOffer.orderInfo) {
           orderOffer.orderInfo.forEach(info => {
             if (info.orderCheck) {
-              const needChoiceCount = info.productInfo.needChoiceCount || 1;
-              ticketAmount += info.quantity * needChoiceCount;
+              // const needChoiceCount = info.productInfo.needChoiceCount || 1;
+              // ticketAmount += info.quantity * needChoiceCount;
+              ticketAmount += getProductTicketQuantity(info.quantity, info.productInfo, forBocaFee);
             }
           });
-          if(includeVouchers && orderOffer.orderAll) {
-            ticketAmount += getVoucherTicketQuantity(orderOffer);
+          if (forBocaFee && orderOffer.orderAll) {
+            ticketAmount += getVoucherTicketQuantity(orderOffer, forBocaFee);
           }
         } else if (listIndex === 2) {
           if (orderOffer.orderCheck) {
             const needChoiceCount = 1;
             ticketAmount += orderOffer.orderInfo.orderQuantity * needChoiceCount;
-            if(includeVouchers && orderOffer.orderCheck) {
+            if (forBocaFee && orderOffer.orderCheck) {
               ticketAmount += 1;
             }
           }
@@ -734,7 +784,7 @@ export function putAttractionProductsByOfferBundle(
     address: deliveryInfoData.address,
     gender: deliveryInfoData.gender,
   };
-  console.log(orderInfoItem)
+
   const validTimeFrom = moment(queryInfo.dateOfVisit, 'x').format('YYYY-MM-DD');
   const { offerInfo, sessionTime, language } = orderInfoItem;
   let timingStr = null;
@@ -985,7 +1035,6 @@ export function putCommonOffersByOffer(commonOffers, orderOffer, collectionDate,
 
 export function transBookingCommonOffers(ticketOrderData, collectionDate, deliveryMode) {
   const commonOffers = [];
-  console.log(ticketOrderData)
   ticketOrderData.forEach(orderData => {
     orderData.orderOfferList.forEach(orderOffer => {
       const { orderType } = orderOffer;

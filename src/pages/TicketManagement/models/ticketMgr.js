@@ -695,7 +695,7 @@ export default {
                               const attractionProductFilter = attractionProduct.filter(
                                 itemProduct =>
                                   filterProductByLanguage(itemProduct, language, numOfGuests)
-                              );                            
+                              );
 
                               if (
                                 item2.choiceConstrain === 'Fixed' &&
@@ -875,6 +875,9 @@ export default {
                             themeParkList3[index].categories[categoryIndex].products[
                               findIndex
                             ].offers = filterOffers;
+                            themeParkList3[index].categories[categoryIndex].products[
+                              findIndex
+                            ].id = `${product.id}_${languageIndex + 1}`;
                           }
                         } else if (filterOffers.length > 0) {
                           themeParkList3[index].categories[categoryIndex].products.splice(
@@ -884,6 +887,7 @@ export default {
                               ...product,
                               language,
                               offers: filterOffers,
+                              id: `${product.id}_${languageIndex + 1}`,
                             }
                           );
                         }

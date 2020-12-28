@@ -1,6 +1,7 @@
 module.exports = {
   Attraction: 'Attraction',
   Voucher: 'Voucher',
+  ProgramFee: 'PF',
   ticketTypes: [
     {
       value: 'Adult',

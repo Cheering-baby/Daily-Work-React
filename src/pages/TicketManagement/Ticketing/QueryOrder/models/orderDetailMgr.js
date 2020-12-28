@@ -411,6 +411,7 @@ export default {
           vidList,
           delivery: offers[i].deliveryInfo,
           offerGroup: offers[i].offerGroup,
+          attraction: offers[i].attraction,
         });
       }
 

@@ -5,7 +5,7 @@ import { formatMessage } from 'umi/locale';
 // import { SCREEN } from '../../../../utils/screen'*;
 import { connect } from 'dva';
 import router from 'umi/router';
-import { Base64 } from 'js-base64';
+import cryptoAES from '@/utils/cryptoAES';
 import styles from '../index.less';
 import constants from '../constants';
 import PrivilegeUtil from '../../../../utils/PrivilegeUtil';
@@ -336,7 +336,7 @@ class Index extends React.PureComponent {
         currentUserProfile: userInfo,
       },
     }).then(() => {
-      const encryptUserCode = Base64.encode(userInfo.userCode);
+      const encryptUserCode = cryptoAES.Encrypt(userInfo.userCode);
       router.push(`/SystemManagement/UserManagement/Edit/${encryptUserCode}`);
     });
   };
@@ -349,7 +349,7 @@ class Index extends React.PureComponent {
         currentUserProfile: userInfo,
       },
     }).then(() => {
-      const encryptUserCode = Base64.encode(userInfo.userCode);
+      const encryptUserCode = cryptoAES.Encrypt(userInfo.userCode);
       router.push(`/SystemManagement/UserManagement/Detail/${encryptUserCode}`);
     });
   };

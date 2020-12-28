@@ -515,7 +515,7 @@ class Detail extends React.Component {
         const contactNo = detailList[i].delivery ? detailList[i].delivery.contactNo : '-';
         const email = detailList[i].delivery ? detailList[i].delivery.email : '-';
         const visitDate = detailList[i].visitDate ? detailList[i].visitDate : '-';
-        const { bundleName, offerName } = detailList[i];
+        const { bundleName, offerName, attraction } = detailList[i];
         let offerNameText = offerName;
         let referenceNo;
         if (orderSourceChannel === 'OTA') {
@@ -530,6 +530,12 @@ class Detail extends React.Component {
         const orderQuantityInfo = orderQuantityList.find(
           orderQuantityItem => orderQuantityItem.offerGroup === detailList[i].offerGroup
         );
+
+        // Add Language Show
+        if(attraction && attraction.find(item => item.language)){
+          offerNameText += `  ${attraction.find(item => item.language).language}`;
+        }
+
         child.push(
           <div key={`offer_${i}`}>
             <Divider className={styles.dividerStyle} dashed />
