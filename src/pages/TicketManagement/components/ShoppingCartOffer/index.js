@@ -187,7 +187,7 @@ class ShoppingCartOffer extends Component {
     const { dateOfVisit, numOfGuests, priceRuleId, language } = detail;
     const orderInfo = [];
     attractionProduct.forEach(item => {
-      const { ticketNumber } = item;
+      const { ticketNumber, needChoiceCount } = item;
       orderInfo.push({
         language,
         sessionTime: item.sessionTime,
@@ -196,6 +196,7 @@ class ShoppingCartOffer extends Component {
         pricePax: ticketNumber ? calculateProductPrice(item, priceRuleId, item.sessionTime) : 0,
         gstAmountPax: ticketNumber ? calculateProductPriceGst(item, priceRuleId, item.sessionTime) : 0,
         productInfo: item,
+        ageGroupQuantity: needChoiceCount,
       });
     });
     const orderData = {
@@ -255,6 +256,7 @@ class ShoppingCartOffer extends Component {
         pricePax: calculateProductPrice(item, priceRuleId, item.sessionTime),
         gstAmountPax: calculateProductPriceGst(item, priceRuleId, item.sessionTime),
         productInfo: item,
+        ageGroupQuantity: item.needChoiceCount,
       });
     });
     const orderData = {
