@@ -395,7 +395,7 @@ class RevalidationRequest extends Component {
     ) {
       const reader = new FileReader();
       reader.readAsText(file);
-      reader.onload = function() {
+      reader.onload = function onLoad() {
         dispatch({
           type: 'revalidationRequestMgr/uploadFile',
           payload: {
