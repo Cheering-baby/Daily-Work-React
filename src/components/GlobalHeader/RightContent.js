@@ -98,6 +98,32 @@ class GlobalHeaderRight extends PureComponent {
     });
   };
 
+  routerToDetail = (activeKey, notificationInfo) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'notificationMgr/saveData',
+      payload: {
+        notificationVisibleFlag: false,
+      },
+    }).then(() => {
+      dispatch({
+        type: 'notification/saveData',
+        payload: {
+          notificationInfo,
+        },
+      });
+      if (activeKey === '1') {
+        router.push(`/Notifications/SystemNotification/Detail/${notificationInfo.id}`);
+      } else if (activeKey === '2') {
+        router.push(`/MyActivity?activityId=${notificationInfo.businessId}`);
+      } else if (activeKey === '3') {
+        router.push(`/Notifications/Bulletin/Detail/${notificationInfo.id}`);
+      } else if (activeKey === '4') {
+        router.push(`/Notifications/Circular/Detail/${notificationInfo.id}`);
+      }
+    });
+  };
+
   render() {
     const {
       currentUser = {},
@@ -187,6 +213,7 @@ class GlobalHeaderRight extends PureComponent {
             <UserNotificationView
               // handleClick={this.handleClick}
               routerTo={this.routerTo}
+              routerToDetail={this.routerToDetail}
               {...this.props}
             />
           }

@@ -510,7 +510,7 @@ class QueryOrder extends Component {
           bordered={false}
           rowClassName={styles.tableRowStyle}
           footer={() => {
-            if (deliveryMode === 'BOCA' && userType !== '03') {
+            if (deliveryMode === 'BOCA' && userType !== '03' && deliveryFee !== null ) {
               return (
                 <div className={styles.tableFooterDiv}>
                   <div style={{ width: '25%', float: 'right' }}>

@@ -5,6 +5,7 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import router from 'umi/router';
+import { isNullOrUndefined } from 'util';
 import SCREEN from '@/utils/screen';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import styles from './index.less';
@@ -392,7 +393,7 @@ class OrderPay extends Component {
                 </Row>
               </Col>
             </Row>
-            {deliveryMode === 'BOCA' && companyType !== '02' && (
+            {deliveryMode === 'BOCA' && companyType !== '02' && !isNullOrUndefined(bocaFeePax) (
               <Row>
                 <Col style={{ padding: '0 15px 15px 15px' }}>
                   <BOCAOfferCollapse
@@ -464,7 +465,7 @@ class OrderPay extends Component {
                         </span>
                       </Col>
                     </Row>
-                    {companyType !== '02' && deliveryMode === 'BOCA' && (
+                    {companyType !== '02' && deliveryMode === 'BOCA' && !isNullOrUndefined(bocaFeePax) && (
                       <Row className={styles.priceCol}>
                         <Col span={16}>
                           <span className={styles.priceKeySpan}>BOCA Fee (Before 7% GST):</span>

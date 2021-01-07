@@ -3,7 +3,7 @@ import moment from 'moment';
 import { List, Spin, Tabs, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import styles from './index.less';
-import {  hasAnyPrivilege } from '@/utils/PrivilegeUtil';
+import { hasAnyPrivilege } from '@/utils/PrivilegeUtil';
 
 const { TabPane } = Tabs;
 
@@ -23,6 +23,7 @@ class UserNotificationView extends PureComponent {
       },
       isMobile,
       routerTo,
+      routerToDetail,
     } = this.props;
     return (
       <Tabs className={styles.userNotificationStyle} style={{ width: isMobile ? 'auto' : '430px' }}>
@@ -36,7 +37,7 @@ class UserNotificationView extends PureComponent {
               dataSource={systemNotificationList}
               size="small"
               renderItem={item => (
-                <List.Item>
+                <List.Item onClick={() => routerToDetail('1', item)}>
                   <List.Item.Meta
                     title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                     description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
@@ -57,11 +58,12 @@ class UserNotificationView extends PureComponent {
         >
           <Spin spinning={bellNotificationLoading}>
             <List
+              className={styles.userPendingApprovalStyle}
               itemLayout="horizontal"
               dataSource={pendingActivityList}
               size="small"
               renderItem={item => (
-                <List.Item>
+                <List.Item onClick={() => routerToDetail('2', item)}>
                   <List.Item.Meta
                     title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                     description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
@@ -76,7 +78,7 @@ class UserNotificationView extends PureComponent {
             ) : null}
           </Spin>
         </TabPane>
-        {hasAnyPrivilege(["NOTIFICATION_BELL_BULLETIN_PRIVILEGE"]) && (
+        {hasAnyPrivilege(['NOTIFICATION_BELL_BULLETIN_PRIVILEGE']) && (
           <TabPane tab={`${formatMessage({ id: 'NOTICE_BULLETIN' })} (${bulletinCount})`} key="3">
             <Spin spinning={bellNotificationLoading}>
               <List
@@ -84,7 +86,7 @@ class UserNotificationView extends PureComponent {
                 dataSource={bulletinList}
                 size="small"
                 renderItem={item => (
-                  <List.Item>
+                  <List.Item onClick={() => routerToDetail('3', item)}>
                     <List.Item.Meta
                       title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                       description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}
@@ -100,7 +102,7 @@ class UserNotificationView extends PureComponent {
             </Spin>
           </TabPane>
         )}
-        {hasAnyPrivilege(["NOTIFICATION_BELL_CIRCULAR_PRIVILEGE"]) && (
+        {hasAnyPrivilege(['NOTIFICATION_BELL_CIRCULAR_PRIVILEGE']) && (
           <TabPane tab={`${formatMessage({ id: 'NOTICE_CIRCULAR' })} (${circularCount})`} key="4">
             <Spin spinning={bellNotificationLoading}>
               <List
@@ -108,7 +110,7 @@ class UserNotificationView extends PureComponent {
                 dataSource={circularList}
                 size="small"
                 renderItem={item => (
-                  <List.Item>
+                  <List.Item onClick={() => routerToDetail('4', item)}>
                     <List.Item.Meta
                       title={<Tooltip title={item.title}>{item.title}</Tooltip>}
                       description={moment(item.createTime).format('DD-MMM-YYYY HH:mm:ss')}

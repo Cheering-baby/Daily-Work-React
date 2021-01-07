@@ -404,7 +404,7 @@ export default {
         message.warn(`${payload.attributeItem} config is null`);
         return;
       }
-      let queryPluKey = 0;
+      let queryPluKey = null;
       result.items.forEach(item => {
         if (item.item === 'DeliveryPLU') {
           queryPluKey = item.itemValue;
@@ -419,6 +419,17 @@ export default {
     },
 
     *queryPluListByCondition({ payload }, { call, put }) {
+      if(payload.queryPluKey === null) {
+        yield put({
+          type: 'save',
+          payload: {
+            bocaFeePax: null,
+            bocaFeeGst: null
+          },
+        });
+        return true;
+      }
+      
       yield put({
         type: 'save',
         payload: {

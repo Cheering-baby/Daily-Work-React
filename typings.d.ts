@@ -9,5 +9,11 @@ declare module '*.svg' {
 declare module '@/utils/screen';
 declare module 'umi/locale';
 interface Window {
-  previewWindow: any;
+  previewWindow: string;
+}
+
+
+declare namespace myLib {
+  function makeGreeting(s: string): string;
+  let numberOfGreetings: number;
 }
