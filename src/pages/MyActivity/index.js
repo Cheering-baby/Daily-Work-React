@@ -224,7 +224,25 @@ class MyActivity extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { dispatch } = this.props;
+    const {
+      form,
+      dispatch,
+      location: {
+        query: { activityId },
+      }, 
+    } = this.props;
+
+    if(activityId && activityId !== 'null') {
+      form.setFieldsValue({activityId});
+      dispatch({
+        type: 'myActivity/save',
+        payload: {
+          filter: {
+            activityId,
+          }
+        }
+      })
+    }
 
     dispatch({
       type: 'myActivity/queryActivityList',
@@ -240,6 +258,8 @@ class MyActivity extends React.PureComponent {
       type: 'myActivity/queryTemplateList',
       payload: {},
     });
+   
+    
   }
 
   componentWillUnmount() {

@@ -358,6 +358,7 @@ export default {
         yield put({ type: 'save', payload: { isCompanyExist: false } });
         return false;
       }
+      payload.registrationNo = payload.registrationNo.trim();
       const {
         data: { resultCode, resultMsg, result },
       } = yield call(checkCompanyExist, { ...payload });
