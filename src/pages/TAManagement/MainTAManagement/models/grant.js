@@ -485,8 +485,25 @@ export default {
   subscriptions: {
     setup({ dispatch, history }) {
       history.listen(location => {
-        if (location.pathname !== '/SystemManagement/UserManagement') {
+        const { pathname, query: { taIdList } } = location;
+        if (pathname !== '/TAManagement/MainTAManagement/Grant') {
           dispatch({ type: 'clear' });
+        } else if(pathname === '/TAManagement/MainTAManagement/Grant') {
+          const newTaIdList = taIdList.split(',');
+          if (newTaIdList.length === 1) {
+            dispatch({
+              type: 'grant/fetch',
+              payload: {
+                agentId: newTaIdList[0],
+              },
+            });
+            dispatch({
+              type: 'grant/fetch2',
+              payload: {
+                agentId: newTaIdList[0],
+              },
+            });
+          }
         }
       });
     },

@@ -510,7 +510,7 @@ class QueryOrder extends Component {
           bordered={false}
           rowClassName={styles.tableRowStyle}
           footer={() => {
-            if (deliveryMode === 'BOCA' && userType !== '03' && deliveryFee !== null ) {
+            if (deliveryMode === 'BOCA' && userType !== '03') {
               return (
                 <div className={styles.tableFooterDiv}>
                   <div style={{ width: '25%', float: 'right' }}>
@@ -570,10 +570,10 @@ class QueryOrder extends Component {
       }
     }
     if (flag === 'Revalidation' && bookingDetail && bookingDetail.refundSuccessFlag === 'Yes') {
-      ifAllowed = false;
-      contentText = `The tickets in the order have already been ${
-        vidList.find(i => i.status === 'false' && i.hadRefunded !== 'Yes') ? 'used' : 'refunded'
-      }.`;
+      if (!vidList.find(i => i.status === 'false' && i.hadRefunded !== 'Yes')) {
+        ifAllowed = false;
+        contentText = `The tickets in the order have already been refunded.`;
+      }
     }
     if (ifAllowed) {
       this.jumpToOperation(bookingNo, isSubOrder, flag);
@@ -800,6 +800,26 @@ class QueryOrder extends Component {
         selectedBooking.transType === 'booking' &&
         selectedBooking.status === 'Complete' &&
         selectedBooking.revalidationFlag === 'No' &&
+        selectedBooking.refundFlag === 'No' &&
+        (userType === '02' || userType === '03')
+      );
+    }
+    return true;
+  };
+
+  ifCanRefund = (selectedBookings, userType, functionActive) => {
+    if (!functionActive) {
+      return true;
+    }
+    if (selectedBookings.length === 1) {
+      const selectedBooking = selectedBookings[0];
+      return !(
+        selectedBooking.transType === 'booking' &&
+        selectedBooking.status === 'Complete' &&
+        (selectedBooking.revalidationFlag === 'No' ||
+          (selectedBooking.revalidationFlag === 'Yes' &&
+            selectedBooking.revalidationRequest === 'Yes')) &&
+        selectedBooking.refundFlag === 'No' &&
         (userType === '02' || userType === '03')
       );
     }
@@ -997,7 +1017,7 @@ class QueryOrder extends Component {
       type: 'queryOrderMgr/redressBCInPCC',
       payload: {
         orderNoList,
-        redressType: "redressBCInPCC",
+        redressType: 'redressBCInPCC',
       },
     });
   };
@@ -1130,7 +1150,7 @@ class QueryOrder extends Component {
                     </Button>
                     {(userType === '02' || userType === '03') && (
                       <Button
-                        disabled={this.ifCanRevalidation(
+                        disabled={this.ifCanRefund(
                           selectedBookings,
                           userType,
                           functionActive
@@ -1232,16 +1252,16 @@ class QueryOrder extends Component {
                         {formatMessage({ id: 'REPRINT' })}
                       </Button>
                     )}
-                    {userType === '01' && (
-                      PrivilegeUtil.hasAnyPrivilege(['TRAN_ORDER_REDRESS_BCINPCC_PRIVILEGE']) &&
-                      <Button
-                        disabled={this.redressBCInPCCDisable(selectedBookings)}
-                        className={styles.buttonStyle}
-                        onClick={() => this.redressBCInPCC(selectedBookings)}
-                      >
-                        {formatMessage({ id: 'REDRESS_BCINPCC' })}
-                      </Button>
-                    )}
+                    {userType === '01' &&
+                      PrivilegeUtil.hasAnyPrivilege(['TRAN_ORDER_REDRESS_BCINPCC_PRIVILEGE']) && (
+                        <Button
+                          disabled={this.redressBCInPCCDisable(selectedBookings)}
+                          className={styles.buttonStyle}
+                          onClick={() => this.redressBCInPCC(selectedBookings)}
+                        >
+                          {formatMessage({ id: 'REDRESS_BCINPCC' })}
+                        </Button>
+                      )}
                   </Col>
                   <Col span={24}>
                     <Table

@@ -62,6 +62,8 @@ export default {
           notificationList,
         },
       });
+
+      return notificationList;
     },
 
     *change({ payload }, { put }) {

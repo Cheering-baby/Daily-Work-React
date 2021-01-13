@@ -337,7 +337,7 @@ class Index extends React.PureComponent {
       },
     }).then(() => {
       const encryptUserCode = cryptoAES.Encrypt(userInfo.userCode);
-      router.push(`/SystemManagement/UserManagement/Edit/${encryptUserCode}`);
+      router.push(`/SystemManagement/UserManagement/Edit/${encodeURIComponent(encryptUserCode)}`);
     });
   };
 
@@ -350,7 +350,7 @@ class Index extends React.PureComponent {
       },
     }).then(() => {
       const encryptUserCode = cryptoAES.Encrypt(userInfo.userCode);
-      router.push(`/SystemManagement/UserManagement/Detail/${encryptUserCode}`);
+      router.push(`/SystemManagement/UserManagement/Detail/${encodeURIComponent(encryptUserCode)}`);
     });
   };
 

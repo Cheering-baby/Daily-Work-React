@@ -155,7 +155,7 @@ export default {
               let session = null;
               if (offerItem.attraction) {
                 offerItem.attraction.forEach(i => {
-                  session = i.validTimes ? i.validTimes[0].validTimeFrom : null;
+                  session = i.validTimes && i.validTimes.length > 0 ? i.validTimes[0].validTimeFrom : null;
                 });
               }
               offerOrderQuantityItem.itemList.push({

@@ -393,7 +393,7 @@ class OrderPay extends Component {
                 </Row>
               </Col>
             </Row>
-            {deliveryMode === 'BOCA' && companyType !== '02' && !isNullOrUndefined(bocaFeePax) (
+            {deliveryMode === 'BOCA' && companyType !== '02' && !isNullOrUndefined(bocaFeePax) && (
               <Row>
                 <Col style={{ padding: '0 15px 15px 15px' }}>
                   <BOCAOfferCollapse

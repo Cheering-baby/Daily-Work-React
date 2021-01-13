@@ -106,12 +106,6 @@ class GlobalHeaderRight extends PureComponent {
         notificationVisibleFlag: false,
       },
     }).then(() => {
-      dispatch({
-        type: 'notification/saveData',
-        payload: {
-          notificationInfo,
-        },
-      });
       if (activeKey === '1') {
         router.push(`/Notifications/SystemNotification/Detail/${notificationInfo.id}`);
       } else if (activeKey === '2') {

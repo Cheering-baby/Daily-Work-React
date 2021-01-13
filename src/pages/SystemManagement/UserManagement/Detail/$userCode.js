@@ -21,7 +21,7 @@ class UserCode extends React.PureComponent {
   componentDidMount() {
     const { dispatch, match, userMgr } = this.props;
     let { userCode } = match.params;
-    userCode = cryptoAES.Decrypt(userCode);
+    userCode = cryptoAES.Decrypt(decodeURIComponent(userCode));
     const { currentUserProfile = {} } = userMgr;
     if (Object.keys(currentUserProfile).length === 0) {
       // get detail

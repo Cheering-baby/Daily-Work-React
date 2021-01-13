@@ -139,20 +139,20 @@ class CompanyInformationToFrom extends PureComponent {
                 initialValue: companyInfo.organizationRole,
                 rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
               })(
-                <Select
+                <SortSelect
                   showSearch
-                  onChange={value => onHandleChange('organizationRole', value, 'organizationRole')}
+                  optionFilterProp="children"
                   disabled={isRoleDisabled}
                   placeholder={formatMessage({ id: 'PLEASE_SELECT' })}
-                >
-                  {organizationRoleList &&
+                  onChange={value => onHandleChange('organizationRole', value, 'organizationRole')}
+                  options={organizationRoleList &&
                     organizationRoleList.length > 0 &&
                     organizationRoleList.map(item => (
                       <Select.Option key={`roleList${item.dictId}`} value={`${item.dictId}`}>
                         {item.dictName}
                       </Select.Option>
                     ))}
-                </Select>
+                />
               )}
             </Form.Item>
           </Col>

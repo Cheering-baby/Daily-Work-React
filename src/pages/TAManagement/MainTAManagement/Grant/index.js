@@ -147,37 +147,6 @@ class NewGrant extends React.PureComponent {
     },
   ];
 
-  componentDidMount() {
-    const {
-      dispatch,
-      location: {
-        query: { taIdList },
-      },
-    } = this.props;
-    const newTaIdList = taIdList.split(',');
-    if (newTaIdList.length === 1) {
-      dispatch({
-        type: 'grant/fetch',
-        payload: {
-          agentId: newTaIdList[0],
-        },
-      });
-      dispatch({
-        type: 'grant/fetch2',
-        payload: {
-          agentId: newTaIdList[0],
-        },
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'grant/clear',
-    });
-  }
-
   delete = record => {
     const {
       grant: {

@@ -10,30 +10,80 @@ import styles from './index.less';
 import { isNvl } from '@/utils/utils';
 
 const mapStateToProps = store => {
-  const { notificationInfo } = store.notification;
+  const { notificationInfo, filter } = store.notification;
   const { pagePrivileges = [] } = store.global;
   return {
     pagePrivileges,
     notificationInfo,
+    filter,
   };
 };
 
 @connect(mapStateToProps)
 class SystemNotificationDetail extends PureComponent {
+  
   componentDidMount() {
-    const { dispatch, notificationInfo } = this.props;
-    if (
-      !isNvl(notificationInfo) &&
-      !isNvl(notificationInfo.currentReceiver) &&
-      String(notificationInfo.currentReceiver.status) === '02'
-    ) {
+    this.fetchNotificationDetail();
+  }
+
+  componentWillUnmount() {
+    const { dispatch, filter } = this.props;
+    dispatch({
+      type: 'systemNotification/save',
+      payload: {
+        filter: {
+          ...filter,
+          notificationId: undefined,
+        },
+      },
+    });
+  }
+
+  async fetchNotificationDetail() {
+    const {
+      dispatch,
+      filter,
+      location: { pathname },
+    } = this.props;
+    const notificationId = pathname ? pathname.match(/\d+/g) : null;
+
+    if (Array.isArray(notificationId) && notificationId.length > 0) {
       dispatch({
-        type: 'notification/fetchUpdateNotificationStatus',
+        type: 'systemNotification/save',
         payload: {
-          notificationId: notificationInfo.id,
-          status: '01',
+          filter: {
+            ...filter,
+            notificationId: notificationId[0],
+          },
         },
       });
+
+      const notificationList = await dispatch({
+        type: 'systemNotification/queryNotificationList',
+      });
+      if (Array.isArray(notificationList) && notificationList.length > 0) {
+        const matchNotificationInfo = notificationList.find(
+          i => i.id.toString() === notificationId[0]
+        );
+        await dispatch({
+          type: 'notification/save',
+          payload: { notificationInfo: matchNotificationInfo || {} },
+        });
+
+        if (
+          !isNvl(matchNotificationInfo) &&
+          !isNvl(matchNotificationInfo.currentReceiver) &&
+          String(matchNotificationInfo.currentReceiver.status) === '02'
+        ) {
+          dispatch({
+            type: 'notification/fetchUpdateNotificationStatus',
+            payload: {
+              notificationId: matchNotificationInfo.id,
+              status: '01',
+            },
+          });
+        }
+      }
     }
   }
 
