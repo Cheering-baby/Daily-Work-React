@@ -43,6 +43,7 @@ export default {
     searchType: false,
     searchCheckList: [],
     searchVal: undefined,
+    originalBindingList: [],
   },
   effects: {
     *effectSave({ payload }, { put }) {
@@ -77,6 +78,12 @@ export default {
           type: 'changePage',
           payload: {
             checkedList: bindingList,
+          },
+        });
+        yield put({
+          type: 'save',
+          payload: {
+            originalBindingList: [...bindingList],
           },
         });
       } else throw resultMsg;
@@ -181,19 +188,33 @@ export default {
         });
       } else throw resultMsg;
     },
-    *add({ payload }, { call }) {
-      const { checkedList, agentList, bindingType } = payload;
-      const subBindingList = [];
-      for (let i = 0; i < checkedList.length; i += 1) {
-        subBindingList.push({
-          bindingId: checkedList[i].bindingId,
-          bindingType: 'Offer',
-          operationType: 'A',
-        });
-      }
+    *add({ payload }, { call, select }) {
+      const { checkedList = [], agentList, bindingType } = payload;
+      const { originalBindingList = [] } = yield select(state => state.grant);
+      const needBindingList = [];
+      // filer add item
+      checkedList.forEach(bindItem => {
+        if (originalBindingList.findIndex(item => item.bindingId === bindItem.bindingId) < 0) {
+          needBindingList.push({
+            bindingId: bindItem.bindingId,
+            bindingType: 'Offer',
+            operationType: 'A',
+          });
+        }
+      });
+      // filter deleter item
+      originalBindingList.forEach(originalBindingItem => {
+        if (checkedList.findIndex(item => item.bindingId === originalBindingItem.bindingId) < 0) {
+          needBindingList.push({
+            bindingId: originalBindingItem.bindingId,
+            bindingType: 'Offer',
+            operationType: 'D',
+          });
+        }
+      });
       const reqParams = {
         agentList,
-        bindingList: subBindingList,
+        bindingList: needBindingList,
         bindingType,
       };
       const {
@@ -471,6 +492,7 @@ export default {
           pageSize: 10,
         },
         bindingList: [],
+        originalBindingList: [],
         expandedRowKeys: [],
 
         selectedRowKeys: [],

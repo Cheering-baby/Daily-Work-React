@@ -670,7 +670,7 @@ class TableComp extends PureComponent {
         {hasAllPrivilege(['MAIN_TA_MANAGEMENT_FUNCTION_GRANT_OFFER']) ? (
           <Button
             onClick={() => this.grantTa(taSelectedRowKeys)}
-            disabled={taSelectedRowKeys.length !== 1}
+            disabled={taSelectedRowKeys.length === 0}
           >
             {formatMessage({ id: 'GRANT' })}
           </Button>

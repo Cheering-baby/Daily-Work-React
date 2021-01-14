@@ -799,8 +799,7 @@ class QueryOrder extends Component {
       return !(
         selectedBooking.transType === 'booking' &&
         selectedBooking.status === 'Complete' &&
-        selectedBooking.revalidationFlag === 'No' &&
-        selectedBooking.refundFlag === 'No' &&
+        (selectedBooking.revalidationFlag === 'No' && selectedBooking.refundFlag === 'No' ) &&
         (userType === '02' || userType === '03')
       );
     }
@@ -1017,7 +1016,7 @@ class QueryOrder extends Component {
       type: 'queryOrderMgr/redressBCInPCC',
       payload: {
         orderNoList,
-        redressType: 'redressBCInPCC',
+        redressType: "redressBCInPCC",
       },
     });
   };
@@ -1252,16 +1251,16 @@ class QueryOrder extends Component {
                         {formatMessage({ id: 'REPRINT' })}
                       </Button>
                     )}
-                    {userType === '01' &&
-                      PrivilegeUtil.hasAnyPrivilege(['TRAN_ORDER_REDRESS_BCINPCC_PRIVILEGE']) && (
-                        <Button
-                          disabled={this.redressBCInPCCDisable(selectedBookings)}
-                          className={styles.buttonStyle}
-                          onClick={() => this.redressBCInPCC(selectedBookings)}
-                        >
-                          {formatMessage({ id: 'REDRESS_BCINPCC' })}
-                        </Button>
-                      )}
+                    {userType === '01' && (
+                      PrivilegeUtil.hasAnyPrivilege(['TRAN_ORDER_REDRESS_BCINPCC_PRIVILEGE']) &&
+                      <Button
+                        disabled={this.redressBCInPCCDisable(selectedBookings)}
+                        className={styles.buttonStyle}
+                        onClick={() => this.redressBCInPCC(selectedBookings)}
+                      >
+                        {formatMessage({ id: 'REDRESS_BCINPCC' })}
+                      </Button>
+                    )}
                   </Col>
                   <Col span={24}>
                     <Table
