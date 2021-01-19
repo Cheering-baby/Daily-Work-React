@@ -8,6 +8,8 @@ import { AR_ACCOUNT_PRIVILEGE, hasAllPrivilege } from '@/utils/PrivilegeUtil';
 import {isNvl} from "@/utils/utils";
 import SortSelect from "@/components/SortSelect";
 
+
+
 const mapStateToProps = store => {
   const {
     selectTaId = null,
@@ -34,16 +36,6 @@ const mapStateToProps = store => {
 @Form.create()
 @connect(mapStateToProps)
 class SearchComp extends PureComponent {
-  componentDidMount() {
-    const { form, dispatch } = this.props;
-    dispatch({
-      type: 'mainTAManagement/fetchMarketList'
-    });
-    dispatch({ type: 'mainTAManagement/fetchCategoryList' });
-    dispatch({ type: 'mainTAManagement/fetchAllCustomerGroupList' });
-    dispatch({ type: 'mainTAManagement/fetchSalesPersonList' });
-    form.resetFields();
-  }
 
   getSearchListFromSelect = value => {
     if(value === '') {
@@ -131,9 +123,9 @@ class SearchComp extends PureComponent {
   render() {
     const {
       form: {getFieldDecorator},
-      idOrName,
       searchForm: {
         market,
+        idOrName,
         customerGroup,
         salesPerson,
         category,

@@ -448,6 +448,8 @@ class NewGrant extends React.PureComponent {
         bindingList: arr,
       },
     });
+
+    dispatch({ type: 'grant/fetchCommodityList' });
   };
 
   cancel = () => {
@@ -654,6 +656,7 @@ class NewGrant extends React.PureComponent {
       },
     } = this.props;
 
+
     const { currentPage, pageSize: nowPageSize } = grantPagination;
     const breadcrumbArr = [
       {
@@ -717,11 +720,11 @@ class NewGrant extends React.PureComponent {
             <div style={{ padding: 15 }}>
               <Row style={{ padding: '10px 10px 0' }}>
                 <Col className={styles.DetailTitle} xs={12} sm={12} md={18}>
-                  {taLength === 1
+                  {Number(taLength) === 1
                     ? formatMessage({ id: 'NEW_GRANT_OFFER' })
                     : formatMessage({ id: 'NEW_GRANT' })}
                 </Col>
-                {taLength === 1 ? (
+                {Number(taLength) === 1 ? (
                   <Col xs={12} sm={12} md={6}>
                     <Search
                       placeholder="Search(Identifier/Name/Description)"

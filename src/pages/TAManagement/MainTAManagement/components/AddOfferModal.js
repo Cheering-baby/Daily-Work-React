@@ -72,11 +72,6 @@ class AddOfferModal extends React.PureComponent {
     },
   ];
 
-  componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({ type: 'grant/fetchCommodityList' });
-  }
-
   onSelectChange = (selectedRowKeys, addOfferList) => {
     const { dispatch } = this.props;
     dispatch({
@@ -147,7 +142,7 @@ class AddOfferModal extends React.PureComponent {
   };
 
   search = e => {
-    const { form, dispatch } = this.props;
+    const { form, dispatch, grant: { searchNameOrIdentify } } = this.props;
     e.preventDefault();
     e.stopPropagation();
     form.validateFieldsAndScroll((err, values) => {
@@ -155,7 +150,7 @@ class AddOfferModal extends React.PureComponent {
         dispatch({
           type: 'grant/fetchCommodityList',
           payload: {
-            commonSearchText: values.offerName || '',
+            commonSearchText: searchNameOrIdentify || '',
             bindingId: null,
             bindingType: 'Agent',
             usageScope: 'Online',
@@ -170,6 +165,12 @@ class AddOfferModal extends React.PureComponent {
   handleReset = () => {
     const { dispatch, form } = this.props;
     form.resetFields();
+    dispatch({
+      type: 'grant/save',
+      payload: {
+        searchNameOrIdentify: undefined,
+      },
+    });
     dispatch({
       type: 'grant/fetchCommodityList',
       payload: {
@@ -298,6 +299,16 @@ class AddOfferModal extends React.PureComponent {
     );
   };
 
+  searchNameOrIdentifyChange = e => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'grant/save',
+      payload: {
+        searchNameOrIdentify: e.target.value,
+      },
+    });
+  }
+
   render() {
     const {
       loading,
@@ -307,6 +318,7 @@ class AddOfferModal extends React.PureComponent {
         searchCondition: { currentPage, pageSize: nowPageSize },
         searchOfferTotalSize,
         checkedList,
+        searchNameOrIdentify,
       },
       form: { getFieldDecorator },
     } = this.props;
@@ -362,13 +374,16 @@ class AddOfferModal extends React.PureComponent {
               <Form.Item>
                 {getFieldDecorator(
                   `offerName`,
-                  {}
+                  {
+                    initialValue: searchNameOrIdentify,
+                  }
                 )(
                   <Input
                     style={{ minWidth: '100%' }}
                     placeholder="Offer Name/Identifier"
                     allowClear
                     autoComplete="off"
+                    onChange={this.searchNameOrIdentifyChange}
                   />
                 )}
               </Form.Item>

@@ -457,6 +457,7 @@ export default {
         },
         addOfferList: [],
         searchOfferTotalSize: 0,
+        searchNameOrIdentify: undefined,
       };
     },
     clear(state) {
@@ -501,6 +502,7 @@ export default {
         searchType: false,
         searchCheckList: [],
         searchVal: undefined,
+        searchNameOrIdentify: undefined,
       };
     },
   },

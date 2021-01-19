@@ -193,6 +193,9 @@ export default {
     *changeSelectedKey({ payload }, { put }) {
       yield put({ type: 'updateSelectKey', payload });
     },
+    *getState(_, { select }) {
+      return yield select(state => state.mainTAManagement)
+    },
   },
   reducers: {
     save(state, { payload }) {
@@ -259,6 +262,46 @@ export default {
         },
         ...payload,
       };
+    },
+  },
+
+  subscriptions: {
+    setup({ dispatch, history }) {
+      history.listen(location => {
+        const { pathname } = location;
+        if (pathname !== '/TAManagement/MainTAManagement') {
+          dispatch({ type: 'mainTAManagement/doCleanAllDate' });
+        } else if (pathname === '/TAManagement/MainTAManagement') {
+          const getState = dispatch({ type: 'mainTAManagement/getState' });
+          getState.then(state => {
+            const {
+              idOrName = null,
+              peoplesoftEwalletId = null,
+              peoplesoftArAccountId = null,
+              searchList,
+            } = state;
+            dispatch({
+              type: 'mainTAManagement/fetchMarketList'
+            });
+            dispatch({ type: 'mainTAManagement/fetchCategoryList' });
+            dispatch({ type: 'mainTAManagement/fetchAllCustomerGroupList' });
+            dispatch({ type: 'mainTAManagement/fetchSalesPersonList' });
+            dispatch({
+              type: 'mainTAManagement/fetchQryMainTAList',
+              payload: {
+                idOrName,
+                peoplesoftEwalletId,
+                peoplesoftArAccountId,
+                pageInfo: {
+                  currentPage: 1,
+                  pageSize: searchList.pageSize,
+                  totalSize: searchList.total,
+                },
+              },
+            });
+          })
+        }
+      });
     },
   },
 };

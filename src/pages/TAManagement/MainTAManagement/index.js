@@ -22,32 +22,6 @@ const mapStateToProps = store => {
 
 @connect(mapStateToProps)
 class MainTAManagement extends PureComponent {
-  componentDidMount() {
-    const {
-      dispatch,
-      idOrName = null,
-      peoplesoftEwalletId = null,
-      peoplesoftArAccountId = null,
-      searchList,
-    } = this.props;
-    dispatch({
-      type: 'mainTAManagement/doCleanAllDate',
-    }).then(() => {
-      dispatch({
-        type: 'mainTAManagement/fetchQryMainTAList',
-        payload: {
-          idOrName,
-          peoplesoftEwalletId,
-          peoplesoftArAccountId,
-          pageInfo: {
-            currentPage: 1,
-            pageSize: searchList.pageSize,
-            totalSize: searchList.total,
-          },
-        },
-      });
-    });
-  }
 
   getTableHeight = () => {
     const {offsetHeight: layoutHeight} = document.getElementById('layout');

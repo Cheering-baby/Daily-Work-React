@@ -441,13 +441,18 @@ class QueryOrder extends Component {
       return e;
     });
     let deliveryMode = 'VID';
-    let deliveryFee = 0;
+    let deliveryFee = null;
+    const findDeliveryFee = offInstances.find(offInstance => !!offInstance.deliveryFee);
     offInstances.forEach(offInstance => {
       // eslint-disable-next-line prefer-destructuring
       deliveryMode = offInstance.deliveryMode;
-      deliveryFee += !offInstance.deliveryFee ? 0 : Number.parseFloat(offInstance.deliveryFee);
+      if(findDeliveryFee) {
+        deliveryFee += !offInstance.deliveryFee ? 0 : Number.parseFloat(offInstance.deliveryFee);
+      }
     });
-    deliveryFee = Number(deliveryFee).toFixed(2);
+    if(findDeliveryFee) {
+      deliveryFee = Number(deliveryFee).toFixed(2);
+    }
 
     const detailColumns = [
       {
@@ -510,7 +515,7 @@ class QueryOrder extends Component {
           bordered={false}
           rowClassName={styles.tableRowStyle}
           footer={() => {
-            if (deliveryMode === 'BOCA' && userType !== '03') {
+            if (deliveryMode === 'BOCA' && userType !== '03' && deliveryFee !== null ){
               return (
                 <div className={styles.tableFooterDiv}>
                   <div style={{ width: '25%', float: 'right' }}>
@@ -565,6 +570,7 @@ class QueryOrder extends Component {
     let ifAllowed = false;
     let contentText = 'The tickets in the order have already been used.';
     for (let i = 0; i < vidList.length; i += 1) {
+      console.log(vidList[i].status, vidList[i].hadRefunded)
       if (vidList[i].status === 'false' && vidList[i].hadRefunded !== 'Yes') {
         ifAllowed = true;
       }
@@ -575,6 +581,7 @@ class QueryOrder extends Component {
         contentText = `The tickets in the order have already been refunded.`;
       }
     }
+    console.log(ifAllowed)
     if (ifAllowed) {
       this.jumpToOperation(bookingNo, isSubOrder, flag);
     } else {
@@ -800,25 +807,6 @@ class QueryOrder extends Component {
         selectedBooking.transType === 'booking' &&
         selectedBooking.status === 'Complete' &&
         (selectedBooking.revalidationFlag === 'No' && selectedBooking.refundFlag === 'No' ) &&
-        (userType === '02' || userType === '03')
-      );
-    }
-    return true;
-  };
-
-  ifCanRefund = (selectedBookings, userType, functionActive) => {
-    if (!functionActive) {
-      return true;
-    }
-    if (selectedBookings.length === 1) {
-      const selectedBooking = selectedBookings[0];
-      return !(
-        selectedBooking.transType === 'booking' &&
-        selectedBooking.status === 'Complete' &&
-        (selectedBooking.revalidationFlag === 'No' ||
-          (selectedBooking.revalidationFlag === 'Yes' &&
-            selectedBooking.revalidationRequest === 'Yes')) &&
-        selectedBooking.refundFlag === 'No' &&
         (userType === '02' || userType === '03')
       );
     }
@@ -1149,7 +1137,7 @@ class QueryOrder extends Component {
                     </Button>
                     {(userType === '02' || userType === '03') && (
                       <Button
-                        disabled={this.ifCanRefund(
+                        disabled={this.ifCanRevalidation(
                           selectedBookings,
                           userType,
                           functionActive
