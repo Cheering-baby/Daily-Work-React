@@ -187,11 +187,11 @@ const Model: CommissionLogType = {
         const { pathname } = location;
         if (pathname === '/ProductManagement/CommissionRule/CommissionLog') {
           dispatch({
-            type: 'commissionLog/queryCommissionAuditLogList',
+            type: 'queryCommissionAuditLogList',
           });
         } else {
           dispatch({
-            type: 'commissionLog/reset',
+            type: 'reset',
           });
         }
       });

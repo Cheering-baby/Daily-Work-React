@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { Card, Row, Col, Table, Tabs } from 'antd';
 import { ColumnProps, TableProps } from 'antd/lib/table/interface';
 import { formatMessage } from 'umi/locale';
+import moment from 'moment';
 import { ConnectProps, Loading } from '@/types/model';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
 import {
@@ -11,7 +12,6 @@ import {
   commissionTabKeyType,
 } from '../models/commissionLog';
 import styles from '../index.less';
-import moment from 'moment';
 
 interface PageProps extends ConnectProps {
   commissionLog: CommissionLogStateType;
