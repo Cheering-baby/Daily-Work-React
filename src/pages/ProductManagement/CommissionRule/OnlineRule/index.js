@@ -56,7 +56,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_NAME' }),
       dataIndex: 'commissionName',
       key: 'commissionName',
-      width: '170px',
+      width: '130px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -67,7 +67,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_TYPE' }),
       dataIndex: 'commissionType',
       key: 'commissionType',
-      width: '40px',
+      width: '80px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -78,7 +78,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'PRODUCT_COMMISSION_SCHEME' }),
       dataIndex: 'commissionScheme',
       key: 'commissionScheme',
-      width: '40px',
+      width: '90px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -89,7 +89,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'EFFECTIVE_PERIOD' }),
       dataIndex: 'effectiveDate',
       key: 'effectiveDate',
-      width: '70px',
+      width: '120px',
       render: (text, record) => {
         const timeText = text ? moment(text).format('DD-MMM-YYYY') : '';
         const end =
@@ -108,7 +108,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: 'Modified by',
       dataIndex: 'modifyStaff',
       key: 'modifyStaff',
-      width: '30px',
+      width: '60px',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -119,7 +119,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: 'Date Modified',
       dataIndex: 'modifyDate',
       key: 'modifyDate',
-      width: '50px',
+      width: '80px',
       render: text => {
         const timeText = text ? moment(text).format('YYYY-MMM-DD') : '';
         return timeText ? (
@@ -136,7 +136,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: 'Time Modified',
       dataIndex: 'modifyDate',
       key: 'modifyDate',
-      width: '50px',
+      width: '70px',
       render: text => {
         const timeText = text ? moment(text).format('HH:mm:ss') : '';
         return timeText ? (
@@ -153,7 +153,7 @@ class CommissionRuleSetup extends React.PureComponent {
       title: formatMessage({ id: 'STATUS' }),
       dataIndex: 'status',
       key: 'status',
-      width: '30px',
+      width: '50px',
       render: text => {
         let flagClass = '';
         if (text === 'Active') flagClass = detailStyles.flagStyle1;
@@ -170,7 +170,7 @@ class CommissionRuleSetup extends React.PureComponent {
     {
       title: formatMessage({ id: 'OPERATION' }),
       dataIndex: 'tplId',
-      width: '36px',
+      width: '60px',
       render: (text, record) => {
         return (
           <div>
@@ -280,7 +280,6 @@ class CommissionRuleSetup extends React.PureComponent {
     const { form } = this.props;
     const { dispatch } = this.props;
     form.validateFields((err, values) => {
-      console.log(values);
       if (!err) {
         dispatch({
           type: 'commissionRuleSetup/search',
@@ -463,7 +462,7 @@ class CommissionRuleSetup extends React.PureComponent {
               pagination={false}
               loading={!!loading}
               columns={this.columns}
-              scroll={{ x: 1200 }}
+              scroll={{ x: 1250 }}
             />
             <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
           </Card>

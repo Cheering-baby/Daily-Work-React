@@ -12,6 +12,7 @@
       "strict": false,
       "paths": {
         "@/*": ["src/*"],
+        "umi/locale": ["./node_modules/umi-plugins-locale"]
       },
       "allowSyntheticDefaultImports": true
     },

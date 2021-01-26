@@ -4,7 +4,8 @@
     "airbnb",
     "prettier",
     "plugin:compat/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "plugin:import/typescript"
   ],
   "env": {
     "browser": true,
@@ -21,9 +22,7 @@
     "react/jsx-filename-extension": [
       1,
       {
-        "extensions": [
-          ".js"
-        ]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
     ],
     "react/jsx-wrap-multilines": 0,
