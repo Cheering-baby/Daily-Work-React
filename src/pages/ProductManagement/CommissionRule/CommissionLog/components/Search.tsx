@@ -22,6 +22,21 @@ type searchOptions =
 
 const { Option } = Select;
 
+const hours = [];
+const minutes = [];
+const seconds = [];
+for (let i = 0; i <= 23; i += 1) {
+  hours.push(i);
+}
+
+for (let i = 0; i <= 59; i += 1) {
+  minutes.push(i);
+}
+
+for (let i = 0; i <= 59; i += 1) {
+  seconds.push(i);
+}
+
 const colLayout = {
   xs: 24,
   sm: 12,
@@ -74,6 +89,28 @@ const Search: React.FC<PageProps> = props => {
 
     if (type === 'startDate' || type === 'endDate') {
       payload[type] = value !== null ? value.format('YYYY-MM-DDTHH:mm:ss') : null;
+
+      if (type === 'startDate' && endDate) {
+        if (value !== null) {
+          payload[type] =
+            value.format('YYYY-MM-DDTHH:mm:ss') > endDate
+              ? endDate
+              : value.format('YYYY-MM-DDTHH:mm:ss');
+        } else {
+          payload[type] = null;
+        }
+      }
+
+      if (type === 'endDate' && startDate) {
+        if (value !== null) {
+          payload[type] =
+            value.format('YYYY-MM-DDTHH:mm:ss') < startDate
+              ? startDate
+              : value.format('YYYY-MM-DDTHH:mm:ss');
+        } else {
+          payload[type] = null;
+        }
+      }
     } else {
       payload[type] = value;
     }
@@ -82,6 +119,59 @@ const Search: React.FC<PageProps> = props => {
       type: 'commissionLog/saveSearchOptions',
       payload,
     });
+  };
+
+  const disableTime = (type: 'startDate' | 'endDate', time: 'hour' | 'minute' | 'second') => {
+    if (
+      type === 'startDate' &&
+      endDate &&
+      startDate &&
+      moment(startDate).format('YYYY-MM-DD') === moment(endDate).format('YYYY-MM-DD')
+    ) {
+      const endHour = moment(endDate).format('HH');
+      const endMinute = moment(endDate).format('mm');
+      const endSecond = moment(endDate).format('ss');
+      if (time === 'hour') {
+        return hours.filter(i => i > endHour);
+      }
+      if (time === 'minute' && moment(startDate).format('HH') === moment(endDate).format('HH')) {
+        return minutes.filter(i => i > endMinute);
+      }
+      if (
+        time === 'second' &&
+        moment(startDate).format('HH') === moment(endDate).format('HH') &&
+        moment(startDate).format('mm') === moment(endDate).format('mm')
+      ) {
+        return minutes.filter(i => i > endSecond);
+      }
+    }
+
+    if (
+      type === 'endDate' &&
+      startDate &&
+      endDate &&
+      startDate &&
+      moment(startDate).format('YYYY-MM-DD') === moment(endDate).format('YYYY-MM-DD')
+    ) {
+      const endHour = moment(startDate).format('HH');
+      const endMinute = moment(startDate).format('mm');
+      const endSecond = moment(startDate).format('ss');
+      if (time === 'hour') {
+        return hours.filter(i => i < endHour);
+      }
+      if (time === 'minute' && moment(startDate).format('HH') === moment(endDate).format('HH')) {
+        return minutes.filter(i => i < endMinute);
+      }
+      if (
+        time === 'second' &&
+        moment(startDate).format('HH') === moment(endDate).format('HH') &&
+        moment(startDate).format('mm') === moment(endDate).format('mm')
+      ) {
+        return minutes.filter(i => i < endSecond);
+      }
+    }
+
+    return [];
   };
 
   return (
@@ -148,7 +238,13 @@ const Search: React.FC<PageProps> = props => {
             value={startDate ? moment(startDate) : null}
             placeholder={formatMessage({ id: 'START_DATE' })}
             onChange={date => changeSearchOptions('startDate', date)}
-            showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+            showTime={{
+              defaultValue: moment('00:00:00', 'HH:mm:ss'),
+              disabledHours: () => disableTime('startDate', 'hour'),
+              disabledMinutes: () => disableTime('startDate', 'minute'),
+              disabledSeconds: () => disableTime('startDate', 'second'),
+            }}
+            disabledDate={current => current && endDate && current > moment(endDate).startOf('day')}
           />
         </Col>
         <Col {...colLayout}>
@@ -159,7 +255,15 @@ const Search: React.FC<PageProps> = props => {
             value={endDate ? moment(endDate) : null}
             placeholder={formatMessage({ id: 'END_DATE' })}
             onChange={date => changeSearchOptions('endDate', date)}
-            showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+            showTime={{
+              defaultValue: moment('00:00:00', 'HH:mm:ss'),
+              disabledHours: () => disableTime('endDate', 'hour'),
+              disabledMinutes: () => disableTime('endDate', 'minute'),
+              disabledSeconds: () => disableTime('endDate', 'second'),
+            }}
+            disabledDate={current =>
+              current && startDate && current < moment(startDate).startOf('day')
+            }
           />
         </Col>
         <Col

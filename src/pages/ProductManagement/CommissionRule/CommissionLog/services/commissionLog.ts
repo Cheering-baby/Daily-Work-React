@@ -7,7 +7,7 @@ const mock =
 // eslint-disable-next-line import/prefer-default-export
 export async function queryCommissionAuditLogList(params) {
   return UAAService.request(
-    `${mock}/b2b/agent/v1/commission/AuditLog/queryCommissionAuditLogList`,
+    `${localPath}/b2b/agent/v1/commission/AuditLog/queryCommissionAuditLogList`,
     {
       method: 'POST',
       body: {

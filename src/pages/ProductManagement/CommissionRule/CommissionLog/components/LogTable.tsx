@@ -112,19 +112,19 @@ const LogTable: React.FC<PageProps> = props => {
     {
       title: formatMessage({ id: 'FIELD_NAME' }),
       width: 120,
-      dataIndex: 'filedName',
+      dataIndex: 'fieldName',
       fields: ['Tiered & Attendance'],
       render: text => <span>{text}</span>,
     },
     {
       title: formatMessage({ id: 'NEW_VALUE' }),
-      width: 100,
+      width: 120,
       dataIndex: 'newValue',
       render: text => <span>{text}</span>,
     },
     {
       title: formatMessage({ id: 'OLD_VALUE' }),
-      width: 100,
+      width: 120,
       dataIndex: 'oldValue',
       render: text => <span>{text}</span>,
     },
@@ -147,10 +147,12 @@ const LogTable: React.FC<PageProps> = props => {
   );
 
   const commonProps: TableProps<commissionAuditLogListItem> = {
+    size: "small",
     pagination: false,
     scroll: { x: 1500 },
     columns: columnsFilter,
     loading: !!tableLoading,
+    rowKey: record => record.key,
     dataSource: commissionAuditLogList,
     className: `components-table-demo-nested ${styles.table}`,
   };

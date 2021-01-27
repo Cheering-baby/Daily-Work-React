@@ -4,6 +4,7 @@ import { queryCommissionAuditLogList } from '../services/commissionLog';
 export type operationType = 'Add' | 'Update' | 'Delete' | undefined;
 
 export type commissionAuditLogListItem = {
+  key: string;
   logSnId: string;
   offerId: string;
   offerNo: string;
@@ -102,6 +103,10 @@ const Model: CommissionLogType = {
           if (typeof params[arg] === 'string' && params[arg]) {
             params[arg] = params[arg].trim();
           }
+
+          if (params[arg] === '') {
+            params[arg] = null;
+          }
         }
 
         const response: responseType<CommissionLogResult> = yield call(
@@ -128,6 +133,8 @@ const Model: CommissionLogType = {
           } else if (commissionType === 'Tiered & Attendance') {
             commissionAuditLogList = attendanceTieredCommissionLogList;
           }
+
+          commissionAuditLogList.map((item, index) => (item.key = index.toString()));
 
           yield put({
             type: 'save',
