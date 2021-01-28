@@ -3,7 +3,7 @@ import { formatMessage } from 'umi/locale';
 import { router } from 'umi';
 import moment from 'moment';
 import * as service from '../services/commissionRuleSetup';
-import { objDeepCopy, setSelected } from '../../../utils/tools';
+import { objDeepCopy, setSelected, checkSelectDisable } from '../../../utils/tools';
 
 export default {
   namespace: 'commissionNew',
@@ -74,6 +74,7 @@ export default {
     activityId: undefined,
     PLURelationList: [],
     commoditySpecId: null,
+
     excludedTA: {
       showAddTA: false,
       showGrantedOffer: false,
@@ -383,7 +384,7 @@ export default {
       }
     },
     *edit({ payload }, { call }) {
-      const { params, tieredList, commodityList, tplId, usageScope, tplVersion, taFilterList } = payload;
+      const { params, tieredList, commodityList, tplId, usageScope, tplVersion } = payload;
       const reqParams = {
         ...params,
         tieredList,
@@ -391,7 +392,6 @@ export default {
         tplId,
         usageScope,
         tplVersion,
-        taFilterList,
       };
       const {
         data: { resultCode, resultMsg },
@@ -576,36 +576,20 @@ export default {
           if (selectedRowKeys[j] === offerList[i].commoditySpecId) {
             offerList[i].isSelected = true;
             flag = false;
-            let unSelected = true;
-            for (let k = 0; k < offerList[i].subCommodityList.length; k += 1) {
-              if (offerList[i].subCommodityList[k].isSelected === true) {
-                unSelected = false;
-              }
-            }
-            if (unSelected) {
-              for (let k = 0; k < offerList[i].subCommodityList.length; k += 1) {
-                if (offerList[i].subCommodityList[k].bindingOtherFlg !== 'Y') {
-                  offerList[i].subCommodityList[k].isSelected = true;
+            if (
+              offerList[i].subCommodityList.filter(item => item.isSelected === true).length === 0
+            ) {
+              offerList[i].subCommodityList.forEach(item => {
+                const { bindingOtherFlg, subCommodityList = [] } = item;
+                if (bindingOtherFlg !== 'Y' && !checkSelectDisable(subCommodityList)) {
+                  item.isSelected = true;
                 }
-
-                for (
-                  let l = 0;
-                  l < offerList[i].subCommodityList[k].subCommodityList.length;
-                  l += 1
-                ) {
-                  if (
-                    offerList[i].subCommodityList[k].subCommodityList[l].bindingOtherFlg !== 'Y'
-                  ) {
-                    offerList[i].subCommodityList[k].subCommodityList[l].isSelected = true;
+                for (let l = 0; l < item.subCommodityList.length; l += 1) {
+                  if (item.subCommodityList[l].bindingOtherFlg !== 'Y') {
+                    item.subCommodityList[l].isSelected = true;
                   }
                 }
-              }
-              // offerList[i].subCommodityList.map(e => {
-              //   Object.assign(e, {
-              //     isSelected: true,
-              //   });
-              //   return e;
-              // });
+              });
             }
           }
         }
@@ -946,6 +930,30 @@ export default {
         activityId: undefined,
         PLURelationList: [],
         commoditySpecId: null,
+
+        excludedTA: {
+          showAddTA: false,
+          showGrantedOffer: false,
+          agentIdOrCompanyName: null,
+          selectedTAId: [],
+          excludedTAList: [],
+          grantOfferList: [],
+          grantOfferListFilter: [],
+          grantOfferSearch: false,
+          grantOfferSearchOfferKey: '',
+          addTAPagination: {
+            pageSize: 10,
+            currentPage: 1,
+          },
+          excludedTAPagination: {
+            pageSize: 10,
+            currentPage: 1,
+          },
+          grantOfferListPagination: {
+            pageSize: 10,
+            currentPage: 1,
+          }
+        },
       };
     },
   },

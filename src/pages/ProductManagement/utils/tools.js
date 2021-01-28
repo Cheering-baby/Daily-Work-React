@@ -58,6 +58,29 @@ export function changeThemeParkDisplay(text, themeParkList) {
   return null;
 }
 
+export function getSubTreePlu(list = [], subTreeList = []) {
+  list.forEach(item => {
+    const { subCommodityList = [] } = item;
+    if (subCommodityList.length === 0) {
+      subTreeList.push(item);
+    } else {
+      getSubTreePlu(subCommodityList, subTreeList);
+    }
+  });
+}
+
+export function checkSelectDisable(list = []) {
+  const subTreeList = [];
+  getSubTreePlu(list, subTreeList);
+  return (
+    subTreeList.length > 0 &&
+    !subTreeList.find(item => {
+      const { bindingOtherFlg } = item;
+      return !(bindingOtherFlg === 'Y');
+    })
+  );
+}
+
 /**
  * @param  currentPage
  * @param  pageSize

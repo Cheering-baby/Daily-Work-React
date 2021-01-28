@@ -4,7 +4,7 @@ import { Modal, Table, Row, Col, Button, Select, Input, Form, message, Tooltip }
 import { formatMessage } from 'umi/locale';
 import styles from './AddOnlinePLUModal.less';
 import PaginationComp from '../../../components/PaginationComp';
-import { objDeepCopy } from '../../../utils/tools';
+import { objDeepCopy, checkSelectDisable } from '../../../utils/tools';
 import SortSelect from '@/components/SortSelect';
 
 const drawWidth = 800;
@@ -219,9 +219,9 @@ class AddOnlinePLUModal extends React.PureComponent {
         ),
       getCheckboxProps: rec => {
         return {
-          disabled: !!subSubCheckedOnlineList.find(
-            item => item.commoditySpecId === rec.commoditySpecId
-          ),
+          disabled:
+            rec.bindingOtherFlg === 'Y' ||
+            !!subSubCheckedOnlineList.find(item => item.commoditySpecId === rec.commoditySpecId),
         };
       },
     };
@@ -254,8 +254,10 @@ class AddOnlinePLUModal extends React.PureComponent {
       onChange: selectedRowKeys =>
         this.onSubSelectChange(selectedRowKeys, record.commoditySpecId, offerList),
       getCheckboxProps: rec => {
+        const { subCommodityList: list = [] } = rec;
         return {
           disabled:
+            checkSelectDisable(list) ||
             rec.bindingOtherFlg === 'Y' ||
             !!subCheckedOnlineList.find(item => item.commoditySpecId === rec.commoditySpecId),
         };
@@ -421,18 +423,9 @@ class AddOnlinePLUModal extends React.PureComponent {
       onChange: selectedRowKey => this.onSelectChange(selectedRowKey, offerList),
       getCheckboxProps: record => {
         const { subCommodityList = [] } = record;
-
-        const isDisabled =
-          subCommodityList.length > 0 &&
-          !subCommodityList.find(rec => {
-            // const fd = checkedOnlineList.find(item => rec.commoditySpecId === item.commoditySpecId);
-            // const subCheckedOnlineList = fd? fd.subCommodityList : [];
-
-            return !(rec.bindingOtherFlg === 'Y');
-          });
         return {
           disabled:
-            isDisabled ||
+            checkSelectDisable(subCommodityList) ||
             record.bindingOtherFlg === 'Y' ||
             !!checkedOnlineList.find(item => item.commoditySpecId === record.commoditySpecId),
         };
