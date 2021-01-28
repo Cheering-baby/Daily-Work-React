@@ -3,6 +3,7 @@ import { Col, Form, Row, Table, Tooltip } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
 import styles from '../Detail/$detail/index.less';
+import ExcludedTA from './ExcludedTA';
 import PaginationComp from '../../../components/PaginationComp';
 import { changeThemeParkDisplay } from '@/pages/ProductManagement/utils/tools';
 
@@ -357,6 +358,9 @@ class DetailForBinding extends React.PureComponent {
               />
               <PaginationComp style={{ marginTop: 10 }} {...offlinePageOpts} />
             </Col>
+          </Row>
+          <Row style={{ paddingTop: '14px' }}>
+            <ExcludedTA type="detail" />
           </Row>
         </Col>
       </div>

@@ -65,4 +65,13 @@ export default {
   COMMISSION_PERCENTAGE_CONTENT:
     'Percentage is based on the price after fixed commission rates. (e.g. based on SGD71, if ticket price is SGD 81 and fixed commission rate is SGD10.)',
   CONFIRM_TO_DELETE: 'Are you sure to delete it?',
+
+  EXCLUDED_TA: 'EXCLUDED TA',
+  NO: 'No.',
+  AGENT_ID: 'Agent ID',
+  DATA_ADDED: 'Data Added',
+  OPERATION: 'Operation',
+  COMPANY_NAME: 'Company Name',
+  ADD_EXCLUDED_TA: 'Add Excluded TA',
+  VIEW_GRANTED_OFFERS: 'View Granted Offers',
 };

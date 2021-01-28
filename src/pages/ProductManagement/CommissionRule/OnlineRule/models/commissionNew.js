@@ -74,6 +74,29 @@ export default {
     activityId: undefined,
     PLURelationList: [],
     commoditySpecId: null,
+    excludedTA: {
+      showAddTA: false,
+      showGrantedOffer: false,
+      agentIdOrCompanyName: null,
+      selectedTAId: [],
+      excludedTAList: [],
+      grantOfferList: [],
+      grantOfferListFilter: [],
+      grantOfferSearch: false,
+      grantOfferSearchOfferKey: '',
+      addTAPagination: {
+        pageSize: 10,
+        currentPage: 1,
+      },
+      excludedTAPagination: {
+        pageSize: 10,
+        currentPage: 1,
+      },
+      grantOfferListPagination: {
+        pageSize: 10,
+        currentPage: 1,
+      }
+    },
   },
   effects: {
     *queryThemeParks(_, { call, put }) {
@@ -286,6 +309,45 @@ export default {
         });
       } else throw resultMsg;
     },
+    *queryAgentOfferBindingList({ payload }, { call, put, select }) {
+      const {
+        checkedOnlineList,
+        excludedTA: {
+          excludedTAList,
+          agentIdOrCompanyName,
+          addTAPagination: { pageSize, currentPage },
+        },
+      } = yield select(state => state.commissionNew);
+      const params = {
+        offerNos: checkedOnlineList.map(i => i.commodityCode),
+        pageBean: {
+          currentPage,
+          pageSize,
+        },
+        filter: agentIdOrCompanyName,
+        ...payload,
+      };
+      const res = yield call(service.queryAgentOfferBindingList, params);
+      if (!res) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = res;
+      if (resultCode === '0' || resultCode === 0) {
+        const { taInfoList: taAddInfoList, pageBean } = result;
+        yield put({
+          type: 'saveExcludedTA',
+          payload: {
+            taAddInfoList,
+            selectedTAId: excludedTAList.map(i => i.taId),
+            addTAPagination: {
+              totalSize: pageBean.totalRecord,
+              pageSize: pageBean.pageSize,
+              currentPage: pageBean.currentPage,
+            }
+          }
+        })
+      } else throw resultMsg;
+    },
     *add({ payload }, { call, put }) {
       const { params, tieredList, commodityList, usageScope } = payload;
       const reqParams = {
@@ -321,14 +383,15 @@ export default {
       }
     },
     *edit({ payload }, { call }) {
-      const { params, tieredList, commodityList, tplId, usageScope, tplVersion  } = payload;
+      const { params, tieredList, commodityList, tplId, usageScope, tplVersion, taFilterList } = payload;
       const reqParams = {
         ...params,
         tieredList,
         commodityList,
         tplId,
         usageScope,
-        tplVersion
+        tplVersion,
+        taFilterList,
       };
       const {
         data: { resultCode, resultMsg },
@@ -803,6 +866,15 @@ export default {
         },
         addOfflinePLUTotalSize: 0,
         PLUList: [],
+      };
+    },
+    saveExcludedTA(state, { payload }) {
+      return {
+        ...state,
+        excludedTA: {
+          ...state.excludedTA,
+          ...payload,
+        },
       };
     },
     clear(state) {

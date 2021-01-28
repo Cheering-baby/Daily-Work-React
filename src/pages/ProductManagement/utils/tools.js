@@ -57,3 +57,27 @@ export function changeThemeParkDisplay(text, themeParkList) {
   }
   return null;
 }
+
+/**
+ * @param  currentPage
+ * @param  pageSize
+ * @param  data
+ */
+export function formatPageData(currentPage, pageSize, data) {
+  const pageData = {
+    pageSize,
+    currentPage,
+    items: [],
+  };
+
+  const maxLength = currentPage * pageSize - 1;
+  const minLength = currentPage * pageSize - pageSize;
+  for (let i = minLength; i < data.length; i += 1) {
+    if (maxLength < i) {
+      break;
+    } else {
+      pageData.items.push(data[i]);
+    }
+  }
+  return pageData;
+}

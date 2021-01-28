@@ -1,6 +1,5 @@
 import { message } from 'antd';
 import * as service from '../services/commissionRuleSetup';
-import React from "react";
 
 const bingdingPLU2 = commodityList => {
   const list = [];
@@ -70,6 +69,7 @@ export default {
           tieredList,
           createStaff,
           createTime,
+          taFilterList = [],
         } = result;
 
         if (commissionScheme === 'Percentage') {
@@ -111,6 +111,13 @@ export default {
         }
 
         yield put({
+          type: 'commissionNew/saveExcludedTA',
+          payload: {
+            excludedTAList: taFilterList,
+          },
+        })
+
+        yield put({
           type: 'save',
           payload: {
             commisssionList: {
@@ -122,6 +129,7 @@ export default {
               commissionScheme,
               createStaff,
               createTime,
+              taFilterList,
             },
             tieredList,
             effectiveStartDate: effectiveDate,

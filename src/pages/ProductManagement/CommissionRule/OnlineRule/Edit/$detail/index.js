@@ -60,8 +60,15 @@ class onlineEdit extends React.PureComponent {
   handleOk = async () => {
     const {
       dispatch,
-      detail: { tieredList },
-      commissionNew: { checkedList, checkedOnlineList },
+      detail: {
+        tieredList,
+        commisssionList: { taFilterList },
+      },
+      commissionNew: {
+        checkedList,
+        checkedOnlineList,
+        excludedTA: { excludedTAList },
+      },
       location: {
         query: { tplId, tplVersion },
       },
@@ -131,12 +138,39 @@ class onlineEdit extends React.PureComponent {
               }
             }
           });
+
+          // taFilterList
+          const operationTaFilterList = [];
+          const excludedTAListId = excludedTAList.map(i => i.taId);
+          const taFilterListId = taFilterList.map(i => i.taId);
+          taFilterList.forEach(i => {
+            if (!excludedTAListId.includes(i.taId)) {
+              operationTaFilterList.push({
+                tplId,
+                taId: i.taId,
+                operationType: 'D',
+              });
+            }
+          });
+
+          excludedTAList.forEach(i => {
+            if (!taFilterListId.includes(i.taId)) {
+              operationTaFilterList.push({
+                tplId,
+                taId: i.taId,
+                operationType: 'A',
+              });
+            }
+          })
+
           const params = {
             ...values,
           };
+
           for (let i = 0; i < tieredList.length; i += 1) {
             tieredList[i].tplId = tplId;
           }
+
           dispatch({
             type: 'commissionNew/edit',
             payload: {
@@ -146,6 +180,7 @@ class onlineEdit extends React.PureComponent {
               tplId,
               usageScope: 'Common',
               tplVersion,
+              taFilterList: operationTaFilterList,
             },
           }).then(resultCode => {
             if (resultCode === '0') {

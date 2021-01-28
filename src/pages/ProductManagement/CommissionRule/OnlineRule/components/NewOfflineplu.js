@@ -1,8 +1,7 @@
 import React from 'react';
-import { Button, Col, Form, Row, Table, Tooltip, Icon, message } from 'antd';
+import { Col, Form, Row, Table, Tooltip, Icon, message } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { connect } from 'dva';
-import { router } from 'umi';
 import styles from '../New/index.less';
 import AddOfflinePLUModal from './AddOfflinePLUModal';
 import PaginationComp from '../../../components/PaginationComp';
@@ -256,17 +255,6 @@ class NewOfflineplu extends React.PureComponent {
     }
   };
 
-  handleOk = () => {
-    const { handleOk } = this.props;
-    handleOk();
-  };
-
-  cancel = () => {
-    router.push({
-      pathname: '/ProductManagement/CommissionRule/OnlineRule',
-    });
-  };
-
   expandedRowRender = record => {
     const { subCommodityList } = record;
     return (
@@ -364,14 +352,6 @@ class NewOfflineplu extends React.PureComponent {
           </Col>
         </Row>
         {addPLUModal ? <AddOfflinePLUModal tplId={tplId} type={type} /> : null}
-        <div className={styles.operateButtonDivStyle}>
-          <Button style={{ marginRight: 8 }} onClick={this.cancel}>
-            {formatMessage({ id: 'COMMON_CANCEL' })}
-          </Button>
-          <Button style={{ width: 60 }} onClick={this.handleOk} type="primary">
-            {formatMessage({ id: 'COMMON_OK' })}
-          </Button>
-        </div>
       </div>
     );
   }

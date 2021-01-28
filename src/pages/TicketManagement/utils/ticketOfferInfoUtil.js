@@ -378,6 +378,7 @@ export function getOfferCategory(themeparkCode) {
     'Dolphin Trek',
     'Dolphin VIP',
     'Dolphin Trainer For A Day',
+    'Promotion',
   ];
   const UM_TAGS = [
     'Ray Bay',

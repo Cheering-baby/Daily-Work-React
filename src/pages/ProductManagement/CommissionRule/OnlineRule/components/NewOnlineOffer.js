@@ -206,7 +206,6 @@ class NewOnlineOffer extends React.PureComponent {
   };
 
   deleteSubPLU = record => {
-    console.log(record)
     let {
       commissionNew: { checkedOnlineList },
       dispatch,
@@ -312,7 +311,6 @@ class NewOnlineOffer extends React.PureComponent {
     //     // return true
     //   })
     // }
-    console.log(checkedOnlineList)
     dispatch({
       type: 'commissionNew/changeOnlinePage',
       payload: {
@@ -385,7 +383,6 @@ class NewOnlineOffer extends React.PureComponent {
         displayOnlineList = [],
       },
     } = this.props;
-    // console.log(displayOnlineList)
     const { currentPage, pageSize: nowPageSize } = onlineOfferPagination;
     const pageOpts = {
       total: checkedOnlineList.length,
