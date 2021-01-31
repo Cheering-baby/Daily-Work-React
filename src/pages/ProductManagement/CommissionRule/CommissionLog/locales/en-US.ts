@@ -22,8 +22,8 @@ export default {
   OPERATION_TYPE: 'Operation Type',
   NEW_VALUE: 'New Value',
   OLD_VALUE: 'Old Value',
-  CREATE_DATE: 'Create Date',
-  CREATE_BY: 'Create By',
+  CREATE_DATE: 'Created Date',
+  CREATE_BY: 'Created By',
   START_DATE: 'Start Date',
   END_DATE: 'End Date',
 

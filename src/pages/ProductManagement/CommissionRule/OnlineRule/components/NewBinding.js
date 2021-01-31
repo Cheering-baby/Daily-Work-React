@@ -14,11 +14,11 @@ import styles from '../New/index.less';
 }))
 class newBinding extends Component {
   render() {
-    const { type, tplId = null, handleOk, add } = this.props;
+    const { type, tplId = null, handleOk, add, addOffline } = this.props;
     return (
       <div>
         <NewOnlineOffer type={type} tplId={tplId} add={add} />
-        <NewOfflineplu type={type} tplId={tplId} />
+        <NewOfflineplu type={type} tplId={tplId} addOffline={addOffline} />
         <ExcludedTA />
         <div className={styles.operateButtonDivStyle}>
           <Button

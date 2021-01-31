@@ -74,7 +74,31 @@ const ExcludedTA: React.FC<PageProps> = props => {
         if (record.key === 'addOption') {
           return record.commoditySpecId;
         }
-        return <span>{text}</span>;
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span>{text}</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: formatMessage({ id: 'COMPANY_NAME' }),
+      dataIndex: 'companyName',
+      render: (text, record) => {
+        if (record.key === 'addOption') {
+          return null;
+        }
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}
+          >
+            <span>{text}</span>
+          </Tooltip>
+        );
       },
     },
     {
@@ -84,7 +108,15 @@ const ExcludedTA: React.FC<PageProps> = props => {
         if (record.key === 'addOption') {
           return null;
         }
-        return <span>{text ? moment(text, 'x').format('DD-MMM-YYYY') : text}</span>;
+        const showValue = text ? moment(text, 'x').format('DD-MMM-YYYY') : text;
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={<span style={{ whiteSpace: 'pre-wrap' }}>{showValue}</span>}
+          >
+            <span>{showValue}</span>
+          </Tooltip>
+        );
       },
     },
     {

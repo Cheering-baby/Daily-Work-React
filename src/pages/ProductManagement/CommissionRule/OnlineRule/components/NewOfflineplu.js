@@ -44,7 +44,7 @@ class NewOfflineplu extends React.PureComponent {
       title: 'Price',
       dataIndex: 'commodityPrice',
       render: text => {
-        const timeText = text ? formatPrice(text) : '';
+        const timeText = text || text === 0 ? formatPrice(text) : '';
         return timeText ? (
           <div>
             <Tooltip title={timeText} placement="topLeft">
@@ -105,7 +105,7 @@ class NewOfflineplu extends React.PureComponent {
       title: 'Price',
       dataIndex: 'commodityPrice',
       render: text => {
-        const timeText = text ? formatPrice(text) : '';
+        const timeText = text || text === 0 ? formatPrice(text) : '';
         return timeText ? (
           <div>
             <Tooltip title={timeText} placement="topLeft">
@@ -236,25 +236,7 @@ class NewOfflineplu extends React.PureComponent {
       },
     });
   };
-
-  add = () => {
-    const { dispatch, detail } = this.props;
-    const { effectiveStartDate, effectiveEndDate, commissionType } = detail;
-
-    if (effectiveStartDate && effectiveEndDate && commissionType) {
-      dispatch({
-        type: 'commissionNew/save',
-        payload: {
-          addPLUModal: true,
-        },
-      });
-    } else {
-      message.warning(
-        'Please fill in basic commission rule information, such as name, effective period, commission type.'
-      );
-    }
-  };
-
+  
   expandedRowRender = record => {
     const { subCommodityList } = record;
     return (
@@ -289,6 +271,7 @@ class NewOfflineplu extends React.PureComponent {
     const {
       type,
       tplId,
+      addOffline,
       commissionNew: {
         addPLUModal,
         checkedList = [],
@@ -342,7 +325,7 @@ class NewOfflineplu extends React.PureComponent {
               dataSource={[
                 {
                   key: 'addOption',
-                  commoditySpecId: <a onClick={this.add}>+ Add</a>,
+                  commoditySpecId: <a onClick={() => addOffline()}>+ Add</a>,
                   themeParkCode: '',
                   operation: '',
                 },

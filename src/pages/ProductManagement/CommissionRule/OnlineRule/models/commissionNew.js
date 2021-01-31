@@ -384,7 +384,7 @@ export default {
       }
     },
     *edit({ payload }, { call }) {
-      const { params, tieredList, commodityList, tplId, usageScope, tplVersion } = payload;
+      const { params, tieredList, commodityList, tplId, usageScope, tplVersion, taFilterList } = payload;
       const reqParams = {
         ...params,
         tieredList,
@@ -392,6 +392,7 @@ export default {
         tplId,
         usageScope,
         tplVersion,
+        taFilterList,
       };
       const {
         data: { resultCode, resultMsg },

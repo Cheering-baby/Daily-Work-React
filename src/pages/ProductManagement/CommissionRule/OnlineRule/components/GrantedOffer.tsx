@@ -125,6 +125,10 @@ class AddOnlinePLUModal extends React.PureComponent<any> {
         grantOfferSearch: false,
         grantOfferListFilter: [],
         grantOfferSearchOfferKey: '',
+        grantOfferListPagination: {
+          pageSize: 10,
+          currentPage: 1,
+        }
       },
     });
   };
