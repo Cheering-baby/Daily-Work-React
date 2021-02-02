@@ -300,15 +300,16 @@ class CustomerInformationToEdit extends PureComponent {
     });
   };
 
-  onHandleTaFileChange = (taFile, isDel = false) => {
+  onHandleTaFileChange = (taFileList = [], isDel = false) => {
     const { dispatch, customerInfo } = this.props;
     const { companyInfo = {} } = customerInfo || {};
     let newFileList = [];
+    const taFileListName = taFileList.map(i => i.name);
     if (companyInfo && companyInfo.fileList && companyInfo.fileList.length > 0) {
-      newFileList = [...companyInfo.fileList].filter(n => String(n.name) !== String(taFile.name));
+      newFileList = [...companyInfo.fileList].filter(n => !taFileListName.includes(n.name));
     }
     if (!isDel) {
-      newFileList.push(taFile);
+      newFileList = newFileList.concat(taFileList);
     }
     dispatch({
       type: 'taMgr/save',
@@ -324,17 +325,16 @@ class CustomerInformationToEdit extends PureComponent {
     });
   };
 
-  onHandleArAccountFileChange = (arAccountFile, isDel = false) => {
+  onHandleArAccountFileChange = (arAccountFileList = [], isDel = false) => {
     const { dispatch, customerInfo } = this.props;
     const { companyInfo = {} } = customerInfo || {};
     let newArAccountFileList = [];
+    const arAccountFileListName = arAccountFileList.map(i => i.name);
     if (companyInfo && companyInfo.arAccountFileList && companyInfo.arAccountFileList.length > 0) {
-      newArAccountFileList = [...companyInfo.arAccountFileList].filter(
-        n => String(n.name) !== String(arAccountFile.name)
-      );
+      newArAccountFileList = [...companyInfo.arAccountFileList].filter(n => !arAccountFileListName.includes(n.name));
     }
     if (!isDel) {
-      newArAccountFileList.push(arAccountFile);
+      newArAccountFileList = newArAccountFileList.concat(arAccountFileList);
     }
     dispatch({
       type: 'taMgr/save',
@@ -362,10 +362,10 @@ class CustomerInformationToEdit extends PureComponent {
       },
     }).then(flag => {
       if (flag && String(fileType) === 'taFile') {
-        this.onHandleTaFileChange(file, true);
+        this.onHandleTaFileChange([file], true);
       }
       if (flag && String(fileType) === 'arAccountFile') {
-        this.onHandleArAccountFileChange(file, true);
+        this.onHandleArAccountFileChange([file], true);
       }
     });
   };

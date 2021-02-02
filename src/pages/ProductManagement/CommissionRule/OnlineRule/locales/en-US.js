@@ -67,9 +67,8 @@ export default {
   CONFIRM_TO_DELETE: 'Are you sure to delete it?',
 
   EXCLUDED_TA: 'EXCLUDED TA',
-  NO: 'No.',
   AGENT_ID: 'Agent ID',
-  DATA_ADDED: 'Data Added',
+  DATA_ADDED: 'Date Added',
   OPERATION: 'Operation',
   COMPANY_NAME: 'Company Name',
   ADD_EXCLUDED_TA: 'Add Excluded TA',

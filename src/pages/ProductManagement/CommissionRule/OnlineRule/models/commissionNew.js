@@ -347,7 +347,8 @@ export default {
             }
           }
         })
-      } else throw resultMsg;
+        return taAddInfoList;
+      } throw resultMsg;
     },
     *add({ payload }, { call, put }) {
       const { params, tieredList, commodityList, usageScope } = payload;

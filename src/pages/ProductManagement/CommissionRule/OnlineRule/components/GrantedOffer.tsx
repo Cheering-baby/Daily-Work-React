@@ -47,8 +47,8 @@ class AddOnlinePLUModal extends React.PureComponent<any> {
   detailColumns = [
     {
       title: formatMessage({ id: 'PLU_CODE' }),
-      dataIndex: 'commoditySpecId',
-      key: 'commoditySpecId',
+      dataIndex: 'pluCode',
+      key: 'pluCode',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -57,8 +57,8 @@ class AddOnlinePLUModal extends React.PureComponent<any> {
     },
     {
       title: formatMessage({ id: 'PLU_DESCRIPTION' }),
-      dataIndex: 'commodityDescription',
-      key: 'commodityDescription',
+      dataIndex: 'pluDesc',
+      key: 'pluDesc',
       render: text => (
         <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
           <span>{text}</span>
@@ -68,49 +68,38 @@ class AddOnlinePLUModal extends React.PureComponent<any> {
   ];
 
   subExpandedRowRender = record => {
-    const { subCommodityList: dateList } = record;
+    const { subPluList } = record;
 
     return (
       <div>
         <Table
           size="small"
-          columns={this.detailColumns}
-          dataSource={dateList}
-          pagination={false}
           bordered={false}
-          rowKey={rec => rec.commoditySpecId}
+          pagination={false}
+          dataSource={subPluList}
+          rowKey={rec => rec.pluCode}
+          columns={this.detailColumns}
         />
       </div>
     );
   };
 
-  expandedRowRender = (record, offerList, checkedOnlineList) => {
-    const { subCommodityList, commoditySpecId } = record;
-    let subCheckedOnlineList = [];
-    for (let i = 0; i < checkedOnlineList.length; i += 1) {
-      if (commoditySpecId === checkedOnlineList[i].commoditySpecId) {
-        subCheckedOnlineList = checkedOnlineList[i].subCommodityList;
-      }
-    }
+  expandedRowRender = record => {
+    const { pluList } = record;
+
     return (
       <div>
         <Table
           size="small"
-          columns={this.detailColumns}
-          dataSource={subCommodityList}
-          pagination={false}
           bordered={false}
-          rowClassName={rec => (rec.subCommodityList.length === 0 ? styles.hideIcon : undefined)}
-          expandedRowRender={rec =>
-            this.subExpandedRowRender(
-              rec,
-              record.commoditySpecId,
-              subCommodityList,
-              offerList,
-              subCheckedOnlineList
-            )
+          pagination={false}
+          dataSource={pluList}
+          rowKey={rec => rec.pluCode}
+          columns={this.detailColumns}
+          expandedRowRender={rec => this.subExpandedRowRender(rec)}
+          rowClassName={rec =>
+            rec.subPluList && rec.subPluList.length === 0 ? styles.hideIcon : undefined
           }
-          rowKey={rec => rec.commoditySpecId}
         />
       </div>
     );
@@ -128,7 +117,7 @@ class AddOnlinePLUModal extends React.PureComponent<any> {
         grantOfferListPagination: {
           pageSize: 10,
           currentPage: 1,
-        }
+        },
       },
     });
   };
@@ -257,12 +246,8 @@ class AddOnlinePLUModal extends React.PureComponent<any> {
             dataSource={grantOfferListShow}
             rowKey={record => record.offerNo}
             className={`tabs-no-padding ${styles.searchTitle}`}
-            // expandedRowRender={record =>
-            //   this.expandedRowRender(record, grantOfferList, checkedOnlineList)
-            // }
-            // rowClassName={record =>
-            //   record.subCommodityList.length === 0 ? styles.hideIcon : undefined
-            // }
+            expandedRowRender={record => this.expandedRowRender(record)}
+            rowClassName={record => (record.pluList.length === 0 ? styles.hideIcon : undefined)}
           />
           <PaginationComp style={{ marginTop: 10 }} {...pageOpts} />
         </Modal>

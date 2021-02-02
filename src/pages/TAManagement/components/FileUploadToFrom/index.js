@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Button, Col, Form, Icon, message, Popover, Row, Spin, Upload } from 'antd';
 import { formatMessage } from 'umi/locale';
 import { getUrl, handleDownFile } from '@/utils/utils';
+import UploadDraggerModal from './UploadDraggerModal';
 import styles from './index.less';
 
 const actionUrl = `${getUrl()}/common/upload`;
@@ -16,6 +17,8 @@ class FileUploadToFrom extends PureComponent {
         newArAccountFileList: [],
         taFileLoadingFlag: false,
         arAccountFileLoadingFlag: false,
+        taFileModalShowFlag: false,
+        arAccountFileShowFlag: false,
       },
       this.props
     );
@@ -27,6 +30,7 @@ class FileUploadToFrom extends PureComponent {
       newArAccountFileList = [],
       taFileLoadingFlag,
       arAccountFileLoadingFlag,
+      ...otherState
     } = state;
     if (props.isRegistration) {
       return {
@@ -34,6 +38,7 @@ class FileUploadToFrom extends PureComponent {
         newArAccountFileList: [...newArAccountFileList],
         taFileLoadingFlag,
         arAccountFileLoadingFlag,
+        ...otherState,
       };
     }
     return {
@@ -41,6 +46,7 @@ class FileUploadToFrom extends PureComponent {
       newArAccountFileList: [...newArAccountFileList, ...this.normFile(props.arAccountFileList)],
       taFileLoadingFlag,
       arAccountFileLoadingFlag,
+      ...otherState,
     };
   };
 
@@ -76,7 +82,6 @@ class FileUploadToFrom extends PureComponent {
       onHandleTaFileChange,
       taFileList,
     } = this.props;
-    // console.log('onHandleChange file:', file);
     const { newTaFileList = [], newArAccountFileList = [] } = this.state;
     const {
       uid,
@@ -127,11 +132,11 @@ class FileUploadToFrom extends PureComponent {
       }
       if (String(type) === 'taFile' && isTaUpdate) {
         const taFile = { name: fileName, path: filePath, sourceName: fileSourceName };
-        onHandleTaFileChange(taFile, false);
+        onHandleTaFileChange([taFile], false);
       }
       if (String(type) === 'arAccountFile' && isArUpdate) {
         const arAccountFile = { name: fileName, path: filePath, sourceName: fileSourceName };
-        onHandleArAccountFileChange(arAccountFile, false);
+        onHandleArAccountFileChange([arAccountFile], false);
       }
     }
     if (String(type) === 'taFile') {
@@ -246,6 +251,91 @@ class FileUploadToFrom extends PureComponent {
     </div>
   );
 
+  handleModalOk = (fileList, fileType) => {
+    const { newTaFileList = [], newArAccountFileList = [] } = this.state;
+    const { onHandleArAccountFileChange, onHandleTaFileChange } = this.props;
+    if (!fileList || fileList.length <= 0) {
+      message.warn(formatMessage({ id: 'FILE_CHECK_MSG' }), 10);
+      return;
+    }
+    if (fileList && fileList.length > 0) {
+      const newTaFiles = [...newTaFileList];
+      const newArAccountFiles = [...newArAccountFileList];
+      fileList.forEach(n => {
+        const file = {
+          field: fileType,
+          uid: n.uid,
+          name: n.name,
+          status: n.status,
+          path: n.path,
+          sourceName: n.sourceName,
+        };
+        if (
+          String(fileType) === 'taFile' &&
+          String(n.status) === 'done' &&
+          newTaFiles.findIndex(item => item.uid === n.uid) === -1
+        ) {
+          newTaFiles.push({ ...file, name: n.sourceName });
+        }
+        if (
+          String(fileType) === 'arAccountFile' &&
+          String(n.status) === 'done' &&
+          newArAccountFiles.findIndex(item => item.uid === n.uid) === -1
+        ) {
+          newArAccountFiles.push({ ...file, name: n.sourceName });
+        }
+      });
+      if (String(fileType) === 'taFile') {
+        this.setState({
+          newTaFileList: [...newTaFiles],
+        });
+        onHandleTaFileChange(
+          fileList.map(i => ({
+            field: 'taFile',
+            name: i.name,
+            path: i.path,
+            sourceName: i.sourceName,
+          })),
+          false
+        );
+      }
+      if (String(fileType) === 'arAccountFile') {
+        this.setState({
+          newArAccountFileList: [...newArAccountFiles],
+        });
+        onHandleArAccountFileChange(
+          fileList.map(i => ({
+            field: 'arAccountFile',
+            name: i.name,
+            path: i.path,
+            sourceName: i.sourceName,
+          })),
+          false
+        );
+      }
+      this.closeModal();
+    }
+  };
+
+  showArFileModal = () => {
+    this.setState({
+      arAccountFileShowFlag: true,
+    });
+  };
+
+  showTaFileModal = () => {
+    this.setState({
+      taFileModalShowFlag: true,
+    });
+  };
+
+  closeModal = () => {
+    this.setState({
+      taFileModalShowFlag: false,
+      arAccountFileShowFlag: false,
+    });
+  };
+
   render() {
     const { form, viewId, formItemRowLayout, applyArAccount, onHandleDelTaFile } = this.props;
     const {
@@ -253,6 +343,8 @@ class FileUploadToFrom extends PureComponent {
       newArAccountFileList = [],
       taFileLoadingFlag = false,
       arAccountFileLoadingFlag = false,
+      taFileModalShowFlag,
+      arAccountFileShowFlag,
     } = this.state;
     const { getFieldDecorator } = form;
     const comProps = {
@@ -264,7 +356,8 @@ class FileUploadToFrom extends PureComponent {
         'App-Code': 'PAMS',
       }),
       FormData: 'file',
-      multiple: false,
+      multiple: true,
+      openFileDialogOnClick: false,
     };
     const fileProps = {
       ...comProps,
@@ -337,8 +430,27 @@ class FileUploadToFrom extends PureComponent {
     if (String(applyArAccount).toUpperCase() === 'Y') {
       arRole.push({ required: true, message: formatMessage({ id: 'REQUIRED' }) });
     }
+
+    const taFileModalProps = {
+      fileType: 'taFile',
+      handleModalOk: this.handleModalOk,
+      modalVisible: taFileModalShowFlag,
+      handleModalCancel: this.closeModal,
+      onHandleChange: this.onHandleChange,
+    };
+
+    const arFileModalProps = {
+      fileType: 'arAccountFile',
+      handleModalOk: this.handleModalOk,
+      modalVisible: arAccountFileShowFlag,
+      handleModalCancel: this.closeModal,
+      onHandleChange: this.onHandleChange,
+    };
+
     return (
       <Col span={24}>
+        {taFileModalShowFlag && <UploadDraggerModal {...taFileModalProps} />}
+        {arAccountFileShowFlag && <UploadDraggerModal {...arFileModalProps} />}
         <Row type="flex" justify="space-around">
           <Col span={24}>
             <Form.Item
@@ -361,7 +473,11 @@ class FileUploadToFrom extends PureComponent {
                       rules: [{ required: true, message: formatMessage({ id: 'REQUIRED' }) }],
                     })(
                       <Upload {...fileProps}>
-                        <Button icon="upload" className={styles.fileUploadBtn}>
+                        <Button
+                          icon="upload"
+                          className={styles.fileUploadBtn}
+                          onClick={this.showTaFileModal}
+                        >
                           {formatMessage({ id: 'FILE_CLICK_TO_UPLOAD' })}
                         </Button>
                       </Upload>
@@ -404,7 +520,11 @@ class FileUploadToFrom extends PureComponent {
                       rules: arRole || [],
                     })(
                       <Upload {...arFileProps}>
-                        <Button icon="upload" className={styles.fileUploadBtn}>
+                        <Button
+                          icon="upload"
+                          className={styles.fileUploadBtn}
+                          onClick={this.showArFileModal}
+                        >
                           {formatMessage({ id: 'FILE_CLICK_TO_UPLOAD' })}
                         </Button>
                       </Upload>

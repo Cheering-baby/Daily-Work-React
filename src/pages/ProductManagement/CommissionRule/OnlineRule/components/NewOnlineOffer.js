@@ -193,6 +193,7 @@ class NewOnlineOffer extends React.PureComponent {
               checkedOnlineList: filterCheckedList,
             },
           });
+          this.filterTaFileList();
         }, 500);
       });
     } else {
@@ -202,8 +203,33 @@ class NewOnlineOffer extends React.PureComponent {
           checkedOnlineList: filterCheckedList,
         },
       });
+      this.filterTaFileList();
     }
   };
+  
+  filterTaFileList = async () => {
+    const { dispatch, commissionNew: { excludedTA: { excludedTAList } } } = this.props;
+    const taAddInfoList = await dispatch({
+      type: 'commissionNew/queryAgentOfferBindingList',
+      payload: {
+        pageBean: {
+          currentPage: 1,
+          pageSize: 1000,
+        },
+      },
+    });
+
+    if(Array.isArray(taAddInfoList)) {
+      const taAddInfoListId = taAddInfoList.map(i => i.taId);
+      const excludedTAListFilter = excludedTAList.filter(i => taAddInfoListId.includes(i.taId));
+      dispatch({
+        type: 'commissionNew/saveExcludedTA',
+        payload: {
+          excludedTAList: excludedTAListFilter,
+        },
+      });
+    }
+  }
 
   deleteSubPLU = record => {
     let {

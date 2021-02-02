@@ -113,7 +113,7 @@ export default {
         yield put({
           type: 'commissionNew/saveExcludedTA',
           payload: {
-            excludedTAList: taFilterList,
+            excludedTAList: taFilterList || [],
           },
         })
 
@@ -129,7 +129,7 @@ export default {
               commissionScheme,
               createStaff,
               createTime,
-              taFilterList,
+              taFilterList: taFilterList || [],
             },
             tieredList,
             effectiveStartDate: effectiveDate,
