@@ -45,6 +45,14 @@ export default {
         });
       } else message.warn(resultMsg, 10);
     },
+    *removeContractHistoryFiles({ payload }, { call }) {
+      const response = yield call(service.removeContractHistoryFiles, { ...payload });
+      if(!response) return false;
+      const { data: { resultCode, resultMsg } } = response;
+      if (resultCode === '0' || resultCode === 0) {
+        message.success("Deleted successfully.");
+      } else message.warning(resultMsg);
+    },
     *doSaveData({ payload }, { put }) {
       yield put({ type: 'save', payload });
     },

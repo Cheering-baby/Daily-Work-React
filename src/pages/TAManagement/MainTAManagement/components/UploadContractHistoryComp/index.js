@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Card, Col, Form, Icon, Row, Spin, Table } from 'antd';
+import { Button, Card, Col, Form, Icon, Row, Spin, Table, Tooltip } from 'antd';
 import moment from 'moment';
 import { formatMessage } from 'umi/locale';
 import PaginationComp from '@/components/PaginationComp';
@@ -13,6 +13,7 @@ const downUrl = `${getUrl()}/common/downloadFile`;
 const downAllFilesUrl = `${getUrl()}/b2b/agent/common/downloadAllFiles`;
 
 const mapStateToProps = store => {
+  const { loading } = store;
   const { selectTaId } = store.mainTAManagement;
   const {
     searchContractForm,
@@ -29,7 +30,7 @@ const mapStateToProps = store => {
     searchContractForm,
     searchContractList,
     contractList,
-    qryContractHistoryLoading,
+    qryContractHistoryLoading: loading.effects['uploadContractHistory/removeContractHistoryFiles'] || qryContractHistoryLoading ,
   };
 };
 
@@ -89,30 +90,37 @@ class UploadContractHistoryComp extends PureComponent {
               {record &&
                 record.fileList &&
                 record.fileList.length > 0 &&
-                record.fileList.map(item => (
+                record.fileList.map((item, fileIndex) => (
                   <div key={String(item.number) + Math.random()} className={styles.uploadListItem}>
                     <div className={styles.uploadListItemInfo}>
                       <span>
                         <Icon type="paper-clip" className={styles.uploadListItemInfoPaperClip} />
                         <div className={styles.uploadListItemName}>{item.sourceName}</div>
                         <span className={styles.uploadListItemNameActions}>
-                          <a
-                            onClick={() =>
-                              handleDownFile(
-                                downUrl,
-                                {
-                                  fileName: item.name,
-                                  filePath: item.path,
-                                  path: item.path,
-                                },
-                                item.sourceName,
-                                () => this.updateDownFileLoading(true),
-                                () => this.updateDownFileLoading(false)
-                              )
-                            }
-                          >
-                            {formatMessage({ id: 'COMMON_DOWNLOAD' })}
-                          </a>
+                          <Tooltip title={formatMessage({ id: 'COMMON_DOWNLOAD' })}>
+                            <Icon 
+                              type="download"
+                              onClick={() =>
+                                handleDownFile(
+                                  downUrl,
+                                  {
+                                    fileName: item.name,
+                                    filePath: item.path,
+                                    path: item.path,
+                                  },
+                                  item.sourceName,
+                                  () => this.updateDownFileLoading(true),
+                                  () => this.updateDownFileLoading(false)
+                                )
+                              } 
+                            />
+                          </Tooltip>
+                          <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
+                            <Icon 
+                              type="delete"
+                              onClick={() => this.deleteContractFile(record, fileIndex)}
+                            />
+                          </Tooltip>
                         </span>
                       </span>
                     </div>
@@ -128,6 +136,20 @@ class UploadContractHistoryComp extends PureComponent {
     //   dataIndex: '',
     // },
   ];
+
+  deleteContractFile = async (record, fileIndex) => {
+    const { dispatch } = this.props;
+    const { fileList } = record;
+    if(Array.isArray(fileList) && fileList.length > 0) {
+      await dispatch({
+        type: 'uploadContractHistory/removeContractHistoryFiles',
+        payload: {
+          fileIds: [fileList[fileIndex].id],
+        },
+      });
+      this.qryContactHisList();
+    }
+  }
 
   downloadAllFiles = () => {
     const { selectTaId } = this.props;

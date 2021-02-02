@@ -2,6 +2,7 @@ import { stringify } from 'qs';
 import axios from 'axios';
 import UAAService from '@/uaa-npm';
 
+
 // export async function queryGrantOffer(params) {
 //   const url = `/b2b/agent/v1/commission/binding/queryGrantBindingList`;
 //   return UAAService.request(url, {
@@ -94,10 +95,21 @@ export async function add(params) {
     },
   });
 }
-export function queryGrantOffer(params) {
+
+export async function queryGrantOffer(params) {
   return axios({
     url: `/b2b/agent/v1/commission/binding/queryGrantBindingList`,
     method: 'POST',
     data: params,
+  });
+}
+
+export async function removeContractHistoryFiles(params) {
+  const url = `/b2b/agent/v1/contract/removeContractHistoryFiles`;
+  return UAAService.request(url, {
+    method: 'POST',
+    body: {
+      ...params,
+    },
   });
 }
