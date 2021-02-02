@@ -176,11 +176,11 @@ export default {
       yield put({ type: 'stateChangeHistory/clean', payload });
     },
     *doCleanCommonData({ payload }, { put }) {
-      // yield put({ type: 'taCommon/clean', payload });
-      // yield put({ type: 'taMgr/clean', payload });
-      // yield put({ type: 'uploadContract/clean', payload });
-      // yield put({ type: 'uploadContractHistory/clean', payload });
-      // yield put({ type: 'stateChangeHistory/clean', payload });
+      yield put({ type: 'taCommon/clean', payload });
+      yield put({ type: 'taMgr/clean', payload });
+      yield put({ type: 'uploadContract/clean', payload });
+      yield put({ type: 'uploadContractHistory/clean', payload });
+      yield put({ type: 'stateChangeHistory/clean', payload });
     },
     *doCleanAllDate({ payload }, { put }) {
       yield put({ type: 'clean', payload });

@@ -38,7 +38,7 @@ export async function queryOfferList(params) {
 }
 
 export async function queryOfferDetail(params) {
-  return UAAService.request(`${localPath}/b2b/product/v1/offer/detail`, {
+  return UAAService.request(`${mock}/b2b/product/v1/offer/detail`, {
     method: 'GET',
     params,
     body: {

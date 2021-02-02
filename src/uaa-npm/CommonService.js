@@ -244,6 +244,8 @@ class CommonService {
           let myMessage;
           const { data } = error.response;
 
+          console.log(error)
+
           myMessage = data.message || codeMessage[data.status];
 
           if (myMessage === undefined) {
