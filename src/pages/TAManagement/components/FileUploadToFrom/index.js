@@ -253,7 +253,7 @@ class FileUploadToFrom extends PureComponent {
 
   handleModalOk = (fileList, fileType) => {
     const { newTaFileList = [], newArAccountFileList = [] } = this.state;
-    const { onHandleArAccountFileChange, onHandleTaFileChange } = this.props;
+    const { onHandleArAccountFileChange, onHandleTaFileChange, form } = this.props;
     if (!fileList || fileList.length <= 0) {
       message.warn(formatMessage({ id: 'FILE_CHECK_MSG' }), 10);
       return;
@@ -269,6 +269,7 @@ class FileUploadToFrom extends PureComponent {
           status: n.status,
           path: n.path,
           sourceName: n.sourceName,
+          response: n.response,
         };
         if (
           String(fileType) === 'taFile' &&
@@ -289,6 +290,7 @@ class FileUploadToFrom extends PureComponent {
         this.setState({
           newTaFileList: [...newTaFiles],
         });
+        form.setFieldsValue({ taFileList: [...newTaFiles] });
         onHandleTaFileChange(
           fileList.map(i => ({
             field: 'taFile',
@@ -303,6 +305,7 @@ class FileUploadToFrom extends PureComponent {
         this.setState({
           newArAccountFileList: [...newArAccountFiles],
         });
+        form.setFieldsValue({ arAccountFileList: [...newArAccountFiles] });
         onHandleArAccountFileChange(
           fileList.map(i => ({
             field: 'arAccountFile',
@@ -363,7 +366,6 @@ class FileUploadToFrom extends PureComponent {
       ...comProps,
       data: { type: 'taFile' },
       onPreview: () => {},
-      onChange: changeValue => this.onHandleChange(changeValue, 'taFile'),
       onRemove: file => {
         const { status, response: { result: { filePath, fileName } = '' } = '', url } = file;
         let newTaFiles = [...newTaFileList];
@@ -397,7 +399,6 @@ class FileUploadToFrom extends PureComponent {
       ...comProps,
       data: { type: 'arAccountFile' }, // taFile arAccountFile contractFile
       onPreview: () => {},
-      onChange: changeValue => this.onHandleChange(changeValue, 'arAccountFile'),
       onRemove: file => {
         const { status, response: { result: { filePath, fileName } = '' } = '', url } = file;
         let newArAccountFiles = [...newArAccountFileList];

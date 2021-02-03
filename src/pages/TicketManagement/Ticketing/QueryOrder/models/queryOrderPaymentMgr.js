@@ -443,6 +443,7 @@ export default {
       if (resultCode === '0') {
         const openWindow = window.open('about:blank');
         if (openWindow) {
+          // openWindow.pamsLocation.href = result;
           openWindow.location.href = result;
         } else {
           message.error('Confirmation receipt download error!');

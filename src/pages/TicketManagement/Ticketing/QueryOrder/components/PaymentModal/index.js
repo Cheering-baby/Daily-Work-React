@@ -79,7 +79,8 @@ class PaymentModal extends React.Component {
       }).then(result => {
         if (result && result.url) {
           try {
-            window.location.replace(result.url);
+            // window.location.replace(result.url);
+            window.pamsLocation.href = result.url;
           } catch (e) {
             message.error('window location replace error!');
           }

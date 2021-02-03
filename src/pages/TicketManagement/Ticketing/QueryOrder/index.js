@@ -570,7 +570,6 @@ class QueryOrder extends Component {
     let ifAllowed = false;
     let contentText = 'The tickets in the order have already been used.';
     for (let i = 0; i < vidList.length; i += 1) {
-      console.log(vidList[i].status, vidList[i].hadRefunded)
       if (vidList[i].status === 'false' && vidList[i].hadRefunded !== 'Yes') {
         ifAllowed = true;
       }
@@ -581,7 +580,6 @@ class QueryOrder extends Component {
         contentText = `The tickets in the order have already been refunded.`;
       }
     }
-    console.log(ifAllowed)
     if (ifAllowed) {
       this.jumpToOperation(bookingNo, isSubOrder, flag);
     } else {
@@ -806,7 +804,7 @@ class QueryOrder extends Component {
       return !(
         selectedBooking.transType === 'booking' &&
         selectedBooking.status === 'Complete' &&
-        (selectedBooking.revalidationFlag === 'No' && selectedBooking.refundFlag === 'No' ) &&
+        selectedBooking.revalidationFlag === 'No' && selectedBooking.refundFlag === 'No' &&
         (userType === '02' || userType === '03')
       );
     }
@@ -875,7 +873,7 @@ class QueryOrder extends Component {
       if (transType === 'refund' && status === 'Confirmed') {
         return false;
       }
-      if (transType === 'revalidation' && status === 'Confirmed') {
+      if (transType === 'revalidation' && (status === 'Confirmed' || status === 'Complete')) {
         return false;
       }
     }
@@ -1004,7 +1002,7 @@ class QueryOrder extends Component {
       type: 'queryOrderMgr/redressBCInPCC',
       payload: {
         orderNoList,
-        redressType: "redressBCInPCC",
+        redressType: 'redressBCInPCC',
       },
     });
   };
@@ -1239,16 +1237,16 @@ class QueryOrder extends Component {
                         {formatMessage({ id: 'REPRINT' })}
                       </Button>
                     )}
-                    {userType === '01' && (
-                      PrivilegeUtil.hasAnyPrivilege(['TRAN_ORDER_REDRESS_BCINPCC_PRIVILEGE']) &&
-                      <Button
-                        disabled={this.redressBCInPCCDisable(selectedBookings)}
-                        className={styles.buttonStyle}
-                        onClick={() => this.redressBCInPCC(selectedBookings)}
-                      >
-                        {formatMessage({ id: 'REDRESS_BCINPCC' })}
-                      </Button>
-                    )}
+                    {userType === '01' &&
+                      PrivilegeUtil.hasAnyPrivilege(['TRAN_ORDER_REDRESS_BCINPCC_PRIVILEGE']) && (
+                        <Button
+                          disabled={this.redressBCInPCCDisable(selectedBookings)}
+                          className={styles.buttonStyle}
+                          onClick={() => this.redressBCInPCC(selectedBookings)}
+                        >
+                          {formatMessage({ id: 'REDRESS_BCINPCC' })}
+                        </Button>
+                      )}
                   </Col>
                   <Col span={24}>
                     <Table

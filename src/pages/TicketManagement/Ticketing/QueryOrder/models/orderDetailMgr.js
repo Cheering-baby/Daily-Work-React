@@ -303,6 +303,10 @@ export default {
             if (attraction[j].packageSpec) {
               isPackage = true;
             }
+            let vidGroup = null;
+            if(attraction[j].vidGroup !== undefined){
+              vidGroup = attraction[j].vidGroup;
+            }
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
 
@@ -317,6 +321,7 @@ export default {
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
                   numOfPax: getNumOfPaxInPackage(attraction[j]),
+                  vidGroup,
                 });
                 vidResultList.push({
                   vidNo: null,
@@ -328,6 +333,7 @@ export default {
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
                   numOfPax: getNumOfPaxInPackage(attraction[j]),
+                  vidGroup,
                 });
                 itemPluList.forEach(itemPlu => {
                   if (itemPlu.ticketType === 'Voucher') {
@@ -340,6 +346,7 @@ export default {
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
+                      vidGroup,
                     });
                     vidResultList.push({
                       vidNo: null,
@@ -351,6 +358,7 @@ export default {
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
+                      vidGroup,
                     });
                   }
                 });
@@ -365,6 +373,7 @@ export default {
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
+                    vidGroup,
                   });
                   vidResultList.push({
                     vidNo: null,
@@ -376,6 +385,7 @@ export default {
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
+                    vidGroup,
                   });
                 });
               }
@@ -389,6 +399,7 @@ export default {
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
                 numOfPax: getNumOfPaxInPackage(attraction[j]),
+                vidGroup,
               });
               vidResultList.push({
                 vidNo: null,
@@ -400,10 +411,16 @@ export default {
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
                 numOfPax: getNumOfPaxInPackage(attraction[j]),
+                vidGroup,
               });
             }
           }
         }
+        vidList.sort((a, b) => {
+          if(a.vidGroup){
+            return a.vidGroup-b.vidGroup;
+          }
+        });
         detailList.push({
           offerName: offers[i].offerName,
           bundleName: offers[i].bundleName,
@@ -418,6 +435,11 @@ export default {
       for (let i = 0; i < vidResultList.length; i += 1) {
         vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
       }
+      vidResultList.sort((a, b) => {
+        if(a.vidGroup){
+          return a.vidGroup-b.vidGroup;
+        }
+      });
       return {
         ...state,
         detailList,

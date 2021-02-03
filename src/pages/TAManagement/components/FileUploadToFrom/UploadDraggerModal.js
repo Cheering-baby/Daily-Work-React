@@ -28,6 +28,12 @@ const UploadDraggerModal = ({
       newFileList = [...fileUploadList].filter(n => String(n.uid) !== String(file.uid));
     }
     if (!isDel && String(file.status) !== 'removed') {
+      Object.assign(file, {
+        response: {
+          result: { fileName: file.name, filePath: file.path, fileSourceName: file.sourceName },
+        },
+      });
+      // console.log(file);
       newFileList.push(file);
     }
     setFileUploadList(newFileList);

@@ -532,7 +532,7 @@ class Detail extends React.Component {
         );
 
         // Add Language Show
-        if(attraction && attraction.find(item => item.language)){
+        if (attraction && attraction.find(item => item.language)) {
           offerNameText += `  ${attraction.find(item => item.language).language}`;
         }
 

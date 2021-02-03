@@ -167,6 +167,10 @@ export default {
             if (attraction[j].packageSpec) {
               isPackage = true;
             }
+            let vidGroup = null;
+            if(attraction[j].vidGroup !== undefined){
+              vidGroup = attraction[j].vidGroup;
+            }
             if (isPackage) {
               const packageSpecObj = JSON.parse(attraction[j].packageSpec);
               const itemPluList = packageSpecObj.packageSpecAttributes || [];
@@ -184,6 +188,7 @@ export default {
                   hadRefunded: attraction[j].hadRefunded,
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
+                  vidGroup,
                   blackOutDay,
                 });
                 itemPluList.forEach(itemPlu => {
@@ -201,6 +206,7 @@ export default {
                       hadRefunded: attraction[j].hadRefunded,
                       ticketGroup: itemPlu.ageGroup,
                       ticketType: itemPlu.ticketType,
+                      vidGroup,
                       blackOutDay,
                     });
                   }
@@ -220,6 +226,7 @@ export default {
                     hadRefunded: attraction[j].hadRefunded,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
+                    vidGroup,
                     blackOutDay,
                   });
                 });
@@ -238,6 +245,7 @@ export default {
                 hadRefunded: attraction[j].hadRefunded,
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
+                vidGroup,
                 blackOutDay,
               });
             }
@@ -248,6 +256,11 @@ export default {
         vidList[i].key = i;
         vidList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
       }
+      vidList.sort((a, b) => {
+        if(a.vidGroup){
+          return a.vidGroup-b.vidGroup;
+        }
+      });
       return {
         ...state,
         vidList,

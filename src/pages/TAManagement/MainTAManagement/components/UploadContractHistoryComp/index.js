@@ -6,6 +6,7 @@ import { formatMessage } from 'umi/locale';
 import PaginationComp from '@/components/PaginationComp';
 import styles from './index.less';
 import { getUrl, handleDownFile, isNvl } from '@/utils/utils';
+import { hasAllPrivilege } from '@/utils/PrivilegeUtil';
 import { getKeyValue } from '../../../utils/pubUtils';
 import FriendlyDatePicker from '@/components/FriendlyDatePicker';
 
@@ -115,12 +116,14 @@ class UploadContractHistoryComp extends PureComponent {
                               } 
                             />
                           </Tooltip>
-                          <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
-                            <Icon 
-                              type="delete"
-                              onClick={() => this.deleteContractFile(record, fileIndex)}
-                            />
-                          </Tooltip>
+                          {hasAllPrivilege(['MAIN_TA_MANAGEMENT_FUNCTION_DELETE_CONTRACT']) && 
+                            <Tooltip title={formatMessage({ id: 'COMMON_DELETE' })}>
+                              <Icon
+                                type="delete"
+                                onClick={() => this.deleteContractFile(record, fileIndex)}
+                              />
+                            </Tooltip>
+                          }
                         </span>
                       </span>
                     </div>
