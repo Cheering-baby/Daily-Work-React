@@ -32,7 +32,7 @@ class Detail extends React.Component {
   revalidationVidColumns = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width: '9%',
+      width: 60,
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -43,7 +43,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '20%',
+      width: 160,
       dataIndex: 'vid',
       key: 'vid',
       render: text => (
@@ -53,15 +53,35 @@ class Detail extends React.Component {
       ),
     },
     {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'SESSION' })}</span>,
+      width: 100,
+      dataIndex: 'session',
+      key: 'session',
+      render: text => {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>
+                {text && text.trim() ? sessionTimeToWholeDay(text) : '-'}
+              </span>
+            }
+          >
+            <span>{text && text.trim() ? sessionTimeToWholeDay(text) : '-'}</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '20%',
+      width: 150,
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'PLU_NAME' })}</span>,
-      width: '20%',
+      width: 150,
       dataIndex: 'pluName',
       key: 'pluName',
       render: text => (
@@ -72,7 +92,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
-      width: '15%',
+      width: 90,
       dataIndex: 'ageGroup',
       key: 'ageGroup',
       render: text => (
@@ -85,15 +105,22 @@ class Detail extends React.Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
       dataIndex: 'ticketType',
       key: 'ticketType',
-      width: '15%',
-      render: text => this.showVidType(text),
-    },
+      width: 90,
+      render: text => (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{this.showVidType(text)}</span>}
+        >
+          <span>{this.showVidType(text)}</span>
+        </Tooltip>
+      ),
+    }
   ];
 
   detailColumns = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width: '8%',
+      width: 60,
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -104,7 +131,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '15%',
+      width: 160,
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -117,7 +144,7 @@ class Detail extends React.Component {
       title: (
         <span className={styles.tableTitle}>{`${formatMessage({ id: 'OFFER_NAME' })}123`}</span>
       ),
-      width: '15%',
+      width: 150,
       dataIndex: 'offerName',
       key: 'offerName',
       render: text => (
@@ -128,25 +155,25 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '15%',
+      width: 150,
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO_OF_PAX' })}</span>,
-      width: '13%',
+      width: 90,
       dataIndex: 'numOfPax',
       key: 'numOfPax',
       render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
-          <span>{text}</span>
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text || '1'}</span>}>
+          <span>{text || '1'}</span>
         </Tooltip>
       ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
-      width: '11%',
+      width: 100,
       dataIndex: 'ticketGroup',
       key: 'ticketGroup',
       render: text => (
@@ -159,7 +186,7 @@ class Detail extends React.Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
       dataIndex: 'ticketType',
       key: 'ticketType',
-      width: '15%',
+      width: 90,
       render: text => this.showVidType(text),
     },
   ];
@@ -167,7 +194,7 @@ class Detail extends React.Component {
   columns = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width: '8%',
+      width: 60,
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -178,7 +205,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '17%',
+      width: 160,
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -189,14 +216,14 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '18%',
+      width: 150,
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'PLU_NAME' })}</span>,
-      width: '17%',
+      width: 150,
       dataIndex: 'pluName',
       key: 'pluName',
       render: text => (
@@ -207,18 +234,18 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO_OF_PAX' })}</span>,
-      width: '14%',
+      width: 90,
       dataIndex: 'numOfPax',
       key: 'numOfPax',
       render: text => (
-        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>}>
+        <Tooltip placement="topLeft" title={<span style={{ whiteSpace: 'pre-wrap' }}>{text || '1'}</span>}>
           <span>{text || '1'}</span>
         </Tooltip>
       ),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
-      width: '13%',
+      width: 100,
       dataIndex: 'ticketGroup',
       key: 'ticketGroup',
       render: text => (
@@ -229,17 +256,31 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
-      width: '15%',
+      width: 90,
       dataIndex: 'ticketType',
       key: 'ticketType',
       render: text => this.showVidType(text),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'EXPIRE_DATE' })}</span>,
+      dataIndex: 'validDayTo',
+      key: 'validDayTo',
+      width: 110,
+      render: text => (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{this.showExpireDate(text)}</span>}
+        >
+          <span>{this.showExpireDate(text)}</span>
+        </Tooltip>
+      ),
     },
   ];
 
   columnsTwo = [
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'NO' })}</span>,
-      width: '9%',
+      width: 60,
       dataIndex: 'vidNo',
       key: 'vidNo',
       render: text => (
@@ -250,7 +291,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_CODE' })}</span>,
-      width: '20%',
+      width: 160,
       dataIndex: 'vidCode',
       key: 'vidCode',
       render: text => (
@@ -261,14 +302,14 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'THEME_PARK' })}</span>,
-      width: '20%',
+      width: 150,
       dataIndex: 'themeParks',
       key: 'themeParks',
       render: text => this.showThemePark(text),
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'PLU_NAME' })}</span>,
-      width: '20%',
+      width: 150,
       dataIndex: 'pluName',
       key: 'pluName',
       render: text => (
@@ -279,7 +320,7 @@ class Detail extends React.Component {
     },
     {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'CATEGORY' })}</span>,
-      width: '15%',
+      width: 100,
       dataIndex: 'ticketGroup',
       key: 'ticketGroup',
       render: text => (
@@ -292,8 +333,22 @@ class Detail extends React.Component {
       title: <span className={styles.tableTitle}>{formatMessage({ id: 'VID_TYPE' })}</span>,
       dataIndex: 'ticketType',
       key: 'ticketType',
-      width: '15%',
+      width: 90,
       render: text => this.showVidType(text),
+    },
+    {
+      title: <span className={styles.tableTitle}>{formatMessage({ id: 'EXPIRE_DATE' })}</span>,
+      dataIndex: 'validDayTo',
+      key: 'validDayTo',
+      width: 110,
+      render: text => (
+        <Tooltip
+          placement="topLeft"
+          title={<span style={{ whiteSpace: 'pre-wrap' }}>{this.showExpireDate(text)}</span>}
+        >
+          <span>{this.showExpireDate(text)}</span>
+        </Tooltip>
+      ),
     },
   ];
 
@@ -305,6 +360,7 @@ class Detail extends React.Component {
   }
 
   showQuantity = orderQuantityInfo => {
+    console.log(orderQuantityInfo)
     if (!orderQuantityInfo) {
       return;
     }
@@ -429,11 +485,13 @@ class Detail extends React.Component {
     orderQuantityList,
     bookingDetail
   ) => {
-    let deliveryModeStr = 'e-Ticket';
+    let deliveryMode = '';
+    let collectionDate = null;
+    let deliveryModeStr = '';
     let paymentModeStr = '';
     let approveByStr = '-';
     let userRolesStr = '-';
-    let transTypeStr = 'booking';
+    let transTypeStr = '';
     let refundAmountStr = 0;
     let detailStatus = '-';
     let confirmedVisitDate = null;
@@ -446,6 +504,10 @@ class Detail extends React.Component {
       bookingDetail.offers.forEach(offerItem => {
         if (offerItem.deliveryInfo) {
           deliveryModeStr = offerItem.deliveryInfo.deliveryMode;
+          // eslint-disable-next-line prefer-destructuring
+          deliveryMode = offerItem.deliveryInfo.deliveryMode;
+          // eslint-disable-next-line prefer-destructuring
+          collectionDate = offerItem.deliveryInfo.collectionDate;
         }
       });
       if (deliveryModeStr === 'VID') {
@@ -662,16 +724,33 @@ class Detail extends React.Component {
                 <span className={styles.drawerTitleStyle}>{taName || '-'}</span>
               </Tooltip>
             </FormItem>
-            {transTypeStr !== 'refund' && (
+            <FormItem
+              label={<span className={styles.drawerTitleStyle}>MODE OF DELIVERY</span>}
+              {...formLayout}
+            >
+              <Tooltip
+                placement="topLeft"
+                title={<span style={{ whiteSpace: 'pre-wrap' }}>{deliveryModeStr || '-'}</span>}
+              >
+                <span className={styles.drawerTitleStyle}>{deliveryModeStr || '-'}</span>
+              </Tooltip>
+            </FormItem>
+            {deliveryMode === 'BOCA' && (
               <FormItem
-                label={<span className={styles.drawerTitleStyle}>MODE OF DELIVERY</span>}
+                label={
+                  <span className={styles.drawerTitleStyle}>
+                    {formatMessage({ id: 'BOCA_COLLECTION_DATE' })}
+                  </span>
+                }
                 {...formLayout}
               >
                 <Tooltip
                   placement="topLeft"
-                  title={<span style={{ whiteSpace: 'pre-wrap' }}>{deliveryModeStr || '-'}</span>}
+                  title={<span style={{ whiteSpace: 'pre-wrap' }}>{deliveryMode || '-'}</span>}
                 >
-                  <span className={styles.drawerTitleStyle}>{deliveryModeStr || '-'}</span>
+                  <span className={styles.drawerTitleStyle}>
+                    {collectionDate ? moment(collectionDate).format('DD-MMM-YYYY') : '-'}
+                  </span>
                 </Tooltip>
               </FormItem>
             )}
@@ -799,7 +878,7 @@ class Detail extends React.Component {
                   columns={this.revalidationVidColumns}
                   dataSource={revalidationVidList}
                   loading={!!revalidationVidLoading}
-                  scroll={{ x: 540 }}
+                  scroll={{ x: 500 }}
                   pagination={false}
                   bordered={false}
                 />
@@ -892,6 +971,14 @@ class Detail extends React.Component {
     if (text !== 'Voucher') {
       return 'Ticket';
     }
+  };
+
+  showExpireDate = text => {
+    if (text) {
+      return moment(text).format('DD-MMM-YYYY');
+    }
+
+    return '-';
   };
 
   showQuantityEye = (label, value) => (

@@ -149,5 +149,9 @@ export default {
   CONFIRMED_VISIT_DATE: 'CONFIRMED VISIT DATE',
   SUB_TA_EMAIL: 'Sub TA Email',
   REDRESS_BCINPCC: 'Redress BCInPCC',
-  REDRESS_SUCCESSFULLY: 'Redressed successfully.'
+  REDRESS_SUCCESSFULLY: 'Redressed successfully.',
+
+  BOCA_COLLECTION_DATE: 'BOCA COLLECTION DATE',
+  EXPIRE_DATE: 'Expire Date',
+  SESSION: 'Session',
 };

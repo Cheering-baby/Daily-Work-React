@@ -1,3 +1,4 @@
+import moment from 'moment';
 import serialize from '../utils/utils';
 import {
   queryBookingDetail,
@@ -320,6 +321,7 @@ export default {
                   pluName: attraction[j].pluName,
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
+                  validDayTo: attraction[j].validDayTo,
                   numOfPax: getNumOfPaxInPackage(attraction[j]),
                   vidGroup,
                 });
@@ -332,6 +334,7 @@ export default {
                   offerName: offers[i].offerName,
                   ticketGroup: attraction[j].ticketGroup,
                   ticketType: attraction[j].ticketType,
+                  validDayTo: attraction[j].validDayTo,
                   numOfPax: getNumOfPaxInPackage(attraction[j]),
                   vidGroup,
                 });
@@ -345,6 +348,7 @@ export default {
                       pluName: itemPlu.pluName,
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
+                      validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
                       vidGroup,
                     });
@@ -357,6 +361,7 @@ export default {
                       pluName: itemPlu.pluName,
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
+                      validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
                       vidGroup,
                     });
@@ -372,6 +377,7 @@ export default {
                     pluName: itemPlu.pluName,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
+                    validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
                     vidGroup,
                   });
@@ -384,6 +390,7 @@ export default {
                     pluName: itemPlu.pluName,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
+                    validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
                     vidGroup,
                   });
@@ -398,6 +405,7 @@ export default {
                 pluName: attraction[j].pluName,
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
+                validDayTo: attraction[j].validDayTo,
                 numOfPax: getNumOfPaxInPackage(attraction[j]),
                 vidGroup,
               });
@@ -410,6 +418,7 @@ export default {
                 offerName: offers[i].offerName,
                 ticketGroup: attraction[j].ticketGroup,
                 ticketType: attraction[j].ticketType,
+                validDayTo: attraction[j].validDayTo,
                 numOfPax: getNumOfPaxInPackage(attraction[j]),
                 vidGroup,
               });

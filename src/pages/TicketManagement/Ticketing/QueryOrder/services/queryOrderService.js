@@ -5,6 +5,8 @@ const uaaPath =
     ? 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams'
     : '';
 
+const mock = 'http://dev-easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e854bf1f8436f0020822df9/PAMS';
+
 export async function queryOrder(params) {
   return UAAService.request(`${uaaPath}/b2b/transaction/v1/booking/list${params}`, {
     method: 'GET',
