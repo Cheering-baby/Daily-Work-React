@@ -236,7 +236,7 @@ class NewOfflineplu extends React.PureComponent {
       },
     });
   };
-  
+
   expandedRowRender = record => {
     const { subCommodityList } = record;
     return (

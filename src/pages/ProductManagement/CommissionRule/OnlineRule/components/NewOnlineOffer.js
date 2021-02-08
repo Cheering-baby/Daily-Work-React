@@ -12,10 +12,9 @@ import PaginationComp from '../../../components/PaginationComp';
   detail,
 }))
 class NewOnlineOffer extends React.PureComponent {
-
   state = {
-    expandedRowKeys: []
-  }
+    expandedRowKeys: [],
+  };
 
   columns = [
     {
@@ -206,9 +205,14 @@ class NewOnlineOffer extends React.PureComponent {
       this.filterTaFileList();
     }
   };
-  
+
   filterTaFileList = async () => {
-    const { dispatch, commissionNew: { excludedTA: { excludedTAList } } } = this.props;
+    const {
+      dispatch,
+      commissionNew: {
+        excludedTA: { excludedTAList },
+      },
+    } = this.props;
     const taAddInfoList = await dispatch({
       type: 'commissionNew/queryAgentOfferBindingList',
       payload: {
@@ -219,7 +223,7 @@ class NewOnlineOffer extends React.PureComponent {
       },
     });
 
-    if(Array.isArray(taAddInfoList)) {
+    if (Array.isArray(taAddInfoList)) {
       const taAddInfoListId = taAddInfoList.map(i => i.taId);
       const excludedTAListFilter = excludedTAList.filter(i => taAddInfoListId.includes(i.taId));
       dispatch({
@@ -229,16 +233,16 @@ class NewOnlineOffer extends React.PureComponent {
         },
       });
     }
-  }
+  };
 
   deleteSubPLU = record => {
     let {
       commissionNew: { checkedOnlineList },
       dispatch,
     } = this.props;
-    if(Array.isArray(checkedOnlineList)){
+    if (Array.isArray(checkedOnlineList)) {
       checkedOnlineList = checkedOnlineList.filter(item => {
-        let bool = true
+        let bool = true;
         // if (record.proCommoditySpecId !== item.commoditySpecId) {
         //   return bool
         // }
@@ -247,26 +251,28 @@ class NewOnlineOffer extends React.PureComponent {
         // }
         if (!item.subCommodityListNull) {
           item.subCommodityList = item.subCommodityList.filter(item2 => {
-            let bool2 = true
+            let bool2 = true;
             if (!item2.subCommodityListNull) {
               item2.subCommodityList = item2.subCommodityList.filter(item3 => {
-                return record.commoditySpecId !== item3.commoditySpecId
-              })
-              bool2 = item2.subCommodityList.length > 0
+                return record.commoditySpecId !== item3.commoditySpecId;
+              });
+              bool2 = item2.subCommodityList.length > 0;
             }
             if (bool2) {
-              bool2 = record.commoditySpecId !== item2.commoditySpecId
+              bool2 = record.commoditySpecId !== item2.commoditySpecId;
             }
-            return bool2
-          })
+            return bool2;
+          });
           bool = item.subCommodityList.length > 0;
         }
         if (!bool) {
-          const { expandedRowKeys } = this.state
-          this.setState(() => ({ expandedRowKeys: expandedRowKeys.filter(e => e !== item.commoditySpecId) }))
+          const { expandedRowKeys } = this.state;
+          this.setState(() => ({
+            expandedRowKeys: expandedRowKeys.filter(e => e !== item.commoditySpecId),
+          }));
         }
-        return bool
-      })
+        return bool;
+      });
     }
     dispatch({
       type: 'commissionNew/changeOnlinePage',
@@ -277,27 +283,38 @@ class NewOnlineOffer extends React.PureComponent {
   };
 
   deleteSubSubPLU = record => {
-    let {
+    const {
       commissionNew: { checkedOnlineList },
       dispatch,
     } = this.props;
-    for (let i = 0; i < checkedOnlineList.length; i+=1) {
-      if(record.proProCommoditySpecId === checkedOnlineList[i].commoditySpecId) {
-        for (let j = 0; j < checkedOnlineList[i].subCommodityList.length; j+=1) {
-          if(record.proCommoditySpecId === checkedOnlineList[i].subCommodityList[j].commoditySpecId){
-            for (let k = 0; k < checkedOnlineList[i].subCommodityList[j].subCommodityList.length; k+=1) {
-              if(record.commoditySpecId === checkedOnlineList[i].subCommodityList[j].subCommodityList[k].commoditySpecId){
+    for (let i = 0; i < checkedOnlineList.length; i += 1) {
+      if (record.proProCommoditySpecId === checkedOnlineList[i].commoditySpecId) {
+        for (let j = 0; j < checkedOnlineList[i].subCommodityList.length; j += 1) {
+          if (
+            record.proCommoditySpecId === checkedOnlineList[i].subCommodityList[j].commoditySpecId
+          ) {
+            for (
+              let k = 0;
+              k < checkedOnlineList[i].subCommodityList[j].subCommodityList.length;
+              k += 1
+            ) {
+              if (
+                record.commoditySpecId ===
+                checkedOnlineList[i].subCommodityList[j].subCommodityList[k].commoditySpecId
+              ) {
                 checkedOnlineList[i].subCommodityList[j].subCommodityList.splice(k, 1);
-                k-=1;
+                k -= 1;
               }
             }
           }
-          if(checkedOnlineList[i].subCommodityList[j].subCommodityList.length === 0 && checkedOnlineList[i].subCommodityList[j].selectedType === 'packagePLU'){
+          if (
+            checkedOnlineList[i].subCommodityList[j].subCommodityList.length === 0 &&
+            checkedOnlineList[i].subCommodityList[j].selectedType === 'packagePLU'
+          ) {
             checkedOnlineList[i].subCommodityList.splice(j, 1);
-            j-=1;
+            j -= 1;
           }
         }
-
       }
     }
     // if(Array.isArray(checkedOnlineList)){
@@ -450,19 +467,19 @@ class NewOnlineOffer extends React.PureComponent {
             <Col span={24}>
               <Table
                 size="small"
-                rowKey='commoditySpecId'
+                rowKey="commoditySpecId"
                 columns={this.columns}
                 className={`tabs-no-padding ${styles.searchTitle}`}
                 pagination={false}
                 expandedRowKeys={this.state.expandedRowKeys}
                 onExpand={(bool, record) => {
-                  let { expandedRowKeys } = this.state
+                  let { expandedRowKeys } = this.state;
                   if (bool) {
-                    expandedRowKeys = expandedRowKeys.concat(record.commoditySpecId)
+                    expandedRowKeys = expandedRowKeys.concat(record.commoditySpecId);
                   } else {
-                    expandedRowKeys = expandedRowKeys.filter(e => e !== record.commoditySpecId)
+                    expandedRowKeys = expandedRowKeys.filter(e => e !== record.commoditySpecId);
                   }
-                  this.setState({ expandedRowKeys })
+                  this.setState({ expandedRowKeys });
                 }}
                 rowClassName={(record, index) => this.getRowSelectedClassName(record, index)}
                 expandedRowRender={record => this.expandedRowRender(record)}

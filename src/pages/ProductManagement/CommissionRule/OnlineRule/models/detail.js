@@ -76,7 +76,7 @@ export default {
           if (tieredList && tieredList.length > 0) {
             tieredList.map(v => {
               let commissionValue2 = '';
-              let commissionValue = ''
+              let commissionValue = '';
               const x = String(v.commissionValue).indexOf('.') + 1;
               const y = String(v.commissionValue).length - x;
               if (y <= 2) {
@@ -89,10 +89,10 @@ export default {
                 commissionValue2 = parseFloat(v.commissionValue * 100).toFixed(1);
               }
               if (commissionScheme === 'Amount') {
-                commissionValue = v.commissionValue
+                commissionValue = v.commissionValue;
               }
               if (commissionScheme === 'Percentage') {
-                commissionValue = commissionValue2
+                commissionValue = commissionValue2;
               }
               Object.assign(v, {
                 commissionValue: v.commissionValue ? commissionValue : '',
@@ -115,7 +115,7 @@ export default {
           payload: {
             excludedTAList: taFilterList || [],
           },
-        })
+        });
 
         yield put({
           type: 'save',

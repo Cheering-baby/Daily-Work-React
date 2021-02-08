@@ -96,7 +96,7 @@ export default {
       grantOfferListPagination: {
         pageSize: 10,
         currentPage: 1,
-      }
+      },
     },
   },
   effects: {
@@ -344,11 +344,12 @@ export default {
               totalSize: pageBean.totalRecord,
               pageSize: pageBean.pageSize,
               currentPage: pageBean.currentPage,
-            }
-          }
-        })
+            },
+          },
+        });
         return taAddInfoList;
-      } throw resultMsg;
+      }
+      throw resultMsg;
     },
     *add({ payload }, { call, put }) {
       const { params, tieredList, commodityList, usageScope } = payload;
@@ -385,7 +386,15 @@ export default {
       }
     },
     *edit({ payload }, { call }) {
-      const { params, tieredList, commodityList, tplId, usageScope, tplVersion, taFilterList } = payload;
+      const {
+        params,
+        tieredList,
+        commodityList,
+        tplId,
+        usageScope,
+        tplVersion,
+        taFilterList,
+      } = payload;
       const reqParams = {
         ...params,
         tieredList,
@@ -954,7 +963,7 @@ export default {
           grantOfferListPagination: {
             pageSize: 10,
             currentPage: 1,
-          }
+          },
         },
       };
     },
