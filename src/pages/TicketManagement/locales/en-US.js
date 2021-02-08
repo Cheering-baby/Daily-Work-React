@@ -94,7 +94,7 @@ export default {
   SEND_ETICKET: 'Send e-Ticket',
   SUB_TA_NAME_TITLE: 'SUB TRAVEL AGENT NAME',
   TOTAL_AMOUNT: 'Total Amount (SGD)',
-  CREATE_BY: 'Create By',
+  CREATE_BY: 'Created By',
   TICKETING: 'Ticketing',
   TICKETING_TYPE: 'Ticket Type',
   TXN_DATE: 'Txn Date',
@@ -154,4 +154,11 @@ export default {
   BOCA_COLLECTION_DATE: 'BOCA COLLECTION DATE',
   EXPIRE_DATE: 'Expire Date',
   SESSION: 'Session',
+  PRICE_SGD: 'Price(SGD)',
+  SUB_TOTAL_SGD: 'Sub-Total(SGD)',
+
+  OFFER_PRICE: 'Offer Price (Before 7% GST)',
+  BOCA_FEE: 'BOCA Fee (Before 7% GST)',
+  GOOD_SERVICE_TAX: 'Goods & Services Tax (7% GST)',
+  TOTAL_AMOUNT_PAYABLE: 'Total Amount Payable (After 7% GST)',
 };

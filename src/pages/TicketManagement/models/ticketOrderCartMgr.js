@@ -410,12 +410,22 @@ export default {
           queryPluKey = item.itemValue;
         }
       });
-      yield put({
-        type: 'queryPluListByCondition',
-        payload: {
-          queryPluKey,
-        },
-      });
+      if(queryPluKey) {
+        yield put({
+          type: 'queryPluListByCondition',
+          payload: {
+            queryPluKey,
+          },
+        });
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            bocaFeePax: null,
+            bocaFeeGst: null
+          },
+        });
+      }
     },
 
     *queryPluListByCondition({ payload }, { call, put }) {

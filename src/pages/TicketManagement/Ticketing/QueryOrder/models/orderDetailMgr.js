@@ -139,6 +139,7 @@ export default {
         }
       });
       const orderQuantityList = [];
+
       offerGroupList.forEach(offerGroupItem => {
         const offerOrderQuantityItem = {
           offerGroup: offerGroupItem.offerGroup,
@@ -147,6 +148,7 @@ export default {
         };
         offerGroupItem.offerList.forEach(offerItem => {
           if (offerItem.bundleName) {
+            let netAmt = 0;
             const findQuantityItem = offerOrderQuantityItem.itemList.find(
               itemInfo => itemInfo.itemName === offerItem.bundleLabel
             );
@@ -155,16 +157,22 @@ export default {
             } else {
               let session = null;
               if (offerItem.attraction) {
-                offerItem.attraction.forEach(i => {
-                  session = i.validTimes && i.validTimes.length > 0 ? i.validTimes[0].validTimeFrom : null;
+                offerItem.attraction.forEach(attractionItem => {
+                  netAmt += attractionItem.netAmt;
+                  session =
+                    attractionItem.validTimes && attractionItem.validTimes.length > 0
+                      ? attractionItem.validTimes[0].validTimeFrom
+                      : null;
                 });
               }
               offerOrderQuantityItem.itemList.push({
+                attractionGroupType: 'Bundle',
                 itemName: offerItem.bundleLabel,
                 itemQuantity: 1,
                 configQuantity: 1,
                 numOfPax: null,
                 session,
+                netAmt,
               });
             }
           } else {
@@ -176,16 +184,25 @@ export default {
                 const showName = [];
                 const productNoList = [];
                 const session = [];
+                const ticketTypeShow = [];
+                let netAmt = 0;
+
                 attraction.forEach(attractionItem => {
-                  if (attractionItem.ticketType !== 'Voucher') {
+                  netAmt += attractionItem.netAmt;
+                  if (
+                    attractionItem.ticketType !== 'Voucher' ||
+                    (voucherOnly === 'Yes' && attractionItem.ticketType === 'Voucher')
+                  ) {
                     const productNoFind = productNoList.find(
                       productNoItem => productNoItem === attractionItem.prodNo
                     );
                     if (!productNoFind) {
+                      const ticketGroupShow = attractionItem.ticketGroup || 'General';
                       productNoList.push(attractionItem.prodNo);
-                      showName.push(attractionItem.ticketGroup || 'General');
+                      showName.push(ticketGroupShow);
+                      ticketTypeShow.push(`${ticketGroupShow} * ${attractionItem.configQuantity}`);
                       session.push({
-                        ticketGroup: attractionItem.ticketGroup || 'General',
+                        ticketGroup: ticketGroupShow,
                         session:
                           attractionItem.validTimes && attractionItem.validTimes.length > 0
                             ? attractionItem.validTimes[0].validTimeFrom
@@ -206,19 +223,48 @@ export default {
                   }
                   return a.ticketGroup > b.ticketGroup ? 1 : 0;
                 });
+                ticketTypeShow.sort((a, b) => {
+                  if (a < b) {
+                    return -1;
+                  }
+                  return a > b ? 1 : 0;
+                });
                 offerOrderQuantityItem.itemList.push({
+                  attractionGroupType,
+                  ticketTypeShow,
                   itemName: showName,
                   itemQuantity: 1,
                   configQuantity: 1,
                   numOfPax: null,
                   session,
+                  netAmt,
                 });
               }
             } else {
+              const ticketTypeShow =
+                attractionGroupType === 'Fixed' && attraction.length === 1
+                  ? [`${attraction[0].ticketGroup || 'General'} * ${attraction[0].configQuantity}`]
+                  : [];
+
+              const voucherProduct = attraction.filter(
+                attractionItem2 => attractionItem2.voucherQtyType
+              );
+              const voucherProductFilter = [];
+              voucherProduct.forEach(attractionItem3 => {
+                if (
+                  !voucherProductFilter.find(
+                    voucherItem => voucherItem.prodNo === attractionItem3.prodNo
+                  )
+                ) {
+                  voucherProductFilter.push({ ...attractionItem3 });
+                }
+              });
+
               attraction.forEach(attractionItem => {
-                if (voucherOnly === 'Yes' && attractionItem.ticketType === 'Voucher') {
+                if (voucherOnly === 'Yes') {
                   const themeParkObj = themeParkList.find(
-                    themeParkInfo => themeParkInfo.bookingCategoryCode === attractionItem.themePark
+                    themeParkInfo =>
+                      themeParkInfo.bookingCategoryCode === attractionItem.themeParks[0]
                   );
                   let showName = 'General';
                   if (themeParkObj) {
@@ -231,31 +277,48 @@ export default {
                     itemInfoFind.itemQuantity += 1;
                   } else {
                     offerOrderQuantityItem.itemList.push({
+                      attractionGroupType,
+                      ticketTypeShow,
                       itemName: showName,
                       itemQuantity: 1,
                       configQuantity: attractionItem.configQuantity,
                       prodNo: attractionItem.prodNo,
                       numOfPax: attractionItem.numOfPax,
+                      netAmt: attractionItem.numOfPax
+                        ? attractionItem.netAmt / attractionItem.numOfPax
+                        : attractionItem.netAmt,
                       session:
                         attractionItem.validTimes && attractionItem.validTimes.length > 0
                           ? attractionItem.validTimes[0].validTimeFrom
                           : null,
                     });
                   }
-                } else if (voucherOnly !== 'Yes' && attractionItem.ticketType !== 'Voucher') {
+                } else if (voucherOnly !== 'Yes' && !attractionItem.voucherQtyType) {
                   const itemInfoFind = offerOrderQuantityItem.itemList.find(
                     itemInfo => itemInfo.prodNo === attractionItem.prodNo
                   );
+
+                  const netAmt = attractionItem.numOfPax
+                    ? attractionItem.netAmt / attractionItem.numOfPax
+                    : attractionItem.netAmt;
+
                   if (itemInfoFind) {
                     itemInfoFind.itemQuantity += 1;
                   } else {
-                    // attractionItem.configQuantity
                     offerOrderQuantityItem.itemList.push({
+                      attractionGroupType,
+                      ticketTypeShow,
                       itemName: attractionItem.ticketGroup || 'General',
                       itemQuantity: 1,
                       configQuantity: attractionItem.configQuantity,
                       prodNo: attractionItem.prodNo,
                       numOfPax: attractionItem.numOfPax,
+                      netAmt:
+                        netAmt +
+                        voucherProductFilter.reduce(
+                          (total, item) => total + item.netAmt * item.configQuantity,
+                          0
+                        ),
                       session:
                         attractionItem.validTimes && attractionItem.validTimes.length > 0
                           ? attractionItem.validTimes[0].validTimeFrom
@@ -294,18 +357,51 @@ export default {
         netAmt,
         refundSuccessFlag = false,
         status,
+        totalPrice,
       } = bookingDetail;
+
+      let bocaFeeConfigure = true;
+      let totalOfferPriceBeforeGst = 0;
+      let totalBocaFeeBeforeGst = 0;
+
       for (let i = 0; i < offers.length; i += 1) {
         const vidList = [];
-        const { attraction = [] } = offers[i];
+
+        const {
+          attraction = [],
+          deliveryInfo: { deliveryMode, deliveryNum, deliveryPrice, gst },
+        } = offers[i];
+
+        if (deliveryMode === 'BOCA') {
+          let sourceBocaPrice = deliveryPrice / (gst / 100 + 1);
+          sourceBocaPrice = Number(sourceBocaPrice).toFixed(2);
+          totalBocaFeeBeforeGst += sourceBocaPrice * deliveryNum;
+          bocaFeeConfigure = !!deliveryPrice || deliveryPrice === 0;
+        }
+
         if (attraction) {
           for (let j = 0; j < attraction.length; j += 1) {
+            const netAmtReal = attraction[j].numOfPax
+              ? attraction[j].netAmt / attraction[j].numOfPax
+              : attraction[j].netAmt;
+
+            if (attraction[j].numOfPax) {
+              totalOfferPriceBeforeGst +=
+                Number((netAmtReal / (1 + attraction[j].gst / 100)).toFixed(2)) *
+                attraction[j].numOfPax;
+            } else {
+              totalOfferPriceBeforeGst += Number(
+                (attraction[j].netAmt / (1 + attraction[j].gst / 100)).toFixed(2)
+              );
+            }
+
             let isPackage = false;
             if (attraction[j].packageSpec) {
               isPackage = true;
             }
             let vidGroup = null;
-            if(attraction[j].vidGroup !== undefined){
+            if (attraction[j].vidGroup !== undefined) {
+              // eslint-disable-next-line prefer-destructuring
               vidGroup = attraction[j].vidGroup;
             }
             if (isPackage) {
@@ -348,7 +444,9 @@ export default {
                       pluName: itemPlu.pluName,
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
-                      validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
+                      validDayTo: itemPlu.endDate
+                        ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY')
+                        : itemPlu.endDate,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
                       vidGroup,
                     });
@@ -361,7 +459,9 @@ export default {
                       pluName: itemPlu.pluName,
                       ticketGroup: '',
                       ticketType: itemPlu.ticketType,
-                      validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
+                      validDayTo: itemPlu.endDate
+                        ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY')
+                        : itemPlu.endDate,
                       numOfPax: getNumOfPaxInPackage(attraction[j]),
                       vidGroup,
                     });
@@ -377,7 +477,9 @@ export default {
                     pluName: itemPlu.pluName,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
-                    validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
+                    validDayTo: itemPlu.endDate
+                      ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY')
+                      : itemPlu.endDate,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
                     vidGroup,
                   });
@@ -390,7 +492,9 @@ export default {
                     pluName: itemPlu.pluName,
                     ticketGroup: itemPlu.ageGroup,
                     ticketType: itemPlu.ticketType,
-                    validDayTo: itemPlu.endDate ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY') : itemPlu.endDate,
+                    validDayTo: itemPlu.endDate
+                      ? moment(itemPlu.endDate, 'x').format('DD-MMM-YYYY')
+                      : itemPlu.endDate,
                     numOfPax: getNumOfPaxInPackage(attraction[j]),
                     vidGroup,
                   });
@@ -426,8 +530,8 @@ export default {
           }
         }
         vidList.sort((a, b) => {
-          if(a.vidGroup){
-            return a.vidGroup-b.vidGroup;
+          if (a.vidGroup) {
+            return a.vidGroup - b.vidGroup;
           }
         });
         detailList.push({
@@ -441,12 +545,21 @@ export default {
         });
       }
 
+      bookingDetail.bocaFeeConfigure = bocaFeeConfigure;
+      bookingDetail.totalOfferPriceBeforeGst = totalOfferPriceBeforeGst.toFixed(2);
+      bookingDetail.totalBocaFeeBeforeGst = totalBocaFeeBeforeGst.toFixed(2);
+      bookingDetail.totalServiceTax = (
+        totalPrice -
+        bookingDetail.totalOfferPriceBeforeGst -
+        bookingDetail.totalBocaFeeBeforeGst
+      ).toFixed(2);
+
       for (let i = 0; i < vidResultList.length; i += 1) {
         vidResultList[i].vidNo = (Array(3).join('0') + (i + 1)).slice(-3);
       }
       vidResultList.sort((a, b) => {
-        if(a.vidGroup){
-          return a.vidGroup-b.vidGroup;
+        if (a.vidGroup) {
+          return a.vidGroup - b.vidGroup;
         }
       });
       return {

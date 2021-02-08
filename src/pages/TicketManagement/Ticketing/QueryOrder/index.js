@@ -267,6 +267,7 @@ class QueryOrder extends Component {
       },
       queryOrderMgr: { searchConditions },
     } = this.props;
+    dispatch({ type: 'orderDetailMgr/queryThemePark' });
     if (orderNo) {
       dispatch({
         type: 'queryOrderMgr/save',
@@ -446,11 +447,11 @@ class QueryOrder extends Component {
     offInstances.forEach(offInstance => {
       // eslint-disable-next-line prefer-destructuring
       deliveryMode = offInstance.deliveryMode;
-      if(findDeliveryFee) {
+      if (findDeliveryFee) {
         deliveryFee += !offInstance.deliveryFee ? 0 : Number.parseFloat(offInstance.deliveryFee);
       }
     });
-    if(findDeliveryFee) {
+    if (findDeliveryFee) {
       deliveryFee = Number(deliveryFee).toFixed(2);
     }
 
@@ -515,7 +516,7 @@ class QueryOrder extends Component {
           bordered={false}
           rowClassName={styles.tableRowStyle}
           footer={() => {
-            if (deliveryMode === 'BOCA' && userType !== '03' && deliveryFee !== null ){
+            if (deliveryMode === 'BOCA' && userType !== '03' && deliveryFee !== null) {
               return (
                 <div className={styles.tableFooterDiv}>
                   <div style={{ width: '25%', float: 'right' }}>
@@ -756,31 +757,29 @@ class QueryOrder extends Component {
   openDetailDrawer = selectedBookings => {
     const { dispatch } = this.props;
     if (selectedBookings.length === 1) {
-      dispatch({ type: 'orderDetailMgr/queryThemePark' }).then(() => {
-        const { bookingNo, productInstances = [], transType } = selectedBookings[0];
-        dispatch({
-          type: 'orderDetailMgr/save',
-          payload: {
-            orderDetailVisible: true,
-            detailType: 'Booking',
-            revalidationVidListVisible: transType === 'revalidation' && productInstances.length > 0,
-          },
-        });
-        dispatch({
-          type: 'orderDetailMgr/queryOrderDetail',
-          payload: {
-            bookingNo,
-          },
-        });
-        if (transType === 'revalidation' && productInstances.length > 0) {
-          dispatch({
-            type: 'orderDetailMgr/queryVid',
-            payload: {
-              orderNo: bookingNo,
-            },
-          });
-        }
+      const { bookingNo, productInstances = [], transType } = selectedBookings[0];
+      dispatch({
+        type: 'orderDetailMgr/save',
+        payload: {
+          orderDetailVisible: true,
+          detailType: 'Booking',
+          revalidationVidListVisible: transType === 'revalidation' && productInstances.length > 0,
+        },
       });
+      dispatch({
+        type: 'orderDetailMgr/queryOrderDetail',
+        payload: {
+          bookingNo,
+        },
+      });
+      if (transType === 'revalidation' && productInstances.length > 0) {
+        dispatch({
+          type: 'orderDetailMgr/queryVid',
+          payload: {
+            orderNo: bookingNo,
+          },
+        });
+      }
     }
   };
 
@@ -804,7 +803,8 @@ class QueryOrder extends Component {
       return !(
         selectedBooking.transType === 'booking' &&
         selectedBooking.status === 'Complete' &&
-        selectedBooking.revalidationFlag === 'No' && selectedBooking.refundFlag === 'No' &&
+        selectedBooking.revalidationFlag === 'No' &&
+        selectedBooking.refundFlag === 'No' &&
         (userType === '02' || userType === '03')
       );
     }

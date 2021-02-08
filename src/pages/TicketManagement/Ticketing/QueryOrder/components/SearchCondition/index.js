@@ -339,9 +339,9 @@ class SearchCondition extends Component {
                   }
                   dropdownClassName={styles.queryType}
                   options={[
-                    <Option value="Booking">Booking</Option>,
-                    <Option value="Revalidation">Revalidation</Option>,
-                    <Option value="Refund">Refund</Option>,
+                    <Option value="Booking" key="Booking">Booking</Option>,
+                    <Option value="Revalidation" key="Revalidation">Revalidation</Option>,
+                    <Option value="Refund" key="Refund">Refund</Option>,
                   ]}
                 />
               </Col>
@@ -358,17 +358,17 @@ class SearchCondition extends Component {
                   }
                   dropdownClassName={styles.queryType}
                   options={[
-                    <Option value="Confirmed">Confirmed</Option>,
-                    <Option value="WaitingForPaying">Pending Payment</Option>,
-                    <Option value="PendingApproval">Pending Approval</Option>,
-                    <Option value="PendingOrderNo">Pending order No.</Option>,
-                    <Option value="PendingRefund">Pending Refund</Option>,
-                    <Option value="Reject">Reject</Option>,
-                    <Option value="PendingTopup">Pending Topup</Option>,
-                    <Option value="Cancelled">Cancelled</Option>,
-                    <Option value="Failed">Failed</Option>,
-                    <Option value="ArchiveFailed">ArchiveFailed</Option>,
-                    <Option value="CommissionFail">CommissionFail</Option>,
+                    <Option value="Confirmed" key="Confirmed">Confirmed</Option>,
+                    <Option value="WaitingForPaying" key="WaitingForPaying">Pending Payment</Option>,
+                    <Option value="PendingApproval" key="PendingApproval">Pending Approval</Option>,
+                    <Option value="PendingOrderNo" key="PendingOrderNo">Pending order No.</Option>,
+                    <Option value="PendingRefund" key="PendingRefund">Pending Refund</Option>,
+                    <Option value="Reject" key="Reject">Reject</Option>,
+                    <Option value="PendingTopup" key="PendingTopup">Pending Topup</Option>,
+                    <Option value="Cancelled" key="Cancelled">Cancelled</Option>,
+                    <Option value="Failed" key="Failed">Failed</Option>,
+                    <Option value="ArchiveFailed" key="ArchiveFailed">ArchiveFailed</Option>,
+                    <Option value="CommissionFail" key="CommissionFail">CommissionFail</Option>,
                   ]}
                 />
               </Col>
