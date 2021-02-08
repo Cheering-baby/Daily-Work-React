@@ -53,13 +53,15 @@ const bookingTicketsColumns = [
     dataIndex: 'netAmt',
     render: (text, record) => {
       let showValue = '-';
-      const { attractionGroupType, netAmt, configQuantity } = record;
+      const { attractionGroupType, netAmt, configQuantity, voucherOnly } = record;
       if (attractionGroupType === 'Bundle') {
         showValue = `${netAmt.toFixed(2)}/Package`;
       } else if (attractionGroupType === 'Fixed') {
         showValue = `${netAmt.toFixed(2)}/Package`;
       } else if (attractionGroupType === 'Multiple' || attractionGroupType === 'Single') {
-        showValue = `${(netAmt * configQuantity).toFixed(2)}/Ticket`;
+        showValue = `${(netAmt * configQuantity).toFixed(2)}/${
+          voucherOnly === 'Yes' ? 'Voucher' : 'Ticket'
+        } `;
       }
       return (
         <Tooltip
@@ -709,9 +711,11 @@ class Detail extends React.Component {
     }
 
     const showBookingPendingApproval =
-      (userType === '02' || userType === '01') &&
-      transTypeStr === 'booking' &&
-      (bookingDetail.status === 'PendingApproval' || bookingDetail.status === 'WaitingForPaying') || true;
+      ((userType === '02' || userType === '01') &&
+        transTypeStr === 'booking' &&
+        (bookingDetail.status === 'PendingApproval' ||
+          bookingDetail.status === 'WaitingForPaying')) ||
+      true;
 
     if (detailType !== 'Revalidation' && detailType !== 'Refund') {
       const { mainTaName = '-', taName = '-' } = patronInfo;

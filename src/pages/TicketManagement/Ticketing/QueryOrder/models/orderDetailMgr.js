@@ -189,10 +189,7 @@ export default {
 
                 attraction.forEach(attractionItem => {
                   netAmt += attractionItem.netAmt;
-                  if (
-                    attractionItem.ticketType !== 'Voucher' ||
-                    (voucherOnly === 'Yes' && attractionItem.ticketType === 'Voucher')
-                  ) {
+                  if (!attractionItem.voucherQtyType || voucherOnly === 'Yes') {
                     const productNoFind = productNoList.find(
                       productNoItem => productNoItem === attractionItem.prodNo
                     );
@@ -230,6 +227,7 @@ export default {
                   return a > b ? 1 : 0;
                 });
                 offerOrderQuantityItem.itemList.push({
+                  voucherOnly,
                   attractionGroupType,
                   ticketTypeShow,
                   itemName: showName,
@@ -277,6 +275,7 @@ export default {
                     itemInfoFind.itemQuantity += 1;
                   } else {
                     offerOrderQuantityItem.itemList.push({
+                      voucherOnly,
                       attractionGroupType,
                       ticketTypeShow,
                       itemName: showName,
@@ -293,7 +292,7 @@ export default {
                           : null,
                     });
                   }
-                } else if (voucherOnly !== 'Yes' && !attractionItem.voucherQtyType) {
+                } else if (!attractionItem.voucherQtyType && voucherOnly !== 'Yes') {
                   const itemInfoFind = offerOrderQuantityItem.itemList.find(
                     itemInfo => itemInfo.prodNo === attractionItem.prodNo
                   );
@@ -306,6 +305,7 @@ export default {
                     itemInfoFind.itemQuantity += 1;
                   } else {
                     offerOrderQuantityItem.itemList.push({
+                      voucherOnly,
                       attractionGroupType,
                       ticketTypeShow,
                       itemName: attractionItem.ticketGroup || 'General',

@@ -244,7 +244,15 @@ class CommonService {
           let myMessage;
           const { data } = error.response;
 
-          console.log(error)
+          if (error.message.includes('504')) {
+            return {
+              data: {
+                resultCode: '504',
+                errorMsg: error.message,
+                resultMsg: error.message,
+              },
+            };
+          }
 
           myMessage = data.message || codeMessage[data.status];
 
