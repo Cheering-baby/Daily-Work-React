@@ -352,12 +352,13 @@ export default {
       throw resultMsg;
     },
     *add({ payload }, { call, put }) {
-      const { params, tieredList, commodityList, usageScope } = payload;
+      const { params, tieredList, commodityList, usageScope, taFilterList } = payload;
       const reqParams = {
         ...params,
         tieredList,
         commodityList,
         usageScope,
+        taFilterList,
       };
       const {
         data: { resultCode, resultMsg },

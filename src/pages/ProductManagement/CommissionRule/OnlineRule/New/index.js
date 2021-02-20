@@ -53,7 +53,11 @@ class onlineNew extends React.PureComponent {
     const {
       dispatch,
       detail: { tieredList },
-      commissionNew: { checkedList = [], checkedOnlineList = [] },
+      commissionNew: {
+        checkedList = [],
+        checkedOnlineList = [],
+        excludedTA: { excludedTAList },
+      },
     } = this.props;
     this.refForm.validateFields((err, values) => {
       if (err) {
@@ -117,6 +121,13 @@ class onlineNew extends React.PureComponent {
           }
         }
       });
+
+      // taFilterList
+      const taFilterList = excludedTAList.map(i => ({
+        taId: i.taId,
+        operationType: 'A',
+      }));
+
       const params = {
         ...values,
       };
@@ -127,6 +138,7 @@ class onlineNew extends React.PureComponent {
           tieredList,
           commodityList: [...checkedList, ...checkedOnlineList],
           usageScope: 'Common',
+          taFilterList,
         },
       });
     });
