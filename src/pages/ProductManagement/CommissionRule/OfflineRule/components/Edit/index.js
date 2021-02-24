@@ -214,9 +214,9 @@ class EditCommission extends React.PureComponent {
                   <span>{formatMessage({ id: 'COMMISSION_AMOUNT' })}</span>
                 </div>
                 <InputNumber
+                  precision={2}
                   value={commissionValueAmount}
                   style={{ marginLeft: '10px' }}
-                  precision={2}
                   min={0}
                   formatter={value => `$ ${value}`}
                   parser={value => {
@@ -231,6 +231,7 @@ class EditCommission extends React.PureComponent {
                   <span>{formatMessage({ id: 'COMMISSION_PERCENTAGE' })}</span>
                 </div>
                 <InputNumber
+                  precision={2}
                   value={commissionValuePercent}
                   style={{ marginLeft: '10px' }}
                   formatter={value => `${value}%`}

@@ -46,7 +46,7 @@ class AddOfflinePLUModal extends React.PureComponent {
       title: 'Price',
       dataIndex: 'commodityPrice',
       render: text => {
-        const timeText = text ? formatPrice(text) : '';
+        const timeText = text || text === 0 ? formatPrice(text) : '';
         return timeText ? (
           <div>
             <Tooltip title={timeText} placement="topLeft">
@@ -89,7 +89,7 @@ class AddOfflinePLUModal extends React.PureComponent {
       title: 'Price',
       dataIndex: 'commodityPrice',
       render: text => {
-        const timeText = text ? formatPrice(text) : '';
+        const timeText = text || text === 0 ? formatPrice(text) : '';
         return timeText ? (
           <div>
             <Tooltip title={timeText} placement="topLeft">

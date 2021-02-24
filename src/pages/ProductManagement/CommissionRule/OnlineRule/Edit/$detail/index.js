@@ -140,7 +140,7 @@ class onlineEdit extends React.PureComponent {
                     const num = v.commissionValue;
                     const x = String(num).indexOf('.') + 1;
                     const y = String(num).length - x;
-                    if (y === 1) {
+                    if (y === 1 && +num !== 0) {
                       Object.assign(v, {
                         commissionValue: parseFloat(v.commissionValue / 100).toFixed(3) || '',
                       });

@@ -49,6 +49,31 @@ class onlineNew extends React.PureComponent {
     });
   };
 
+  addOffline = () => {
+    const { dispatch } = this.props;
+    this.refForm.validateFields((err, values) => {
+      if (
+        values.commissionName === undefined ||
+        values.commissionName === '' ||
+        values.effectiveDate === undefined ||
+        values.effectiveDate === null ||
+        values.expiryDate === undefined ||
+        values.expiryDate === null
+      ) {
+        message.warning(
+          'Please fill in basic commission rule information, such as name, effective period, commission type.'
+        );
+      } else {
+        dispatch({
+          type: 'commissionNew/save',
+          payload: {
+            addPLUModal: true,
+          },
+        });
+      }
+    });
+  };
+
   handleOk = async () => {
     const {
       dispatch,
@@ -184,7 +209,13 @@ class onlineNew extends React.PureComponent {
               this.refForm = el;
             }}
           />
-          <NewBinding tplId={tplId} type={type} handleOk={this.handleOk} add={this.add} />
+          <NewBinding
+            tplId={tplId}
+            type={type}
+            handleOk={this.handleOk}
+            add={this.add}
+            addOffline={this.addOffline}
+          />
         </Card>
       </Spin>
     );

@@ -21,6 +21,7 @@ import moment from 'moment';
 import styles from '../New/index.less';
 import { reBytesStr } from '@/utils/utils';
 import SortSelect from '@/components/SortSelect';
+import { toThousands } from '../../../utils/tools';
 
 const { confirm } = Modal;
 const InputGroup = Input.Group;
@@ -77,13 +78,6 @@ class NewCommission extends React.PureComponent {
         commodityType: 'PackagePlu',
       },
     });
-    // dispatch({
-    //   type: 'detail/pluDetail',
-    //   payload: {
-    //     tplId,
-    //     commodityType: 'PackagePlu',
-    //   },
-    // });
   }
 
   showCommissionTierTitle = () => {
@@ -374,9 +368,15 @@ class NewCommission extends React.PureComponent {
     } else {
       node = record.commissionValue !== undefined ? record.commissionValue : '';
       if (commissionSchemeValue === 'Amount' && commissionSchemeValue) {
-        node = record.commissionValue ? `$ ${record.commissionValue} / Ticket` : '';
+        node =
+          record.commissionValue || +record.commissionValue === 0
+            ? `$ ${toThousands(record.commissionValue)} / Ticket`
+            : '';
       } else {
-        node = record.commissionValue ? `${record.commissionValue}% / Ticket` : '';
+        node =
+          record.commissionValue || +record.commissionValue === 0
+            ? `${toThousands(record.commissionValue)}% / Ticket`
+            : '';
       }
     }
     return node;
@@ -447,19 +447,6 @@ class NewCommission extends React.PureComponent {
       );
       return 0;
     }
-    // if (tieredList.length > 1) {
-    //   for (let i = 0; i < tieredList.length; i += 1) {
-    //     const { EDIT_ROW = false, type = 'JUDGMENT' } = tieredList[i];
-    //     if (!EDIT_ROW && type !== 'ADD_ROW') {
-    //       for (let j = parseInt(addInput1Min, 0); j <= parseInt(addInput1Max, 0); j += 1) {
-    //         if (j >= parseInt(tieredList[i].minimum, 0) && j <= parseInt(tieredList[i].maxmum, 0)) {
-    //           message.warning('The Commission tiers can not be duplicate.');
-    //           return 0;
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
     return 1;
   };
 
@@ -494,7 +481,7 @@ class NewCommission extends React.PureComponent {
           {
             minimum: addInput1Min || '',
             maxmum: addInput1Max || '',
-            commissionValue: addInput2 || '',
+            commissionValue: addInput2,
             operation: (
               <Icon
                 type="delete"
@@ -678,17 +665,16 @@ class NewCommission extends React.PureComponent {
       detail: { effectiveStartDate },
       form: { getFieldValue },
     } = this.props;
-    let code = getFieldValue('effectiveDate');
-    const start = code ? code.valueOf() : ''
+    const code = getFieldValue('effectiveDate');
+    const start = code ? code.valueOf() : '';
     const data = current ? current.valueOf() : '';
     if (type === 'edit') {
       return data && data < start;
-    } else {
-      if(!current || !effectiveStartDate) {
-        return false
-      }
-      return data && data <= effectiveStartDate;
     }
+    if (!current || !effectiveStartDate) {
+      return false;
+    }
+    return data && data <= effectiveStartDate;
   };
 
   disableStartDate = current => {
@@ -698,8 +684,8 @@ class NewCommission extends React.PureComponent {
     } = this.props;
     const data = current ? current.valueOf() : '';
     if (type === 'new') {
-      if(!current || !effectiveEndDate) {
-        return false
+      if (!current || !effectiveEndDate) {
+        return false;
       }
       return data && data > effectiveEndDate;
     }

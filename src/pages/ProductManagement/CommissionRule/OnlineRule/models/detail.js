@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import React from 'react';
 import * as service from '../services/commissionRuleSetup';
 
 const bingdingPLU2 = commodityList => {
@@ -95,7 +96,8 @@ export default {
                 commissionValue = commissionValue2;
               }
               Object.assign(v, {
-                commissionValue: v.commissionValue ? commissionValue : '',
+                commissionValue:
+                  v.commissionValue || v.commissionValue === 0 ? commissionValue : '',
                 maxmum: v.maxmum === null ? '' : v.maxmum,
               });
               return v;

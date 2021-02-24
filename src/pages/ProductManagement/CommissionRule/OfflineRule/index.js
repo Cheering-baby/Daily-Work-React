@@ -11,7 +11,7 @@ import Edit from './components/Edit';
 import { isNvl } from '@/utils/utils';
 import BreadcrumbCompForPams from '@/components/BreadcrumbComp/BreadcurmbCompForPams';
 import PaginationComp from '@/pages/ProductManagement/components/PaginationComp';
-import { changeThemeParkDisplay, formatPrice } from '../../utils/tools';
+import { changeThemeParkDisplay, formatPrice, toThousands } from '../../utils/tools';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -91,7 +91,7 @@ class Offline extends React.PureComponent {
       title: 'Price',
       dataIndex: 'commodityPrice',
       render: text => {
-        const timeText = text ? formatPrice(text) : '';
+        const timeText = text || text === 0 ? formatPrice(text) : '';
         return timeText ? (
           <div>
             <Tooltip title={timeText} placement="topLeft">
@@ -168,7 +168,7 @@ class Offline extends React.PureComponent {
             placement="topLeft"
             title={<span style={{ whiteSpace: 'pre-wrap' }}>${commissionValue} / Ticket</span>}
           >
-            <span>${commissionValue} / Ticket</span>
+            <span>${toThousands(commissionValue)} / Ticket</span>
           </Tooltip>
         );
       }
@@ -178,7 +178,7 @@ class Offline extends React.PureComponent {
             placement="topLeft"
             title={<span style={{ whiteSpace: 'pre-wrap' }}>${commissionValue2} % / Ticket</span>}
           >
-            <span>{commissionValue2}% / Ticket</span>
+            <span>{toThousands(commissionValue2)}% / Ticket</span>
           </Tooltip>
         );
       }
@@ -254,18 +254,21 @@ class Offline extends React.PureComponent {
     const {
       offline: { themeParkList },
     } = this.props;
-    const showThemeParks = changeThemeParkDisplay(text, themeParkList);
-    if (showThemeParks !== null) {
-      return (
-        <Tooltip
-          placement="topLeft"
-          title={<span style={{ whiteSpace: 'pre-wrap' }}>{showThemeParks}</span>}
-        >
-          <span>{showThemeParks}</span>
-        </Tooltip>
-      );
+    for (let i = 0; i < themeParkList.length; i += 1) {
+      if (themeParkList[i].bookingCategoryCode === text) {
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={
+              <span style={{ whiteSpace: 'pre-wrap' }}>{themeParkList[i].bookingCategoryName}</span>
+            }
+          >
+            <span>{themeParkList[i].bookingCategoryName}</span>
+          </Tooltip>
+        );
+      }
     }
-    return showThemeParks;
+    return null;
   };
 
   getContent = record => {
@@ -280,7 +283,7 @@ class Offline extends React.PureComponent {
         commissionValue,
       } = record.commissionList.Fixed;
       if (commissionScheme === 'Amount') {
-        commissionSchemeValue = `$${commissionValue} / Ticket`;
+        commissionSchemeValue = `$${toThousands(commissionValue)} / Ticket`;
       } else if (commissionScheme === 'Percentage') {
         let commissionValue2;
         const x = String(commissionValue).indexOf('.') + 1;
@@ -294,7 +297,7 @@ class Offline extends React.PureComponent {
         if (y === 3) {
           commissionValue2 = parseFloat(commissionValue * 100).toFixed(1);
         }
-        commissionSchemeValue = `${commissionValue2}%`;
+        commissionSchemeValue = `${toThousands(commissionValue2)}%`;
       }
       createBy = createStaff !== null ? createStaff : '-';
       createTimeValue = createTime !== null ? moment(createTime).format('DD-MMM-YYYY') : '-';
@@ -577,7 +580,7 @@ class Offline extends React.PureComponent {
             <Table
               style={{ marginTop: 10 }}
               className={`components-table-demo-nested ${detailStyles.searchTitle}`}
-              rowKey={record => record.commoditySpecId}
+              rowKey={(record, index) => `${record.commoditySpecId}_${index}`}
               bordered={false}
               size="small"
               dataSource={offlineList}

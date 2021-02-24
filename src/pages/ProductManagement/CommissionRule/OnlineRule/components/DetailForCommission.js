@@ -5,6 +5,7 @@ import { formatMessage } from 'umi/locale';
 import moment from 'moment';
 import styles from '../Detail/$detail/index.less';
 import { isNvl } from '@/utils/utils';
+import { toThousands } from '../../../utils/tools';
 
 @Form.create()
 @connect(({ detail, loading }) => ({
@@ -50,10 +51,10 @@ class DetailForCommission extends React.PureComponent {
       },
     } = this.props;
     if (commissionScheme === 'Amount') {
-      return <span>{`$ ${text} / Ticket`}</span>;
+      return <span>{`$ ${toThousands(text)} / Ticket`}</span>;
     }
     if (commissionScheme === 'Percentage') {
-      return <span>{`${text}% / Ticket`}</span>;
+      return <span>{`${toThousands(text)}% / Ticket`}</span>;
     }
     return null;
   };
