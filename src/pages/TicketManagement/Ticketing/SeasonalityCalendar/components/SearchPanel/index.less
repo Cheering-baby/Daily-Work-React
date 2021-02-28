@@ -29,21 +29,22 @@
 
 .peakItem {
   display: flex;
-  align-items: center;
+  // align-items: center;
   margin-bottom: 10px;
   color: #171b21;
 }
 
 .circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 25px;
-  width: 25px;
+  display: inline-block;
+  height: 20px;
+  width: 20px;
   border-radius: 50%;
   margin-right: 10px;
-  border: 1px solid #d9d9d9;
-  color: #858585;
+}
+
+.legendName {
+  display: inline-block;
+  width: calc(100% - 30px);
 }
 
 .formControl {
@@ -55,4 +56,31 @@
   bottom: 0px;
   left: 6px;
   padding-right: 15px;
+}
+
+:global {
+  #themeParkCode {
+    width: 100%;
+
+    .ant-radio {
+      margin-top: 2px;
+    }
+
+    .ant-radio-group {
+      width: 100%;
+    }
+
+    .ant-radio-wrapper {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 4px;
+      margin-left: 0;
+    }
+  }
+}
+
+.themeParkName {
+  display: inline-block;
+  white-space: normal;
+  word-break: normal;
 }

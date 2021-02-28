@@ -1,21 +1,64 @@
 import React, { Component } from 'react';
-import { Calendar } from 'antd';
+import { Calendar, Popover } from 'antd';
 import moment from 'moment';
 import styles from './index.less';
 
 class CalendarShow extends Component {
   dateFullCellRender = data => {
-    const { peakPeriods = [] } = this.props;
+    const { peakPeriodConfigs } = this.props;
     const date = data.format('YYYY-MM-DD');
     const day = data.format('DD');
 
-    let peak = false;
-    if (peakPeriods.indexOf(date) !== -1) {
-      peak = true;
+    let showTotalContent;
+    let peakItems = peakPeriodConfigs.filter(
+      item => moment(item.startDate) <= data && moment(item.endDate) >= data
+    );
+
+    console.log(date, peakItems);
+
+    if (peakItems.length > 0) {
+      showTotalContent = peakItems.map(item => (
+        <div style={{ borderBottom: '1px dashed #fff', paddingBottom: 5, color: '#fff' }}>
+          <div style={{ minWidth: 50, maxWidth: 450, display: 'flex', alignItems: 'center' }}>
+            <span
+              className={styles.color}
+              style={{ marginRight: 5, backgroundColor: item.attractionValue || 'rgb(255, 86, 1)' }}
+            ></span>
+            <span>
+              {item.legendName || '123456789012345678901234567890123456789012345678905775'}
+            </span>
+          </div>
+          <div style={{ minWidth: 50, maxWidth: 450 }}>{item.remarks}</div>
+        </div>
+      ));
     }
+
     return (
-      <div className={peak ? styles.dayPeak : styles.day}>
-        <span className={peak ? styles.peak : styles.day}>{day}</span>
+      <div className={styles.day}>
+        {peakItems.length > 0 ? (
+          <Popover
+            placement="bottom"
+            content={showTotalContent}
+            // visible
+            overlayClassName={styles.popover}
+          >
+            <div className={styles.dayShow}>{day}</div>
+          </Popover>
+        ) : (
+          <>
+            <div className={styles.dayShow}>{day}</div>
+          </>
+        )}
+        <div className={styles.colorContainer}>
+          {peakItems.map(item => (
+            <div className={styles.colorItem}>
+              <span
+                className={styles.color}
+                style={{ backgroundColor: item.attractionValue || 'rgb(255, 86, 1)' }}
+              ></span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };

@@ -336,6 +336,7 @@ export default {
   COMMON_ENABLE: 'Enable',
   COMMON_LOCKED: 'Is Locked',
   COMMON_SELECT_ICON: 'Please Select',
+  COMMON_ENTER_ICON: 'Please Enter',
   COMMON_MONTH: 'This Mohth',
   COMMON_LAST_MONTH: 'Last Month',
   COMMON_WEEK: 'This Week',
@@ -720,7 +721,7 @@ export default {
   COMMON_DELETED_SUCCESSFULLY: 'Deleted Successfully.',
   COMMON_ENABLED_SUCCESSFULLY: 'Enabled Successfully.',
   COMMON_DISABLED_SUCCESSFULLY: 'Disabled Successfully.',
-  COMMON_MODIFY_SUCCESSFULLY: 'Modify Successfully.',
+  COMMON_MODIFY_SUCCESSFULLY: 'Modified Successfully.',
 
   COMMON_CODE_ILLEGAL_STRING:
     'Please enter a string of characters, numbers, underscores, spaces, points, crossbars.',

@@ -22,7 +22,7 @@ class ResultPanel extends Component {
 
   render() {
     const {
-      seasonalityCalendarMgr: { peakPeriods = [], showYear },
+      seasonalityCalendarMgr: { showYear, peakPeriodConfigs },
       searchLoading,
     } = this.props;
     const { clientHeight } = this.state;
@@ -36,7 +36,7 @@ class ResultPanel extends Component {
         }
       }
       return (
-        <Spin spinning={!!searchLoading} style={{ heigth: '100%' }}>
+        <Spin spinning={!!searchLoading} style={{ height: '100%' }}>
           <div className={styles.container}>
             <Row>
               {month.map(item => (
@@ -45,7 +45,7 @@ class ResultPanel extends Component {
                   style={{ marginBottom: '10px', paddingRight: '10px' }}
                   key={item}
                 >
-                  <CalendarShow month={item} peakPeriods={peakPeriods} key={item} />
+                  <CalendarShow key={item} month={item} peakPeriodConfigs={peakPeriodConfigs} />
                 </Col>
               ))}
             </Row>

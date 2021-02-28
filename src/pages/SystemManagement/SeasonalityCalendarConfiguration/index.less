@@ -1,0 +1,235 @@
+@import '~antd/lib/style/themes/default.less';
+
+@prefix-cls: ~'@{ant-prefix}';
+@pro-header-hover-bg: rgba(0, 0, 0, 0.025);
+
+.container {
+  background: #ffffff;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px;
+  position: relative;
+}
+
+.peakPeriod {
+  font-weight: 600;
+  font-size: 16px !important;
+  padding: 15px;
+  border-bottom: 1px solid rgb(217, 217, 217);
+  font-size: 14px;
+  color: #001d00;
+}
+
+.legendConfigure {
+  padding: 15px;
+  padding-top: 5px;
+
+  .legendConfigureContainer {
+    display: flex;
+    flex-wrap: wrap;
+
+    .add {
+      margin-right: 10px;
+    }
+
+    .add,
+    .edit {
+      border: 0;
+      width: 60px;
+    }
+
+    .legendConfigItem {
+      display: flex;
+      align-items: center;
+      padding: 0 5px;
+      border-radius: 20px;
+      border: 1px solid #fff;
+
+      .color {
+        border-radius: 50%;
+        height: 18px;
+        width: 18px;
+        line-height: 20px;
+        text-align: center;
+        margin-right: 10px;
+      }
+
+      .name {
+        color: #262626;
+      }
+    }
+  }
+}
+
+.popover {
+  width: 370px;
+  border-radius: 0;
+
+  :global {
+    .@{prefix-cls}-popover-inner-content {
+      padding: 10px;
+    }
+
+    .@{prefix-cls}-popover-arrow {
+      display: none;
+    }
+  }
+}
+
+.popoverContainer {
+  // padding: 10px;
+  min-height: 80px;
+
+  .legendColorsContainer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .label {
+    height: 32px;
+    line-height: 32px;
+    color: #262626;
+  }
+
+  .deleteMsg {
+    height: 35px;
+    line-height: 35px;
+    color: #262626;
+  }
+
+  .pickColorContainer {
+    display: flex;
+    padding: 8px 0 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #d9d9d9;
+
+    .img {
+      display: inline-block;
+      width: 38px;
+    }
+
+    .colorItemContainer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .colorItem {
+      height: 24px;
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .color {
+      position: relative;
+      display: inline-block;
+      border-radius: 50%;
+      height: 18px;
+      width: 18px;
+      cursor: pointer;
+    }
+
+    .active {
+      position: absolute;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+      top: 4px;
+      left: 4px;
+      transition: all 0.3s;
+    }
+  }
+
+  .operation {
+    margin-top: 10px;
+  }
+
+  .cancel,
+  .ok {
+    float: right;
+    width: 80px;
+  }
+
+  .cancel {
+    margin-right: 10px;
+  }
+}
+
+.legendConfigItem {
+  padding-top: 5px;
+}
+
+.legendName {
+  display: inline-block;
+  width: calc(100% - 25px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 20px;
+  line-height: 20px;
+}
+
+.colorOption {
+  display: inline-block;
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  line-height: 20px;
+  margin-right: 5px;
+}
+
+.dropdownClassName {
+  :global {
+    .ant-select-dropdown-menu {
+      max-height: 260px;
+    }
+  }
+}
+
+.bookingCategory {
+  .peakItem {
+    background: rgba(0, 0, 0, 0.03);
+    margin-bottom: 10px;
+    padding: 0 15px;
+
+    .showIcon {
+      color: rgb(133, 133, 133);
+      font-size: 16px;
+      margin-right: 15px;
+    }
+
+    .peakItemTitle {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      color: #262626;
+      font-weight: 600;
+    }
+
+    .themeParkName {
+      min-width: 370px;
+      margin-right: 10px;
+    }
+
+    .addPeriodItem {
+      color: #118afa;
+      cursor: pointer;
+      width: 40px;
+      margin-top: -10px;
+      margin-bottom: 5px;
+    }
+
+    .close {
+      position: absolute;
+      right: -23px;
+      top: -6px;
+      z-index: 3;
+    }
+  }
+
+  .operation {
+    padding: 8px 20px;
+  }
+}

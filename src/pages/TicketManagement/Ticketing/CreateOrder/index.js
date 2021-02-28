@@ -28,6 +28,7 @@ class CreateOrder extends PureComponent {
       78;
     this.state = {
       clientHeight,
+      renderFlag: false,
     };
   }
 
@@ -75,10 +76,10 @@ class CreateOrder extends PureComponent {
         });
       }
     } else {
-      // dispatch({
-      //   type: 'ticketMgr/resetData',
-      //   payload: {},
-      // });
+      dispatch({
+        type: 'ticketMgr/resetData',
+        payload: {},
+      });
       dispatch({
         type: 'onceAPirateTicketMgr/resetData',
         payload: {},
@@ -128,6 +129,12 @@ class CreateOrder extends PureComponent {
   };
 
   searchSuccess = () => {
+    // setTimeout(() => {
+    //   this.setState({
+    //     renderFlag: !this.state.renderFlag,
+    //   });
+    // }, 300);
+
     if (this.attractionForm) {
       const { form } = this.attractionForm.props;
       if (form) {

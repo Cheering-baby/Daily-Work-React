@@ -8,6 +8,7 @@ import loginSession from './loginSession';
 import 'isomorphic-fetch';
 import defaultSettings from '@/defaultSettings';
 import { globalConst } from '@/uaa-npm/constant';
+import { isNullOrUndefined } from 'util';
 
 export const colLayOut = {
   xs: 24,
@@ -519,10 +520,10 @@ export function handleDownFile(apiUrl, reqParamJson, defaultFileName, beforeDown
           return;
         }
         let fileName = response.headers.get('Content-Disposition');
-        console.log(response.headers.get('Set-Cookie'))
+        console.log(response.headers.get('Set-Cookie'));
         fileName = !isNvl(fileName) ? fileName : defaultFileName;
         fileName = fileName.replace('attachment;filename=', '');
-        console.log(fileName)
+        console.log(fileName);
         if (window.navigator.msSaveOrOpenBlob) {
           navigator.msSaveBlob(blob, fileName);
         } else {
@@ -608,5 +609,20 @@ export function toThousands(s) {
       '.' +
       r
     );
+  }
+}
+
+export function timeFixed(startTime, endTime) {
+  if (isNullOrUndefined(startTime) && isNullOrUndefined(endTime)) {
+    return [null, null];
+  }
+  if (isNullOrUndefined(startTime) && !isNullOrUndefined(endTime)) {
+    return [null, moment(endTime)];
+  }
+  if (!isNullOrUndefined(startTime) && isNullOrUndefined(endTime)) {
+    return [moment(startTime), null];
+  }
+  if (!isNullOrUndefined(startTime) && !isNullOrUndefined(endTime)) {
+    return [moment(startTime), moment(endTime)];
   }
 }

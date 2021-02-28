@@ -183,6 +183,7 @@ class NewCommission extends React.PureComponent {
       detail: { tieredList },
       dispatch,
     } = this.props;
+
     const arr = tieredList.map((item, idx) => ({ ...item, EDIT_ROW: idx + 1 === index }));
     dispatch({
       type: 'detail/save',
@@ -411,7 +412,7 @@ class NewCommission extends React.PureComponent {
     } else {
       node = (
         <div>
-          <Tooltip title="edit">
+          <Tooltip title="Edit">
             <Icon type="edit" onClick={() => this.edit(record, index)} />
           </Tooltip>
           <Tooltip title="Delete">
@@ -450,6 +451,34 @@ class NewCommission extends React.PureComponent {
     return 1;
   };
 
+  compareRange = (min, max, tieredList, compareIndex) => {
+    const duplicated = tieredList.find((item, index) => {
+      if (item.type == 'ADD_ROW' || (compareIndex !== undefined && compareIndex === index)) {
+        return false;
+      }
+
+      if (min && max) {
+        // [10, 20] --- 15, 16
+        const exampleOne = min >= item.minimum && max <= item.maxmum;
+
+        // [10, 20] --- 5, 12
+        const exampleTwo = min <= item.minimum && max >= item.minimum;
+
+        // [10, 20] --- 19, 25
+        const exampleThree = min <= item.maxmum && max >= item.maxmum;
+
+        // [10, 20] --- 4, 26
+        const exampleFour = min <= item.minimum && max >= item.maxmum;
+
+        return exampleOne || exampleTwo || exampleThree || exampleFour;
+      } else if(min && !max) {
+        return min <= item.minimum;
+      }
+    });
+
+    return duplicated;
+  };
+
   addRow = () => {
     const {
       detail: { addInput1Max, addInput1Min, addInput2, tieredList },
@@ -460,7 +489,7 @@ class NewCommission extends React.PureComponent {
     }
 
     if (tieredList.length >= 2) {
-      if (Number(addInput1Min) <= Number(tieredList[tieredList.length - 1].maxmum)) {
+      if (this.compareRange(Number(addInput1Min), Number(addInput1Max), tieredList)) {
         message.warning('The Commission tiers can not be duplicate.');
         return 0;
       }
@@ -473,23 +502,27 @@ class NewCommission extends React.PureComponent {
       }
     }
 
+    const tieredListNew = [
+      ...tieredList.filter(({ type }) => type !== 'ADD_ROW'),
+      {
+        minimum: addInput1Min || '',
+        maxmum: addInput1Max || '',
+        commissionValue: addInput2,
+        operation: (
+          <Icon
+            type="delete"
+            // onClick={this.close}
+          />
+        ),
+      },
+    ];
+
+    tieredListNew.sort((a, b) => a.maxmum - b.minimum);
+
     dispatch({
       type: 'detail/save',
       payload: {
-        tieredList: [
-          ...tieredList.filter(({ type }) => type !== 'ADD_ROW'),
-          {
-            minimum: addInput1Min || '',
-            maxmum: addInput1Max || '',
-            commissionValue: addInput2,
-            operation: (
-              <Icon
-                type="delete"
-                // onClick={this.close}
-              />
-            ),
-          },
-        ],
+        tieredList: tieredListNew,
         addInput1Min: '',
         addInput1Max: '',
         addInput2: '',
@@ -511,10 +544,7 @@ class NewCommission extends React.PureComponent {
       return 0;
     }
     if (index !== 1 && tieredList.length > 1 && index !== tieredList.length) {
-      if (
-        Number(addInput1Min) <= Number(tieredList[index - 2].maxmum) ||
-        Number(addInput1Max) >= Number(tieredList[index].minimum)
-      ) {
+      if (this.compareRange(Number(addInput1Min), Number(addInput1Max), tieredList, index - 1)) {
         message.warning('The Commission tiers can not be duplicate.');
         return 0;
       }
@@ -527,9 +557,7 @@ class NewCommission extends React.PureComponent {
       message.warning('Please fill in the maximum value.');
       return 0;
     } else if (
-      tieredList.length >= 2 &&
-      +index === 1 &&
-      Number(addInput1Max) >= Number(tieredList[index].minimum)
+      this.compareRange(Number(addInput1Min), Number(addInput1Max), tieredList, index - 1)
     ) {
       message.warning('The Commission tiers can not be duplicate.');
       return 0;
@@ -545,10 +573,11 @@ class NewCommission extends React.PureComponent {
           }
         : item
     );
+
     dispatch({
       type: 'detail/save',
       payload: {
-        tieredList: arr,
+        tieredList: arr.sort((a, b) => a.maxmum - b.minimum),
       },
     });
   };

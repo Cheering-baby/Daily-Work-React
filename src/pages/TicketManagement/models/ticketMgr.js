@@ -989,7 +989,7 @@ export default {
     },
 
     *queryTicketConfig(_, { call, put }) {
-      const response = yield call(queryPluAttribute, { attributeItem: 'TICKET_BOOKING_CONFIG' });
+      const response = yield call(queryPluAttribute, { attributeItem: 'LEGEND_COLOR_CONFIG' });
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },

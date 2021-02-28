@@ -11,14 +11,6 @@ import SearchPanel from './components/SearchPanel';
   seasonalityCalendarMgr,
 }))
 class seasonalityCalendar extends Component {
-  componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'seasonalityCalendarMgr/resetData',
-      payload: {},
-    });
-  }
-
   render() {
     const title = [{ name: 'Ticketing' }, { name: 'Seasonality Calendar' }];
     const searchPanelGrid = { xs: 24, sm: 24, md: 9, lg: 8, xl: 6, xxl: 6 };

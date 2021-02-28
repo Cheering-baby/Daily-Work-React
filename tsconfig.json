@@ -14,7 +14,8 @@
         "@/*": ["src/*"],
         "umi/locale": ["./node_modules/umi-plugins-locale"]
       },
-      "allowSyntheticDefaultImports": true
+      "allowSyntheticDefaultImports": true,
+      // "experimentalDecorators": true,
     },
     "include": [
       "mock/**/*",

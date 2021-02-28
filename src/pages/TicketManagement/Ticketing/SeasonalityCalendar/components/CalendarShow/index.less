@@ -1,5 +1,5 @@
 .container {
-  height: 250px;
+  min-height: 250px;
   background: #ffffff;
   border: 1px solid #d9d9d9;
   :global {
@@ -36,15 +36,14 @@
 .day {
   height: 30px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
-.dayPeak {
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.dayShow {
+  height: 20px;
+  width: 100%;
+  text-align: center;
 }
 
 .peak {
@@ -57,4 +56,42 @@
   color: rgb(250, 155, 34);
   border-width: 0;
   border-radius: 50%;
+}
+
+.colorContainer {
+  min-height: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.colorItem {
+  text-align: center;
+  width: 8px;
+  height: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-right: 2px;
+}
+
+.popover {
+  :global {
+    .ant-popover-inner,
+    .ant-popover-arrow {
+      background-color: #40403f;
+      border-color: #40403f !important;
+    }
+
+    .ant-popover-inner {
+      border-radius: 4px;
+    }
+  }
 }

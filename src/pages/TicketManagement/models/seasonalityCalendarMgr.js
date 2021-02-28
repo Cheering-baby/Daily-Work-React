@@ -1,10 +1,14 @@
-import { queryPeakDateList } from '../services/ticketCommon';
+import { queryPeakDateList, queryLegendConfigList } from '../services/ticketCommon';
 
 const takeLatest = { type: 'takeLatest' };
 export default {
   namespace: 'seasonalityCalendarMgr',
 
-  state: {},
+  state: {
+    validThemeParkCodes: [],
+    legendConfigs: [],
+    peakPeriodConfigs: [],
+  },
 
   effects: {
     queryPeakDateList: [
@@ -16,18 +20,51 @@ export default {
           data: { resultCode, resultMsg, result },
         } = response;
         if (resultCode === '0') {
-          const { peakPeriods = [] } = result;
+          const { themeParkPeriods } = result;
           yield put({
             type: 'save',
             payload: {
-              peakPeriods,
               showYear: year,
+              peakPeriodConfigs:
+                Array.isArray(themeParkPeriods) && themeParkPeriods.length === 1
+                  ? themeParkPeriods[0].peakPeriodConfigs || []
+                  : [],
             },
           });
         } else throw resultMsg;
       },
       takeLatest,
     ],
+
+    *queryPeakDateValidCode(_, { call, put, select }) {
+      const response = yield call(queryPeakDateList, { periodStatus: 0 });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        yield put({
+          type: 'save',
+          payload: {
+            validThemeParkCodes: result.themeParkPeriods,
+          },
+        });
+      } else throw resultMsg;
+    },
+
+    *queryLegendConfigList(_, { call, put }) {
+      const response = yield call(queryLegendConfigList, {
+        legendStatus: 0,
+      });
+      if (!response) return false;
+      const {
+        data: { resultCode, resultMsg, result },
+      } = response;
+      if (resultCode === '0') {
+        yield put({ type: 'save', payload: { legendConfigs: result.legendConfigs } });
+      } else throw resultMsg;
+    },
+
     *effectSave({ payload }, { put }) {
       yield put({
         type: 'save',
@@ -43,14 +80,36 @@ export default {
         ...payload,
       };
     },
-    resetData(state, { payload }) {
+    reset(state) {
       return {
         ...state,
         showYear: false,
         year: undefined,
         themeParkCode: undefined,
-        ...payload,
+        validThemeParkCodes: [],
+        legendConfigs: [],
+        peakPeriodConfigs: [],
       };
+    },
+  },
+
+  subscriptions: {
+    setup({ history, dispatch }) {
+      history.listen(location => {
+        const { pathname } = location;
+        if (pathname === '/TicketManagement/Ticketing/SeasonalityCalendar') {
+          dispatch({
+            type: 'queryLegendConfigList',
+          });
+          dispatch({
+            type: 'queryPeakDateValidCode',
+          });
+        } else {
+          dispatch({
+            type: 'reset',
+          });
+        }
+      });
     },
   },
 };

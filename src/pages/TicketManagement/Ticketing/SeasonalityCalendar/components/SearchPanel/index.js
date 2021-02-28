@@ -8,49 +8,6 @@ import styles from './index.less';
 const formItemLayout = {
   colon: false,
 };
-const themeParkList = [
-  {
-    group: 1,
-    value: 'USS',
-    label: 'Universal Studios Singapore',
-    disabled: false,
-  },
-  {
-    group: 1,
-    value: 'ACW',
-    label: 'Adventure Cove Water Park',
-    disabled: false,
-  },
-  {
-    group: 1,
-    value: 'SEA',
-    label: 'S.E.A Aquarium',
-    disabled: false,
-  },
-  {
-    group: 1,
-    value: 'MEM',
-    label: 'Maritime Experiential Museum',
-    disabled: false,
-  },
-  {
-    group: 2,
-    value: 'DOL',
-    label: 'Dolphin Island',
-    disabled: false,
-  },
-  {
-    group: 3,
-    value: 'OAP',
-    label: 'Once A Pirate',
-    disabled: false,
-  },
-];
-const radioStyle = {
-  display: 'block',
-  height: '30px',
-  lineHeight: '30px',
-};
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 @Form.create()
@@ -74,11 +31,6 @@ class SearchPanel extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('click', this.closeYearPanel);
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'seasonalityCalendarMgr/resetData',
-      payload: {},
-    });
   }
 
   reset = () => {
@@ -175,6 +127,8 @@ class SearchPanel extends Component {
           payload: {
             year,
             themeParkCode,
+            periodStatus: 0,
+            showListFlag: true,
           },
         });
       }
@@ -184,14 +138,24 @@ class SearchPanel extends Component {
   render() {
     const {
       form: { getFieldDecorator },
-      seasonalityCalendarMgr: { themeParkCode, year, yearPaneOpen = false },
+      seasonalityCalendarMgr: {
+        themeParkCode,
+        year,
+        yearPaneOpen = false,
+        validThemeParkCodes,
+        legendConfigs,
+      },
     } = this.props;
     const { clientHeight } = this.state;
     return (
       <div className={styles.container} style={{ minHeight: clientHeight }}>
         <div className={styles.titleFontBlackWeight}>CUSTOMER FILTER</div>
         <Form>
-          <FormItem {...formItemLayout} label={formatMessage({ id: 'THEME_PARK' })}>
+          <FormItem
+            {...formItemLayout}
+            label={formatMessage({ id: 'THEME_PARK' })}
+            className={styles.themeParkCodeForm}
+          >
             {getFieldDecorator('themeParkCode', {
               initialValue: themeParkCode,
               rules: [
@@ -203,11 +167,11 @@ class SearchPanel extends Component {
             })(
               <div>
                 <RadioGroup value={themeParkCode} onChange={this.changeThemeParkCode}>
-                  {themeParkList.map(item => {
-                    const { label, value } = item;
+                  {validThemeParkCodes.map(item => {
+                    const { themeParkName, themeParkCode } = item;
                     return (
-                      <Radio style={radioStyle} value={value} key={value}>
-                        {label}
+                      <Radio value={themeParkCode} key={themeParkCode}>
+                        <span className={styles.themeParkName}>{themeParkName}</span>
                       </Radio>
                     );
                   })}
@@ -242,23 +206,17 @@ class SearchPanel extends Component {
           </FormItem>
 
           <div className={styles.peakContainer}>
-            <div className={styles.peakItem}>
-              <div
-                className={styles.circle}
-                style={{
-                  backgroundColor: 'rgb(254, 238, 217)',
-                  color: 'rgb(250, 155, 34)',
-                  borderWidth: '0',
-                }}
-              >
-                0
+            {legendConfigs.map(item => (
+              <div className={styles.peakItem} key={item.legendId}>
+                <div
+                  className={styles.circle}
+                  style={{
+                    backgroundColor: item.attractionValue,
+                  }}
+                ></div>
+                <div className={styles.legendName}>{item.legendName}</div>
               </div>
-              <div>Peak</div>
-            </div>
-            <div className={styles.peakItem}>
-              <div className={styles.circle}>0</div>
-              <div>Non-peak</div>
-            </div>
+            ))}
           </div>
         </Form>
         <div className={styles.formControl}>
