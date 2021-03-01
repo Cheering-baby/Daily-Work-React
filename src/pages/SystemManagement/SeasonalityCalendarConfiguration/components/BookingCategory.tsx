@@ -62,7 +62,7 @@ const BookingCategory: React.FC<PageProps> = props => {
   const {
     dispatch,
     peakPeriod: { themeParkPeriods, legendConfigs },
-    form: { getFieldDecorator },
+    form: { getFieldDecorator, validateFields, resetFields, setFieldsValue },
   } = props;
 
   const themeParkPeriodsSave = (value: themeParkPeriod[]) => {
@@ -110,16 +110,36 @@ const BookingCategory: React.FC<PageProps> = props => {
     themeParkPeriodsSave(themeParkPeriodsCopy);
   };
 
-  const legendChange = (themeParkIndex: number, peakPeriodIndex: number, value: any) => {
+  const legendChange = (
+    themeParkIndex: number,
+    peakPeriodIndex: number,
+    value: any,
+    dateSettingLabel: string,
+    remarksLabel: string
+  ) => {
     const themeParkPeriodsCopy: themeParkPeriod[] = JSON.parse(JSON.stringify(themeParkPeriods));
     themeParkPeriodsCopy[themeParkIndex].peakPeriodConfigs[peakPeriodIndex].legendId = value;
+    themeParkPeriodsCopy[themeParkIndex].peakPeriodConfigs[peakPeriodIndex].startDate = null;
+    themeParkPeriodsCopy[themeParkIndex].peakPeriodConfigs[peakPeriodIndex].endDate = null;
+    themeParkPeriodsCopy[themeParkIndex].peakPeriodConfigs[peakPeriodIndex].remarks = null;
+
+    setFieldsValue({
+      [dateSettingLabel]: undefined,
+      [remarksLabel]: undefined,
+    });
 
     themeParkPeriodsSave(themeParkPeriodsCopy);
   };
 
   const OK = () => {
-    dispatch({
-      type: 'peakPeriod/settingPeakPeriods',
+    validateFields(errs => {
+      if (!errs) {
+        dispatch({
+          type: 'peakPeriod/settingPeakPeriods',
+        }).then(() => {
+          resetFields();
+        });
+      }
     });
   };
 
@@ -136,6 +156,17 @@ const BookingCategory: React.FC<PageProps> = props => {
       : null;
 
     themeParkPeriodsSave(themeParkPeriodsCopy);
+
+    const validFields = [];
+
+    themeParkPeriodsCopy[themeParkIndex].peakPeriodConfigs.forEach((item, index) => {
+      const dateSettingLabel = `${themeParkPeriodsCopy[themeParkIndex].themeParkCode}_dateSetting_${index}`;
+      validFields.push(dateSettingLabel);
+    });
+
+    console.log(validFields)
+
+    validateFields(validFields);
   };
 
   const remarksChange = (themeParkIndex: number, peakPeriodIndex: number, e: any) => {
@@ -222,7 +253,13 @@ const BookingCategory: React.FC<PageProps> = props => {
                                 placeholder={formatMessage({ id: 'COMMON_SELECT_ICON' })}
                                 dropdownClassName={styles.dropdownClassName}
                                 onChange={value =>
-                                  legendChange(themeParkIndex, peakPeriodIndex, value)
+                                  legendChange(
+                                    themeParkIndex,
+                                    peakPeriodIndex,
+                                    value,
+                                    dateSettingLabel,
+                                    remarksLabel
+                                  )
                                 }
                               >
                                 {legendConfigs.map(legendConfig => (
@@ -263,11 +300,50 @@ const BookingCategory: React.FC<PageProps> = props => {
                             label={formatMessage({ id: 'DATE_SETTING' })}
                           >
                             {getFieldDecorator(dateSettingLabel, {
-                              initialValue: timeFixed(startDate, endDate),
+                              initialValue: startDate ? timeFixed(startDate, endDate) : undefined,
                               rules: [
                                 {
                                   required: true,
                                   message: 'Required',
+                                },
+                                {
+                                  validator: (rule, value, callback) => {
+                                    const [currentStartDate, currentEndDate] = value || [];
+                                    const findDuplicate = peakPeriodConfigs.find(
+                                      (item, itemIndex) => {
+                                        if (itemIndex === peakPeriodIndex) {
+                                          return false;
+                                        }
+
+                                        if (
+                                          item.startDate &&
+                                          item.endDate &&
+                                          currentStartDate &&
+                                          currentEndDate &&
+                                          legendId === item.legendId
+                                        ) {
+                                          if (
+                                            !(
+                                              moment(item.endDate) < currentStartDate ||
+                                              moment(item.startDate) > currentEndDate
+                                            )
+                                          ) {
+                                            return true;
+                                          }
+                                        }
+
+                                        return false;
+                                      }
+                                    );
+
+                                    console.log(findDuplicate, value);
+
+                                    if (findDuplicate) {
+                                      callback('Date setting duplicate');
+                                    }
+
+                                    callback();
+                                  },
                                 },
                               ],
                             })(
@@ -291,7 +367,7 @@ const BookingCategory: React.FC<PageProps> = props => {
                               initialValue: remarks,
                               rules: [
                                 {
-                                  required: true,
+                                  required: false,
                                   message: 'Required',
                                 },
                               ],

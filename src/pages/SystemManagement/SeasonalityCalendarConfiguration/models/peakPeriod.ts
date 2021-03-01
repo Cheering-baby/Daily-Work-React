@@ -24,8 +24,8 @@ export interface peakPeriodConfig {
   opType: opType;
   peakPeriodId?: number | string;
   legendId?: number | string;
-  legendName?: string;
-  startDate?: string | null;
+  legendName?: any;
+  startDate?: any;
   endDate?: string | null;
   remarks?: string;
 }
@@ -160,7 +160,9 @@ const Model: CommissionLogType = {
         yield put({ type: 'queryPeakDateList' });
       } else throw resultMsg;
     },
-    *queryPeakDateList(_, { call, put }) {
+    *queryPeakDateList(_, { call, put, select }) {
+      const peakPeriod: PeakPeriodStateType = yield select(({ peakPeriod }) => peakPeriod);
+      const { themeParkPeriods } = peakPeriod;
       const response: responseType<any> = yield call(service.queryPeakDateList, {
         showListFlag: true,
       });
@@ -169,6 +171,16 @@ const Model: CommissionLogType = {
         data: { resultCode, resultMsg, result },
       } = response;
       if (resultCode === '0') {
+        result.themeParkPeriods.forEach(item => {
+          const findTarget = themeParkPeriods.find(
+            itemCompare => itemCompare.themeParkCode === item.themeParkCode
+          );
+
+          if (findTarget) {
+            item.showDetail = findTarget.showDetail;
+          }
+        });
+
         yield put({
           type: 'save',
           payload: {
@@ -192,6 +204,14 @@ const Model: CommissionLogType = {
 
       themeParkPeriodsCopy.forEach(item => {
         item.peakPeriodConfigs = item.peakPeriodConfigs.concat(item.deletePeakPeriods);
+
+        item.peakPeriodConfigs.forEach(item2 => {
+          for (let arg in item2) {
+            if (typeof item2[arg] === 'string' && item2[arg]) {
+              item2[arg] = item2[arg].trim();
+            }
+          }
+        });
       });
 
       const response: responseType<any> = yield call(service.settingPeakPeriods, {

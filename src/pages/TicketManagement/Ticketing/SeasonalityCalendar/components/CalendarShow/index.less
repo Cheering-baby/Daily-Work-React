@@ -84,14 +84,32 @@
 
 .popover {
   :global {
-    .ant-popover-inner,
     .ant-popover-arrow {
-      background-color: #40403f;
-      border-color: #40403f !important;
+      display: none;
+    }
+
+    .ant-popover-inner
+     {
+      background-color: rgba(0, 0, 0, 0.90);
+      border-color:  rgba(0, 0, 0, 0.90) !important;
     }
 
     .ant-popover-inner {
       border-radius: 4px;
     }
   }
+}
+
+.legendName {
+  color: #fff;
+}
+
+.remarks {
+  min-width: 50px;
+  max-width: 450px;
+  font-size: 12px;
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow: hidden;
+  color: #fff;
 }

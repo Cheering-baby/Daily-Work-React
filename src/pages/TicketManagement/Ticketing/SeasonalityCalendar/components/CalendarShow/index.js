@@ -14,21 +14,25 @@ class CalendarShow extends Component {
       item => moment(item.startDate) <= data && moment(item.endDate) >= data
     );
 
-    console.log(date, peakItems);
-
     if (peakItems.length > 0) {
-      showTotalContent = peakItems.map(item => (
-        <div style={{ borderBottom: '1px dashed #fff', paddingBottom: 5, color: '#fff' }}>
+      showTotalContent = peakItems.map((item, index) => (
+        <div
+          style={{
+            borderBottom: index + 1 !== peakItems.length ? '1px solid #fff' : null,
+            opacity: 0.7,
+            paddingBottom: 5,
+            marginTop: index !== 0 ? 5 : 0,
+            color: '#fff',
+          }}
+        >
           <div style={{ minWidth: 50, maxWidth: 450, display: 'flex', alignItems: 'center' }}>
             <span
               className={styles.color}
-              style={{ marginRight: 5, backgroundColor: item.attractionValue || 'rgb(255, 86, 1)' }}
+              style={{ marginRight: 5, backgroundColor: item.attractionValue }}
             ></span>
-            <span>
-              {item.legendName || '123456789012345678901234567890123456789012345678905775'}
-            </span>
+            <span className={styles.legendName}>{item.legendName}</span>
           </div>
-          <div style={{ minWidth: 50, maxWidth: 450 }}>{item.remarks}</div>
+          <div className={styles.remarks}>{item.remarks}</div>
         </div>
       ));
     }
