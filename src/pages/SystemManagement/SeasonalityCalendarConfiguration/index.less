@@ -54,6 +54,7 @@
 
       .name {
         color: #262626;
+        white-space: pre-wrap;
       }
     }
   }
@@ -169,6 +170,7 @@
   text-overflow: ellipsis;
   height: 20px;
   line-height: 20px;
+  white-space: pre-wrap;
 }
 
 .colorOption {
@@ -189,6 +191,13 @@
 }
 
 .bookingCategory {
+
+  :global {
+    .ant-form-item-control-wrapper {
+      height: 40px;
+    }
+  } 
+
   .peakItem {
     background: rgba(0, 0, 0, 0.03);
     margin-bottom: 10px;

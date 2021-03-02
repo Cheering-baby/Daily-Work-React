@@ -164,9 +164,11 @@ const BookingCategory: React.FC<PageProps> = props => {
       validFields.push(dateSettingLabel);
     });
 
-    console.log(validFields)
+    console.log(validFields);
 
-    validateFields(validFields);
+    setTimeout(() => {
+      validateFields(validFields);
+    }, 100);
   };
 
   const remarksChange = (themeParkIndex: number, peakPeriodIndex: number, e: any) => {
@@ -217,7 +219,12 @@ const BookingCategory: React.FC<PageProps> = props => {
                 <Form hideRequiredMark>
                   <Col span={24}>
                     {peakPeriodConfigs.map((peakPeriodConfig, peakPeriodIndex) => {
-                      const { startDate, endDate, legendId, remarks } = peakPeriodConfig;
+                      const {
+                        startDate,
+                        endDate,
+                        legendId,
+                        remarks,
+                      } = peakPeriodConfig;
                       const legendLabel = `${themeParkCode}_legend_${peakPeriodIndex}`;
                       const dateSettingLabel = `${themeParkCode}_dateSetting_${peakPeriodIndex}`;
                       const remarksLabel = `${themeParkCode}_remarks_${peakPeriodIndex}`;
@@ -269,7 +276,14 @@ const BookingCategory: React.FC<PageProps> = props => {
                                         className={styles.colorOption}
                                         style={{ backgroundColor: legendConfig.attractionValue }}
                                       ></span>
-                                      <Tooltip title={legendConfig.legendName} placement="topLeft">
+                                      <Tooltip
+                                        title={
+                                          <span style={{ whiteSpace: 'pre-wrap' }}>
+                                            {legendConfig.legendName}
+                                          </span>
+                                        }
+                                        placement="topLeft"
+                                      >
                                         <span className={styles.legendName}>
                                           {legendConfig.legendName}
                                         </span>
@@ -335,8 +349,6 @@ const BookingCategory: React.FC<PageProps> = props => {
                                         return false;
                                       }
                                     );
-
-                                    console.log(findDuplicate, value);
 
                                     if (findDuplicate) {
                                       callback('Date setting duplicate');

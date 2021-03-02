@@ -154,7 +154,7 @@ const Model: CommissionLogType = {
 
         yield put({
           type: 'save',
-          payload: { addLegendConfigFlag: false, editLegendConfigIndex: null },
+          payload: { addLegendConfigFlag: false, editLegendConfigIndex: null, deleteLegendConfigFlay: false },
         });
         yield put({ type: 'queryLegendConfigList' });
         yield put({ type: 'queryPeakDateList' });

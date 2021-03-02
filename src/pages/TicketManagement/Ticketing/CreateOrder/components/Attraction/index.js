@@ -43,6 +43,7 @@ class Attraction extends Component {
   }
 
   componentDidMount() {
+    // force render again after form render
     this.setState({
       number: this.state.number++,
     });
