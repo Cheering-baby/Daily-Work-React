@@ -164,7 +164,6 @@ const BookingCategory: React.FC<PageProps> = props => {
       validFields.push(dateSettingLabel);
     });
 
-    console.log(validFields);
 
     setTimeout(() => {
       validateFields(validFields);
@@ -213,18 +212,17 @@ const BookingCategory: React.FC<PageProps> = props => {
                 checked={peakPeriodShow === 0 ? true : false}
                 onChange={value => checkedChange(themeParkIndex, value)}
               />
+
+              <div style={{ marginLeft: 10, fontWeight: 'normal' }}>
+                {formatMessage({ id: 'COMMON_ACTIVE' })}
+              </div>
             </div>
             {showDetail && (
               <Row>
                 <Form hideRequiredMark>
                   <Col span={24}>
                     {peakPeriodConfigs.map((peakPeriodConfig, peakPeriodIndex) => {
-                      const {
-                        startDate,
-                        endDate,
-                        legendId,
-                        remarks,
-                      } = peakPeriodConfig;
+                      const { startDate, endDate, legendId, remarks } = peakPeriodConfig;
                       const legendLabel = `${themeParkCode}_legend_${peakPeriodIndex}`;
                       const dateSettingLabel = `${themeParkCode}_dateSetting_${peakPeriodIndex}`;
                       const remarksLabel = `${themeParkCode}_remarks_${peakPeriodIndex}`;
@@ -338,8 +336,10 @@ const BookingCategory: React.FC<PageProps> = props => {
                                         ) {
                                           if (
                                             !(
-                                              moment(item.endDate) < currentStartDate ||
-                                              moment(item.startDate) > currentEndDate
+                                              moment(item.endDate).startOf('D') <
+                                                currentStartDate.startOf('D') ||
+                                              moment(item.startDate).startOf('D') >
+                                                currentEndDate.startOf('D')
                                             )
                                           ) {
                                             return true;

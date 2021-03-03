@@ -40,6 +40,8 @@ class SearchPanel extends Component {
       payload: {
         themeParkCode: undefined,
         year: undefined,
+        showYear: false,
+        peakPeriodConfigs: [],
       },
     });
     form.resetFields();

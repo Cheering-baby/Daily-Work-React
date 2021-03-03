@@ -131,21 +131,14 @@ class NewCommission extends React.PureComponent {
       dispatch,
     } = this.props;
     let arr = cloneDeep(tieredList);
-    const isExist = arr.find(({ type }) => type === 'ADD_ROW');
-    const isExist2 = arr.find(item => item.EDIT_ROW === true);
+    const isExistAdd = arr.find(({ type }) => type === 'ADD_ROW');
+    const isExistEdit = arr.find(item => item.EDIT_ROW === true);
 
-    if (arr.length > 0) {
-      if (arr[arr.length - 1].minimum > 0 && arr[arr.length - 1].maxmum === '') {
-        message.warning('Please fill in the maximum value.');
-        return false;
-      }
-    }
-
-    if (isExist2) {
+    if (isExistEdit) {
       message.warning(formatMessage({ id: 'PLEASE_END_THE_CURRENT_EDIT_FIRST' }));
       return false;
     }
-    if (isExist === undefined) {
+    if (isExistAdd === undefined) {
       arr = [{ type: 'ADD_ROW' }, ...tieredList];
     } else {
       message.warning(formatMessage({ id: 'PLEASE_ADD_THE_CURRENT_EDIT_FIRST' }));
@@ -183,6 +176,19 @@ class NewCommission extends React.PureComponent {
       detail: { tieredList },
       dispatch,
     } = this.props;
+
+    const isExistAdd = tieredList.find(({ type }) => type === 'ADD_ROW');
+    const isExistEdit = tieredList.find(item => item.EDIT_ROW === true);
+
+    if (isExistAdd) {
+      message.warning(formatMessage({ id: 'PLEASE_ADD_THE_CURRENT_EDIT_FIRST' }));
+      return false;
+    }
+
+    if (isExistEdit) {
+      message.warning(formatMessage({ id: 'PLEASE_END_THE_CURRENT_EDIT_FIRST' }));
+      return false;
+    }
 
     const arr = tieredList.map((item, idx) => ({ ...item, EDIT_ROW: idx + 1 === index }));
     dispatch({
@@ -457,7 +463,12 @@ class NewCommission extends React.PureComponent {
         return false;
       }
 
-      if (min && max) {
+      if ((min || min == 0) && max) {
+        // min --- [5000, 6000] item --- [5000, infinity]
+        if ((item.minimum || item.minimum == 0) && !item.maxmum) {
+          return max >= item.minimum;
+        }
+
         // [10, 20] --- 15, 16
         const exampleOne = min >= item.minimum && max <= item.maxmum;
 
@@ -471,8 +482,14 @@ class NewCommission extends React.PureComponent {
         const exampleFour = min <= item.minimum && max >= item.maxmum;
 
         return exampleOne || exampleTwo || exampleThree || exampleFour;
-      } else if(min && !max) {
-        return min <= item.minimum;
+      } else if ((min || min == 0) && !max) {
+        // min --- [5000, infinity] item --- [7000, infinity]
+        if ((item.minimum || item.minimum == 0) && !item.maxmum) {
+          return true;
+        }
+
+        // min --- [5000, infinity] item --- [4999/5001, 6000]
+        return min >= item.minimum && min <= item.maxmum;
       }
     });
 
@@ -493,13 +510,6 @@ class NewCommission extends React.PureComponent {
         message.warning('The Commission tiers can not be duplicate.');
         return 0;
       }
-      if (
-        addInput1Max === '' &&
-        Number(addInput1Min) <= Number(tieredList[tieredList.length - 1].maxmum)
-      ) {
-        message.warning('Please fill in the maximum value.');
-        return false;
-      }
     }
 
     const tieredListNew = [
@@ -517,7 +527,7 @@ class NewCommission extends React.PureComponent {
       },
     ];
 
-    tieredListNew.sort((a, b) => a.maxmum - b.minimum);
+    tieredListNew.sort((a, b) => a.minimum - b.minimum);
 
     dispatch({
       type: 'detail/save',
@@ -539,23 +549,16 @@ class NewCommission extends React.PureComponent {
       return null;
     }
 
-    if (tieredList.length > 1 && index < tieredList.length && addInput1Max === '') {
+    if (addInput1Min === '') {
       message.warning('Commission tier is required.');
       return 0;
     }
+
     if (index !== 1 && tieredList.length > 1 && index !== tieredList.length) {
       if (this.compareRange(Number(addInput1Min), Number(addInput1Max), tieredList, index - 1)) {
         message.warning('The Commission tiers can not be duplicate.');
         return 0;
       }
-    } else if (
-      +index !== 1 &&
-      Number(tieredList.length) === +index &&
-      Number(addInput1Min) <= Number(tieredList[index - 2].maxmum) &&
-      addInput1Max === ''
-    ) {
-      message.warning('Please fill in the maximum value.');
-      return 0;
     } else if (
       this.compareRange(Number(addInput1Min), Number(addInput1Max), tieredList, index - 1)
     ) {
@@ -577,7 +580,7 @@ class NewCommission extends React.PureComponent {
     dispatch({
       type: 'detail/save',
       payload: {
-        tieredList: arr.sort((a, b) => a.maxmum - b.minimum),
+        tieredList: arr.sort((a, b) => a.minimum - b.minimum),
       },
     });
   };
