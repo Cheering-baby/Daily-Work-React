@@ -835,9 +835,9 @@ class Detail extends React.Component {
               {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
                 this.showDelivery(formatMessage({ id: 'GUEST_LAST_NAME' }), lastName)}
               {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
-                this.showDelivery(formatMessage({ id: 'CUSTOMER_CONTACT_NO' }), contactNo)}
+                this.showDelivery(formatMessage({ id: 'GUEST_CONTACT_NO' }), contactNo)}
               {PrivilegeUtil.hasAnyPrivilege([PrivilegeUtil.TRAN_ORDER_DETAIL_NO_MASK_PRIVILEGE]) &&
-                this.showDelivery(formatMessage({ id: 'CUSTOMER_EMAIL_ADDRESS' }), email)}
+                this.showDelivery(formatMessage({ id: 'GUEST_EMAIL_ADDRESS' }), email)}
               {transTypeStr === 'revalidation' &&
                 this.showDelivery(
                   formatMessage({ id: 'NEW_VISIT_DATE' }),

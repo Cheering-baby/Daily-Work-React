@@ -264,7 +264,7 @@ class ToCart extends Component {
         // eslint-disable-next-line no-useless-escape
         const emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
         if (customerEmailAddress && !emailReg.test(customerEmailAddress)) {
-          message.warning('Customer email address is invalid.');
+          message.warning('Guest email address is invalid.');
           return false;
         }
         if (!checkTermsAndCondition) {
@@ -1098,7 +1098,7 @@ class ToCart extends Component {
                 <Col span={24} className={styles.deliverCol}>
                   <FormItem
                     className={styles.customerContactNo}
-                    label="Customer Contact No."
+                    label={formatMessage({ id: 'GUEST_CONTACT_NO' })}
                     colon={false}
                     required={hasApspTicket}
                   >
@@ -1167,7 +1167,7 @@ class ToCart extends Component {
                   </FormItem>
                 </Col>
                 <Col span={24} className={styles.deliverCol} style={{ marginBottom: '5px' }}>
-                  <FormItem className={styles.label} label="Customer Email Address" colon={false}>
+                  <FormItem className={styles.label} label={formatMessage({ id: 'GUEST_EMAIL_ADDRESS' })} colon={false}>
                     {getFieldDecorator('customerEmailAddress', {
                       initialValue: customerEmailAddress,
                       validateTrigger: '',

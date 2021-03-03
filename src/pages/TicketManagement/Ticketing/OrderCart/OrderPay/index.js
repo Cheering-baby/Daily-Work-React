@@ -345,6 +345,9 @@ class OrderPay extends Component {
             <MediaQuery minWidth={SCREEN.screenSm}>
               <BreadcrumbCompForPams title={title} />
             </MediaQuery>
+            <div className={styles.orderTitleTipStyles}>
+              {formatMessage({ id: 'ORDER_TITLE_TIP' })}
+            </div>
           </Col>
           <Col {...processGrid} className={styles.processBarCol}>
             <Steps labelPlacement="vertical" size="small">
@@ -354,7 +357,6 @@ class OrderPay extends Component {
             </Steps>
           </Col>
         </Row>
-
         {companyType && (
           <Card className={styles.cardDeliverStyles}>
             <Row>

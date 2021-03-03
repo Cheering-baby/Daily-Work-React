@@ -50,6 +50,7 @@ const getInitialState = () => {
     deleteLegendConfigFlay: false as boolean,
     editLegendConfigIndex: null as null | number,
     themeParkPeriods: [] as themeParkPeriod[],
+    validDateSetting: [] as string[],
   };
 };
 
@@ -141,7 +142,9 @@ const Model: CommissionLogType = {
 
         yield put({ type: 'queryLegendConfigList' });
         yield put({ type: 'queryPeakDateList' });
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      }
     },
     *deleteLegendConfigs({ payload }, { call, put, select }) {
       const response: responseType<any> = yield call(service.settingLegendConfigs, payload);
@@ -154,11 +157,17 @@ const Model: CommissionLogType = {
 
         yield put({
           type: 'save',
-          payload: { addLegendConfigFlag: false, editLegendConfigIndex: null, deleteLegendConfigFlay: false },
+          payload: {
+            addLegendConfigFlag: false,
+            editLegendConfigIndex: null,
+            deleteLegendConfigFlay: false,
+          },
         });
         yield put({ type: 'queryLegendConfigList' });
         yield put({ type: 'queryPeakDateList' });
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      };
     },
     *queryPeakDateList(_, { call, put, select }) {
       const peakPeriod: PeakPeriodStateType = yield select(({ peakPeriod }) => peakPeriod);
@@ -224,7 +233,9 @@ const Model: CommissionLogType = {
       if (resultCode === '0') {
         message.success(formatMessage({ id: 'COMMON_MODIFY_SUCCESSFULLY' }));
         yield put({ type: 'queryPeakDateList' });
-      } else throw resultMsg;
+      } else {
+        message.error(resultMsg);
+      };
     },
   },
 

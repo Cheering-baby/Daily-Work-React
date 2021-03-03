@@ -184,7 +184,7 @@ class CreateOrder extends PureComponent {
           </Col>
           <Col span={24}>
             <div className={styles.orderTitleTipStyles}>
-              Note: {formatMessage({ id: 'ORDER_TITLE_TIP' })}
+              {formatMessage({ id: 'ORDER_TITLE_TIP' })}
             </div>
           </Col>
           <MediaQuery maxWidth={SCREEN.screenXsMax}>

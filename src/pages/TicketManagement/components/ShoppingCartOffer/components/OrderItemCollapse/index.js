@@ -392,7 +392,11 @@ class OrderItemCollapse extends Component {
       return orderOfferItem.language;
     }
 
-    return orderOfferItem.offerInfo.language;
+    if(orderOfferItem.offerInfo) {
+      return orderOfferItem.offerInfo.language;
+    }
+
+    return null;
   }
 
   transOfferDataToShowData = () => {

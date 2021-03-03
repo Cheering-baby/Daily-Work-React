@@ -713,7 +713,7 @@ class CheckOrder extends Component {
               </Col>
               <Col span={24} style={{ paddingTop: '8px' }}>
                 <span className={styles.noteItemsSpan}>
-                  NOTE:{formatMessage({ id: 'ORDER_TITLE_TIP' })}
+                  {formatMessage({ id: 'ORDER_TITLE_TIP' })}
                 </span>
               </Col>
             </Row>

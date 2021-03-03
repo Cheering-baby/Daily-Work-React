@@ -7,7 +7,7 @@ import { FormComponentProps } from 'antd/es/form';
 import { formatMessage } from 'umi/locale';
 import { ConnectProps } from '@/types/model';
 import PrivilegeUtil from '@/utils/PrivilegeUtil';
-import { PeakPeriodStateType, LegendConfig, themeParkPeriod } from '../models/peakPeriod';
+import { PeakPeriodStateType, themeParkPeriod } from '../models/peakPeriod';
 import styles from '../index.less';
 
 const FormItem = Form.Item;
@@ -61,15 +61,51 @@ interface PageProps extends ConnectProps, FormComponentProps {
 const BookingCategory: React.FC<PageProps> = props => {
   const {
     dispatch,
-    peakPeriod: { themeParkPeriods, legendConfigs },
-    form: { getFieldDecorator, validateFields, resetFields, setFieldsValue },
+    peakPeriod: { themeParkPeriods, legendConfigs, validDateSetting },
+    form: { getFieldDecorator, validateFields, resetFields, setFieldsValue, getFieldsValue },
   } = props;
+
+  useEffect(() => {
+    if (validateFields && validDateSetting.length > 0) {
+      validateFields(validDateSetting);
+    }
+  }, [validDateSetting]);
+
+  const OK = () => {
+    validateFields(errs => {
+      if (!errs) {
+        dispatch({
+          type: 'peakPeriod/settingPeakPeriods',
+        }).then(() => {
+          resetFields();
+        });
+      }
+    });
+  };
 
   const themeParkPeriodsSave = (value: themeParkPeriod[]) => {
     dispatch({
       type: 'peakPeriod/save',
       payload: {
         themeParkPeriods: value,
+      },
+    });
+  };
+
+  const validForm = (value: themeParkPeriod[], themeParkIndex: number) => {
+    const validFields = [];
+
+    value[themeParkIndex].peakPeriodConfigs.forEach((item, index) => {
+      if (item.startDate && item.endDate) {
+        const dateSettingLabel = `${value[themeParkIndex].themeParkCode}_dateSetting_${index}`;
+        validFields.push(dateSettingLabel);
+      }
+    });
+
+    dispatch({
+      type: 'peakPeriod/save',
+      payload: {
+        validDateSetting: validFields,
       },
     });
   };
@@ -108,6 +144,19 @@ const BookingCategory: React.FC<PageProps> = props => {
     ].peakPeriodConfigs.filter((_, index) => deleteIndexPeakPeriod !== index);
 
     themeParkPeriodsSave(themeParkPeriodsCopy);
+
+    const validFields = [];
+
+    themeParkPeriodsCopy[themeParkIndex].peakPeriodConfigs.forEach((item, index) => {
+      const dateSettingLabel = `${themeParkPeriodsCopy[themeParkIndex].themeParkCode}_dateSetting_${index}`;
+      validFields.push(dateSettingLabel);
+    });
+
+
+    setTimeout(() => {
+      resetFields();
+      validateFields(validFields)
+    }, 200);
   };
 
   const legendChange = (
@@ -129,18 +178,8 @@ const BookingCategory: React.FC<PageProps> = props => {
     });
 
     themeParkPeriodsSave(themeParkPeriodsCopy);
-  };
 
-  const OK = () => {
-    validateFields(errs => {
-      if (!errs) {
-        dispatch({
-          type: 'peakPeriod/settingPeakPeriods',
-        }).then(() => {
-          resetFields();
-        });
-      }
-    });
+    validForm(themeParkPeriodsCopy, themeParkIndex);
   };
 
   const dateSettingChange = (themeParkIndex: number, peakPeriodIndex: number, dates: any) => {
@@ -157,17 +196,7 @@ const BookingCategory: React.FC<PageProps> = props => {
 
     themeParkPeriodsSave(themeParkPeriodsCopy);
 
-    const validFields = [];
-
-    themeParkPeriodsCopy[themeParkIndex].peakPeriodConfigs.forEach((item, index) => {
-      const dateSettingLabel = `${themeParkPeriodsCopy[themeParkIndex].themeParkCode}_dateSetting_${index}`;
-      validFields.push(dateSettingLabel);
-    });
-
-
-    setTimeout(() => {
-      validateFields(validFields);
-    }, 100);
+    validForm(themeParkPeriodsCopy, themeParkIndex);
   };
 
   const remarksChange = (themeParkIndex: number, peakPeriodIndex: number, e: any) => {
