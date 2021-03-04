@@ -38,15 +38,7 @@ class Attraction extends Component {
       50;
     this.state = {
       clientHeight,
-      number: 0,
     };
-  }
-
-  componentDidMount() {
-    // force render again after form render
-    this.setState({
-      number: this.state.number++,
-    });
   }
 
   showToCart = record => {
@@ -517,8 +509,6 @@ class Attraction extends Component {
     const includeSessionProduct = attractionProduct.find(
       ({ sessionOptions = [] }) => sessionOptions.length > 0
     );
-
-    let price;
     if (includeSessionProduct) {
       const validValues = [];
       attractionProduct.forEach(itemProduct => {
@@ -529,25 +519,17 @@ class Attraction extends Component {
           validValues.push(getFieldValue(label));
         }
       });
-      // console.log(
-      //   validValues,
-      //   validValues.includes(undefined),
-      //   calculateAllProductPrice(attractionProduct, priceRuleId, null, record.detail)
-      // );
-
-      if (!validValues.includes(undefined)) {
-        price = toThousands(
-          calculateAllProductPrice(attractionProduct, priceRuleId, null, record.detail)
-        );
-      }
-
-      return validValues.includes(undefined) ? '-/Package' : `${price}/Package`;
+      return validValues.includes(undefined)
+        ? '-/Package'
+        : `${toThousands(
+            calculateAllProductPrice(attractionProduct, priceRuleId, null, record.detail)
+          )}
+      /Package`;
     }
-
-    price = toThousands(
+    return `${toThousands(
       calculateAllProductPrice(attractionProduct, priceRuleId, null, record.detail)
-    );
-    return `${price}/Package`;
+    )}
+    /Package`;
   };
 
   bundleOfferPrice = (record, offer) => {
@@ -567,13 +549,12 @@ class Attraction extends Component {
     const isSessionOffer = !(offerSessions.length === 1 && offerSessions[0] === null);
     const label = `${themeParkCode}_${tag}_${index}_${offerNo}`;
     if (isSessionOffer) {
-      let price;
-      if (getFieldValue(label)) {
-        price = toThousands(
-          calculateAllProductPrice(attractionProduct, priceRuleId, getFieldValue(label), detail)
-        );
-      }
-      return getFieldValue(label) ? `${price}/Package` : `-/Package`;
+      // offer.sessionTime = getFieldValue(label);
+      return getFieldValue(label)
+        ? `${toThousands(
+            calculateAllProductPrice(attractionProduct, priceRuleId, getFieldValue(label), detail)
+          )}/Package`
+        : `-/Package`;
     }
 
     return `${toThousands(
@@ -756,7 +737,6 @@ class Attraction extends Component {
                       >
                         {offerConstrain === 'Fixed' ? (
                           <div style={{ display: attractionProductIndex === 0 ? null : 'none' }}>
-                            {console.log(this.fixedOfferPrice(record), Date.now())}
                             {this.fixedOfferPrice(record)}
                           </div>
                         ) : (

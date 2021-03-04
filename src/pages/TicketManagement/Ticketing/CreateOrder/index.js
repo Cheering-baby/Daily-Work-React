@@ -28,7 +28,6 @@ class CreateOrder extends PureComponent {
       78;
     this.state = {
       clientHeight,
-      renderFlag: false,
     };
   }
 
@@ -129,12 +128,6 @@ class CreateOrder extends PureComponent {
   };
 
   searchSuccess = () => {
-    // setTimeout(() => {
-    //   this.setState({
-    //     renderFlag: !this.state.renderFlag,
-    //   });
-    // }, 300);
-
     if (this.attractionForm) {
       const { form } = this.attractionForm.props;
       if (form) {
@@ -184,7 +177,7 @@ class CreateOrder extends PureComponent {
           </Col>
           <Col span={24}>
             <div className={styles.orderTitleTipStyles}>
-              {formatMessage({ id: 'ORDER_TITLE_TIP' })}
+              Note: {formatMessage({ id: 'ORDER_TITLE_TIP' })}
             </div>
           </Col>
           <MediaQuery maxWidth={SCREEN.screenXsMax}>

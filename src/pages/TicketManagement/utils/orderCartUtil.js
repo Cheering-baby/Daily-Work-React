@@ -525,8 +525,7 @@ function getVoucherTicketQuantity(orderOffer, forBocaFee) {
 }
 
 /**
- * @param forBocaFee {boolean} is for ticket amount on BOCA Fee
- * @returns {number}
+ * @param forBocaFee is for ticket amount on BOCA Fee
  */
 
 export function getCheckTicketAmount(

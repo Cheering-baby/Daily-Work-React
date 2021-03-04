@@ -15,8 +15,8 @@ export default {
   BOCA_ORDER_TIP:
     'There will be extra fee for BOCA delivery mode, and please make sure your visit date is 3 days prior to purchase date if you choose to select BOCA as delivery mode.',
   BASIC_INFORMATION: 'BASIC INFORMATION',
-  GUEST_CONTACT_NO: 'Guest Contact No.',
-  GUEST_EMAIL_ADDRESS: 'Guest Email Address',
+  CUSTOMER_CONTACT_NO: 'Customer Contact No.',
+  CUSTOMER_EMAIL_ADDRESS: 'Customer Email Address',
   COMPLETE: 'Complete',
   CANCEL: 'Cancel',
   CATEGORY: 'Category',
@@ -61,7 +61,7 @@ export default {
   OFFER_NAME: 'Offer Name',
   VISIT_DATE: 'Visit Date',
   ORDER_TITLE_TIP:
-    'Note: *All prices shown are in Singapore Dollars (SGD) and inclusive of 7% Goods & Services Tax (GST)',
+    '* Prices shown in Singapore Dollars (SGD) inclusive of Goods & Services Tax (GST) of 7%',
   PRODUCT_CATEGORIES: 'PRODUCT CATEGORIES',
   CUSTOMER_CHOICE: 'CUSTOMER CHOICE',
   PAYMENT: 'Payment',

@@ -188,7 +188,7 @@ class Detail extends Component {
                   <Col span={24}>
                     {offerIncludesItems.length > 0 ? (
                       <div>
-                        {longDescriptionItems.map(item => (
+                        {offerIncludesItems.map(item => (
                           <div className={styles.detailText}>{item || '-'}</div>
                         ))}
                       </div>
@@ -204,7 +204,7 @@ class Detail extends Component {
                   <Col span={24}>
                     {termsAndConditionsItems.length > 0 ? (
                       <div>
-                        {longDescriptionItems.map(item => (
+                        {termsAndConditionsItems.map(item => (
                           <div className={styles.detailText}>{item || '-'}</div>
                         ))}
                       </div>

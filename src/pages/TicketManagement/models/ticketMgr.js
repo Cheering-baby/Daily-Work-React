@@ -252,7 +252,10 @@ export default {
                   result: resultDetail,
                 },
               } = responseDetail;
-              if (queryOfferDetailResultCode !== '0') {
+              if (
+                queryOfferDetailResultCode !== '0' &&
+                queryOfferDetailResultCode !== 'PRODUCT-120150'
+              ) {
                 message.error(queryOfferDetailResultMsg);
               } else {
                 offerDetailList.push(Object.assign({}, resultDetail));
@@ -371,7 +374,10 @@ export default {
                   result: resultDetail,
                 },
               } = responseDetail;
-              if (queryOfferDetailResultCode !== '0') {
+              if (
+                queryOfferDetailResultCode !== '0' &&
+                queryOfferDetailResultCode !== 'PRODUCT-120150'
+              ) {
                 message.error(queryOfferDetailResultMsg);
               } else {
                 offerDetailList.push(Object.assign({}, resultDetail));
@@ -475,7 +481,7 @@ export default {
             };
             const requestFn = () => {
               return queryOfferDetail(params).then(responseDetail => {
-                if (!responseDetail || !responseDetail.success) {
+                if (!responseDetail && !responseDetail.success) {
                   message.error(`The offer ${offerNo} query detail failed.`);
                   return;
                 }
@@ -486,7 +492,10 @@ export default {
                     result: resultDetail,
                   },
                 } = responseDetail;
-                if (queryOfferDetailResultCode !== '0') {
+                if (
+                  queryOfferDetailResultCode !== '0' &&
+                  queryOfferDetailResultCode !== 'PRODUCT-120150'
+                ) {
                   message.error(queryOfferDetailResultMsg);
                 } else {
                   offerDetailList[i] = Object.assign({}, resultDetail);
@@ -989,7 +998,7 @@ export default {
     },
 
     *queryTicketConfig(_, { call, put }) {
-      const response = yield call(queryPluAttribute, { attributeItem: 'LEGEND_COLOR_CONFIG' });
+      const response = yield call(queryPluAttribute, { attributeItem: 'TICKET_BOOKING_CONFIG' });
       if (!response) return false;
       const {
         data: { resultCode, resultMsg, result },

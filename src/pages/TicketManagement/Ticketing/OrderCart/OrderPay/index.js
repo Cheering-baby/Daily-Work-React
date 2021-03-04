@@ -118,7 +118,8 @@ class OrderPay extends Component {
         confirmEventSubmitTime = 0;
         if (result && result.url) {
           try {
-            window.location.replace(result.url);
+            // window.location.replace(result.url);
+            window.pamsLocation.href = result.url;
           } catch (e) {
             console.log(e);
             message.error('window location replace error!');
@@ -345,9 +346,6 @@ class OrderPay extends Component {
             <MediaQuery minWidth={SCREEN.screenSm}>
               <BreadcrumbCompForPams title={title} />
             </MediaQuery>
-            <div className={styles.orderTitleTipStyles}>
-              {formatMessage({ id: 'ORDER_TITLE_TIP' })}
-            </div>
           </Col>
           <Col {...processGrid} className={styles.processBarCol}>
             <Steps labelPlacement="vertical" size="small">
@@ -357,6 +355,7 @@ class OrderPay extends Component {
             </Steps>
           </Col>
         </Row>
+
         {companyType && (
           <Card className={styles.cardDeliverStyles}>
             <Row>
