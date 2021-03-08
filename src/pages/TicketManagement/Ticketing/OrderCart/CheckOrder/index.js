@@ -61,14 +61,27 @@ class CheckOrder extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const {
       dispatch,
-      ticketOrderCartMgr: { cartId },
       global: {
         userCompanyInfo: { companyType },
       },
+      location: {
+        query: { operateType },
+      },
     } = this.props;
+
+    if (operateType !== 'goBack') {
+      await dispatch({
+        type: 'ticketOrderCartMgr/resetData',
+      });
+    }
+
+    const {
+      ticketOrderCartMgr: { cartId },
+    } = this.props;
+
     dispatch({
       type: 'ticketMgr/fetchQueryAgentOpt',
       payload: {},
@@ -129,13 +142,6 @@ class CheckOrder extends Component {
       payload: {
         functionActive: this.checkTAStatus(),
       },
-    });
-  }
-
-  componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'ticketOrderCartMgr/resetData',
     });
   }
 
@@ -237,20 +243,21 @@ class CheckOrder extends Component {
             return;
           }
         }
-        if (companyType === '01') {
-          confirm({
-            title:
-              'Please note that system will help to hold the order for 30 minutes, make sure to do payment within 30 minutes, otherwise you might need to re-submit a new order.',
-            content: '',
-            className: 'confirmClassName',
-            icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
-            okText: 'Confirm',
-            onOk: this.orderCheckOutSubmit,
-            onCancel() {},
-          });
-        } else {
-          this.orderCheckOutSubmit();
-        }
+        this.orderCheckOutSubmit();
+        // if (companyType === '01') {
+        //   confirm({
+        //     title:
+        //       'Please note that system will help to hold the order for 30 minutes, make sure to do payment within 30 minutes, otherwise you might need to re-submit a new order.',
+        //     content: '',
+        //     className: 'confirmClassName',
+        //     icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
+        //     okText: 'Confirm',
+        //     onOk: this.orderCheckOutSubmit,
+        //     onCancel() {},
+        //   });
+        // } else {
+        //   this.orderCheckOutSubmit();
+        // }
       }
     });
   };
@@ -865,18 +872,21 @@ class CheckOrder extends Component {
               </Row>
             </Col>
           </Row>
-          {companyType !== '02' && deliveryMode === 'BOCA' && this.getOrderAmount() !== 0 && !isNullOrUndefined(bocaFeePax) && (
-            <Row>
-              <Col style={{ padding: '0px 15px 25px 15px' }}>
-                <BOCAOfferCollapse
-                  form={form}
-                  companyType={companyType}
-                  quantity={this.getTicketAmount(true)}
-                  pricePax={bocaFeePax}
-                />
-              </Col>
-            </Row>
-          )}
+          {companyType !== '02' &&
+            deliveryMode === 'BOCA' &&
+            this.getOrderAmount() !== 0 &&
+            !isNullOrUndefined(bocaFeePax) && (
+              <Row>
+                <Col style={{ padding: '0px 15px 25px 15px' }}>
+                  <BOCAOfferCollapse
+                    form={form}
+                    companyType={companyType}
+                    quantity={this.getTicketAmount(true)}
+                    pricePax={bocaFeePax}
+                  />
+                </Col>
+              </Row>
+            )}
         </Card>
         <Row>
           <Col {...priceGrid} />

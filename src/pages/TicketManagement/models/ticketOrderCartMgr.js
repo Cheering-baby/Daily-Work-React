@@ -480,12 +480,6 @@ export default {
     },
 
     *orderCheckOut(_, { put, select }) {
-      yield put({
-        type: 'save',
-        payload: {
-          checkOutLoading: true,
-        },
-      });
 
       const {
         bocaFeePax,
@@ -497,6 +491,7 @@ export default {
         collectionDate,
       } = yield select(state => state.ticketOrderCartMgr);
 
+      let totalPrice = 0;
       const packageOrderDataNew = getCheckPackageOrderData(packageOrderData);
       const generalTicketOrderDataNew = getCheckPackageOrderData(generalTicketOrderData);
       const onceAPirateOrderDataNew = getCheckOapOrderData(onceAPirateOrderData);
@@ -507,22 +502,61 @@ export default {
         true,
       );
 
+      if (deliveryMode && deliveryMode === 'BOCA') {
+        totalPrice += ticketAmount * bocaFeePax;
+        totalPrice = transBookingToPayTotalPrice(
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+          bocaFeePax
+        );
+      } else {
+        totalPrice = transBookingToPayTotalPrice(
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+          null
+        );
+      }
+
       yield put({
-        type: 'orderBooking',
+        type: 'ticketBookingAndPayMgr/save',
         payload: {
+          // bookingNo,
           deliveryMode,
           collectionDate,
           ticketAmount,
           bocaFeePax,
           bocaFeeGst,
-          packageOrderData: packageOrderDataNew,
           generalTicketOrderData: generalTicketOrderDataNew,
+          packageOrderData: packageOrderDataNew,
           onceAPirateOrderData: onceAPirateOrderDataNew,
+          bookDetail: {
+            transStatus: status,
+            totalPrice,
+          },
         },
       });
+
+      router.push(`/TicketManagement/Ticketing/OrderCart/OrderPay`);
+
+      // yield put({
+      //   type: 'orderBooking',
+      //   payload: {
+      //     deliveryMode,
+      //     collectionDate,
+      //     ticketAmount,
+      //     bocaFeePax,
+      //     bocaFeeGst,
+      //     packageOrderData: packageOrderDataNew,
+      //     generalTicketOrderData: generalTicketOrderDataNew,
+      //     onceAPirateOrderData: onceAPirateOrderDataNew,
+      //   },
+      // });
     },
 
     *orderBooking({ payload }, { call, put, select }) {
+
       const {
         deliveryMode,
         collectionDate,

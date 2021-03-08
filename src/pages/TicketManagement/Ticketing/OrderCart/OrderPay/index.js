@@ -19,6 +19,7 @@ import {
 import ShoppingCartOffer from '@/pages/TicketManagement/components/ShoppingCartOffer';
 
 let confirmEventSubmitTime = 0;
+const { confirm } = Modal;
 
 @Form.create()
 @connect(({ global, ticketBookingAndPayMgr }) => ({
@@ -78,6 +79,41 @@ class OrderPay extends Component {
       }
     }
     return totalPrice;
+  };
+
+  confirmBooking = () => {
+    const {
+      dispatch,
+      global: {
+        userCompanyInfo: { companyType },
+      },
+      ticketBookingAndPayMgr: { bookingNo, payModeList, accountInfo, bookDetail },
+    } = this.props;
+    if (companyType === '01') {
+      confirm({
+        title:
+          'Please note that system will help to hold the order for 30 minutes, make sure to do payment within 30 minutes, otherwise you might need to re-submit a new order.',
+        content: '',
+        className: 'confirmClassName',
+        icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
+        okText: 'Confirm',
+        onOk: this.createBooking,
+        onCancel() {},
+      });
+    } else {
+      this.createBooking();
+    }
+  };
+
+  createBooking = () => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'ticketBookingAndPayMgr/orderBooking'
+    }).then(() => {
+      this.confirmEvent();
+    })
+
   };
 
   confirmEvent = () => {
@@ -336,8 +372,8 @@ class OrderPay extends Component {
     const processGrid = { xs: 24, sm: 24, md: 12, lg: 8, xl: 8, xxl: 8 };
     const priceGrid = { xs: 0, sm: 0, md: 12, lg: 12, xl: 14, xxl: 16 };
     const priceGrid2 = { xs: 24, sm: 24, md: 12, lg: 12, xl: 10, xxl: 8 };
-    const priceGrid3 = { xs: 0, sm: 0, md: 2, lg: 2, xl: 2, xxl: 2 };
-    const priceGrid4 = { xs: 24, sm: 24, md: 22, lg: 22, xl: 22, xxl: 22 };
+    const priceGrid3 = { xs: 1, sm: 1, md: 1, lg: 1, xl: 1, xxl: 1 };
+    const priceGrid4 = { xs: 23, sm: 23, md: 23, lg: 23, xl: 23, xxl: 23 };
 
     return (
       <Spin spinning={payPageLoading}>
@@ -466,18 +502,20 @@ class OrderPay extends Component {
                         </span>
                       </Col>
                     </Row>
-                    {companyType !== '02' && deliveryMode === 'BOCA' && !isNullOrUndefined(bocaFeePax) && (
-                      <Row className={styles.priceCol}>
-                        <Col span={16}>
-                          <span className={styles.priceKeySpan}>BOCA Fee (Before 7% GST):</span>
-                        </Col>
-                        <Col span={8}>
-                          <span className={styles.priceValueSpan}>
-                            {this.getBocaFeeExclude(bocaFeePax, ticketAmount, bocaFeeGst)}
-                          </span>
-                        </Col>
-                      </Row>
-                    )}
+                    {companyType !== '02' &&
+                      deliveryMode === 'BOCA' &&
+                      !isNullOrUndefined(bocaFeePax) && (
+                        <Row className={styles.priceCol}>
+                          <Col span={16}>
+                            <span className={styles.priceKeySpan}>BOCA Fee (Before 7% GST):</span>
+                          </Col>
+                          <Col span={8}>
+                            <span className={styles.priceValueSpan}>
+                              {this.getBocaFeeExclude(bocaFeePax, ticketAmount, bocaFeeGst)}
+                            </span>
+                          </Col>
+                        </Row>
+                      )}
                     <Row className={styles.priceCol2}>
                       <Col span={16}>
                         <span className={styles.priceKeySpan}>Goods & Services Tax (7% GST):</span>
@@ -504,15 +542,22 @@ class OrderPay extends Component {
                 </Row>
               )}
               <Row className={styles.checkOut}>
-                <Col xs={0} md={8} lg={1} className={styles.checkOutCheckBox} />
-                <Col xs={24} md={16} lg={23} className={styles.checkOutBtn}>
+                <Col xs={1} md={1} lg={1} className={styles.checkOutCheckBox} />
+                <Col xs={23} md={23} lg={23} className={styles.checkOutBtn}>
+                <Button
+                    size="large"
+                    htmlType="button"
+                    onClick={() => router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder?operateType=goBack`)}
+                  >
+                    {formatMessage({ id: 'COMMON_BACK' })}
+                  </Button>
                   <Button
                     className={
                       !this.getConfirmEventStatus() ? styles.checkOutButton2 : styles.checkOutButton
                     }
                     htmlType="button"
                     size="large"
-                    onClick={this.confirmEvent}
+                    onClick={this.confirmBooking}
                     disabled={!this.getConfirmEventStatus()}
                   >
                     {companyType !== '02' ? 'Confirm' : 'Submit'}

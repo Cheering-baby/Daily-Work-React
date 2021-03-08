@@ -10,6 +10,7 @@ import {
   queryTask,
   sendTransactionPaymentOrder,
   ticketDownload,
+  createBooking,
 } from '@/pages/TicketManagement/services/bookingAndPay';
 
 import {
@@ -19,6 +20,12 @@ import {
   queryTaInfo,
 } from '@/pages/TicketManagement/services/taMgrService';
 import UAAService from '@/uaa-npm';
+import {
+  transBookingCommonOffers,
+  transBookingToPayTotalPrice,
+  transOapCommonOffers,
+  transPackageCommonOffers,
+} from '@/pages/TicketManagement/utils/orderCartUtil';
 
 export default {
   namespace: 'ticketBookingAndPayMgr',
@@ -349,6 +356,265 @@ export default {
       }
 
       message.error(resultMsg);
+    },
+
+    *orderBooking(_, { call, put, select, take }) {
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: true,
+        },
+      });
+
+      const {
+        deliveryMode,
+        collectionDate,
+        ticketAmount,
+        bocaFeePax,
+        bocaFeeGst,
+        generalTicketOrderData = [],
+        packageOrderData = [],
+        onceAPirateOrderData = [],
+      } = yield select(
+        state => state.ticketBookingAndPayMgr
+      );
+
+      const { cartId, taDetailInfo, subTaDetailInfo, countrys } = yield select(
+        state => state.ticketOrderCartMgr
+      );
+
+      const {
+        userCompanyInfo: { companyType },
+      } = yield select(state => state.global);
+
+      let patronInfo = null;
+
+      if (companyType === '02') {
+        if (subTaDetailInfo) {
+          patronInfo = {
+            firstName: subTaDetailInfo.fullName,
+            lastName: null,
+            phoneNo: null,
+            email: subTaDetailInfo.email,
+            countryCode: subTaDetailInfo.country,
+          };
+        }
+      } else if (
+        taDetailInfo &&
+        taDetailInfo.customerInfo &&
+        taDetailInfo.customerInfo.companyInfo
+      ) {
+        const { contactInfo, companyInfo } = taDetailInfo.customerInfo;
+        patronInfo = {
+          firstName: contactInfo.firstName,
+          lastName: contactInfo.lastName,
+          phoneNo: contactInfo.phone,
+          email: contactInfo.email,
+          countryCode: companyInfo.country,
+        };
+      }
+
+      const countryInfo = countrys.find(
+        countryItem => countryItem.dictId === patronInfo.countryCode
+      );
+      if (countryInfo) {
+        patronInfo.countryCode = countryInfo.dictName;
+      } else {
+        patronInfo.countryCode = 'Singapore';
+      }
+
+      const bookingParam = {
+        customerId: '',
+        commonOffers: [],
+        patronInfo,
+        totalPrice: 0,
+        identificationNo: null,
+        identificationType: null,
+        voucherNos: [],
+        cartId,
+      };
+
+      const packageCommonOffers = transPackageCommonOffers(
+        packageOrderData,
+        collectionDate,
+        deliveryMode
+      );
+      const bookingCommonOffers = transBookingCommonOffers(
+        generalTicketOrderData,
+        collectionDate,
+        deliveryMode
+      );
+      const oapCommonOffers = transOapCommonOffers(
+        onceAPirateOrderData,
+        collectionDate,
+        deliveryMode,
+        patronInfo
+      );
+      bookingParam.commonOffers = [
+        ...packageCommonOffers,
+        ...bookingCommonOffers,
+        ...oapCommonOffers,
+      ];
+      if (deliveryMode && deliveryMode === 'BOCA') {
+        bookingParam.totalPrice += ticketAmount * bocaFeePax;
+        bookingParam.totalPrice = transBookingToPayTotalPrice(
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+          bocaFeePax
+        );
+      } else {
+        bookingParam.totalPrice = transBookingToPayTotalPrice(
+          packageOrderData,
+          generalTicketOrderData,
+          onceAPirateOrderData,
+          null
+        );
+      }
+
+      const { data } = yield call(createBooking, bookingParam);
+      if (data) {
+        const { resultCode, resultMsg, result = {} } = data;
+        if (resultCode === '0') {
+          const { bookingNo } = result;
+          yield put({
+            type: 'queryBookingStatusNext',
+            payload: {
+              bookingNo,
+              deliveryMode,
+              collectionDate,
+              ticketAmount,
+              bocaFeePax,
+              bocaFeeGst,
+              generalTicketOrderData,
+              packageOrderData,
+              onceAPirateOrderData,
+              totalPrice: bookingParam.totalPrice,
+            },
+          });
+          yield take('queryBookingStatusNext/@@end');
+        } else {
+          yield put({
+            type: 'save',
+            payload: {
+              payPageLoading: false,
+              // type: 'Error',
+              // resultMsg,
+            },
+          });
+          message.error(resultMsg);
+        }
+      } else {
+        yield put({
+          type: 'save',
+          payload: {
+            payPageLoading: false,
+            // type: 'Error',
+            // resultMsg: '',
+          },
+        });
+        message.error('createBooking error');
+      }
+    },
+
+    *queryBookingStatusNext({ payload }, { call, put, select }) {
+      const {
+        bookingNo,
+        deliveryMode,
+        collectionDate,
+        ticketAmount,
+        bocaFeePax,
+        bocaFeeGst,
+        generalTicketOrderData,
+        packageOrderData,
+        onceAPirateOrderData,
+        totalPrice,
+      } = payload;
+
+      let status = 'Creating';
+      let statusResult = {};
+      yield put({
+        type: 'save',
+        payload: {
+          bookingNo,
+        },
+      });
+      
+      while (status === 'Creating') {
+        const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
+        const { bookingNo: bookingNoNew } = yield select(state => state.ticketBookingAndPayMgr);
+        if (!bookingNoNew || bookingNo !== bookingNoNew) {
+          return;
+        }
+        const { resultCode: statusResultCode, result: newResult = {} } = statusData;
+        if (statusResultCode === '0') {
+          const { transStatus } = newResult;
+          status = transStatus;
+          statusResult = newResult;
+        } else {
+          status = 'Failed';
+        }
+        if (status === 'Creating') {
+          // if status is still Creating, suspend 5 second.
+          yield call(
+            () =>
+              new Promise(resolve => {
+                setTimeout(() => resolve(), 5000);
+              })
+          );
+        }
+      }
+      yield put({
+        type: 'save',
+        payload: {
+          payPageLoading: false,
+        },
+      });
+      // status: WaitingForPaying
+      if (
+        status === 'WaitingForPaying' ||
+        status === 'PendingApproval' ||
+        status === 'Paying' ||
+        status === 'Archiving'
+      ) {
+        yield put({
+          type: 'ticketBookingAndPayMgr/save',
+          payload: {
+            bookingNo,
+            deliveryMode,
+            collectionDate,
+            ticketAmount,
+            bocaFeePax,
+            bocaFeeGst,
+            generalTicketOrderData,
+            packageOrderData,
+            onceAPirateOrderData,
+            bookDetail: {
+              transStatus: status,
+              totalPrice,
+            },
+          },
+        });
+        return;
+      }
+      // status: Failed
+      if (status === 'Failed') {
+        const { failedReason } = statusResult;
+        yield put({
+          type: 'save',
+          payload: {
+            checkOutLoading: false,
+            type: 'BookingFailed',
+            resultMsg: failedReason,
+          },
+        });
+        Modal.error({
+          title: 'Failed to check out.',
+          content: failedReason,
+        });
+      } else {
+        message.error('Check out error!');
+      }
     },
 
     *confirmEvent(_, { call, put, select }) {
