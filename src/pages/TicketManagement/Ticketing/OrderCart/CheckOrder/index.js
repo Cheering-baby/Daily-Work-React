@@ -62,81 +62,8 @@ class CheckOrder extends Component {
   }
 
   async componentDidMount() {
-    const {
-      dispatch,
-      global: {
-        userCompanyInfo: { companyType },
-      },
-      location: {
-        query: { operateType },
-      },
-    } = this.props;
+    const { dispatch } = this.props;
 
-    if (operateType !== 'goBack') {
-      await dispatch({
-        type: 'ticketOrderCartMgr/resetData',
-      });
-    }
-
-    const {
-      ticketOrderCartMgr: { cartId },
-    } = this.props;
-
-    dispatch({
-      type: 'ticketMgr/fetchQueryAgentOpt',
-      payload: {},
-    });
-    dispatch({
-      type: 'ticketMgr/queryPluAttribute',
-    });
-    dispatch({
-      type: 'ticketMgr/queryTicketConfig',
-    });
-    dispatch({
-      type: 'ticketMgr/queryLanguageEnum',
-    });
-    dispatch({
-      type: 'ticketOrderCartMgr/queryPluAttribute',
-      payload: {
-        attributeItem: 'BOCA_PLU',
-      },
-    });
-    dispatch({
-      type: 'ticketOrderCartMgr/fetchQueryAgentOpt',
-      payload: {},
-    });
-    if (companyType === '02') {
-      dispatch({
-        type: 'ticketOrderCartMgr/fetchQuerySubTaDetail',
-        payload: {},
-      });
-    } else {
-      dispatch({
-        type: 'ticketOrderCartMgr/fetchQueryTaDetail',
-        payload: {},
-      });
-    }
-    if (cartId === null) {
-      dispatch({
-        type: 'ticketOrderCartMgr/createShoppingCart',
-        payload: {},
-      }).then(() => {
-        dispatch({
-          type: 'ticketOrderCartMgr/queryShoppingCart',
-          payload: {},
-        }).then(() => {
-          dispatch({
-            type: 'ticketOrderCartMgr/checkShoppingCart',
-            payload: {},
-          });
-        });
-      });
-    } else {
-      dispatch({
-        type: 'ticketOrderCartMgr/checkShoppingCart',
-        payload: {},
-      });
-    }
     dispatch({
       type: 'ticketOrderCartMgr/save',
       payload: {

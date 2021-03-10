@@ -383,23 +383,10 @@ class PaymentResult extends Component {
                   <Col span={24} className={styles.resultCol}>
                     <span className={styles.resultSpan}>{this.getPaymentResult(bookDetail)}</span>
                   </Col>
-                  {bookDetail && bookDetail.status && bookDetail.status === 'Complete' && (
-                    <Col span={24} className={styles.successMessageCol}>
-                      <div className={styles.successMessage}>
-                        Payment is completed and your order creation is in progress.
-                      </div>
-                      <div className={styles.successMessage}>
-                        You can return later to check your order status under “Query Order”.
-                      </div>
-                      <div className={styles.successMessage}>
-                        If order is unsuccessful after 1 hour, it will be auto refunded.
-                      </div>
-                    </Col>
-                  )}
                 </Row>
                 <Row>
                   {bookDetail.status && (
-                    <Col span={24} className={styles.resultCol} style={{ paddingTop: 40 }}>
+                    <Col span={24} className={styles.resultCol}>
                       <Button className={styles.backButton} onClick={this.backToCartEvent}>
                         Back to Cart
                       </Button>

@@ -615,6 +615,7 @@ export default {
       } else {
         message.error('Check out error!');
       }
+      return status;
     },
 
     *confirmEvent(_, { call, put, select }) {
@@ -820,6 +821,13 @@ export default {
 
       return null;
     },
+
+    *getInitData(_, { select }) {
+      const {
+        userCompanyInfo: { companyType },
+      } = yield select(state => state.global);
+      return { companyType };
+    },
   },
 
   reducers: {
@@ -874,5 +882,33 @@ export default {
     },
   },
 
-  subscriptions: {},
+  subscriptions: {
+    setup({ history, dispatch }) {
+      history.listen(async location => {
+        const { pathname } = location;
+
+        if (pathname === '/TicketManagement/Ticketing/OrderCart/OrderPay') {
+          const { companyType } = await dispatch({
+            type: 'getInitData',
+          });
+
+          if (companyType === '01') {
+            dispatch({
+              type: 'initPage',
+            });
+            dispatch({
+              type: 'fetchAccountDetail',
+            });
+            dispatch({
+              type: 'fetchQueryTaDetail',
+            });
+          }
+        } else {
+          dispatch({
+            type: 'resetData',
+          });
+        }
+      });
+    },
+  },
 };

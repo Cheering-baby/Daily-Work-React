@@ -39,36 +39,6 @@ class OrderPay extends Component {
     };
   }
 
-  componentDidMount() {
-    const {
-      dispatch,
-      global: {
-        userCompanyInfo: { companyType },
-      },
-    } = this.props;
-    if (companyType === '01') {
-      dispatch({
-        type: 'ticketBookingAndPayMgr/initPage',
-        payload: {},
-      });
-      dispatch({
-        type: 'ticketBookingAndPayMgr/fetchAccountDetail',
-        payload: {},
-      });
-      dispatch({
-        type: 'ticketBookingAndPayMgr/fetchQueryTaDetail',
-        payload: {},
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'ticketBookingAndPayMgr/resetData',
-    });
-  }
-
   offerPrice = (products = []) => {
     let totalPrice = 0;
     for (let i = 0; i < products.length; i += 1) {
@@ -110,8 +80,10 @@ class OrderPay extends Component {
 
     dispatch({
       type: 'ticketBookingAndPayMgr/orderBooking'
-    }).then(() => {
-      this.confirmEvent();
+    }).then((status) => {
+      if(status !== 'Failed') {
+        this.confirmEvent();
+      }
     })
 
   };

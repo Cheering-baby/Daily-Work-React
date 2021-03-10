@@ -410,7 +410,7 @@ export default {
           queryPluKey = item.itemValue;
         }
       });
-      if(queryPluKey) {
+      if (queryPluKey) {
         yield put({
           type: 'queryPluListByCondition',
           payload: {
@@ -422,24 +422,24 @@ export default {
           type: 'save',
           payload: {
             bocaFeePax: null,
-            bocaFeeGst: null
+            bocaFeeGst: null,
           },
         });
       }
     },
 
     *queryPluListByCondition({ payload }, { call, put }) {
-      if(payload.queryPluKey === null) {
+      if (payload.queryPluKey === null) {
         yield put({
           type: 'save',
           payload: {
             bocaFeePax: null,
-            bocaFeeGst: null
+            bocaFeeGst: null,
           },
         });
         return true;
       }
-      
+
       yield put({
         type: 'save',
         payload: {
@@ -480,7 +480,6 @@ export default {
     },
 
     *orderCheckOut(_, { put, select }) {
-
       const {
         bocaFeePax,
         bocaFeeGst,
@@ -499,7 +498,7 @@ export default {
         packageOrderData,
         generalTicketOrderData,
         onceAPirateOrderData,
-        true,
+        true
       );
 
       if (deliveryMode && deliveryMode === 'BOCA') {
@@ -556,7 +555,6 @@ export default {
     },
 
     *orderBooking({ payload }, { call, put, select }) {
-
       const {
         deliveryMode,
         collectionDate,
@@ -1091,6 +1089,14 @@ export default {
         settingOnceAPirateOrderDataCallbackFn.setFnCode(batchPullResult);
       }
     },
+
+    *getInitData(_, { select }) {
+      const { cartId = [] } = yield select(state => state.ticketOrderCartMgr);
+      const {
+        userCompanyInfo: { companyType },
+      } = yield select(state => state.global);
+      return { cartId, companyType };
+    },
   },
 
   reducers: {
@@ -1273,5 +1279,69 @@ export default {
     },
   },
 
-  subscriptions: {},
+  subscriptions: {
+    setup({ history, dispatch }) {
+      history.listen(async location => {
+        const {
+          pathname,
+          query: { operateType },
+        } = location;
+
+        if (pathname === '/TicketManagement/Ticketing/OrderCart/CheckOrder') {
+          const { cartId, companyType } = await dispatch({
+            type: 'getInitData',
+          });
+
+          if (operateType !== 'goBack' || cartId === null) {
+            dispatch({
+              type: 'resetData',
+            });
+            dispatch({
+              type: 'ticketMgr/fetchQueryAgentOpt',
+            });
+            dispatch({
+              type: 'ticketMgr/queryTicketConfig',
+            });
+            dispatch({
+              type: 'ticketMgr/queryLanguageEnum',
+            });
+            dispatch({
+              type: 'queryPluAttribute',
+              payload: {
+                attributeItem: 'BOCA_PLU',
+              },
+            });
+            dispatch({
+              type: 'fetchQueryAgentOpt',
+            });
+
+            if (companyType === '02') {
+              dispatch({
+                type: 'ticketOrderCartMgr/fetchQuerySubTaDetail',
+              });
+            } else {
+              dispatch({
+                type: 'ticketOrderCartMgr/fetchQueryTaDetail',
+              });
+            }
+
+            dispatch({
+              type: 'createShoppingCart',
+              payload: {},
+            }).then(() => {
+              dispatch({
+                type: 'queryShoppingCart',
+                payload: {},
+              }).then(() => {
+                dispatch({
+                  type: 'checkShoppingCart',
+                  payload: {},
+                });
+              });
+            });
+          }
+        }
+      });
+    },
+  },
 };
