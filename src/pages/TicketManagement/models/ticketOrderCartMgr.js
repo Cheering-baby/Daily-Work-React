@@ -502,22 +502,21 @@ export default {
       );
 
       if (deliveryMode && deliveryMode === 'BOCA') {
-        totalPrice += ticketAmount * bocaFeePax;
         totalPrice = transBookingToPayTotalPrice(
-          packageOrderData,
-          generalTicketOrderData,
-          onceAPirateOrderData,
+          packageOrderDataNew,
+          generalTicketOrderDataNew,
+          onceAPirateOrderDataNew,
           bocaFeePax
         );
       } else {
         totalPrice = transBookingToPayTotalPrice(
-          packageOrderData,
-          generalTicketOrderData,
-          onceAPirateOrderData,
+          packageOrderDataNew,
+          generalTicketOrderDataNew,
+          onceAPirateOrderDataNew,
           null
         );
       }
-
+      
       yield put({
         type: 'ticketBookingAndPayMgr/save',
         payload: {

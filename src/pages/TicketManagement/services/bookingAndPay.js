@@ -1,11 +1,12 @@
 import UAAService from '@/uaa-npm';
+const mock = 'http://dev-easymock.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/mock/5e854bf1f8436f0020822df9/PAMS'
 
 const dev = 'http://pamsdev.c85eaf0d05d04465a81befded3f4f608b.cn-shenzhen.alicontainer.com/pams';
 const uaaPath = process.env.NODE_ENV === 'development' ? dev : '';
 const localPath = process.env.NODE_ENV === 'development' ? '' : '';
 
 export async function createBooking(params) {
-  return UAAService.request(`${localPath}/b2b/transaction/v1/booking/create`, {
+  return UAAService.request(`${mock}/b2b/transaction/v1/booking/create`, {
     method: 'POST',
     body: {
       ...params,
@@ -15,7 +16,7 @@ export async function createBooking(params) {
 
 export async function queryBookingStatus(params) {
   return UAAService.request(
-    `${localPath}/b2b/transaction/v1/booking/status?bookingNo=${params.bookingNo}`,
+    `${mock}/b2b/transaction/v1/booking/status?bookingNo=${params.bookingNo}`,
     {
       method: 'GET',
       body: {
@@ -37,8 +38,9 @@ export async function queryBookingDetail(params) {
   );
 }
 
+
 export async function paymentOrder(params) {
-  return UAAService.request(`${localPath}/b2b/transaction/v1/payment/transactionPaymentOrder/pay`, {
+  return UAAService.request(`${mock}/b2b/transaction/v1/payment/transactionPaymentOrder/pay`, {
     method: 'POST',
     body: {
       ...params,

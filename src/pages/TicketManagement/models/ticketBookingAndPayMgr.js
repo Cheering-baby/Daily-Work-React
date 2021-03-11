@@ -456,7 +456,6 @@ export default {
         ...oapCommonOffers,
       ];
       if (deliveryMode && deliveryMode === 'BOCA') {
-        bookingParam.totalPrice += ticketAmount * bocaFeePax;
         bookingParam.totalPrice = transBookingToPayTotalPrice(
           packageOrderData,
           generalTicketOrderData,
@@ -478,28 +477,17 @@ export default {
         if (resultCode === '0') {
           const { bookingNo } = result;
           yield put({
-            type: 'queryBookingStatusNext',
+            type: 'ticketBookingAndPayMgr/save',
             payload: {
               bookingNo,
-              deliveryMode,
-              collectionDate,
-              ticketAmount,
-              bocaFeePax,
-              bocaFeeGst,
-              generalTicketOrderData,
-              packageOrderData,
-              onceAPirateOrderData,
-              totalPrice: bookingParam.totalPrice,
             },
           });
-          yield take('queryBookingStatusNext/@@end');
+          return '0';
         } else {
           yield put({
             type: 'save',
             payload: {
               payPageLoading: false,
-              // type: 'Error',
-              // resultMsg,
             },
           });
           message.error(resultMsg);
@@ -509,43 +497,21 @@ export default {
           type: 'save',
           payload: {
             payPageLoading: false,
-            // type: 'Error',
-            // resultMsg: '',
           },
         });
         message.error('createBooking error');
       }
     },
 
-    *queryBookingStatusNext({ payload }, { call, put, select }) {
-      const {
-        bookingNo,
-        deliveryMode,
-        collectionDate,
-        ticketAmount,
-        bocaFeePax,
-        bocaFeeGst,
-        generalTicketOrderData,
-        packageOrderData,
-        onceAPirateOrderData,
-        totalPrice,
-      } = payload;
-
+    *queryBookingStatusNext(_, { call, put, select }) {
+      const { bookingNo } = yield select(state => state.ticketBookingAndPayMgr);
       let status = 'Creating';
       let statusResult = {};
-      yield put({
-        type: 'save',
-        payload: {
-          bookingNo,
-        },
-      });
-      
+
       while (status === 'Creating') {
         const { data: statusData = {} } = yield call(queryBookingStatus, { bookingNo });
-        const { bookingNo: bookingNoNew } = yield select(state => state.ticketBookingAndPayMgr);
-        if (!bookingNoNew || bookingNo !== bookingNoNew) {
-          return;
-        }
+        
+
         const { resultCode: statusResultCode, result: newResult = {} } = statusData;
         if (statusResultCode === '0') {
           const { transStatus } = newResult;
@@ -577,25 +543,7 @@ export default {
         status === 'Paying' ||
         status === 'Archiving'
       ) {
-        yield put({
-          type: 'ticketBookingAndPayMgr/save',
-          payload: {
-            bookingNo,
-            deliveryMode,
-            collectionDate,
-            ticketAmount,
-            bocaFeePax,
-            bocaFeeGst,
-            generalTicketOrderData,
-            packageOrderData,
-            onceAPirateOrderData,
-            bookDetail: {
-              transStatus: status,
-              totalPrice,
-            },
-          },
-        });
-        return;
+        return status;
       }
       // status: Failed
       if (status === 'Failed') {

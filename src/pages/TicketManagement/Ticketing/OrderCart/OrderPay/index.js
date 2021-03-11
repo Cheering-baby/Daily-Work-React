@@ -57,35 +57,54 @@ class OrderPay extends Component {
       global: {
         userCompanyInfo: { companyType },
       },
-      ticketBookingAndPayMgr: { bookingNo, payModeList, accountInfo, bookDetail },
+      ticketBookingAndPayMgr: { bookingNo },
     } = this.props;
-    if (companyType === '01') {
-      confirm({
-        title:
-          'Please note that system will help to hold the order for 30 minutes, make sure to do payment within 30 minutes, otherwise you might need to re-submit a new order.',
-        content: '',
-        className: 'confirmClassName',
-        icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
-        okText: 'Confirm',
-        onOk: this.createBooking,
-        onCancel() {},
-      });
+    if (bookingNo === null) {
+      if (companyType === '01') {
+        confirm({
+          title:
+            'Please note that system will help to hold the order for 30 minutes, make sure to do payment within 30 minutes, otherwise you might need to re-submit a new order.',
+          content: '',
+          className: 'confirmClassName',
+          icon: <Icon type="info-circle" style={{ backgroundColor: '#faad14' }} />,
+          okText: 'Confirm',
+          onOk: this.createBooking,
+          onCancel() {},
+        });
+      } else {
+        this.createBooking();
+      }
     } else {
-      this.createBooking();
+      this.queryBookingStatus();
     }
   };
 
   createBooking = () => {
     const { dispatch } = this.props;
-
     dispatch({
-      type: 'ticketBookingAndPayMgr/orderBooking'
-    }).then((status) => {
-      if(status !== 'Failed') {
-        this.confirmEvent();
+      type: 'ticketBookingAndPayMgr/orderBooking',
+    }).then(resultCode => {
+      console.log(resultCode);
+      if (resultCode === '0') {
+        this.queryBookingStatus();
       }
-    })
+    });
+  };
 
+  queryBookingStatus = () => {
+    const {
+      dispatch,
+      ticketBookingAndPayMgr: { bookingNo },
+    } = this.props;
+    dispatch({
+      type: 'ticketBookingAndPayMgr/queryBookingStatusNext',
+    }).then(status => {
+      if (status === 'WaitingForPaying') {
+        this.confirmEvent();
+      } else {
+        router.push(`/TicketManagement/Ticketing/OrderCart/PaymentResult?orderNo=${bookingNo}`);
+      }
+    });
   };
 
   confirmEvent = () => {
@@ -214,6 +233,8 @@ class OrderPay extends Component {
         null
       );
     }
+
+    console.log(payTotal)
     return Number(payTotal).toFixed(2);
   };
 
@@ -324,6 +345,7 @@ class OrderPay extends Component {
       },
       form,
       ticketBookingAndPayMgr: {
+        bookingNo,
         downloadFileLoading = false,
         payPageLoading = false,
         deliveryMode,
@@ -516,10 +538,16 @@ class OrderPay extends Component {
               <Row className={styles.checkOut}>
                 <Col xs={1} md={1} lg={1} className={styles.checkOutCheckBox} />
                 <Col xs={23} md={23} lg={23} className={styles.checkOutBtn}>
-                <Button
+                  <Button
                     size="large"
                     htmlType="button"
-                    onClick={() => router.push(`/TicketManagement/Ticketing/OrderCart/CheckOrder?operateType=goBack`)}
+                    onClick={() =>
+                      router.push(
+                        `/TicketManagement/Ticketing/OrderCart/CheckOrder${
+                          bookingNo === null ? '?operateType=goBack' : ''
+                        }`
+                      )
+                    }
                   >
                     {formatMessage({ id: 'COMMON_BACK' })}
                   </Button>
