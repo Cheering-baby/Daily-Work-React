@@ -84,7 +84,6 @@ class OrderPay extends Component {
     dispatch({
       type: 'ticketBookingAndPayMgr/orderBooking',
     }).then(resultCode => {
-      console.log(resultCode);
       if (resultCode === '0') {
         this.queryBookingStatus();
       }
@@ -234,7 +233,6 @@ class OrderPay extends Component {
       );
     }
 
-    console.log(payTotal)
     return Number(payTotal).toFixed(2);
   };
 

@@ -6,7 +6,7 @@ const uaaPath = process.env.NODE_ENV === 'development' ? dev : '';
 const localPath = process.env.NODE_ENV === 'development' ? '' : '';
 
 export async function createBooking(params) {
-  return UAAService.request(`${mock}/b2b/transaction/v1/booking/create`, {
+  return UAAService.request(`${localPath}/b2b/transaction/v1/booking/create`, {
     method: 'POST',
     body: {
       ...params,
@@ -16,7 +16,7 @@ export async function createBooking(params) {
 
 export async function queryBookingStatus(params) {
   return UAAService.request(
-    `${mock}/b2b/transaction/v1/booking/status?bookingNo=${params.bookingNo}`,
+    `${localPath}/b2b/transaction/v1/booking/status?bookingNo=${params.bookingNo}`,
     {
       method: 'GET',
       body: {
@@ -40,7 +40,7 @@ export async function queryBookingDetail(params) {
 
 
 export async function paymentOrder(params) {
-  return UAAService.request(`${mock}/b2b/transaction/v1/payment/transactionPaymentOrder/pay`, {
+  return UAAService.request(`${localPath}/b2b/transaction/v1/payment/transactionPaymentOrder/pay`, {
     method: 'POST',
     body: {
       ...params,
