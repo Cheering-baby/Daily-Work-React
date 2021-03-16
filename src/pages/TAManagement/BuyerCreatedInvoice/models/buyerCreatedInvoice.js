@@ -39,6 +39,8 @@ const defaultState = {
     dataList: [],
     columns: [],
   },
+  invoiceDetailModalVisible: false,
+  selectedInvoice: {},
 };
 
 export default {
@@ -52,6 +54,7 @@ export default {
         sortOptions: newSortOptions,
         currentPage,
         pageSize,
+        fileName,
       } = payload;
       const { table, filterOptions, sortOptions } = yield select(
         ({ buyerCreatedInvoice }) => buyerCreatedInvoice
@@ -63,7 +66,7 @@ export default {
       yield put({ type: 'updateState', payload: { filterOptions: filters, sortOptions: sorts } });
       const response = yield call(
         queryBuyerCreatedInvoiceList,
-        transform2ListParams(filters, sorts, current, size)
+        {...transform2ListParams(filters, sorts, current, size), fileName}
       );
       if (!response || !response.data || response.data.resultCode !== '0') return;
       const {
@@ -73,6 +76,7 @@ export default {
         type: 'saveBuyerCreatedInvoiceList',
         payload: { result },
       });
+      return result.taxInvoiceList;
     },
 
     *fetchPreviewOfPdf({ payload }, { call, put }) {

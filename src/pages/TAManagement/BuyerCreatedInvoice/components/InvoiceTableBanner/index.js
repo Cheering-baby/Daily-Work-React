@@ -1,5 +1,6 @@
 import { Button, Card, Col, Empty, Icon, message, Modal, Row, Table, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { connect } from 'dva';
 import MediaQuery from 'react-responsive';
 import { formatMessage } from 'umi/locale';
 import { Document, Page } from 'react-pdf';
@@ -68,21 +69,20 @@ const InvoiceDetailModal = ({
   isMobile,
   dispatch,
   visible,
-  setVisible,
   selectedInvoice,
   previewOfPdfBase64,
   dataList = [],
 }) => {
   const [commissionDetailModalVisible, setCommissionDetailModalVisible] = useState(false);
 
-  useEffect(() => {
-    if (selectedInvoice.id) {
-      dispatch({
-        type: 'buyerCreatedInvoice/fetchPreviewOfPdf',
-        payload: { id: selectedInvoice.id },
-      });
-    }
-  }, [dispatch, selectedInvoice]);
+  // useEffect(() => {
+  //   if (selectedInvoice.id) {
+  //     dispatch({
+  //       type: 'buyerCreatedInvoice/fetchPreviewOfPdf',
+  //       payload: { id: selectedInvoice.id },
+  //     });
+  //   }
+  // }, [dispatch, selectedInvoice]);
 
   const modalWidth = 800;
   return (
@@ -92,7 +92,15 @@ const InvoiceDetailModal = ({
         className={styles.modalDetail}
         visible={visible}
         width={modalWidth}
-        onCancel={() => setVisible(false)}
+        onCancel={() => {
+          dispatch({
+            type: 'buyerCreatedInvoice/updateState',
+            payload: {
+              invoiceDetailModalVisible: false,
+              selectedInvoice: {},
+            },
+          });
+        }}
         footer={
           <div>
             {!isMobile && (
@@ -104,16 +112,18 @@ const InvoiceDetailModal = ({
                 disabled={!previewOfPdfBase64}
               />
             )}
-            <Button
-              type="primary"
-              style={{ width: 80 }}
-              htmlType="button"
-              onClick={() => {
-                setCommissionDetailModalVisible(true);
-              }}
-            >
-              Detail
-            </Button>
+            {!(/(PTU|PTCN)\w+/.test(selectedInvoice.filename)) &&             
+              <Button
+                type="primary"
+                style={{ width: 80 }}
+                htmlType="button"
+                onClick={() => {
+                 setCommissionDetailModalVisible(true);
+                }}
+              >
+                Detail
+              </Button>
+            }
           </div>
         }
       >
@@ -157,14 +167,24 @@ const TableComponent = ({
   dispatch,
   selectedRowKeys,
   setSelectedRowKeys,
+  invoiceDetailModalVisible,
+  selectedInvoice,
   buyerCreatedInvoice: {
     table: { totalSize, pageSize = PAGE_SIZE, currentPage, dataList = [] },
     previewOfPdfBase64,
     commissionTable: { dataList: commissionDataList = [] },
   },
 }) => {
-  const [invoiceDetailModalVisible, setInvoiceDetailModalVisible] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState({});
+  // const [invoiceDetailModalVisible, setInvoiceDetailModalVisible] = useState(false);
+  // const [selectedInvoice, setSelectedInvoice] = useState({});
+
+  // useEffect(() => {
+  //   const invoiceNo = getQueryVariable('invoiceNo');
+    
+  //   if(invoiceNo) {
+  //     setInvoiceDetailModalVisible(true);
+  //   }
+  // }, [])
 
   const columns = [
     {
@@ -205,9 +225,18 @@ const TableComponent = ({
           <Tooltip placement="top" title="View Detail">
             <Icon
               type="eye"
-              onClick={() => {
-                setInvoiceDetailModalVisible(true);
-                setSelectedInvoice(row);
+              onClick={async () => {
+                await dispatch({
+                  type: 'buyerCreatedInvoice/fetchPreviewOfPdf',
+                  payload: { id: row.id },
+                })
+                dispatch({
+                  type: 'buyerCreatedInvoice/updateState',
+                  payload: {
+                    invoiceDetailModalVisible: true,
+                    selectedInvoice: row,
+                  }
+                })
               }}
             />
           </Tooltip>
@@ -276,9 +305,7 @@ const TableComponent = ({
         isMobile={isMobile}
         loading={loading}
         visible={invoiceDetailModalVisible}
-        setVisible={setInvoiceDetailModalVisible}
         selectedInvoice={selectedInvoice}
-        setSelectedInvoice={setSelectedInvoice}
         previewOfPdfBase64={previewOfPdfBase64}
         dataList={commissionDataList}
       />
@@ -343,4 +370,10 @@ const InvoiceTableBanner = props => {
     </>
   );
 };
-export default InvoiceTableBanner;
+
+const mapStateToProps = ({ buyerCreatedInvoice }) => ({
+  invoiceDetailModalVisible: buyerCreatedInvoice.invoiceDetailModalVisible,
+  selectedInvoice: buyerCreatedInvoice.selectedInvoice,
+});
+
+export default connect(mapStateToProps)(InvoiceTableBanner);

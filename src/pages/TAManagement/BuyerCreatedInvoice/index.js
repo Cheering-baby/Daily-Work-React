@@ -22,17 +22,45 @@ const breadcrumbArr = [
 
 const mapStateToProps = ({ buyerCreatedInvoice, loading }) => ({
   buyerCreatedInvoice,
-  loadingFlag: loading.effects['buyerCreatedInvoice/fetchBuyerCreatedInvoiceList'],
+  loadingFlag:
+    loading.effects['buyerCreatedInvoice/fetchBuyerCreatedInvoiceList'] ||
+    loading.effects['buyerCreatedInvoice/fetchPreviewOfPdf'],
   fetchTaNameListLoadingFlag: loading.effects['buyerCreatedInvoice/fetchTaNameList'],
   fetchFixedCommissionListLoadingFlag:
     loading.effects['buyerCreatedInvoice/fetchFixedCommissionList'],
 });
 
 const BuyerCreatedInvoice = props => {
-  const { dispatch, loadingFlag = false, fetchTaNameListLoadingFlag = false } = props;
+  const {
+    dispatch,
+    loadingFlag = false,
+    fetchTaNameListLoadingFlag = false,
+    location: {
+      query: { fileName },
+    },
+  } = props;
   useEffect(() => {
-    dispatch({ type: 'buyerCreatedInvoice/fetchBuyerCreatedInvoiceList' });
-    dispatch({ type: 'buyerCreatedInvoice/fetchTaNameList' });
+    (async function asyncFunction() {
+      dispatch({ type: 'buyerCreatedInvoice/fetchTaNameList' });
+      const taxInvoiceList = await dispatch({
+        type: 'buyerCreatedInvoice/fetchBuyerCreatedInvoiceList',
+        payload: { fileName },
+      });
+      const findTarget = fileName ? taxInvoiceList.find(i => i.filename === fileName) : null;
+      if (findTarget) {
+        await dispatch({
+          type: 'buyerCreatedInvoice/fetchPreviewOfPdf',
+          payload: { id: findTarget.id },
+        });
+        dispatch({
+          type: 'buyerCreatedInvoice/updateState',
+          payload: {
+            invoiceDetailModalVisible: true,
+            selectedInvoice: findTarget,
+          },
+        });
+      }
+    })();
   }, [dispatch]);
 
   const [downloadLoadingFlag, open, close] = useLoading();

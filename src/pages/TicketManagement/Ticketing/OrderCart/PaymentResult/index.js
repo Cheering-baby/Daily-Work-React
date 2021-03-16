@@ -38,6 +38,10 @@ class PaymentResult extends Component {
       },
     } = this.props;
 
+    dispatch({
+      type: 'ticketBookingAndPayMgr/queryBookingTipsMsgConfig'
+    });
+
     if (orderNo) {
       doingQueryFlag = 'doing';
 
@@ -307,6 +311,7 @@ class PaymentResult extends Component {
         downloadFileLoading = false,
         bookDetail = {},
         paymentResultLoading = false,
+        bookingTipMsg,
       },
       location: {
         query: { orderNo, errorCode },
@@ -355,6 +360,13 @@ class PaymentResult extends Component {
                   <Col span={24} className={styles.resultCol}>
                     <span className={styles.resultSpan}>Please wait for processing</span>
                   </Col>
+                  {bookDetail && bookDetail.status && bookDetail.status === 'Archiving' && (
+                    <Col span={24} className={styles.successMessageCol}>
+                      <div className={styles.successMessage}>
+                        {bookingTipMsg}
+                      </div>
+                    </Col>
+                  )}
                 </Row>
                 <Row>
                   <Col span={24} className={styles.resultCol}>
@@ -386,7 +398,7 @@ class PaymentResult extends Component {
                 </Row>
                 <Row>
                   {bookDetail.status && (
-                    <Col span={24} className={styles.resultCol}>
+                    <Col span={24} className={styles.resultCol} style={{ paddingTop: 40 }}>
                       <Button className={styles.backButton} onClick={this.backToCartEvent}>
                         Back to Cart
                       </Button>

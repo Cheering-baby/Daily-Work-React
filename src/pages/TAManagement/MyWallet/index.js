@@ -155,6 +155,16 @@ class MyWallet extends React.PureComponent {
     });
   };
 
+  routeToBCIAndPCC = (invoiceNo) => {
+    const regTest = /(PTU|PTCN)\w+/;
+
+    if(regTest.test(invoiceNo)) {
+      router.push(
+        `/TAManagement/BuyerCreatedInvoice?fileName=${invoiceNo}`
+      );
+    }
+  }
+
   render() {
     const {
       loading,
@@ -242,7 +252,11 @@ class MyWallet extends React.PureComponent {
         render: (text, record) => {
           const invoiceText =
             (record.sourceSystem ? record.sourceInvoiceNo : record.invoiceNo) || '-';
-          return <Tooltip title={invoiceText}>{invoiceText}</Tooltip>;
+          return (
+            <Tooltip title={invoiceText}>
+              <span onClick={() => this.routeToBCIAndPCC(invoiceText)}>{invoiceText}</span>
+            </Tooltip>
+          ) 
         },
         width: 100,
       },
@@ -325,6 +339,7 @@ class MyWallet extends React.PureComponent {
         width: 90,
       },
     ];
+
     const breadcrumbArr = [
       {
         breadcrumbName: formatMessage({ id: 'MENU_TA_MANAGEMENT' }),
@@ -345,6 +360,7 @@ class MyWallet extends React.PureComponent {
       pageSize: pagination.pageSize,
       total: pagination.total,
     };
+
     return (
       <Col lg={24} md={24} id="MyWallet">
         <div id="pageHeaderTitle">

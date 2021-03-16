@@ -157,6 +157,16 @@ class Wallet extends React.PureComponent {
     this.invoice.open(id);
   };
 
+  routeToBCIAndPCC = (invoiceNo) => {
+    const regTest = /(PTU|PTCN)\w+/;
+
+    if(regTest.test(invoiceNo)) {
+      router.push(
+        `/TAManagement/BuyerCreatedInvoice?fileName=${invoiceNo}`
+      );
+    }
+  }
+
   render() {
     const {
       loading,
@@ -245,7 +255,11 @@ class Wallet extends React.PureComponent {
         render: (text, record) => {
           const invoiceText =
             (record.sourceSystem ? record.sourceInvoiceNo : record.invoiceNo) || '-';
-          return <Tooltip title={invoiceText}>{invoiceText}</Tooltip>;
+          return (
+            <Tooltip title={invoiceText}>
+              <span onClick={() => this.routeToBCIAndPCC(invoiceText)}>{invoiceText}</span>
+            </Tooltip>
+          ) 
         },
       },
       {
